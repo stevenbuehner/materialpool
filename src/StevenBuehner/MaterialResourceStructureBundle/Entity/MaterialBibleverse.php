@@ -3,14 +3,15 @@
 namespace StevenBuehner\MaterialResourceStructureBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use StevenBuehner\BibleVerseBundle\Entity\BibleVerse;
 
 /**
  * MaterialKeyword
  *
- * @ORM\Table(name="material_keyword")
- * @ORM\Entity(repositoryClass="StevenBuehner\MaterialResourceStructureBundle\Repository\MaterialKeywordRepository")
+ * @ORM\Table(name="material_bibleverse")
+ * @ORM\Entity()
  */
-class MaterialKeyword {
+class MaterialBibleverse {
 	/**
 	 * @var int
 	 *
@@ -28,22 +29,26 @@ class MaterialKeyword {
 	private $relevance;
 
 	/**
-	 * Many MaterialKeywords belong to one product
+	 * Many MaterialBibleverse belong to one material
 	 *
 	 * @var Material
 	 *
-	 * @ORM\ManyToOne(targetEntity="Material", inversedBy="materialKeywords")
+	 * @ORM\ManyToOne(targetEntity="Material", inversedBy="materialBibleVerses")
 	 */
 	private $material;
 
 	/**
 	 * Many MaterialKeywords belong to one Keyword
 	 *
-	 * @var Keyword
+	 * @var BibleVerse
 	 *
-	 * @ORM\ManyToOne(targetEntity="Keyword", inversedBy="materialKeywords")
+	 * @ORM\ManyToOne(targetEntity="BibleVerse", inversedBy="materialKeywords")
 	 */
-	private $keyword;
+	private $bibleVerse;
+
+	public function __construct() {
+		$this->setRelevance(0);
+	}
 
 	/**
 	 * Get id
@@ -68,7 +73,7 @@ class MaterialKeyword {
 	 *
 	 * @param integer $relevance
 	 *
-	 * @return MaterialKeyword
+	 * @return MaterialBibleverse
 	 */
 	public function setRelevance($relevance) {
 		$this->relevance = $relevance;
@@ -85,6 +90,7 @@ class MaterialKeyword {
 
 	/**
 	 * @param mixed $material
+	 * @return MaterialBibleverse
 	 */
 	public function setMaterial($material) {
 		$this->material = $material;
@@ -93,33 +99,21 @@ class MaterialKeyword {
 	}
 
 	/**
-	 * @return Keyword
+	 * @return BibleVerse
 	 */
-	public function getKeyword() {
-		return $this->keyword;
+	public function getBibleVerse() {
+		return $this->bibleVerse;
 	}
 
 	/**
-	 * @param Keyword $keyword
+	 * @param BibleVerse $bibleVerse
+	 * @return MaterialBibleverse
 	 */
-	public function setKeyword($keyword) {
-		$this->keyword = $keyword;
+	public function setBibleVerse($bibleVerse) {
+		$this->bibleVerse = $bibleVerse;
 
 		return $this;
 	}
 
-	/**
-	 * @return string
-	 */
-	public function getKeywordTitle() {
-		return $this->keyword->getTitle();
-	}
-
-	/**
-	 * @return string
-	 */
-	public function getMaterialTitle() {
-		return $this->material->getTitle();
-	}
 }
 

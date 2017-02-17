@@ -48,7 +48,7 @@ class Keyword {
 	 */
 	private $id;
 	/**
-	 * One Material has many MaterialKeywords
+	 * One Keyword has many MaterialKeywords
 	 *
 	 * @var MaterialKeyword
 	 * @ORM\OneToMany(targetEntity="MaterialKeyword", mappedBy="keyword")
@@ -147,6 +147,8 @@ class Keyword {
 	 */
 	public function setExtraData($extraData) {
 		$this->extraData = $extraData;
+
+		return $this;
 	}
 
 

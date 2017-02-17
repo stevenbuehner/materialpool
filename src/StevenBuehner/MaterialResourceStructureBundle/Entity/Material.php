@@ -74,6 +74,14 @@ class Material {
 	private $materialKeywords;
 
 	/**
+	 * One Material has many MaterialBibleverses
+	 *
+	 * @var MaterialBibleverse
+	 * @ORM\OneToMany(targetEntity="MaterialBibleverse", mappedBy="material")
+	 */
+	private $materialBibleVerses;
+
+	/**
 	 * @var ResourceLimitationInterface
 	 * @ORM\Column(name="ressource_limitation", type="object", nullable=true)
 	 */
@@ -87,7 +95,8 @@ class Material {
 	private $resource;
 
 	public function __construct() {
-		$this->materialKeywords = new ArrayCollection();
+		$this->materialKeywords    = new ArrayCollection();
+		$this->materialBibleVerses = new ArrayCollection();
 	}
 
 	/**
