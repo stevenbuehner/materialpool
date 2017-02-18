@@ -13,6 +13,9 @@ database_user="testuser"
 database_password="testpassword"
 
 server_ip= "192.168.22.10"
+login_username="vagrant"
+apache_run_user=login_username
+apache_run_group=login_username
 
 # Languages, PHP Package and xDebug
 php_timezone          = "UTC"    # http://php.net/manual/en/timezones.php
@@ -23,7 +26,7 @@ enable_xdebug         = "true"   # To disable/enable and install xDebug set this
 Vagrant.configure("2") do |config|
   config.vm.box = "ubuntu/trusty64"
   # config.ssh.private_key_path = "~/.ssh/id_rsa"
-  # config.ssh.username = "vagrant"
+  config.ssh.username = login_username
   config.vm.network "private_network", ip: server_ip
     
   config.vm.provision :shell, path: "~/Sites/vagrant_scripts/increase_swap.sh"
@@ -32,7 +35,7 @@ Vagrant.configure("2") do |config|
   config.vm.provision :shell, path: "~/Sites/vagrant_scripts/setup_mysql_grant_access_to_user.sh", env: {"MYSQL_USER_NAME" => database_user, "MYSQL_USER_PASSWORD" => database_password, "MYSQL_USER_DB" => database_name}
   # config.vm.provision :shell, path: "~/Sites/vagrant_scripts/setup_mysql_import.sh", env: {"MYSQL_DB" => database_name}
   
-  config.vm.provision :shell, path: "~/Sites/vagrant_scripts/install_apache2_php.sh", args: [ php_timezone, php_version, enable_xdebug ]
+  config.vm.provision :shell, path: "~/Sites/vagrant_scripts/install_apache2_php.sh", args: [ php_timezone, php_version, enable_xdebug, apache_run_user, apache_run_group ]
   config.vm.provision :shell, path: "~/Sites/vagrant_scripts/install_composer.sh"
   config.vm.provision :shell, path: "~/Sites/vagrant_scripts/setup_vhost_helper.sh", args: [ "-d", webserver_root, "-s", webserver_name ] 
   
@@ -44,8 +47,5 @@ Vagrant.configure("2") do |config|
 
    config.vm.synced_folder local_share, 
    		remote_share, 
-  		id: "vagrant-www",
-  		owner: "www-data",
-    	group: "www-data",
-   		:mount_options => ["dmode=777"]
+  		id: "vagrant-www"
 end
