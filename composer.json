@@ -22,7 +22,11 @@
         "sensio/distribution-bundle": "^5.0",
         "sensio/framework-extra-bundle": "^3.0.2",
         "incenteev/composer-parameter-handler": "^2.0",
-        "stevenbuehner/bible-verse-bundle": "dev-develop"
+        "stevenbuehner/bible-verse-bundle": "dev-develop",
+        "friendsofsymfony/rest-bundle": "^2.1",
+        "nelmio/cors-bundle": "^1.5",
+        "jms/serializer-bundle" : "^1.1",
+        "stof/doctrine-extensions-bundle": "^1.2"
     },
     "repositories": [{
         "type": "vcs",

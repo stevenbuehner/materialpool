@@ -15,3 +15,10 @@
 /vendor/
 /web/bundles/
 .idea
+.composer
+.cache
+.vagrant
+.bash_history
+.bash_profile
+.viminfo
+.my.cnf
