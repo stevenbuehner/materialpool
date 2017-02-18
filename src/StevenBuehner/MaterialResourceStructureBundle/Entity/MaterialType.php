@@ -10,7 +10,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
  *
  * @Gedmo\Tree(type="nested")
  * @ORM\Table(name="material_typ")
- * @ORM\Entity(repositoryClass="Gedmo\Tree\Entity\Repository\NestedTreeRepository")
+ * @ORM\Entity(repositoryClass="StevenBuehner\MaterialResourceStructureBundle\Repository\MaterialTypeRepository")
  * @see http://symfony.com/doc/master/bundles/StofDoctrineExtensionsBundle/index.html
  */
 class MaterialType {
@@ -58,6 +58,7 @@ class MaterialType {
 	/**
 	 * "level" ausgeschrieben ist ein SQL geschützter Wort :/
 	 *
+	 * @var int
 	 * @Gedmo\TreeLevel
 	 * @ORM\Column(name="lvl", type="integer")
 	 */
@@ -71,6 +72,8 @@ class MaterialType {
 	private $root;
 
 	/**
+	 *
+	 * @var MaterialType|NULL
 	 * @Gedmo\TreeParent
 	 * @ORM\ManyToOne(targetEntity="MaterialType", inversedBy="children")
 	 * @ORM\JoinColumn(name="parent_id", referencedColumnName="id", onDelete="CASCADE")
@@ -160,9 +163,12 @@ class MaterialType {
 
 	/**
 	 * @param int $left
+	 * @return MaterialType
 	 */
 	public function setLeft($left) {
 		$this->left = $left;
+
+		return $this;
 	}
 
 	/**
@@ -174,51 +180,114 @@ class MaterialType {
 
 	/**
 	 * @param int $right
+	 * @return MaterialType
 	 */
 	public function setRight($right) {
 		$this->right = $right;
+
+		return $this;
 	}
 
 	/**
-	 * @return mixed
+	 * @return int
 	 */
 	public function getLevel() {
 		return $this->level;
 	}
 
 	/**
-	 * @param mixed $level
+	 * @param int $level
+	 * @return MaterialType
 	 */
 	public function setLevel($level) {
 		$this->level = $level;
+
+		return $this;
 	}
 
 	/**
-	 * @return mixed
+	 * @return MaterialType|NULL
 	 */
 	public function getRoot() {
 		return $this->root;
 	}
 
 	/**
-	 * @param mixed $root
+	 * @param MaterialType|NULL $root
+	 * @return MaterialType
 	 */
 	public function setRoot($root) {
 		$this->root = $root;
+
+		return $this;
 	}
 
 	/**
-	 * @return mixed
+	 * @return MaterialType|NULL
 	 */
 	public function getParent() {
 		return $this->parent;
 	}
 
 	/**
-	 * @param mixed $parent
+	 * @param MaterialType $parent|NULL
+	 * @return MaterialType
 	 */
 	public function setParent($parent) {
 		$this->parent = $parent;
+
+		return $this;
+	}
+
+	/**
+	 * @return mixed
+	 */
+	public function getChildren() {
+		return $this->children;
+	}
+
+	/**
+	 * @param mixed $children
+	 * @return MaterialType
+	 */
+	public function setChildren($children) {
+		$this->children = $children;
+
+		return $this;
+	}
+
+	/**
+	 * @return mixed
+	 */
+	public function getCreated() {
+		return $this->created;
+	}
+
+	/**
+	 * @param mixed $created
+	 * @return MaterialType
+	 */
+	public function setCreated($created) {
+		$this->created = $created;
+
+		return $this;
+	}
+
+	/**
+	 * @return mixed
+	 */
+	public function getUpdated() {
+		return $this->updated;
+	}
+
+	/**
+	 * @param mixed $updated
+	 * @return MaterialType
+	 */
+	public function setUpdated($updated) {
+		$this->updated = $updated;
+
+		return $this;
 	}
 
 
