@@ -3,7 +3,7 @@
 namespace StevenBuehner\MaterialResourceStructureBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
-use StevenBuehner\BibleVerseBundle\Entity\BibleVerse;
+use StevenBuehner\MaterialResourceStructureBundle\Entity\Bibleverse;
 
 /**
  * MaterialKeyword
@@ -42,9 +42,9 @@ class MaterialBibleverse {
 	 *
 	 * @var BibleVerse
 	 *
-	 * @ORM\ManyToOne(targetEntity="BibleVerse", inversedBy="materialKeywords")
+	 * @ORM\ManyToOne(targetEntity="Bibleverse", inversedBy="materialKeywords")
 	 */
-	private $bibleVerse;
+	private $bibleverse;
 
 	public function __construct() {
 		$this->setRelevance(0);
@@ -101,16 +101,16 @@ class MaterialBibleverse {
 	/**
 	 * @return BibleVerse
 	 */
-	public function getBibleVerse() {
-		return $this->bibleVerse;
+	public function getBibleverse() {
+		return $this->bibleverse;
 	}
 
 	/**
-	 * @param BibleVerse $bibleVerse
+	 * @param BibleVerse $bibleverse
 	 * @return MaterialBibleverse
 	 */
-	public function setBibleVerse($bibleVerse) {
-		$this->bibleVerse = $bibleVerse;
+	public function setBibleverse($bibleverse) {
+		$this->bibleverse = $bibleverse;
 
 		return $this;
 	}

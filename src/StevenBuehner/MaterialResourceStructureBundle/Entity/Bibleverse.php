@@ -3,6 +3,7 @@
 namespace StevenBuehner\MaterialResourceStructureBundle\Entity;
 
 use Doctrine\Common\Collections\ArrayCollection;
+use StevenBuehner\BibleVerseBundle\Entity\BibleVerse as bv;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -12,13 +13,13 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Entity()
  *
  */
-class Bibleverse extends \StevenBuehner\BibleVerseBundle\Entity\BibleVerse {
+class Bibleverse extends bv {
 
 	/**
 	 * One BibleVerse has many MaterialBibleverses
 	 *
 	 * @var MaterialBibleverse
-	 * @ORM\OneToMany(targetEntity="MaterialBibleverse", mappedBy="bibleVerse")
+	 * @ORM\OneToMany(targetEntity="MaterialBibleverse", mappedBy="bibleverse")
 	 */
 	private $materialKeywords;
 
