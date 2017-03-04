@@ -10,7 +10,7 @@ database_password="testpassword"
 
 # Languages, PHP Package and xDebug
 php_timezone          = "UTC"    # http://php.net/manual/en/timezones.php
-php_version           = "5.5"    # Options: 5.5 | (5.6) | 7.1
+php_version           = "7.1"    # Options: 5.5 | (5.6) | 7.1
 enable_xdebug         = "true"   # To disable/enable and install xDebug set this to "false" | "true" (default="false")
 
 
@@ -21,7 +21,7 @@ remote_share="/home/vagrant/share"
 remote_web="/home/vagrant/web"
 
 # Apache Root
-webserver_root="#{remote_web}/web"
+webserver_root="#{remote_web}/public"
 
 # Server / Network / SSH Stuff
 server_ip= "192.168.22.10"
@@ -35,6 +35,7 @@ mysql_root_password="adminpass"
 Vagrant.configure("2") do |config|
   config.vm.box 	= "ubuntu/trusty64"
   config.vm.network "private_network", ip: server_ip  
+  config.ssh.password="vagrant"
     
   config.vm.provision :shell, path: "~/Sites/vagrant_scripts/increase_swap.sh"
   config.vm.provision :shell, path: "~/Sites/vagrant_scripts/install_mysql.sh", env: {"MYSQL_ROOT_PASS" => mysql_root_password, "MYSQL_ROOT_USER" => "root"}
@@ -44,9 +45,10 @@ Vagrant.configure("2") do |config|
   
   config.vm.provision :shell, path: "~/Sites/vagrant_scripts/install_apache2_php.sh", args: [ php_timezone, php_version, enable_xdebug, apache_run_user, apache_run_group ]
   config.vm.provision :shell, path: "~/Sites/vagrant_scripts/install_composer.sh"
+  config.vm.provision :shell, path: "~/Sites/vagrant_scripts/install_composer_global.sh", args: ["laravel/installer"], privileged: false
   config.vm.provision :shell, path: "~/Sites/vagrant_scripts/setup_vhost_helper.sh", args: [ "-d", webserver_root, "-s", webserver_name ] 
   
-  config.vm.provision :shell, path: "~/Sites/vagrant_scripts/setup_terminal_startdir.sh", privileged: false, env: {"START_DIR" => webserver_root}  
+  config.vm.provision :shell, path: "~/Sites/vagrant_scripts/setup_terminal_startdir.sh", privileged: false, env: {"START_DIR" => remote_web}  
 
   config.vm.network :forwarded_port, guest: 80, host: 8000
   config.vm.network :forwarded_port, guest: 3306, host: 33060
