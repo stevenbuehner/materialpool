@@ -8,8 +8,6 @@
 namespace App\RessourceLimitations;
 
 
-use App\Http\RessourceLimitations\RessourceLimitationInterface;
-
 class PageLimitation implements RessourceLimitationInterface {
 
 	/** @var int $start */
@@ -29,9 +27,8 @@ class PageLimitation implements RessourceLimitationInterface {
 		$this->end   = $end;
 	}
 
-
-	public function getLimitationView() {
-		// TODO: Implement getLimitationView() method.
+	function jsonSerialize() {
+		return ['start' => $this->getStart(), 'end' => $this->getEnd()];
 	}
 
 	/**
@@ -60,6 +57,10 @@ class PageLimitation implements RessourceLimitationInterface {
 	 */
 	public function setEnd(int $end) {
 		$this->end = $end;
+	}
+
+	public function getLimitationView() {
+		// TODO: Implement getLimitationView() method.
 	}
 
 }

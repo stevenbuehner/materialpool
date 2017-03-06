@@ -16,7 +16,7 @@ class CreateMaterialsTable extends Migration {
 
 			$table->string('title');
 			$table->text('description');
-			$table->text('boundary')->nullable();
+			$table->text('limitation')->nullable();
 			$table->integer('rating')->nullable();
 			$table->boolean('from_bot');
 

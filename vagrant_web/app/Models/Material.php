@@ -2,11 +2,21 @@
 
 namespace App\Models;
 
+use App\RessourceLimitations\AbstractRessourceLimitation;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * Class Material
+ *
+ * @package App\Models
+ * @property object  $limitation
+ * @property string  $title
+ * @property string  $description
+ * @property int     $rating
+ * @property boolean $from_bot
+ */
 class Material extends Model {
 	protected $casts = [
-		'boundary'    => 'object',
 		'from_bot'    => 'boolean',
 		'description' => 'string'
 	];
@@ -22,6 +32,14 @@ class Material extends Model {
 
 	public function keywords() {
 		return $this->belongsToMany(Keyword::class, 'keyword_material', 'material_id', 'keyword_id');
+	}
+
+	public function setLimitationAttribute(AbstractRessourceLimitation $limitation) {
+		$this->attributes['limitation'] = serialize($limitation);
+	}
+
+	public function getLimitationAttribute($value) {
+		return unserialize($value);
 	}
 
 

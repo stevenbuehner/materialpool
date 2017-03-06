@@ -7,9 +7,6 @@
 
 namespace App\RessourceLimitations;
 
-
-use App\Http\RessourceLimitations\RessourceLimitationInterface;
-
 class AnkerLimitation implements RessourceLimitationInterface {
 
 	/** @var  string $anker */
@@ -19,8 +16,8 @@ class AnkerLimitation implements RessourceLimitationInterface {
 		$this->anker = $anker;
 	}
 
-	public function getLimitationView() {
-		// TODO: Implement getLimitationView() method.
+	function jsonSerialize() {
+		return ['anker' => $this->getAnker()];
 	}
 
 	/**
@@ -35,6 +32,10 @@ class AnkerLimitation implements RessourceLimitationInterface {
 	 */
 	public function setAnker(string $anker) {
 		$this->anker = $anker;
+	}
+
+	public function getLimitationView() {
+		// TODO: Implement getLimitationView() method.
 	}
 
 

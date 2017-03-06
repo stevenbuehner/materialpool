@@ -28,16 +28,21 @@ class ResourceSeeder extends Seeder {
 		factory(Place::class, 5)->create();
 
 		factory(Resource::class, 2)->create()->each(function (Resource $r) {
+			/** @var Material $material */
 			$material = $r->materials()->save(factory(Material::class)->create());
 			$material->keywords()->save(self::getRandomKeyword());
 		});
 
 		factory(AudioFile::class, 5)->create()->each(function ($r) {
 			$material = $r->materials()->save(factory(Material::class)->make());
+			$material->limitation = new \App\RessourceLimitations\TimeLimitation(0, 299);
+			$material->save();
 			$material->keywords()->save(self::getRandomKeyword());
 		});
 		factory(VideoFile::class, 5)->create()->each(function ($r) {
 			$material = $r->materials()->save(factory(Material::class)->make());
+			$material->limitation = new \App\RessourceLimitations\TimeLimitation(0, 299);
+			$material->save();
 			$material->keywords()->save(self::getRandomKeyword());
 		});
 		factory(ImageFile::class, 5)->create()->each(function ($r) {
@@ -46,6 +51,8 @@ class ResourceSeeder extends Seeder {
 		});
 		factory(DocumentFile::class, 5)->create()->each(function ($r) {
 			$material = $r->materials()->save(factory(Material::class)->make());
+			$material->limitation = new \App\RessourceLimitations\PageLimitation(5, 10);
+			$material->save();
 			$material->keywords()->save(self::getRandomKeyword());
 		});
 
