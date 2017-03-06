@@ -11,8 +11,20 @@
 |
 */
 
+use App\Models\AudioFile;
+use App\Models\DocumentFile;
+use App\Models\ImageFile;
+use App\Models\Keyword;
+use App\Models\Language;
+use App\Models\Material;
+use App\Models\Person;
+use App\Models\Place;
+use App\Models\Resource;
+use App\Models\User;
+use App\Models\VideoFile;
+
 /** @var \Illuminate\Database\Eloquent\Factory $factory */
-$factory->define(App\User::class, function (Faker\Generator $faker) {
+$factory->define(User::class, function (Faker\Generator $faker) {
 	static $password;
 
 	return [
@@ -23,8 +35,7 @@ $factory->define(App\User::class, function (Faker\Generator $faker) {
 	];
 });
 
-$factory->define(\App\Material::class, function (Faker\Generator $faker) {
-	static $password;
+$factory->define(Material::class, function (Faker\Generator $faker) {
 
 	return [
 		'title'       => $faker->title,
@@ -34,58 +45,88 @@ $factory->define(\App\Material::class, function (Faker\Generator $faker) {
 });
 
 
-$factory->define(\App\Resource::class, function (Faker\Generator $faker) {
-	static $password;
+$factory->define(Resource::class, function (Faker\Generator $faker) {
+	static $secret;
 
 	return [
 		'path'         => 'some/file/path',
-		'content_hash' => sha1('secret'),
+		'content_hash' => $secret ?: $secret = sha1('secret'),
 		'notes'        => $faker->sentences(3, TRUE),
 		'is_public'    => $faker->boolean()
 	];
 });
 
-$factory->define(\App\AudioFile::class, function (Faker\Generator $faker) {
-	static $password;
+$factory->define(AudioFile::class, function (Faker\Generator $faker) {
+	static $secret;
 
 	return [
 		'path'         => 'some/file/path',
-		'content_hash' => sha1('secret'),
+		'content_hash' => $secret ?: $secret = sha1('secret'),
 		'notes'        => $faker->sentences(3, TRUE),
 		'is_public'    => $faker->boolean()
 
 	];
 });
 
-$factory->define(\App\VideoFile::class, function (Faker\Generator $faker) {
-	static $password;
+$factory->define(VideoFile::class, function (Faker\Generator $faker) {
+	static $secret;
 
 	return [
 		'path'         => 'some/file/path',
-		'content_hash' => sha1('secret'),
+		'content_hash' => $secret ?: $secret = sha1('secret'),
 		'notes'        => $faker->sentences(3, TRUE),
 		'is_public'    => $faker->boolean()
 	];
 });
 
-$factory->define(\App\ImageFile::class, function (Faker\Generator $faker) {
-	static $password;
+$factory->define(ImageFile::class, function (Faker\Generator $faker) {
+	static $secret;
 
 	return [
 		'path'         => 'some/file/path',
-		'content_hash' => sha1('secret'),
+		'content_hash' => $secret ?: $secret = sha1('secret'),
 		'notes'        => $faker->sentences(3, TRUE),
 		'is_public'    => $faker->boolean()
 	];
 });
 
-$factory->define(\App\DocumentFile::class, function (Faker\Generator $faker) {
-	static $password;
+$factory->define(DocumentFile::class, function (Faker\Generator $faker) {
+	static $secret;
 
 	return [
 		'path'         => 'some/file/path',
-		'content_hash' => sha1('secret'),
+		'content_hash' => $secret ?: $secret = sha1('secret'),
 		'notes'        => $faker->sentences(3, TRUE),
 		'is_public'    => $faker->boolean()
+	];
+});
+
+
+$factory->define(Keyword::class, function (Faker\Generator $faker) {
+	return [
+		'title' => $faker->unique()->word,
+		'type'  => 'key'
+	];
+});
+
+$factory->define(Person::class, function (Faker\Generator $faker) {
+	return [
+		'title' => $faker->unique()->name,
+		'type'  => 'person'
+	];
+});
+
+$factory->define(Language::class, function (Faker\Generator $faker) {
+	return [
+		'title' => $faker->unique()->languageCode,
+		'type'  => 'lang'
+	];
+});
+
+
+$factory->define(Place::class, function (Faker\Generator $faker) {
+	return [
+		'title' => $faker->unique()->city,
+		'type'  => 'place'
 	];
 });

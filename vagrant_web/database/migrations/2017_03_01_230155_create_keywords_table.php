@@ -19,6 +19,9 @@ class CreateKeywordsTable extends Migration {
 			$table->string('type');
 			NestedSet::columns($table);
 
+			$table->unique(['title', 'type']);
+			$table->index('title');
+
 			$table->timestamps();
 		});
 
@@ -27,7 +30,7 @@ class CreateKeywordsTable extends Migration {
 
 			$table->integer('material_id');
 			$table->integer('keyword_id');
-			$table->primary('material_id', 'keyword_id');
+			$table->primary(['material_id', 'keyword_id']);
 
 		});
 	}

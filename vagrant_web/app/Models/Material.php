@@ -17,8 +17,11 @@ class Material extends Model {
 	];
 
 	public function resources() {
-
 		return $this->belongsToMany(Resource::class, 'material_resource', 'material_id', 'resource_id');
+	}
+
+	public function keywords() {
+		return $this->belongsToMany(Keyword::class, 'keyword_material', 'material_id', 'keyword_id');
 	}
 
 

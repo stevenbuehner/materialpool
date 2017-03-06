@@ -16,6 +16,7 @@ use Nanigans\SingleTableInheritance\SingleTableInheritanceTrait;
 class Resource extends Model {
 	use SingleTableInheritanceTrait;
 
+	static           $allResourceTypeKeys   = ['res', 'link', 'file', 'text', 'book', 'audio', 'video', 'image', 'doc'];
 	protected static $singleTableTypeField  = 'type';
 	protected static $singleTableSubclasses = [Url::class, File::class, Text::class, Book::class];
 	protected static $singleTableType       = 'res';

@@ -11,8 +11,5 @@ class DatabaseSeeder extends Seeder {
 	public function run() {
 		// $this->call(UsersTableSeeder::class);
 		$this->call(\ResourceSeeder::class);
-
-		$mat = new \App\Models\Material();
-		$mat->title = 'Testtitle';
 	}
 }
