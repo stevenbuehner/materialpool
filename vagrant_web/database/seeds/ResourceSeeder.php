@@ -34,26 +34,26 @@ class ResourceSeeder extends Seeder {
 		});
 
 		factory(AudioFile::class, 5)->create()->each(function ($r) {
-			$material = $r->materials()->save(factory(Material::class)->make());
+			$material             = $r->materials()->save(factory(Material::class)->make());
 			$material->limitation = new \App\ResourceLimitations\TimeLimitation(0, 299);
 			$material->save();
-			$material->keywords()->save(self::getRandomKeyword());
+			$material->keywords()->save(self::getRandomKeyword(), ['rating' => rand(0, 255)]);
 		});
 		factory(VideoFile::class, 5)->create()->each(function ($r) {
-			$material = $r->materials()->save(factory(Material::class)->make());
+			$material             = $r->materials()->save(factory(Material::class)->make());
 			$material->limitation = new \App\ResourceLimitations\TimeLimitation(0, 299);
 			$material->save();
-			$material->keywords()->save(self::getRandomKeyword());
+			$material->keywords()->save(self::getRandomKeyword(), ['rating' => rand(0, 255)]);
 		});
 		factory(ImageFile::class, 5)->create()->each(function ($r) {
 			$material = $r->materials()->save(factory(Material::class)->make());
-			$material->keywords()->save(self::getRandomKeyword());
+			$material->keywords()->save(self::getRandomKeyword(), ['rating' => rand(0, 255)]);
 		});
 		factory(DocumentFile::class, 5)->create()->each(function ($r) {
-			$material = $r->materials()->save(factory(Material::class)->make());
+			$material             = $r->materials()->save(factory(Material::class)->make());
 			$material->limitation = new \App\ResourceLimitations\PageLimitation(5, 10);
 			$material->save();
-			$material->keywords()->save(self::getRandomKeyword());
+			$material->keywords()->save(self::getRandomKeyword(), ['rating' => rand(0, 255)]);
 		});
 
 	}

@@ -32,7 +32,27 @@ class Material extends Model {
 	}
 
 	public function keywords() {
-		return $this->belongsToMany(Keyword::class, 'keyword_material', 'material_id', 'keyword_id');
+		return $this->keyWordClassAndChildren(Keyword::class);
+	}
+
+	protected function keyWordClassAndChildren($class) {
+		return $this->belongsToMany($class, 'keyword_material', 'material_id', 'keyword_id');
+	}
+
+	public function persons() {
+		return $this->keyWordClassAndChildren(Person::class);
+	}
+
+	public function languages() {
+		return $this->keyWordClassAndChildren(Language::class);
+	}
+
+	public function tags() {
+		return $this->keyWordClassAndChildren(Tag::class);
+	}
+
+	public function places() {
+		return $this->keyWordClassAndChildren(Place::class);
 	}
 
 	public function setLimitationAttribute(ResourceLimitationInterface $limitation) {

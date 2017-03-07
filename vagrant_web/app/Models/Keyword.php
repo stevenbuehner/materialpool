@@ -19,7 +19,7 @@ class Keyword extends Model {
 	*/
 	protected static $singleTableTypeField  = 'type';
 	protected static $singleTableType       = 'key';
-	protected static $singleTableSubclasses = [Person::class, Place::class, Language::class];
+	protected static $singleTableSubclasses = [Person::class, Place::class, Language::class, Tag::class];
 	public           $timestamps            = TRUE;
 	// protected $primaryKey = 'id';
 	// protected $guarded = [];
