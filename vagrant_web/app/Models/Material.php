@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use App\RessourceLimitations\AbstractRessourceLimitation;
+use App\ResourceLimitations\ResourceLimitationInterface;
 use Illuminate\Database\Eloquent\Model;
 
 /**
@@ -18,7 +18,8 @@ use Illuminate\Database\Eloquent\Model;
 class Material extends Model {
 	protected $casts = [
 		'from_bot'    => 'boolean',
-		'description' => 'string'
+		'description' => 'string',
+		'limitation'  => 'object'
 	];
 
 	protected $attributes = [
@@ -34,7 +35,7 @@ class Material extends Model {
 		return $this->belongsToMany(Keyword::class, 'keyword_material', 'material_id', 'keyword_id');
 	}
 
-	public function setLimitationAttribute(AbstractRessourceLimitation $limitation) {
+	public function setLimitationAttribute(ResourceLimitationInterface $limitation) {
 		$this->attributes['limitation'] = serialize($limitation);
 	}
 

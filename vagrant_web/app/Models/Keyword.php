@@ -19,7 +19,7 @@ class Keyword extends Model {
 	*/
 	protected static $singleTableTypeField  = 'type';
 	protected static $singleTableType       = 'key';
-	protected static $singleTableSubClasses = [Person::class, Place::class, Language::class];
+	protected static $singleTableSubclasses = [Person::class, Place::class, Language::class];
 	public           $timestamps            = TRUE;
 	// protected $primaryKey = 'id';
 	// protected $guarded = [];
@@ -58,7 +58,7 @@ class Keyword extends Model {
 	*/
 
 	public function materials() {
-		return $this->belongsToMany(Material::class, 'material_id', 'keyword_material', 'keyword_id');
+		return $this->belongsToMany(Material::class, 'keyword_material', 'material_id', 'keyword_id');
 	}
 
 	/*

@@ -5,9 +5,9 @@
  * All Rights reserved. No usage without written permission allowed.
  */
 
-namespace App\RessourceLimitations;
+namespace App\ResourceLimitations;
 
-class AnkerLimitation implements RessourceLimitationInterface {
+class AnkerLimitation implements ResourceLimitationInterface {
 
 	/** @var  string $anker */
 	protected $anker = '';
@@ -39,4 +39,8 @@ class AnkerLimitation implements RessourceLimitationInterface {
 	}
 
 
+	/** @return array */
+	public function toArray() {
+		return ['anker' => $this->getAnker()];
+	}
 }

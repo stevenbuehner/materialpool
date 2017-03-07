@@ -5,9 +5,9 @@
  * All Rights reserved. No usage without written permission allowed.
  */
 
-namespace App\RessourceLimitations;
+namespace App\ResourceLimitations;
 
-class TimeLimitation implements RessourceLimitationInterface {
+class TimeLimitation implements ResourceLimitationInterface {
 
 	/** @var float $start */
 	protected $start = 0;
@@ -69,5 +69,10 @@ class TimeLimitation implements RessourceLimitationInterface {
 	 */
 	public function setEnd(float $end) {
 		$this->end = $end;
+	}
+
+	/** @return array */
+	public function toArray() {
+		return ['start' => $this->getStart(), 'end' => $this->getEnd()];
 	}
 }

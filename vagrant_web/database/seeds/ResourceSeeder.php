@@ -35,13 +35,13 @@ class ResourceSeeder extends Seeder {
 
 		factory(AudioFile::class, 5)->create()->each(function ($r) {
 			$material = $r->materials()->save(factory(Material::class)->make());
-			$material->limitation = new \App\RessourceLimitations\TimeLimitation(0, 299);
+			$material->limitation = new \App\ResourceLimitations\TimeLimitation(0, 299);
 			$material->save();
 			$material->keywords()->save(self::getRandomKeyword());
 		});
 		factory(VideoFile::class, 5)->create()->each(function ($r) {
 			$material = $r->materials()->save(factory(Material::class)->make());
-			$material->limitation = new \App\RessourceLimitations\TimeLimitation(0, 299);
+			$material->limitation = new \App\ResourceLimitations\TimeLimitation(0, 299);
 			$material->save();
 			$material->keywords()->save(self::getRandomKeyword());
 		});
@@ -51,11 +51,10 @@ class ResourceSeeder extends Seeder {
 		});
 		factory(DocumentFile::class, 5)->create()->each(function ($r) {
 			$material = $r->materials()->save(factory(Material::class)->make());
-			$material->limitation = new \App\RessourceLimitations\PageLimitation(5, 10);
+			$material->limitation = new \App\ResourceLimitations\PageLimitation(5, 10);
 			$material->save();
 			$material->keywords()->save(self::getRandomKeyword());
 		});
-
 
 	}
 

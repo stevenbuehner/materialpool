@@ -5,10 +5,10 @@
  * All Rights reserved. No usage without written permission allowed.
  */
 
-namespace App\RessourceLimitations;
+namespace App\ResourceLimitations;
 
 
-class PageLimitation implements RessourceLimitationInterface {
+class PageLimitation implements ResourceLimitationInterface {
 
 	/** @var int $start */
 	protected $start = 0;
@@ -63,4 +63,8 @@ class PageLimitation implements RessourceLimitationInterface {
 		// TODO: Implement getLimitationView() method.
 	}
 
+	/** @return array */
+	public function toArray() {
+		return ['start' => $this->getStart(), 'end' => $this->getEnd()];
+	}
 }
