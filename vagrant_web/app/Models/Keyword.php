@@ -78,4 +78,12 @@ class Keyword extends Model {
 	| MUTATORS
 	|--------------------------------------------------------------------------
 	*/
+
+	/**
+	 * @param string $value
+	 */
+	public function setTitleAttribute(string $value) {
+		$this->attributes['title']    = $value;
+		$this->attributes['lc_title'] = str_replace(' ', '_', trim(strtolower($value)));
+	}
 }

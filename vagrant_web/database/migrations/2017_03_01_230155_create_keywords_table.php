@@ -16,11 +16,13 @@ class CreateKeywordsTable extends Migration {
 			$table->increments('id');
 
 			$table->string('title');
+			$table->string('lc_title');
 			$table->string('type');
 			NestedSet::columns($table);
 
-			$table->unique(['title', 'type']);
+			$table->unique(['lc_title', 'type']);
 			$table->index('title');
+			$table->index('lc_title');
 
 			$table->timestamps();
 		});

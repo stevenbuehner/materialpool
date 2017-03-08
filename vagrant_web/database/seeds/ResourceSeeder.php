@@ -2,6 +2,8 @@
 
 use App\Models\AudioFile;
 use App\Models\DocumentFile;
+use App\Models\ForeignInstance;
+use App\Models\ForeignResourceKey;
 use App\Models\ImageFile;
 use App\Models\Keyword;
 use App\Models\Language;
@@ -26,6 +28,7 @@ class ResourceSeeder extends Seeder {
 		factory(Person::class, 5)->create();
 		factory(Language::class, 5)->create();
 		factory(Place::class, 5)->create();
+		factory(ForeignInstance::class, 3)->create();
 
 		factory(Resource::class, 2)->create()->each(function (Resource $r) {
 			/** @var Material $material */
@@ -56,11 +59,32 @@ class ResourceSeeder extends Seeder {
 			$material->keywords()->save(self::getRandomKeyword(), ['rating' => rand(0, 255)]);
 		});
 
+
+		Resource::all()->each(function (Resource $r) {
+			$fi = self::getRandomForeignInstance();
+
+			$remoteKey                      = new ForeignResourceKey();
+			$remoteKey->resource_id         = $r->id;
+			$remoteKey->foreign_instance_id = $fi->id;
+			$remoteKey->remote_id           = rand(1, 999999);
+
+			$remoteKey->save();
+		});
+
 	}
 
 	static function getRandomKeyword() {
 		$kw = Keyword::orderByRaw('RAND()')->take(1)->first();;
 
 		return $kw;
+	}
+
+	/**
+	 * @return ForeignInstance
+	 */
+	static function getRandomForeignInstance() {
+		$fi = ForeignInstance::orderByRaw('RAND()')->take(1)->first();;
+
+		return $fi;
 	}
 }

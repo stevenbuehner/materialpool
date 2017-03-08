@@ -13,6 +13,7 @@
 
 use App\Models\AudioFile;
 use App\Models\DocumentFile;
+use App\Models\ForeignInstance;
 use App\Models\ImageFile;
 use App\Models\Keyword;
 use App\Models\Language;
@@ -49,7 +50,8 @@ $factory->define(Resource::class, function (Faker\Generator $faker) {
 	static $secret;
 
 	return [
-		'path'         => 'some/file/path',
+		'remote_path'  => 'https://www.allmystery.de/static/upics/942586_handy.jpg',
+		'local_path'   => 'some/file/path',
 		'content_hash' => $secret ?: $secret = sha1('secret'),
 		'notes'        => $faker->sentences(3, TRUE),
 		'is_public'    => $faker->boolean()
@@ -60,7 +62,8 @@ $factory->define(AudioFile::class, function (Faker\Generator $faker) {
 	static $secret;
 
 	return [
-		'path'         => 'some/file/path',
+		'remote_path'  => 'http://some/file/path',
+		'local_path'   => 'some/file/path',
 		'content_hash' => $secret ?: $secret = sha1('secret'),
 		'notes'        => $faker->sentences(3, TRUE),
 		'is_public'    => $faker->boolean()
@@ -72,10 +75,10 @@ $factory->define(VideoFile::class, function (Faker\Generator $faker) {
 	static $secret;
 
 	return [
-		'path'         => 'some/file/path',
-		'content_hash' => $secret ?: $secret = sha1('secret'),
-		'notes'        => $faker->sentences(3, TRUE),
-		'is_public'    => $faker->boolean()
+		'remote_path' => 'http://some/file/path',
+		'local_path'  => 'some/file/path', 'content_hash' => $secret ?: $secret = sha1('secret'),
+		'notes'       => $faker->sentences(3, TRUE),
+		'is_public'   => $faker->boolean()
 	];
 });
 
@@ -83,10 +86,10 @@ $factory->define(ImageFile::class, function (Faker\Generator $faker) {
 	static $secret;
 
 	return [
-		'path'         => 'some/file/path',
-		'content_hash' => $secret ?: $secret = sha1('secret'),
-		'notes'        => $faker->sentences(3, TRUE),
-		'is_public'    => $faker->boolean()
+		'remote_path' => 'https://www.allmystery.de/static/upics/942586_handy.jpg',
+		'local_path'  => 'some/file/path', 'content_hash' => $secret ?: $secret = sha1('secret'),
+		'notes'       => $faker->sentences(3, TRUE),
+		'is_public'   => $faker->boolean()
 	];
 });
 
@@ -94,10 +97,10 @@ $factory->define(DocumentFile::class, function (Faker\Generator $faker) {
 	static $secret;
 
 	return [
-		'path'         => 'some/file/path',
-		'content_hash' => $secret ?: $secret = sha1('secret'),
-		'notes'        => $faker->sentences(3, TRUE),
-		'is_public'    => $faker->boolean()
+		'remote_path' => 'http://some/file/path',
+		'local_path'  => 'some/file/path', 'content_hash' => $secret ?: $secret = sha1('secret'),
+		'notes'       => $faker->sentences(3, TRUE),
+		'is_public'   => $faker->boolean()
 	];
 });
 
@@ -123,10 +126,19 @@ $factory->define(Language::class, function (Faker\Generator $faker) {
 	];
 });
 
-
 $factory->define(Place::class, function (Faker\Generator $faker) {
 	return [
 		'title' => $faker->unique()->city,
 		'type'  => 'place'
 	];
 });
+
+
+$factory->define(ForeignInstance::class, function (Faker\Generator $faker) {
+	return [
+		'name'    => $faker->unique()->name,
+		'api_key' => preg_replace('~\.|\s|!\?~', '', $faker->unique()->text(50)),
+		'info'    => $faker->sentences(1, TRUE)
+	];
+});
+
