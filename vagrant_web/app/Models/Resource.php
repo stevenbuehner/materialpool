@@ -9,8 +9,9 @@ use Nanigans\SingleTableInheritance\SingleTableInheritanceTrait;
  * Class Resource
  *
  * @package App
+ * @property string $remote_path
+ * @property string $local_path
  * @property string $content_hash
- * @property string $path
  * @property string $notes
  */
 class Resource extends Model {
@@ -40,6 +41,7 @@ class Resource extends Model {
 	public function materials() {
 		return $this->belongsToMany(Material::class, 'material_resource', 'resource_id', 'material_id');
 	}
+
 
 
 }

@@ -11,12 +11,16 @@
 |
 */
 
+// use \Illuminate\Routing\Route;
+
 Route::get('/', function () {
-    return view('welcome');
+	return view('welcome');
 });
 
 
 Route::get('/resource', 'ResourceController@index');
+
+Route::get('/keyword/{keyword}', 'KeywordController@show')->name('keyword');
 
 
 // Admin Interface Routes

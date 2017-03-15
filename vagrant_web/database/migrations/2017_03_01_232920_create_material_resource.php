@@ -15,7 +15,7 @@ class CreateMaterialResource extends Migration {
 
 			$table->integer('material_id');
 			$table->integer('resource_id');
-			$table->primary('material_id', 'resource_id');
+			$table->primary(['material_id', 'resource_id']);
 
 		});
 	}

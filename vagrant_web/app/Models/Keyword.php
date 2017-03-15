@@ -33,6 +33,45 @@ class Keyword extends Model {
 	|--------------------------------------------------------------------------
 	*/
 
+	public function getRouteKeyName() {
+		return 'lc_title';
+	}
+
+	/**
+	 * Get the node siblings and the node itself.
+	 *
+	 * @return \Kalnoy\Nestedset\QueryBuilder
+	 */
+	public function childrenAndSelf() {
+		return $this->newScopedQuery()
+					->where($this->getParentIdName(), '=', $this->getParentId());
+	}
+
+	/*
+	|--------------------------------------------------------------------------
+	| RELATIONS
+	|--------------------------------------------------------------------------
+	*/
+
+	public function materials() {
+		return $this->belongsToMany(Material::class, 'keyword_material', 'keyword_id', 'material_id');
+	}
+
+	/**
+	 * @return \Illuminate\Database\Eloquent\Builder
+	 */
+	public function descendantMaterials() {
+
+		$query = Material::query();
+		$query->select('materials.*')->distinct()->from($this->getTable())
+			  ->whereBetween(self::getLftName(), [$this->getLft(), $this->getRgt()])
+			  ->whereIn('keywords.type', $this->getSingleTableTypes())
+			  ->join('keyword_material', 'keyword_material.keyword_id', '=', $this->getTable() . '.id')
+			  ->join('materials', 'keyword_material.material_id', '=', 'materials.id');
+
+
+		return $query;
+	}
 
 	/**
 	 * Override this model to make shure, that GLOBAL-Scopes are not applied
@@ -49,16 +88,6 @@ class Keyword extends Model {
 			: $this->newQueryWithoutScopes();
 
 		return $this->applyNestedSetScope($builder, $table);
-	}
-
-	/*
-	|--------------------------------------------------------------------------
-	| RELATIONS
-	|--------------------------------------------------------------------------
-	*/
-
-	public function materials() {
-		return $this->belongsToMany(Material::class, 'keyword_material', 'material_id', 'keyword_id');
 	}
 
 	/*

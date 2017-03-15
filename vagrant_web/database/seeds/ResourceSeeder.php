@@ -24,16 +24,19 @@ class ResourceSeeder extends Seeder {
 	 */
 	public function run() {
 
+		$tesKw = Keyword::firstOrCreate(['title' => 'Test']);
+		$tesKw->save();
+
 		factory(Keyword::class, 5)->create();
 		factory(Person::class, 5)->create();
 		factory(Language::class, 5)->create();
 		factory(Place::class, 5)->create();
 		factory(ForeignInstance::class, 3)->create();
 
-		factory(Resource::class, 2)->create()->each(function (Resource $r) {
+		factory(Resource::class, 2)->create()->each(function (Resource $r) use ($tesKw) {
 			/** @var Material $material */
 			$material = $r->materials()->save(factory(Material::class)->create());
-			$material->keywords()->save(self::getRandomKeyword());
+			$material->keywords()->save($tesKw);
 		});
 
 		factory(AudioFile::class, 5)->create()->each(function ($r) {
