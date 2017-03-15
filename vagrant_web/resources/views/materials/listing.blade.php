@@ -2,9 +2,11 @@
 
 @section('content')
 
-    @foreach($keywords as $k)
-        @include('keywords.linked', ['keyword' => $k])
-    @endforeach
+    <p>@lang('Keywords included in search:')
+        @foreach($keywords as $k)
+            @include('keywords.linked', ['keyword' => $k])
+        @endforeach
+    </p>
 
     <hr>
 
@@ -19,7 +21,7 @@
                 <div class="card-block">
                     <h3 class="card-title">{{ $m->title }}</h3>
                     <p class="card-text">{{ $m->description }}</p>
-                    <a href="#" class="btn btn-primary">Open</a>
+                    <a href="#" class="btn btn-primary">@lang('Open material')</a>
                 </div>
 
                 @if(count($m->keywords))
