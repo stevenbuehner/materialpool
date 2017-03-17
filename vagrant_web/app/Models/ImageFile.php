@@ -8,6 +8,13 @@ class ImageFile extends File implements PreviewableInterface {
 
 	protected static $singleTableType = 'image';
 
+	public static function getValidationRules() {
+		$rules         = parent::getValidationRules();
+		$rules['file'] = 'required|file|image';
+
+		return $rules;
+	}
+
 	/**
 	 * Returns false if no Preview is available.
 	 * If no preview exists this function will generate the preview.

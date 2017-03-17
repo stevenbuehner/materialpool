@@ -29,5 +29,12 @@ class AppServiceProvider extends ServiceProvider {
 			// $this->app->register('Laracasts\Generators\GeneratorsServiceProvider'); // you're using Jeffrey way's generators, too, right?
 			$this->app->register('Backpack\Generators\GeneratorsServiceProvider');
 		}
+
+
+		if ($this->app->environment() == 'local') {
+			$this->app->register('Barryvdh\Debugbar\ServiceProvider');
+
+			$this->app->alias('Barryvdh\Debugbar\Facade', 'Debugbar');
+		}
 	}
 }

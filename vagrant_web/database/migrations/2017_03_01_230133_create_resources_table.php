@@ -18,7 +18,7 @@ class CreateResourcesTable extends Migration
 
             $table->string('remote_path')->nullable();
             $table->string('local_path')->nullable();
-            $table->text('notes');
+            $table->text('notes')->nullable();
             $table->text('options');
             $table->boolean('is_public');
             $table->string('content_hash')->nullable();

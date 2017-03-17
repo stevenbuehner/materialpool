@@ -22,6 +22,10 @@
                     <h3 class="card-title">{{ $m->title }}</h3>
                     <p class="card-text">{{ $m->description }}</p>
                     <a href="#" class="btn btn-primary">@lang('Open material')</a>
+                    <div>
+                        <small>{{ $m->created_at->diffForHumans() }}</small>
+                    </div>
+
                 </div>
 
                 @if(count($m->keywords))
@@ -31,6 +35,7 @@
                         @endforeach
                     </div>
                 @endif
+
 
             </div>
         @endforeach

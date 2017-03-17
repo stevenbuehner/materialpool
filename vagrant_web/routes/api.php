@@ -1,7 +1,5 @@
 <?php
 
-use Illuminate\Http\Request;
-
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -13,6 +11,21 @@ use Illuminate\Http\Request;
 |
 */
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user();
+Route::group([
+				 // 'middleware' => 'auth:api',
+				 'prefix'    => 'v1',
+				 'namespace' => 'Api'
+			 ], function () {
+
+	// Resources
+	Route::get('{foreignInstance}/resources', 'ResourceController@index')->where('foreignInstance', '[0-9]+');
+
+	Route::get('resources/{resource}', 'ResourceController@show')->where(['resource' => '[0-9]+']);
+	Route::get('{foreignInstance}/resources/{resource}', 'ResourceController@showByRemoteId')
+		 ->where(['foreignInstance', '[0-9]+', 'resource' => '[0-9]+']);
+
+	Route::post('{foreignInstance}/resources', 'ResourceController@addByRemoteId')
+		 ->where(['foreignInstance', '[0-9]+']);
+
+
 });
