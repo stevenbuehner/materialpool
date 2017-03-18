@@ -17,9 +17,12 @@ class ResourceController extends BaseController {
 	/**
 	 * Display a listing of the resource.
 	 *
-	 * @return \Illuminate\Http\Response
 	 */
-	public function index(ForeignInstance $foreignInstance) {
+	public function index(ForeignInstance $foreignInstance = NULL) {
+
+		if ($foreignInstance->exists === FALSE) {
+			return response()->json(['error' => 'Invalid foreinInstance id.'], 404);
+		}
 
 		/** @var LengthAwarePaginator $resources */
 		$resources = $foreignInstance->foreignResourceKeys()->paginate(50);
@@ -56,14 +59,14 @@ class ResourceController extends BaseController {
 	 * Display the specified resource.
 	 *
 	 * @param  Resource $resource
-	 * @return \Illuminate\Http\Response
+	 * @return Resource
 	 */
 	public function show(Resource $resource) {
 		return $resource;
 	}
 
 
-	public function addByRemoteId(Request $request, ForeignInstance $foreignInstance) {
+	public function addByRemoteId(Request $request, ForeignInstance $foreignInstance, $type) {
 
 		// The Remote Id is necessary for assignment
 		if ($request->has('remote_id')) {
@@ -78,7 +81,7 @@ class ResourceController extends BaseController {
 			return response()->json('remote_id is required', 400);
 		}
 
-		$class    = Resource::getSingleTableClass($request->get('type'));
+		$class    = Resource::getSingleTableClass($type);
 		$resource = $class !== NULL ? new $class : new Resource();
 
 		$validator = Validator::make($request->all(), $class::getValidationRules());
@@ -105,7 +108,12 @@ class ResourceController extends BaseController {
 				$localFilePath = $foreignInstance->id . DIRECTORY_SEPARATOR . $resource->type;
 
 				$localFile            = $disk->putFile($localFilePath, $file);
-				$resource->local_path = $disk->url($localFile);
+
+				if($localFile === false){
+					throw new \Exception('File was not stored');
+				}
+
+				$resource->local_path = 'resources::' . $localFile;
 				$resource->save();
 
 				$key = new ForeignResourceKey([

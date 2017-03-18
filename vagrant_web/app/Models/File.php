@@ -2,11 +2,15 @@
 
 namespace App\Models;
 
+use Illuminate\Support\Facades\Storage;
+
 class File extends Resource {
 
 	protected static $singleTableSubclasses = [AudioFile::class, VideoFile::class, ImageFile::class, DocumentFile::class];
 	protected static $singleTableType       = 'file';
 	protected static $ORIGINAL_FILENAME     = 'of';
+
+	protected $cachedData = [];
 
 	public function __construct(array $attributes = []) {
 		parent::__construct($attributes);
@@ -29,6 +33,72 @@ class File extends Resource {
 
 	public function getOriginalFileNameAttribute() {
 		return $this->getOption(self::$ORIGINAL_FILENAME, NULL);
+	}
+
+	public function getLocalFile() {
+		return $this->getLocalDisk()->get($this->getLocalDiskPath());
+	}
+
+	public function getLocalDisk() {
+		list($storage, $path) = $this->getLocalStorageAndPath();
+
+		return Storage::disk($storage);
+	}
+
+	public function getLocalStorageAndPath() {
+		if (!isset($this->cachedData['storage']) || !isset($this->cachedData['path'])) {
+			$local = $this->getAttribute('local_path');
+			list($storage, $path) = preg_split('~::~', $local, 2);
+			$this->cachedData['storage'] = $storage;
+			$this->cachedData['path']    = $path;
+		}
+
+		return [
+			$this->cachedData['storage'],
+			$this->cachedData['path']
+		];
+	}
+
+	public function getLocalDiskPath() {
+		list($storage, $path) = $this->getLocalStorageAndPath();
+
+		return $path;
+	}
+
+	public function deleteLocalFile() {
+		$result = $this->getLocalDisk()->delete($this->getLocalDiskPath());
+		$this->setAttribute('local_path', NULL);
+
+		return $result;
+	}
+
+	public function getLocalMimeType() {
+		return $this->getLocalDisk()->mimeType($this->getLocalDiskPath());
+	}
+
+	public function getLocalUrl() {
+		return $this->getLocalDisk()->url($this->getLocalDiskPath());
+	}
+
+	/**
+	 * @return \Illuminate\Filesystem\FilesystemAdapter
+	 */
+	public function getLocalSize() {
+		return $this->getLocalDisk()->size($this->getLocalDiskPath());
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function hasLocalFile() {
+		return !empty($this->getAttribute('local_path'));
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function hasRemoteFile() {
+		return !empty($this->getAttribute('remote_path'));
 	}
 
 }

@@ -24,8 +24,9 @@ Route::group([
 	Route::get('{foreignInstance}/resources/{resource}', 'ResourceController@showByRemoteId')
 		 ->where(['foreignInstance', '[0-9]+', 'resource' => '[0-9]+']);
 
-	Route::post('{foreignInstance}/resources', 'ResourceController@addByRemoteId')
-		 ->where(['foreignInstance', '[0-9]+']);
+	Route::post('{foreignInstance}/resources/{type}', 'ResourceController@addByRemoteId')
+		 ->where(['foreignInstance' => '[0-9]+', 'type' => join('|',
+																array_keys(\App\Models\Resource::getSingleTableTypeMap()))]);
 
 
 });

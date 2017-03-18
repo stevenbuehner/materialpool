@@ -9,6 +9,7 @@ use Nanigans\SingleTableInheritance\SingleTableInheritanceTrait;
  * Class Resource
  *
  * @package App
+ * @property int    $id
  * @property string $remote_path
  * @property string $local_path
  * @property string $content_hash
