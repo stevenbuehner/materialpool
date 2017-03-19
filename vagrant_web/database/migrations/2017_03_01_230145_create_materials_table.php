@@ -20,8 +20,8 @@ class CreateMaterialsTable extends Migration {
 			$table->integer('rating')->nullable();
 			$table->boolean('from_bot');
 
-			$table->integer('created_by')->nullable();
-			$table->integer('modified_by')->nullable();
+			$table->integer('created_by');
+			$table->integer('modified_by');
 
 
 			$table->timestamps();

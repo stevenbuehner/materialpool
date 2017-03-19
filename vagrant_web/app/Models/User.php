@@ -37,4 +37,13 @@ class User extends Authenticatable {
 	public function sendPasswordResetNotification($token) {
 		$this->notify(new ResetPasswordNotification($token));
 	}
+
+	/**
+	 * Get the foreignInstances that belong to this user
+	 *
+	 * @return \Illuminate\Database\Eloquent\Relations\HasMany
+	 */
+	public function foreignInstance() {
+		return $this->hasMany(ForeignInstance::class);
+	}
 }

@@ -25,7 +25,7 @@ class ForeignInstanceResourceController extends BaseController {
 		}
 
 		/** @var LengthAwarePaginator $resources */
-		$resources = $foreignInstance->foreignResourceKeys()->paginate(50);
+		$resources = $foreignInstance->foreignResourceKeys()->orderBy('resource_id')->paginate(50);
 
 
 		$subset = $resources->map(function ($fi) {
@@ -69,8 +69,9 @@ class ForeignInstanceResourceController extends BaseController {
 			return response()->json('remote_id is required', 400);
 		}
 
-		$class    = Resource::getSingleTableClass($type);
-		$resource = $class !== NULL ? new $class : new Resource();
+		$class                = Resource::getSingleTableClass($type);
+		$resource             = $class !== NULL ? new $class : new Resource();
+		$resource->created_by = $foreignInstance->user_id;
 
 		$validator = Validator::make($request->all(), $class::getValidationRules());
 
@@ -133,6 +134,7 @@ class ForeignInstanceResourceController extends BaseController {
 	public function destroy($foreignInstanceId, $remoteResourceId) {
 		$key = ForeignResourceKey::findOneWhere($foreignInstanceId, NULL, $remoteResourceId);
 		$key->delete();
+
 		return Resource::destroy($key->resource_id);
 	}
 

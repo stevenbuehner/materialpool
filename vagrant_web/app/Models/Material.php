@@ -14,6 +14,8 @@ use Illuminate\Database\Eloquent\Model;
  * @property string  $description
  * @property int     $rating
  * @property boolean $from_bot
+ * @property int     created_by
+ * @property int     modified_by
  */
 class Material extends Model {
 	protected $casts = [
@@ -36,7 +38,7 @@ class Material extends Model {
 	}
 
 	protected function keyWordClassAndChildren($class) {
-		return $this->belongsToMany($class, 'keyword_material', 'material_id', 'keyword_id');
+		return $this->belongsToMany($class, 'keyword_material', 'material_id', 'keyword_id')->withPivot('rating');
 	}
 
 	public function persons() {
@@ -61,6 +63,14 @@ class Material extends Model {
 
 	public function getLimitationAttribute($value) {
 		return unserialize($value);
+	}
+
+	public function creator() {
+		return $this->belongsTo(User::class, 'created_by');
+	}
+
+	public function modifier() {
+		return $this->belongsTo(User::class, 'modified_by');
 	}
 
 

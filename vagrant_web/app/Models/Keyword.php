@@ -54,7 +54,8 @@ class Keyword extends Model {
 	*/
 
 	public function materials() {
-		return $this->belongsToMany(Material::class, 'keyword_material', 'keyword_id', 'material_id');
+		return $this->belongsToMany(Material::class, 'keyword_material', 'keyword_id', 'material_id')
+					->withPivot('rating');
 	}
 
 	/**
@@ -68,7 +69,6 @@ class Keyword extends Model {
 			  ->whereIn('keywords.type', $this->getSingleTableTypes())
 			  ->join('keyword_material', 'keyword_material.keyword_id', '=', $this->getTable() . '.id')
 			  ->join('materials', 'keyword_material.material_id', '=', 'materials.id');
-
 
 		return $query;
 	}

@@ -10,6 +10,7 @@ use Nanigans\SingleTableInheritance\SingleTableInheritanceTrait;
  *
  * @package App
  * @property int    $id
+ * @property int    created_by
  * @property string $remote_path
  * @property string $local_path
  * @property string $content_hash
@@ -70,7 +71,7 @@ class Resource extends Model {
 	}
 
 	public function foreignResourceKeys() {
-		return $this->belongsToMany(ForeignResourceKey::class);
+		return $this->hasMany(ForeignResourceKey::class);
 	}
 
 	/**

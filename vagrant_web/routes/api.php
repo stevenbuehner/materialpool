@@ -22,6 +22,11 @@ Route::group([
 	Route::get('resources/{resource}', 'ResourceController@show')->where(['resource' => '[0-9]+']);
 
 
+	/*
+	 * Aus der Sicht der Foreign Instance mit ihren eigenen IDs
+	 */
+
+	// Resources
 	Route::get('{foreignInstance}/resources', 'ForeignInstanceResourceController@index')
 		 ->where('foreignInstance', '[0-9]+');
 	Route::get('{foreignInstanceId}/resources/{remoteId}', 'ForeignInstanceResourceController@show')
@@ -32,6 +37,16 @@ Route::group([
 	Route::delete('{foreignInstanceId}/resource/{remoteResourceId}', 'ForeignInstanceResourceController@destroy')
 		 ->where(['foreignInstanceId', '[0-9]+', 'remoteResourceId' => '[0-9]+'])
 		 ->name('foreignInstanceResourceDelete');
+
+
+	// Material + Keywords
+	Route::get('{foreignInstance}/materials', 'ForeignInstanceMaterialController@index')
+		 ->where('foreignInstance', '[0-9]+')
+		 ->name('foreignInstanceMaterialIndex');
+
+	Route::post('{foreignInstance}/resource/{resource}/materials', 'ForeignInstanceMaterialController@store')
+		 ->where(['foreignInstance' => '[0-9]+', 'resource' => '[0-9]+'])
+		 ->name('foreignInstanceMaterialStore');
 
 
 });

@@ -41,7 +41,8 @@ $factory->define(Material::class, function (Faker\Generator $faker) {
 	return [
 		'title'       => $faker->title,
 		'description' => $faker->sentences(2, TRUE),
-		'from_bot'    => $faker->boolean()
+		'from_bot'    => $faker->boolean(),
+		'rating'      => rand(0, 255)
 	];
 });
 

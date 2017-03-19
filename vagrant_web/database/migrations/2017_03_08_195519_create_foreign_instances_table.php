@@ -14,12 +14,14 @@ class CreateForeignInstancesTable extends Migration {
 		Schema::create('foreign_instances', function (Blueprint $table) {
 
 			$table->increments('id');
+			$table->integer('user_id')->unsigned();
 			$table->string('name');
 			$table->text('info')->nullable();
 			$table->string('api_key');
 			$table->timestamps();
 
 			$table->unique('api_key');
+			$table->index('user_id');
 			$table->unique('name');
 
 		});

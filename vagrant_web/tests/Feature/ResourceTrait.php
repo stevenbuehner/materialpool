@@ -8,6 +8,8 @@ use App\Models\ImageFile;
 use App\Models\Keyword;
 use App\Models\Material;
 use App\Models\Resource;
+use App\Models\User;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\UploadedFile;
 
 Trait ResourceTrait {
@@ -18,33 +20,56 @@ Trait ResourceTrait {
 		$tesKw->save();
 
 		/** @var Collection $resourceInstances */
-		$resourceInstances = factory(ForeignInstance::class, 3)->create();
+		/** @var Collection $users */
+		$users             = factory(User::class, 3)->create();
+		$resourceInstances = factory(ForeignInstance::class, 3)->make()
+															   ->each(function (ForeignInstance $fi, $i) use ($users) {
+																   $fi->user_id = $users->offsetGet($i)->id;
+																   $fi->save();
+															   });
 		$keywords          = factory(Keyword::class, 5)->create();
 
-		factory(Resource::class, 2)->create()->each(function (Resource $r) use ($tesKw) {
-			/** @var Material $material */
-			$material = $r->materials()->save(factory(Material::class)->create());
-			$material->keywords()->save($tesKw);
-		});
+		factory(Resource::class, 2)
+			->create([
+						 'created_by' => $users->offsetGet(0)->first()->id
+					 ])
+			->each(function (Resource $r) use ($tesKw, $users) {
+				/** @var Material $material */
+				$material = \ResourceSeeder::makeMaterialWithUserId($users->offsetGet(0)->id);
+				$material->save();
+				$material->keywords()->save($tesKw);
+				$r->materials()->save($material);
+			});
 
-		factory(ImageFile::class, 5)->create()->each(function ($r) use ($tesKw, $keywords) {
-			/** @var Material $material */
-			$material = $r->materials()->save(factory(Material::class)->make());
-			$material->keywords()->save($tesKw, ['rating' => rand(0, 255)]);
-			$material->keywords()->attach($keywords->pluck('id'));
-		});
+		factory(ImageFile::class, 5)
+			->create([
+						 'created_by' => $users->offsetGet(1)->id
+					 ])
+			->each(function ($r) use ($tesKw, $keywords, $users) {
+				/** @var Material $material */
+				/** @var Material $material */
+				$material = \ResourceSeeder::makeMaterialWithUserId($users->offsetGet(1)->id);
+				$material->save();
+				$material->keywords()->save($tesKw, ['rating' => rand(0, 255)]);
+				$material->keywords()->attach($keywords->pluck('id'));
+				$r->materials()->save($material);
+			});
 
-		Resource::all()->each(function (Resource $r) use ($resourceInstances) {
+		Resource::all()
+				->each(function (Resource $r) use ($resourceInstances) {
 
-			$fi = $resourceInstances->first();
+					$fi = $resourceInstances->filter(function ($fi) use ($r) {
+						return $fi->user_id === $r->created_by;
+					})->first();
 
-			$remoteKey                      = new ForeignResourceKey();
-			$remoteKey->resource_id         = $r->id;
-			$remoteKey->foreign_instance_id = $fi->id;
-			$remoteKey->remote_id           = rand(1, 999999);
-
-			$remoteKey->save();
-		});
+					if ($fi) {
+						$remoteKey                      = new ForeignResourceKey();
+						$remoteKey->resource_id         = $r->id;
+						$remoteKey->foreign_instance_id = $fi->id;
+						$remoteKey->remote_id           = rand(1, 999999);
+						$remoteKey->save();
+					}
+				});
 	}
 
 	protected function getImageUploadData() {
