@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\ForeignInstance;
+use App\Models\ForeignResourceKey;
 use App\Models\Material;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Tests\TestCase;
@@ -25,8 +26,13 @@ class ForeignInstanceMaterialApiControllerTest extends TestCase {
 		/** @var ForeignInstance $fi */
 		$fi = ForeignInstance::find(1);
 
+		$fi->load(['foreignResourceKeys.resource.materials' => function ($q) use (&$materials) {
+			$materials = $q->get()->unique();
+		}]);
+
+
 		$countsResources = $fi->foreignResourceKeys->count();
-		$countsMaterials = $fi->materials()->get()->count();
+		$countsMaterials = $materials->count();
 		$this->assertGreaterThan(0, $countsResources);
 		$this->assertGreaterThan(0, $countsMaterials);
 
@@ -90,37 +96,61 @@ class ForeignInstanceMaterialApiControllerTest extends TestCase {
 		$fi = ForeignInstance::find(1);
 
 		/** @var Resource $resource */
-		$resource = $fi->foreignResourceKeys->first()->resource;
+		$frk                  = $fi->foreignResourceKeys->first();
+		$resource             = $frk->resource;
+		$counMatBeforeRequest = $resource->materials->count();
 
 		$this->assertTrue($fi->exists);
+		$this->assertTrue($frk->exists);
 		$this->assertTrue($resource->exists);
 
-		$matToCreate              = factory(Material::class)->make();
+		$matToCreate              = factory(Material::class)->make(['from_bot' => TRUE]);
 		$matToCreate->created_by  = $resource->created_by;
 		$matToCreate->modified_by = $resource->created_by;
 
 
 		// Resources-Uri
-		$uri = route('foreignInstanceMaterialIndex', ['foreignInstance' => $fi->id,
-													  'resource'        => $resource->id]);
+		$uri = route('foreignInstanceMaterialStore', ['foreignInstance'  => $fi->id,
+													  'remoteResourceId' => $frk->remote_id]);
 
 		$response = $this->json('post', $uri, $matToCreate->toArray());
 		$response->assertStatus(200);
 
 		$resource->load('materials');
-		$createdMat = $resource->materials->first();
-		$this->assertNotNull($createdMat);
-		$this->assertEquals(1, $resource->materials->count());
-		$this->assertArraySubset($matToCreate->toAray(), $createdMat->toArray());
+		/** @var Material $createdMat */
+		$createdMat = $resource->materials()->orderBy('id')->get()->last();
 
-		$response = $this->json('post', $uri, $matToCreate->toArray());
-		$response->assertStatus(200);
-
-		$resource->load('materials');
-		$createdMat = $resource->materials->last();
 		$this->assertNotNull($createdMat);
-		$this->assertEquals(2, $resource->materials->count());
+		$this->assertEquals($counMatBeforeRequest + 1, $resource->materials->count());
+		$this->assertArraySubset($matToCreate->toArray(), $createdMat->toArray());
 	}
 
+
+	public function testStoreMaterialNotExistantForThisForeignInstance() {
+		/** @var ForeignInstance $fi1 */
+		$fi1 = ForeignInstance::find(1);
+		$fi2 = ForeignInstance::find(2);
+
+		/** @var Resource $resource1 */
+		$frk       = $fi1->foreignResourceKeys->first();
+		$resource1 = $frk->resource;
+
+		$this->assertTrue($fi1->exists);
+		$this->assertTrue($frk->exists);
+		$this->assertTrue($resource1->exists);
+
+		$nothingToFindFRK = ForeignResourceKey::findOneWhere($fi2->id, $resource1->id);
+		$this->assertNull($nothingToFindFRK);
+
+		$matToCreate              = factory(Material::class)->make();
+
+		// Resources-Uri
+		$uri = route('foreignInstanceMaterialStore', ['foreignInstance'  => $fi2->id,
+													  'remoteResourceId' => $frk->remote_id]);
+
+		$response = $this->json('post', $uri, $matToCreate->toArray());
+		$response->assertStatus(403);
+		$response->assertJsonStructure(['error']);
+	}
 
 }

@@ -2,11 +2,15 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Controller as BaseController;
+use App\Http\Requests\MaterialRequest;
+use App\Models\Exceptions\InvalidKeywordTypeException;
 use App\Models\ForeignInstance;
+use App\Models\ForeignResourceKey;
+use App\Models\Keyword;
 use App\Models\Material;
-use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Routing\Controller as BaseController;
+use Illuminate\Support\Facades\DB;
 
 
 class ForeignInstanceMaterialController extends BaseController {
@@ -29,6 +33,20 @@ class ForeignInstanceMaterialController extends BaseController {
 	}
 
 	protected function mapMaterialWithKeywordsAndForeignResourceKeys(Material $mat, ForeignInstance $foreignInstance) {
+
+		// Preload missing relations
+		$afterLoading = [];
+		if (!isset($mat->relation['keywords'])) {
+			$afterLoading[] = 'keywords';
+		}
+		if (!isset($mat->relation['resources'])) {
+			$afterLoading[] = 'resources.foreignResourceKeys';
+		}
+		if (count($afterLoading) > 0) {
+			$mat->load($afterLoading);
+		}
+
+
 		$matData = $mat->toArray();
 
 		$keywords = [];
@@ -37,7 +55,7 @@ class ForeignInstanceMaterialController extends BaseController {
 				'id'                 => $k['id'],
 				'title'              => $k['title'],
 				'type'               => $k['type'],
-				'mat_keyword_rating' => $k['pivot']['rating']
+				'mat_keyword_rating' => $k['pivot']['relevance']
 			];
 		}
 		$matData['keywords'] = $keywords;
@@ -73,9 +91,66 @@ class ForeignInstanceMaterialController extends BaseController {
 	 * Store a newly created resource in storage.
 	 *
 	 * @param  \Illuminate\Http\Request $request
-	 * @return \Illuminate\Http\Response
 	 */
-	public function store(Request $request) {
+	public function store(ForeignInstance $foreignInstance, int $remoteResourceId, MaterialRequest $request) {
+
+		$frk = ForeignResourceKey::findOneWhere($foreignInstance->id, NULL, $remoteResourceId);
+
+		if ($frk === NULL) {
+			return response()->json(['error' => 'No Resource with this remote_id existant'])->setStatusCode(403);
+		}
+
+		$mat = new Material();
+		$mat->fill($request->all());
+		$mat->from_bot    = TRUE;
+		$mat->created_by  = $foreignInstance->user_id;
+		$mat->modified_by = $foreignInstance->user_id;
+
+
+		try {
+			DB::beginTransaction();
+
+			$mat->save();
+			$mat->resources()->attach($frk->resource_id);
+
+			$keywords    = collect();
+			$bibleverses = [];
+
+			if ($request->has('keywords') && is_array($request->get('keywords'))) {
+				foreach ($request->get('keywords', []) as $k) {
+					if (!is_array($k) || !isset($k['title'])) {
+						return response()->json(['error' => 'keywords with wrong format'])->setStatusCode(422);
+					}
+
+					$keywordTitle = $k['title'];
+					$keywordType  = isset($k['type']) ? $k['type'] : 'key';
+					$relevance    = isset($k['relevance']) ? (int) $k['relevance'] : Keyword::$defaultRelevance;
+
+					try {
+						$newKeyword = Keyword::create($keywordTitle, $keywordType);
+					} catch (InvalidKeywordTypeException $e) {
+						return response()->json(['error' => 'Invalid Keyword-Type'])->setStatusCode(422);
+					}
+
+					if (!$keywords->has($newKeyword->id)) {
+						$keywords->put($newKeyword->id, $newKeyword);
+						$mat->keywords()->attach($newKeyword->id, ['relevance' => $relevance]);
+					}
+				}
+			}
+
+			// Todo: Add Bibleverses to Material creation
+
+
+			DB::commit();
+		} catch (\Exception $e) {
+			DB::rollBack();
+
+			throw  $e;
+		}
+
+
+		return $this->mapMaterialWithKeywordsAndForeignResourceKeys($mat, $foreignInstance);
 
 	}
 

@@ -59,39 +59,40 @@ class ResourceSeeder extends Seeder {
 			$material             = self::makeMaterialWithRandomUser();
 			$material->limitation = new \App\ResourceLimitations\TimeLimitation(0, 299);
 			$material->save();
-			$material->keywords()->save(self::getRandomKeyword(), ['rating' => rand(0, 255)]);
+			$material->keywords()->save(self::getRandomKeyword(), ['relevance' => rand(0, 255)]);
 		});
 		factory(VideoFile::class, 5)->create(['created_by' => User::all()->offsetGet(3)->id])->each(function ($r) {
 			$material             = self::makeMaterialWithRandomUser();
 			$material->limitation = new \App\ResourceLimitations\TimeLimitation(0, 299);
 			$material->save();
-			$material->keywords()->save(self::getRandomKeyword(), ['rating' => rand(0, 255)]);
+			$material->keywords()->save(self::getRandomKeyword(), ['relevance' => rand(0, 255)]);
 		});
 		factory(ImageFile::class, 5)->create(['created_by' => User::all()->offsetGet(4)->id])->each(function ($r) {
 			$material = self::makeMaterialWithRandomUser();
 			$material->save();
-			$material->keywords()->save(self::getRandomKeyword(), ['rating' => rand(0, 255)]);
+			$material->keywords()->save(self::getRandomKeyword(), ['relevance' => rand(0, 255)]);
 		});
 		factory(DocumentFile::class, 5)->create(['created_by' => User::all()->offsetGet(5)->id])->each(function ($r) {
 			$material             = self::makeMaterialWithRandomUser();
 			$material->limitation = new \App\ResourceLimitations\PageLimitation(5, 10);
 			$material->save();
-			$material->keywords()->save(self::getRandomKeyword(), ['rating' => rand(0, 255)]);
+			$material->keywords()->save(self::getRandomKeyword(), ['relevance' => rand(0, 255)]);
 		});
 
-
-		Resource::all()->each(function (Resource $r) {
+		$counter = 100;
+		Resource::all()->each(function (Resource $r) use (&$counter) {
 			// $fi        = self::getRandomForeignInstance();
 
 			$fi = ForeignInstance::where([
 											 'user_id' => $r->created_by
 										 ])->take(1)->get()->first();
 
+
 			if ($fi) {
 				$remoteKey                      = new ForeignResourceKey();
 				$remoteKey->resource_id         = $r->id;
 				$remoteKey->foreign_instance_id = $fi->id;
-				$remoteKey->remote_id           = rand(1, 999999);
+				$remoteKey->remote_id           = $counter++;
 				$remoteKey->save();
 			}
 		});

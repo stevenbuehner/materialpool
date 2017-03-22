@@ -39,10 +39,10 @@ $factory->define(User::class, function (Faker\Generator $faker) {
 $factory->define(Material::class, function (Faker\Generator $faker) {
 
 	return [
-		'title'       => $faker->title,
+		'title'       => $faker->text(255),
 		'description' => $faker->sentences(2, TRUE),
 		'from_bot'    => $faker->boolean(),
-		'rating'      => rand(0, 255)
+		'rating'      => rand(0, 64)
 	];
 });
 

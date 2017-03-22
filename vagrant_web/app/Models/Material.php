@@ -29,6 +29,14 @@ class Material extends Model {
 		'description' => ''
 	];
 
+	protected $fillable = [
+		'title', 'description', 'limitation', 'rating'
+	];
+
+	protected $guarded = [
+		'id', 'from_bot', 'created_by', 'modified_by', 'created_at', 'updated_at'
+	];
+
 	public function resources() {
 		return $this->belongsToMany(Resource::class, 'material_resource', 'material_id', 'resource_id');
 	}
@@ -38,7 +46,7 @@ class Material extends Model {
 	}
 
 	protected function keyWordClassAndChildren($class) {
-		return $this->belongsToMany($class, 'keyword_material', 'material_id', 'keyword_id')->withPivot('rating');
+		return $this->belongsToMany($class, 'keyword_material', 'material_id', 'keyword_id')->withPivot('relevance');
 	}
 
 	public function persons() {

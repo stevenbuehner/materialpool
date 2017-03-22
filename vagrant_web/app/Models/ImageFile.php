@@ -10,7 +10,7 @@ class ImageFile extends File implements PreviewableInterface {
 
 	public static function getValidationRules() {
 		$rules         = parent::getValidationRules();
-		$rules['file'] = 'required|file|image';
+		$rules['file'] = 'bail|required|file|image';
 
 		return $rules;
 	}

@@ -24,18 +24,20 @@ class Resource extends Model {
 	protected static $singleTableSubclasses = [Url::class, File::class, Text::class, Book::class];
 	protected static $singleTableType       = 'res';
 
-	protected $table    = 'resources';
-	protected $casts    = [
+	protected $table   = 'resources';
+	protected $casts   = [
 		'is_public' => 'boolean',
 		'options'   => 'array'
 	];
-	protected $guarded  = [
-		'options', 'type'
+	protected $guarded = [
+		'id', 'created_by', 'options', 'content_hash', 'type', 'created_at', 'updated_at'
 	];
+
 	protected $fillable = [
-		'is_public', 'remote_path', 'notes', 'content_hash'
+		'remote_path', 'notes', 'is_public'
 	];
-	protected $hidden   = ['options', 'local_path'];
+
+	protected $hidden = ['options', 'local_path'];
 
 	public function __construct(array $attributes = []) {
 		$this->options   = [];
@@ -53,7 +55,7 @@ class Resource extends Model {
 
 	public static function getValidationRules() {
 		return [
-			'is_public'   => 'boolean',
+			'is_public'   => 'boolean|nullable',
 			'remote_path' => 'string|nullable',
 			'notes'       => 'string|nullable'
 		];

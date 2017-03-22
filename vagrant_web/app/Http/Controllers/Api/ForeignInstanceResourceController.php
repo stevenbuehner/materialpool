@@ -2,18 +2,18 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Controller as BaseController;
 use App\Models\File;
 use App\Models\ForeignInstance;
 use App\Models\ForeignResourceKey;
 use App\Models\Resource;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
-use Validator;
 
 class ForeignInstanceResourceController extends BaseController {
+
 	/**
 	 * Display a listing of the resource.
 	 *
@@ -73,14 +73,11 @@ class ForeignInstanceResourceController extends BaseController {
 		$resource             = $class !== NULL ? new $class : new Resource();
 		$resource->created_by = $foreignInstance->user_id;
 
-		$validator = Validator::make($request->all(), $class::getValidationRules());
 
-		if ($validator->fails()) {
-			return response()->json($validator->getMessageBag()->toArray(), 400);
-		}
+		$this->validate($request, $class::getValidationRules());
 
 		// All Parameters required for the Resource
-		$resource->fill($validator->getData());
+		$resource->fill($request->all());
 
 		$disk = Storage::disk('resources');
 

@@ -21,7 +21,7 @@ class File extends Resource {
 
 	public static function getValidationRules() {
 		$rules         = parent::getValidationRules();
-		$rules['file'] = 'required|file';
+		$rules['file'] = 'bail|required|file';
 
 		return $rules;
 	}

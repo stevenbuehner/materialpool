@@ -2,11 +2,20 @@
 
 namespace App\Models;
 
+use App\Models\Exceptions\InvalidKeywordTypeException;
 use Backpack\CRUD\CrudTrait;
 use Illuminate\Database\Eloquent\Model;
 use Kalnoy\Nestedset\NodeTrait;
 use Nanigans\SingleTableInheritance\SingleTableInheritanceTrait;
 
+/**
+ * Class Keyword
+ *
+ * @property string $title
+ * @property string $type
+ * @property string $lc_title
+ * @property int    parent_id
+ */
 class Keyword extends Model {
 	use NodeTrait;
 	use SingleTableInheritanceTrait;
@@ -17,6 +26,7 @@ class Keyword extends Model {
 	| GLOBAL VARIABLES
 	|--------------------------------------------------------------------------
 	*/
+	public static    $defaultRelevance      = 100;
 	protected static $singleTableTypeField  = 'type';
 	protected static $singleTableType       = 'key';
 	protected static $singleTableSubclasses = [Person::class, Place::class, Language::class, Tag::class];
@@ -25,13 +35,50 @@ class Keyword extends Model {
 	// protected $guarded = [];
 	// protected $hidden = ['id'];
 	protected $table    = 'keywords';
-	protected $fillable = ['title', 'type', 'parent_id'];
+	protected $fillable = ['title'];
+	protected $guarded  = ['type', 'lc_title'];
 
 	/*
 	|--------------------------------------------------------------------------
 	| FUNCTIONS
 	|--------------------------------------------------------------------------
 	*/
+
+	/**
+	 * @param string $value
+	 * @param string $type
+	 * @param array  $otherAttributes
+	 * @return Keyword
+	 * @throws InvalidKeywordTypeException
+	 */
+	public static function create(string $value, string $type = 'key', $otherAttributes = []) {
+		$instance = self::make($value, $type, $otherAttributes);
+
+		if ($instance->exists === FALSE) {
+			$instance->save();
+		}
+
+		return $instance;
+	}
+
+	/**
+	 * @param string $value
+	 * @param string $type
+	 * @param array  $otherAttributes
+	 * @return Keyword
+	 * @throws InvalidKeywordTypeException
+	 */
+	public static function make(string $value, string $type = 'key', $otherAttributes = []) {
+		$map = self::getSingleTableTypeMap();
+
+		if (!in_array($type, array_keys(self::getSingleTableTypeMap()))) {
+			throw new InvalidKeywordTypeException();
+		}
+
+		$class = $map[$type];
+
+		return $class::firstOrNew(array_merge($otherAttributes, ['title' => $value]));
+	}
 
 	public function getRouteKeyName() {
 		return 'lc_title';
@@ -55,7 +102,7 @@ class Keyword extends Model {
 
 	public function materials() {
 		return $this->belongsToMany(Material::class, 'keyword_material', 'keyword_id', 'material_id')
-					->withPivot('rating');
+					->withPivot('relevance');
 	}
 
 	/**
@@ -101,6 +148,10 @@ class Keyword extends Model {
 	| ACCESORS
 	|--------------------------------------------------------------------------
 	*/
+
+	public function getTypeAttribute() {
+		return $this::$singleTableType;
+	}
 
 	/*
 	|--------------------------------------------------------------------------

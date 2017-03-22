@@ -22,9 +22,10 @@ class ForeignResourceKey extends Model {
 		'resource_id'         => 'int'
 	];
 	protected $guarded    = [];
-	protected $primaryKey = ['remote_id',
-							 'foreign_instance_id',
-							 'resource_id'];
+	protected $primaryKey = [
+		'remote_id',
+		'foreign_instance_id'
+	];
 
 	public static function findOneWhere($foreignInstanceId, $resourceId = NULL, $remote_id = NULL) {
 		/** @var Builder $builder */

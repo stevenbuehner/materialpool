@@ -32,9 +32,9 @@ class CreateKeywordsTable extends Migration {
 
 			$table->integer('material_id');
 			$table->integer('keyword_id');
-			$table->primary(['material_id', 'keyword_id']);
+			$table->smallInteger('relevance')->nullable()->unsigned();
 
-			$table->smallInteger('rating')->nullable();
+			$table->primary(['material_id', 'keyword_id']);
 
 		});
 	}

@@ -17,8 +17,7 @@ class CreateForeignResourceKeyTable extends Migration {
 			$table->integer('resource_id');
 			$table->integer('foreign_instance_id');
 
-			$table->primary(['remote_id', 'resource_id', 'foreign_instance_id'], 'remote_instance_resource_id_primary');
-			$table->index(['remote_id', 'foreign_instance_id']);
+			$table->primary(['remote_id', 'foreign_instance_id'], 'remote_instance_resource_id_primary');
 			$table->index('resource_id');
 			$table->index('foreign_instance_id');
 

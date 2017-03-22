@@ -14,10 +14,10 @@ class CreateMaterialsTable extends Migration {
 		Schema::create('materials', function (Blueprint $table) {
 			$table->increments('id');
 
-			$table->string('title');
+			$table->string('title', 255);
 			$table->text('description');
 			$table->text('limitation')->nullable();
-			$table->integer('rating')->nullable();
+			$table->smallInteger('rating')->nullable()->unsigned(); // Between 0-64
 			$table->boolean('from_bot');
 
 			$table->integer('created_by');

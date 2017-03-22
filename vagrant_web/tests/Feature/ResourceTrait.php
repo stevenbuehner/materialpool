@@ -50,7 +50,7 @@ Trait ResourceTrait {
 				/** @var Material $material */
 				$material = \ResourceSeeder::makeMaterialWithUserId($users->offsetGet(1)->id);
 				$material->save();
-				$material->keywords()->save($tesKw, ['rating' => rand(0, 255)]);
+				$material->keywords()->save($tesKw, ['relevance' => rand(0, 255)]);
 				$material->keywords()->attach($keywords->pluck('id'));
 				$r->materials()->save($material);
 			});
