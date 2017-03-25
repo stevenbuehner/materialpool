@@ -81,5 +81,9 @@ class Material extends Model {
 		return $this->belongsTo(User::class, 'modified_by');
 	}
 
+	public function bibleverses() {
+		return $this->belongsToMany(Bibleverse::class);
+	}
+
 
 }

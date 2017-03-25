@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
+use StevenBuehner\BibleVerseBundle\Service\BibleVerseService;
 
 class AppServiceProvider extends ServiceProvider {
 	/**
@@ -36,5 +37,9 @@ class AppServiceProvider extends ServiceProvider {
 
 			$this->app->alias('Barryvdh\Debugbar\Facade', 'Debugbar');
 		}
+
+		$this->app->singleton('BibleVerseService', function ($app) {
+			return new BibleVerseService();
+		});
 	}
 }

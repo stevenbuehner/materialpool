@@ -8,11 +8,11 @@ use App\Models\ForeignInstance;
 use App\Models\ForeignResourceKey;
 use App\Models\Resource;
 use Illuminate\Http\Request;
-use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 class ForeignInstanceResourceController extends BaseController {
+
 
 	/**
 	 * Display a listing of the resource.
@@ -24,17 +24,29 @@ class ForeignInstanceResourceController extends BaseController {
 			return response()->json(['error' => 'Invalid foreinInstance id.'], 404);
 		}
 
-		/** @var LengthAwarePaginator $resources */
-		$resources = $foreignInstance->foreignResourceKeys()->orderBy('resource_id')->paginate(50);
+		DB::enableQueryLog();
+		$resources = $foreignInstance
+			->resources()
+			->with(['foreignResourceKeys' => function ($query) use ($foreignInstance) {
+				// Only load foreign_key from this $foreignInstance
+				$query->where('foreign_resource_keys.foreign_instance_id',
+							  $foreignInstance->id);
+			}])
+			->orderBy('resource_id')
+			->paginate(50);
 
 
-		$subset = $resources->map(function ($fi) {
-			return collect($fi->toArray())
-				->forget('foreign_instance_id')
-				->all();
+		$hidden = ['foreign_instance_id', 'resource_id'];
+		if ($resources->count() > 0) {
+			$first  = $resources->first();
+			$hidden = array_merge($first->foreignResourceKeys->first()->getHidden(), $hidden);
+		}
+
+		$resources->each(function ($r) use (&$hidden) {
+			$r->foreignResourceKeys->each(function ($frk) use (&$hidden) {
+				$frk->setHidden($hidden);
+			});
 		});
-
-		$resources->setCollection($subset);
 
 		return $resources;
 	}

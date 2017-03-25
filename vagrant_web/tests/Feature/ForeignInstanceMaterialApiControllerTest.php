@@ -50,19 +50,26 @@ class ForeignInstanceMaterialApiControllerTest extends TestCase {
 												'limitation',
 												'rating',
 												'from_bot',
-												'created_by',
-												'modified_by',
 												'created_at',
 												'updated_at',
-												'keywords'  => [
+												'keywords'    => [
 													'*' => [
 														'id',
 														'title',
 														'type',
-														'mat_keyword_rating'
+														'parent_id',
+														'pivot' =>
+															['relevance']
 													]
 												],
-												'resources' => [
+												'bibleverses' => [
+													'*' => [
+														'pivot' =>
+															['relevance']
+														// TODO
+													]
+												],
+												'resources'   => [
 													'*' => [
 														'id',
 														'remote_path',
@@ -71,7 +78,11 @@ class ForeignInstanceMaterialApiControllerTest extends TestCase {
 														'type',
 														'created_at',
 														'updated_at',
-														'remote_id'
+														'foreign_resource_keys' => [
+															'*' => [
+																'remote_id'
+															]
+														]
 													]
 												]
 											]
@@ -85,6 +96,7 @@ class ForeignInstanceMaterialApiControllerTest extends TestCase {
 			$mDb = Material::find($material['id']);
 			unset($material['keywords']);
 			unset($material['resources']);
+			unset($material['bibleverses']);
 
 			$this->assertArraySubset($material, $mDb->toArray());
 		}
@@ -142,7 +154,7 @@ class ForeignInstanceMaterialApiControllerTest extends TestCase {
 		$nothingToFindFRK = ForeignResourceKey::findOneWhere($fi2->id, $resource1->id);
 		$this->assertNull($nothingToFindFRK);
 
-		$matToCreate              = factory(Material::class)->make();
+		$matToCreate = factory(Material::class)->make();
 
 		// Resources-Uri
 		$uri = route('foreignInstanceMaterialStore', ['foreignInstance'  => $fi2->id,

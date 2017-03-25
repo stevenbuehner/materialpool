@@ -27,6 +27,10 @@ class ForeignResourceKey extends Model {
 		'foreign_instance_id'
 	];
 
+	protected $hidden = [
+		'created_at', 'updated_at'
+	];
+
 	public static function findOneWhere($foreignInstanceId, $resourceId = NULL, $remote_id = NULL) {
 		/** @var Builder $builder */
 		$builder = self::where('foreign_instance_id', $foreignInstanceId);

@@ -20,71 +20,62 @@ class ForeignInstanceMaterialController extends BaseController {
 	 */
 	public function index(ForeignInstance $foreignInstance) {
 		/** @var LengthAwarePaginator $materials */
-		$materials = $foreignInstance->materials()->with(['keywords', 'resources.foreignResourceKeys'])->orderBy('id')
-									 ->paginate(20);
+		$materials = $foreignInstance
+			->materials()
+			->with($this->getRelationLoadingNeccesity($foreignInstance))->orderBy('id')
+			->paginate(20);
 
-		$subset = $materials->map(function (Material $mat) use ($foreignInstance) {
-			return $this->mapMaterialWithKeywordsAndForeignResourceKeys($mat, $foreignInstance);
+
+		$materials->each(function ($m) use (&$hiddenMat, &$hiddenFRK) {
+			if (!$hiddenMat) {
+				$hiddenMat = array_merge($m->getHidden(), [ 'created_by', 'modified_by']);
+			}
+
+			$m->setHidden($hiddenMat);
+
+
+			$m->resources->each(function ($r) use (&$hiddenFRK) {
+				$r->foreignResourceKeys->each(function ($frk) use (&$hiddenFRK) {
+					if (!$hiddenFRK) {
+						$hiddenFRK = array_merge($frk->getHidden(), ['resource_id', 'foreign_instance_id']);
+					}
+
+					$frk->setHidden($hiddenFRK);
+				});
+			});
+
 		});
 
-		$materials->setCollection($subset);
-
 		return $materials;
+
 	}
 
-	protected function mapMaterialWithKeywordsAndForeignResourceKeys(Material $mat, ForeignInstance $foreignInstance) {
+	protected function getRelationLoadingNeccesity(ForeignInstance $foreignInstance, Material $mat = NULL) {
 
 		// Preload missing relations
 		$afterLoading = [];
-		if (!isset($mat->relation['keywords'])) {
+
+		if ($mat == NULL || !isset($mat->relation['keywords'])) {
 			$afterLoading[] = 'keywords';
 		}
-		if (!isset($mat->relation['resources'])) {
-			$afterLoading[] = 'resources.foreignResourceKeys';
+
+		if ($mat == NULL || !isset($mat->relation['resources'])) {
+			$afterLoading['resources.foreignResourceKeys'] = function ($query) use ($foreignInstance) {
+				// Only show the foreign key information of this $foreignInstance
+				$query->where('foreign_resource_keys.foreign_instance_id',
+							  $foreignInstance->id);
+			};
 		}
-		if (count($afterLoading) > 0) {
-			$mat->load($afterLoading);
+
+		if ($mat == NULL || !isset($mat->relation['bibleverses'])) {
+			$afterLoading[] = 'bibleverses';
 		}
 
+		// if (count($afterLoading) > 0) {
+		// 	$mat->load($afterLoading);
+		// }
 
-		$matData = $mat->toArray();
-
-		$keywords = [];
-		foreach ($matData['keywords'] as $k) {
-			$keywords[] = [
-				'id'                 => $k['id'],
-				'title'              => $k['title'],
-				'type'               => $k['type'],
-				'mat_keyword_rating' => $k['pivot']['relevance']
-			];
-		}
-		$matData['keywords'] = $keywords;
-
-		$resources = [];
-		foreach ($matData['resources'] as $r) {
-			$tmpResource = [
-				'id'          => $r['id'],
-				'remote_path' => $r['remote_path'],
-				'notes'       => $r['notes'],
-				'is_public'   => $r['is_public'],
-				'type'        => $r['type'],
-				'created_at'  => $r['created_at'],
-				'updated_at'  => $r['updated_at'],
-			];
-
-			// Will have at least one foreignKey
-			foreach ($r['foreign_resource_keys'] as $frk) {
-				if ($frk['foreign_instance_id'] == $foreignInstance->id) {
-					$tmpResource['remote_id'] = $frk['remote_id'];
-					break;
-				}
-			}
-
-			$resources[] = $tmpResource;
-		}
-		$matData['resources'] = $resources;
-
-		return $matData;
+		return $afterLoading;
 	}
 
 	/**
@@ -149,8 +140,7 @@ class ForeignInstanceMaterialController extends BaseController {
 			throw  $e;
 		}
 
-
-		return $this->mapMaterialWithKeywordsAndForeignResourceKeys($mat, $foreignInstance);
+		return $mat->load($this->getRelationLoadingNeccesity($foreignInstance, $mat));
 
 	}
 

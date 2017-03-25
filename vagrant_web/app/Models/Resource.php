@@ -37,7 +37,7 @@ class Resource extends Model {
 		'remote_path', 'notes', 'is_public'
 	];
 
-	protected $hidden = ['options', 'local_path'];
+	protected $hidden = ['options', 'local_path', 'pivot'];
 
 	public function __construct(array $attributes = []) {
 		$this->options   = [];

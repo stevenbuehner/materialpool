@@ -41,7 +41,17 @@ class ForeignInstanceResourceApiControllerTest extends TestCase {
 		$response->assertJsonStructure(['total', 'per_page', 'current_page', 'last_page', 'next_page_url', 'prev_page_url', 'from', 'to',
 										'data' => [
 											'*' => [
-												'remote_id', 'resource_id', 'created_at', 'updated_at'
+												'id',
+												'created_by',
+												'remote_path',
+												'notes',
+												'is_public',
+												'type',
+												'created_at',
+												'updated_at',
+												'foreign_resource_keys' => [
+													'*' => ['remote_id']
+												]
 											]
 										]
 									   ]);
