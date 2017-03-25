@@ -21,7 +21,17 @@ class Bibleverse extends Model implements BibleVerseInterface {
 	protected static $fromColumn        = 'from';
 	protected static $toColumn          = 'to';
 	protected        $casts             = ['from' => 'integer', 'to' => 'integer'];
-	protected        $fillable          = ['from', 'to', 'bible_id'];
+	protected        $fillable          = ['from',
+										   'to',
+										   'bible_id',
+										   'book_id',
+										   'from_book_id',
+										   'from_chapter',
+										   'from_verse',
+										   'to_book_id',
+										   'to_chapter',
+										   'to_verse',
+										   'label'];
 	protected        $bibleVerseService = NULL;
 
 	// Default values
@@ -178,8 +188,17 @@ class Bibleverse extends Model implements BibleVerseInterface {
 	}
 
 	public function setToBookId($toBookId) {
-		$to = self::getCombi($toBookId, $this->getFromChapter(), $this->getFromVerse());
-		$this->setAttribute(self::$toColumn, $to);
+		$this->setToCombined($toBookId, $this->getFromChapter(), $this->getFromVerse());
+
+	}
+
+	/**
+	 * @param int $bookId
+	 * @param int $chapter
+	 * @param int $verse
+	 */
+	public function setToCombined($bookId, $chapter, $verse) {
+		$this->setAttribute(self::$toColumn, self::getCombi($bookId, $chapter, $verse));
 	}
 
 	public function getToChapterAttribute() {
@@ -209,15 +228,6 @@ class Bibleverse extends Model implements BibleVerseInterface {
 	}
 
 	/**
-	 * @param int $bookId
-	 * @param int $chapter
-	 * @param int $verse
-	 */
-	public function setToCombined($bookId, $chapter, $verse) {
-		$this->setAttribute(self::$toColumn, self::getCombi($bookId, $chapter, $verse));
-	}
-
-	/**
 	 * Get toVerse
 	 *
 	 * @return int
@@ -241,6 +251,10 @@ class Bibleverse extends Model implements BibleVerseInterface {
 	 */
 	public function setToVerse($toVerse) {
 		$this->setToCombined($this->getToBookId(), $this->getToChapter(), $toVerse);
+	}
+
+	public function setBookIdAttribute($bookdId) {
+		$this->setBookId($bookdId);
 	}
 
 	/**

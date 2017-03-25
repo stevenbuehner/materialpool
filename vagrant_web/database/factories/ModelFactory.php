@@ -143,3 +143,16 @@ $factory->define(ForeignInstance::class, function (Faker\Generator $faker) {
 	];
 });
 
+$factory->define(\App\Models\Bibleverse::class, function (Faker\Generator $faker) {
+	$minFromChapter = rand(1, 50);
+	$minVerse       = rand(1, 18);
+
+	return [
+		'book_id'      => 1,
+		'from_chapter' => $minFromChapter,
+		'to_chapter'   => rand($minFromChapter, 50),
+		'from_verse'   => $minVerse,
+		'to_verse'     => rand($minVerse, 18)
+	];
+}, 'Genesis');
+

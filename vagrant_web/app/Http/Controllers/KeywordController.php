@@ -46,9 +46,9 @@ class KeywordController extends Controller {
 		/** @var Collection $keywords */
 		$keywords = $keyword->descendants;
 		$keywords->prepend($keyword);
-		$materials = $keyword->descendantMaterials()->with(['keywords', 'resources'])->paginate(20);
+		$materials = $keyword->descendantMaterials()->with(['keywords', 'resources', 'bibleverses'])->paginate(20);
 
-		return view('materials.listing', compact('materials', 'keywords'));
+		return view('materials.listing', compact('materials', 'keywords', 'bibleverses'));
 	}
 
 	/**

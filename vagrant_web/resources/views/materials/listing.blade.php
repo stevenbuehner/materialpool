@@ -36,6 +36,14 @@
                     </div>
                 @endif
 
+                @if(count($m->bibleverses))
+                    <div class="card-block">
+                        @foreach($m->bibleverses as $bv)
+                            @include('bibleverses.tag', ['bibleverse' => $bv])
+                        @endforeach
+                    </div>
+                @endif
+
 
             </div>
         @endforeach

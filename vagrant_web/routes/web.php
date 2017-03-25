@@ -20,7 +20,14 @@ Route::get('/', function () {
 
 Route::get('/resource', 'ResourceController@index');
 
-Route::get('/keyword/{keyword}', 'KeywordController@show')->name('keyword');
+Route::get('/keyword/{keyword}', 'KeywordController@show')
+	 ->name('keyword');
+
+
+Route::get('/bibleverse/{from}-{to}', 'BibleVerseController@show')
+	 ->name('bibleverse')
+	 ->where('from', '[0-9]+')
+	 ->where('to', '[0-9]+');
 
 
 // Admin Interface Routes

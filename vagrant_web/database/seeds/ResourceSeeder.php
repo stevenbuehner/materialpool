@@ -46,14 +46,21 @@ class ResourceSeeder extends Seeder {
 		factory(ForeignInstance::class)->create(['user_id' => factory(User::class)->create()->id]);
 		factory(User::class, 5)->create();
 
-		factory(Resource::class, 2)->create(['created_by' => User::all()->offsetGet(1)->id])
-								   ->each(function (Resource $r) use ($tesKw) {
-									   /** @var Material $material */
-									   $material = self::makeMaterialWithRandomUser();
-									   $material->save();
-									   $material = $r->materials()->save($material);
-									   $material->keywords()->save($tesKw);
-								   });
+		factory(Resource::class, 2)
+			->create(['created_by' => User::all()->offsetGet(1)->id])
+			->each(function (Resource $r) use ($tesKw) {
+				/** @var Material $material */
+				$material = self::makeMaterialWithRandomUser();
+				$material->save();
+				$material = $r->materials()->save($material);
+				$material->keywords()->save($tesKw);
+
+				$bibleverses = factory(\App\Models\Bibleverse::class, 'Genesis', 5)->make()->each(function (\App\Models\Bibleverse $b) use($material){
+					$bv =  \App\Models\Bibleverse::firstOrCreate(['from' => $b->from, 'to' => $b->to]);
+					$material->bibleverses()->attach($bv->id, ['relevance' => rand (1,64)]);
+					return $bv;
+				});
+			});
 
 		factory(AudioFile::class, 5)->create(['created_by' => User::all()->offsetGet(2)->id])->each(function ($r) {
 			$material             = self::makeMaterialWithRandomUser();
@@ -130,4 +137,6 @@ class ResourceSeeder extends Seeder {
 
 		return $kw;
 	}
+
+
 }

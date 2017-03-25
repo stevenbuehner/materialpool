@@ -18,6 +18,7 @@ class CreateKeywordsTable extends Migration {
 			$table->string('title');
 			$table->string('lc_title');
 			$table->string('type');
+			$table->text('custom_icon')->nullable();
 			NestedSet::columns($table);
 
 			$table->unique(['lc_title', 'type']);
