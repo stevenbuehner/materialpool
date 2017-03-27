@@ -37,6 +37,9 @@ class ResourceSeeder extends Seeder {
 		$tesKw = Keyword::firstOrCreate(['title' => 'Test']);
 		$tesKw->save();
 
+		// Create Testadmin
+		factory(User::class)->create(['name' => 'admin', 'password' => bcrypt('admin'), 'email' => 'admin@test.app']);
+
 		factory(Keyword::class, 5)->create();
 		factory(Person::class, 5)->create();
 		factory(Language::class, 5)->create();
@@ -55,11 +58,17 @@ class ResourceSeeder extends Seeder {
 				$material = $r->materials()->save($material);
 				$material->keywords()->save($tesKw);
 
-				$bibleverses = factory(\App\Models\Bibleverse::class, 'Genesis', 5)->make()->each(function (\App\Models\Bibleverse $b) use($material){
-					$bv =  \App\Models\Bibleverse::firstOrCreate(['from' => $b->from, 'to' => $b->to]);
-					$material->bibleverses()->attach($bv->id, ['relevance' => rand (1,64)]);
-					return $bv;
-				});
+				$bibleverses = factory(\App\Models\Bibleverse::class, 'Genesis', 5)
+					->make()
+					->each(function (\App\Models\Bibleverse $b) use ($material) {
+						$bv = \App\Models\Bibleverse::firstOrCreate(['from' => $b->from, 'to' => $b->to]);
+						$material->bibleverses()
+								 ->attach($bv->id,
+										  ['relevance' => rand(1,
+															   64)]);
+
+						return $bv;
+					});
 			});
 
 		factory(AudioFile::class, 5)->create(['created_by' => User::all()->offsetGet(2)->id])->each(function ($r) {

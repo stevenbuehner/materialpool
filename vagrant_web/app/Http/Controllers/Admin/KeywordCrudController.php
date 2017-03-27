@@ -20,6 +20,9 @@ class KeywordCrudController extends CrudController {
 		$this->crud->setRoute('admin/keyword');
 		$this->crud->setEntityNameStrings('keyword', 'keywords');
 
+		$this->crud->enableReorder('title', 5);
+		$this->crud->allowAccess('reorder');
+
 		$this->crud->setColumns(['title', 'type']);
 		$this->crud->addField(
 			[
@@ -28,14 +31,31 @@ class KeywordCrudController extends CrudController {
 				'type'  => 'text'
 			]);
 
+		$typeNames = Keyword::getSingleTableTypeMap();
+		foreach ($typeNames as $key => $value) {
+			$t               = preg_split('~\\\\~', $value);
+			$typeNames[$key] = array_pop($t);
+		}
+
 		$this->crud->addField(
 			[ // select_from_array
 			  'name'        => 'type',
 			  'label'       => "Tag Type",
 			  'type'        => 'select_from_array',
-			  'options'     => ['key' => 'Keyword', 'lang' => 'Language', 'pers' => 'Person'],
+			  'options'     => $typeNames,
 			  'allows_null' => FALSE,
 			  // 'allows_multiple' => true, // OPTIONAL; needs you to cast this to array in your model;
+			]);
+
+		$this->crud->addField(
+			[ // select_from_array
+			  'label'        => "Eigenes Bild",
+			  'name'         => "custom_icon",
+			  'type'         => 'image',
+			  'upload'       => TRUE,
+			  'crop'         => TRUE, // set to true to allow cropping, false to disable
+			  'aspect_ratio' => 1, // ommit or set to 0 to allow any aspect ratio,
+			  'allows_null'  => TRUE
 			]);
 
 	}

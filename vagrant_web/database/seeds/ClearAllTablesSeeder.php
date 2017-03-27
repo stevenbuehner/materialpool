@@ -15,6 +15,8 @@ class ClearAllTablesSeeder extends Seeder {
 		DB::table('keyword_material')->delete();
 		DB::table('materials')->delete();
 		DB::table('material_resource')->delete();
+		DB::table('bibleverses')->delete();
+		DB::table('bibleverse_material')->delete();
 		DB::table('resources')->delete();
 		DB::table('users')->delete();
 		DB::table('password_resets')->delete();

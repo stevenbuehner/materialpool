@@ -22,6 +22,12 @@ Route::group([
 	Route::get('resources/{resource}', 'ResourceController@show')->where(['resource' => '[0-9]+']);
 
 
+	// Keywords
+	Route::get('keywords', 'KeywordController@index');
+	Route::get('keywords/{keyword}', 'KeywordController@show')
+		 ->where(['keyword' => '[0-9]+']);
+
+
 	/*
 	 * Aus der Sicht der Foreign Instance mit ihren eigenen IDs
 	 */

@@ -37,6 +37,7 @@ Route::group(['prefix'     => config('backpack.base.route_prefix', 'admin'),
 
 	// Backpack\CRUD: Define the resources for the entities you want to CRUD.
 	CRUD::resource('keyword', 'KeywordCrudController');
+	CRUD::resource('material', 'MaterialCrudController');
 
 	// [...] other routes
 });

@@ -14,7 +14,8 @@ use Nanigans\SingleTableInheritance\SingleTableInheritanceTrait;
  * @property string $title
  * @property string $type
  * @property string $lc_title
- * @property int    parent_id
+ * @property int    $parent_id
+ * @property string $custom_icon
  */
 class Keyword extends Model {
 	use NodeTrait;
@@ -37,7 +38,7 @@ class Keyword extends Model {
 	protected $table    = 'keywords';
 	protected $fillable = ['title'];
 	protected $guarded  = ['type', 'lc_title'];
-	protected $hidden = [
+	protected $hidden   = [
 		'_lft', '_rgt', 'updated_at', 'created_at'
 	];
 
@@ -46,6 +47,14 @@ class Keyword extends Model {
 	| FUNCTIONS
 	|--------------------------------------------------------------------------
 	*/
+
+	public static function boot() {
+		static::deleting(function ($obj) {
+			if ($obj->custom_image) {
+				\Storage::disk('public')->delete($obj->custom_image);
+			}
+		});
+	}
 
 	/**
 	 * @param string $value
@@ -83,9 +92,6 @@ class Keyword extends Model {
 		return $class::firstOrNew(array_merge($otherAttributes, ['title' => $value]));
 	}
 
-	public function getRouteKeyName() {
-		return 'lc_title';
-	}
 
 	/**
 	 * Get the node siblings and the node itself.
@@ -168,5 +174,35 @@ class Keyword extends Model {
 	public function setTitleAttribute(string $value) {
 		$this->attributes['title']    = $value;
 		$this->attributes['lc_title'] = str_replace(' ', '_', trim(strtolower($value)));
+	}
+
+	public function setCustomIconAttribute($value) {
+
+		$attribute_name   = "custom_icon";
+		$disk             = "public";
+		$destination_path = "keywords/icons";
+
+		// if the image was erased
+		if ($value == NULL) {
+			// delete the image from disk
+			\Storage::disk($disk)->delete($this->image);
+
+			// set null in the database column
+			$this->attributes[$attribute_name] = NULL;
+		}
+
+		// if a base64 was sent, store it in the db
+		if (starts_with($value, 'data:image')) {
+			// 0. Make the image
+			$image = \Image::make($value);
+			// 1. Generate a filename.
+			$filename = md5($value . time()) . '.jpg';
+			// 2. Store the image on disk.
+			\Storage::disk($disk)->put($destination_path . '/' . $filename, $image->stream());
+			// 3. Save the path to the database
+			$this->attributes[$attribute_name] = $destination_path . '/' . $filename;
+		}
+
+
 	}
 }

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\ResourceLimitations\ResourceLimitationInterface;
+use Backpack\CRUD\CrudTrait;
 use Illuminate\Database\Eloquent\Model;
 
 /**
@@ -18,6 +19,9 @@ use Illuminate\Database\Eloquent\Model;
  * @property int     modified_by
  */
 class Material extends Model {
+
+	use CrudTrait;
+
 	protected $casts = [
 		'from_bot'    => 'boolean',
 		'description' => 'string',
@@ -65,7 +69,7 @@ class Material extends Model {
 		return $this->keyWordClassAndChildren(Place::class);
 	}
 
-	public function setLimitationAttribute(ResourceLimitationInterface $limitation) {
+	public function setLimitationAttribute(ResourceLimitationInterface $limitation = NULL) {
 		$this->attributes['limitation'] = serialize($limitation);
 	}
 
