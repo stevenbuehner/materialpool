@@ -11,6 +11,7 @@
         "kalnoy/nestedset": "^4.2",
         "laravel/framework": "5.4.*",
         "laravel/tinker": "~1.0",
+        "laravelcollective/html": "^5.4",
         "nanigans/single-table-inheritance": "^0.7.1",
         "stevenbuehner/bible-verse-bundle": "^1.3"
     },

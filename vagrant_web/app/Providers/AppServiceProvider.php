@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Services\ResourceRecognition\ResourceRecognitionService;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
 use StevenBuehner\BibleVerseBundle\Service\BibleVerseService;
@@ -41,5 +42,12 @@ class AppServiceProvider extends ServiceProvider {
 		$this->app->singleton('BibleVerseService', function ($app) {
 			return new BibleVerseService();
 		});
+
+		$this->app->singleton(
+			'app.resource.type.recognition',
+			function ($app) {
+				return new ResourceRecognitionService();
+			}
+		);
 	}
 }

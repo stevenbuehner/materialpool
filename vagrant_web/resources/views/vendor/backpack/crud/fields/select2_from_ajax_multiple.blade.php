@@ -1,11 +1,16 @@
 <!-- select2 from ajax multiple -->
+@php
+    $connected_entity = new $field['model'];
+    $connected_entity_key_name = $connected_entity->getKeyName();
+@endphp
+
 <div @include('crud::inc.field_wrapper_attributes') >
     <label>{!! $field['label'] !!}</label>
     <input type="hidden" name="{{ $field['name'] }}" id="select2_ajax_multiple_{{ $field['name'] }}"
-        @if(isset($field['value']))
-            value="{{ $field['value'] }}"
-        @endif
-    @include('crud::inc.field_attributes', ['default_class' =>  'form-control'])
+           @if(isset($field['value']) && count($field['value']) > 0)
+           value="@php echo join(',',$field['value']->pluck($connected_entity_key_name)->toArray()); @endphp"
+            @endif
+            @include('crud::inc.field_attributes', ['default_class' =>  'form-control'])
     >
 
     {{-- HINT --}}
@@ -14,10 +19,6 @@
     @endif
 </div>
 
-@php
-    $connected_entity = new $field['model'];
-    $connected_entity_key_name = $connected_entity->getKeyName();
-@endphp
 
 {{-- ########################################## --}}
 {{-- Extra CSS and JS for this particular field --}}
@@ -27,8 +28,8 @@
     {{-- FIELD CSS - will be loaded in the after_styles section --}}
     @push('crud_fields_styles')
     <!-- include select2 css-->
-    <link href="{{ asset('vendor/backpack/select2/select2.css') }}" rel="stylesheet" type="text/css" />
-    <link href="{{ asset('vendor/backpack/select2/select2-bootstrap-dick.css') }}" rel="stylesheet" type="text/css" />
+    <link href="{{ asset('vendor/backpack/select2/select2.css') }}" rel="stylesheet" type="text/css"/>
+    <link href="{{ asset('vendor/backpack/select2/select2-bootstrap-dick.css') }}" rel="stylesheet" type="text/css"/>
     @endpush
 
     {{-- FIELD JS - will be loaded in the after_scripts section --}}
@@ -42,11 +43,10 @@
 <!-- include field specific select2 js-->
 @push('crud_fields_scripts')
 <script>
-    jQuery(document).ready(function($) {
+    jQuery(document).ready(function ($) {
         // trigger select2 for each untriggered select2 box
         $("#select2_ajax_multiple_{{ $field['name'] }}").each(function (i, obj) {
-            if (!$(obj).data("select2"))
-            {
+            if (!$(obj).data("select2")) {
                 $(obj).select2({
                     multiple: true,
                     placeholder: "{{ $field['placeholder'] }}",
@@ -66,9 +66,8 @@
 
                             return {
                                 results: $.map(data.data, function (item) {
-                                    textField = "{{$field['attribute']}}";
                                     return {
-                                        text: item[textField],
+                                        text: item["{{$field['attribute']}}"],
                                         id: item["{{ $connected_entity_key_name }}"]
                                     }
                                 }),
@@ -77,13 +76,15 @@
                         },
                         cache: true
                     },
-                    initSelection: function(element, callback) {
+                    initSelection: function (element, callback) {
                         var data = [];
+
                         @foreach($field['value'] as $item)
                             data.push({
-                                text: '{{$item[$field['attribute']]}}', id: '{{ $item[$connected_entity_key_name] }}'
-                            });
+                            text: '{{$item[$field['attribute']]}}', id: '{{ $item[$connected_entity_key_name] }}'
+                        });
                         @endforeach
+
                         callback(data);
                     },
                 });

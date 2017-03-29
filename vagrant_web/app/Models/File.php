@@ -16,22 +16,25 @@ class File extends Resource {
 		parent::__construct($attributes);
 
 		// Add Attribute
-		$this->appends[] = 'original_filename';
+		$this->appends[]             = 'original_filename';
+		$this->fillable[]            = 'original_filename';
+		$this->additionalEditViews[] = 'resources.files.edit-partial';
 	}
 
 	public static function getValidationRules() {
-		$rules         = parent::getValidationRules();
-		$rules['file'] = 'bail|required|file';
+		$rules                      = parent::getValidationRules();
+		$rules['file']              = 'bail|required|file';
+		$rules['original_filename'] = 'string';
 
 		return $rules;
 	}
 
-	public function setOriginalFileNameAttribute($originalFileName) {
+	public function setOriginalFilenameAttribute($originalFileName) {
 		$this->setOption(self::$ORIGINAL_FILENAME, $originalFileName);
 	}
 
 
-	public function getOriginalFileNameAttribute() {
+	public function getOriginalFilenameAttribute() {
 		return $this->getOption(self::$ORIGINAL_FILENAME, NULL);
 	}
 

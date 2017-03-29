@@ -103,7 +103,7 @@ class ForeignInstanceResourceController extends BaseController {
 				$resource->original_filename = $file->getClientOriginalName();
 
 				// $extension     = $file->getClientOriginalExtension();
-				$localFilePath = $foreignInstance->id . DIRECTORY_SEPARATOR . $resource->type;
+				$localFilePath = $foreignInstance->user_id . DIRECTORY_SEPARATOR . $resource->type;
 
 				$localFile = $disk->putFile($localFilePath, $file);
 
@@ -111,7 +111,8 @@ class ForeignInstanceResourceController extends BaseController {
 					throw new \Exception('File was not stored');
 				}
 
-				$resource->local_path = 'resources::' . $localFile;
+				$resource->local_path = config('pool.resource.create'). '::' . $localFile;
+
 				$resource->save();
 
 				$key = new ForeignResourceKey([

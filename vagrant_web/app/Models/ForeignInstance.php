@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $name
  * @property string $info
  * @property string $api_key
+ * @property int    $user_id
  * @property        $created_at
  * @property        $updated_at
  */

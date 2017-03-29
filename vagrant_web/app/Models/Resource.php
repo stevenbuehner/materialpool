@@ -10,7 +10,7 @@ use Nanigans\SingleTableInheritance\SingleTableInheritanceTrait;
  *
  * @package App
  * @property int    $id
- * @property int    created_by
+ * @property int    $created_by
  * @property string $remote_path
  * @property string $local_path
  * @property string $content_hash
@@ -24,12 +24,14 @@ class Resource extends Model {
 	protected static $singleTableSubclasses = [Url::class, File::class, Text::class, Book::class];
 	protected static $singleTableType       = 'res';
 
-	protected $table   = 'resources';
-	protected $casts   = [
+	protected $additionalEditViews = [];
+	protected $table               = 'resources';
+	protected $casts               = [
 		'is_public' => 'boolean',
-		'options'   => 'array'
+		'options'   => 'array',
+		// 'created_at' => 'Date'
 	];
-	protected $guarded = [
+	protected $guarded             = [
 		'id', 'created_by', 'options', 'content_hash', 'type', 'created_at', 'updated_at'
 	];
 
@@ -56,8 +58,8 @@ class Resource extends Model {
 	public static function getValidationRules() {
 		return [
 			'is_public'   => 'boolean|nullable',
-			'remote_path' => 'string|nullable',
-			'notes'       => 'string|nullable'
+			'remote_path' => 'nullable|url',
+			'notes'       => 'nullable|string'
 		];
 
 		// Type, local_path, content_hash, options, file dürfen nicht berücksichtigt werden ... das sind keine Daten, die gesetzt werden sollen an dieser Stelle
@@ -74,6 +76,15 @@ class Resource extends Model {
 
 	public function foreignResourceKeys() {
 		return $this->hasMany(ForeignResourceKey::class);
+	}
+
+	/**
+	 * Returns an array of additional EditViews that will be loaded on edit (by ResourceController)
+	 *
+	 * @return array
+	 */
+	public function getAdditionalEditViews() {
+		return $this->additionalEditViews;
 	}
 
 	/**

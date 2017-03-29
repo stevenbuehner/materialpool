@@ -18,7 +18,14 @@ Route::get('/', function () {
 });
 
 
-Route::get('/resource', 'ResourceController@index');
+// Admin Interface Routes
+Route::group(['prefix' => 'pool', 'as' => 'pool.'], function () {
+
+	// route name: "pool.material.index", ...
+	Route::resource('material', 'MaterialController');
+	Route::resource('resource', 'ResourceController');
+
+});
 
 Route::get('/keyword/{keyword}', 'KeywordController@show')
 	 ->name('keyword');
@@ -41,3 +48,11 @@ Route::group(['prefix'     => config('backpack.base.route_prefix', 'admin'),
 
 	// [...] other routes
 });
+
+Auth::routes();
+
+Route::get('/home', 'HomeController@index');
+
+Auth::routes();
+
+Route::get('/home', 'HomeController@index');

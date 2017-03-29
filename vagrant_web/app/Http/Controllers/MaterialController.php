@@ -6,13 +6,18 @@ use App\Models\Material;
 use Illuminate\Http\Request;
 
 class MaterialController extends Controller {
+
+	protected static $withAttributes = ['keywords', 'bibleverses', 'resources'];
+
 	/**
 	 * Display a listing of the resource.
 	 *
 	 * @return \Illuminate\Http\Response
 	 */
 	public function index() {
-		//
+		$materials = Material::with(self::$withAttributes)->orderBy('updated_at')->paginate(50);
+
+		return view('materials.listing', compact('materials'));
 	}
 
 	/**
@@ -41,7 +46,9 @@ class MaterialController extends Controller {
 	 * @return \Illuminate\Http\Response
 	 */
 	public function show(Material $material) {
-		//
+		$material->load(self::$withAttributes);
+
+		return view('materials.show', ['material' => $material]);
 	}
 
 	/**
@@ -51,7 +58,7 @@ class MaterialController extends Controller {
 	 * @return \Illuminate\Http\Response
 	 */
 	public function edit(Material $material) {
-		//
+
 	}
 
 	/**

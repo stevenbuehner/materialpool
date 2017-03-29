@@ -42,6 +42,13 @@ class Keyword extends Model {
 		'_lft', '_rgt', 'updated_at', 'created_at'
 	];
 
+
+	public function __construct(array $attributes = []) {
+		// Default values
+		$attributes['type'] = $this::$singleTableType;
+		parent::__construct($attributes);
+	}
+
 	/*
 	|--------------------------------------------------------------------------
 	| FUNCTIONS
@@ -49,6 +56,8 @@ class Keyword extends Model {
 	*/
 
 	public static function boot() {
+		parent::boot();
+
 		static::deleting(function ($obj) {
 			if ($obj->custom_image) {
 				\Storage::disk('public')->delete($obj->custom_image);

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Resource;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class ResourceController extends Controller {
 	/**
@@ -15,9 +16,9 @@ class ResourceController extends Controller {
 	public function index() {
 
 		// $resources = DB::table('resources')->paginate(15);
-		$resources = DB::table('resources')->simplePaginate(15);
+		$resources = DB::table('resources')->paginate(20);
 
-		return $resources;
+		return view('resources.index', compact('resources'));
 	}
 
 	/**
@@ -26,7 +27,7 @@ class ResourceController extends Controller {
 	 * @return \Illuminate\Http\Response
 	 */
 	public function create() {
-		return view('resource.create');
+		return view('resources.create');
 	}
 
 	/**
@@ -38,35 +39,30 @@ class ResourceController extends Controller {
 	public function store(Request $request) {
 		// Mass assignment easy
 
-		$data          = request(['path', 'notes', 'options', 'is_public']);
-		$type          = request('type', 'res');
-		$classToCreate = Resource::class;
 
-
-		switch ($type) {
-			case 'res':
-				$classToCreate = Resource::class;
-			case 'file':
-				$classToCreate = \App\File::class;
-			case 'audio':
-				$classToCreate = \App\AudioFile::class;
-			case 'video':
-				$classToCreate = \App\VideoFile::class;
-			case 'image':
-				$classToCreate = \App\ImageFile::class;
-			case 'doc':
-				$classToCreate = \App\DocumentFile::class;
-			case 'book':
-				$classToCreate = \App\Book::class;
-			case 'text':
-				$classToCreate = \App\Text::class;
+		if (!$request->hasFile('file')) {
+			return redirect(route('pool.resource.create'))->withErrors(['Missing upload file']);
 		}
 
+		$disk               = Storage::disk(config('app.disks.resources'));
+		$tmpPath            = $request->file('file')->getPath();
+		$sha1               = sha1_file($tmpPath);
+		$recognitionService = resolve('app.resource.type.recognition');
 
-		$obj = $classToCreate::create($data);
+		$resourceClass               = $recognitionService->guessResourceClass($request->file('file')
+																					   ->getMimeType());
+		$resource                    = new $resourceClass();
+		$resource->created_by        = Auth()->id();
+		$resource->content_hash      = $sha1;
+		$resource->original_filename = $request->file('file')->getClientOriginalName();
 
-		return redirect('/resource/' . $obj->id);
+		$localFilePath        = Auth()->id() . DIRECTORY_SEPARATOR . $resource->type;
+		$filename             = $disk->putFile($localFilePath, $request->file('file'));
+		$resource->local_path = config('app.disks.resources') . '::' . $filename;
+		$resource->save();
 
+
+		return redirect(route('pool.resource.edit', $resource->id));
 	}
 
 	/**
@@ -76,7 +72,9 @@ class ResourceController extends Controller {
 	 * @return \Illuminate\Http\Response
 	 */
 	public function show(Resource $resource) {
-		//
+		$resource->load(['materials', 'materials.keywords', 'materials.bibleverses']);
+
+		return view('resources.show')->with('resource', $resource);
 	}
 
 	/**
@@ -86,18 +84,24 @@ class ResourceController extends Controller {
 	 * @return \Illuminate\Http\Response
 	 */
 	public function edit(Resource $resource) {
-		//
+		return view('resources.edit', [
+			'resource' => $resource
+		]);
 	}
 
 	/**
 	 * Update the specified resource in storage.
 	 *
 	 * @param  \Illuminate\Http\Request $request
-	 * @param  Resource            $resource
+	 * @param  Resource                 $resource
 	 * @return \Illuminate\Http\Response
 	 */
 	public function update(Request $request, Resource $resource) {
-		//
+
+		$resource->fill($request->all());
+		$resource->save();
+
+		return redirect(route('pool.resource.edit', $resource->id));
 	}
 
 	/**
