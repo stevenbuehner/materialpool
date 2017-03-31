@@ -3,6 +3,8 @@
 namespace App\Providers;
 
 use App\Services\ResourceRecognition\ResourceRecognitionService;
+use App\Services\TagExtraction\TagExtractionService;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
 use StevenBuehner\BibleVerseBundle\Service\BibleVerseService;
@@ -47,6 +49,14 @@ class AppServiceProvider extends ServiceProvider {
 			'app.resource.type.recognition',
 			function ($app) {
 				return new ResourceRecognitionService();
+			}
+		);
+
+		$this->app->singleton(
+			'app.resource.keyword.recognition',
+			function ($app) {
+				/** @var $app App */
+				return $app->make(TagExtractionService::class);
 			}
 		);
 	}

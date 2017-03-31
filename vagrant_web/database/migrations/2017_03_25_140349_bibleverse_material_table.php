@@ -16,6 +16,7 @@ class BibleverseMaterialTable extends Migration {
 			$table->integer('bibleverse_id')->unsigned();
 			$table->integer('material_id')->unsigned();
 			$table->smallInteger('relevance')->nullable()->unsigned();
+			$table->integer('author_id')->unsigned()->nullable();
 
 			$table->primary(['bibleverse_id', 'material_id']);
 

@@ -89,5 +89,9 @@ class Material extends Model {
 		return $this->belongsToMany(Bibleverse::class);
 	}
 
+	public function author() {
+		return $this->belongsTo(Person::class, 'author_id');
+	}
+
 
 }
