@@ -6,8 +6,10 @@
     "type": "project",
     "require": {
         "php": ">=5.6.4",
+        "alchemy/phpexiftool": "^0.6.0",
         "backpack/base": "^0.7.16",
         "backpack/crud": "^3.2",
+        "intervention/image": "^2.3",
         "kalnoy/nestedset": "^4.2",
         "laravel/framework": "5.4.*",
         "laravel/tinker": "~1.0",

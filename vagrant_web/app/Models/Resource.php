@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Services\TagExtraction\ResourceHandles\FileNameHandler;
+use App\Services\TagExtraction\ResourceHandles\HandleInterface;
 use Illuminate\Database\Eloquent\Model;
 use Nanigans\SingleTableInheritance\SingleTableInheritanceTrait;
 
@@ -64,7 +66,15 @@ class Resource extends Model {
 
 		// Type, local_path, content_hash, options, file dürfen nicht berücksichtigt werden ... das sind keine Daten, die gesetzt werden sollen an dieser Stelle
 		// 'type'=> 'in:' . join(',', array_keys(self::getSingleTableTypeMap())),
+	}
 
+	/**
+	 * @return HandleInterface[]
+	 */
+	public static function getTagExtractionClasses() {
+		return [
+			resolve(FileNameHandler::class)
+		];
 	}
 
 	/**

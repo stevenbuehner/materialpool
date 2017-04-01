@@ -3,10 +3,13 @@
 namespace App\Providers;
 
 use App\Services\ResourceRecognition\ResourceRecognitionService;
+use App\Services\TagExtraction\ResourceHandles\FileNameHandler;
 use App\Services\TagExtraction\TagExtractionService;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
+use Monolog\Logger;
+use PHPExiftool\Reader;
 use StevenBuehner\BibleVerseBundle\Service\BibleVerseService;
 
 class AppServiceProvider extends ServiceProvider {
@@ -59,5 +62,14 @@ class AppServiceProvider extends ServiceProvider {
 				return $app->make(TagExtractionService::class);
 			}
 		);
+
+		$this->app->singleton(FileNameHandler::class);
+
+		$this->app->singleton('PHPExiftool\Reader', function ($app) {
+			$logger = new Logger('exiftool');
+			$reader = Reader::create($logger);
+
+			return $reader;
+		});
 	}
 }

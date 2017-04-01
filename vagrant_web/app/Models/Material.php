@@ -15,8 +15,8 @@ use Illuminate\Database\Eloquent\Model;
  * @property string  $description
  * @property int     $rating
  * @property boolean $from_bot
- * @property int     created_by
- * @property int     modified_by
+ * @property int     $created_by
+ * @property int     $modified_by
  */
 class Material extends Model {
 
@@ -30,15 +30,16 @@ class Material extends Model {
 
 	protected $attributes = [
 		'rating'      => NULL,
-		'description' => ''
+		'description' => '',
+		'from_bot'    => FALSE
 	];
 
 	protected $fillable = [
-		'title', 'description', 'limitation', 'rating'
+		'title', 'description', 'limitation', 'rating', 'from_bot'
 	];
 
 	protected $guarded = [
-		'id', 'from_bot', 'created_by', 'modified_by', 'created_at', 'updated_at'
+		'id', 'created_by', 'modified_by', 'created_at', 'updated_at'
 	];
 
 	public function resources() {

@@ -87,10 +87,11 @@ $factory->define(ImageFile::class, function (Faker\Generator $faker) {
 	static $secret;
 
 	return [
-		'remote_path' => 'https://www.allmystery.de/static/upics/942586_handy.jpg',
-		'local_path'  => 'some/file/path', 'content_hash' => $secret ?: $secret = sha1('secret'),
-		'notes'       => $faker->sentences(3, TRUE),
-		'is_public'   => $faker->boolean()
+		'remote_path'       => 'https://www.allmystery.de/static/upics/942586_handy.jpg',
+		'local_path'        => 'some/file/path', 'content_hash' => $secret ?: $secret = sha1('secret'),
+		'notes'             => $faker->sentences(3, TRUE),
+		'is_public'         => $faker->boolean(),
+		'original_filename' => 'Ich bin ein Dateiname.jpg'
 	];
 });
 

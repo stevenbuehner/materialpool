@@ -114,7 +114,7 @@ class ForeignInstanceResourceApiControllerTest extends TestCase {
 		// $this->assertGreaterThan(0, $resource->getLocalSize());
 		// $this->assertEquals($file->getSize(), $resource->getLocalSize());
 
-		$this->assertTrue(Storage::disk($storageDisk)->exists($resource->getLocalDiskPath()));
+		$this->assertTrue(Storage::disk($storageDisk)->exists($resource->getLocalDiskName()));
 		$this->assertTrue($resource->hasLocalFile());
 		$this->assertNotNull($resource->getLocalUrl());
 		$this->assertNotNull($resource->getLocalMimeType());
@@ -122,7 +122,7 @@ class ForeignInstanceResourceApiControllerTest extends TestCase {
 
 		$this->assertTrue($resource->deleteLocalFile());
 
-		$this->assertFalse(Storage::disk($storageDisk)->exists($resource->getLocalDiskPath()));
+		$this->assertFalse(Storage::disk($storageDisk)->exists($resource->getLocalDiskName()));
 		$this->assertNull($resource->local_path);
 		$this->assertFalse($resource->hasLocalFile());
 

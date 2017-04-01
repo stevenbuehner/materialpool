@@ -2,8 +2,15 @@
 
 namespace App\Models;
 
+use App\Services\TagExtraction\ResourceHandles\HandleInterface;
 use Illuminate\Support\Facades\Storage;
 
+/**
+ * Class File
+ *
+ * @package App\Models
+ * @property string|null $original_filename
+ */
 class File extends Resource {
 
 	protected static $singleTableSubclasses = [AudioFile::class, VideoFile::class, ImageFile::class, DocumentFile::class];
@@ -29,6 +36,14 @@ class File extends Resource {
 		return $rules;
 	}
 
+	/**
+	 * @return HandleInterface[]
+	 */
+	public static function getTagExtractionClasses() {
+		return [
+		];
+	}
+
 	public function setOriginalFilenameAttribute($originalFileName) {
 		$this->setOption(self::$ORIGINAL_FILENAME, $originalFileName);
 	}
@@ -39,7 +54,7 @@ class File extends Resource {
 	}
 
 	public function getLocalFile() {
-		return $this->getLocalDisk()->get($this->getLocalDiskPath());
+		return $this->getLocalDisk()->get($this->getLocalDiskName());
 	}
 
 	public function getLocalDisk() {
@@ -62,32 +77,32 @@ class File extends Resource {
 		];
 	}
 
-	public function getLocalDiskPath() {
+	public function getLocalDiskName() {
 		list($storage, $path) = $this->getLocalStorageAndPath();
 
 		return $path;
 	}
 
 	public function deleteLocalFile() {
-		$result = $this->getLocalDisk()->delete($this->getLocalDiskPath());
+		$result = $this->getLocalDisk()->delete($this->getLocalDiskName());
 		$this->setAttribute('local_path', NULL);
 
 		return $result;
 	}
 
 	public function getLocalMimeType() {
-		return $this->getLocalDisk()->mimeType($this->getLocalDiskPath());
+		return $this->getLocalDisk()->mimeType($this->getLocalDiskName());
 	}
 
 	public function getLocalUrl() {
-		return $this->getLocalDisk()->url($this->getLocalDiskPath());
+		return $this->getLocalDisk()->url($this->getLocalDiskName());
 	}
 
 	/**
 	 * @return \Illuminate\Filesystem\FilesystemAdapter
 	 */
 	public function getLocalSize() {
-		return $this->getLocalDisk()->size($this->getLocalDiskPath());
+		return $this->getLocalDisk()->size($this->getLocalDiskName());
 	}
 
 	/**

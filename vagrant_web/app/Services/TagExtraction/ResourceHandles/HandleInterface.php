@@ -2,13 +2,15 @@
 namespace App\Services\TagExtraction\ResourceHandles;
 
 use App\Models\Resource;
+use App\Services\TagExtraction\Properties\Property;
 
 interface HandleInterface {
 
 	/**
 	 * Returns an array of possible metaData
+	 *
 	 * @param Resource $resource
-	 * @return array metaData
+	 * @return Property[]
 	 */
 	public function handle(Resource $resource);
 }
