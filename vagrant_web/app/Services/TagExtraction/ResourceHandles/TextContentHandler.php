@@ -11,7 +11,7 @@ use App\Services\TagExtraction\TagExtractionService;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 
-class TextfileFirstLineHandler implements HandleInterface {
+class TextContentHandler implements HandlerInterface {
 
 	protected $tagExtractionService;
 

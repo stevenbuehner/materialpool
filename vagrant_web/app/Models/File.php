@@ -2,8 +2,10 @@
 
 namespace App\Models;
 
-use App\Services\TagExtraction\ResourceHandles\HandleInterface;
+use App\Services\TagExtraction\ResourceHandles\FileExifHandler;
+use App\Services\TagExtraction\ResourceHandles\HandlerInterface;
 use Illuminate\Support\Facades\Storage;
+use PHPExiftool\Driver\Tag\System\FileName;
 
 /**
  * Class File
@@ -37,11 +39,12 @@ class File extends Resource {
 	}
 
 	/**
-	 * @return HandleInterface[]
+	 * @return HandlerInterface[]
 	 */
-	public static function getTagExtractionClasses() {
+	public function getTagExtractionClasses() {
 		return [
-
+			FileName::class,
+			FileExifHandler::class
 		];
 	}
 

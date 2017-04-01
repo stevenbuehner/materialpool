@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Services\TagExtraction\ResourceHandles\HandlerInterface;
+use App\Services\TagExtraction\ResourceHandles\TextContentHandler;
 use App\Services\TagExtraction\ResourceHandles\TextContentInterface;
 
 class Text extends Resource implements TextContentInterface {
@@ -25,6 +27,14 @@ class Text extends Resource implements TextContentInterface {
 		return $rules;
 	}
 
+	/**
+	 * @return HandlerInterface[]
+	 */
+	public function getTagExtractionClasses() {
+		return [
+			TextContentHandler::class
+		];
+	}
 
 	public function getContent() {
 		return $this->getOption(self::$CONTENT_OPTION);

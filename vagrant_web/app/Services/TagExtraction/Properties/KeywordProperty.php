@@ -16,13 +16,7 @@ class KeywordProperty extends Property {
 	static $type = 'keyword';
 
 	public function __construct($title, $class, $relevance = 0) {
-		parent::__construct($this->getKeywordFromValue($title, $class), $relevance);
-	}
-
-	protected function getKeywordFromValue($title, $class) {
-		return $class::firstOrNew([
-									  'title' => $title
-								  ]);
+		parent::__construct([$class, $title], $relevance);
 	}
 
 	/**
@@ -31,14 +25,19 @@ class KeywordProperty extends Property {
 	 * @param Material $material
 	 */
 	function insertYourselfToItem(Material $material) {
-		$newKeyword = $this->getValue();
+
+		list($class, $title) = $this->getValue();
+		$newKeyword = $class::firstOrCreate([
+												'title' => $title
+											]);
 		$relevance  = $this->getRelevance();
 
 		$newKeyword->save();
-		$foundInstance = $material->keywords->where('id', $newKeyword->id);
+		$foundInstance = $material->keywords()->where('keyword_id', $newKeyword->id)->get();
 
-		if ($foundInstance) {
+		if ($foundInstance->count() > 0) {
 			# Only update pivot
+			$foundInstance = $foundInstance->first();
 
 			if (empty($foundInstance->pivot->relevance) || $foundInstance->pivot->relevance < $relevance) {
 				$foundInstance->pivot->relevance = $relevance;
@@ -48,13 +47,16 @@ class KeywordProperty extends Property {
 
 		} else {
 			// Insert a new Instance
-			$material->keywords()->attach($newKeyword->id, ['relevance' => $relevance]);
-			// $material->keywords()->attach($newKeyword, ['relevance' => $relevance]);
+			$material->keywords()->attach($newKeyword, ['relevance' => $relevance]);
 		}
 	}
 
 	public function setKeywordValue($title, $class = Keyword::class) {
 		$keyword = $this->getKeywordFromValue($title, $class);
 		$this->setValue($keyword);
+	}
+
+	public function __toString() {
+		return 'r=' . $this->getRelevance() . ',v=' . json_encode($this->getValue());
 	}
 }

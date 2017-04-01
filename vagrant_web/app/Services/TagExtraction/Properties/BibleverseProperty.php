@@ -35,11 +35,13 @@ class BibleverseProperty extends Property {
 	function insertYourselfToItem(Material $material) {
 		$bibelverseModel = Bibleverse::findOrCreateFromBibleverseInterface($this->getValue());
 		$relevance       = $this->getRelevance();
+		//$material->load('bibleverses');
 
-		$foundInstance = $material->bibleverses->where('id', $bibelverseModel->id);
+		$foundInstance = $material->bibleverses()->where('bibleverse_id', $bibelverseModel->id)->get();
 
-		if ($foundInstance) {
+		if ($foundInstance->count() > 0) {
 			# Only update pivot
+			$foundInstance = $foundInstance->first();
 
 			if (empty($foundInstance->pivot->relevance) || $foundInstance->pivot->relevance < $relevance) {
 				$foundInstance->pivot->relevance = $relevance;
@@ -49,8 +51,7 @@ class BibleverseProperty extends Property {
 
 		} else {
 			// Insert a new Instance
-			$material->bibleverses()->attach($bibelverseModel->id, ['relevance' => $relevance]);
-			// $material->keywords()->attach($newKeyword, ['relevance' => $relevance]);
+			$material->bibleverses()->attach($bibelverseModel, ['relevance' => $relevance]);
 		}
 	}
 

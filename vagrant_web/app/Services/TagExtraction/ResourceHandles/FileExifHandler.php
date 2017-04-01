@@ -20,7 +20,7 @@ use PHPExiftool\Driver\Metadata\MetadataBag;
 use PHPExiftool\Driver\Value\ValueInterface;
 use PHPExiftool\Reader;
 
-class FileExifHandler implements HandleInterface {
+class FileExifHandler implements HandlerInterface {
 
 	protected $tagExtractionService;
 	protected $exifReader;

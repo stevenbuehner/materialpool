@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Services\ResourceRecognition\ResourceRecognitionService;
+use App\Services\TagExtraction\MaterialExtractionService;
 use App\Services\TagExtraction\ResourceHandles\FileNameHandler;
 use App\Services\TagExtraction\TagExtractionService;
 use Illuminate\Support\Facades\App;
@@ -64,6 +65,7 @@ class AppServiceProvider extends ServiceProvider {
 		);
 
 		$this->app->singleton(FileNameHandler::class);
+		$this->app->singleton(MaterialExtractionService::class);
 
 		$this->app->singleton('PHPExiftool\Reader', function ($app) {
 			$logger = new Logger('exiftool');

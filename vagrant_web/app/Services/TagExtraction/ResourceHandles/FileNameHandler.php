@@ -9,7 +9,7 @@ use App\Services\TagExtraction\Properties\TitleProperty;
 use App\Services\TagExtraction\TagExtractionService;
 use Doctrine\Common\Collections\Collection;
 
-class FileNameHandler implements HandleInterface {
+class FileNameHandler implements HandlerInterface {
 
 	protected $tagExtractionService;
 

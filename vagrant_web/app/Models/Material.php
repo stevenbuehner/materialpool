@@ -87,7 +87,7 @@ class Material extends Model {
 	}
 
 	public function bibleverses() {
-		return $this->belongsToMany(Bibleverse::class);
+		return $this->belongsToMany(Bibleverse::class)->withPivot('relevance');
 	}
 
 	public function author() {

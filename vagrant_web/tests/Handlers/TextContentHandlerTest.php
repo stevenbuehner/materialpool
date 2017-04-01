@@ -5,12 +5,12 @@ namespace Tests\Handlers;
 use App\Models\Text;
 use App\Models\User;
 use App\Services\TagExtraction\ResourceHandles\FileNameHandler;
-use App\Services\TagExtraction\ResourceHandles\TextfileFirstLineHandler;
+use App\Services\TagExtraction\ResourceHandles\TextContentHandler;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Support\Collection;
 use Tests\TestCase;
 
-class TextfileFirstLineHandlerTest extends TestCase {
+class TextContentHandlerTest extends TestCase {
 
 	use DatabaseMigrations;
 
@@ -19,7 +19,7 @@ class TextfileFirstLineHandlerTest extends TestCase {
 
 	public function setUp() {
 		parent::setUp();
-		$this->service = resolve(TextfileFirstLineHandler::class);
+		$this->service = resolve(TextContentHandler::class);
 
 		$content = "Hallo, Test, Person: Steven Buehner, Title: Mein Testtitel; 1Kor 3,16
 		danach kommt noch was ganz anderes - nämlich:
@@ -40,7 +40,7 @@ class TextfileFirstLineHandlerTest extends TestCase {
 	}
 
 	public function testServiceProvider() {
-		$this->assertInstanceOf(TextfileFirstLineHandler::class, $this->service);
+		$this->assertInstanceOf(TextContentHandler::class, $this->service);
 	}
 
 	public function testHandleText() {

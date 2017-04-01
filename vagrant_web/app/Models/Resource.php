@@ -2,8 +2,7 @@
 
 namespace App\Models;
 
-use App\Services\TagExtraction\ResourceHandles\FileNameHandler;
-use App\Services\TagExtraction\ResourceHandles\HandleInterface;
+use App\Services\TagExtraction\ResourceHandles\HandlerInterface;
 use Illuminate\Database\Eloquent\Model;
 use Nanigans\SingleTableInheritance\SingleTableInheritanceTrait;
 
@@ -69,11 +68,10 @@ class Resource extends Model {
 	}
 
 	/**
-	 * @return HandleInterface[]
+	 * @return HandlerInterface[]
 	 */
-	public static function getTagExtractionClasses() {
+	public function getTagExtractionClasses() {
 		return [
-			resolve(FileNameHandler::class)
 		];
 	}
 

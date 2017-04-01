@@ -4,7 +4,7 @@ namespace App\Services\TagExtraction\ResourceHandles;
 use App\Models\Resource;
 use App\Services\TagExtraction\Properties\Property;
 
-interface HandleInterface {
+interface HandlerInterface {
 
 	/**
 	 * Returns an array of possible metaData
