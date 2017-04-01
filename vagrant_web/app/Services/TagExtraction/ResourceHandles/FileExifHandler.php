@@ -40,6 +40,9 @@ class FileExifHandler implements HandleInterface {
 
 		if (empty($resource->local_path)) {
 			// First needs a download of the remote Resource!
+			Log::error('This handler can only applied to local files!',
+					   ['resource_id' => $resource->id, 'handler' => __CLASS__]);
+
 			// TODO: Download remote Files to local
 		}
 

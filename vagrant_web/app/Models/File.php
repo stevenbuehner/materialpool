@@ -41,6 +41,7 @@ class File extends Resource {
 	 */
 	public static function getTagExtractionClasses() {
 		return [
+
 		];
 	}
 

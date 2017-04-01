@@ -21,6 +21,7 @@ use App\Models\Material;
 use App\Models\Person;
 use App\Models\Place;
 use App\Models\Resource;
+use App\Models\Text;
 use App\Models\User;
 use App\Models\VideoFile;
 
@@ -76,10 +77,11 @@ $factory->define(VideoFile::class, function (Faker\Generator $faker) {
 	static $secret;
 
 	return [
-		'remote_path' => 'http://some/file/path',
-		'local_path'  => 'some/file/path', 'content_hash' => $secret ?: $secret = sha1('secret'),
-		'notes'       => $faker->sentences(3, TRUE),
-		'is_public'   => $faker->boolean()
+		'remote_path'  => 'http://some/file/path',
+		'local_path'   => 'some/file/path',
+		'content_hash' => $secret ?: $secret = sha1('secret'),
+		'notes'        => $faker->sentences(3, TRUE),
+		'is_public'    => $faker->boolean()
 	];
 });
 
@@ -88,7 +90,8 @@ $factory->define(ImageFile::class, function (Faker\Generator $faker) {
 
 	return [
 		'remote_path'       => 'https://www.allmystery.de/static/upics/942586_handy.jpg',
-		'local_path'        => 'some/file/path', 'content_hash' => $secret ?: $secret = sha1('secret'),
+		'local_path'        => 'some/file/path',
+		'content_hash'      => $secret ?: $secret = sha1('secret'),
 		'notes'             => $faker->sentences(3, TRUE),
 		'is_public'         => $faker->boolean(),
 		'original_filename' => 'Ich bin ein Dateiname.jpg'
@@ -99,10 +102,28 @@ $factory->define(DocumentFile::class, function (Faker\Generator $faker) {
 	static $secret;
 
 	return [
-		'remote_path' => 'http://some/file/path',
-		'local_path'  => 'some/file/path', 'content_hash' => $secret ?: $secret = sha1('secret'),
-		'notes'       => $faker->sentences(3, TRUE),
-		'is_public'   => $faker->boolean()
+		'remote_path'  => 'http://some/file/path',
+		'local_path'   => 'some/file/path',
+		'content_hash' => $secret ?: $secret = sha1('secret'),
+		'notes'        => $faker->sentences(3, TRUE),
+		'is_public'    => $faker->boolean()
+	];
+});
+
+$factory->define(Text::class, function (Faker\Generator $faker) {
+	$content = 'Person: ' . $faker->name . ';';
+	$content .= 'Title: ' . $faker->title . ';';
+	$content .= 'vom: ' . $faker->date() . ';';
+
+	$content .= "\n" . $faker->sentences(5, TRUE);
+
+	return [
+		'remote_path'  => NULL,
+		'local_path'   => NULL,
+		'content_hash' => sha1($content),
+		'content'      => $content,
+		'notes'        => '',
+		'is_public'    => $faker->boolean()
 	];
 });
 

@@ -21,13 +21,15 @@ class Title implements PreRecognitionProcessInterface {
 	 * @return string
 	 */
 	public function preProcessInput($inputValue, $context) {
-		$pregSearchString = '~(^|,)\s*(' . join('|', self::RECOGNIZED_LABELS) . '):?\s+([^,;]*?)\s*($|,|;)~i';
+		$pregSearchString = '~(^|,)\s*(' . join('|', self::RECOGNIZED_LABELS) . '):?\s+([^,;]*?)\s*(?=$|,|;)~i';
 		$tags             = [];
 
 		if (1 === preg_match($pregSearchString, $inputValue, $match)) {
 			$titleProp = new TitleProperty($match[3]);
 			$titleProp->setRelevance(RelevanceInterface::RELEVANCE_USER_MAX);
 			$tags[] = $titleProp;
+
+			$inputValue = str_replace($match[0], '', $inputValue);
 		}
 
 		return [$inputValue, $tags];

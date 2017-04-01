@@ -56,18 +56,27 @@ class Bibleverse extends Model implements BibleVerseInterface {
 	];
 
 	public static function findOrCreateFromBibleverseInterface(BibleVerseInterface $bibleVerse, $bibleId = NULL) {
+		return self::firstOrCreate(self::getBibleverseCreateData($bibleVerse, $bibleId));
+	}
+
+	protected static function getBibleverseCreateData(BibleVerseInterface $bibleVerse, $bibleId = NULL) {
 		$from = self::getCombi($bibleVerse->getBookId(), $bibleVerse->getFromChapter(), $bibleVerse->getFromVerse());
 		$to   = self::getCombi($bibleVerse->getBookId(), $bibleVerse->getToChapter(), $bibleVerse->getToVerse());
 
-		return Bibleverse::firstOrCreate([
-											 self::$fromColumn => $from,
-											 self::$toColumn   => $to,
-											 'bible_id'        => $bibleId
-										 ]);
+		return [
+			self::$fromColumn => $from,
+			self::$toColumn   => $to,
+			'bible_id'        => $bibleId
+		];
 	}
 
 	protected static function getCombi($bookId, $chapter, $verse) {
 		return (int) sprintf('%03d%03d%03d', $bookId, $chapter, $verse);
+	}
+
+	public static function findOrNewFromBibleverseInterface(BibleVerseInterface $bibleVerse, $bibleId = NULL) {
+		return self::firstOrNew(self::getBibleverseCreateData($bibleVerse, $bibleId));
+
 	}
 
 	public function getLabelAttribute() {

@@ -1,0 +1,2 @@
+run composer install
+set phpexiftool executeable (+x) for web-user in vendor/phpexiftool/exiftool/exiftool

@@ -2,13 +2,13 @@
 
 namespace App\Services\TagExtraction;
 
-use App\Models\Bibleverse;
 use App\Models\Keyword;
 use App\Services\TagExtraction\Interfaces\CompareablePropertyInterface;
 use App\Services\TagExtraction\Interfaces\PreRecognitionProcessInterface;
 use App\Services\TagExtraction\Interfaces\TagRecognitionInterface;
+use App\Services\TagExtraction\Properties\BibleverseProperty;
 use Illuminate\Support\Collection;
-use StevenBuehner\BibleVerseBundle\Entity\BibleVerse as BibleVerseEntity;
+use StevenBuehner\BibleVerseBundle\Interfaces\BibleVerseInterface;
 use StevenBuehner\BibleVerseBundle\Service\BibleVerseService;
 
 class TagExtractionService {
@@ -55,11 +55,13 @@ class TagExtractionService {
 			}
 
 			// Extract bibleverses (they might have ',' in it and need to processed before tagging etc.)
-			$foundBibleVerses       = $this->bibleVerseService->stringToBibleVerse($preProcessedString);
-			$foundBibleverseModels  = $this->convertBibleVerseInterfaceToBibleverse($foundBibleVerses);
-			$bibleVerseRemainString = $this->bibleVerseService->getLastRestString();
+			$foundBibleVerses = $this->bibleVerseService->stringToBibleVerse($preProcessedString);
+			$bvResult         = collect($foundBibleVerses)->map(function (BibleVerseInterface $bv) {
+				return new BibleverseProperty($bv);
+			});
+			$result           = $result->merge($bvResult);
 
-			$result = $result->merge($foundBibleverseModels);
+			$bibleVerseRemainString = $this->bibleVerseService->getLastRestString();
 
 
 			// Recognize Text-Parts
@@ -161,33 +163,6 @@ class TagExtractionService {
 		}
 	}
 
-	/**
-	 * It converts BibleVerses into BibleVerseTags. When an array is given an array will be returned. Same for single
-	 * entities.
-	 *
-	 * @param BibleVerseEntity[]|BibleVerseEntity $bibleVerse
-	 * @return Bibleverse[]|Bibleverse
-	 */
-	protected function convertBibleVerseInterfaceToBibleverse($bibleVerse) {
-		if (is_array($bibleVerse)) {
-			$arrayOut = TRUE;
-		} else {
-			$arrayOut   = FALSE;
-			$bibleVerse = [$bibleVerse];
-		}
-
-		$result = [];
-
-		foreach ($bibleVerse as $bv) {
-			$result[] = Bibleverse::findOrCreateFromBibleverseInterface($bv);
-		}
-
-		if (FALSE === $arrayOut && count($result) > 0) {
-			$result = $result[0];
-		}
-
-		return $result;
-	}
 
 	/**
 	 * @param string|string[] $string
