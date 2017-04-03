@@ -20,4 +20,6 @@
 .idea
 .cache
 .vagrant
-vagrant_web/.composer
+.composer
+vagrant_web/public/css/app.*.css
+vagrant_web/public/js/app.*.js
