@@ -59,7 +59,7 @@ class MaterialExtractionService {
 			});
 
 			if ($ocrTextProperties->count()) {
-				$defaultTitle = str_limit($ocrTextProperties->first()->getValue(), 150);
+				$defaultTitle = str_limit($ocrTextProperties->first()->getValue(), 60);
 				$properties->push(new TitleProperty($defaultTitle, 0));
 			}
 		}

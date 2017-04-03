@@ -7,6 +7,15 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
 
+/**
+ * Class User
+ *
+ * @package App\Models
+ * @property string $name
+ * @property string $email
+ * @property string $password
+ * @property string $remember_token
+ */
 class User extends Authenticatable {
 	use Notifiable;
 

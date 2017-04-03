@@ -9,6 +9,12 @@ namespace App\Services\TagExtraction\Properties;
 
 use App\Models\Material;
 
+/**
+ * Class CreateDateProperty
+ *
+ * @package App\Services\TagExtraction\Properties
+ * @method \DateTime getValue
+ */
 class CreateDateProperty extends Property {
 
 	/**
@@ -25,5 +31,11 @@ class CreateDateProperty extends Property {
 		$d = ($d instanceof \DateTime) ? $d->format('Y-m-d') : '';
 
 		return 'type=' . self::class . ',value=' . $d;
+	}
+
+	public function __toString() {
+		$date = ($this->getValue() !== NULL) ? $this->getValue()->getTimestamp() : '';
+
+		return 'r=' . $this->getRelevance() . ',v=' . $date;
 	}
 }

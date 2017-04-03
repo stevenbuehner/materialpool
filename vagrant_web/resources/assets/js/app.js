@@ -6,3 +6,6 @@
  */
 
 require('./my_bootstrap');
+
+
+// select2

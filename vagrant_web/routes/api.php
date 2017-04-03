@@ -23,9 +23,10 @@ Route::group([
 
 
 	// Keywords
-	Route::get('keywords', 'KeywordController@index');
+	Route::get('keywords', 'KeywordController@index')->name('api.v1.keywords.index');
 	Route::get('keywords/{keyword}', 'KeywordController@show')
-		 ->where(['keyword' => '[0-9]+']);
+		 ->where(['keyword' => '[0-9]+'])
+		 ->name('api.v1.keywords.show');
 
 
 	/*
