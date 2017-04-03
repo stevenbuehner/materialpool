@@ -6,7 +6,9 @@ use App\Models\Material;
 use App\Models\Resource;
 use App\Services\TagExtraction\Properties\BibleverseProperty;
 use App\Services\TagExtraction\Properties\KeywordProperty;
+use App\Services\TagExtraction\Properties\OcrTextProperty;
 use App\Services\TagExtraction\Properties\Property;
+use App\Services\TagExtraction\Properties\TitleProperty;
 use App\Services\TagExtraction\ResourceHandles\HandlerInterface;
 use Illuminate\Support\Collection;
 
@@ -21,9 +23,10 @@ class MaterialExtractionService {
 	 * @param Resource $resource
 	 * @return Material
 	 */
-	public function createGuessedMaterialFromResource(Resource $resource) {
+	public function createGuessedMaterialFromResource(Resource $resource, $additionalInformation = []) {
 
 		/** @var Resource $resource */
+		$additionalInformation = collect($additionalInformation);
 		$handlerColl           = $resource->getTagExtractionClasses();
 		$properties            = new Collection();
 		$material              = new Material();
@@ -38,6 +41,27 @@ class MaterialExtractionService {
 			/** @var HandlerInterface $handler */
 			$handler    = resolve($handlerClass);
 			$properties = $properties->merge($handler->handle($resource));
+		}
+
+		// Extract properties from additionalInformation
+		foreach ($additionalInformation->get('properties', []) as $keywordString) {
+			$foundTags  = $this->tagExtractionService->extractPartsFromStrings($keywordString);
+			$properties = $properties->merge($foundTags);
+		}
+
+		// Create a TitleProperty if non exists from oxrText
+		if ($properties->filter(function (Property $property) {
+				return $property instanceof TitleProperty;
+			})->count() == 0
+		) {
+			$ocrTextProperties = $properties->filter(function (Property $property) {
+				return $property instanceof OcrTextProperty;
+			});
+
+			if ($ocrTextProperties->count()) {
+				$defaultTitle = str_limit($ocrTextProperties->first()->getValue(), 150);
+				$properties->push(new TitleProperty($defaultTitle, 0));
+			}
 		}
 
 		// Order descending by Relevance

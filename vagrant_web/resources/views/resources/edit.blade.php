@@ -26,4 +26,11 @@
     @include('layouts.errors')
 
 
+    <div class="card-columns>">
+        @foreach($resource->materials as $material)
+            @include('materials.material-and-keywords-partial', ['material' => $material])
+        @endforeach
+    </div>
+
+
 @endsection

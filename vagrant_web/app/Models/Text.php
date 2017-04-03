@@ -6,6 +6,12 @@ use App\Services\TagExtraction\ResourceHandles\HandlerInterface;
 use App\Services\TagExtraction\ResourceHandles\TextContentHandler;
 use App\Services\TagExtraction\ResourceHandles\TextContentInterface;
 
+/**
+ * Class Text
+ *
+ * @package App\Models
+ * @property string $content
+ */
 class Text extends Resource implements TextContentInterface {
 
 	protected static $singleTableType = 'text';
@@ -45,6 +51,8 @@ class Text extends Resource implements TextContentInterface {
 	}
 
 	public function setContentAttribute($value) {
+		$value = trim($value);
 		$this->setOption(self::$CONTENT_OPTION, $value);
+		$this->content_hash = sha1($value);
 	}
 }

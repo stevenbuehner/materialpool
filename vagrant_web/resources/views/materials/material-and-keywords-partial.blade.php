@@ -1,20 +1,30 @@
-<h1>{{$material->title}}</h1>
-<small>{{ $material->created_at->diffForHumans() }}</small>
+<div class="card">
 
-<p class="lead">{{ $material->description }}</p>
-
-@if(count($material->keywords))
     <div class="card-block">
-        @foreach($material->keywords as $keyword)
-            @include('keywords.linked', ['keyword' => $keyword])
-        @endforeach
-    </div>
-@endif
+        <h1>{{$material->title}}</h1>
+        <small>{{ $material->created_at->diffForHumans() }}</small>
 
-@if(count($material->bibleverses))
-    <div class="card-block">
-        @foreach($material->bibleverses as $bv)
-            @include('bibleverses.tag', ['bibleverse' => $bv])
-        @endforeach
+        <p class="lead">{{ $material->description }}</p>
     </div>
-@endif
+
+    @if(count($material->keywords) || count($material->bibleverses))
+        <div class="card-block">
+            @if(count($material->keywords))
+                <div class="card-block">
+                    @foreach($material->keywords as $keyword)
+                        @include('keywords.linked', ['keyword' => $keyword])
+                    @endforeach
+                </div>
+            @endif
+
+            @if(count($material->bibleverses))
+                <div class="card-block">
+                    @foreach($material->bibleverses as $bv)
+                        @include('bibleverses.tag', ['bibleverse' => $bv])
+                    @endforeach
+                </div>
+            @endif
+        </div>
+    @endif
+
+</div>

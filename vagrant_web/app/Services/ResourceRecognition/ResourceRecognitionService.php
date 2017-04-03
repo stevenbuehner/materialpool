@@ -22,6 +22,7 @@ class ResourceRecognitionService {
 			case 'image':
 				return ImageFile::class;
 
+
 			default:
 				return Resource::class;
 		}

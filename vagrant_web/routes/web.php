@@ -23,7 +23,12 @@ Route::group(['prefix' => 'pool', 'as' => 'pool.'], function () {
 
 	// route name: "pool.material.index", ...
 	Route::resource('material', 'MaterialController');
-	Route::resource('resource', 'ResourceController');
+
+	Route::resource('resource', 'ResourceController', ['except' => ['store']]);
+
+	Route::post('resource/file', 'ResourceController@storeFile')->name('resource.store.file');
+	Route::post('resource/text', 'ResourceController@storeText')->name('resource.store.text');
+
 
 });
 

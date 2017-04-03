@@ -3,8 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\Resource;
+use App\Models\Text;
+use App\Services\ResourceRecognition\ResourceRecognitionService;
+use App\Services\TagExtraction\MaterialExtractionService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 
 class ResourceController extends Controller {
@@ -36,7 +40,7 @@ class ResourceController extends Controller {
 	 * @param  \Illuminate\Http\Request $request
 	 * @return \Illuminate\Http\Response
 	 */
-	public function store(Request $request) {
+	public function storeFile(Request $request) {
 		// Mass assignment easy
 
 
@@ -44,13 +48,15 @@ class ResourceController extends Controller {
 			return redirect(route('pool.resource.create'))->withErrors(['Missing upload file']);
 		}
 
+		/** @var ResourceRecognitionService $recognitionService */
 		$disk               = Storage::disk(config('app.disks.resources'));
 		$tmpPath            = $request->file('file')->getPath();
 		$sha1               = sha1_file($tmpPath);
 		$recognitionService = resolve('app.resource.type.recognition');
 
-		$resourceClass               = $recognitionService->guessResourceClass($request->file('file')
-																					   ->getMimeType());
+		$resourceClass               = $recognitionService->guessResourceClass($request
+																				   ->file('file')
+																				   ->getMimeType());
 		$resource                    = new $resourceClass();
 		$resource->created_by        = Auth()->id();
 		$resource->content_hash      = $sha1;
@@ -61,6 +67,42 @@ class ResourceController extends Controller {
 		$resource->local_path = config('app.disks.resources') . '::' . $filename;
 		$resource->save();
 
+
+		return redirect(route('pool.resource.edit', $resource->id));
+	}
+
+	/**
+	 * Store a newly created resource in storage.
+	 *
+	 * @param  \Illuminate\Http\Request $request
+	 * @return \Illuminate\Http\Response
+	 */
+	public function storeText(Request $request) {
+		// Mass assignment easy
+
+		$resource              = new Text();
+		$resource->created_by  = Auth()->id();
+		$additionalInformation = ['properties' => []];
+
+		if ($request->hasFile('file')) {
+			if ($request->file('file')->getMimeType() != 'text/plain') {
+				return redirect(route('pool.resource.create'))->withErrors(['File is not a textfile.']);
+			}
+
+			$resource->content                     = File::get($request->file('file')->getRealPath());
+			$additionalInformation['properties'][] = $request->file('file')->getClientOriginalName();
+		} else if ($request->has('content') && strlen($request->get('content')) > 5) {
+
+			$resource->content = $request->get('content');
+		} else {
+			return redirect(route('pool.resource.create'))->withErrors(['Missing a file or some text to create a ressource.']);
+		}
+
+		$resource->save();
+
+		/** @var MaterialExtractionService $materialService */
+		$materialService = resolve(MaterialExtractionService::class);
+		$material        = $materialService->createGuessedMaterialFromResource($resource, $additionalInformation);
 
 		return redirect(route('pool.resource.edit', $resource->id));
 	}
@@ -84,6 +126,8 @@ class ResourceController extends Controller {
 	 * @return \Illuminate\Http\Response
 	 */
 	public function edit(Resource $resource) {
+		$resource->load(['materials.keywords', 'materials.bibleverses']);
+
 		return view('resources.edit', [
 			'resource' => $resource
 		]);
