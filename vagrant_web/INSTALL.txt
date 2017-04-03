@@ -1,2 +1,5 @@
 run composer install
 set phpexiftool executeable (+x) for web-user in vendor/phpexiftool/exiftool/exiftool
+
+#Update npm
+sudo npm install npm@latest -g
