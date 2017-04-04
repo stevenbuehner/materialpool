@@ -101,6 +101,15 @@ class Keyword extends Model {
 		return $class::firstOrNew(array_merge($otherAttributes, ['title' => $value]));
 	}
 
+	public static function getSingleTableType() {
+		return self::$singleTableType;
+	}
+
+	/*
+	|--------------------------------------------------------------------------
+	| RELATIONS
+	|--------------------------------------------------------------------------
+	*/
 
 	/**
 	 * Get the node siblings and the node itself.
@@ -111,12 +120,6 @@ class Keyword extends Model {
 		return $this->newScopedQuery()
 					->where($this->getParentIdName(), '=', $this->getParentId());
 	}
-
-	/*
-	|--------------------------------------------------------------------------
-	| RELATIONS
-	|--------------------------------------------------------------------------
-	*/
 
 	public function materials() {
 		return $this->belongsToMany(Material::class, 'keyword_material', 'keyword_id', 'material_id')
@@ -138,6 +141,18 @@ class Keyword extends Model {
 		return $query;
 	}
 
+	/*
+	|--------------------------------------------------------------------------
+	| SCOPES
+	|--------------------------------------------------------------------------
+	*/
+
+	/*
+	|--------------------------------------------------------------------------
+	| ACCESORS
+	|--------------------------------------------------------------------------
+	*/
+
 	/**
 	 * Override this model to make shure, that GLOBAL-Scopes are not applied
 	 * (=> SingleTableInheritance would kick in and make separate trees for each type)
@@ -154,18 +169,6 @@ class Keyword extends Model {
 
 		return $this->applyNestedSetScope($builder, $table);
 	}
-
-	/*
-	|--------------------------------------------------------------------------
-	| SCOPES
-	|--------------------------------------------------------------------------
-	*/
-
-	/*
-	|--------------------------------------------------------------------------
-	| ACCESORS
-	|--------------------------------------------------------------------------
-	*/
 
 	public function getTypeAttribute() {
 		return $this::$singleTableType;

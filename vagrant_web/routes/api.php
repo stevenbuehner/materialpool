@@ -17,17 +17,29 @@ Route::group([
 				 'namespace' => 'Api'
 			 ], function () {
 
-	// Resources
+	// Bibleverses
+	Route::get('bibleverses/guess', 'BibleverseController@guess')
+		 ->name('api.v1.bibleverses.guess');
 
-	Route::get('resources/{resource}', 'ResourceController@show')->where(['resource' => '[0-9]+']);
+
+	// Resources
+	Route::get('resources/{resource}', 'ResourceController@show')
+		 ->where(['resource' => '[0-9]+']);
 
 
 	// Keywords
-	Route::get('keywords', 'KeywordController@index')->name('api.v1.keywords.index');
+	Route::get('keywords', 'KeywordController@index')
+		 ->name('api.v1.keywords.index');
 	Route::get('keywords/{keyword}', 'KeywordController@show')
 		 ->where(['keyword' => '[0-9]+'])
 		 ->name('api.v1.keywords.show');
 
+
+	// Material <- Keywords-Relevance
+	Route::post('material/{material}/keyword/{keyword}', 'KeywordController@createAssignment')
+		 ->name('api.v1.keywords.createAssignment');
+	Route::put('material/{material}/keyword/{keyword}', 'KeywordController@updateAssignment')
+		->name('api.v1.keywords.updateAssignment');
 
 	/*
 	 * Aus der Sicht der Foreign Instance mit ihren eigenen IDs
@@ -46,7 +58,7 @@ Route::group([
 		 ->name('foreignInstanceResourceDelete');
 
 
-	// Material + Keywords
+	// ForeignInstance + Resource => Material + Keywords
 	Route::get('{foreignInstance}/materials', 'ForeignInstanceMaterialController@index')
 		 ->where('foreignInstance', '[0-9]+')
 		 ->name('foreignInstanceMaterialIndex');
@@ -54,6 +66,4 @@ Route::group([
 	Route::post('{foreignInstance}/resource/{remoteResourceId}/materials', 'ForeignInstanceMaterialController@store')
 		 ->where(['foreignInstance' => '[0-9]+', 'remoteResourceId' => '[0-9]+'])
 		 ->name('foreignInstanceMaterialStore');
-
-
 });

@@ -48,3 +48,7 @@ window.axios.defaults.headers.common = {
 //     broadcaster: 'pusher',
 //     key: 'your-pusher-key'
 // });
+
+
+// Select2
+$.fn.select2.defaults.set( "theme", "bootstrap" );

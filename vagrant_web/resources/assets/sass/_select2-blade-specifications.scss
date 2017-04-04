@@ -1,0 +1,19 @@
+// Multi-Ajax
+.multi-ajax-select2 {
+}
+
+.select2-selection__choice {
+  position: relative;
+}
+
+.select2-selection__choice > div > .progress-bar {
+  position: absolute;
+  background-color: #99CC66;
+  left: 0;
+  top: 0;
+  height: 100%;
+}
+
+.select2-container--bootstrap .select2-selection--multiple .select2-selection__choice__remove {
+  display: none;
+}

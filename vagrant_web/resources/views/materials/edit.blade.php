@@ -28,14 +28,32 @@
     </div>
 
     <div class="form-group">
-        {!! Form::label('keywords_' . $material->id, 'Schlagwörter') !!}
+        {!! Form::label('keywords', 'Schlagwörter') !!}
 
         @include('parts.select2.multi-ajax', [
             'url' => route('api.v1.keywords.index'),
             'displayField' => 'title',
             'selected' => $material->keywords,
             'name' => 'keywords' ,
-            'placeholder' => 'Schlagwörter auswählen'
+            'placeholder' => 'Schlagwörter eingeben',
+            'updateRelevanceUrl' => '/api/v1/material/' . $material->id .'/keyword/',
+            'createAssignmentUrl' => '/api/v1/material/' . $material->id .'/keyword/',
+            'createKeywordsUrl' => '/api/v1/material/keyword/',
+        ])
+    </div>
+
+    <div class="form-group">
+        {!! Form::label('bibleverses', 'Bibelverse') !!}
+
+        @include('parts.select2.multi-ajax', [
+            'url' => route('api.v1.bibleverses.guess'),
+            'displayField' => 'title',
+            'selected' => $material->bibleverses,
+            'name' => 'bibleverses' ,
+            'placeholder' => 'Bibelverse eingeben',
+            'updateRelevanceUrl' => '',
+            'createAssignmentUrl' => '',
+            'createKeywordsUrl' => ''
         ])
     </div>
 
