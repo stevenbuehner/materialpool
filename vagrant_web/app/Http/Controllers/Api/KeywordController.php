@@ -73,5 +73,9 @@ class KeywordController extends BaseController {
 		return $material->keywords()->where('keywords.id', '=', $keyword->id)->get()->first();
 	}
 
+	public function deleteAssignment(Material $material, Keyword $keyword) {
+		return $material->keywords()->detach($keyword);
+	}
+
 
 }

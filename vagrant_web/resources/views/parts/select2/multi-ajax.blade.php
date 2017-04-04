@@ -9,6 +9,7 @@ Required Variables:
 - string $displayField (field of json-feed that is to be displayed)
 - string $updateRelevanceUrl (the url to PUT the relevance changes .. the keyword-id will be appended)
 - string $createAssignmentUrl
+- string $deleteAssignmentUrl
 
 Optional Variables
 - string $name (html ID)
@@ -45,6 +46,7 @@ Optional Variables
             item.saved = (item.pivot === undefined || item.pivot.relevance === undefined) ? false : true;
         }
 
+        var $select2    = $("#{{$name or 'select2_ajax_multiple'}}");
         var progressbar = $('<div class="progress-bar"></div>');
         var $state      = $('<div/>').append(progressbar).append('<span style="position: relative;"> ' + state.text + '</span>');
         updateItemRelevance();
@@ -103,7 +105,24 @@ Optional Variables
                     closePopover();
                 });
 
-                var $content = $("<div></div>").append($input).append('<br/>').append($buttonCancel).append($buttonSave);
+                var $buttonDelete = $("<input type='reset' role='button' class='btn btn-danger btn-sm' value='löschen' />").click(function (el) {
+
+                    var url  = "{{$deleteAssignmentUrl}}" + id;
+                    var data = {_method: 'DELETE'};
+
+                    $.post(url, data)
+                        .done(function () {
+                            $select2.find("option[value='" + id + "']").remove();
+                            $select2.trigger("change");
+                        })
+                        .fail(function () {
+                            alert("Fehler beim Löschen des Tags");
+                        });
+
+                    closePopover();
+                });
+
+                var $content = $("<div></div>").append($input).append('<br/>').append($buttonCancel).append($buttonDelete).append($buttonSave);
 
                 $state.popover({
                     content: $content,

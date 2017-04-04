@@ -40,6 +40,8 @@ Route::group([
 		 ->name('api.v1.keywords.createAssignment');
 	Route::put('material/{material}/keyword/{keyword}', 'KeywordController@updateAssignment')
 		->name('api.v1.keywords.updateAssignment');
+	Route::delete('material/{material}/keyword/{keyword}', 'KeywordController@deleteAssignment')
+		 ->name('api.v1.keywords.deleteAssignment');
 
 	/*
 	 * Aus der Sicht der Foreign Instance mit ihren eigenen IDs

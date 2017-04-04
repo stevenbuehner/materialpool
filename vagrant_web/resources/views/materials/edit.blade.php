@@ -38,7 +38,7 @@
             'placeholder' => 'Schlagwörter eingeben',
             'updateRelevanceUrl' => '/api/v1/material/' . $material->id .'/keyword/',
             'createAssignmentUrl' => '/api/v1/material/' . $material->id .'/keyword/',
-            'createKeywordsUrl' => '/api/v1/material/keyword/',
+            'deleteAssignmentUrl' => '/api/v1/material/' . $material->id .'/keyword/',
         ])
     </div>
 
@@ -53,7 +53,9 @@
             'placeholder' => 'Bibelverse eingeben',
             'updateRelevanceUrl' => '',
             'createAssignmentUrl' => '',
-            'createKeywordsUrl' => ''
+            'createKeywordsUrl' => '',
+            'deleteAssignmentUrl' => '',
+
         ])
     </div>
 
