@@ -31,7 +31,7 @@ Optional Variables
 
 <script>
 
-    var multi_ajax_{{$displayField}} = (function () {
+    (function () {
 
         function {{"formatState_".$name}}(state) {
 
@@ -45,7 +45,7 @@ Optional Variables
             }
 
             // shortcut
-            item = state.item;
+            var item = state.item;
 
             // Only init first time
             if (item.saved == undefined) {
