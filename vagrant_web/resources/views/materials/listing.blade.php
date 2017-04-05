@@ -12,7 +12,7 @@
                 @endif
                 <div class="card-block">
                     <h3 class="card-title">{{ $m->title }}</h3>
-                    <p class="card-text">{{ $m->description }}</p>
+                    <p class="card-text">{{ str_limit($m->description, 500) }}</p>
                     <a href="{{ URL::route('pool.material.index') }}/{{$m->id}}"
                        class="btn btn-primary">@lang('Open material')</a>
                     <div>

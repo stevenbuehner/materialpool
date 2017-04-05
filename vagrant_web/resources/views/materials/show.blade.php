@@ -3,8 +3,29 @@
 @section('content')
 
     <h1>{{$material->title}}</h1>
-    <small>{{ $material->created_at->diffForHumans() }}</small>
+    <small>{{ $material->created_at->diffForHumans()}},
+        by {{$material->creator->name}}
+        @if($material->author !== NULL)
+            (Original von {{$material->author->title}})
+        @endif
 
+    </small>
+
+    @if(count($material->keywords))
+        <p>
+            @foreach($material->keywords as $keyword)
+                @include('keywords.linked', ['keyword' => $keyword])
+            @endforeach
+        </p>
+    @endif
+
+    @if(count($material->bibleverses))
+        <p>
+            @foreach($material->bibleverses as $bv)
+                @include('bibleverses.tag', ['bibleverse' => $bv])
+            @endforeach
+        </p>
+    @endif
 
     @if(count($material->resources))
         <ul>
@@ -16,22 +37,7 @@
         </ul>
     @endif
 
-    <p>{{ $material->description }}</p>
+    <p>{!! nl2br(e($material->description)) !!}</p>
 
-    @if(count($material->keywords))
-        <div class="card-block">
-            @foreach($material->keywords as $keyword)
-                @include('keywords.linked', ['keyword' => $keyword])
-            @endforeach
-        </div>
-    @endif
-
-    @if(count($material->bibleverses))
-        <div class="card-block">
-            @foreach($material->bibleverses as $bv)
-                @include('bibleverses.tag', ['bibleverse' => $bv])
-            @endforeach
-        </div>
-    @endif
 
 @endsection
