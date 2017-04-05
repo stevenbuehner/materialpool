@@ -3,10 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\MaterialRequest;
-use App\Models\Keyword;
 use App\Models\Material;
-use App\Services\TagExtraction\Interfaces\RelevanceInterface;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 
 class MaterialController extends Controller {
@@ -76,7 +73,6 @@ class MaterialController extends Controller {
 	public function edit(Material $material) {
 		$material->load($this->withAttributes);
 
-
 		return view('materials.edit', ['material' => $material]);
 	}
 
@@ -89,35 +85,8 @@ class MaterialController extends Controller {
 	 */
 	public function update(MaterialRequest $request, Material $material) {
 
-		if ($request->has('keywords')) {
-			$keywordIds = $request->get('keywords', []);
-
-			/** @var Collection $storedKeywords */
-			$storedKeywords = $material->keywords;
-
-			// Delete keywords
-			$deleteables = $storedKeywords->whereNotIn('id', $keywordIds);
-			$t           = $deleteables->pluck('id');
-			$material->keywords()->detach($deleteables->pluck('id'));
-
-			// Update existing keyword relevances to at least user value
-			$storedKeywords->whereIn('id', $keywordIds)->each(function (Keyword $keyword) {
-				$max = max($keyword->pivot->relevance, RelevanceInterface::RELEVANCE_USER_MIN);
-				if ($keyword->pivot->relevance != $max) {
-					$keyword->pivot->relevance = $max;
-					$keyword->pivot->save();
-				}
-			});
-
-			// Store new keywords
-			$storedKeywordsA = $storedKeywords->pluck('id')->toArray();
-			$newKeywordIds   = collect($keywordIds)->reject(function ($keywordId) use (&$storedKeywordsA) {
-				return in_array($keywordId, $storedKeywordsA);
-			})->mapWithKeys(function ($item) {
-				return [$item => ['relevance' => RelevanceInterface::RELEVANCE_USER_MAX]];
-			});
-			$material->keywords()->attach($newKeywordIds->toArray());
-		}
+		$material->fill($request->all());
+		$material->save();
 
 		return redirect(route('pool.material.show', $material));
 	}
