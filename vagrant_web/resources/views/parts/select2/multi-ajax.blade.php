@@ -8,7 +8,6 @@ Required Variables:
 - string $url (to paginated select2 ajax source)
 - string $displayField (field of json-feed that is to be displayed)
 - string $updateRelevanceUrl (the url to PUT the relevance changes .. the keyword-id will be appended)
-- string $createAssignmentUrl
 - string $deleteAssignmentUrl
 - string $createKeywordUrl
 
