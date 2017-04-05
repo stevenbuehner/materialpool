@@ -47,9 +47,9 @@ class TagExtractionServiceTest extends TestCase {
 		$this->assertNull($existingKeyword);
 
 		$this->assertInstanceOf(KeywordProperty::class, $coll->first());
-		$this->assertInstanceOf(Keyword::class, $coll->first()->getValue());
+		$this->assertInstanceOf(Keyword::class, $coll->first()->getKeywordValue());
 
-		$coll->first()->getValue()->save();
+		$coll->first()->getKeywordValue()->save();
 		$existingKeyword = Keyword::where(['title' => 'Blub'])->first();
 		$this->assertNotNull($existingKeyword);
 	}
@@ -85,14 +85,14 @@ class TagExtractionServiceTest extends TestCase {
 		$this->assertNotNull($existingKeyword);
 
 		$coll = $this->service->extractPartsFromStrings('Blub, Blub2', 2);
-		$this->assertNotNull($coll->first()->getValue()->id);
+		$this->assertNotNull($coll->first()->getKeywordValue()->id);
 
 	}
 
 	protected function saveCollectionEntities(Collection $coll) {
 		$coll->each(function ($el) {
 			if ($el instanceof Property) {
-				$el->getValue()->save();
+				$el->getKeywordValue()->save();
 			} else if ($el instanceof Model) {
 				$el->save();
 			}

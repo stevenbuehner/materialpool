@@ -20,7 +20,8 @@ Route::group([
 	// Bibleverses
 	Route::get('bibleverses/guess', 'BibleverseController@guess')
 		 ->name('api.v1.bibleverses.guess');
-
+	Route::post('bibleverses/create', 'BibleverseController@create')
+		 ->name('api.v1.bibleverses.create');
 
 	// Resources
 	Route::get('resources/{resource}', 'ResourceController@show')
@@ -42,6 +43,12 @@ Route::group([
 		 ->name('api.v1.keywords.updateAssignment');
 	Route::delete('material/{material}/keyword/{keyword}', 'KeywordController@deleteAssignment')
 		 ->name('api.v1.keywords.deleteAssignment');
+
+	// Material <- Bibleverse-Relevance
+	Route::put('material/{material}/bibleverse/{bibleverse?}', 'BibleverseController@createOrUpdateAssignment')
+		 ->name('api.v1.bibleverses.createOrUpdateAssignment');
+	Route::delete('material/{material}/bibleverse/{bibleverse}', 'BibleverseController@deleteAssignment')
+		 ->name('api.v1.bibleverses.deleteAssignment');
 
 	/*
 	 * Aus der Sicht der Foreign Instance mit ihren eigenen IDs

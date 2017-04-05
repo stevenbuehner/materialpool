@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller as BaseController;
 use App\Models\Bibleverse;
+use App\Models\Material;
+use App\Services\TagExtraction\Interfaces\RelevanceInterface;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use StevenBuehner\BibleVerseBundle\Service\BibleVerseService;
@@ -45,8 +47,32 @@ class BibleverseController extends BaseController {
 	 *
 	 * @return \Illuminate\Http\Response
 	 */
-	public function create() {
-		//
+	public function create(Request $request) {
+		/** @var BibleVerseService $bibleVerseService */
+
+		$bibleverse = NULL;
+
+		if ($request->has('from') && $request->has('to')) {
+			$bibleverse = Bibleverse::firstOrCreate([
+														'from' => $request->get('from'),
+														'to'   => $request->get('to')
+													]);
+		}
+
+		if ($bibleverse === NULL && $request->has('label')) {
+			$bibleVerseService = resolve('BibleVerseService');
+
+			$recognizedVerses = $bibleVerseService->stringToBibleVerse($request->get('label', ''));
+
+			if (count($recognizedVerses) > 0) {
+				$bibleverse = Bibleverse::findOrCreateFromBibleverseInterface($recognizedVerses[0]);
+			}
+		}
+
+		// Reload from DB to assign parent_id, icon etc. to the model
+		// $bibleverse = $bibleverse->fresh();
+
+		return $bibleverse;
 	}
 
 	/**
@@ -98,5 +124,26 @@ class BibleverseController extends BaseController {
 	 */
 	public function destroy(Bibleverse $bibleverse) {
 		//
+	}
+
+	public function createOrUpdateAssignment(Material $material, Bibleverse $bibleverse, Request $request) {
+
+
+		// Create or Update Relationship without detaching others
+		$material->bibleverses()->sync(
+			[
+				$bibleverse->id =>
+					[
+						'relevance' => $request->get('relevance',
+													 RelevanceInterface::RELEVANCE_USER_MIN)
+					]
+			],
+			$doNotDetachOtherRelationships = FALSE);
+
+		return $material->bibleverses()->where('bibleverses.id', '=', $bibleverse->id)->get()->first();
+	}
+
+	public function deleteAssignment(Material $material, Bibleverse $bibleverse) {
+		return $material->bibleverses()->detach($bibleverse);
 	}
 }
