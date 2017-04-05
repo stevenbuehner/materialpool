@@ -39,6 +39,7 @@
             'updateRelevanceUrl' => '/api/v1/material/' . $material->id .'/keyword/',
             'createAssignmentUrl' => '/api/v1/material/' . $material->id .'/keyword/',
             'deleteAssignmentUrl' => '/api/v1/material/' . $material->id .'/keyword/',
+            'createKeywordUrl' => '/api/v1/keywords',
         ])
     </div>
 
@@ -55,7 +56,7 @@
             'createAssignmentUrl' => '',
             'createKeywordsUrl' => '',
             'deleteAssignmentUrl' => '',
-
+            'createKeywordUrl' => '',
         ])
     </div>
 

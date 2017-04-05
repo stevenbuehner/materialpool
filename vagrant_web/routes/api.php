@@ -36,11 +36,10 @@ Route::group([
 	Route::post('keywords', 'KeywordController@create')
 		 ->name('api.v1.keywords.create');
 
+
 	// Material <- Keywords-Relevance
-	Route::post('material/{material}/keyword/{keyword}', 'KeywordController@createAssignment')
-		 ->name('api.v1.keywords.createAssignment');
-	Route::put('material/{material}/keyword/{keyword}', 'KeywordController@updateAssignment')
-		->name('api.v1.keywords.updateAssignment');
+	Route::put('material/{material}/keyword/{keyword?}', 'KeywordController@createOrUpdateAssignment')
+		 ->name('api.v1.keywords.updateAssignment');
 	Route::delete('material/{material}/keyword/{keyword}', 'KeywordController@deleteAssignment')
 		 ->name('api.v1.keywords.deleteAssignment');
 

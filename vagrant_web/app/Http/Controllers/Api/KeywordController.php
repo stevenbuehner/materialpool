@@ -42,23 +42,6 @@ class KeywordController extends BaseController {
 		return $keyword;
 	}
 
-	public function createAssignment(Material $material, Keyword $keyword = NULL, Request $request) {
-		$relevance = $request->get('relevance', RelevanceInterface::RELEVANCE_USER_MIN);
-
-		// Try to create the keyword
-		if ($keyword == NULL) {
-			/** @var KeywordRequest $kw */
-			$kw = KeywordRequest::createFromBase($request);
-			$kw->validate();
-
-			$keyword = $this->create($kw);
-		}
-
-		$material->keywords()->attach($keyword, ['relevance' => $relevance]);
-
-		return $material->keywords()->where('keywords.id', '=', $keyword->id)->get()->first();
-	}
-
 	public function create(KeywordRequest $keywordRequest) {
 		/** @var TagExtractionService $tagExtractionService */
 		/** @var Keyword $keyword */
@@ -100,8 +83,19 @@ class KeywordController extends BaseController {
 		return $keyword;
 	}
 
-	public function updateAssignment(Material $material, Keyword $keyword, Request $request) {
-		$material->keywords()->updateExistingPivot($keyword->id, ['relevance' => $request->get('relevance')]);
+	public function createOrUpdateAssignment(Material $material, Keyword $keyword, Request $request) {
+		// $material->keywords()->updateExistingPivot($keyword->id, ['relevance' => $request->get('relevance')]);
+
+		// Create or Update Relationship without detaching others
+		$material->keywords()->sync(
+			[
+				$keyword->id =>
+					[
+						'relevance' => $request->get('relevance',
+													 RelevanceInterface::RELEVANCE_USER_MIN)
+					]
+			],
+			$doNotDetachOtherRelationships = FALSE);
 
 		return $material->keywords()->where('keywords.id', '=', $keyword->id)->get()->first();
 	}
