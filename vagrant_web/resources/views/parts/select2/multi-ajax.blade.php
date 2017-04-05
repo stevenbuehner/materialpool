@@ -12,7 +12,7 @@ Required Variables:
 - string $createKeywordUrl
 
 Optional Variables
-- string $name (html ID)
+- string $name (html ID) - required when multiple fields are used
 - array $selected (id => value)
 - string $placeholder (Placeholder)
 --}}
@@ -21,11 +21,14 @@ Optional Variables
         id="{{$name or 'select2_ajax_multiple'}}"
         name="{{$name or 'select2_ajax_multiple'}}[]"
         multiple="multiple"
-        title="{{$placeholder}}"
+        title="{{$placeholder}} or '"
         style="width: 100%">
-    @foreach($selected as $item)
-        <option value="{{$item['id']}}" selected="selected" data-item='{!! $item !!}'>{{$item[$displayField]}}</option>
-    @endforeach
+    @if(isset($selected))
+        @foreach($selected as $item)
+            <option value="{{$item['id']}}" selected="selected"
+                    data-item='{!! $item !!}'>{{$item[$displayField]}}</option>
+        @endforeach
+    @endif
 </select>
 
 <script>
@@ -166,10 +169,9 @@ Optional Variables
         }
 
         function createApiKeyword(title, type) {
-            var url      = "{{$createKeywordUrl}}";
-            var postData = {
-                title: title
-            };
+            var url                       = "{{$createKeywordUrl}}";
+            var postData                  = {};
+            postData["{{$displayField}}"] = title;
 
             if (type !== undefined) {
                 postData.title = type;

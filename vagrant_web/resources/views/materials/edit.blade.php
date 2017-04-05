@@ -38,7 +38,7 @@
             'placeholder' => 'Schlagwörter eingeben',
             'updateRelevanceUrl' => '/api/v1/material/' . $material->id .'/keyword/',
             'deleteAssignmentUrl' => '/api/v1/material/' . $material->id .'/keyword/',
-            'createKeywordUrl' => '/api/v1/keywords',
+            'createKeywordUrl' => route('api.v1.keywords.create'),
         ])
     </div>
 
@@ -47,14 +47,13 @@
 
         @include('parts.select2.multi-ajax', [
             'url' => route('api.v1.bibleverses.guess'),
-            'displayField' => 'title',
+            'displayField' => 'label',
             'selected' => $material->bibleverses,
             'name' => 'bibleverses' ,
             'placeholder' => 'Bibelverse eingeben',
-            'updateRelevanceUrl' => '',
-            'createKeywordsUrl' => '',
-            'deleteAssignmentUrl' => '',
-            'createKeywordUrl' => '',
+            'updateRelevanceUrl' => '/api/v1/material/' . $material->id . '/bibleverse/',
+            'deleteAssignmentUrl' => '/api/v1/material/' . $material->id . '/bibleverse/',
+            'createKeywordUrl' => route('api.v1.bibleverses.store'),
         ])
     </div>
 

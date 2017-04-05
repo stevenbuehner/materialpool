@@ -20,8 +20,8 @@ Route::group([
 	// Bibleverses
 	Route::get('bibleverses/guess', 'BibleverseController@guess')
 		 ->name('api.v1.bibleverses.guess');
-	Route::post('bibleverses/create', 'BibleverseController@create')
-		 ->name('api.v1.bibleverses.create');
+	Route::post('bibleverses', 'BibleverseController@store')
+		 ->name('api.v1.bibleverses.store');
 
 	// Resources
 	Route::get('resources/{resource}', 'ResourceController@show')

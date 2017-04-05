@@ -48,6 +48,16 @@ class BibleverseController extends BaseController {
 	 * @return \Illuminate\Http\Response
 	 */
 	public function create(Request $request) {
+
+	}
+
+	/**
+	 * Store a newly created resource in storage.
+	 *
+	 * @param  \Illuminate\Http\Request $request
+	 * @return \Illuminate\Http\Response
+	 */
+	public function store(Request $request) {
 		/** @var BibleVerseService $bibleVerseService */
 
 		$bibleverse = NULL;
@@ -73,16 +83,6 @@ class BibleverseController extends BaseController {
 		// $bibleverse = $bibleverse->fresh();
 
 		return $bibleverse;
-	}
-
-	/**
-	 * Store a newly created resource in storage.
-	 *
-	 * @param  \Illuminate\Http\Request $request
-	 * @return \Illuminate\Http\Response
-	 */
-	public function store(Request $request) {
-		//
 	}
 
 	/**

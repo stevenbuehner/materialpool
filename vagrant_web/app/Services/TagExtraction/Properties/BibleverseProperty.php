@@ -33,8 +33,9 @@ class BibleverseProperty extends Property {
 	 * @param Material $material
 	 */
 	function insertYourselfToItem(Material $material) {
-		$bibelverseModel = $this->getBibleVerseValue()->save();
-		$relevance       = $this->getRelevance();
+		$bibelverseModel = $this->getBibleVerseValue();
+		$bibelverseModel->save();
+		$relevance = $this->getRelevance();
 		//$material->load('bibleverses');
 
 		$foundInstance = $material->bibleverses()->where('bibleverse_id', $bibelverseModel->id)->get();
