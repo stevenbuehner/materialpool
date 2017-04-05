@@ -21,7 +21,7 @@ class AuthorProperty extends Property {
 	 * @param Material $material
 	 */
 	function insertYourselfToItem(Material $material) {
-		$author = Person::firstOrCreate($this->getValue());
-		$material->author()->save($author);
+		$author = Person::firstOrCreate(['title' => $this->getValue()]);
+		$material->author()->associate($author);
 	}
 }
