@@ -7,6 +7,9 @@ use App\Http\Requests\KeywordRequest;
 use App\Models\Keyword;
 use App\Models\Material;
 use App\Services\TagExtraction\Interfaces\RelevanceInterface;
+use App\Services\TagExtraction\Properties\KeywordProperty;
+use App\Services\TagExtraction\Properties\Property;
+use App\Services\TagExtraction\TagExtractionService;
 use Illuminate\Http\Request;
 
 
@@ -57,12 +60,42 @@ class KeywordController extends BaseController {
 	}
 
 	public function create(KeywordRequest $keywordRequest) {
-		$type  = $keywordRequest->get('type', Keyword::getSingleTableType());
-		$class = Keyword::getSingleTableTypeMap()[$type];
-
+		/** @var TagExtractionService $tagExtractionService */
 		/** @var Keyword $keyword */
-		$keyword = new $class($keywordRequest->all());
-		$keyword->save();
+		$type    = $keywordRequest->get('type', FALSE);
+		$keyword = NULL;
+
+
+		if ($type !== FALSE) {
+			// Request does use type attribute -> take type for granted
+
+			if (in_array($type, array_keys(Keyword::getSingleTableTypeMap()))) {
+				$class = Keyword::getSingleTableTypeMap()[$type];
+				// $keyword = new $class($keywordRequest->all());
+				$keyword = $class::firstOrCreate($keywordRequest->all());
+			} else {
+				$type = FALSE;
+			}
+		}
+
+		if ($type === FALSE) {
+			// Request does not contain type attribute -> use tagExtractionService
+			$tagExtractionService = resolve(TagExtractionService::class);
+			$tagProperties        = $tagExtractionService->recognizeTagsFromSingleString($keywordRequest->get('title',
+																											  ''));
+			$tagProperties        = $tagProperties->filter(function (Property $property) {
+				return $property instanceof KeywordProperty;
+			});
+
+			if ($tagProperties->count() > 0) {
+				/** @var Keyword $keyword */
+				$keyword = $tagProperties->first()->getKeywordValue();
+				$keyword->save();
+			}
+		}
+
+		// Reload from DB to assign parent_id, icon etc. to the model
+		$keyword = $keyword->fresh();
 
 		return $keyword;
 	}

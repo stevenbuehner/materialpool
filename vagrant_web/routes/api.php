@@ -33,7 +33,8 @@ Route::group([
 	Route::get('keywords/{keyword}', 'KeywordController@show')
 		 ->where(['keyword' => '[0-9]+'])
 		 ->name('api.v1.keywords.show');
-
+	Route::post('keywords', 'KeywordController@create')
+		 ->name('api.v1.keywords.create');
 
 	// Material <- Keywords-Relevance
 	Route::post('material/{material}/keyword/{keyword}', 'KeywordController@createAssignment')

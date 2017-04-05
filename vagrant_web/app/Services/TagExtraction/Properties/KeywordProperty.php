@@ -26,10 +26,7 @@ class KeywordProperty extends Property {
 	 */
 	function insertYourselfToItem(Material $material) {
 
-		list($class, $title) = $this->getValue();
-		$newKeyword = $class::firstOrCreate([
-												'title' => $title
-											]);
+		$newKeyword = $this->getKeywordValue();
 		$relevance  = $this->getRelevance();
 
 		$newKeyword->save();
@@ -49,6 +46,15 @@ class KeywordProperty extends Property {
 			// Insert a new Instance
 			$material->keywords()->attach($newKeyword, ['relevance' => $relevance]);
 		}
+	}
+
+	public function getKeywordValue() {
+		list($class, $title) = $this->getValue();
+		$newKeyword = $class::firstOrNew([
+												'title' => $title
+											]);
+
+		return $newKeyword;
 	}
 
 	public function setKeywordValue($title, $class = Keyword::class) {

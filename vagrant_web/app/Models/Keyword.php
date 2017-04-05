@@ -32,16 +32,12 @@ class Keyword extends Model {
 	protected static $singleTableType       = 'key';
 	protected static $singleTableSubclasses = [Person::class, Place::class, Language::class, Tag::class];
 	public           $timestamps            = TRUE;
-	// protected $primaryKey = 'id';
-	// protected $guarded = [];
-	// protected $hidden = ['id'];
-	protected $table    = 'keywords';
-	protected $fillable = ['title'];
-	protected $guarded  = ['type', 'lc_title'];
-	protected $hidden   = [
+	protected        $table                 = 'keywords';
+	protected        $fillable              = ['title'];
+	protected        $guarded               = ['type', 'lc_title'];
+	protected        $hidden                = [
 		'_lft', '_rgt', 'updated_at', 'created_at'
 	];
-
 
 	public function __construct(array $attributes = []) {
 		// Default values
@@ -102,7 +98,7 @@ class Keyword extends Model {
 	}
 
 	public static function getSingleTableType() {
-		return self::$singleTableType;
+		return static::$singleTableType;
 	}
 
 	/*
