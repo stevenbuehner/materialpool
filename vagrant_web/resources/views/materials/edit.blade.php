@@ -19,7 +19,12 @@
 
     <div class="form-group">
         {!! Form::label('rating', 'Bewertung') !!}
-        {!! Form::number('rating', $material->rating, ['class' => 'form-control']) !!}
+        @include('parts.bar-rating.bar-rating', [
+            'rangeStart' => 0,
+            'rangeEnd' => 20,
+            'steps' => 1,
+            'name' => 'rating'
+        ])
     </div>
 
     <div class="form-group">

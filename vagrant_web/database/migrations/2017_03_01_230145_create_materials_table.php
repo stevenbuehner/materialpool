@@ -17,7 +17,7 @@ class CreateMaterialsTable extends Migration {
 			$table->string('title', 255);
 			$table->text('description');
 			$table->text('limitation')->nullable();
-			$table->smallInteger('rating')->nullable()->unsigned(); // Between 0-64
+			$table->smallInteger('rating')->nullable()->unsigned(); // Between 0-64 (but we only use 0-20)
 			$table->boolean('from_bot');
 			$table->integer('author_id')->nullable()->unsigned();
 

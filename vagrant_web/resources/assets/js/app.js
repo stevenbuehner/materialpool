@@ -7,5 +7,7 @@
 
 require('./my_bootstrap');
 
+require('jquery-bar-rating');
+
 
 // select2

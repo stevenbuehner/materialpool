@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property object  $limitation
  * @property string  $title
  * @property string  $description
- * @property int     $rating
+ * @property int     $rating (0-20)
  * @property boolean $from_bot
  * @property int     $created_by
  * @property int     $modified_by
@@ -92,6 +92,11 @@ class Material extends Model {
 
 	public function author() {
 		return $this->belongsTo(Person::class, 'author_id');
+	}
+
+	public function setRatingAttribute($value) {
+		// Not more than 20!
+		$this->setAttribute('rating', max($value, 20));
 	}
 
 

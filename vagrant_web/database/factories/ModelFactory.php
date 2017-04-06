@@ -43,7 +43,7 @@ $factory->define(Material::class, function (Faker\Generator $faker) {
 		'title'       => $faker->text(255),
 		'description' => $faker->sentences(2, TRUE),
 		'from_bot'    => $faker->boolean(),
-		'rating'      => rand(0, 64)
+		'rating'      => rand(0, 20)
 	];
 });
 
