@@ -18,8 +18,8 @@ Route::group([
 			 ], function () {
 
 	// Bibleverses
-	Route::get('bibleverses/guess', 'BibleverseController@guess')
-		 ->name('api.v1.bibleverses.guess');
+	Route::get('bibleverses', 'BibleverseController@index')
+		 ->name('api.v1.bibleverses.index');
 	Route::post('bibleverses', 'BibleverseController@store')
 		 ->name('api.v1.bibleverses.store');
 

@@ -4,7 +4,9 @@ namespace App\Models;
 
 use App\Models\Exceptions\InvalidParameterCombinationException;
 use App\Models\Exceptions\MultipleBooksExceptions;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Collection;
 use StevenBuehner\BibleVerseBundle\Interfaces\BibleVerseInterface;
 use StevenBuehner\BibleVerseBundle\Service\BibleVerseService;
 
@@ -52,7 +54,8 @@ class Bibleverse extends Model implements BibleVerseInterface {
 		'to_book_id',
 		'to_chapter',
 		'to_verse',
-		'label'
+		'label',
+		'icon'
 	];
 
 	public static function findOrCreateFromBibleverseInterface(BibleVerseInterface $bibleVerse, $bibleId = NULL) {
@@ -77,6 +80,29 @@ class Bibleverse extends Model implements BibleVerseInterface {
 	public static function findOrNewFromBibleverseInterface(BibleVerseInterface $bibleVerse, $bibleId = NULL) {
 		return self::firstOrNew(self::getBibleverseCreateData($bibleVerse, $bibleId));
 
+	}
+
+	/**
+	 * @param Collection $coll of BibleVerseInterface
+	 * @return Builder
+	 */
+	public static function findWhereInRange(Collection $coll) {
+		$query = self::query();
+
+		$bibleverses = $coll->filter(function ($el) {
+			return $el instanceof BibleVerseInterface;
+		});
+
+		foreach ($bibleverses as $bv) {
+			/** @var BibleVerseInterface $bv */
+			/** @var Builder $query */
+			$from = self::getCombi($bv->getBookId(), $bv->getFromChapter(), $bv->getFromVerse());
+			$to   = self::getCombi($bv->getBookId(), $bv->getToChapter(), $bv->getToVerse());
+			$query->orWhereBetween('from', [$from, $to]);
+			$query->orWhereBetween('to', [$from, $to]);
+		}
+
+		return $query;
 	}
 
 	public function getLabelAttribute() {
@@ -329,6 +355,10 @@ class Bibleverse extends Model implements BibleVerseInterface {
 		$this->setToCombined($bookId, $toChapter, $toVerse);
 
 		return $this;
+	}
+
+	public function getIconAttribute() {
+		return '/img/icons/bible.svg';
 	}
 
 	/*

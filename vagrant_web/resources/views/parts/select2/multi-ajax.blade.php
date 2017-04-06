@@ -35,7 +35,7 @@ Optional Variables
 
     (function () {
 
-        function {{"formatState_".$name}}(state) {
+        function formatState(state) {
 
             if (state.item === undefined) {
                 // Override with data() data
@@ -54,9 +54,14 @@ Optional Variables
                 item.saved = (item.pivot === undefined || item.pivot.relevance === undefined) ? false : true;
             }
 
-            var $select2    = $("#{{$name or 'select2_ajax_multiple'}}");
+            var html = $(formatRepo(state));
+
             var progressbar = $('<div class="progress-bar"></div>');
             var $state      = $('<div/>').append(progressbar).append('<span style="position: relative;"> ' + state.text + '</span>');
+
+            var $state = html.prepend(progressbar);
+
+
             updateItemRelevance();
 
             function initPopover() {
@@ -168,6 +173,30 @@ Optional Variables
             return $state;
         }
 
+        function formatRepo(repo) {
+            if (repo.loading)
+                return repo.text;
+
+            var html = '<div class="tag tag-selection">';
+
+            // Icon
+            if (repo.item && repo.item.icon) {
+                html += '<span class="icon" style="background-image: url(' + repo.item.icon + ');"></span>';
+            }
+
+            // Text / Label
+            html += '<span class="text">' + repo.text + '</span>';
+
+            // New-Badge
+            if (repo.newTag === true) {
+                html += '<span class="badge badge-default small">neu</span>';
+            }
+
+            html += '</div>';
+
+            return html;
+        }
+
         function createApiKeyword(title, type) {
             var url                       = "{{$createKeywordUrl}}";
             var postData                  = {};
@@ -208,6 +237,9 @@ Optional Variables
             if (metaData.id !== undefined) {
                 $option.val(metaData.id);
                 state.id = metaData.id;
+
+                // Jetzt ist es kein "newTag" mehr
+                state.newTag = false;
             }
 
             // Aktualisiere Label
@@ -255,7 +287,11 @@ Optional Variables
             minimumInputLength: 1,
             placeholder: "{{$placeholder}}",
             theme: 'bootstrap',
-            templateSelection: formatState_{{$name}},
+            templateSelection: formatState, // Rendering the stored tags
+            templateResult: formatRepo,
+            escapeMarkup: function (markup) {
+                return markup;
+            }, // Let templateResult be rendered as html
             tags: true,
             createTag: function (params) {
                 var term = $.trim(params.term);
@@ -268,8 +304,7 @@ Optional Variables
 
                 return {
                     id: uniq,
-                    text: term + " (new)",
-                    newTitle: term,
+                    text: term,
                     newTag: true // add additional parameters
                 }
             }
@@ -279,7 +314,7 @@ Optional Variables
             var oldId   = oldData.id;
 
             if (oldData.newTag === true) {
-                createApiKeyword(oldData.newTitle)
+                createApiKeyword(oldData.text)
                     .done(function (resultData) {
                         var newId = resultData.id;
 

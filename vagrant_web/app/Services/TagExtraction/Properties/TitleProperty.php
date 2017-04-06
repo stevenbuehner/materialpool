@@ -11,9 +11,6 @@ use App\Models\Material;
 
 class TitleProperty extends Property {
 
-	static $icon = 'properties/title.svg';
-	static $type = 'title';
-
 	/**
 	 * The function has to insert it's own value into the item
 	 *

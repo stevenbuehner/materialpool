@@ -8,6 +8,7 @@
 
     <!-- Latest compiled and minified CSS -->
     <link rel="stylesheet" href="{{ mix('/css/app.css') }}">
+    <link rel="stylesheet" href="/css/develop.css">
 
 
     <!-- CSRF Token -->

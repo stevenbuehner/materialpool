@@ -5,6 +5,7 @@ namespace App\Models;
 class Language extends Keyword {
 
 	protected static $singleTableType = 'lang';
+
 	protected static $languageCodes   = [
 		'deutsch'                            => 'DE',
 		'de'                                 => 'DE',

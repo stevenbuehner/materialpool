@@ -26,20 +26,11 @@ class BibleverseController extends BaseController {
 	 */
 	public function index(Request $request) {
 
-	}
+		$search_term       = $request->input('q');
+		$bibleverseGuesses = collect($this->bibleVerseService->stringToBibleVerse($search_term));
+		$query             = Bibleverse::findWhereInRange($bibleverseGuesses);
 
-	public function guess(Request $request) {
-		$result      = new Collection();
-		$search_term = $request->input('q', '');
-		$page        = $request->input('page', 1);
-		$bibleVerses = $this->bibleVerseService->stringToBibleVerse($search_term);
-
-		foreach ($bibleVerses as $verse) {
-			Bibleverse::findOrNewFromBibleverseInterface($verse);
-			$result->push($verse);
-		}
-
-		return $result->forPage($page, 20);
+		return $query->paginate(20);
 	}
 
 	/**

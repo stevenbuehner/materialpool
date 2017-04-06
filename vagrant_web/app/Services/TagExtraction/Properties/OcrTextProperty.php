@@ -11,9 +11,6 @@ use App\Models\Material;
 
 class OcrTextProperty extends Property {
 
-	static $icon = 'properties/ocr.svg';
-	static $type = 'ocr';
-
 	/**
 	 * The function has to insert it's own value into the item
 	 *

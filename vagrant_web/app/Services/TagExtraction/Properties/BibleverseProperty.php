@@ -13,9 +13,6 @@ use StevenBuehner\BibleVerseBundle\Interfaces\BibleVerseInterface;
 
 class BibleverseProperty extends Property {
 
-	static $icon = 'properties/bibleverse.svg';
-	static $type = 'bibleverse';
-
 	/**
 	 * BibleverseProperty constructor.
 	 *

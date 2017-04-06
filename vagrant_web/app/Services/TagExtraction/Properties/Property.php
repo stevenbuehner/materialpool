@@ -8,9 +8,6 @@ use App\Services\TagExtraction\Interfaces\PropertyInterface;
 use App\Services\TagExtraction\Interfaces\RelevanceInterface;
 
 abstract class Property implements CompareablePropertyInterface, RelevanceInterface, PropertyInterface {
-	// Only used for inherited class in autocomplete-search
-	static $icon = '';
-	static $type = 'general';
 
 	protected $value;
 	protected $relevance;

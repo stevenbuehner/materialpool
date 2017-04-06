@@ -12,9 +12,6 @@ use App\Models\Material;
 
 class KeywordProperty extends Property {
 
-	static $icon = 'properties/keyword.svg';
-	static $type = 'keyword';
-
 	public function __construct($title, $class, $relevance = 0) {
 		parent::__construct([$class, $title], $relevance);
 	}

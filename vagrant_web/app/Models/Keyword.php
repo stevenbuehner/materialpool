@@ -30,13 +30,18 @@ class Keyword extends Model {
 	public static    $defaultRelevance      = 100;
 	protected static $singleTableTypeField  = 'type';
 	protected static $singleTableType       = 'key';
-	protected static $singleTableSubclasses = [Person::class, Place::class, Language::class, Tag::class];
+	protected static $defaultIcon           = '/img/icons/tag.svg';
+	protected static $singleTableSubclasses = [Person::class, Place::class, Language::class];
 	public           $timestamps            = TRUE;
 	protected        $table                 = 'keywords';
 	protected        $fillable              = ['title'];
 	protected        $guarded               = ['type', 'lc_title'];
 	protected        $hidden                = [
-		'_lft', '_rgt', 'updated_at', 'created_at'
+		'_lft', '_rgt', 'updated_at', 'created_at', 'custom_icon'
+	];
+
+	protected $appends = [
+		'icon'
 	];
 
 	public function __construct(array $attributes = []) {
@@ -168,6 +173,20 @@ class Keyword extends Model {
 
 	public function getTypeAttribute() {
 		return $this::$singleTableType;
+	}
+
+	public function getIconAttribute() {
+		$icon = $this->getAttribute('custom_icon');
+
+		if (empty($icon)) {
+			$icon = static::$defaultIcon;
+		}
+
+		return $icon;
+	}
+
+	public function setIconAttribute($value) {
+		$this->setAttribute('custom_icon', $value);
 	}
 
 	/*

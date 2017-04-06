@@ -46,7 +46,7 @@
         {!! Form::label('bibleverses', 'Bibelverse') !!}
 
         @include('parts.select2.multi-ajax', [
-            'url' => route('api.v1.bibleverses.guess'),
+            'url' => route('api.v1.bibleverses.index'),
             'displayField' => 'label',
             'selected' => $material->bibleverses,
             'name' => 'bibleverses' ,
