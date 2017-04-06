@@ -1,4 +1,4 @@
-<nav class="navbar navbar-toggleable-md navbar-light bg-faded">
+<nav class="navbar navbar-toggleable-md navbar-light bg-faded nav-main">
     <div class="container">
 
         <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse"
