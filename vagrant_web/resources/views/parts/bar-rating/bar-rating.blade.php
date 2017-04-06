@@ -3,6 +3,7 @@ Parameters:
 $rangeStart (int)
 $rangeEnd (int)
 $steps (int / float)
+$value (int)
 $name fieldname
 $id fieldid (optional)
 --}}
@@ -23,7 +24,7 @@ $count = 0;
 
 <select id="{{$id}}" name="{{$name}}">
     @while($current <= $rangeEnd && $count <= 100)
-        <option value="{{$current}}">{{$current}}</option>
+        <option value="{{$current}}"@if($current == $value) {{'selected="selected"'}}@endif>{{$current}}</option>
         @php
             $count++;
         $current += $steps;

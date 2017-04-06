@@ -17,6 +17,22 @@
 
 
     <div class="form-group row">
+        {!! Form::label('rating', 'Bewertung', ['class' => 'col-sm-2 col-form-label']) !!}
+        <div class="col-sm-10">
+            @include('parts.bar-rating.bar-rating', [
+                'rangeStart' => 0,
+                'rangeEnd' => 20,
+                'steps' => 1,
+                'name' => 'rating',
+                'value' => $material->rating
+            ])
+            <div class="form-control-feedback">Success! You've done it.</div>
+            <small class="form-text text-muted">Example help text that remains unchanged.</small>
+        </div>
+    </div>
+
+
+    <div class="form-group row">
         {!! Form::label('description', 'Beschreibung', ['class' => 'col-sm-2 col-form-label']) !!}
         <div class="col-sm-10">
             {!! Form::textarea('description', $material->description, ['class' => 'form-control', 'required' => FALSE ]) !!}
@@ -25,20 +41,6 @@
         </div>
     </div>
 
-
-    <div class="form-group row">
-        {!! Form::label('rating', 'Bewertung', ['class' => 'col-sm-2 col-form-label']) !!}
-        <div class="col-sm-10">
-            @include('parts.bar-rating.bar-rating', [
-                'rangeStart' => 0,
-                'rangeEnd' => 20,
-                'steps' => 1,
-                'name' => 'rating'
-            ])
-            <div class="form-control-feedback">Success! You've done it.</div>
-            <small class="form-text text-muted">Example help text that remains unchanged.</small>
-        </div>
-    </div>
 
     <div class="form-group row">
         <div class="col-sm-2">Autom. erstellt</div>
