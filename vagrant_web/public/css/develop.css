@@ -5,11 +5,20 @@
 	position: relative;
 }
 
-.select2 .tag .text {
+.tag{
 	position: relative;
 }
 
-.select2-selection__choice > div > .progress-bar {
+.tag.tag-readonly{
+	margin-bottom: 0.5rem;
+	margin-right: 0.25rem;
+}
+
+.tag .text {
+	position: relative;
+}
+
+.tag > .progress-bar {
 	position: absolute;
 	background: #97eac8;
 	left: 0;
@@ -21,7 +30,7 @@
 	display: none;
 }
 
-.select2 .tag .icon {
+.tag .icon {
 	position: relative;
 	display: inline-block;
 	background-size: contain;
@@ -35,7 +44,7 @@
 	margin-left: 0;
 }
 
-.select2-results .tag.tag-selection .badge {
+.tag.tag-selection .badge {
 	margin-left: 0.5rem;
 }
 
