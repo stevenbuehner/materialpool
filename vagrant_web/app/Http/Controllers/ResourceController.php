@@ -90,7 +90,9 @@ class ResourceController extends Controller {
 			}
 
 			$resource->content                     = File::get($request->file('file')->getRealPath());
-			$additionalInformation['properties'][] = $request->file('file')->getClientOriginalName();
+			$additionalInformation['properties'][] = basename($request->file('file')->getClientOriginalName(),
+															  '.' . $request->file('file')
+																			->getClientOriginalExtension());
 		} else if ($request->has('content') && strlen($request->get('content')) > 5) {
 
 			$resource->content = $request->get('content');
