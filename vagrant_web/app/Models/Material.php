@@ -96,7 +96,7 @@ class Material extends Model {
 
 	public function setRatingAttribute($value) {
 		// Not more than 20!
-		$this->setAttribute('rating', max($value, 20));
+		$this->attributes['rating'] = max($value, 20);
 	}
 
 

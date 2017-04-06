@@ -5,11 +5,8 @@
 	position: relative;
 }
 
-.tag{
-	position: relative;
-}
-
 .tag.tag-readonly{
+	position: relative;
 	margin-bottom: 0.5rem;
 	margin-right: 0.25rem;
 }
