@@ -20,6 +20,7 @@ class MaterialController extends Controller {
 			},
 			'resources'];
 
+		$this->middleware(['auth']);
 	}
 
 	/**

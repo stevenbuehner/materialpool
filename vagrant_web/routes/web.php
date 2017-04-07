@@ -41,6 +41,7 @@ Route::get('/bibleverse/{from}-{to}', 'BibleVerseController@show')
 
 
 // Admin Interface Routes
+/*
 Route::group(['prefix'     => config('backpack.base.route_prefix', 'admin'),
 			  'middleware' => ['admin'],
 			  'namespace'  => 'Admin'], function () {
@@ -51,10 +52,7 @@ Route::group(['prefix'     => config('backpack.base.route_prefix', 'admin'),
 
 	// [...] other routes
 });
-
-Auth::routes();
-
-Route::get('/home', 'HomeController@index');
+*/
 
 Auth::routes();
 

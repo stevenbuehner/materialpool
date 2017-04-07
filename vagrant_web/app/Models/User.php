@@ -55,4 +55,8 @@ class User extends Authenticatable {
 	public function foreignInstance() {
 		return $this->hasMany(ForeignInstance::class);
 	}
+
+	public function isSuperAdmin() {
+		return $this->getAttribute('is_admin') === TRUE;
+	}
 }

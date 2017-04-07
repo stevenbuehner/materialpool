@@ -12,6 +12,11 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 
 class ResourceController extends Controller {
+
+	public function __construct() {
+		$this->middleware(['auth']);
+	}
+
 	/**
 	 * Display a listing of the resource.
 	 *
