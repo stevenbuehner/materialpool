@@ -28,13 +28,19 @@ Route::group(['prefix' => 'pool', 'as' => 'pool.'], function () {
 
 	Route::post('resource/file', 'ResourceController@storeFile')->name('resource.store.file');
 	Route::post('resource/text', 'ResourceController@storeText')->name('resource.store.text');
+
+	// Search
+	Route::get('searchbar', 'SearchController@index')->name('searchbar.index');
+	Route::get('search/guess', 'SearchController@guess')
+		 ->name('searchbar.guess');
+
 });
 
 Route::get('/keyword/{keyword}', 'KeywordController@show')
 	 ->name('keyword');
 
 
-Route::get('/bibleverse/{from}-{to}', 'BibleVerseController@show')
+Route::get('/bibleverse/{from}-{to}', 'Api\BibleverseController@show')
 	 ->name('bibleverse')
 	 ->where('from', '[0-9]+')
 	 ->where('to', '[0-9]+');

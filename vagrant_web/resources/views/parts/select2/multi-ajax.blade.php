@@ -17,8 +17,7 @@ Optional Variables
 - string $placeholder (Placeholder)
 --}}
 
-<select type="text/javascript"
-        id="{{$name or 'select2_ajax_multiple'}}"
+<select id="{{$name or 'select2_ajax_multiple'}}"
         name="{{$name or 'select2_ajax_multiple'}}[]"
         multiple="multiple"
         title="{{$placeholder}} or '"

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Models\Exceptions\InvalidKeywordTypeException;
 use Backpack\CRUD\CrudTrait;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Kalnoy\Nestedset\NodeTrait;
 use Nanigans\SingleTableInheritance\SingleTableInheritanceTrait;
@@ -104,6 +105,13 @@ class Keyword extends Model {
 
 	public static function getSingleTableType() {
 		return static::$singleTableType;
+	}
+
+	public static function searchQuery($text) {
+		$builder = (new static())->newQueryWithoutScopes();
+
+		/** @var Builder $builder */
+		return $builder->where('title', 'like', '%' . $text . '%');
 	}
 
 	/*

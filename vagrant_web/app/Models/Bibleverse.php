@@ -17,6 +17,14 @@ use StevenBuehner\BibleVerseBundle\Service\BibleVerseService;
  * @property int      $from
  * @property int      $to
  * @property int|null $bible_id
+ * @property string   $label
+ * @property int      $from_book_id
+ * @property int      $from_chapter
+ * @property int      $from_verse
+ * @property int      $to_book_id
+ * @property int      $to_chapter
+ * @property int      $to_verse
+ * @property int      $icon
  */
 class Bibleverse extends Model implements BibleVerseInterface {
 
@@ -77,9 +85,13 @@ class Bibleverse extends Model implements BibleVerseInterface {
 		return (int) sprintf('%03d%03d%03d', $bookId, $chapter, $verse);
 	}
 
+	/**
+	 * @param BibleVerseInterface $bibleVerse
+	 * @param null                $bibleId
+	 * @return NULL|Bibleverse
+	 */
 	public static function findOrNewFromBibleverseInterface(BibleVerseInterface $bibleVerse, $bibleId = NULL) {
 		return self::firstOrNew(self::getBibleverseCreateData($bibleVerse, $bibleId));
-
 	}
 
 	/**

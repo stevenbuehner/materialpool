@@ -75,4 +75,5 @@ Route::group([
 	Route::post('{foreignInstance}/resource/{remoteResourceId}/materials', 'ForeignInstanceMaterialController@store')
 		 ->where(['foreignInstance' => '[0-9]+', 'remoteResourceId' => '[0-9]+'])
 		 ->name('foreignInstanceMaterialStore');
+
 });
