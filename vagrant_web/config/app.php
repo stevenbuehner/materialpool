@@ -184,8 +184,8 @@ return [
 		/*
 		* Backpack Service Providers...
 		*/
-		Backpack\Base\BaseServiceProvider::class,
-		Backpack\CRUD\CrudServiceProvider::class,
+		//Backpack\Base\BaseServiceProvider::class,
+		// Backpack\CRUD\CrudServiceProvider::class,
 	],
 
 	/*

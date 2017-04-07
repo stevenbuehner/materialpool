@@ -78,14 +78,14 @@ class MaterialCrudController extends CrudController {
 					'label'                => "Tags",
 					'type'                 => 'select2_from_ajax_multiple',
 					'name'                 => 'keywords', // the column that contains the ID of that connected entity;
-				//	'subfields'            => ['keyword' => 'keyword_id'],
+					//	'subfields'            => ['keyword' => 'keyword_id'],
 					'entity'               => 'keywords', // the method that defines the relationship in your Model
 					'attribute'            => 'title', // foreign key attribute that is shown to user
 					'model'                => Keyword::class, // foreign key model
 					'data_source'          => url("api/v1/keywords"),
 					'placeholder'          => "Select a keyword",
 					'minimum_input_length' => 2,
-					'pivot'                => FALSE, // on create&update, do you need to add/delete pivot table entries?
+					'pivot'                => TRUE, // on create&update, do you need to add/delete pivot table entries?
 
 			]
 		);
@@ -153,6 +153,8 @@ class MaterialCrudController extends CrudController {
 
 	public function update(UpdateRequest $request) {
 		// your additional operations before save here
+		$t = request();
+		$t->request->set('keywords', preg_split('~,~', $request->get('keywords', '')));
 		$redirect_location = parent::updateCrud();
 		// your additional operations after save here
 		// use $this->data['entry'] or $this->crud->entry
