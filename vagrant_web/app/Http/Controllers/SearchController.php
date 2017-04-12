@@ -127,16 +127,17 @@ class SearchController extends Controller {
 							  ->with(['author', 'keywords', 'bibleverses'])
 							  ->orderBy('materials.rating', 'desc');
 
-		$keywordsAvailable    = FALSE;
-		$bibleversesAvailable = FALSE;
 
-		foreach ($searchBars as $bar) {
+		foreach ($searchBars as $index => $bar) {
 
 			if (is_array($bar) && count($bar) > 0) {
-				$barGroupColl     = collect($bar)->groupBy('type');
-				$keywordIds       = [];
-				$bibleverseRanges = $barGroupColl->get('b', []);
-				$matchAllStrings  = [];
+				$barGroupColl         = collect($bar)->groupBy('type');
+				$keywordIds           = [];
+				$bibleverseRanges     = $barGroupColl->get('b', []);
+				$matchAllStrings      = [];
+				$keywordsAvailable    = FALSE;
+				$bibleversesAvailable = FALSE;
+
 
 				if ($barGroupColl->has('k')) {
 					$keywordIds = $barGroupColl->get('k')->pluck('id');
@@ -154,9 +155,9 @@ class SearchController extends Controller {
 
 
 				DB::enableQueryLog();
-				$matQuery->where(function ($q) use (&$keywordIds, &$bibleverseRanges, &$matchAllStrings) {
+				$matQuery->where(function ($q) use (&$keywordIds, &$bibleverseRanges, &$matchAllStrings, $index) {
 					if (count($keywordIds) > 0) {
-						$q->orWhereIn('keyword_material.keyword_id', $keywordIds);
+						$q->orWhereIn("keyword_material{$index}.keyword_id", $keywordIds);
 					}
 
 					// Todo: Validate Bibleverses
@@ -166,30 +167,34 @@ class SearchController extends Controller {
 							$from = (int ) $bv['from'];
 							$to   = (int) $bv['to'];
 
-							$q->orWhereBetween('bibleverses.from', [$from, $to]);
-							$q->orWhereBetween('bibleverses.to', [$from, $to]);
-							$q->orWhere(function ($q) use ($from, $to) {
-								$q->where('bibleverses.from', '>', $from);
-								$q->where('bibleverses.to', '<', $to);
+							$q->orWhereBetween("bibleverses{$index}.from", [$from, $to]);
+							$q->orWhereBetween("bibleverses{$index}.to", [$from, $to]);
+							$q->orWhere(function ($q) use ($from, $to, $index) {
+								$q->where("bibleverses{$index}.from", '>', $from);
+								$q->where("bibleverses{$index}.to", '<', $to);
 							});
 
 
 						}
 					}
 				});
+
+				if ($keywordsAvailable === TRUE) {
+					/** @var Builder $matQuery */
+					$matQuery->leftJoin("keyword_material as keyword_material{$index}", 'materials.id', '=',
+										"keyword_material{$index}.material_id");
+				}
+
+				if ($bibleversesAvailable === TRUE) {
+					/** @var Builder $matQuery */
+					// Todo: Kann hier evt. eine der beiden left Joins ohne das index auskommen?
+					$matQuery->leftJoin("bibleverse_material as bibleverse_material{$index}", 'materials.id', '=',
+										"bibleverse_material{$index}.material_id");
+					$matQuery->leftJoin("bibleverses as bibleverses{$index}",
+										"bibleverse_material{$index}.bibleverse_id", '=',
+										"bibleverses{$index}.id");
+				}
 			}
-		}
-
-
-		if ($keywordsAvailable === TRUE) {
-			/** @var Builder $matQuery */
-			$matQuery->leftJoin('keyword_material', 'materials.id', '=', 'keyword_material.material_id');
-		}
-
-		if ($bibleversesAvailable === TRUE) {
-			/** @var Builder $matQuery */
-			$matQuery->leftJoin('bibleverse_material', 'materials.id', '=', 'bibleverse_material.material_id');
-			$matQuery->leftJoin('bibleverses', 'bibleverse_material.bibleverse_id', '=', 'bibleverses.id');
 		}
 
 		return $matQuery;
