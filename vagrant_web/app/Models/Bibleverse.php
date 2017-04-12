@@ -112,6 +112,10 @@ class Bibleverse extends Model implements BibleVerseInterface {
 			$to   = self::getCombi($bv->getBookId(), $bv->getToChapter(), $bv->getToVerse());
 			$query->orWhereBetween('from', [$from, $to]);
 			$query->orWhereBetween('to', [$from, $to]);
+			$query->orWhere(function ($q) use ($from, $to) {
+				$q->where('from', '>', $from);
+				$q->where('to', '<', $to);
+			});
 		}
 
 		return $query;
