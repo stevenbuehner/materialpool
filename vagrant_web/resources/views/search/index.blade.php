@@ -3,31 +3,29 @@
 @section('content')
 
 
-    <select id="search_template" name="search_template" class="col-sm-12" multiple="multiple"
-            style="width:100%; display: none;">
 
-    </select>
 
     <div class="row">
         <div class="col-sm-10" id="searchbar_search_row">
         </div>
         <div class="col-sm-2">
-            <button id="testbutton" class="btn btn-default">Some</button>
+            <button id="testbutton" class="btn btn-default">+</button>
         </div>
     </div>
 
     <hr>
 
     <div class="row" id="searchbar_content_row">
-
+        <material-list v-bind:materials="materials"></material-list>
     </div>
 
     <script type="text/javascript">
 
         var searchbar = (function () {
-            var $searchTemplate     = $("#search_template");
+            var $searchTemplate     = $('<select id="search_template" name="search_template" class="col-sm-12" multiple="multiple" style="width:100%; display: none;"></select>');
             var $searchbarSearchRow = $("#searchbar_search_row");
             var $searchBars         = $();
+            var $searchbarContent   = $("#searchbar_content_row");
 
             var addSearchbar = function () {
                 $newBar = copySearchbarTemplate();
@@ -35,15 +33,43 @@
             };
 
             var getQueryData = function () {
+                var result = {};
 
+                $searchBars.each(function (selectIndex) {
+
+                    result[selectIndex] = {};
+
+                    $(this).find('option').each(function (optionIndex) {
+                        var optionData = $(this).data('data');
+
+                        if (optionData.item) {
+                            result[selectIndex][optionIndex] = optionData.item;
+                        }
+
+                    });
+                });
+
+                return result;
             };
+
+            function selectionUpdated() {
+                console.log('Selection updated');
+                updateSearchResultContent();
+            }
+
+            function updateSearchResultContent() {
+
+
+                testVue.updateMaterialList(getQueryData())
+
+            }
 
             function copySearchbarTemplate() {
                 var $clone = $searchTemplate.clone();
                 $clone.prop('name', getSearchbarName($searchBars.length));
 
                 $clone.appendTo($searchbarSearchRow);
-                $searchBars.add($clone);
+                $searchBars = $searchBars.add($clone);
                 $clone.wrap('<div class="row"/>');
                 $clone.show();
 
@@ -58,12 +84,8 @@
              * @param element
              * @return {string}
              */
-            function getSearchbarName(index, element) {
+            function getSearchbarName(index) {
                 var s = 'q[' + index + ']';
-
-                if (element !== undefined) {
-                    s += '[' + element + ']';
-                }
 
                 return s;
             }
@@ -103,7 +125,6 @@
                         processResults: function (data, params) {
                             params.page = params.page || 1;
 
-                            console.log(data.data.length == data.per_page);
                             return {
                                 results: $.map(data.data, function (item) {
                                     return {
@@ -114,7 +135,7 @@
                                     }
                                 }),
                                 pagination: {
-                                    more: true // data.data.length == data.per_page
+                                    more: data.data.length == data.per_page // data.data.length == data.per_page
                                 }
                             };
                         },
@@ -128,15 +149,17 @@
                     escapeMarkup: function (markup) {
                         return markup;
                     }, // Let templateResult be rendered as html
-                });
+                }).on('change', selectionUpdated);
             }
 
 
             return {
                 addSearchbar: addSearchbar,
-                getQueryData: getQueryData
+                getQueryData: getQueryData,
+                forceUpdate: updateSearchResultContent
             }
-        })($);
+        })
+        ($);
 
         searchbar.addSearchbar();
 
@@ -146,7 +169,12 @@
         $("#testbutton").on('click', function () {
             searchbar.addSearchbar();
         });
+
+
+
+
     </script>
+    <script src="{{ mix('/js/searchbar.js') }}"></script>
 
 
 @endsection

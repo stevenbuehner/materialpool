@@ -42,6 +42,10 @@ class Material extends Model {
 		'id', 'created_by', 'modified_by', 'created_at', 'updated_at'
 	];
 
+	protected $hidden = [
+		'author_id'
+	];
+
 	public function resources() {
 		return $this->belongsToMany(Resource::class, 'material_resource', 'material_id', 'resource_id');
 	}

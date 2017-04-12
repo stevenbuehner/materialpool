@@ -25,3 +25,4 @@ vagrant_web/public/css/app.*.css
 vagrant_web/public/js/app.*.js
 mix-manifest.json
 vagrant_web/storage/framework/testing
+vagrant_web/public/js/searchbar.*.js
