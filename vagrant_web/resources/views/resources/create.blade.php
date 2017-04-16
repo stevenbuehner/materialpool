@@ -28,7 +28,7 @@
 
         <div class="card">
             <div class="card-block">
-                <h3 class="card-title">Text-Resource</h3>
+                <h3 class="card-title">Textdatei importieren</h3>
                 <p class="card-text">.txt Datei oder freier Inhalt</p>
 
                 {!! Form::open(['route' => 'pool.resource.store.text', 'files' => TRUE]) !!}

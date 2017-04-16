@@ -14,7 +14,7 @@ class ResourceRecognitionService {
 		$this->classMap = Keyword::getSingleTableTypeMap();
 	}
 
-	public function guessResourceClass($mimeType) {
+	public function guessResourceFileClass($mimeType) {
 
 		$mimeParts = preg_split('~\/~', $mimeType);
 

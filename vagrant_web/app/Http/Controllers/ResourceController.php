@@ -59,7 +59,7 @@ class ResourceController extends Controller {
 		$sha1               = sha1_file($tmpPath);
 		$recognitionService = resolve('app.resource.type.recognition');
 
-		$resourceClass               = $recognitionService->guessResourceClass($request
+		$resourceClass               = $recognitionService->guessResourceFileClass($request
 																				   ->file('file')
 																				   ->getMimeType());
 		$resource                    = new $resourceClass();

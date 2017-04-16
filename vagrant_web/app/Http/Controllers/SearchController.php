@@ -173,8 +173,6 @@ class SearchController extends Controller {
 								$q->where("bibleverses{$index}.from", '>', $from);
 								$q->where("bibleverses{$index}.to", '<', $to);
 							});
-
-
 						}
 					}
 				});

@@ -50,9 +50,8 @@ class TextContentHandler implements HandlerInterface {
 				}
 
 			} else {
-				// The more Tags where found, the more relevant they are
-				$relevance = min(RelevanceInterface::RELEVANCE_USER_MIN + $foundTags->count(),
-								 RelevanceInterface::RELEVANCE_USER_MAX);
+				// Max relevance, because used added it
+				$relevance = RelevanceInterface::RELEVANCE_USER_MAX;
 				$foundTags->each(function (Property $property) use ($relevance) {
 					$property->setRelevance($relevance);
 				});
