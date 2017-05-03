@@ -182,6 +182,13 @@ return [
 
 
 		/*
+		 * oAuth Service Provider
+		 *
+		 */
+		Laravel\Passport\PassportServiceProvider::class,
+
+
+		/*
 		* Backpack Service Providers...
 		*/
 		//Backpack\Base\BaseServiceProvider::class,

@@ -33,7 +33,7 @@ class Resource extends Model {
 		// 'created_at' => 'Date'
 	];
 	protected $guarded             = [
-		'id', 'created_by', 'options', 'content_hash', 'type', 'created_at', 'updated_at'
+		'id', 'created_by', 'options', 'content_hash', 'file_hash', 'type', 'created_at', 'updated_at'
 	];
 
 	protected $fillable = [
@@ -86,6 +86,10 @@ class Resource extends Model {
 		return $this->hasMany(ForeignResourceKey::class);
 	}
 
+	public function creator() {
+		return $this->belongsTo(User::class, 'created_by');
+	}
+
 	/**
 	 * Returns an array of additional EditViews that will be loaded on edit (by ResourceController)
 	 *
@@ -119,6 +123,11 @@ class Resource extends Model {
 
 		return $default;
 	}
+
+	protected function getTypeAttribute(){
+		return static::$singleTableType;
+	}
+
 
 	/**
 	 * @param string $key

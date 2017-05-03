@@ -3,3 +3,14 @@ set phpexiftool executeable (+x) for web-user in vendor/phpexiftool/exiftool/exi
 
 #Update npm
 sudo npm install npm@latest -g
+
+
+// API-Access
+// https://laravel.com/docs/5.4/passport
+// When deploying Passport to your production servers for the first time, you will likely need to run the passport:keys command. This command generates the encryption keys Passport needs in order to generate access token. The generated keys are not typically kept in source control:
+
+   php artisan passport:keys
+
+
+// Material Grabber API Client (mit Passwort)
+php artisan passport:client --password

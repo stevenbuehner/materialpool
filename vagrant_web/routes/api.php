@@ -26,7 +26,13 @@ Route::group([
 	// Resources
 	Route::get('resources/{resource}', 'ResourceController@show')
 		 ->where(['resource' => '[0-9]+']);
-
+	Route::get('resources/find', 'ResourceController@find')
+		 ->name('api.v1.resources.find');
+	Route::put('resources/{resource}', 'ResourceController@update')
+		 ->where(['resource' => '[0-9]+'])
+		 ->name('api.v1.resources.update');
+	Route::post('resources/', 'ResourceController@store')
+		 ->name('api.v1.resources.store');
 
 	// Keywords
 	Route::get('keywords', 'KeywordController@index')
