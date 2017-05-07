@@ -32,6 +32,6 @@ class CreateGrabberTable extends Migration {
 	 * @return void
 	 */
 	public function down() {
-		Schema::dropIfExists('grabber');
+		Schema::dropIfExists('grabber_grabbers');
 	}
 }

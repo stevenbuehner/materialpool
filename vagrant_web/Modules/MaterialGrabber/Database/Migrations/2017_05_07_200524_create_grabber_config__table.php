@@ -37,6 +37,6 @@ class CreateGrabberConfigTable extends Migration {
 	 * @return void
 	 */
 	public function down() {
-		Schema::dropIfExists('grabber_config_');
+		Schema::dropIfExists('grabber_config_values');
 	}
 }

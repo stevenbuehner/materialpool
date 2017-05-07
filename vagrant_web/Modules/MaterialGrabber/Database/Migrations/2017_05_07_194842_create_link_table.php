@@ -24,13 +24,17 @@ class CreateLinkTable extends Migration {
 			$table->smallInteger('status');
 			$table->date('last_check');
 			$table->string('md5_cache')->nullable();
+
 			$table->unsignedInteger('material_id')->nullable();
+			$table->unsignedInteger('resource_id')->nullable();
 
 			$table->index(['parent_id'], 'grabber_link_parent_id_index');
 			$table->index(['grabber_id'], 'grabber_link_grabber_id_index');
 			$table->index(['url'], 'grabber_link_url_index');
 			$table->index(['is_index'], 'grabber_link_is_index_index');
 			$table->index(['status'], 'grabber_link_status_index');
+			$table->index(['material_id'], 'grabber_link_material_id_index');
+			$table->index(['resource_id'], 'grabber_link_resource_id_index');
 
 			$table->foreign('grabber_id')
 				  ->references('id')->on('grabber_grabbers')
@@ -47,6 +51,11 @@ class CreateLinkTable extends Migration {
 				  ->onDelete('set null')
 				  ->onUpdate('cascade');
 
+			$table->foreign('resource_id')
+				  ->references('id')->on('resources')
+				  ->onDelete('set null')
+				  ->onUpdate('cascade');
+
 			$table->timestamps();
 		});
 	}
@@ -57,6 +66,6 @@ class CreateLinkTable extends Migration {
 	 * @return void
 	 */
 	public function down() {
-		Schema::dropIfExists('link');
+		Schema::dropIfExists('grabber_links');
 	}
 }
