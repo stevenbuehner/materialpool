@@ -1,10 +1,12 @@
 <?php
 
-namespace Modules\IdeSpektrumGrabber\Providers;
+namespace Modules\IdeaSpektrumGrabber\Providers;
 
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
+use Modules\MaterialGrabber\Events\GrabberRegister;
 
-class IdeSpektrumGrabberServiceProvider extends ServiceProvider {
+class IdeaSpektrumGrabberServiceProvider extends ServiceProvider {
 	/**
 	 * Indicates if loading of the provider is deferred.
 	 *
@@ -18,6 +20,7 @@ class IdeSpektrumGrabberServiceProvider extends ServiceProvider {
 	 * @return void
 	 */
 	public function boot() {
+	//	Event::listen(GrabberRegister::class => )
 	}
 
 	/**

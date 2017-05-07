@@ -1,5 +1,5 @@
 {
-    "name": "stevenbuehner/idespektrumgrabber",
+    "name": "stevenbuehner/IdeaSpektrumgrabber",
     "description": "",
     "authors": [
         {
@@ -9,7 +9,7 @@
     ],
     "autoload": {
         "psr-4": {
-            "Modules\\IdeSpektrumGrabber\\": ""
+            "Modules\\IdeaSpektrumGrabber\\": ""
         }
     }
 }

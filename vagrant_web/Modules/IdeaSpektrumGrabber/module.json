@@ -1,12 +1,12 @@
 {
-    "name": "IdeSpektrumGrabber",
-    "alias": "idespektrumgrabber",
+    "name": "IdeaSpektrumGrabber",
+    "alias": "IdeaSpektrumgrabber",
     "description": "",
     "keywords": [],
     "active": 1,
     "order": 0,
     "providers": [
-        "Modules\\IdeSpektrumGrabber\\Providers\\IdeSpektrumGrabberServiceProvider"
+        "Modules\\IdeaSpektrumGrabber\\Providers\\IdeaSpektrumGrabberServiceProvider"
     ],
     "aliases": {},
     "files": [
