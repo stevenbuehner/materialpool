@@ -1,0 +1,29 @@
+
+// Fonts
+@import url(https://fonts.googleapis.com/css?family=Raleway:300,400,600);
+
+// Variables
+@import "variables";
+
+// Bootstrap 3
+// @import "node_modules/bootstrap-sass/assets/stylesheets/bootstrap";
+
+// Bootstrap
+@import "node_modules/bootstrap/scss/bootstrap";
+// @import "node_modules/bootstrap/scss/mixins/nav-divide";
+
+
+// Select2
+@import "node_modules/select2/src/scss/core";
+// @import "node_modules/select2-bootstrap-theme/src/select2-bootstrap";
+@import "node_modules/select2-bootstrap-theme/dist/select2-bootstrap.min";
+
+
+@import "select2-blade-specifications";
+
+.nav-main{
+  margin-bottom: 2rem;
+}
+
+// jQuery Bar-Rating
+@import "node_modules/jquery-bar-rating/dist/themes/css-stars";
