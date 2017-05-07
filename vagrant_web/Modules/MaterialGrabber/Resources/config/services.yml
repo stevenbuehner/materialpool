@@ -1,0 +1,58 @@
+services:
+
+  link.grabmanager:
+    class: Modules\MaterialGrabber\Services\GrabManager
+    arguments:
+      entityManager: "@doctrine.orm.entity_manager"
+      container: "@service_container"
+      material_path : '%material_path%'
+
+
+  link.linkmanager:
+    class: Modules\MaterialGrabber\Services\LinkManager
+    arguments:
+      entityManager: "@doctrine.orm.entity_manager"
+      container: "@service_container"
+      material_path : '%material_path%'
+
+  link.grabbereservice:
+    class: Modules\MaterialGrabber\Services\GrabberService
+    arguments:
+      entityManager: "@doctrine.orm.entity_manager"
+      dispatcher:  "@event_dispatcher"
+      linkManager: "@link.linkmanager"
+      container: "@service_container"
+
+  link.indexcreator.bible:
+    class: Modules\MaterialGrabber\IndexCreation\BibleverseIndexCreator
+    arguments:
+      entityManager: "@doctrine.orm.entity_manager"
+      bibleVerseService: '@bible_verse.helper'
+
+  link.helper.meta:
+    class: Modules\MaterialGrabber\CrawlerTemplates\Helper\LinkHelper
+    arguments:
+      linkManager: "@link.linkmanager"
+      entityManager: "@doctrine.orm.entity_manager"
+      container: "@service_container"
+
+  link.helper.download:
+    class: Modules\MaterialGrabber\GrabberTemplates\Helper\DownloadHelper
+
+  link.helper.download2:
+    class: Modules\MaterialGrabber\GrabberTemplates\Helper\Download2Helper
+
+  link.helper.md5:
+    class: Modules\MaterialGrabber\GrabberTemplates\Helper\Md5Helper
+
+  link.helper.typo3_rsa:
+    class: Modules\MaterialGrabber\CrawlerTemplates\Helper\Typo3RsaLoginHelper
+
+  link.helper.login:
+    class: Modules\MaterialGrabber\CrawlerTemplates\Helper\DefaultLoginHelper
+
+  link.helper.bibleserver:
+    class: Modules\MaterialGrabber\CrawlerTemplates\Helper\BibleserverHelper
+    arguments:
+      bibleVerseService: '@bible_verse.helper'
+

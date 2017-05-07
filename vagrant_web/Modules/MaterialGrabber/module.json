@@ -1,16 +1,16 @@
 {
-    "name": "MaterialGrabber",
-    "alias": "materialgrabber",
-    "description": "",
-    "keywords": [],
-    "active": 1,
-    "order": 0,
-    "providers": [
-        "Modules\\MaterialGrabber\\Providers\\MaterialGrabberServiceProvider"
-    ],
-    "aliases": {},
-    "files": [
-        "start.php"
-    ],
-    "requires": []
+  "name": "MaterialGrabber",
+  "alias": "materialgrabber",
+  "description": "",
+  "keywords": [],
+  "active": 1,
+  "order": 0,
+  "providers": [
+    "Modules\\MaterialGrabber\\Providers\\MaterialGrabberServiceProvider"
+  ],
+  "aliases": {},
+  "files": [
+    "start.php"
+  ],
+  "requires": []
 }

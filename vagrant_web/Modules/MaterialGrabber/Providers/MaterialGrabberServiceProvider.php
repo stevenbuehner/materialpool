@@ -4,95 +4,88 @@ namespace Modules\MaterialGrabber\Providers;
 
 use Illuminate\Support\ServiceProvider;
 
-class MaterialGrabberServiceProvider extends ServiceProvider
-{
-    /**
-     * Indicates if loading of the provider is deferred.
-     *
-     * @var bool
-     */
-    protected $defer = false;
+class MaterialGrabberServiceProvider extends ServiceProvider {
+	/**
+	 * Indicates if loading of the provider is deferred.
+	 *
+	 * @var bool
+	 */
+	protected $defer = FALSE;
 
-    /**
-     * Boot the application events.
-     *
-     * @return void
-     */
-    public function boot()
-    {
-        $this->registerTranslations();
-        $this->registerConfig();
-        $this->registerViews();
-    }
+	/**
+	 * Boot the application events.
+	 *
+	 * @return void
+	 */
+	public function boot() {
+		$this->registerTranslations();
+		$this->registerConfig();
+		$this->registerViews();
+	}
 
-    /**
-     * Register the service provider.
-     *
-     * @return void
-     */
-    public function register()
-    {
-        //
-    }
+	/**
+	 * Register translations.
+	 *
+	 * @return void
+	 */
+	public function registerTranslations() {
+		$langPath = base_path('resources/lang/modules/materialgrabber');
 
-    /**
-     * Register config.
-     *
-     * @return void
-     */
-    protected function registerConfig()
-    {
-        $this->publishes([
-            __DIR__.'/../Config/config.php' => config_path('materialgrabber.php'),
-        ], 'config');
-        $this->mergeConfigFrom(
-            __DIR__.'/../Config/config.php', 'materialgrabber'
-        );
-    }
+		if (is_dir($langPath)) {
+			$this->loadTranslationsFrom($langPath, 'materialgrabber');
+		} else {
+			$this->loadTranslationsFrom(__DIR__ . '/../Resources/lang', 'materialgrabber');
+		}
+	}
 
-    /**
-     * Register views.
-     *
-     * @return void
-     */
-    public function registerViews()
-    {
-        $viewPath = base_path('resources/views/modules/materialgrabber');
+	/**
+	 * Register config.
+	 *
+	 * @return void
+	 */
+	protected function registerConfig() {
+		$this->publishes([
+							 __DIR__ . '/../Config/config.php' => config_path('materialgrabber.php'),
+						 ], 'config');
+		$this->mergeConfigFrom(
+			__DIR__ . '/../Config/config.php', 'materialgrabber'
+		);
+	}
 
-        $sourcePath = __DIR__.'/../Resources/views';
+	/**
+	 * Register views.
+	 *
+	 * @return void
+	 */
+	public function registerViews() {
+		$viewPath = base_path('resources/views/modules/materialgrabber');
 
-        $this->publishes([
-            $sourcePath => $viewPath
-        ]);
+		$sourcePath = __DIR__ . '/../Resources/views';
 
-        $this->loadViewsFrom(array_merge(array_map(function ($path) {
-            return $path . '/modules/materialgrabber';
-        }, \Config::get('view.paths')), [$sourcePath]), 'materialgrabber');
-    }
+		$this->publishes([
+							 $sourcePath => $viewPath
+						 ]);
 
-    /**
-     * Register translations.
-     *
-     * @return void
-     */
-    public function registerTranslations()
-    {
-        $langPath = base_path('resources/lang/modules/materialgrabber');
+		$this->loadViewsFrom(array_merge(array_map(function ($path) {
+			return $path . '/modules/materialgrabber';
+		}, \Config::get('view.paths')), [$sourcePath]), 'materialgrabber');
+	}
 
-        if (is_dir($langPath)) {
-            $this->loadTranslationsFrom($langPath, 'materialgrabber');
-        } else {
-            $this->loadTranslationsFrom(__DIR__ .'/../Resources/lang', 'materialgrabber');
-        }
-    }
+	/**
+	 * Register the service provider.
+	 *
+	 * @return void
+	 */
+	public function register() {
+		//
+	}
 
-    /**
-     * Get the services provided by the provider.
-     *
-     * @return array
-     */
-    public function provides()
-    {
-        return [];
-    }
+	/**
+	 * Get the services provided by the provider.
+	 *
+	 * @return array
+	 */
+	public function provides() {
+		return [];
+	}
 }
