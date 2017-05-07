@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Services\TagExtraction\ResourceHandles\FileExifHandler;
 use App\Services\TagExtraction\ResourceHandles\HandlerInterface;
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Support\Facades\Storage;
 use PHPExiftool\Driver\Tag\System\FileName;
 
@@ -88,8 +89,14 @@ class File extends Resource {
 	}
 
 	public function deleteLocalFile() {
-		$result = $this->getLocalDisk()->delete($this->getLocalDiskName());
+		try {
+			$result = $this->getLocalDisk()->delete($this->getLocalDiskName());
+		} catch (FileNotFoundException $e) {
+			$result = FALSE;
+		}
+
 		$this->setAttribute('local_path', NULL);
+		$this->setAttribute('original_filename', '');
 
 		return $result;
 	}

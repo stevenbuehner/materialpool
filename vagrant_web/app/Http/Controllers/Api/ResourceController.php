@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Jobs\GenerateResourceHashes;
 use App\Models\File;
 use App\Models\Resource;
 use Illuminate\Http\Request;
@@ -23,10 +24,6 @@ class ResourceController extends BaseController {
 	 * @return Resource
 	 */
 	public function show(Resource $resource) {
-		if ($resource->created_by != Auth::id()) {
-			response('Wrong user', 404);
-		}
-
 		return $resource;
 	}
 
@@ -110,8 +107,7 @@ class ResourceController extends BaseController {
 
 			try {
 
-				$file                        = $request->file('file');
-				$resource->original_filename = $file->getClientOriginalName();
+				$file = $request->file('file');
 
 				// $extension     = $file->getClientOriginalExtension();
 				$localFilePath = $resource->created_by . DIRECTORY_SEPARATOR . $resource->type;
@@ -128,7 +124,14 @@ class ResourceController extends BaseController {
 					$resource->deleteLocalFile();
 				}
 
-				$resource->local_path = $diskName . '::' . $localFile;
+				$resource->local_path        = $diskName . '::' . $localFile;
+				$resource->original_filename = $file->getClientOriginalName();
+
+				// FIXME: If Sync-Queue is used, $resource has not been Stored yet and the Process loads a new instance into $resource (with the old paths)
+				if (!$resource->exists) {
+					$resource->save();
+				}
+				dispatch(new GenerateResourceHashes($resource));
 
 			} catch (\Exception $e) {
 
@@ -146,9 +149,6 @@ class ResourceController extends BaseController {
 	}
 
 	public function update(Request $request, Resource $resource) {
-		if ($resource->creator->id !== Auth::id()) {
-			return response('you are not the owner', 404);
-		}
 
 		$resource->fill($request->all());
 		$this->handleResourceFileUpload($resource, $request);

@@ -12,6 +12,7 @@ use Nanigans\SingleTableInheritance\SingleTableInheritanceTrait;
 /**
  * Class Keyword
  *
+ * @property int    $id
  * @property string $title
  * @property string $type
  * @property string $lc_title
@@ -51,11 +52,20 @@ class Keyword extends Model {
 		parent::__construct($attributes);
 	}
 
+
 	/*
 	|--------------------------------------------------------------------------
 	| FUNCTIONS
 	|--------------------------------------------------------------------------
 	*/
+
+
+	public static function getSingleTableClass($key) {
+		$map = self::getSingleTableTypeMap();
+
+		return isset($map[$key]) ? $map[$key] : NULL;
+	}
+
 
 	public static function boot() {
 		parent::boot();

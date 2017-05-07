@@ -5,6 +5,7 @@ namespace App\Models;
 use App\ResourceLimitations\ResourceLimitationInterface;
 use Backpack\CRUD\CrudTrait;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 /**
  * Class Material
@@ -54,6 +55,10 @@ class Material extends Model {
 		return $this->keyWordClassAndChildren(Keyword::class);
 	}
 
+	/**
+	 * @param $class
+	 * @return BelongsToMany
+	 */
 	protected function keyWordClassAndChildren($class) {
 		return $this->belongsToMany($class, 'keyword_material', 'material_id', 'keyword_id')->withPivot('relevance');
 	}
@@ -90,6 +95,9 @@ class Material extends Model {
 		return $this->belongsTo(User::class, 'modified_by');
 	}
 
+	/**
+	 * @return BelongsToMany
+	 */
 	public function bibleverses() {
 		return $this->belongsToMany(Bibleverse::class)->withPivot('relevance');
 	}

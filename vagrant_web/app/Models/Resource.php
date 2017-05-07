@@ -15,6 +15,7 @@ use Nanigans\SingleTableInheritance\SingleTableInheritanceTrait;
  * @property string $remote_path
  * @property string $local_path
  * @property string $content_hash
+ * @property string $file_hash
  * @property string $notes
  */
 class Resource extends Model {

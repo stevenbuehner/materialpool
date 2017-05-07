@@ -17,15 +17,11 @@ Route::group([
 				 'namespace' => 'Api'
 			 ], function () {
 
-	// Bibleverses
-	Route::get('bibleverses', 'BibleverseController@index')
-		 ->name('api.v1.bibleverses.index');
-	Route::post('bibleverses', 'BibleverseController@store')
-		 ->name('api.v1.bibleverses.store');
 
 	// Resources
 	Route::get('resources/{resource}', 'ResourceController@show')
-		 ->where(['resource' => '[0-9]+']);
+		 ->where(['resource' => '[0-9]+'])
+		 ->name('api.v1.resources.show');
 	Route::get('resources/find', 'ResourceController@find')
 		 ->name('api.v1.resources.find');
 	Route::put('resources/{resource}', 'ResourceController@update')
@@ -33,6 +29,29 @@ Route::group([
 		 ->name('api.v1.resources.update');
 	Route::post('resources/', 'ResourceController@store')
 		 ->name('api.v1.resources.store');
+
+	// Materials
+	Route::get('materials', 'MaterialController@index')
+		 ->where(['material' => '[0-9]+'])
+		 ->name('api.v1.materials.index');
+	Route::get('materials/{material}', 'MaterialController@show')
+		 ->where(['material' => '[0-9]+'])
+		 ->name('api.v1.materials.show');
+	Route::post('materials', 'MaterialController@store')
+		 ->name('api.v1.materials.store');
+	Route::put('materials/{material}', 'MaterialController@update')
+		 ->where(['material' => '[0-9]+'])
+		 ->name('api.v1.materials.update');
+	Route::put('materials/{material}/resources', 'MaterialController@associateResources')
+		 ->where(['material' => '[0-9]+'])
+		 ->name('api.v1.materials.associateResources');
+
+	// Bibleverses
+	Route::get('bibleverses', 'BibleverseController@index')
+		 ->name('api.v1.bibleverses.index');
+	Route::post('bibleverses', 'BibleverseController@store')
+		 ->name('api.v1.bibleverses.store');
+
 
 	// Keywords
 	Route::get('keywords', 'KeywordController@index')
