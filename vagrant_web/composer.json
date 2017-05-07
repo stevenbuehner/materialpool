@@ -16,6 +16,7 @@
         "laravel/tinker": "~1.0",
         "laravelcollective/html": "^5.4",
         "nanigans/single-table-inheritance": "^0.7.1",
+        "nwidart/laravel-modules": "^1.20",
         "stevenbuehner/bible-verse-bundle": "^2.0"
     },
     "require-dev": {
@@ -31,7 +32,8 @@
             "database"
         ],
         "psr-4": {
-            "App\\": "app/"
+            "App\\": "app/",
+            "Modules\\": "Modules/"
         }
     },
     "autoload-dev": {
