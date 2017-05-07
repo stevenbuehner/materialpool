@@ -9,6 +9,6 @@ class GrabberConfigValue extends Model {
 	protected $fillable = ['name', 'value'];
 
 	public function grabber() {
-		return $this->belongsTo(Grabber::class, 'grabber_id');
+		return $this->belongsTo(GrabberConfig::class, 'grabber_id');
 	}
 }

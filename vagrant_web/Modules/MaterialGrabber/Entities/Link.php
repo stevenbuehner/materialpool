@@ -24,7 +24,7 @@ class Link extends Model {
 	}
 
 	public function grabber() {
-		return $this->hasOne(Grabber::class, 'grabber_id');
+		return $this->hasOne(GrabberConfig::class, 'grabber_id');
 	}
 
 	public function material() {

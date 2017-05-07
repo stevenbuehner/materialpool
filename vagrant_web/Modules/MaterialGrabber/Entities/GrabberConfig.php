@@ -4,7 +4,7 @@ namespace Modules\MaterialGrabber\Entities;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Grabber extends Model {
+class GrabberConfig extends Model {
 	protected $table = 'grabber_grabbers';
 
 	protected $attributes = [
