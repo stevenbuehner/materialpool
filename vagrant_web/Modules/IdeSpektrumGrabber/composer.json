@@ -1,0 +1,15 @@
+{
+    "name": "stevenbuehner/idespektrumgrabber",
+    "description": "",
+    "authors": [
+        {
+            "name": "Steven Buehner",
+            "email": "buehner@me.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Modules\\IdeSpektrumGrabber\\": ""
+        }
+    }
+}

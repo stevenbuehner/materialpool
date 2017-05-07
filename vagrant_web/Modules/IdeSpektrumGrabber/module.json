@@ -1,0 +1,16 @@
+{
+    "name": "IdeSpektrumGrabber",
+    "alias": "idespektrumgrabber",
+    "description": "",
+    "keywords": [],
+    "active": 1,
+    "order": 0,
+    "providers": [
+        "Modules\\IdeSpektrumGrabber\\Providers\\IdeSpektrumGrabberServiceProvider"
+    ],
+    "aliases": {},
+    "files": [
+        "start.php"
+    ],
+    "requires": []
+}
