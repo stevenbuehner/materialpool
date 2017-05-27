@@ -3,6 +3,7 @@
 namespace Modules\MaterialGrabber\GrabberTemplates;
 
 use Modules\MaterialGrabber\Entities\GrabberConf;
+use Modules\MaterialGrabber\Entities\GrabberConfig;
 use Symfony\Component\Console\Question\Question;
 
 class DefaultUserPasswordGrabberConfig extends DefaultNoUserGrabberConfig {
@@ -13,11 +14,11 @@ class DefaultUserPasswordGrabberConfig extends DefaultNoUserGrabberConfig {
 	protected $defaultUsername;
 	protected $defaultPasswort;
 
-	public function __construct(GrabberConf $grabberInfo) {
-		parent::__construct($grabberInfo);
-		$this->defaultUsername    = $grabberInfo->getName();
-		$this->defaultPasswort    = '';
-		$this->defaultStoragePath = $grabberInfo->getName();
+	public function __construct(GrabberConfig $grabberConfig) {
+		parent::__construct($grabberConfig);
+
+		$this->defaultUsername = $this->getName();
+		$this->defaultPasswort = '';
 	}
 
 	/**
@@ -53,27 +54,27 @@ class DefaultUserPasswordGrabberConfig extends DefaultNoUserGrabberConfig {
 	 * @return string
 	 */
 	public function getPasswort() {
-		return $this->getParameterValueOrDefault(self::PASSWORT, $this->defaultPasswort);
+		return $this->getParameter(self::PASSWORT, $this->defaultPasswort);
 	}
 
 	/**
 	 * @return string
 	 */
 	public function getUsername() {
-		return $this->getParameterValueOrDefault(self::USERNAME, $this->defaultUsername);
+		return $this->getParameter(self::USERNAME, $this->defaultUsername);
 	}
 
 	/**
 	 * @param string $username
 	 */
 	public function setUsername($username) {
-		$this->saveParameter(self::USERNAME, $username);
+		$this->setParameter(self::USERNAME, $username);
 	}
 
 	/**
 	 * @param string $passwort
 	 */
 	public function setPasswort($passwort) {
-		$this->$this->saveParameter(self::PASSWORT, $passwort);
+		$this->$this->setParameter(self::PASSWORT, $passwort);
 	}
 }

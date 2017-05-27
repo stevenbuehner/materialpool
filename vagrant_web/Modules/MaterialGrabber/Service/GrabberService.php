@@ -2,26 +2,19 @@
 
 namespace Modules\MaterialGrabber\Services;
 
-use Doctrine\ORM\EntityManager;
-use LinkBundle\Events\RegisterGrabberEvent;
+use Illuminate\Support\Facades\Event;
+use Modules\MaterialGrabber\Entities\GrabberConfig;
+use Modules\MaterialGrabber\Events\GrabberRegister;
 use Modules\MaterialGrabber\GrabberTemplates\AbstractGrabber;
 use Modules\MaterialGrabber\GrabberTemplates\AbstractGrabberConfig;
 use Modules\MaterialGrabber\GrabberTemplates\Exceptions\MissingBundleSetupInterfaceException;
 use Modules\MaterialGrabber\GrabberTemplates\GrabberSetupInterface;
 use Modules\MaterialGrabber\Repositories\ConfigRepository;
 use Modules\MaterialGrabber\Repositories\GrabberConfRepository;
-use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class GrabberService {
 
 	protected $grabberCollection;
-
-	/** @var EntityManager */
-	protected $entityManager;
-
-	/** @var  EventDispatcherInterface */
-	protected $dispatcher;
 
 	/** @var  GrabberConfRepository */
 	protected $grabberRepo;
@@ -29,25 +22,11 @@ class GrabberService {
 	/** @var ConfigRepository */
 	protected $configRepo;
 
-	/** @var  ContainerInterface */
-	protected $container;
-
-	/** @var LinkManager */
-	protected $linkManager;
-
 	/**
 	 * GrabberService constructor.
 	 *
-	 * @param EntityManager            $entityManager
-	 * @param EventDispatcherInterface $dispatcher
-	 * @param LinkManager              $linkManager
-	 * @param ContainerInterface       $container
 	 */
-	public function __construct(EntityManager $entityManager, EventDispatcherInterface $dispatcher, LinkManager $linkManager, ContainerInterface $container) {
-		$this->entityManager     = $entityManager;
-		$this->dispatcher        = $dispatcher;
-		$this->container         = $container;
-		$this->linkManager       = $linkManager;
+	public function __construct() {
 		$this->grabberCollection = [];
 
 		// Init the Cache
@@ -56,6 +35,7 @@ class GrabberService {
 
 	/**
 	 * @return AbstractGrabber[]
+	 * @throws MissingBundleSetupInterfaceException
 	 */
 	protected function getRegisteredGrabbersViaEventCall() {
 		$allFactoryClasses = $this->getRegisteredGrabbersArrayViaEventCall();
@@ -77,8 +57,8 @@ class GrabberService {
 	 * @return string[]
 	 */
 	protected function getRegisteredGrabbersArrayViaEventCall() {
-		$event = new RegisterGrabberEvent();
-		$this->dispatcher->dispatch($event::NAME, $event);
+		$event = new GrabberRegister();
+		Event::fire($event);
 
 		return $event->getGrabberGenerationClasses();
 	}
@@ -87,6 +67,7 @@ class GrabberService {
 	 * @param string      $grabberName
 	 * @param string|NULL $grabberFactoryClass
 	 * @return false|AbstractGrabber
+	 * @throws MissingBundleSetupInterfaceException
 	 */
 	public function getGrabberByName($grabberName, $grabberFactoryClass = NULL) {
 		$grabber = FALSE;
@@ -129,6 +110,7 @@ class GrabberService {
 	 * @param $grabberName
 	 * @param $grabberFactoryClass
 	 * @return AbstractGrabber
+	 * @throws MissingBundleSetupInterfaceException
 	 */
 	protected function createGrabber($grabberName, $grabberFactoryClass) {
 		$grabberConfig = $this->getGrabberConf($grabberName, $grabberFactoryClass);
@@ -148,17 +130,18 @@ class GrabberService {
 	protected function getGrabberConf($grabberUID, $grabberFactoryClass) {
 		$this->checkIfClassHasInterface($grabberFactoryClass);
 
+		// Load Grabber-Configuration from DB
+		$grabberDBConfig = GrabberConfig::where(
+			['name' => $grabberUID]
+		)->first();
+
 		/** @var GrabberSetupInterface $factory */
-		$repo            = $this->getBundleRepository();
-		$grabberDBConfig = $repo->getGrabberByName($grabberUID);
-		$factory         = new $grabberFactoryClass();
+		$factory = new $grabberFactoryClass();
 
 		if ($grabberDBConfig) {
-			$grabberConf = $factory->generateGrabberConfigFromStoredConfig($grabberDBConfig, $this->container);
+			$grabberConf = $factory->generateGrabberConfigFromStoredConfig($grabberDBConfig);
 		} else {
-			$grabberConf = $factory->generateGrabberConfigFromNoConfig($this->container);
-			$this->entityManager->persist($grabberConf->getGrabberInfo());
-			$this->entityManager->flush();
+			$grabberConf = $factory->generateGrabberConfigFromNoConfig();
 		}
 
 		return $grabberConf;
@@ -174,22 +157,12 @@ class GrabberService {
 		}
 	}
 
-	/** @return GrabberConfRepository */
-	protected function getBundleRepository() {
-		if (!$this->grabberRepo) {
-			$this->grabberRepo = $this->entityManager->getRepository('LinkBundle:GrabberConf');
-		}
-
-		return $this->grabberRepo;
-	}
-
 	protected function createGrabberFromConf(AbstractGrabberConfig $conf, $factoryClassName) {
 		$this->checkIfClassHasInterface($factoryClassName);
 
 		/** @var GrabberSetupInterface $factory */
-
 		$factory = new $factoryClassName();
-		$grabber = $factory->generateGrabber($conf, $this->linkManager, $this->container);
+		$grabber = $factory->generateGrabber($conf);
 
 		return $grabber;
 	}
@@ -216,28 +189,16 @@ class GrabberService {
 
 	/**
 	 * @return AbstractGrabber[]
+	 * @throws MissingBundleSetupInterfaceException
 	 */
 	public function getAllGrabbers() {
 		return $this->getRegisteredGrabbersViaEventCall();
-	}
-
-	public function getAllInactiveGrabbers() {
-
 	}
 
 	public function clearGrabberFromCache($grabberName) {
 		if (isset($this->grabberCollection[$grabberName])) {
 			unset($this->grabberCollection[$grabberName]);
 		}
-	}
-
-	/** @return ConfigRepository */
-	protected function getBundleConfigRepository() {
-		if (!$this->configRepo) {
-			$this->configRepo = $this->entityManager->getRepository('LinkBundle:ConfigValue');
-		}
-
-		return $this->configRepo;
 	}
 
 }

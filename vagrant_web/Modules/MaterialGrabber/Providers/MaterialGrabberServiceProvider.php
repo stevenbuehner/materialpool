@@ -3,6 +3,10 @@
 namespace Modules\MaterialGrabber\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Modules\MaterialGrabber\Console\Config;
+use Modules\MaterialGrabber\GrabberTemplates\Helper\SessionAwareCurlDownload;
+use Modules\MaterialGrabber\Services\GrabberService;
+use Modules\MaterialGrabber\Services\LinkManager;
 
 class MaterialGrabberServiceProvider extends ServiceProvider {
 	/**
@@ -20,7 +24,8 @@ class MaterialGrabberServiceProvider extends ServiceProvider {
 	public function boot() {
 		$this->registerTranslations();
 		$this->registerConfig();
-		$this->registerViews();
+		// $this->registerViews();
+		$this->registerListeners();
 	}
 
 	/**
@@ -52,6 +57,10 @@ class MaterialGrabberServiceProvider extends ServiceProvider {
 		);
 	}
 
+	public function registerListeners() {
+		// Event::listen('grabber.register');
+	}
+
 	/**
 	 * Register views.
 	 *
@@ -77,7 +86,19 @@ class MaterialGrabberServiceProvider extends ServiceProvider {
 	 * @return void
 	 */
 	public function register() {
-		//
+		$this->app->singleton(GrabberService::class);
+		// $this->app->singleton('grabber.grabberservice', GrabberService::class);
+
+		$this->app->singleton('grabber.linkmanager', LinkManager::class);
+
+		$this->app->singleton('grabber.curldownload', SessionAwareCurlDownload::class);
+
+		$this->commands([
+							Config::class
+						]);
+
+		// $this->app->singleton('link.helper.download', DownloadHelper::class);
+		// $this->app->singleton('link.helper.download2', Download2Helper::class);
 	}
 
 	/**

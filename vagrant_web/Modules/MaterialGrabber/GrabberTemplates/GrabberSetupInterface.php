@@ -9,25 +9,23 @@
 namespace Modules\MaterialGrabber\GrabberTemplates;
 
 
-use Modules\MaterialGrabber\Entities\GrabberConf;
-use Modules\MaterialGrabber\Services\LinkManager;
-use Symfony\Component\DependencyInjection\ContainerInterface;
+use Modules\MaterialGrabber\Entities\GrabberConfig;
 
 interface GrabberSetupInterface {
 
 	/**
 	 * @return AbstractGrabberConfig
 	 */
-	public function generateGrabberConfigFromStoredConfig(GrabberConf $grabberBundle, ContainerInterface $container);
+	public function generateGrabberConfigFromStoredConfig(GrabberConfig $grabberConf);
 
 	/**
 	 * @return AbstractGrabberConfig
 	 */
-	public function generateGrabberConfigFromNoConfig(ContainerInterface $container);
+	public function generateGrabberConfigFromNoConfig();
 
 	/**
 	 * @return AbstractGrabber
 	 */
-	public function generateGrabber(AbstractGrabberConfig $grabberConf, LinkManager $linkManager, ContainerInterface $container);
+	public function generateGrabber(AbstractGrabberConfig $grabberConf);
 
 }

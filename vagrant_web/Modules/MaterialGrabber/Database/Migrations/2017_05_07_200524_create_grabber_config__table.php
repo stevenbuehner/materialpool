@@ -20,7 +20,7 @@ class CreateGrabberConfigTable extends Migration {
 
 			$table->index(['name'], 'grabber_config_values_name_index');
 			$table->index(['grabber_id'], 'grabber_config_values_grabber_id_index');
-			$table->index(['grabber_id', 'name'], 'grabber_config_values_both_index');
+			$table->unique(['grabber_id', 'name'], 'grabber_config_values_both_index');
 
 			$table->foreign('grabber_id')
 				  ->references('id')->on('grabber_grabbers')

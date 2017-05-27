@@ -2,18 +2,21 @@
 
 namespace Modules\MaterialGrabber\GrabberTemplates;
 
-use Modules\MaterialGrabber\Entities\ConfigValue;
-use Modules\MaterialGrabber\Entities\GrabberConf;
+use Modules\MaterialGrabber\Entities\GrabberConfig;
 use Symfony\Component\Console\Question\Question;
 
 abstract class AbstractGrabberConfig {
 
-	/** @var  GrabberConf */
-	protected $grabberInfo;
+	/** @var  GrabberConfig */
+	protected $grabberConfig;
 
 
-	public function __construct(GrabberConf $grabberInfo) {
-		$this->setGrabberInfo($grabberInfo);
+	public function __construct(GrabberConfig $grabberConfig) {
+		$this->setGrabberConfig($grabberConfig);
+
+		if (!$grabberConfig->exists) {
+			$grabberConfig->saveOrFail();
+		}
 	}
 
 	/**
@@ -26,22 +29,22 @@ abstract class AbstractGrabberConfig {
 
 	/** @return string */
 	public function getName() {
-		return $this->grabberInfo->getName();
+		return $this->grabberConfig->name;
 	}
 
 	/** @ereturn int */
 	public function getId() {
-		return $this->grabberInfo->getId();
+		return $this->grabberConfig->id;
 	}
 
 	/** @return string */
 	public function getAuthor() {
-		return $this->grabberInfo->getAuthor();
+		return $this->grabberConfig->author;
 	}
 
 	/** @return bool */
 	public function isActive() {
-		return $this->grabberInfo->getIsActive();
+		return $this->grabberConfig->is_active;
 	}
 
 	/**
@@ -49,28 +52,28 @@ abstract class AbstractGrabberConfig {
 	 * @return AbstractGrabberConfig
 	 */
 	public function setActive($isActive) {
-		$this->getGrabberInfo()->setIsActive($isActive);
+		$this->getGrabberConfig()->is_active = $isActive;
 
 		return $this;
 	}
 
 	/**
-	 * @return GrabberConf
+	 * @return GrabberConfig
 	 */
-	public function getGrabberInfo() {
-		return $this->grabberInfo;
+	public function getGrabberConfig() {
+		return $this->grabberConfig;
 	}
 
 	/**
-	 * @param GrabberConf $grabberInfo
+	 * @param GrabberConfig $grabberConfig
 	 */
-	public function setGrabberInfo(GrabberConf $grabberInfo) {
-		$this->grabberInfo = $grabberInfo;
+	public function setGrabberConfig(GrabberConfig $grabberConfig) {
+		$this->grabberConfig = $grabberConfig;
 	}
 
 	/** @return string */
 	public function getDescription() {
-		return $this->grabberInfo->getDescription();
+		return $this->grabberConfig->description;
 	}
 
 	/**
@@ -82,7 +85,7 @@ abstract class AbstractGrabberConfig {
 			$lastRun = new \DateTime('now');
 		}
 
-		$this->grabberInfo->setLastRun($lastRun);
+		$this->grabberConfig->last_complete_run = $lastRun;
 
 		return $this;
 	}
@@ -91,116 +94,46 @@ abstract class AbstractGrabberConfig {
 	 * @return \DateTime|NULL
 	 */
 	public function getLastRun() {
-		return $this->grabberInfo->getLastRun();
+		return $this->grabberConfig->last_complete_run;
 	}
 
 	/**
 	 * Asserts an existing parameter in the Config and removes it
 	 *
-	 * @param string $key
+	 * @param string $name
 	 * @throws ConfigParameterDoesNotExistException
 	 */
-	public function removeParameter($key) {
-		$param = $this->getParameter($key);
-		$this->grabberInfo->getConfigValues()->removeElement($param);
+	public function removeParameter($name) {
+		$this->grabberConfig->removeConfigValueByName($name);
 	}
 
-	/**
-	 * Asserts that the parameter with the given key exists and returns it.
-	 *
-	 * @param string $key
-	 * @return ConfigValue
-	 * @throws ConfigParameterDoesNotExistException
-	 */
-	public function getParameter($key) {
-		$key = (string) $key;
-
-		foreach ($this->grabberInfo->getConfigValues() as $param) {
-			if ($param->getName() == $key) {
-				return $param;
-			}
-		}
-
-		throw new ConfigParameterDoesNotExistException("The requested Config-Parameter '{$key}' does not exist");
-	}
-
-	/**
-	 * Create or updates the parameter, whatever is necessary
-	 *
-	 * @param $key
-	 * @param $value
-	 * @return ConfigValue
-	 */
-	public function saveParameter($key, $value) {
-		if ($this->hasParameter($key)) {
-			$param = $this->updateParameter($key, $value);
-		} else {
-			$param = $this->addParameter($key, $value);
-		}
-
-		return $param;
-	}
-
-	/**
-	 * @param bool $key
-	 */
-	public function hasParameter($key) {
-		foreach ($this->grabberInfo->getConfigValues() as $param) {
-			if ($param->getName() == $key) {
-				return TRUE;
-			}
-		}
-
-		return FALSE;
-	}
 
 	/**
 	 * Asserts an existing parameter in the Config and updates it
 	 *
-	 * @param string $key
-	 * @param mixed  $value
-	 * @return ConfigValue
-	 * @throws ConfigParameterDoesNotExistException
+	 * @param string $name
+	 * @param string $value
 	 */
-	public function updateParameter($key, $value) {
-		$param = $this->getParameter($key);
-		$param->setValue($value);
-
-		return $param;
+	public function setParameter($name, $value) {
+		$this->getGrabberConfig()->setConfigValue($name, $value);
 	}
+
 
 	/**
+	 * Asserts that the parameter with the given key exists and returns it.
 	 *
-	 * Adds a Parameter. Asserts, that the Parameter does not exist yet!
-	 *
-	 * @param string $key
-	 * @param mixed  $value
-	 * @param        ConfigValue
+	 * @param string      $name
+	 * @param string|NULL $default
+	 * @return string|null
 	 */
-	public function addParameter($key, $value) {
-		$param = new ConfigValue();
-		$param->setName($key);
-		$param->setValue($value);
-		$param->setGrabber($this->grabberInfo);
-		$this->grabberInfo->getConfigValues()->add($param);
+	public function getParameter($name, $default = NULL) {
+		$name = (string) $name;
 
-		return $param;
+		return $this->grabberConfig->getConfigValueByName($name, $default);
 	}
 
-	/**
-	 * Returns the stored value of the parameter or the $defaultValue, if the parameterKey does not exist in the db
-	 *
-	 * @param string $paramKey
-	 * @param mixed  $defaultValue
-	 * @return null|\stdClass
-	 */
-	public function getParameterValueOrDefault($paramKey, $defaultValue = NULL) {
-		if ($this->hasParameter($paramKey)) {
-			return $this->getParameter($paramKey)->getValue();
-		} else {
-			return $defaultValue;
-		}
+	public function save() {
+		$this->getGrabberConfig()->save();
 	}
-
 
 }

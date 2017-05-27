@@ -2,18 +2,20 @@
 
 namespace Modules\MaterialGrabber\GrabberTemplates;
 
-use Modules\MaterialGrabber\Entities\GrabberConf;
+use Modules\MaterialGrabber\Entities\GrabberConfig;
 use Symfony\Component\Console\Question\Question;
 
 class DefaultNoUserGrabberConfig extends AbstractGrabberConfig {
 
 	const STORAGE_PATH = "storage_path";
 
+	// Beibehalten falls jemand davon erben möchte ...
 	protected $defaultStoragePath;
 
-	public function __construct(GrabberConf $grabberInfo) {
-		parent::__construct($grabberInfo);
-		$this->defaultStoragePath = $grabberInfo->getName();
+	public function __construct(GrabberConfig $grabberConfig) {
+		parent::__construct($grabberConfig);
+
+		$this->defaultStoragePath = $this->getName();
 	}
 
 	/**
@@ -47,13 +49,13 @@ class DefaultNoUserGrabberConfig extends AbstractGrabberConfig {
 	 * @return string
 	 */
 	public function getStoragePath() {
-		return $this->getParameterValueOrDefault(self::STORAGE_PATH, $this->defaultStoragePath);
+		return $this->getParameter(self::STORAGE_PATH, $this->defaultStoragePath);
 	}
 
 	/**
 	 * @param string $storagePath
 	 */
 	public function setStoragePath($storagePath) {
-		$this->saveParameter(self::STORAGE_PATH, $storagePath);
+		$this->setParameter(self::STORAGE_PATH, $storagePath);
 	}
 }

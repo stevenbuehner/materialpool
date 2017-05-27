@@ -84,7 +84,7 @@ class GrabManager {
 	 */
 	public function getAllGrabberLinks(AbstractGrabber $grabber, $page = 0, $limit = 1000) {
 		return $this->getLinkRepository()->findBy(
-			['grabber' => $grabber->getGrabberConf()->getGrabberInfo()],
+			['grabber' => $grabber->getGrabberConf()->getGrabberConfig()],
 			$order = ['priority' => 'DESC', 'id' => 'ASC'],
 			$limit,
 			$offset = $page * $limit
@@ -177,7 +177,7 @@ class GrabManager {
 	public function getWaitingLinks(AbstractGrabber $grabber, $page = 0, $limit = 1000) {
 		return $this->getLinkRepository()->findBy(
 			[
-				'grabber' => $grabber->getGrabberConf()->getGrabberInfo(),
+				'grabber' => $grabber->getGrabberConf()->getGrabberConfig(),
 				'status'  => Link::$STATUS_WAITING
 			],
 			$order = ['priority' => 'DESC', 'lastUpdate' => 'ASC'],
@@ -248,7 +248,7 @@ class GrabManager {
 	public function getFailedLinks($grabber) {
 		$grabConfs = [];
 		foreach ($grabber as $grab) {
-			$grabConfs[] = $grab->getGrabberConf()->getGrabberInfo();
+			$grabConfs[] = $grab->getGrabberConf()->getGrabberConfig();
 		}
 
 		return $this->getLinkRepository()->findBy(

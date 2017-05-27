@@ -13,10 +13,14 @@ abstract class AbstractGrabber {
 	protected $client;
 	protected $linkManager;
 
-	public function __construct(AbstractGrabberConfig $grabberConf, LinkManager $linkManager) {
+	protected $relativeResourcePath;
+	protected $createdByUserId = 1;
+
+
+	public function __construct(AbstractGrabberConfig $grabberConf) {
 		$this->grabberConf = $grabberConf;
 		$this->client      = new Client();
-		$this->linkManager = $linkManager;
+		$this->linkManager = resolve('grabber.linkmanager');
 
 		$this->client->setHeader('user-agent',
 								 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/49.0.2623.87 Safari/537.36');

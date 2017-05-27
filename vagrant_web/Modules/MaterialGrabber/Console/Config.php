@@ -1,73 +1,83 @@
 <?php
 
-namespace Modules\MaterialGrabber\Commands;
+namespace Modules\MaterialGrabber\Console;
 
-use Doctrine\ORM\EntityManager;
+use Illuminate\Console\Command;
 use Modules\MaterialGrabber\GrabberTemplates\AbstractGrabber;
 use Modules\MaterialGrabber\Services\GrabberService;
-use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Helper\SymfonyQuestionHelper;
 use Symfony\Component\Console\Helper\Table;
-use Symfony\Component\Console\Input\InputArgument;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ChoiceQuestion;
 
-class GrabberConfigCommand extends ContainerAwareCommand {
+class Config extends Command {
 
 	const YES_VALUE = 'yes';
 	const NO_VALUE  = 'no';
 
-	protected function configure() {
-		$this
-			->setName('grabber:config')
-			->setDescription('...')
-			->addArgument('service', InputArgument::OPTIONAL, 'Service to configure', 'all');
+
+	/**
+	 * The console command name.
+	 *
+	 * @var string
+	 */
+	protected $signature = "grabber:config {service=all : The service to configure}";
+
+	/**
+	 * The console command description.
+	 *
+	 * @var string
+	 */
+	protected $description = "Configure Grabber Configs";
+
+
+	protected $grabberService;
+
+	/**
+	 * Create a new command instance.
+	 *
+	 * @param $grabberService GrabberService
+	 *
+	 */
+	public function __construct(GrabberService $grabberService) {
+		parent::__construct();
+
+		$this->grabberService = $grabberService;
 	}
 
-	protected function execute(InputInterface $input, OutputInterface $output) {
-		/** @var GrabberService $grabService */
-		/** @var  EntityManager $entityManager */
-		$grabService   = $this->getContainer()->get('link.grabbereservice');
-		$entityManager = $this->getContainer()->get('doctrine.orm.entity_manager');
 
-		$grabbers = $grabService->getAllGrabbers();
-		$table    = $this->getGrabberTable($grabbers, $output);
+	public function handle() {
+
+		$allGrabbers = $this->grabberService->getAllGrabbers();
+		$table       = $this->getGrabberTable($allGrabbers);
 		$table->render();
 
 		/** @var SymfonyQuestionHelper $helper */
 		$helper   = $this->getHelper('question');
-		$question = $this->chooseGrabberConfigQuestion($grabbers);
+		$question = $this->chooseGrabberConfigQuestion($allGrabbers);
 
-		while (($resultGrabberName = $helper->ask($input, $output, $question))) {
-			$resultGrabber   = $grabService->getGrabberByName($resultGrabberName);
+
+		while (($resultGrabberName = $helper->ask($this->input, $this->output, $question))) {
+			$resultGrabber   = $this->grabberService->getGrabberByName($resultGrabberName);
 			$resultGrabConf  = $resultGrabber->getGrabberConf();
 			$resultGrabQuest = $resultGrabConf->getConfigQuestions();
 
 			// Activate / Deactivate
-			$activate = $helper->ask($input, $output, $this->chooseActivation($resultGrabber));
+			$activate = $helper->ask($this->input, $this->output, $this->chooseActivation($resultGrabber));
 			$activate = $activate == self::YES_VALUE;
 			$resultGrabber->setActive($activate);
+			$resultGrabConf->save();
 
 			if ($resultGrabber->isActive()) {
 				foreach ($resultGrabQuest as $key => $q) {
-					$answ = $helper->ask($input, $output, $q);
-					$resultGrabConf->saveParameter($key, $answ);
-				}
-
-				// The Update is only cascade persisted, when something changes in GrabberInfoItself
-				// That's why we add every Config Value itself to the persist-chain
-				foreach ($resultGrabConf->getGrabberInfo()->getConfigValues() as $d) {
-					$entityManager->persist($d);
+					$answ = $helper->ask($this->input, $this->output, $q);
+					$resultGrabConf->setParameter($key, $answ);
 				}
 			}
 
-			$entityManager->persist($resultGrabConf->getGrabberInfo());
-			$entityManager->flush();
+			$this->info('The Configuration for ' . $resultGrabberName . ' was updated ...');
 
-			$output->writeln('The Configuration for ' . $resultGrabberName . ' was updated ...');
 
-			$table = $this->getGrabberTable($grabbers, $output);
+			$table = $this->getGrabberTable($allGrabbers);
 			$table->render();
 		}
 
@@ -75,10 +85,11 @@ class GrabberConfigCommand extends ContainerAwareCommand {
 
 	/**
 	 * @param AbstractGrabber[] $grabbers
-	 * @param OutputInterface   $output
+	 * @return Table
 	 */
-	protected function getGrabberTable($grabbers, OutputInterface $output) {
-		$table = new Table($output);
+	protected function getGrabberTable($grabbers) {
+		$output = $this->getOutput();
+		$table  = new Table($output);
 		$table->setHeaders(['Grabber Name', 'Is active', 'Config valid', 'Last run', 'Author', 'Description']);
 
 		$output->write('Validating config for: ');

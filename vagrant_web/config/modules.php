@@ -98,7 +98,7 @@ return [
             'config' => 'Config',
             'command' => 'Console',
             'event' => 'Events',
-            'listener' => 'Events/Handlers',
+            'listener' => 'Listeners',
             'migration' => 'Database/Migrations',
             'model' => 'Entities',
             'repository' => 'Repositories',
@@ -141,10 +141,10 @@ return [
     */
 
     'composer' => [
-        'vendor' => 'nwidart',
+        'vendor' => 'stevenbuehner',
         'author' => [
-            'name' => 'Nicolas Widart',
-            'email' => 'n.widart@gmail.com',
+            'name' => 'Steven Buehner',
+            'email' => 'buehner@me.com',
         ],
     ],
     /*
@@ -168,6 +168,6 @@ return [
     |--------------------------------------------------------------------------
     */
     'register' => [
-        'translations' => true,
+        'translations' => false,
     ],
 ];

@@ -1,34 +1,47 @@
 <?php
 
-namespace LinkBundle\Events;
+namespace Modules\MaterialGrabber\Events;
 
-use Symfony\Component\EventDispatcher\Event;
+use Illuminate\Queue\SerializesModels;
 
-class RegisterGrabberEvent extends Event {
-
-	const NAME = 'grabber.register';
+class GrabberRegister {
+	use SerializesModels;
 
 	/**
-	 * @var array
+	 * @var string[]
 	 * Contains all absolute classnames of grabbers, that are currently available
 	 * Other plugins may hook into this event and add their own grabbers or remove others
 	 * array: ($grabberName => $grabberFactoryClass)
 	 */
 	protected $grabberGenerationClasses = [];
 
+	/**
+	 * Create a new event instance.
+	 *
+	 * @return void
+	 */
 	public function __construct() {
 		$this->grabberGenerationClasses = [];
 	}
 
 	/**
+	 * Get the channels the event should be broadcast on.
+	 *
 	 * @return array
+	 */
+	public function broadcastOn() {
+		return [];
+	}
+
+	/**
+	 * @return string[]
 	 */
 	public function getGrabberGenerationClasses() {
 		return $this->grabberGenerationClasses;
 	}
 
 	/**
-	 * @param array $grabberGenerationClasses
+	 * @param string[] $grabberGenerationClasses
 	 */
 	public function setGrabberGenerationClasses($grabberGenerationClasses) {
 		$this->grabberGenerationClasses = $grabberGenerationClasses;
@@ -45,5 +58,4 @@ class RegisterGrabberEvent extends Event {
 			unset($grabberName);
 		}
 	}
-
 }
