@@ -59,7 +59,7 @@ class File extends Resource {
 	}
 
 	public function getLocalFile() {
-		return $this->getLocalDisk()->get($this->getLocalDiskName());
+		return $this->getLocalDisk()->get($this->getLocalFilePath());
 	}
 
 	public function getLocalDisk() {
@@ -82,7 +82,7 @@ class File extends Resource {
 		];
 	}
 
-	public function getLocalDiskName() {
+	public function getLocalFilePath() {
 		list($storage, $path) = $this->getLocalStorageAndPath();
 
 		return $path;
@@ -90,7 +90,7 @@ class File extends Resource {
 
 	public function deleteLocalFile() {
 		try {
-			$result = $this->getLocalDisk()->delete($this->getLocalDiskName());
+			$result = $this->getLocalDisk()->delete($this->getLocalFilePath());
 		} catch (FileNotFoundException $e) {
 			$result = FALSE;
 		}
@@ -102,18 +102,18 @@ class File extends Resource {
 	}
 
 	public function getLocalMimeType() {
-		return $this->getLocalDisk()->mimeType($this->getLocalDiskName());
+		return $this->getLocalDisk()->mimeType($this->getLocalFilePath());
 	}
 
 	public function getLocalUrl() {
-		return $this->getLocalDisk()->url($this->getLocalDiskName());
+		return $this->getLocalDisk()->url($this->getLocalFilePath());
 	}
 
 	/**
 	 * @return \Illuminate\Filesystem\FilesystemAdapter
 	 */
 	public function getLocalSize() {
-		return $this->getLocalDisk()->size($this->getLocalDiskName());
+		return $this->getLocalDisk()->size($this->getLocalFilePath());
 	}
 
 	/**
@@ -121,6 +121,13 @@ class File extends Resource {
 	 */
 	public function hasLocalFile() {
 		return !empty($this->getAttribute('local_path'));
+	}
+
+	public function localFileExists() {
+		$disk = $this->getLocalDisk();
+		$path = $this->getLocalFilePath();
+
+		return $disk->exists($path);
 	}
 
 	/**
