@@ -1,5 +1,6 @@
 <?php
 
 return [
-	'name' => 'MaterialGrabber'
+	'name'     => 'MaterialGrabber',
+	'filepath' => storage_path('app/resources/grabber')
 ];

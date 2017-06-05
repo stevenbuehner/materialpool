@@ -2,6 +2,7 @@
 
 namespace Modules\IdeaSpektrumGrabber\Listeners;
 
+use Modules\IdeaSpektrumBundle\Grabber\GrabberFactory;
 use Modules\MaterialGrabber\Events\GrabberRegister;
 
 class GrabberRegisterListener {
@@ -21,6 +22,6 @@ class GrabberRegisterListener {
 	 * @return string
 	 */
 	public function handle(GrabberRegister $event) {
-
+		$event->addGrabberGenerationClass(GrabberFactory::NAME, GrabberFactory::class);
 	}
 }

@@ -22,7 +22,7 @@ class CreateLinkTable extends Migration {
 			$table->boolean('is_index');
 			$table->text('options');
 			$table->smallInteger('status');
-			$table->date('last_check');
+			$table->date('last_check')->nullable();
 			$table->string('md5_cache')->nullable();
 
 			$table->unsignedInteger('material_id')->nullable();

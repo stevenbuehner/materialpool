@@ -77,7 +77,7 @@ class GrabberRunCommand extends GrabberCommandTemplate {
 
 		// Write and clear GrabberConf
 		$em = $this->getContainer()->get('doctrine.orm.entity_manager');
-		$em->flush($grabber->getGrabberConf()->getGrabberInfo());
+		$em->flush($grabber->getGrabberConf()->getGrabberConfig());
 	}
 
 	protected function runAfterGrabberLopp(InputInterface $input, OutputInterface $output) {

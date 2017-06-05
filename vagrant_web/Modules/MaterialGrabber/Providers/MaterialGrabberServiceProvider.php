@@ -2,10 +2,16 @@
 
 namespace Modules\MaterialGrabber\Providers;
 
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\ServiceProvider;
 use Modules\MaterialGrabber\Console\Config;
+use Modules\MaterialGrabber\Console\Run;
+use Modules\MaterialGrabber\GrabberTemplates\Helper\FileHashHelper;
+use Modules\MaterialGrabber\GrabberTemplates\Helper\Md5Helper;
+use Modules\MaterialGrabber\GrabberTemplates\Helper\SessionAwareClientDownload;
 use Modules\MaterialGrabber\GrabberTemplates\Helper\SessionAwareCurlDownload;
 use Modules\MaterialGrabber\Services\GrabberService;
+use Modules\MaterialGrabber\Services\GrabManager;
 use Modules\MaterialGrabber\Services\LinkManager;
 
 class MaterialGrabberServiceProvider extends ServiceProvider {
@@ -86,15 +92,27 @@ class MaterialGrabberServiceProvider extends ServiceProvider {
 	 * @return void
 	 */
 	public function register() {
+
+		if (!$this->app->runningInConsole()) {
+			return;
+		}
+
 		$this->app->singleton(GrabberService::class);
+		$this->app->singleton(GrabManager::class);
+		$this->app->singleton('grabber.disk', function () {
+			return Storage::disk('grabber');
+		});
+
 		// $this->app->singleton('grabber.grabberservice', GrabberService::class);
 
 		$this->app->singleton('grabber.linkmanager', LinkManager::class);
-
 		$this->app->singleton('grabber.curldownload', SessionAwareCurlDownload::class);
+		$this->app->singleton('grabber.sessiondownload', SessionAwareClientDownload::class);
+		$this->app->singleton(FileHashHelper::class, Md5Helper::class);
 
 		$this->commands([
-							Config::class
+							Config::class,
+							Run::class
 						]);
 
 		// $this->app->singleton('link.helper.download', DownloadHelper::class);

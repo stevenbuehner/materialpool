@@ -62,6 +62,13 @@ return [
 			'visibility' => 'private',
 		],
 
+		'grabber' => [
+			'driver'     => 'local',
+			'root'       => storage_path('app/resources/grabber'),
+			'url'        => env('APP_URL') . '/resources/grabber',
+			'visibility' => 'private',
+		],
+
 		's3' => [
 			'driver' => 's3',
 			'key'    => env('AWS_KEY'),

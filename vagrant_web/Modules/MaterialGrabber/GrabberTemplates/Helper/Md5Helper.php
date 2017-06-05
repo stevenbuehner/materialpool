@@ -8,28 +8,30 @@
 
 namespace Modules\MaterialGrabber\GrabberTemplates\Helper;
 
-use Modules\MaterialGrabber\Entities\Link;
+class Md5Helper implements FileHashHelper {
 
-class Md5Helper {
+	/**
+	 * Returns the hash for the given local file path
+	 *
+	 * @param $absoluteLocalPath
+	 * @return string
+	 */
+	public function generateLocalFileHash($absoluteLocalPath) {
+		if (file_exists($absoluteLocalPath)) {
+			return md5_file($absoluteLocalPath);
+		}
 
-	public function __construct() {
+		return NULL;
 	}
 
 	/**
-	 * @param Link $link
-	 * @return Link
+	 * Function to generate hash from a Laravel File Object (Stream?)
+	 * TODO: Not implemented yet
+	 *
+	 * @return string
 	 */
-	public function insertMd5(Link $link) {
-
-		if (!$link->isIndex()) {
-			$path = $link->getFilePath();
-
-			if (file_exists($path)) {
-				$md5 = md5_file($path);
-				$link->setMd5Cache($md5);
-			}
-		}
-
-		return $link;
+	public function generateFileHash() {
+		// TODO: Implement generateFileHash() method.
+		throw new \Exception('Not implemented yet');
 	}
 }

@@ -4,6 +4,7 @@ namespace Modules\IdeaSpektrumGrabber\Providers;
 
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
+use Modules\IdeaSpektrumGrabber\Listeners\GrabberRegisterListener;
 use Modules\MaterialGrabber\Events\GrabberRegister;
 
 class IdeaSpektrumGrabberServiceProvider extends ServiceProvider {
@@ -20,7 +21,7 @@ class IdeaSpektrumGrabberServiceProvider extends ServiceProvider {
 	 * @return void
 	 */
 	public function boot() {
-	//	Event::listen(GrabberRegister::class => )
+		Event::listen(GrabberRegister::class, GrabberRegisterListener::class);
 	}
 
 	/**

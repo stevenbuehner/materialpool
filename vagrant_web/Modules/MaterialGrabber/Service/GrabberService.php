@@ -29,8 +29,8 @@ class GrabberService {
 	public function __construct() {
 		$this->grabberCollection = [];
 
-		// Init the Cache
-		$this->getRegisteredGrabbersViaEventCall();
+		// Do NOT init the Cache (otherwise this will be loaded on every console - not only run or config)
+		// $this->getRegisteredGrabbersViaEventCall();
 	}
 
 	/**

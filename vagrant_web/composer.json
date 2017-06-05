@@ -9,6 +9,8 @@
         "alchemy/phpexiftool": "^0.6.0",
         "backpack/base": "^0.7.16",
         "backpack/crud": "^3.2",
+        "curl/curl": "^1.6",
+        "fabpot/goutte": "^3.2",
         "intervention/image": "^2.3",
         "kalnoy/nestedset": "^4.2",
         "laravel/framework": "5.4.*",

@@ -2,15 +2,16 @@
 
 namespace Modules\MaterialGrabber\Commands;
 
+use Illuminate\Console\Command;
 use Modules\MaterialGrabber\GrabberTemplates\AbstractGrabber;
 use Modules\MaterialGrabber\Services\GrabberService;
-use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-abstract class GrabberCommandTemplate extends ContainerAwareCommand {
+abstract class GrabberCommandTemplate extends Command {
+
 
 	/** @var  GrabberService */
 	protected $grabberService;
