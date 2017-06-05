@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Services\PreviewGeneration\Generators\NoPreviewGenerator;
+use App\Services\PreviewGeneration\Interfaces\PreviewGeneratorInterface;
 use App\Services\TagExtraction\ResourceHandles\HandlerInterface;
 use Illuminate\Database\Eloquent\Model;
 use Nanigans\SingleTableInheritance\SingleTableInheritanceTrait;
@@ -101,6 +103,13 @@ class Resource extends Model {
 	}
 
 	/**
+	 * @return PreviewGeneratorInterface
+	 */
+	public function getPreviewGenerator() {
+		return resolve(NoPreviewGenerator::class);
+	}
+
+	/**
 	 * @param $key string
 	 * @param $value mixed
 	 */
@@ -125,10 +134,9 @@ class Resource extends Model {
 		return $default;
 	}
 
-	protected function getTypeAttribute(){
+	protected function getTypeAttribute() {
 		return static::$singleTableType;
 	}
-
 
 	/**
 	 * @param string $key

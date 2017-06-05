@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Http\View\Resource\PreviewableInterface;
+use App\Services\PreviewGeneration\Generators\ImagePreviewGenerator;
 
 class ImageFile extends File implements PreviewableInterface {
 
@@ -54,5 +55,9 @@ class ImageFile extends File implements PreviewableInterface {
 	 */
 	public function getPreviewTemplateName() {
 		return 'resource.preview.image';
+	}
+
+	public function getPreviewGenerator() {
+		return resolve(ImagePreviewGenerator::class);
 	}
 }

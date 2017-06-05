@@ -18,7 +18,8 @@ class MaterialController extends Controller {
 			'bibleverses' => function ($q) {
 				$q->orderBy('bibleverse_material.relevance', 'desc');
 			},
-			'resources'];
+			'resources',
+			'creator'];
 
 		$this->middleware(['auth']);
 	}

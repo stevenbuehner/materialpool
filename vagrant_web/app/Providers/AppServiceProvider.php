@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Services\PreviewGeneration\Generators\ImagePreviewGenerator;
+use App\Services\PreviewGeneration\Generators\NoPreviewGenerator;
 use App\Services\ResourceRecognition\ResourceRecognitionService;
 use App\Services\TagExtraction\MaterialExtractionService;
 use App\Services\TagExtraction\ResourceHandles\FileNameHandler;
@@ -66,6 +68,10 @@ class AppServiceProvider extends ServiceProvider {
 
 		$this->app->singleton(FileNameHandler::class);
 		$this->app->singleton(MaterialExtractionService::class);
+
+		// ResourcePreview Generators
+		$this->app->singleton(NoPreviewGenerator::class);
+		$this->app->singleton(ImagePreviewGenerator::class);
 
 		$this->app->singleton('PHPExiftool\Reader', function ($app) {
 			$logger = new Logger('exiftool');

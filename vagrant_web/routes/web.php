@@ -38,6 +38,12 @@ Route::group(['prefix' => 'pool', 'as' => 'pool.'], function () {
 
 });
 
+Route::get('/resource/image/{resource}/{width?}/{height?}', 'ResourcePreviewController@getImage')
+	 ->name('resource.image.preview')
+	 ->where('width', '[0-9]+')
+	 ->where('height', '[0-9]+');
+
+
 Route::get('/keyword/{keyword}', 'KeywordController@show')
 	 ->name('keyword');
 

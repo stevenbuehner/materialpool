@@ -45,4 +45,5 @@ class ResourceHelper {
 	protected static function noPreviewFoundHtml() {
 		return View::make('resources.preview.default')->render();
 	}
+
 }

@@ -25,22 +25,39 @@
                 </div>
             @endif
 
+            <p>{!! nl2br(e($material->description)) !!}</p>
+
             @if(count($material->resources))
-                <ul>
+                <div class="row">
                     @foreach($material->resources as $resource)
-                        <li>
-                            {{$resource->public_path}} ({{ $resource->type }})
-                        </li>
+                        <div class="col-sm-6 col-md-4 col-lg-4 col-xl-3">
+                            <div class="card ">
+                                <img class="card-img-top img-"
+                                     src="{{route('resource.image.preview', ['resource' => $resource->id, 'width' => 300])}}"
+                                     alt="Resource Image"
+                                     style="width:100%;">
+
+                                <div class="card-block">
+                                    <h4 class="card-title">{{ class_basename($resource) }}</h4>
+                                    <p class="card-text">{{$resource->notes}}</p>
+                                </div>
+
+                                <div class="card-footer">
+                                    <a href="#" class="btn btn-primary">download</a>
+                                </div>
+                            </div>
+                        </div>
                     @endforeach
-                </ul>
+                </div>
             @endif
 
-            <p>{!! nl2br(e($material->description)) !!}</p>
         </div>
 
         <div class="col-sm-2">
             <a href="{{ URL::route('pool.material.edit',[$material->id]) }}"
                class="btn btn-secondary">@lang('Bearbeiten')</a>
+            <a href="#"
+               class="btn btn-secondary">@lang('alles herunterladen')</a>
         </div>
     </div>
 
