@@ -386,4 +386,8 @@ class Bibleverse extends Model implements BibleVerseInterface {
 	public function materials() {
 		return $this->belongsToMany(Material::class)->withPivot('relevance');
 	}
+
+	public function __toString() {
+		return "Model\Bibleverse: id={$this->getAttribute('id')}, from={$this->getAttribute('from')}, to={$this->getAttribute('to')}";
+	}
 }
