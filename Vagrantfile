@@ -34,21 +34,28 @@ mysql_root_password="adminpass"
 
 Vagrant.configure("2") do |config|
   config.vm.box 	= "ubuntu/trusty64"
-  config.vm.network "private_network", ip: server_ip  
+  config.vm.network "private_network", ip: server_ip 
+  config.vm.hostname = "test.app"
   config.ssh.password="vagrant"
     
   config.vm.provision :shell, path: "~/Sites/vagrant_scripts/increase_swap.sh"
   config.vm.provision :shell, path: "~/Sites/vagrant_scripts/install_mysql.sh", env: {"MYSQL_ROOT_PASS" => mysql_root_password, "MYSQL_ROOT_USER" => "root"}
   config.vm.provision :shell, path: "~/Sites/vagrant_scripts/setup_mysqldb.sh", env: {"MYSQL_DB_NAME" => database_name}
   config.vm.provision :shell, path: "~/Sites/vagrant_scripts/setup_mysql_grant_access_to_user.sh", env: {"MYSQL_USER_NAME" => database_user, "MYSQL_USER_PASSWORD" => database_password, "MYSQL_USER_DB" => database_name}
-  # config.vm.provision :shell, path: "~/Sites/vagrant_scripts/setup_mysql_import.sh", env: {"MYSQL_DB" => database_name}
+  config.vm.provision :shell, path: "~/Sites/vagrant_scripts/setup_mysql_import.sh", env: {"MYSQL_DB" => database_name}
   
   config.vm.provision :shell, path: "~/Sites/vagrant_scripts/install_apache2_php.sh", args: [ php_timezone, php_version, enable_xdebug, apache_run_user, apache_run_group ]
   config.vm.provision :shell, path: "~/Sites/vagrant_scripts/install_composer.sh"
   config.vm.provision :shell, path: "~/Sites/vagrant_scripts/install_composer_global.sh", args: ["laravel/installer"], privileged: false
   config.vm.provision :shell, path: "~/Sites/vagrant_scripts/setup_vhost_helper.sh", args: [ "-d", webserver_root, "-s", webserver_name ] 
+  config.vm.provision :shell, :inline => "a2dissite 000-default.conf; service apache2 reload", privileged: true
+
+  config.vm.provision :shell, path: "~/Sites/vagrant_scripts/install_phpunit.sh"
   
   config.vm.provision :shell, path: "~/Sites/vagrant_scripts/setup_terminal_startdir.sh", privileged: false, env: {"START_DIR" => remote_web}  
+  
+  # Install ZIP-Package for exif-tool
+    config.vm.provision :shell, :inline => "apt-get install libarchive-zip-perl", privileged: true
 
   config.vm.network :forwarded_port, guest: 80, host: 8000
   config.vm.network :forwarded_port, guest: 3306, host: 33060
