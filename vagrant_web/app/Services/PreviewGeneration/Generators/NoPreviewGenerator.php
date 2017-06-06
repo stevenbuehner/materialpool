@@ -8,7 +8,7 @@
 namespace App\Services\PreviewGeneration\Generators;
 
 
-use App\Models\Resource;
+use App\Models\Resource as ResourceEntity;
 use App\Services\PreviewGeneration\Exceptions\NotPreviewAbleException;
 use App\Services\PreviewGeneration\Interfaces\PreviewGeneratorInterface;
 use Intervention\Image\Image;
@@ -20,7 +20,7 @@ class NoPreviewGenerator implements PreviewGeneratorInterface {
 	 * @param Resource $resource
 	 * @return bool
 	 */
-	public function previewAble(Resource $resource) {
+	public function previewAble(ResourceEntity $resource) {
 		return FALSE;
 	}
 
@@ -28,9 +28,20 @@ class NoPreviewGenerator implements PreviewGeneratorInterface {
 	 * @param  Resource $resource
 	 * @param  int      $maxWidth
 	 * @param  int      $maxHeight
+	 * @throws NotPreviewAbleException
 	 * @return Image
 	 */
-	public function getImagePreview(Resource $resource, Size $size) {
+	public function getImagePreview(ResourceEntity $resource, Size $size) {
+		throw new NotPreviewAbleException();
+	}
+
+	/**
+	 * @param ResourceEntity $resource
+	 * @param string|null    $context
+	 * @throws NotPreviewAbleException
+	 * @return string
+	 */
+	public function renderHTMLPreview(ResourceEntity $resource, $context = NULL) {
 		throw new NotPreviewAbleException();
 	}
 }

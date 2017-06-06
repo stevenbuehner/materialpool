@@ -13,6 +13,7 @@ use App\Models\ImageFile;
 use App\Models\Resource as ResourceEntity;
 use App\Services\PreviewGeneration\Exceptions\NotPreviewAbleException;
 use App\Services\PreviewGeneration\Interfaces\PreviewGeneratorInterface;
+use Illuminate\Support\Facades\View;
 use Intervention\Image\Constraint;
 use Intervention\Image\Image;
 use Intervention\Image\ImageManager;
@@ -24,14 +25,6 @@ class ImagePreviewGenerator implements PreviewGeneratorInterface {
 
 	public function __construct(ImageManager $imageManager) {
 		$this->imageManager = $imageManager;
-	}
-
-	/**
-	 * @param Resource $resource
-	 * @return bool
-	 */
-	public function previewAble(ResourceEntity $resource) {
-		return $resource instanceof ImageFile;
 	}
 
 	/**
@@ -67,5 +60,39 @@ class ImagePreviewGenerator implements PreviewGeneratorInterface {
 			$constraint->upsize();
 		});
 
+	}
+
+	/**
+	 * @param ResourceEntity $resource
+	 * @param string|null    $context
+	 * @return string|false
+	 */
+	public function renderHTMLPreview(ResourceEntity $resource, $context = NULL) {
+
+		/** @var $resource File */
+		if ($resource->hasRemoteFile()) {
+			$src = $resource->remote_path;
+		} else {
+			$maxWidth  = config('app.resource.preview.maxWidth');
+			$maxHeight = config('app.resource.preview.maxHeight');
+			$src       = route('resource.image.preview',
+							   ['resource' => $resource->id,
+								'width'    => $maxWidth,
+								'height'   => $maxHeight]);
+		}
+
+		$view = View::make('resources.generators.image')
+					->with('resource', $resource)
+					->with('src', $src);
+
+		return $view->render();
+	}
+
+	/**
+	 * @param Resource $resource
+	 * @return bool
+	 */
+	public function previewAble(ResourceEntity $resource) {
+		return $resource instanceof ImageFile;
 	}
 }

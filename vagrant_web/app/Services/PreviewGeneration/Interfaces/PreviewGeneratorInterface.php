@@ -22,5 +22,11 @@ interface PreviewGeneratorInterface {
 	 */
 	public function getImagePreview(ResourceEntity $resource, Size $size);
 
+	/**
+	 * @param ResourceEntity $resource
+	 * @param string|null    $context
+	 * @return string|false
+	 */
+	public function renderHTMLPreview(ResourceEntity $resource, $context = NULL);
 
 }

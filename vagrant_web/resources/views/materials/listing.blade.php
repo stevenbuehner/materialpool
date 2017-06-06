@@ -50,7 +50,7 @@
 
                     <div class="btn-group btn-group-sm" role="group" aria-label="Material">
                         <a href="{{ URL::route('pool.material.show', [$m->id]) }}"
-                           class="btn btn-primary">@lang('mehr')</a>
+                           class="btn btn-primary">@lang('Öffnen')</a>
                     </div>
                 </div>
 

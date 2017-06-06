@@ -27,8 +27,23 @@
 
             <p>{!! nl2br(e($material->description)) !!}</p>
 
-            @if(count($material->resources))
-                <div class="row">
+            @if(count($material->resources)) {{-- Beginn of has Resources --}}
+            <div class="row">
+
+                @php
+                    $resource = $material->resources->first();
+                @endphp
+
+                {{-- List all Resources if more then one --}}
+                @if(count($material->resources) == 1 && $resource->getPreviewGenerator()->previewAble($resource) === TRUE)
+                    {{-- Show Content of Resource, if only one is assigned to the material --}}
+                    <div class="col-sm-12">
+
+                        {!! $resource->getPreviewGenerator()->renderHTMLPreview($resource, 'material') !!}
+
+                    </div>
+
+                @else
                     @foreach($material->resources as $resource)
                         <div class="col-sm-6 col-md-4 col-lg-4 col-xl-3">
                             <div class="card ">
@@ -48,8 +63,11 @@
                             </div>
                         </div>
                     @endforeach
-                </div>
-            @endif
+                @endif
+
+            </div>
+            @endif {{-- End of has Resources --}}
+
 
         </div>
 
