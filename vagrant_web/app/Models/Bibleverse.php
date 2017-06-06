@@ -7,6 +7,7 @@ use App\Models\Exceptions\MultipleBooksExceptions;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
+use StevenBuehner\BibleVerseBundle\Exceptions\InvalidBibleVerseRangeException;
 use StevenBuehner\BibleVerseBundle\Interfaces\BibleVerseInterface;
 use StevenBuehner\BibleVerseBundle\Service\BibleVerseService;
 
@@ -126,7 +127,13 @@ class Bibleverse extends Model implements BibleVerseInterface {
 	}
 
 	public function getBibleVerseString($length = 'short', $lang = 'de') {
-		return $this->getBibleVerseService()->bibleVerseToString($this, $length, $lang);
+		try {
+			$result = $this->getBibleVerseService()->bibleVerseToString($this, $length, $lang);
+		} catch (InvalidBibleVerseRangeException $e) {
+			$result = 'Invalid Bibleverse';
+		}
+
+		return $result;
 	}
 
 	/**

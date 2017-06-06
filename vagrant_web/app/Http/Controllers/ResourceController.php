@@ -50,7 +50,7 @@ class ResourceController extends Controller {
 
 
 		if (!$request->hasFile('file')) {
-			return redirect(route('pool.resource.create'))->withErrors(['Missing upload file']);
+				return redirect(route('pool.resource.create'))->withErrors(['Missing upload file']);
 		}
 
 		/** @var ResourceRecognitionService $recognitionService */
