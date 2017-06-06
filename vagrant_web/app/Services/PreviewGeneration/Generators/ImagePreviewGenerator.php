@@ -83,7 +83,8 @@ class ImagePreviewGenerator implements PreviewGeneratorInterface {
 
 		$view = View::make('resources.generators.image')
 					->with('resource', $resource)
-					->with('src', $src);
+					->with('src', $src)
+					->with('title', empty($resource->notes) ? 'Bild' : $resource->notes);
 
 		return $view->render();
 	}
