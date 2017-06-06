@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\MaterialRequest;
+use App\Models\Keyword;
 use App\Models\Material;
 use Illuminate\Http\Request;
 
@@ -31,6 +32,14 @@ class MaterialController extends Controller {
 	 */
 	public function index() {
 		$materials = Material::with($this->withAttributes)->orderBy('updated_at')->paginate(50);
+
+		return view('materials.listing', compact('materials'));
+	}
+
+	public function indexBySingleKeyword($lcKeyword) {
+
+		$kw        = Keyword::where(['lc_title' => $lcKeyword])->first();
+		$materials = $kw->materials()->with($this->withAttributes)->paginate(50);
 
 		return view('materials.listing', compact('materials'));
 	}

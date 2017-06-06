@@ -23,6 +23,8 @@ Route::group(['prefix' => 'pool', 'as' => 'pool.'], function () {
 
 	// route name: "pool.material.index", ...
 	Route::resource('material', 'MaterialController');
+	Route::get('/keyword/{lcKeyword}', 'MaterialController@indexBySingleKeyword')
+		 ->name('material.by.keyword');
 
 	Route::resource('resource', 'ResourceController', ['except' => ['store']]);
 
@@ -42,10 +44,6 @@ Route::get('/resource/image/{resource}/{width?}/{height?}', 'ResourcePreviewCont
 	 ->name('resource.image.preview')
 	 ->where('width', '[0-9]+')
 	 ->where('height', '[0-9]+');
-
-
-Route::get('/keyword/{keyword}', 'KeywordController@show')
-	 ->name('keyword');
 
 
 Route::get('/bibleverse/{from}-{to}', 'Api\BibleverseController@show')

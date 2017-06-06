@@ -124,12 +124,6 @@ class Keyword extends Model {
 		return $builder->where('title', 'like', '%' . $text . '%');
 	}
 
-	/*
-	|--------------------------------------------------------------------------
-	| RELATIONS
-	|--------------------------------------------------------------------------
-	*/
-
 	/**
 	 * Get the node siblings and the node itself.
 	 *
@@ -139,6 +133,12 @@ class Keyword extends Model {
 		return $this->newScopedQuery()
 					->where($this->getParentIdName(), '=', $this->getParentId());
 	}
+
+	/*
+	|--------------------------------------------------------------------------
+	| RELATIONS
+	|--------------------------------------------------------------------------
+	*/
 
 	public function materials() {
 		return $this->belongsToMany(Material::class, 'keyword_material', 'keyword_id', 'material_id')
@@ -160,18 +160,6 @@ class Keyword extends Model {
 		return $query;
 	}
 
-	/*
-	|--------------------------------------------------------------------------
-	| SCOPES
-	|--------------------------------------------------------------------------
-	*/
-
-	/*
-	|--------------------------------------------------------------------------
-	| ACCESORS
-	|--------------------------------------------------------------------------
-	*/
-
 	/**
 	 * Override this model to make shure, that GLOBAL-Scopes are not applied
 	 * (=> SingleTableInheritance would kick in and make separate trees for each type)
@@ -188,6 +176,18 @@ class Keyword extends Model {
 
 		return $this->applyNestedSetScope($builder, $table);
 	}
+
+	/*
+	|--------------------------------------------------------------------------
+	| SCOPES
+	|--------------------------------------------------------------------------
+	*/
+
+	/*
+	|--------------------------------------------------------------------------
+	| ACCESORS
+	|--------------------------------------------------------------------------
+	*/
 
 	public function getTypeAttribute() {
 		return $this::$singleTableType;
@@ -207,18 +207,23 @@ class Keyword extends Model {
 		$this->setAttribute('custom_icon', $value);
 	}
 
+	/**
+	 * @param string $value
+	 */
+	public function setTitleAttribute(string $value) {
+		$value                        = trim($value);
+		$this->attributes['title']    = $value;
+		$this->attributes['lc_title'] = self::unifyTitleToLowerCase($value);
+	}
+
 	/*
 	|--------------------------------------------------------------------------
 	| MUTATORS
 	|--------------------------------------------------------------------------
 	*/
 
-	/**
-	 * @param string $value
-	 */
-	public function setTitleAttribute(string $value) {
-		$this->attributes['title']    = $value;
-		$this->attributes['lc_title'] = str_replace(' ', '_', trim(strtolower($value)));
+	public static function unifyTitleToLowerCase(string $title) {
+		return static::$singleTableType . '_' . str_replace(' ', '_', trim(strtolower($title)));
 	}
 
 	public function setCustomIconAttribute($value) {
