@@ -9,6 +9,7 @@ use App\Services\ResourceRecognition\ResourceRecognitionService;
 use App\Services\TagExtraction\MaterialExtractionService;
 use App\Services\TagExtraction\ResourceHandles\FileNameHandler;
 use App\Services\TagExtraction\TagExtractionService;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
@@ -81,5 +82,7 @@ class AppServiceProvider extends ServiceProvider {
 
 			return $reader;
 		});
+
+		Carbon::setLocale(config('app.locale'));
 	}
 }

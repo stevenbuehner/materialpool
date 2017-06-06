@@ -34,7 +34,7 @@
 
                     <div class="clear-all"></div>
 
-                    <small>{{ $m->created_at->diffForHumans() }}, by {{$m->creator->name}}</small>
+                    <small>von {{$m->creator->name}}, {{ $m->created_at->diffForHumans() }}</small>
 
                     <div class="clear-all"></div>
 
