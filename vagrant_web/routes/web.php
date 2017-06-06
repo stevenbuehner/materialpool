@@ -25,6 +25,10 @@ Route::group(['prefix' => 'pool', 'as' => 'pool.'], function () {
 	Route::resource('material', 'MaterialController');
 	Route::get('/keyword/{lcKeyword}', 'MaterialController@indexBySingleKeyword')
 		 ->name('material.by.keyword');
+	Route::get('/bibleverse/{from}-{to}', 'MaterialController@indexByBibleverse')
+		 ->name('material.by.bibleverse')
+		 ->where('from', '[0-9]+')
+		 ->where('to', '[0-9]+');
 
 	Route::resource('resource', 'ResourceController', ['except' => ['store']]);
 

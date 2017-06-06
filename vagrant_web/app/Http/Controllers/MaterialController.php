@@ -39,9 +39,36 @@ class MaterialController extends Controller {
 	public function indexBySingleKeyword($lcKeyword) {
 
 		$kw        = Keyword::where(['lc_title' => $lcKeyword])->first();
-		$materials = $kw->materials()->with($this->withAttributes)->paginate(50);
+		$materials = $kw->materials()
+						->with($this->withAttributes)
+						->orderBy('pivot_relevance', 'desc')
+						->paginate(50);
 
 		return view('materials.listing', compact('materials'));
+	}
+
+	public function indexByBibleverse(int $from, int $to) {
+
+		$matQuery = Material::query()
+							->select('materials.*')
+							->distinct()
+							->with($this->withAttributes)
+							->orderBy('bibleverse_material.relevance', 'asc')
+							->where(function ($q) use ($from, $to) {
+								$q->orWhereBetween("bibleverses.from", [$from, $to]);
+								$q->orWhereBetween("bibleverses.to", [$from, $to]);
+								$q->orWhere(function ($q) use ($from, $to) {
+									$q->where("bibleverses.from", '>', $from);
+									$q->where("bibleverses.to", '<', $to);
+								});
+							})
+							->leftJoin("bibleverse_material as bibleverse_material", 'materials.id', '=',
+									   "bibleverse_material.material_id")
+							->leftJoin("bibleverses as bibleverses",
+									   "bibleverse_material.bibleverse_id", '=',
+									   "bibleverses.id");
+
+		return view('materials.listing', ['materials' => $matQuery->paginate(50)]);
 	}
 
 	/**
