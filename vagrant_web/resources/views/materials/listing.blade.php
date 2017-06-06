@@ -5,7 +5,6 @@
     <div class="card-columns">
         @foreach($materials as $m)
             <div class="card">
-                {!! ResourceHelper::firstResourcePreviewHtml( $m->resources ) !!}
 
                 @if(count($m->resources) > 1)
                     <span class="badge badge-pill badge-default">{{count($m->resources)}}</span>
