@@ -6,7 +6,11 @@
         @foreach($materials as $m)
             <div class="card">
 
-                @if(count($m->resources) > 1)
+                @php
+                    $resourceCount = count($m->resources);
+                @endphp
+
+                @if($resourceCount > 1)
                     <span class="badge badge-pill badge-default">{{count($m->resources)}}</span>
                 @endif
                 <div class="card-block">
@@ -32,10 +36,22 @@
 
                     <div class="clear-all"></div>
 
-                    <small>
-                        @choice('{0} Das Material hat KEINE Ressourcen!|{1} Besteht aus :ANZAHL Resource:|[2,999] Besteht aus :ANZAHL Resourcen:|[1000,*] Enthält sehr viele Resourcen', count($m->resources), ['ANZAHL' => count($m->resources)])
-                    </small>
-                    @if(count($m->resources))
+                    @if($resourceCount > 0)
+                        <small>
+                            @choice('{0} Das Material hat KEINE Ressourcen!|{1} Besteht aus :ANZAHL Resource:|[2,999] Besteht aus :ANZAHL Resourcen:|[1000,*] Enthält sehr viele Resourcen', $resourceCount, ['ANZAHL' => $resourceCount])
+                        </small>
+                    @else
+                        <div class="alert alert-warning" role="alert">
+                            <strong>@lang('Warnung')!</strong>
+                            @lang("Dem Material sind keine Ressourcen zugeordnet.") </a>.
+                        </div>
+                    @endif
+
+
+
+
+
+                    @if($resourceCount)
                         <ul>
                             @foreach($m->resources->groupBy(function($resource){
                                 return class_basename($resource);
