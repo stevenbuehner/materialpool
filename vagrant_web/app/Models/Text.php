@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Services\PreviewGeneration\Generators\TextPreviewGenerator;
+use App\Services\PreviewGeneration\Interfaces\PreviewGeneratorInterface;
 use App\Services\TagExtraction\ResourceHandles\HandlerInterface;
 use App\Services\TagExtraction\ResourceHandles\TextContentHandler;
 use App\Services\TagExtraction\ResourceHandles\TextContentInterface;
@@ -54,5 +56,12 @@ class Text extends Resource implements TextContentInterface {
 		$value = trim($value);
 		$this->setOption(self::$CONTENT_OPTION, $value);
 		$this->content_hash = sha1($value);
+	}
+
+	/**
+	 * @return PreviewGeneratorInterface
+	 */
+	public function getPreviewGenerator() {
+		return resolve(TextPreviewGenerator::class);
 	}
 }

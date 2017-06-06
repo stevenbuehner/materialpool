@@ -1,6 +1,6 @@
 @component('resources.generators.component')
     @slot('title')
-        {{$resource->notes or class_basename($resource)}}
+        {{$title or $resource->notes or class_basename($resource)}}
     @endslot
 
     <img style="max-width: {{config('app.resource.preview.maxWidth')}}px; max-height: {{config('app.resource.preview.maxHeight')}}px;"
