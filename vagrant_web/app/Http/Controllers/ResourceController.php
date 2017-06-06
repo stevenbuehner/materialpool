@@ -60,18 +60,26 @@ class ResourceController extends Controller {
 		$recognitionService = resolve('app.resource.type.recognition');
 
 		$resourceClass               = $recognitionService->guessResourceFileClass($request
-																				   ->file('file')
-																				   ->getMimeType());
+																					   ->file('file')
+																					   ->getMimeType());
 		$resource                    = new $resourceClass();
 		$resource->created_by        = Auth()->id();
 		$resource->content_hash      = $sha1;
 		$resource->original_filename = $request->file('file')->getClientOriginalName();
+
 
 		$localFilePath        = Auth()->id() . DIRECTORY_SEPARATOR . $resource->type;
 		$filename             = $disk->putFile($localFilePath, $request->file('file'));
 		$resource->local_path = config('app.disks.resources') . '::' . $filename;
 		$resource->save();
 
+
+		// Create guessed Material
+		$additionalInformation['properties'][] = $request->get('meta', '');
+
+		/** @var MaterialExtractionService $materialService */
+		$materialService = resolve(MaterialExtractionService::class);
+		$material        = $materialService->createGuessedMaterialFromResource($resource, $additionalInformation);
 
 		return redirect(route('pool.resource.edit', $resource->id));
 	}

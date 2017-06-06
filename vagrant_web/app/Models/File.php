@@ -3,10 +3,10 @@
 namespace App\Models;
 
 use App\Services\TagExtraction\ResourceHandles\FileExifHandler;
+use App\Services\TagExtraction\ResourceHandles\FileNameHandler;
 use App\Services\TagExtraction\ResourceHandles\HandlerInterface;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Support\Facades\Storage;
-use PHPExiftool\Driver\Tag\System\FileName;
 
 /**
  * Class File
@@ -44,7 +44,7 @@ class File extends Resource {
 	 */
 	public function getTagExtractionClasses() {
 		return [
-			FileName::class,
+			FileNameHandler::class,
 			FileExifHandler::class
 		];
 	}

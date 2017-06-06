@@ -33,7 +33,7 @@ class FileNameHandler implements HandlerInterface {
 		$titleProp   = new TitleProperty($title, $relevance = max(19 - $countCommas, 0));
 
 		// Extract all Information possible from filename if at least two keywords exist
-		$result = $this->tagExtractionService->extractPartsFromStrings($title, 2);
+		$result = $this->tagExtractionService->extractPartsFromStrings($title, 1);
 
 		// The more commas we have, the move likely was it a good Property / Tag
 		$result->each(function ($p) use ($countCommas) {

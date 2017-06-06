@@ -18,6 +18,11 @@
                 </div>
 
                 <div class="form-group">
+                    {!! Form::label('meta', 'Metainformationen') !!}
+                    {!! Form::textarea('meta', '', ['class' => 'form-control', 'placeholder' => "Metadaten eingeben"]) !!}
+                </div>
+
+                <div class="form-group">
                     {!! Form::submit('hochladen', ['class' => 'btn btn-primary']) !!}
                 </div>
 
