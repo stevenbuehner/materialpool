@@ -2,6 +2,8 @@
 
 @section('content')
 
+    <h2>{{$title or ''}}</h2>
+
     <div class="card-columns">
         @foreach($materials as $m)
             <div class="card">

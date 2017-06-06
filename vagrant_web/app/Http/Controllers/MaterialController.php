@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\MaterialRequest;
+use App\Models\Bibleverse;
 use App\Models\Keyword;
 use App\Models\Material;
 use Illuminate\Http\Request;
@@ -32,8 +33,9 @@ class MaterialController extends Controller {
 	 */
 	public function index() {
 		$materials = Material::with($this->withAttributes)->orderBy('updated_at')->paginate(50);
+		$title     = "Alle Materialien";
 
-		return view('materials.listing', compact('materials'));
+		return view('materials.listing', compact('materials', 'title'));
 	}
 
 	public function indexBySingleKeyword($lcKeyword) {
@@ -44,7 +46,9 @@ class MaterialController extends Controller {
 						->orderBy('pivot_relevance', 'desc')
 						->paginate(50);
 
-		return view('materials.listing', compact('materials'));
+		$title = "Suche nach " . $kw->title . "'";
+
+		return view('materials.listing', compact('materials', 'title'));
 	}
 
 	public function indexByBibleverse(int $from, int $to) {
@@ -68,7 +72,15 @@ class MaterialController extends Controller {
 									   "bibleverse_material.bibleverse_id", '=',
 									   "bibleverses.id");
 
-		return view('materials.listing', ['materials' => $matQuery->paginate(50)]);
+
+		try {
+			$bibleVerse = new Bibleverse(['from' => $from, 'to' => $to]);
+			$title      = "Suche nach " . $bibleVerse->label ;
+		} catch (\Exception $e) {
+			$title = "Ungültiger Bibelvers";
+		}
+
+		return view('materials.listing', ['materials' => $matQuery->paginate(50), 'title' => $title]);
 	}
 
 	/**
