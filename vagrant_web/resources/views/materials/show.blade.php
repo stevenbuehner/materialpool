@@ -58,7 +58,8 @@
                                 </div>
 
                                 <div class="card-footer">
-                                    <a href="#" class="btn btn-primary">download</a>
+                                    <a href="{{ URL::route('pool.resource.download', [$resource->id]) }}"
+                                       class="btn btn-primary">download</a>
                                 </div>
                             </div>
                         </div>

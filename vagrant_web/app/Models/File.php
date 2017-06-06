@@ -88,6 +88,11 @@ class File extends Resource {
 		return $path;
 	}
 
+	public function getLocalFileStream() {
+		$driver = $this->getLocalDisk()->getDriver();
+		return $driver->readStream($this->getLocalFilePath());
+	}
+
 	public function deleteLocalFile() {
 		try {
 			$result = $this->getLocalDisk()->delete($this->getLocalFilePath());

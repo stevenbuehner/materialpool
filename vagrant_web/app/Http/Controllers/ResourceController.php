@@ -2,13 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Resource;
+use App\Models\Resource as ResourceEntity;
 use App\Models\Text;
 use App\Services\ResourceRecognition\ResourceRecognitionService;
 use App\Services\TagExtraction\MaterialExtractionService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Storage;
 
 class ResourceController extends Controller {
@@ -50,7 +51,7 @@ class ResourceController extends Controller {
 
 
 		if (!$request->hasFile('file')) {
-				return redirect(route('pool.resource.create'))->withErrors(['Missing upload file']);
+			return redirect(route('pool.resource.create'))->withErrors(['Missing upload file']);
 		}
 
 		/** @var ResourceRecognitionService $recognitionService */
@@ -125,10 +126,10 @@ class ResourceController extends Controller {
 	/**
 	 * Display the specified resource.
 	 *
-	 * @param  Resource $resource
+	 * @param  ResourceEntity $resource
 	 * @return \Illuminate\Http\Response
 	 */
-	public function show(Resource $resource) {
+	public function show(ResourceEntity $resource) {
 		$resource->load(['materials', 'materials.keywords', 'materials.bibleverses']);
 
 		return view('resources.show')->with('resource', $resource);
@@ -137,10 +138,10 @@ class ResourceController extends Controller {
 	/**
 	 * Show the form for editing the specified resource.
 	 *
-	 * @param  Resource $resource
+	 * @param  ResourceEntity $resource
 	 * @return \Illuminate\Http\Response
 	 */
-	public function edit(Resource $resource) {
+	public function edit(ResourceEntity $resource) {
 		$resource->load(['materials.keywords', 'materials.bibleverses']);
 
 		return view('resources.edit', [
@@ -152,10 +153,10 @@ class ResourceController extends Controller {
 	 * Update the specified resource in storage.
 	 *
 	 * @param  \Illuminate\Http\Request $request
-	 * @param  Resource                 $resource
+	 * @param  ResourceEntity           $resource
 	 * @return \Illuminate\Http\Response
 	 */
-	public function update(Request $request, Resource $resource) {
+	public function update(Request $request, ResourceEntity $resource) {
 
 		$resource->fill($request->all());
 		$resource->save();
@@ -166,10 +167,33 @@ class ResourceController extends Controller {
 	/**
 	 * Remove the specified resource from storage.
 	 *
-	 * @param  Resource $resource
+	 * @param  ResourceEntity $resource
 	 * @return \Illuminate\Http\Response
 	 */
-	public function destroy(Resource $resource) {
+	public function destroy(ResourceEntity $resource) {
 		//
+	}
+
+	public function download(ResourceEntity $resource) {
+
+		if ($resource->is_public && !empty($resource->remote_path)) {
+			return redirect()->to($resource->remote_path);
+		} else if ($resource instanceof \App\Models\File) {
+			$stream = $resource->getLocalFileStream();
+
+			return Response::stream(function () use ($stream) {
+				fpassthru($stream);
+			}, 200, [
+				'Content-Type'        => $resource->getLocalMimeType(),
+				'Content-Length'      => $resource->getLocalSize(),
+				'Content-disposition' => "attachment; filename=\"" . $resource->getOriginalFilenameAttribute() . "\""
+			]);
+		} else if ($resource instanceof Text) {
+			return Response::make($resource->content, 200, [
+				'Content-type'        => 'text/plain',
+				'Content-Disposition' => "attachment; filename=\"resource id" . $resource->id . ".txt\"",
+				'Content-Length'      => sizeof($resource->content)
+			]);
+		}
 	}
 }

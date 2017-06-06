@@ -54,7 +54,7 @@ class TextPreviewGenerator implements PreviewGeneratorInterface {
 		$view = View::make('resources.generators.text')
 					->with('resource', $resource)
 					->with('content', $resource->content)
-					->with('title', 'Textdokument');
+					->with('title', 'Textschnipsel');
 
 		return $view->render();
 	}

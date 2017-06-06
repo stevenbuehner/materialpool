@@ -31,6 +31,8 @@ Route::group(['prefix' => 'pool', 'as' => 'pool.'], function () {
 		 ->where('to', '[0-9]+');
 
 	Route::resource('resource', 'ResourceController', ['except' => ['store']]);
+	Route::get('resource/{resource}/download', 'ResourceController@download')
+		 ->name('resource.download');
 
 	Route::post('resource/file', 'ResourceController@storeFile')->name('resource.store.file');
 	Route::post('resource/text', 'ResourceController@storeText')->name('resource.store.text');
