@@ -21,6 +21,7 @@ class MaterialExtractionService {
 
 	/**
 	 * @param Resource $resource
+	 * @param array    $additionalInformation
 	 * @return Material
 	 */
 	public function createGuessedMaterialFromResource(Resource $resource, $additionalInformation = []) {

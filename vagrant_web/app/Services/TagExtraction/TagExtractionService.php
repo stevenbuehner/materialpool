@@ -230,7 +230,7 @@ class TagExtractionService {
 
 	/**
 	 * @param string $tagValue
-	 * @return Tag
+	 * @return Keyword
 	 */
 	protected function getDefaultTagFromString($tagValue) {
 		return Keyword::firstOrCreate([

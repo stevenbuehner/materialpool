@@ -8,7 +8,9 @@ use App\Models\File;
 use App\Models\ImageFile;
 use App\Models\Keyword;
 use App\Models\Resource;
+use App\Models\Text;
 use App\Models\VideoFile;
+use Illuminate\Http\UploadedFile;
 
 class ResourceRecognitionService {
 
@@ -18,36 +20,58 @@ class ResourceRecognitionService {
 		$this->classMap = Keyword::getSingleTableTypeMap();
 	}
 
-	public function guessResourceFileClass($mimeType) {
+	public function guessResourceFile(UploadedFile $requestFile) {
 
-		$mimeParts  = preg_split('~\/~', $mimeType);
-		$typeGroup  = $mimeParts[0];
-		$typeDetail = $mimeParts[1];
+		$mimeType  = $requestFile->getMimeType();
+		$mimeParts = preg_split('~\/~', $mimeType);
+		$class     = Resource::class;
 
 		switch ($mimeType) {
 			case 'image/jpg':
 			case 'image/jpeg':
 			case 'image/png':
 			case 'image/gif':
-				return ImageFile::class;
+
+				$class = ImageFile::class;
+				break;
+
+			case 'text/plain':
+				// Check for length (too big files are stored as file and not in DB)
+				if ($requestFile->getSize() < 1024 * 512 /* 0,5 MB */) {
+					$class = Text::class;
+				}
+
+				// Check for first line (if it has keywords etc. than use it as so
+				break;
 
 			case'application/pdf':
 			case'application/msword':
 			case'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
 			case'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
-				return DocumentFile::class;
+
+				$class = DocumentFile::class;
+				break;
 
 			case 'video':
-				return VideoFile::class;
+
+				$class = VideoFile::class;
+				break;
 
 			case 'audio':
-				return AudioFile::class;
+
+				$class = AudioFile::class;
+				break;
 
 			case 'text/rtf':
+
+
 			default:
 
-				return File::class;
+				$class = File::class;
+				break;
 		}
+
+		return $class;
 	}
 
 }

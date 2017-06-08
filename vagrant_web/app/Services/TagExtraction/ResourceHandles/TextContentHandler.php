@@ -5,18 +5,23 @@ namespace App\Services\TagExtraction\ResourceHandles;
 use App\Models\File;
 use App\Models\Resource;
 use App\Services\TagExtraction\Interfaces\RelevanceInterface;
+use App\Services\TagExtraction\Properties\BibleverseProperty;
 use App\Services\TagExtraction\Properties\OcrTextProperty;
 use App\Services\TagExtraction\Properties\Property;
 use App\Services\TagExtraction\TagExtractionService;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
+use StevenBuehner\BibleVerseBundle\Interfaces\BibleVerseInterface;
+use StevenBuehner\BibleVerseBundle\Service\BibleVerseService;
 
 class TextContentHandler implements HandlerInterface {
 
 	protected $tagExtractionService;
+	protected $bibleVerseService;
 
-	public function __construct(TagExtractionService $tagExtractionService) {
+	public function __construct(TagExtractionService $tagExtractionService, BibleVerseService $bibleVerseService) {
 		$this->tagExtractionService = $tagExtractionService;
+		$this->bibleVerseService    = $bibleVerseService;
 	}
 
 	/**
@@ -26,6 +31,15 @@ class TextContentHandler implements HandlerInterface {
 	 * @return Collection of Properties
 	 */
 	public function handle(Resource $resource) {
+		$result = new Collection();
+		$result = $result->merge($this->searchInFirstLine($resource));
+		$result = $result->merge($this->searchInEveryLineAfterFirst($resource));
+		$unique = $result->unique();
+
+		return $unique;
+	}
+
+	protected function searchInFirstLine(Resource $resource) {
 		$result = new Collection();
 
 		if ($resource instanceof TextContentInterface) {
@@ -37,7 +51,7 @@ class TextContentHandler implements HandlerInterface {
 			$firstLine = strtok($content, "\n");
 			$foundTags = $this->tagExtractionService->extractPartsFromStrings($firstLine, 2, $context = ['firstline']);
 
-			// How many tags where found? => At least three are needed, to identify this as info
+			// How many tags where found in the first line of text? => At least three are needed, to identify this as info
 			if ($foundTags->count() < 3) {
 				Log::info("Too less information was extracted from the first line -> ignoring information",
 						  ['resource_id' => $resource->id, 'handler' => __CLASS__]);
@@ -56,15 +70,44 @@ class TextContentHandler implements HandlerInterface {
 					$property->setRelevance($relevance);
 				});
 				$result = $result->merge($foundTags);
-
-
-				// Create a Ocr-Text-Property from anything BUT the first line
-				$otherLines = trim(substr($content, strlen($firstLine)));
-				if (strlen($otherLines) > 3) {
-					$ocrProperty = new OcrTextProperty($otherLines, RelevanceInterface::RELEVANCE_EXIF_MAX);
-					$result->push($ocrProperty);
-				}
 			}
+
+		} else {
+			Log::error('This file is not of mimetype text/plain.', ['resource_id' => $resource->id]);
+
+			return $result;
+		}
+
+		return $result;
+	}
+
+	protected function searchInEveryLineAfterFirst(Resource $resource) {
+		$result = new Collection();
+
+		if ($resource instanceof TextContentInterface) {
+
+			// get Content
+			$content = $resource->getContent();
+
+			// Delete the first line in the $content
+			$content = preg_replace('/^.+\n/', '', $content);
+
+			// Extract bibleverses
+			$foundBibleVerses = $this->bibleVerseService->stringToBibleVerse($content);
+
+			// Transform BibleVerseInterface to BibleverseProperty
+			$result = collect($foundBibleVerses)->map(function (BibleVerseInterface $bv) {
+				$b = new BibleverseProperty($bv);
+				$b->setRelevance(RelevanceInterface::RELEVANCE_EXIF_MIN);
+
+				return $b;
+			});
+
+			// Create a Ocr-Text-Property from anything BUT the first line
+			// Use this Ocr-Text only (MIN-Relevance) if the searchInFirstLine got less than 3 Keywords => use whole text
+			$ocrProperty = new OcrTextProperty($content, RelevanceInterface::RELEVANCE_EXIF_MIN);
+			$result->push($ocrProperty);
+
 		} else {
 			Log::error('This file is not of mimetype text/plain.', ['resource_id' => $resource->id]);
 

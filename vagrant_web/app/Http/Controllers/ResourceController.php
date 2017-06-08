@@ -55,73 +55,48 @@ class ResourceController extends Controller {
 		}
 
 		/** @var ResourceRecognitionService $recognitionService */
-		$disk               = Storage::disk(config('app.disks.resources'));
-		$tmpPath            = $request->file('file')->getPath();
-		$sha1               = sha1_file($tmpPath);
-		$recognitionService = resolve('app.resource.type.recognition');
-
-		$resourceClass               = $recognitionService->guessResourceFileClass($request
-																					   ->file('file')
-																					   ->getMimeType());
-		$resource                    = new $resourceClass();
-		$resource->created_by        = Auth()->id();
-		$resource->content_hash      = $sha1;
-		$resource->original_filename = $request->file('file')->getClientOriginalName();
-
-
-		$localFilePath        = Auth()->id() . DIRECTORY_SEPARATOR . $resource->type;
-		$filename             = $disk->putFile($localFilePath, $request->file('file'));
-		$resource->local_path = config('app.disks.resources') . '::' . $filename;
-		$resource->save();
-
+		$recognitionService   = resolve('app.resource.type.recognition');
+		$resourceClass        = $recognitionService->guessResourceFile($request->file('file'));
+		$resource             = new $resourceClass();
+		$resource->created_by = Auth()->id();
 
 		// Create guessed Material
-		$additionalInformation['properties'][] = $request->get('meta', '');
+		$tagExtractionProperties                 = [];
+		$tagExtractionProperties['properties'][] = $request->get('meta', '');
 
-		/** @var MaterialExtractionService $materialService */
-		$materialService = resolve(MaterialExtractionService::class);
-		$material        = $materialService->createGuessedMaterialFromResource($resource, $additionalInformation);
 
-		return redirect(route('pool.resource.edit', $resource->id));
-	}
+		if ($resource instanceof \App\Models\File) {
+			$disk                        = Storage::disk(config('app.disks.resources'));
+			$tmpPath                     = $request->file('file')->getPath();
+			$resource->content_hash      = sha1_file($tmpPath);
+			$resource->original_filename = $request->file('file')->getClientOriginalName();
+			$localFilePath               = Auth()->id() . DIRECTORY_SEPARATOR . $resource->type;
+			$filename                    = $disk->putFile($localFilePath, $request->file('file'));
+			$resource->local_path        = config('app.disks.resources') . '::' . $filename;
 
-	/**
-	 * Store a newly created resource in storage.
-	 *
-	 * @param  \Illuminate\Http\Request $request
-	 * @return \Illuminate\Http\Response
-	 */
-	public function storeText(Request $request) {
-		// Mass assignment easy
+		} else if ($resource instanceof Text) {
+			$resource->content = File::get($request->file('file')->getRealPath());
 
-		$resource              = new Text();
-		$resource->created_by  = Auth()->id();
-		$additionalInformation = ['properties' => []];
+			// Add filename to guessing properties
+			$tagExtractionProperties['properties'][] = basename($request->file('file')->getClientOriginalName(),
+																'.' . $request->file('file')
+																			  ->getClientOriginalExtension());
 
-		if ($request->hasFile('file')) {
-			if ($request->file('file')->getMimeType() != 'text/plain') {
-				return redirect(route('pool.resource.create'))->withErrors(['File is not a textfile.']);
-			}
+			// TODO: if first line has multiple significant properties, delete it from text
+			// $firstLine = strtok($resource->content, "\n");
 
-			$resource->content                     = File::get($request->file('file')->getRealPath());
-			$additionalInformation['properties'][] = basename($request->file('file')->getClientOriginalName(),
-															  '.' . $request->file('file')
-																			->getClientOriginalExtension());
-		} else if ($request->has('content') && strlen($request->get('content')) > 5) {
-
-			$resource->content = $request->get('content');
-		} else {
-			return redirect(route('pool.resource.create'))->withErrors(['Missing a file or some text to create a ressource.']);
 		}
 
 		$resource->save();
 
+
 		/** @var MaterialExtractionService $materialService */
 		$materialService = resolve(MaterialExtractionService::class);
-		$material        = $materialService->createGuessedMaterialFromResource($resource, $additionalInformation);
+		$material        = $materialService->createGuessedMaterialFromResource($resource, $tagExtractionProperties);
 
 		return redirect(route('pool.resource.edit', $resource->id));
 	}
+
 
 	/**
 	 * Display the specified resource.

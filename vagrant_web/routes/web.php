@@ -35,7 +35,6 @@ Route::group(['prefix' => 'pool', 'as' => 'pool.'], function () {
 		 ->name('resource.download');
 
 	Route::post('resource/file', 'ResourceController@storeFile')->name('resource.store.file');
-	Route::post('resource/text', 'ResourceController@storeText')->name('resource.store.text');
 
 	// Search
 	Route::get('searchbar', 'SearchController@index')->name('searchbar.index');
