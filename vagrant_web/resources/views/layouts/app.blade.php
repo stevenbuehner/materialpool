@@ -9,7 +9,9 @@
     <!-- Latest compiled and minified CSS -->
     <link rel="stylesheet" href="{{ mix('/css/app.css') }}">
     <link rel="stylesheet" href="/css/develop.css">
+@stack('styles')
 
+@stack('scripts')
 
     <!-- CSRF Token -->
     {{--<meta name="csrf-token" content="{{ csrf_token() }}"> --}}

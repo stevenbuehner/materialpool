@@ -52,7 +52,7 @@ class ResourceRecognitionService {
 				$class = DocumentFile::class;
 				break;
 
-			case 'video':
+			case 'video/mp4':
 
 				$class = VideoFile::class;
 				break;

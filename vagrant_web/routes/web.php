@@ -33,6 +33,8 @@ Route::group(['prefix' => 'pool', 'as' => 'pool.'], function () {
 	Route::resource('resource', 'ResourceController', ['except' => ['store']]);
 	Route::get('resource/{resource}/download', 'ResourceController@download')
 		 ->name('resource.download');
+	Route::get('resource/{resource}/videostream', 'VideoStreamController@stream')
+		 ->name('resource.videostream');
 
 	Route::post('resource/file', 'ResourceController@storeFile')->name('resource.store.file');
 

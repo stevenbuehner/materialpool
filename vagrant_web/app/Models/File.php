@@ -90,6 +90,7 @@ class File extends Resource {
 
 	public function getLocalFileStream() {
 		$driver = $this->getLocalDisk()->getDriver();
+
 		return $driver->readStream($this->getLocalFilePath());
 	}
 
@@ -108,6 +109,10 @@ class File extends Resource {
 
 	public function getLocalMimeType() {
 		return $this->getLocalDisk()->mimeType($this->getLocalFilePath());
+	}
+
+	public function getLocalLastModified() {
+		return $this->getLocalDisk()->lastModified($this->getLocalFilePath());
 	}
 
 	public function getLocalUrl() {
