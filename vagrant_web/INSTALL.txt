@@ -2,8 +2,25 @@ run composer install
 set phpexiftool executeable (+x) for web-user in vendor/phpexiftool/exiftool/exiftool
 
 #Update npm
-sudo npm install npm@latest -g
+# sudo npm install npm@latest -g
 
+# https://github.com/npm/npm/issues/14154
+sudo apt-get purge nodejs npm
+#sudo npm cache clean -f
+curl -sL https://deb.nodesource.com/setup_4.x | sudo -E bash -
+sudo apt-get install -y nodejs
+sudo npm install -g n
+sudo n stable
+
+
+Dann alte Pakete löschen
+rm -rf node_modules
+npm install
+# Wenn Fehler auftreten (=> Nochmal löschen und nochmal installieren :-) )
+
+
+# Zur Info - neue NPM Pakete installieren die in Zukunft auch gebraucht werden
+# npm install PAKETNAME --save-dev
 
 php artisan migrate
 php artisan module:migrate
