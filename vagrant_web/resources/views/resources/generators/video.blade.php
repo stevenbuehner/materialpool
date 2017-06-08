@@ -9,11 +9,11 @@
     @endslot
 
     @push('scripts')
-    <script src="//vjs.zencdn.net/4.12/video.js"></script>
+    <script src="{{ mix('/js/media.js') }}"></script>
     @endpush
 
     @push('styles')
-    <link href="//vjs.zencdn.net/4.12/video-js.css" rel="stylesheet">
+    <link href="{{ mix('/css/media.css') }}" rel="stylesheet">
     @endpush
 
 
@@ -25,8 +25,8 @@
     </video>
 
     <script>
-        videojs(document.getElementById('video_file'), {}, function () {
-            // This is functionally the same as the previous example.
+        videojs(document.getElementById('video_file'), {
+            fluid: true
         });
     </script>
 

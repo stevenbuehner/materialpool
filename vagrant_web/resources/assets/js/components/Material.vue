@@ -8,8 +8,8 @@
             </small>
         </div>
         <div class="tags">
-            <div class="btn btn-sm btn-secondary keyword" v-for="keyword in material.keywords">{{keyword.title}}</div>
-            <div class="btn btn-sm btn-secondary bibleverse" v-for="bibleverse in material.bibleverses">
+            <div class="btn btn-sm btn-secondary keyword" v-for="keyword in material.keywords" :key="keyword.id">{{keyword.title}}</div>
+            <div class="btn btn-sm btn-secondary bibleverse" v-for="bibleverse in material.bibleverses" :key="bibleverse.id">
                 {{bibleverse.label}}
             </div>
         </div>

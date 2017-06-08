@@ -26,3 +26,6 @@ vagrant_web/public/js/app.*.js
 mix-manifest.json
 vagrant_web/storage/framework/testing
 vagrant_web/public/js/searchbar.*.js
+media.*.js
+media*.css
+vagrant_web/public/fonts/vendor/video.js

@@ -5,6 +5,15 @@ namespace App\Http\Video;
 class VideoStream extends AbstractVideoStream {
 	protected $path;
 
+	/**
+	 * TODO: Not tested or used so far .... (Steven)
+	 * VideoStream constructor.
+	 *
+	 * @param $stream
+	 * @param $filesize
+	 * @param $lastModified
+	 * @throws \Exception
+	 */
 	function __construct($stream, $filesize, $lastModified) {
 		if (!is_resource($stream)) {
 			throw new \Exception('Invalid Stream-Resource');
