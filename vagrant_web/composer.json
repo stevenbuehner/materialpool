@@ -17,6 +17,7 @@
         "laravelcollective/html": "^5.4",
         "nanigans/single-table-inheritance": "^0.7.1",
         "nwidart/laravel-modules": "^1.20",
+        "php-ffmpeg/php-ffmpeg": "^0.9.3",
         "stevenbuehner/bible-verse-bundle": "^2.0"
     },
     "require-dev": {

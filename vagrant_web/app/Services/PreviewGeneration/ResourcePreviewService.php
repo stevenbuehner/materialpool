@@ -22,14 +22,21 @@ class ResourcePreviewService {
 		return $generator->previewAble($resource);
 	}
 
-	public function getPreviewImage(ResourceEntity $resource, Size $size) {
+	public function getPreviewImage(ResourceEntity $resource, $maxWidth = NULL, $maxHeight = NULL) {
+
+		if ($maxWidth === NULL) {
+			$maxWidth = config('app.resource.preview.maxWidth');
+		}
+
+		if ($maxHeight === NULL) {
+			$maxHeight = config('app.resource.preview.maxHeight');
+		}
 
 		if ($this->usePreviewImageCache) {
 			// Not implemented yet
 		}
 
-		$size->set(max($size->getWidth(), 100), max($size->getHeight(), 100));
-
+		$size = new Size($maxWidth, $maxHeight);
 
 		try {
 			/** @var PreviewGeneratorInterface $generator */

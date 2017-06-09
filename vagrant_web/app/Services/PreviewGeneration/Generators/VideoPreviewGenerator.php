@@ -12,14 +12,23 @@ use App\Models\Text;
 use App\Models\VideoFile;
 use App\Services\PreviewGeneration\Exceptions\NotPreviewAbleException;
 use App\Services\PreviewGeneration\Interfaces\PreviewGeneratorInterface;
+use FFMpeg\Coordinate\TimeCode;
+use FFMpeg\FFMpeg;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\View;
+use Intervention\Image\Constraint;
 use Intervention\Image\Image;
+use Intervention\Image\ImageManager;
 use Intervention\Image\Size;
+use League\Flysystem\Adapter\Local;
+use League\Flysystem\Filesystem;
 
 class VideoPreviewGenerator implements PreviewGeneratorInterface {
 
+	protected $imageManager;
 
-	public function __construct() {
+	public function __construct(ImageManager $imageManager) {
+		$this->imageManager = $imageManager;
 	}
 
 	/**
@@ -31,9 +40,57 @@ class VideoPreviewGenerator implements PreviewGeneratorInterface {
 	 */
 	public function getImagePreview(ResourceEntity $resource, Size $size) {
 
-		/** @var $resource VideoFile */
-		$image = $this->imageManager->canvas($size->getWidth(), $size->getHeight(), '#000000')
-									->text(str_limit('no Preview available', 500));
+		$image  = NULL;
+		$ffmpeg = FFMpeg::create([
+									 'ffmpeg.binaries'  => resource_path('bin/ffmpeg'),
+									 'ffprobe.binaries' => resource_path('bin/ffprobe'),
+									 'timeout'          => 3600, // The timeout for the underlying process
+									 'ffmpeg.threads'   => 12,   // The number of threads that FFMpeg should use
+								 ]);
+
+
+		$localDisk    = Storage::disk('local');
+		$relativePath = 'tmp/' . uniqid('temp_');
+		$stream       = $resource->getLocalFileStream();
+		$localDisk->getDriver()->writeStream($relativePath, $stream);
+		fclose($stream);
+
+		try {
+			/** @var Filesystem $driver */
+			/** @var Local $adapter */
+			$driver    = $localDisk->getDriver();
+			$adapter   = $driver->getAdapter();
+			$prefix    = $adapter->getPathPrefix();
+			$localPath = $prefix . $relativePath;
+
+			$video            = $ffmpeg->open($localPath);
+			$firstVideoStream = $video->getStreams()->videos()->first();
+			$duration         = (float) $firstVideoStream->get('duration');
+			$tenPercent       = round($duration / 10, 2);
+
+			$frame     = $video->frame(TimeCode::fromSeconds($tenPercent));
+			$framePath = $localPath . '.jpg';
+			$frame->save($framePath);
+
+			$frameImage = $this->imageManager->make($framePath);
+			$localDisk->delete($relativePath . '.jpg');
+			$image = $frameImage->resize($size->getWidth(), $size->getHeight(), function (Constraint $constraint) {
+				$constraint->aspectRatio();
+				$constraint->upsize();
+			});
+
+		} catch (\Exception $e) {
+		} finally {
+			// Cleanup
+			$localDisk->delete($relativePath);
+		}
+
+		// Backup
+		if ($image === NULL) {
+			/** @var $resource VideoFile */
+			$image = $this->imageManager->canvas($size->getWidth(), $size->getHeight(), '#000000')
+										->text(str_limit('no Preview available', 500));
+		}
 
 		return $image;
 	}
