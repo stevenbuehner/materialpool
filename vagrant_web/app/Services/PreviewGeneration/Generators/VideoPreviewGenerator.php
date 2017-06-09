@@ -66,7 +66,7 @@ class VideoPreviewGenerator implements PreviewGeneratorInterface {
 			$video            = $ffmpeg->open($localPath);
 			$firstVideoStream = $video->getStreams()->videos()->first();
 			$duration         = (float) $firstVideoStream->get('duration');
-			$tenPercent       = round($duration / 10, 2);
+			$tenPercent       = round($duration * 0.15	, 2);
 
 			$frame     = $video->frame(TimeCode::fromSeconds($tenPercent));
 			$framePath = $localPath . '.jpg';

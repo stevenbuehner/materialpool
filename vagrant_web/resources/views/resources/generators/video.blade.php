@@ -18,16 +18,16 @@
 
 
     <video id="video_file" class="video-js vjs-default-skin vjs-big-play-centered"
-           controls preload="auto" height="600" width="980">
+           controls preload="auto"
+           data-setup='{"fluid": true}'
+           poster="{{route('resource.image.preview', [$resource->id])}}">
 
         <source src="{{ route('pool.resource.videostream', [$resource->id]) }}"
                 type="{{ $resource->getLocalMimeType() }}"/>
     </video>
 
     <script>
-        videojs(document.getElementById('video_file'), {
-            fluid: true
-        });
+        videojs(document.getElementById('video_file'), {});
     </script>
 
 
