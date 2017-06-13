@@ -49,6 +49,7 @@ class VideoPreviewGenerator implements PreviewGeneratorInterface {
 								 ]);
 
 
+		// Make a local copy of the movie (copy to local, whereever it is)
 		$localDisk    = Storage::disk('local');
 		$relativePath = 'tmp/' . uniqid('temp_');
 		$stream       = $resource->getLocalFileStream();
@@ -66,7 +67,7 @@ class VideoPreviewGenerator implements PreviewGeneratorInterface {
 			$video            = $ffmpeg->open($localPath);
 			$firstVideoStream = $video->getStreams()->videos()->first();
 			$duration         = (float) $firstVideoStream->get('duration');
-			$tenPercent       = round($duration * 0.15	, 2);
+			$tenPercent       = round($duration * 0.15, 2);
 
 			$frame     = $video->frame(TimeCode::fromSeconds($tenPercent));
 			$framePath = $localPath . '.jpg';

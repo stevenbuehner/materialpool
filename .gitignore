@@ -2,9 +2,6 @@
 /vagrant_web/build/
 /vagrant_web/phpunit.xml
 /vagrant_web/var/*
-!/vagrant_web/var/cache
-/vagrant_web/var/cache/*
-!/vagrant_webvar/cache/.gitkeep
 !/vagrant_web/var/logs
 /vagrant_web/var/logs/*
 !/vagrant_webvar/logs/.gitkeep
@@ -16,7 +13,6 @@
 /vagrant_web/web/bundles/
 /vagrant_web.idea
 /vagrant_web.composer
-/vagrant_web.cache
 .idea
 .cache
 .vagrant
@@ -29,3 +25,4 @@ vagrant_web/public/js/searchbar.*.js
 media.*.js
 media*.css
 vagrant_web/public/fonts/vendor/video.js
+vagrant_web/storage/framework/cache
