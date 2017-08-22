@@ -81,7 +81,7 @@
 	position: absolute;
 	left: 0px;
 	display: inline-block;
-	background: url(/img/icons/entypo-plus/align-left.svg) no-repeat;
+	background: url(/vendor/pdfpreview/img/align-left.svg) no-repeat;
 }
 
 .cell .menue-container .middle {
@@ -96,7 +96,7 @@
 	right: 0px;
 	top: 0px;
 	display: inline-block;
-	background: url(/img/icons/entypo-plus/align-right.svg) no-repeat;
+	background: url(/vendor/pdfpreview/img/align-right.svg) no-repeat;
 }
 
 .zoomer-container {

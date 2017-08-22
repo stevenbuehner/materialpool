@@ -6,14 +6,9 @@ use App\Http\Controllers\Controller;
 use StevenBuehner\PdfPreview\Interfaces\LocalPdfProviderInterface;
 
 class ListingController extends Controller {
-	//
+	// Example Controller
 
 	public function index($resource) {
-
-		$view = view('PdfPreview::preview', [
-			'fileId'            => $resource,
-			'imagePreviewRoute' => config('pdfpreview.imagePreviewRoute'),
-		]);
 
 		// Get Number of PDF-Pages
 		$pdfProvider  = resolve(LocalPdfProviderInterface::class);
@@ -21,9 +16,13 @@ class ListingController extends Controller {
 		// Best Way to get Number of Pages
 		$im = new \Imagick();
 		$im->pingImage($localPdfPath);
-		$view->with('pageCount', $im->getNumberImages());
 
-		return $view;
+		return view('PdfPreview::preview', [
+			'fileId'            => $resource,
+			'imagePreviewRoute' => config('pdfpreview.imagePreviewRoute'),
+			'pageCount'         => $im->getNumberImages(),
+		]);
+
 	}
 
 	protected function countPdfPages() {

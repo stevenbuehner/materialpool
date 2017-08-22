@@ -1,6 +1,7 @@
 <?php
 
-Route::get('test/{resource}', 'StevenBuehner\PdfPreview\Controllers\ListingController@index');
+// Example-Route with Example-Controller
+ Route::get('test/{resource}', 'StevenBuehner\PdfPreview\Controllers\ListingController@index');
 
 Route::get('pdfpreview/res-{fileId}/page-{page}',
 		   'StevenBuehner\PdfPreview\Controllers\PdfImagePreviewController@loadPage')

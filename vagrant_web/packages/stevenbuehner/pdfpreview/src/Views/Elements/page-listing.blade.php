@@ -1,9 +1,9 @@
 @push("styles")
-    <link rel="stylesheet" href="/pdfpreview.css">
+    <link rel="stylesheet" href="/vendor/pdfpreview/css/pdfpreview.css">
 @endpush
 
 @push("scripts")
-    <script src="/pdfpreview.js"></script>
+    <script src="/vendor/pdfpreview/js/pdfpreview.js"></script>
 @endpush
 
 <div class="container pdfpreview">

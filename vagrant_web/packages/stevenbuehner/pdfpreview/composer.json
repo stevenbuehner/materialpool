@@ -1,16 +1,14 @@
 {
-    "name": "steven/pdfpreview",
-    "description": "Preview any PDF file with little images. Be able to select them and use frontend triggers to act on selection.",
-    "type": "library, pdf",
-    "authors": [
-        {
-            "name": "Steven Buehner",
-            "email": "buehner@me.com"
-        }
-    ],
-    "minimum-stability": "dev",
-    "require": {
-        "intervention/image": "^2.3"
-
+  "name": "steven/pdfpreview",
+  "description": "Preview any PDF file with little images. Be able to select them and use frontend triggers to act on selection.",
+  "type": "library, pdf",
+  "authors": [
+    {
+      "name": "Steven Buehner",
+      "email": "buehner@me.com"
     }
+  ],
+  "minimum-stability": "dev",
+  "require": {
+  }
 }

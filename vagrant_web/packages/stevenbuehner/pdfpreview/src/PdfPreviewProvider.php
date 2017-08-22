@@ -19,6 +19,11 @@ class PdfPreviewProvider extends ServiceProvider {
 						  __DIR__ . '/Config/PdfPreview.php' => config_path('pdfpreview.php'),
 						 ]);
 
+		// Public stuff
+		$this->publishes([
+							 __DIR__ . '/../public_resources' => public_path('vendor/pdfpreview'),
+						 ], 'public');
+
 		$this->mergeConfigFrom(__DIR__ . '/Config/PdfPreview.php', 'pdfpreview');
 	}
 
