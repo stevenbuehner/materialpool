@@ -2,47 +2,47 @@ Vue.component('page-list', {
     template: '<div class="page-list"><page ' +
     'v-for="page in pages" ' +
     'v-bind:index="page.index" ' +
-    'v-bind:isSelectable="page.isSelectable"' +
-    'v-bind:isSelectionStart="page.isSelectionStart"' +
-    'v-bind:isSelectionEnd="page.isSelectionEnd"' +
-    'v-bind:isSelected="page.isSelected"' +
-    'v-bind:key="page.index"' +
-    '@firstPageSelected="firstPageSelected"' +
-    '@lastPageSelected="lastPageSelected"' +
+    'v-bind:image="page.image" ' +
+    'v-bind:isSelectable="page.isSelectable" ' +
+    'v-bind:isSelectionStart="page.isSelectionStart" ' +
+    'v-bind:isSelectionEnd="page.isSelectionEnd" ' +
+    'v-bind:isSelected="page.isSelected" ' +
+    'v-bind:key="page.index" ' +
+    '@firstPageSelected="firstPageSelected" ' +
+    '@lastPageSelected="lastPageSelected" ' +
     '@addPageSelection="addPageSelection">Page {{page.label}}</page></div>',
 
     data: function () {
+        var pages = [];
+        for (var i = 1; i <= this.pageCount; i++) {
+            pages.push({
+                index: i,
+                label: i,
+                isSelectable: false,
+                isSelected: false,
+                isSelectionStart: false,
+                isSelectionEnd: false,
+                image: this.previewLinkPattern.replace('{{id}}', this.fileId).replace('{{page}}', i)
+            })
+        }
+
         return {
-            pages: [
-                {
-                    label: 1,
-                    index: 1,
-                    isSelectable: true,
-                    isSelected: false,
-                    image: '/preview-page1.jpg'
-                },
-                {
-                    label: 2,
-                    index: 2,
-                    isSelectable: false,
-                    isSelected: false,
-                    image: '/preview-page2.jpg'
-                },
-                {
-                    label: 3,
-                    index: 3,
-                    isSelectable: true,
-                    isSelected: false,
-                    image: '/preview-page4.jpg'
-                }
-            ],
+            pages: pages
+        }
+    },
 
-            selection: {
-                firstIndex: undefined,
-                lastIndex: undefined,
-                additionalPages: []
-            }
-
+    props: {
+        fileId: {
+            required: true
+        },
+        pageCount: {
+            type: Number,
+            required: true
+        },
+        previewLinkPattern: {
+            type: String,
+            required: false,
+            default: '/pdfpreview/res-{{id}}/page-{{page}}'
         }
     },
 
@@ -153,8 +153,7 @@ Vue.component('page', {
     '    <div class="selection-container"><div class="start"></div><div class="middle"></div><div class="end"></div>' +
     '    </div>' +
     '    <div class="image-container" @click="handleClick">' +
-    'IMAGE {{index}}' +
-    '        <img v-bind="image"/>' +
+    '        <img :src="image"/>' +
     '    </div>' +
     '    <div class="menue-container">' +
     '        <div class="left" @click="firstPageSelected"></div>' +

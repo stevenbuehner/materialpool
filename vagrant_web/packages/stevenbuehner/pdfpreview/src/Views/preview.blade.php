@@ -16,7 +16,7 @@
     </div>
 
     <div id="pdfpreview-app">
-        <page-list></page-list>
+        <page-list file-id="32" page-count="6"></page-list>
         <span>@{{message}}</span>
     </div>
 

@@ -15,7 +15,11 @@ class PdfPreviewProvider extends ServiceProvider {
 		$this->loadViewsFrom(__DIR__ . '/Views', 'PdfPreview');
 
 		// be publishable
-		$this->publishes([__DIR__ . '/Views' => resource_path('views/vendor/PdfPreview')]);
+		$this->publishes([__DIR__ . '/Views'                 => resource_path('views/vendor/PdfPreview'),
+						  __DIR__ . '/Config/PdfPreview.php' => config_path('pdfpreview.php'),
+						 ]);
+
+		$this->mergeConfigFrom(__DIR__ . '/Config/PdfPreview.php', 'pdfpreview');
 	}
 
 	/**
@@ -28,7 +32,6 @@ class PdfPreviewProvider extends ServiceProvider {
 		$this->app->make(TestController::class);
 
 		// LocalPdfProvider
-
 
 	}
 }

@@ -6,7 +6,7 @@ interface LocalPdfProviderInterface {
 
 	/**
 	 * @param $fileId
-	 * @return path
+	 * @return string path
 	 */
 	public function getLocalPdfPath($fileId);
 

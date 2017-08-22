@@ -55,6 +55,11 @@
 	width: 80%;
 }
 
+.cell .image-container img{
+	max-height: 100%;
+	max-width: 100%;
+}
+
 .cell.selected .image-container, .cell.selected .menue-container{
 	background-color: rgba(0, 128, 0, 0.12);
 }
