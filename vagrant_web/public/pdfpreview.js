@@ -1,3 +1,5 @@
+window.EventHandler = new Vue();
+
 Vue.component('page-list', {
     template: '<div class="page-list"><page ' +
     'v-for="page in pages" ' +
@@ -7,10 +9,7 @@ Vue.component('page-list', {
     'v-bind:isSelectionStart="page.isSelectionStart" ' +
     'v-bind:isSelectionEnd="page.isSelectionEnd" ' +
     'v-bind:isSelected="page.isSelected" ' +
-    'v-bind:key="page.index" ' +
-    '@firstPageSelected="firstPageSelected" ' +
-    '@lastPageSelected="lastPageSelected" ' +
-    '@addPageSelection="addPageSelection">Page {{page.label}}</page></div>',
+    'v-bind:key="page.index">Page {{page.label}}</page></div>',
 
     data: function () {
         var pages = [];
@@ -22,7 +21,7 @@ Vue.component('page-list', {
                 isSelected: false,
                 isSelectionStart: false,
                 isSelectionEnd: false,
-                image: this.previewLinkPattern.replace('{{id}}', this.fileId).replace('{{page}}', i)
+                image: this.previewLinkPattern.replace('{id}', this.fileId).replace('{page}', i)
             })
         }
 
@@ -42,11 +41,14 @@ Vue.component('page-list', {
         previewLinkPattern: {
             type: String,
             required: false,
-            default: '/pdfpreview/res-{{id}}/page-{{page}}'
+            default: '/pdfpreview/res-{id}/page-{page}'
         }
     },
 
     created: function () {
+        EventHandler.$on('firstPageSelected', this.firstPageSelected);
+        EventHandler.$on('lastPageSelected', this.lastPageSelected);
+        EventHandler.$on('addPageSelection', this.addPageSelection);
     },
 
     computed: {
@@ -206,19 +208,28 @@ Vue.component('page', {
                 this.lastPageSelected();
             } else if (event.metaKey) {
                 this.addPageSelected();
+            } else if (event.altKey) {
+                this.zoomInRequested();
             } else {
                 this.firstPageSelected();
             }
         },
 
         firstPageSelected: function () {
+            EventHandler.$emit('firstPageSelected', this.index);
             this.$emit('firstPageSelected', this.index)
         },
         lastPageSelected: function () {
+            EventHandler.$emit('lastPageSelected', this.index);
             this.$emit('lastPageSelected', this.index);
         },
         addPageSelected: function () {
+            EventHandler.$emit('addPageSelection', this.index);
             this.$emit('addPageSelection', this.index);
+        },
+
+        zoomInRequested: function () {
+            EventHandler.$emit('zoomInRequested', this.image);
         },
 
         hidePage: function () {
@@ -234,6 +245,42 @@ Vue.component('page', {
             }
 
             return this.isSelectable === true;
+        }
+    }
+});
+
+Vue.component('image-zoomer', {
+    template: '<div ' +
+    'class="zoomer-container" ' +
+    '@click="closeClick" ' +
+    'v-show="isVisible"' +
+    '><img v-bind:src="image"></div>',
+
+    data: function () {
+        return {
+            image: 'not-available',
+            isVisible: false
+        };
+    },
+
+    computed:
+        {},
+
+    props: {},
+
+    methods: {
+        closeClick: function (event) {
+            this.hideImage();
+        },
+
+        showImage: function (imageUrl) {
+            this.image = imageUrl;
+            this.isVisible = true;
+        },
+
+        hideImage: function () {
+            this.isVisible = false;
+            EventHandler.$emit('zoomer-closed');
         }
     }
 

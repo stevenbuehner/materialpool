@@ -8,6 +8,7 @@
     </div>
 
     <div id="pdfpreview-app">
+        <image-zoomer ref="zoomer"></image-zoomer>
         <page-list
                 file-id="{{$fileId}}"
                 page-count="{{$pageCount}}"
@@ -27,7 +28,13 @@
 
     <script>
         new Vue({
-            el: '#pdfpreview-app'
+            el: '#pdfpreview-app',
+            created: function () {
+            },
+
+            mounted: function () {
+                EventHandler.$on('zoomInRequested', this.$refs.zoomer.showImage);
+            }
         });
     </script>
 
