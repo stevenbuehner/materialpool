@@ -11,9 +11,8 @@
     <link rel="stylesheet" href="/css/develop.css">
 @stack('styles')
 
-@stack('scripts')
 
-    <!-- CSRF Token -->
+<!-- CSRF Token -->
     {{--<meta name="csrf-token" content="{{ csrf_token() }}"> --}}
 
     <title>{{ config('app.name', 'Laravel') }}</title>
@@ -25,6 +24,8 @@
         ]) !!};
     </script>
     <script src="{{ mix('/js/app.js') }}"></script>
+    @stack('scripts')
+
 </head>
 <body>
 <div id="app">
