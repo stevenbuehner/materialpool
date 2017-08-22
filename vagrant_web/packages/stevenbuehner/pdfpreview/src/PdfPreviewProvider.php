@@ -3,7 +3,7 @@
 namespace StevenBuehner\PdfPreview;
 
 use Illuminate\Support\ServiceProvider;
-use StevenBuehner\PdfPreview\Controllers\TestController;
+use StevenBuehner\PdfPreview\Controllers\ListingController;
 
 class PdfPreviewProvider extends ServiceProvider {
 	/**
@@ -29,7 +29,7 @@ class PdfPreviewProvider extends ServiceProvider {
 	 */
 	public function register() {
 		include __DIR__ . '/routes.php';
-		$this->app->make(TestController::class);
+		$this->app->make(ListingController::class);
 
 		// LocalPdfProvider
 

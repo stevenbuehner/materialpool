@@ -3,23 +3,20 @@
 @section('content')
     <div class="container pdfpreview">
         <div class="content">
-            <div class="title">Old: {{ $fileId }}</div>
-
-            @for($page = $startPage; $page <= $endPage; $page++)
-                <div class="row pdfpreview-row">
-
-                </div>
-            @endfor
-
-
+            <div class="title">File-ID: {{ $fileId }}</div>
         </div>
     </div>
 
     <div id="pdfpreview-app">
-        <page-list file-id="32" page-count="6"></page-list>
-        <span>@{{message}}</span>
+        <page-list
+                file-id="{{$fileId}}"
+                page-count="{{$pageCount}}"
+                @if($imagePreviewRoute)
+                preview-link-pattern="{!! $imagePreviewRoute !!}"
+                @endif
+        >
+        </page-list>
     </div>
-
 
     <script src="/pdfpreview.js"></script>
 
@@ -29,14 +26,9 @@
 
 
     <script>
-
-        var data = {message: "test"};
-
         new Vue({
-            data: data,
             el: '#pdfpreview-app'
         });
-
     </script>
 
 @endsection
