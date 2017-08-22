@@ -198,6 +198,12 @@ return [
 		*/
 		//Backpack\Base\BaseServiceProvider::class,
 		// Backpack\CRUD\CrudServiceProvider::class,
+
+
+		/*
+		 * My Packages
+		 */
+		StevenBuehner\PdfPreview\PdfPreviewProvider::class,
 	],
 
 	/*
