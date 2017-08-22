@@ -3,6 +3,7 @@
 namespace StevenBuehner\PdfPreview\Controllers;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Cache;
 use StevenBuehner\PdfPreview\Interfaces\LocalPdfProviderInterface;
 
 class ListingController extends Controller {
@@ -13,19 +14,33 @@ class ListingController extends Controller {
 		// Get Number of PDF-Pages
 		$pdfProvider  = resolve(LocalPdfProviderInterface::class);
 		$localPdfPath = $pdfProvider->getLocalPdfPath($resource);
-		// Best Way to get Number of Pages
-		$im = new \Imagick();
-		$im->pingImage($localPdfPath);
+		$pageCount    = $this->countPdfPages($localPdfPath);
 
-		return view('PdfPreview::preview', [
-			'fileId'            => $resource,
+		return view('PdfPreview::preview', $this->getViewParams($resource, $pageCount));
+
+	}
+
+	public function countPdfPages($localPdfPath, $useCache = TRUE) {
+		$cacheKey = 'pageNum:' . $localPdfPath;
+
+		$numPages = Cache::remember($cacheKey, 60 * 24, function () use ($localPdfPath) {
+			$im = new \Imagick();
+			$im->pingImage($localPdfPath);
+
+			return $im->getNumberImages();
+		});
+
+
+		return $numPages;
+	}
+
+	public function getViewParams($fileId, $pageCount) {
+		return [
+			'fileId'            => $fileId,
+			'pageCount'         => $pageCount,
 			'imagePreviewRoute' => config('pdfpreview.imagePreviewRoute'),
-			'pageCount'         => $im->getNumberImages(),
-		]);
-
+		];
 	}
 
-	protected function countPdfPages() {
 
-	}
 }
