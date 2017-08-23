@@ -11,8 +11,8 @@
         <div id="pdfpreview-app">
             <image-zoomer ref="zoomer"></image-zoomer>
             <page-list
-                    file-id="{{$fileId}}"
-                    page-count="{{$pageCount}}"
+                    :file-id="{{$fileId}}"
+                    :page-count="{{$pageCount}}"
                     @if($imagePreviewRoute)
                     preview-link-pattern="{!! $imagePreviewRoute !!}"
                     @endif
