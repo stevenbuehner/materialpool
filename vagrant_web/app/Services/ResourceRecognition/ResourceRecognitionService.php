@@ -7,6 +7,7 @@ use App\Models\DocumentFile;
 use App\Models\File;
 use App\Models\ImageFile;
 use App\Models\Keyword;
+use App\Models\PdfFile;
 use App\Models\Resource;
 use App\Models\Text;
 use App\Models\VideoFile;
@@ -45,6 +46,10 @@ class ResourceRecognitionService {
 				break;
 
 			case'application/pdf':
+
+				$class = PdfFile::class;
+				break;
+
 			case'application/msword':
 			case'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
 			case'application/vnd.openxmlformats-officedocument.wordprocessingml.document':

@@ -9,6 +9,7 @@ namespace App\Services\PdfPreview;
 
 
 use App\Models\DocumentFile;
+use App\Models\PdfFile;
 use League\Flysystem\Adapter\Local;
 use League\Flysystem\AdapterInterface;
 use League\Flysystem\Filesystem;
@@ -28,7 +29,7 @@ class LocalPdfFileProvider implements LocalPdfProviderInterface {
 		// Todo: Check Authorization
 
 		/** @var DocumentFile $documentResource */
-		$documentResource = DocumentFile::findOrFail($fileId);
+		$documentResource = PdfFile::findOrFail($fileId);
 
 
 		if ($documentResource->hasLocalFile()) {

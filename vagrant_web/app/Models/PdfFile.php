@@ -2,16 +2,17 @@
 
 namespace App\Models;
 
-class DocumentFile extends File {
+class PdfFile extends File {
 
-	protected static $singleTableType = 'doc';
+	protected static $singleTableType = 'pdf';
 
 
 	public static function getValidationRules() {
 		$rules         = parent::getValidationRules();
-		$rules['file'] = 'required|file|mimes:doc,docx';
+		$rules['file'] = 'required|file|mimes:pdf';
 
 		return $rules;
 	}
+
 
 }

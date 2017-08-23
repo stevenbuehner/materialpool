@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Storage;
  */
 class File extends Resource {
 
-	protected static $singleTableSubclasses = [AudioFile::class, VideoFile::class, ImageFile::class, DocumentFile::class];
+	protected static $singleTableSubclasses = [AudioFile::class, VideoFile::class, ImageFile::class, DocumentFile::class, PdfFile::class];
 	protected static $singleTableType       = 'file';
 	protected static $ORIGINAL_FILENAME     = 'of';
 
