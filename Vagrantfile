@@ -37,6 +37,19 @@ Vagrant.configure("2") do |config|
   config.vm.network "private_network", ip: server_ip 
   config.vm.hostname = "test.app"
   config.ssh.password="vagrant"
+  
+  # Mount share "web"
+  config.vm.synced_folder local_web, 
+    remote_web, 
+  	id: "vagrant-web"
+  
+  # Mount Share "Share"	
+  config.vm.synced_folder local_share, 
+    remote_share, 
+  	id: "vagrant-share"
+  
+  # Mount Composer Packages (to minimize downloads)
+  config.vm.synced_folder "~/Sites/composer-packages-cache", "/home/vagrant/.cache/composer", id: "vagrant-composer-cache"
     
   config.vm.provision :shell, path: "~/Sites/vagrant_scripts/increase_swap.sh"
   config.vm.provision :shell, path: "~/Sites/vagrant_scripts/install_mysql.sh", env: {"MYSQL_ROOT_PASS" => mysql_root_password, "MYSQL_ROOT_USER" => "root"}
@@ -60,16 +73,6 @@ Vagrant.configure("2") do |config|
   config.vm.network :forwarded_port, guest: 80, host: 8000
   config.vm.network :forwarded_port, guest: 3306, host: 33060
   config.vm.network :forwarded_port, guest: 9000, host: 9001
-
-  # Mount share "web"
-  config.vm.synced_folder local_web, 
-    remote_web, 
-  	id: "vagrant-web"
-  
-  # Mount Share "Share"	
-  config.vm.synced_folder local_share, 
-    remote_share, 
-  	id: "vagrant-share"
   	
   # SSH Configuration
   config.ssh.username 	= ssh_username
