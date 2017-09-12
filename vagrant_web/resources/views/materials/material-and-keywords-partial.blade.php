@@ -2,8 +2,10 @@
 
     <div class="card-header">
         <div class="btn-group pull-right" role="group" aria-label="Edit Material">
-            <a role="button" class="btn btn-secondary btn-sm" href="{{ route('pool.material.edit', [$material]) }}">edit</a>
-            <a role="button" class="btn btn-secondary btn-sm" href="{{ route('pool.material.show', [$material]) }}">show</a>
+            <a role="button" class="btn btn-secondary btn-sm"
+               href="{{ route('pool.material.edit', [$material]) }}">edit</a>
+            <a role="button" class="btn btn-secondary btn-sm"
+               href="{{ route('pool.material.show', [$material]) }}">show</a>
         </div>
     </div>
 
@@ -11,6 +13,9 @@
 
         <h2 class="card-title">
             {{$material->title}}
+            @if($material->pivot->limitation instanceof \App\ResourceLimitations\ResourceLimitationInterface)
+                (Nur {{ str_limit($material->pivot->limitation->getLimitationText(), 20) }})
+            @endif
         </h2>
 
         <small class="card-">

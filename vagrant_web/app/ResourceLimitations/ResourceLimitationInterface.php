@@ -11,6 +11,11 @@ interface ResourceLimitationInterface {
 	 */
 	public function getLimitationView();
 
+	/**
+	 * @return string
+	 */
+	public function getLimitationText();
+
 	/** @return array */
 	public function toArray();
 

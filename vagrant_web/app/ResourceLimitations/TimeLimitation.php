@@ -86,4 +86,11 @@ class TimeLimitation implements ResourceLimitationInterface {
 
 		return $this;
 	}
+
+	/**
+	 * @return string
+	 */
+	public function getLimitationText() {
+		return 'von ' . $this->getStart() . '-' . $this->getEnd();
+	}
 }

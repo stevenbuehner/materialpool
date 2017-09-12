@@ -2,8 +2,8 @@
 
     <div class="card-block">
         @include('resources.partials.filename-or-classname')
-        @if($resource instanceof \App\Models\PdfFile && $resource->pivot->limitation instanceof \App\ResourceLimitations\PageLimitation)
-            <br/>(Seiten: {{ join(', ', $r->pivot->limitation->getPages())}})
+        @if($resource->pivot->limitation instanceof \App\ResourceLimitations\ResourceLimitationInterface)
+            (Nur {{ str_limit($resource->pivot->limitation->getLimitationText(), 20) }})
         @endif
     </div>
 

@@ -53,4 +53,11 @@ class AnkerLimitation implements ResourceLimitationInterface {
 
 		return $this;
 	}
+
+	/**
+	 * @return string
+	 */
+	public function getLimitationText() {
+		return '';
+	}
 }

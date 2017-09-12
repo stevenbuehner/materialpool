@@ -33,6 +33,9 @@ class PageLimitation implements ResourceLimitationInterface {
 		foreach ($pages as $page) {
 			$this->pages[] = (int) $page;
 		}
+
+		// Alphabetisch sortiert
+		sort($this->pages);
 	}
 
 	public function getLimitationView() {
@@ -54,5 +57,28 @@ class PageLimitation implements ResourceLimitationInterface {
 		$this->setPages($pages);
 
 		return $this;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getLimitationText() {
+
+		$ranges    = [];
+		$pageCount = count($this->pages);
+		for ($i = 0; $i < $pageCount; $i++) {
+			$rstart = $this->pages[$i];
+			$rend   = $rstart;
+			while ($i + 1 < $pageCount && $this->pages[$i + 1] - $this->pages[$i] == 1) {
+				$rend = $this->pages[$i + 1]; // increment the index if the numbers sequential
+				$i++;
+			}
+			$ranges[] = $rstart == $rend ? $rstart : $rstart . '-' . $rend;
+		}
+
+		$result = ($pageCount > 1) ? "Seiten " : "Seite ";
+		$result .= join(', ', $ranges);
+
+		return $result;
 	}
 }
