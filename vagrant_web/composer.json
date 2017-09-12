@@ -15,7 +15,7 @@
     "intervention/image": "^2.3",
     "kalnoy/nestedset": "^4.2",
     "laravel/framework": "5.4.*",
-    "laravel/passport": "^2.0",
+    "laravel/passport": "^3.0",
     "laravel/tinker": "~1.0",
     "laravelcollective/html": "^5.4",
     "nanigans/single-table-inheritance": "^0.7.1",
