@@ -1,62 +1,38 @@
 <?php
-/**
- * This file was created by  steven
- * Created: 06.03.17 23:26
- * All Rights reserved. No usage without written permission allowed.
- */
 
 namespace App\ResourceLimitations;
 
 
 class PageLimitation implements ResourceLimitationInterface {
 
-	/** @var int $start */
-	protected $start = 0;
-
-	/** @var int $end */
-	protected $end = 0;
+	/** @var int[] $pages */
+	protected $pages = [];
 
 	/**
 	 * TimeLimitation constructor.
-	 *
-	 * @param int $start
-	 * @param int $end
 	 */
-	public function __construct(int $start = 0, int $end = 999999) {
-		$this->start = $start;
-		$this->end   = $end;
+	public function __construct() {
 	}
 
 	function jsonSerialize() {
-		return ['start' => $this->getStart(), 'end' => $this->getEnd()];
+		return ['pages' => $this->getPages()];
 	}
 
 	/**
-	 * @return int
+	 * @return int[]
 	 */
-	public function getStart(): int {
-		return $this->start;
+	public function getPages(): array {
+		return $this->pages;
 	}
 
 	/**
-	 * @param int $start
+	 * @param int[] $pages
 	 */
-	public function setStart(int $start) {
-		$this->start = $start;
-	}
-
-	/**
-	 * @return int
-	 */
-	public function getEnd(): int {
-		return $this->end;
-	}
-
-	/**
-	 * @param int $end
-	 */
-	public function setEnd(int $end) {
-		$this->end = $end;
+	public function setPages(array $pages) {
+		$this->pages = [];
+		foreach ($pages as $page) {
+			$this->pages[] = (int) $page;
+		}
 	}
 
 	public function getLimitationView() {
@@ -65,6 +41,18 @@ class PageLimitation implements ResourceLimitationInterface {
 
 	/** @return array */
 	public function toArray() {
-		return ['start' => $this->getStart(), 'end' => $this->getEnd()];
+		return ['pages' => $this->getPages()];
+	}
+
+	/**
+	 * Takes the string, used in the webinterface and extracts all the neccessary limitation data from it
+	 *
+	 * @return ResourceLimitationInterface
+	 */
+	public function insertFromWebValue(string $value) {
+		$pages = preg_split('~\s*,\s*~', $value);
+		$this->setPages($pages);
+
+		return $this;
 	}
 }

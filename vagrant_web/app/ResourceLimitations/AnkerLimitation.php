@@ -12,8 +12,7 @@ class AnkerLimitation implements ResourceLimitationInterface {
 	/** @var  string $anker */
 	protected $anker = '';
 
-	public function __construct(string $anker) {
-		$this->anker = $anker;
+	public function __construct() {
 	}
 
 	function jsonSerialize() {
@@ -42,5 +41,16 @@ class AnkerLimitation implements ResourceLimitationInterface {
 	/** @return array */
 	public function toArray() {
 		return ['anker' => $this->getAnker()];
+	}
+
+	/**
+	 * Takes the string, used in the webinterface and extracts all the neccessary limitation data from it
+	 *
+	 * @return ResourceLimitationInterface
+	 */
+	public function insertFromWebValue(string $value) {
+		$this->setAnker($value);
+
+		return $this;
 	}
 }

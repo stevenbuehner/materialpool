@@ -11,7 +11,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
  * Class Material
  *
  * @package App\Models
- * @property object  $limitation
  * @property string  $title
  * @property string  $description
  * @property int     $rating (0-20)
@@ -26,7 +25,6 @@ class Material extends Model {
 	protected $casts = [
 		'from_bot'    => 'boolean',
 		'description' => 'string',
-		'limitation'  => 'object'
 	];
 
 	protected $attributes = [
@@ -36,7 +34,7 @@ class Material extends Model {
 	];
 
 	protected $fillable = [
-		'title', 'description', 'limitation', 'rating', 'from_bot'
+		'title', 'description', 'rating', 'from_bot'
 	];
 
 	protected $guarded = [
@@ -48,7 +46,9 @@ class Material extends Model {
 	];
 
 	public function resources() {
-		return $this->belongsToMany(Resource::class, 'material_resource', 'material_id', 'resource_id');
+		return $this->belongsToMany(Resource::class, 'material_resource', 'material_id', 'resource_id')
+					->withPivot('limitation')
+					->using(MaterialResource::class);
 	}
 
 	public function keywords() {
@@ -77,14 +77,6 @@ class Material extends Model {
 
 	public function places() {
 		return $this->keyWordClassAndChildren(Place::class);
-	}
-
-	public function setLimitationAttribute(ResourceLimitationInterface $limitation = NULL) {
-		$this->attributes['limitation'] = serialize($limitation);
-	}
-
-	public function getLimitationAttribute($value) {
-		return unserialize($value);
 	}
 
 	public function creator() {

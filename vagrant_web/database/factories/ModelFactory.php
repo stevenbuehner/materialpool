@@ -18,6 +18,7 @@ use App\Models\ImageFile;
 use App\Models\Keyword;
 use App\Models\Language;
 use App\Models\Material;
+use App\Models\PdfFile;
 use App\Models\Person;
 use App\Models\Place;
 use App\Models\Resource;
@@ -104,6 +105,18 @@ $factory->define(DocumentFile::class, function (Faker\Generator $faker) {
 	return [
 		'remote_path'  => 'http://some/file/path',
 		'local_path'   => 'some/file/path',
+		'content_hash' => $secret ?: $secret = sha1('secret'),
+		'notes'        => $faker->sentences(3, TRUE),
+		'is_public'    => $faker->boolean()
+	];
+});
+
+$factory->define(PdfFile::class, function (Faker\Generator $faker) {
+	static $secret;
+
+	return [
+		'remote_path'  => 'http://www.ubtech.eu/wp-content/uploads/2013/02/BuecherBLUB.pdf',
+		'local_path'   => '',
 		'content_hash' => $secret ?: $secret = sha1('secret'),
 		'notes'        => $faker->sentences(3, TRUE),
 		'is_public'    => $faker->boolean()

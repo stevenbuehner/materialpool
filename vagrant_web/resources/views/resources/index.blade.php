@@ -9,7 +9,7 @@
                 <div class="card-block">
                     <h3 class="card-title">{{ $r->type }}</h3>
                     <p class="card-text">{{ $r->local_path }}</p>
-                    <a href="{{ URL::route('pool.resource.show', $r->id) }}/{{$r->id}}"
+                    <a href="{{ URL::route('pool.resource.show', $r->id) }}"
                        class="btn btn-primary">@lang('Open Resource')</a>
                     <div>
                         <small>{{ $r->created_at }}</small>

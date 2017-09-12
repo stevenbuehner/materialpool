@@ -12,11 +12,10 @@ class CreateMaterialResource extends Migration {
 	 */
 	public function up() {
 		Schema::create('material_resource', function (Blueprint $table) {
-
 			$table->integer('material_id');
 			$table->integer('resource_id');
 			$table->primary(['material_id', 'resource_id']);
-
+			$table->text('limitation')->nullable();
 		});
 	}
 

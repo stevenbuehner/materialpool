@@ -24,7 +24,7 @@
 
 
 <script>
-    new Vue({
+    var pdfpreview = new Vue({
         el: '#pdfpreview-app',
         created: function () {
         },

@@ -42,7 +42,7 @@ Vue.component('page-list', {
             type: String,
             required: false,
             default: '/pdfpreview/res-{id}/page-{page}'
-        }
+        },
     },
 
     created: function () {
@@ -75,6 +75,18 @@ Vue.component('page-list', {
             }
 
             return false;
+        },
+
+        selectedPages: function () {
+            var selected = [];
+
+            for (var page in this.pages) {
+                if (this.pages[page].isSelected === true) {
+                    selected.push(this.pages[page]);
+                }
+            }
+
+            return selected;
         }
     },
 
@@ -89,7 +101,7 @@ Vue.component('page-list', {
 
         lastPageSelected: function (pageIndex) {
             var firstSelectedPage = this.firstSelectedPage;
-            var lastSelectedPage = this.lastSelectedPage;
+            var lastSelectedPage  = this.lastSelectedPage;
 
             if (firstSelectedPage === false) {
                 // Nothing was selected before -> select everything beginning from first page
@@ -124,7 +136,7 @@ Vue.component('page-list', {
         },
 
         updateSelectedPages: function () {
-            var formerPage = undefined;
+            var formerPage         = undefined;
             var formerPageSelected = false;
 
             for (var page in this.pages) {
@@ -135,13 +147,15 @@ Vue.component('page-list', {
                     formerPage.isSelectionEnd = (formerPageSelected === true && this.pages[page].isSelected === false)
                 }
 
-                formerPage = this.pages[page];
+                formerPage         = this.pages[page];
                 formerPageSelected = this.pages[page].isSelected == true;
             }
 
             if (formerPage !== undefined && formerPageSelected === true) {
                 formerPage.isSelectionEnd = formerPageSelected === true;
             }
+
+            EventHandler.$emit('selection.update', this.selectedPages);
         }
     },
 
@@ -274,7 +288,7 @@ Vue.component('image-zoomer', {
         },
 
         showImage: function (imageUrl) {
-            this.image = imageUrl;
+            this.image     = imageUrl;
             this.isVisible = true;
         },
 

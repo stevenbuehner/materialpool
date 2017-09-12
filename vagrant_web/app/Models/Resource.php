@@ -82,7 +82,9 @@ class Resource extends Model {
 	 * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
 	 */
 	public function materials() {
-		return $this->belongsToMany(Material::class, 'material_resource', 'resource_id', 'material_id');
+		return $this->belongsToMany(Material::class, 'material_resource', 'resource_id', 'material_id')
+					//->withPivot('limitation')
+					->using(MaterialResource::class);
 	}
 
 	public function foreignResourceKeys() {

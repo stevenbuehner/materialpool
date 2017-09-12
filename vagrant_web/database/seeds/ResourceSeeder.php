@@ -13,6 +13,7 @@ use App\Models\Place;
 use App\Models\Resource;
 use App\Models\User;
 use App\Models\VideoFile;
+use App\Models\PdfFile;
 use Illuminate\Database\Seeder;
 
 
@@ -71,29 +72,68 @@ class ResourceSeeder extends Seeder {
 					});
 			});
 
-		factory(AudioFile::class, 5)->create(['created_by' => User::all()->offsetGet(2)->id])->each(function ($r) {
-			$material             = self::makeMaterialWithRandomUser();
-			$material->limitation = new \App\ResourceLimitations\TimeLimitation(0, 299);
-			$material->save();
-			$material->keywords()->save(self::getRandomKeyword(), ['relevance' => rand(0, 255)]);
-		});
-		factory(VideoFile::class, 5)->create(['created_by' => User::all()->offsetGet(3)->id])->each(function ($r) {
-			$material             = self::makeMaterialWithRandomUser();
-			$material->limitation = new \App\ResourceLimitations\TimeLimitation(0, 299);
-			$material->save();
-			$material->keywords()->save(self::getRandomKeyword(), ['relevance' => rand(0, 255)]);
-		});
-		factory(ImageFile::class, 5)->create(['created_by' => User::all()->offsetGet(4)->id])->each(function ($r) {
-			$material = self::makeMaterialWithRandomUser();
-			$material->save();
-			$material->keywords()->save(self::getRandomKeyword(), ['relevance' => rand(0, 255)]);
-		});
-		factory(DocumentFile::class, 5)->create(['created_by' => User::all()->offsetGet(5)->id])->each(function ($r) {
-			$material             = self::makeMaterialWithRandomUser();
-			$material->limitation = new \App\ResourceLimitations\PageLimitation(5, 10);
-			$material->save();
-			$material->keywords()->save(self::getRandomKeyword(), ['relevance' => rand(0, 255)]);
-		});
+
+		factory(AudioFile::class, 5)
+			->create(['created_by' => User::all()
+										  ->offsetGet(2)->id])
+			->each(function (AudioFile $r) {
+
+				/** @var Material $material */
+				$material = self::makeMaterialWithRandomUser();
+				$material->save();
+				$material->resources()
+						 ->attach($r,
+								  ['limitation' => serialize(new \App\ResourceLimitations\TimeLimitation(0, 299))]);
+
+				$material->keywords()
+						 ->save(self::getRandomKeyword(), ['relevance' => rand(0, 255)]);
+			});
+
+
+		factory(VideoFile::class, 5)
+			->create(['created_by' => User::all()->offsetGet(3)->id])
+			->each(function (VideoFile $r) {
+				$material = self::makeMaterialWithRandomUser();
+				$material->save();
+				$material->resources()
+						 ->attach($r,
+								  ['limitation' => serialize(new \App\ResourceLimitations\TimeLimitation(0, 255))]);
+				$material->keywords()->save(self::getRandomKeyword(), ['relevance' => rand(0,
+																						   255)]);
+			});
+
+
+		factory(ImageFile::class, 5)
+			->create(['created_by' => User::all()->offsetGet(4)->id])
+			->each(function (ImageFile $r) {
+				$material = self::makeMaterialWithRandomUser();
+				$material->save();
+				$material->keywords()
+						 ->save(self::getRandomKeyword(), ['relevance' => rand(0, 255)]);
+			});
+
+
+		factory(DocumentFile::class, 5)
+			->create(['created_by' => User::all()->offsetGet(5)->id])
+			->each(function (DocumentFile $r) {
+				$material = self::makeMaterialWithRandomUser();
+				$material->save();
+				$material->resources()
+						 ->attach($r,
+								  ['limitation' => serialize(new \App\ResourceLimitations\PageLimitation([5, 6, 8, 9]))]);
+				$material->keywords()->save(self::getRandomKeyword(), ['relevance' => rand(0, 255)]);
+			});
+
+		factory(PdfFile::class, 5)
+			->create(['created_by' => User::all()->offsetGet(5)->id])
+			->each(function (PdfFile $r) {
+				$material = self::makeMaterialWithRandomUser();
+				$material->save();
+				$material->resources()
+						 ->attach($r,
+								  ['limitation' => serialize(new \App\ResourceLimitations\PageLimitation([5, 6, 8, 9]))]);
+				$material->keywords()->save(self::getRandomKeyword(), ['relevance' => rand(0, 255)]);
+			});
 
 		$counter = 100;
 		Resource::all()->each(function (Resource $r) use (&$counter) {

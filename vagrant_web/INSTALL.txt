@@ -35,3 +35,15 @@ php artisan db:seed
 
 // Material Grabber API Client (mit Passwort)
 php artisan passport:client --password
+
+
+
+
+// Vue-Cli Installation
+sudo npm install -g vue-cli
+cd into-poject dir
+git clone https://github.com/vuejs-templates/webpack-simple.git webpack-simple
+cd webpack simple
+vue init .
+npm install
+npm run dev

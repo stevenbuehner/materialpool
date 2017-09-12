@@ -21,9 +21,7 @@ class TimeLimitation implements ResourceLimitationInterface {
 	 * @param float $start
 	 * @param float $end
 	 */
-	public function __construct(float $start = 0.0, float $end = 999999.0) {
-		$this->start = $start;
-		$this->end   = $end;
+	public function __construct() {
 	}
 
 
@@ -74,5 +72,18 @@ class TimeLimitation implements ResourceLimitationInterface {
 	/** @return array */
 	public function toArray() {
 		return ['start' => $this->getStart(), 'end' => $this->getEnd()];
+	}
+
+	/**
+	 * Takes the string, used in the webinterface and extracts all the neccessary limitation data from it
+	 *
+	 * @return ResourceLimitationInterface
+	 */
+	public function insertFromWebValue(string $value) {
+
+		// float $start = 0.0, float $end = 999999.0
+		// TODO: Implement insertFromWebValue() method.
+
+		return $this;
 	}
 }

@@ -6,7 +6,10 @@ use App\Http\Requests\MaterialRequest;
 use App\Models\Bibleverse;
 use App\Models\Keyword;
 use App\Models\Material;
-use Illuminate\Http\Request;
+use App\ResourceLimitations\ResourceLimitationService;
+use App\Services\TagExtraction\Properties\Property;
+use App\Services\TagExtraction\TagExtractionService;
+use Illuminate\Support\Facades\Auth;
 
 class MaterialController extends Controller {
 
@@ -75,7 +78,7 @@ class MaterialController extends Controller {
 
 		try {
 			$bibleVerse = new Bibleverse(['from' => $from, 'to' => $to]);
-			$title      = "Suche nach " . $bibleVerse->label ;
+			$title      = "Suche nach " . $bibleVerse->label;
 		} catch (\Exception $e) {
 			$title = "Ungültiger Bibelvers";
 		}
@@ -89,7 +92,6 @@ class MaterialController extends Controller {
 	 * @return \Illuminate\Http\Response
 	 */
 	public function create() {
-		//
 	}
 
 	/**
@@ -98,9 +100,66 @@ class MaterialController extends Controller {
 	 * @param  \Illuminate\Http\Request $request
 	 * @return \Illuminate\Http\Response
 	 */
-	public function store(Request $request) {
-		//
+	public function store(MaterialRequest $request) {
+
+		$material              = new Material($request->only(['title', 'rating', 'description', 'from_bot']));
+		$material->created_by  = Auth::id();
+		$material->modified_by = Auth::id();
+		$material->save();
+
+		// Extract meta-data from string and assign it to material
+		/** @var TagExtractionService $tagExctractionService */
+		if ($request->get('meta', FALSE)) {
+			$tagExctractionService = resolve('app.resource.keyword.recognition');
+			$metaData              = $request->get('meta');
+			$properties            = $tagExctractionService->extractPartsFromStrings($metaData, 1);
+
+			$properties->each(function (Property $property) use ($material) {
+				$property->insertYourselfToItem($material);
+			});
+		}
+
+		// prepare resource assignment
+		$resourceIds = $request->get('resources', FALSE);
+		if ($resourceIds !== FALSE && is_array($resourceIds) && count($resourceIds) > 0) {
+
+			$resources = [];
+			foreach ($resourceIds as $id) {
+				// Todo Check Authors Resource-Priviledges
+				$resources[$id] = [];
+			}
+		}
+
+		// prepare resource limitation
+		$resourceLimits = $request->get('limit', FALSE);
+		if ($resourceLimits !== FALSE && is_array($resourceLimits) && count($resourceLimits) > 0) {
+
+			/** @var ResourceLimitationService $limitationService */
+			$limitationService = resolve(ResourceLimitationService::class);
+
+			foreach ($resourceLimits as $id => $data) {
+				// Todo Check Authors Resource-Priviledges
+
+				$limitation = $limitationService->createLimitation($data);
+				// Todo Handle Errors when creating a $limitation
+
+				if (!isset($resources[$id])) {
+					$resources[$id] = [];
+				}
+
+				$resources[$id]['limitation'] = serialize($limitation);
+			}
+		}
+
+
+		// Assign resources with pivot data to material
+		$material->resources()->attach($resources);
+
+		return response()->redirectToRoute('pool.material.edit', [$material->id]);
+
 	}
+
+// TODO: protected function assignResourcesToMaterial(){}
 
 	/**
 	 * Display the specified resource.

@@ -23,7 +23,6 @@ class MaterialRequest extends FormRequest {
 		return [
 			'title'       => 'bail|required|string|min:3|max:255',
 			'description' => 'bail|nullable|string',
-			'limitation'  => 'nullable',
 			'rating'      => 'bail|nullable|integer|between:0,20'
 		];
 	}

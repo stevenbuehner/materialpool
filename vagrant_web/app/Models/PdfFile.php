@@ -14,5 +14,4 @@ class PdfFile extends File {
 		return $rules;
 	}
 
-
 }

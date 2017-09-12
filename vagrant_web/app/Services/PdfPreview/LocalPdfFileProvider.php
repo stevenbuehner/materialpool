@@ -15,7 +15,6 @@ use League\Flysystem\AdapterInterface;
 use League\Flysystem\Filesystem;
 use StevenBuehner\PdfPreview\Exceptions\FileWasNotRetrieveableException;
 use StevenBuehner\PdfPreview\Interfaces\LocalPdfProviderInterface;
-use StevenBuehner\PdfPreview\Interfaces\path;
 
 class LocalPdfFileProvider implements LocalPdfProviderInterface {
 
@@ -30,7 +29,6 @@ class LocalPdfFileProvider implements LocalPdfProviderInterface {
 
 		/** @var DocumentFile $documentResource */
 		$documentResource = PdfFile::findOrFail($fileId);
-
 
 		if ($documentResource->hasLocalFile()) {
 			$disk = $documentResource->getLocalDisk();
@@ -48,6 +46,8 @@ class LocalPdfFileProvider implements LocalPdfProviderInterface {
 			// Todo: Copy file to local Destination
 
 			return '';
+
+		}else if($documentResource->hasRemoteFile()){
 
 		}
 

@@ -48,7 +48,7 @@
                 <div class="col-sm-2">Autom. erstellt</div>
                 <div class="col-sm-10 col-sm-offset-2">
                     {!! Form::checkbox('from_bot', 1, $material->from_bot, ['class' => 'form-check-label' ]) !!}
-                    <small class="form-text text-muted">Nach manueller Nacharbeit bitte kommt der Haken raus</small>
+                    <small class="form-text text-muted">Nach manueller Nacharbeit kommt der Haken bitte raus</small>
                 </div>
             </div>
 
@@ -67,8 +67,7 @@
                         'createKeywordUrl' => route('api.v1.keywords.create'),
                     ])
 
-                    <small class="form-text text-muted">Schlüsselwörter und deren Relevanz werden direkt
-                        gespeichert.
+                    <small class="form-text text-muted">Schlüsselwörter und deren Relevanz werden direkt gespeichert.
                     </small>
                 </div>
             </div>
@@ -108,14 +107,19 @@
         </div>
 
 
-        <div class="col-sm-4">
+        <div class="col-md-4 col-sm-12 ">
             @if($material->resources->count())
                 <h5>zugeordnete Resourcen</h5>
 
-                @foreach($material->resources as $r)
-                    @include('resources.resource-mini-card-partial',
-                    ['resource' => $r])
-                @endforeach
+                <div id="resource-assignment">
+                    @foreach($material->resources as $r)
+                        @include('resources.resource-mini-card-with-limitation',
+                        ['resource' => $r])
+                    @endforeach
+                </div>
+
+
+
 
                 <div class="card-block">
                     <a class="btn btn-secondary pull-right btn-sm" role="button" href="#">weitere Resource zuordnen</a>

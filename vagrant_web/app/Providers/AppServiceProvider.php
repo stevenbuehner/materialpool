@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\ResourceLimitations\ResourceLimitationService;
 use App\Services\PdfPreview\LocalPdfFileProvider;
 use App\Services\PreviewGeneration\Generators\ImagePreviewGenerator;
 use App\Services\PreviewGeneration\Generators\NoPreviewGenerator;
@@ -73,6 +74,7 @@ class AppServiceProvider extends ServiceProvider {
 
 		$this->app->singleton(FileNameHandler::class);
 		$this->app->singleton(MaterialExtractionService::class);
+		$this->app->singleton(ResourceLimitationService::class);
 
 		// ResourcePreview Generators
 		$this->app->singleton(NoPreviewGenerator::class);
