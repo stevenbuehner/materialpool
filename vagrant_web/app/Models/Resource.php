@@ -83,7 +83,7 @@ class Resource extends Model {
 	 */
 	public function materials() {
 		return $this->belongsToMany(Material::class, 'material_resource', 'resource_id', 'material_id')
-					//->withPivot('limitation')
+					->withPivot('limitation')
 					->using(MaterialResource::class);
 	}
 
