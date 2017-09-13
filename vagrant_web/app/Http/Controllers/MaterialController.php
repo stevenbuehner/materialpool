@@ -140,14 +140,16 @@ class MaterialController extends Controller {
 			foreach ($resourceLimits as $id => $data) {
 				// Todo Check Authors Resource-Priviledges
 
-				$limitation = $limitationService->createLimitation($data);
-				// Todo Handle Errors when creating a $limitation
-
 				if (!isset($resources[$id])) {
 					$resources[$id] = [];
 				}
 
-				$resources[$id]['limitation'] = serialize($limitation);
+				try {
+					$limitation                   = $limitationService->createLimitation($data);
+					$resources[$id]['limitation'] = serialize($limitation);
+				} catch (\Exception $e) {
+
+				}
 			}
 		}
 
