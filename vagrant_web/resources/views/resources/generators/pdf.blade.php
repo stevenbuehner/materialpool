@@ -1,8 +1,13 @@
 @component('resources.generators.component')
 
+    @slot('title')
+        {{$title}}
+    @endslot
+
+
     @slot('menu')
         <a href="{{ URL::route('pool.resource.download', [$resource->id]) }}"
-           class="btn btn-primary">download ganzes PDF</a>
+           class="btn btn-primary">@lang('pool.download-whole-pdf')</a>
     @endslot
 
 
