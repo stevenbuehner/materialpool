@@ -32,7 +32,7 @@
 
     <div class="row" style="margin-bottom: 1em">
         <a href="{{ URL::route('pool.material.edit',[$material->id]) }}"
-           class="btn btn-secondary"
+           class="btn btn-primary"
            title="@lang('pool.edit-material')"
         >@lang('pool.edit')</a>
     </div>
@@ -47,7 +47,7 @@
         {{-- List all Resources if more then one --}}
         @if(count($material->resources) == 1 && $resource->getPreviewGenerator()->previewAble($resource) === TRUE)
             {{-- Show Content of Resource, if only one is assigned to the material --}}
-            <div class="col-sm-12">
+            <div class="col-sm-12 rounded" style="border: solid 1px; padding: 1em">
 
                 {!! $resource->getPreviewGenerator()->renderHTMLPreview($resource, 'material') !!}
 
@@ -69,7 +69,7 @@
 
                         <div class="card-footer">
                             <a href="{{ URL::route('pool.resource.download', [$resource->id]) }}"
-                               class="btn btn-primary">@lang('pool.download-file')</a>
+                               class="btn btn-secondary">@lang('pool.download-file')</a>
                         </div>
                     </div>
                 </div>

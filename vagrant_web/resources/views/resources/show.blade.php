@@ -20,6 +20,7 @@
 
         @if( count($resource->materials) )
             <hr class="my-4">
+            <h2>Zugeordnetes Material</h2>
 
             <p class="lead">
                 @foreach($resource->materials as $material)

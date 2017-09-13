@@ -7,7 +7,7 @@
 
     @slot('menu')
         <a href="{{ URL::route('pool.resource.download', [$resource->id]) }}"
-           class="btn btn-primary">@lang('pool.download-whole-pdf')</a>
+           class="btn btn-secondary">@lang('pool.download-whole-pdf')</a>
     @endslot
 
 

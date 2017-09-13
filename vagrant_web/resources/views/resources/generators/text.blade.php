@@ -7,7 +7,7 @@
         <a href="{{route('pool.resource.edit', ['resource' => $resource->id])}}"
            class="btn btn-secondary">@lang("Bearbeiten")</a>
         <a href="{{ URL::route('pool.resource.download', [$resource->id]) }}"
-           class="btn btn-primary">download</a>
+           class="btn btn-secondary">download</a>
     @endslot
 
     <pre>
