@@ -60,7 +60,21 @@ class Created extends AbstractTagRecognition implements PreRecognitionProcessInt
 			$d->setDate($matches[1], $matches[2], $matches[3]);
 		}
 
+		if ($d instanceof \DateTime && $this->isValidDate($d) === FALSE) {
+			$d = FALSE;
+		}
+
 		return $d;
+	}
+
+	protected function isValidDate(\DateTime $dateTime) {
+		$dateTime = $dateTime;
+
+		if ($dateTime->format('Y') <= 500) {
+			return FALSE;
+		}
+
+		return TRUE;
 	}
 
 	public function allowOtherRecognitionsOnSuccess() {
