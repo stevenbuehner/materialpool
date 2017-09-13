@@ -8,12 +8,12 @@ use App\Models\ImageFile;
 use App\Models\Keyword;
 use App\Models\Language;
 use App\Models\Material;
+use App\Models\PdfFile;
 use App\Models\Person;
 use App\Models\Place;
 use App\Models\Resource;
 use App\Models\User;
 use App\Models\VideoFile;
-use App\Models\PdfFile;
 use Illuminate\Database\Seeder;
 
 
@@ -91,7 +91,8 @@ class ResourceSeeder extends Seeder {
 
 
 		factory(VideoFile::class, 5)
-			->create(['created_by' => User::all()->offsetGet(3)->id])
+			->create(['created_by' => User::all()
+										  ->offsetGet(3)->id, 'local_path' => 'resources::1/video/uAUN7GA7kZyTzfhoEcfKxApvzLGiPMbzdQi367LK.mp4'])
 			->each(function (VideoFile $r) {
 				$material = self::makeMaterialWithRandomUser();
 				$material->save();
@@ -125,7 +126,8 @@ class ResourceSeeder extends Seeder {
 			});
 
 		factory(PdfFile::class, 5)
-			->create(['created_by' => User::all()->offsetGet(5)->id])
+			->create(['created_by' => User::all()
+										  ->offsetGet(5)->id, 'local_path' => 'resources::1/pdf/4dt6tOhunfEwMMI1HFzeCVOKJW9GE1vOcZtjeuDy.pdf'])
 			->each(function (PdfFile $r) {
 				$material = self::makeMaterialWithRandomUser();
 				$material->save();
