@@ -21,7 +21,7 @@ class ListingController extends Controller {
 	}
 
 	public function countPdfPages($localPdfPath, $useCache = TRUE) {
-		$cacheKey = 'pageNum:' . $localPdfPath;
+		$cacheKey = 'pdfPageCount:' . $localPdfPath;
 
 		$numPages = Cache::remember($cacheKey, 60 * 24, function () use ($localPdfPath) {
 			$im = new \Imagick();

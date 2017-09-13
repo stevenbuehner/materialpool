@@ -10,9 +10,6 @@ namespace App\Services\PdfPreview;
 
 use App\Models\DocumentFile;
 use App\Models\PdfFile;
-use League\Flysystem\Adapter\Local;
-use League\Flysystem\AdapterInterface;
-use League\Flysystem\Filesystem;
 use StevenBuehner\PdfPreview\Exceptions\FileWasNotRetrieveableException;
 use StevenBuehner\PdfPreview\Interfaces\LocalPdfProviderInterface;
 
@@ -31,23 +28,18 @@ class LocalPdfFileProvider implements LocalPdfProviderInterface {
 		$documentResource = PdfFile::findOrFail($fileId);
 
 		if ($documentResource->hasLocalFile()) {
-			$disk = $documentResource->getLocalDisk();
-			$path = $documentResource->getLocalFilePath();
 
-			if ($disk->getDriver() instanceof Filesystem) {
-				/** @var AdapterInterface $adapter */
-				$adapter = $disk->getDriver()->getAdapter();
+			$path = $documentResource->getAbsoluteLocalPath();
 
-				if ($adapter instanceof Local) {
-					return $adapter->applyPathPrefix($path);
-				}
+			if ($path !== FALSE) {
+				return $path;
 			}
 
 			// Todo: Copy file to local Destination
 
 			return '';
 
-		}else if($documentResource->hasRemoteFile()){
+		} else if ($documentResource->hasRemoteFile()) {
 
 		}
 

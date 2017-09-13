@@ -7,6 +7,9 @@ use App\Services\TagExtraction\ResourceHandles\FileNameHandler;
 use App\Services\TagExtraction\ResourceHandles\HandlerInterface;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Support\Facades\Storage;
+use League\Flysystem\Adapter\Local;
+use League\Flysystem\AdapterInterface;
+use League\Flysystem\Filesystem;
 
 /**
  * Class File
@@ -56,6 +59,15 @@ class File extends Resource {
 
 	public function getOriginalFilenameAttribute() {
 		return $this->getOption(self::$ORIGINAL_FILENAME, NULL);
+	}
+
+	public function setLocalPathAttribute($path) {
+		// Possible to override and add extra actions
+		$this->attributes['local_path'] = $path;
+	}
+
+	public function setRemotePathAttribute($path) {
+		$this->attributes['remote_path'] = $path;
 	}
 
 	public function getLocalFile() {
@@ -127,6 +139,28 @@ class File extends Resource {
 	}
 
 	/**
+	 * Returns the absolute SYSTEM-File-Path
+	 *
+	 * @return FALSE|string
+	 */
+	public function getAbsoluteLocalPath() {
+		$disk = $this->getLocalDisk();
+		$path = $this->getLocalFilePath();
+
+		if ($disk->getDriver() instanceof Filesystem) {
+
+			/** @var AdapterInterface $adapter */
+			$adapter = $disk->getDriver()->getAdapter();
+
+			if ($adapter instanceof Local) {
+				return $adapter->applyPathPrefix($path);
+			}
+		}
+
+		return FALSE;
+	}
+
+	/**
 	 * @return bool
 	 */
 	public function hasLocalFile() {
@@ -146,5 +180,18 @@ class File extends Resource {
 	public function hasRemoteFile() {
 		return !empty($this->getAttribute('remote_path'));
 	}
+
+	public function getRemoteFileStream() {
+		// Todo: Never tested so far!
+		if (strpos($this->remote_path, 'http') == 0) {
+			// Http-Request
+			$stream = fopen($this->remote_path, 'r');
+
+			return $stream;
+		}
+
+		return FALSE;
+	}
+
 
 }
