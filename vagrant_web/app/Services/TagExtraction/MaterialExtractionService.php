@@ -4,6 +4,7 @@ namespace App\Services\TagExtraction;
 
 use App\Models\Material;
 use App\Models\Resource;
+use App\Services\TagExtraction\Interfaces\PropertyInterface;
 use App\Services\TagExtraction\Properties\BibleverseProperty;
 use App\Services\TagExtraction\Properties\KeywordProperty;
 use App\Services\TagExtraction\Properties\OcrTextProperty;
@@ -20,34 +21,53 @@ class MaterialExtractionService {
 	}
 
 	/**
-	 * @param Resource $resource
-	 * @param array    $additionalInformation
+	 * @param Resource|Resource[] $resources
+	 * @param array               $additionalInformation
 	 * @return Material
 	 */
-	public function createGuessedMaterialFromResource(Resource $resource, $additionalInformation = []) {
+	public function createGuessedMaterialFromResource($resources, $additionalInformation = []) {
 
-		/** @var Resource $resource */
+		$resources             = collect($resources);
 		$additionalInformation = collect($additionalInformation);
-		$handlerColl           = $resource->getTagExtractionClasses();
 		$properties            = new Collection();
 		$material              = new Material();
 		$material->from_bot    = TRUE;
-		$material->created_by  = $resource->created_by;
-		$material->modified_by = $resource->created_by;
-		$material->title       = 'Default ' . $resource->type . ' title';
+		$material->created_by  = $resources->first()->created_by;
+		$material->modified_by = $resources->first()->created_by;
+		$material->title       = $resources->count() > 1 ? $resources->count() . ' Resources' : 'Default ' . $resources->first()->type . ' title';
 		$material->save();
-		$material->resources()->attach($resource);
+		$material->resources()->attach($resources->pluck('id'));
 
-		foreach ($handlerColl as $handlerClass) {
-			/** @var HandlerInterface $handler */
-			$handler    = resolve($handlerClass);
-			$properties = $properties->merge($handler->handle($resource));
+
+		// Extract properties from resources
+		foreach ($resources as $resource) {
+			$resProp    = $this->extractPropertiesFromResource($resource);
+			$properties = $properties->merge($resProp);
 		}
+
 
 		// Extract properties from additionalInformation
 		foreach ($additionalInformation->get('properties', []) as $keywordString) {
 			$foundTags  = $this->tagExtractionService->extractPartsFromStrings($keywordString);
 			$properties = $properties->merge($foundTags);
+		}
+
+		$this->insertPropertiesIntoMaterial($material, $properties)
+			 ->save();
+
+		return $material;
+	}
+
+	public function extractPropertiesFromResource(Resource $resource) {
+
+		/** @var Resource $resource */
+		$handlerColl = $resource->getTagExtractionClasses();
+		$properties  = new Collection();
+
+		foreach ($handlerColl as $handlerClass) {
+			/** @var HandlerInterface $handler */
+			$handler    = resolve($handlerClass);
+			$properties = $properties->merge($handler->handle($resource));
 		}
 
 		// Create a TitleProperty if non exists from oxrText
@@ -65,6 +85,21 @@ class MaterialExtractionService {
 			}
 		}
 
+		return $properties;
+	}
+
+	/**
+	 * Orders, prioritizes and inserts properties into an existing material.
+	 * But it does NOT save the material.
+	 *
+	 * @param Material                       $material
+	 * @param PropertyInterface[]|Collection $properties
+	 * @return Material
+	 */
+	public function insertPropertiesIntoMaterial(Material $material, $properties) {
+
+		$properties = collect($properties);
+
 		// Order descending by Relevance
 		$orderedProperties = $properties->sortByDesc(function (Property $property) {
 			return $property->getRelevance();
@@ -77,6 +112,7 @@ class MaterialExtractionService {
 		$onlyOnePropertyAllowed->groupBy(function (Property $property) {
 			return class_basename($property);
 		})->each(function ($coll) use ($material) {
+			/** @var Collection $coll */
 			$coll->first()->insertYourselfToItem($material);
 		});
 
@@ -87,9 +123,6 @@ class MaterialExtractionService {
 
 		// Force Reloading any Relationships the next time
 		$material->setRelations([]);
-
-		$material->save();
-
 
 		return $material;
 	}
