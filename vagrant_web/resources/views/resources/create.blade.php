@@ -13,8 +13,8 @@
                 {!! Form::open(['route' => 'pool.resource.store.file', 'files' => TRUE]) !!}
 
                 <div class="form-group">
-                    {!! Form::label('file', 'Datei') !!}
-                    {!! Form::file('file', ['class' => 'form-control', 'placeholder' => "Datei hochladen", 'required' => TRUE ]) !!}
+                    {!! Form::label('file[]', 'Datei') !!}
+                    {!! Form::file('file[]', ['class' => 'form-control', 'placeholder' => "Datei hochladen", 'required' => TRUE, 'multiple' => TRUE ]) !!}
                 </div>
 
                 <div class="form-group">

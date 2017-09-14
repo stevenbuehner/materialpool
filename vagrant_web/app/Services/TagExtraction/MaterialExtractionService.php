@@ -41,7 +41,7 @@ class MaterialExtractionService {
 
 		// Extract properties from resources
 		foreach ($resources as $resource) {
-			$resProp    = $this->extractPropertiesFromResource($resource);
+			$resProp    = $this->extractPropertiesFromResources($resource);
 			$properties = $properties->merge($resProp);
 		}
 
@@ -58,7 +58,7 @@ class MaterialExtractionService {
 		return $material;
 	}
 
-	public function extractPropertiesFromResource(Resource $resource) {
+	public function extractPropertiesFromResources(Resource $resource) {
 
 		/** @var Resource $resource */
 		$handlerColl = $resource->getTagExtractionClasses();

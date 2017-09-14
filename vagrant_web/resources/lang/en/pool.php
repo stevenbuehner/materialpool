@@ -3,7 +3,7 @@
 return [
 
 	'resource.count'      => '{0} no resources|{1} 1 resource|[2,*] :COUNT resources',
-	'resource.created-by' => 'Created by :NAME',
+	'resource.created-by' => 'Originally from :NAME',
 	'Contains'            => 'Contains',
 	'eddited'             => 'eddited',
 	'by'                  => 'by',

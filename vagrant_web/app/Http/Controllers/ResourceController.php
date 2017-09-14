@@ -49,19 +49,22 @@ class ResourceController extends Controller {
 	 * @return \Illuminate\Http\Response
 	 */
 	public function storeFile(Request $request) {
-		// Mass assignment easy
-
 
 		if (!$request->hasFile('file')) {
 			return redirect(route('pool.resource.create'))->withErrors(['Missing upload file']);
 		}
 
-		$uploadedFile = $request->file('file');
-		$metaData     = $request->get('meta', '');
-		$resource     = $this->handleResourceUpload($uploadedFile);
-		$this->createMaterialFromResources($resource, $metaData);
+		$uploadedFiles = $request->file('file');
+		$metaData      = $request->get('meta', '');
+		$resources     = [];
 
-		return redirect(route('pool.resource.edit', $resource->id));
+		foreach ($uploadedFiles as $file) {
+			$resources[] = $this->handleResourceUpload($file);
+		}
+
+		$material = $this->createMaterialFromResources($resources, $metaData);
+
+		return redirect(route('pool.material.show', $material->id));
 	}
 
 	/**

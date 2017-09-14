@@ -10,7 +10,7 @@
         @lang('pool.eddited') {{ $material->created_at->diffForHumans()}},
         @lang('pool.by') {{$material->creator->name}}
         @if($material->author !== NULL)
-            ( @lang('pool.resource.created-by', ['name' => $material->author->title]) )
+            (@lang('pool.resource.author-is', ['name' => $material->author->title]))
         @endif
     </small>
 
@@ -58,12 +58,18 @@
                 <div class="col-sm-6 col-md-4 col-lg-4 col-xl-3">
                     <div class="card ">
                         <img class="card-img-top "
-                             src="{{route('resource.image.preview', ['resource' => $resource->id, 'width' => 300])}}"
+                             src="{{route('resource.image.preview', ['resource' => $resource->id, 'width' => 300, 'height' => 300])}}"
                              alt="Resource Image"
                              style="width:100%;">
 
                         <div class="card-block">
-                            <h4 class="card-title">{{ class_basename($resource) }}</h4>
+                            <h4 class="card-title">
+                                @if($resource instanceof \App\Models\File && !empty($resource->original_filename))
+                                    {{$resource->original_filename}}
+                                @else
+                                    {{ class_basename($resource) }}
+                                @endif
+                            </h4>
                             <p class="card-text">{{$resource->notes}}</p>
                         </div>
 
