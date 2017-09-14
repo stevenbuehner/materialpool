@@ -8,4 +8,9 @@ interface TextContentInterface {
 	 * @return string
 	 */
 	public function getContent();
+
+	/**
+	 * @param string $content
+	 */
+	public function setContent($content);
 }

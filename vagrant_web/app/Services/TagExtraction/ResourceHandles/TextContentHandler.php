@@ -32,13 +32,26 @@ class TextContentHandler implements HandlerInterface {
 	 */
 	public function handle(Resource $resource) {
 		$result = new Collection();
-		$result = $result->merge($this->searchInFirstLine($resource));
+
+		$firstLineResults = $this->searchInFirstLine($resource);
+		$result           = $result->merge($firstLineResults);
+
 		$result = $result->merge($this->searchInEveryLineAfterFirst($resource));
 		$unique = $result->unique();
+
+		// Eine Property ist auf jeden Fall OCR
+		// Also mindestens zwei Tags werden gefordert
+		if ($firstLineResults->count() > 3) {
+			$this->removeFirstLine($resource);
+		}
 
 		return $unique;
 	}
 
+	/**
+	 * @param Resource $resource
+	 * @return Collection
+	 */
 	protected function searchInFirstLine(Resource $resource) {
 		$result = new Collection();
 
@@ -59,7 +72,8 @@ class TextContentHandler implements HandlerInterface {
 				// Use the whole Textfile as OCR-Information
 				$otherLines = trim($content);
 				if (strlen($otherLines) > 3) {
-					$ocrProperty = new OcrTextProperty($content, RelevanceInterface::RELEVANCE_EXIF_MAX);
+					$ocrProperty = new OcrTextProperty(str_limit($content, 200),
+													   RelevanceInterface::RELEVANCE_EXIF_MAX - 10);
 					$result->push($ocrProperty);
 				}
 
@@ -105,7 +119,7 @@ class TextContentHandler implements HandlerInterface {
 
 			// Create a Ocr-Text-Property from anything BUT the first line
 			// Use this Ocr-Text only (MIN-Relevance) if the searchInFirstLine got less than 3 Keywords => use whole text
-			$ocrProperty = new OcrTextProperty($content, RelevanceInterface::RELEVANCE_EXIF_MIN);
+			$ocrProperty = new OcrTextProperty(str_limit($content, 200), RelevanceInterface::RELEVANCE_EXIF_MIN);
 			$result->push($ocrProperty);
 
 		} else {
@@ -115,5 +129,22 @@ class TextContentHandler implements HandlerInterface {
 		}
 
 		return $result;
+	}
+
+	protected function removeFirstLine(Resource $resource) {
+		if ($resource instanceof TextContentInterface) {
+			// get Content
+			$content = $resource->getContent();
+
+			// Delete the first line in the $content
+			$content = preg_replace('/^.+\n/', '', $content);
+
+			$resource->setContent($content);
+
+			$resource->save();
+		} else {
+			Log::error('This file is not of mimetype text/plain. Could not delete FirstContentLine',
+					   ['resource_id' => $resource->id]);
+		}
 	}
 }

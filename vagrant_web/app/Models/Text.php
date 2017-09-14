@@ -52,16 +52,23 @@ class Text extends Resource implements TextContentInterface {
 		return $this->getOption(self::$CONTENT_OPTION);
 	}
 
-	public function setContentAttribute($value) {
-		$value = trim($value);
-		$this->setOption(self::$CONTENT_OPTION, $value);
-		$this->content_hash = sha1($value);
-	}
-
 	/**
 	 * @return PreviewGeneratorInterface
 	 */
 	public function getPreviewGenerator() {
 		return resolve(TextPreviewGenerator::class);
+	}
+
+	/**
+	 * @param string $content
+	 */
+	public function setContent($content) {
+		$this->setContentAttribute($content);
+	}
+
+	public function setContentAttribute($value) {
+		$value = trim($value);
+		$this->setOption(self::$CONTENT_OPTION, $value);
+		$this->content_hash = sha1($value);
 	}
 }

@@ -81,10 +81,6 @@ class ResourceController extends Controller {
 			$tagExtractionProperties['properties'][] = basename($request->file('file')->getClientOriginalName(),
 																'.' . $request->file('file')
 																			  ->getClientOriginalExtension());
-
-			// TODO: if first line has multiple significant properties, delete it from text
-			// $firstLine = strtok($resource->content, "\n");
-
 		}
 
 		$resource->save();

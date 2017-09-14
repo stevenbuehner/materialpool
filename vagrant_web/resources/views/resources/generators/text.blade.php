@@ -10,7 +10,5 @@
            class="btn btn-secondary">download</a>
     @endslot
 
-    <pre>
-        {{$content or 'no content'}}
-    </pre>
+    <pre>{{$content or 'no content'}}</pre>
 @endcomponent
