@@ -11,6 +11,8 @@ window.Tether = require('tether');
 
 // Select2
 require('select2');
+
+window.Popper = require('popper.js');
 require('bootstrap');
 $.fn.select2.defaults.set("theme", "bootstrap");
 
