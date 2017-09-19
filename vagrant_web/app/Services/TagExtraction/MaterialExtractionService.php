@@ -12,12 +12,15 @@ use App\Services\TagExtraction\Properties\Property;
 use App\Services\TagExtraction\Properties\TitleProperty;
 use App\Services\TagExtraction\ResourceHandles\HandlerInterface;
 use Illuminate\Support\Collection;
+use StevenBuehner\BibleVerseBundle\Service\BibleVerseService;
 
 class MaterialExtractionService {
 	protected $tagExtractionService = NULL;
+	protected $bibleVerseService    = NULL;
 
-	public function __construct(TagExtractionService $tagExtractionService) {
+	public function __construct(TagExtractionService $tagExtractionService, BibleVerseService $bibleVerseService) {
 		$this->tagExtractionService = $tagExtractionService;
+		$this->bibleVerseService    = $bibleVerseService;
 	}
 
 	/**
@@ -51,6 +54,11 @@ class MaterialExtractionService {
 			$foundTags  = $this->tagExtractionService->extractPartsFromStrings($keywordString);
 			$properties = $properties->merge($foundTags);
 		}
+
+		// Make shure we have every property only once!
+		$properties = $properties->unique();
+
+		$properties = $this->mergeBibleverseProperties($properties);
 
 		$this->insertPropertiesIntoMaterial($material, $properties)
 			 ->save();
@@ -86,6 +94,48 @@ class MaterialExtractionService {
 		}
 
 		return $properties;
+	}
+
+	/**
+	 * @param Collection <Property> $properties
+	 * @return Collection <Property>
+	 */
+	public function mergeBibleverseProperties($properties) {
+
+		// Extract BibleverseProperties
+
+		// Merge intersecting bibleverses
+		$allBibleVerseProperties = new Collection();
+		$resultProperties        = new Collection();
+		$properties->each(function ($item) use ($allBibleVerseProperties, $resultProperties) {
+			if ($item instanceof BibleverseProperty) {
+				$allBibleVerseProperties->push($item);
+			} else {
+				$resultProperties->push($item);
+			}
+		});
+
+		// Group BibleVerseProperties by Relevance
+		// So only verses with the same relevance will be merged
+		$biblVersePropertyGroups = $allBibleVerseProperties->groupBy(function (Property $item) {
+			return $item->getRelevance();
+		});
+
+		$biblVersePropertyGroups->each(function (Collection $group, $relevance) use ($resultProperties) {
+			$bibleVerses = $group->transform(function (BibleverseProperty $item) {
+				return $item->getValue();
+			});
+
+			$merged = $this->bibleVerseService->mergeBibleverses($bibleVerses->toArray());
+
+			foreach ($merged as $bibleVerse) {
+				$resultProperties->push(new BibleverseProperty($bibleVerse, $relevance));
+			}
+		});
+
+		// ToDo Elleminate Bibleverses of lower Relevance that exist in higher relevances ...
+
+		return $resultProperties;
 	}
 
 	/**
@@ -126,6 +176,7 @@ class MaterialExtractionService {
 
 		return $material;
 	}
+
 }
 
 ?>
