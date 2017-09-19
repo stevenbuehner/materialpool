@@ -85,9 +85,13 @@ class ResourceController extends Controller {
 			$tmpPath                     = $uploadedFile->getPath();
 			$resource->content_hash      = sha1_file($tmpPath);
 			$resource->original_filename = $uploadedFile->getClientOriginalName();
-			$localFilePath               = Auth()->id() . DIRECTORY_SEPARATOR . $resource->type;
-			$filename                    = $disk->putFile($localFilePath, $uploadedFile);
-			$resource->local_path        = config('app.disks.resources') . '::' . $filename;
+			$resource->save();
+
+			$newTargetFolder      = DIRECTORY_SEPARATOR . intval($resource->id / 10000);
+			$newTargetFolder      .= DIRECTORY_SEPARATOR . intval($resource->id / 100);
+			$relativeFilePath     = $disk->putFile($newTargetFolder, $uploadedFile);
+			$resource->local_path = config('app.disks.resources') . '::' . $relativeFilePath;
+
 		} else if ($resource instanceof Text) {
 			$resource->content = File::get($uploadedFile->getRealPath());
 		}
