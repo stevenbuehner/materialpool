@@ -21,7 +21,7 @@
                     @include('keywords.linked', ['keyword' => $keyword])
                 @endforeach
 
-                @foreach($material->bibleverses as $bv)
+                @foreach($material->bibleverses->sortBy('from') as $bv)
                     @include('bibleverses.tag', ['bibleverse' => $bv])
                 @endforeach
             </div>
@@ -75,7 +75,7 @@
 
                         <div class="card-footer">
                             <a href="{{ URL::route('pool.resource.download', [$resource->id]) }}"
-                               class="btn btn-secondary">@lang('pool.download-file')</a>
+                               class="btn btn-sm btn-secondary">@lang('pool.download-file')</a>
                         </div>
                     </div>
                 </div>
