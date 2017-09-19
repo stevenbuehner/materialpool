@@ -24,6 +24,17 @@ class MaterialExtractionService {
 	}
 
 	/**
+	 * Helper function to compare two BibleVerseProperties objects with usort
+	 *
+	 * @param BibleverseProperty $v1
+	 * @param BibleverseProperty $v2
+	 * @return int
+	 */
+	public static function usortBibleVerseProperty(BibleverseProperty $v1, BibleverseProperty $v2) {
+		return BibleVerseService::usortBibleverses($v1->getValue(), $v2->getValue());
+	}
+
+	/**
 	 * @param Resource|Resource[] $resources
 	 * @param array               $additionalInformation
 	 * @return Material
@@ -59,6 +70,9 @@ class MaterialExtractionService {
 		$properties = $properties->unique();
 
 		$properties = $this->mergeBibleverseProperties($properties);
+
+		// This is actually not needed
+		// $properties = $this->sortBibleVerseProperties($properties);
 
 		$this->insertPropertiesIntoMaterial($material, $properties)
 			 ->save();
@@ -175,6 +189,22 @@ class MaterialExtractionService {
 		$material->setRelations([]);
 
 		return $material;
+	}
+
+	/**
+	 * @param Collection $properties
+	 * @return Collection
+	 */
+	public function sortBibleVerseProperties($properties) {
+		/** @var Collection $onlyBibleversProps */
+		/** @var Collection $otherProps */
+		list($onlyBibleversProps, $otherProps) = $properties->partition(function ($item) {
+			return $item instanceof BibleverseProperty;
+		});
+
+		$onlyBibleversProps = $onlyBibleversProps->sort([self::class, 'usortBibleVerseProperty']);
+
+		return $otherProps->merge($onlyBibleversProps);
 	}
 
 }
