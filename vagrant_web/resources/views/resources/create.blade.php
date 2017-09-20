@@ -10,11 +10,24 @@
                 <h3 class="card-title">Dateibasierte Resource</h3>
                 <p class="card-text">Bilder, Dokumente, Filme, ...</p>
 
-                {!! Form::open(['route' => 'pool.resource.store.file', 'files' => TRUE]) !!}
+                {!! Form::open(['route' => 'pool.resource.store', 'files' => TRUE]) !!}
 
                 <div class="form-group">
                     {!! Form::label('file[]', 'Datei') !!}
-                    {!! Form::file('file[]', ['class' => 'form-control', 'placeholder' => "Datei hochladen", 'required' => TRUE, 'multiple' => TRUE ]) !!}
+                    {!! Form::file('file[]', ['class' => 'form-control', 'placeholder' => "Datei hochladen", 'required' => TRUE, 'multiple' => TRUE, 'id' =>'files' ]) !!}
+
+
+                    <script type="text/javascript">
+                        @php
+                            $maxFileSize = (int) ini_get('max_file_uploads');
+                        @endphp
+                        $("#files").on("change", function () {
+                            if ($("#files")[0].files.length > {{$maxFileSize}}) {
+                                alert("You can select only up to {{$maxFileSize}} files");
+                                $("#files").val('');
+                            }
+                        });
+                    </script>
                 </div>
 
                 <div class="form-group">

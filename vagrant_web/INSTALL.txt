@@ -37,6 +37,10 @@ php artisan db:seed
 php artisan passport:client --password
 
 
+# In der PHP.ini müssen die Upload-Parameter noch gesetzt werden
+# upload_max_filesize und max_file_uploads
+
+
 
 
 // Vue-Cli Installation

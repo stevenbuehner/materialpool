@@ -30,7 +30,7 @@ Route::group(['prefix' => 'pool', 'as' => 'pool.'], function () {
 		 ->where('from', '[0-9]+')
 		 ->where('to', '[0-9]+');
 
-	Route::resource('resource', 'ResourceController', ['except' => ['store']]);
+	Route::resource('resource', 'ResourceController');
 	Route::get('resource/{resource}/assign/pdf', 'PdfMaterialAssignmentController@index')
 		 ->where('resource', '[0-9]+')
 		 ->name('resource.assign.pdf.material');
@@ -39,7 +39,6 @@ Route::group(['prefix' => 'pool', 'as' => 'pool.'], function () {
 	Route::get('resource/{resource}/videostream', 'VideoStreamController@stream')
 		 ->name('resource.videostream');
 
-	Route::post('resource/file', 'ResourceController@storeFile')->name('resource.store.file');
 
 	// Search
 	Route::get('searchbar', 'SearchController@index')->name('searchbar.index');

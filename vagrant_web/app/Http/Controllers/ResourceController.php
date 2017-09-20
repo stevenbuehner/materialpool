@@ -48,7 +48,7 @@ class ResourceController extends Controller {
 	 * @param  \Illuminate\Http\Request $request
 	 * @return \Illuminate\Http\Response
 	 */
-	public function storeFile(Request $request) {
+	public function store(Request $request) {
 
 		if (!$request->hasFile('file')) {
 			return redirect(route('pool.resource.create'))->withErrors(['Missing upload file']);
