@@ -9,6 +9,7 @@ namespace App\Services\PreviewGeneration\Generators;
 
 use App\Models\PdfFile;
 use App\Models\Resource as ResourceEntity;
+use App\ResourceLimitations\ResourceLimitationInterface;
 use App\Services\PdfPreview\LocalPdfFileProvider;
 use App\Services\PreviewGeneration\Exceptions\NotPreviewAbleException;
 use App\Services\PreviewGeneration\Interfaces\PreviewGeneratorInterface;
@@ -61,20 +62,19 @@ class PdfPreviewGenerator implements PreviewGeneratorInterface {
 	}
 
 	/**
-	 * @param ResourceEntity $resource
-	 * @param string|null    $context
+	 * @param ResourceEntity              $resource
+	 * @param ResourceLimitationInterface $limitation
+	 * @param string|null                 $context
 	 * @return string|false
 	 */
-	public function renderHTMLPreview(ResourceEntity $resource, $context = NULL) {
+	public function renderHTMLPreview(ResourceEntity $resource, ResourceLimitationInterface $limitation = NULL, $context = NULL) {
 
 		/** @var $resource PdfFile */
-		$maxWidth   = config('app.resource.preview.maxWidth');
-		$maxHeight  = config('app.resource.preview.maxHeight');
-		$limitation = $resource->pivot->limitation;
-		$pageCount  = $resource->getPdfCountAndSaveCache();
+		$pageCount = $resource->getPdfCountAndSaveCache();
 
 		$view = View::make('resources.generators.pdf')
 					->with('resource', $resource)
+					->with('context', $context)
 					->with('title', empty($resource->notes) ? 'PDF' : $resource->notes)
 					->with('limitation', is_null($limitation) ? FALSE : $limitation)
 					->with('totalPageCount', $pageCount);

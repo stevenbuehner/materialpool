@@ -6,11 +6,23 @@
             @include('resources.partials.filename-or-classname')
         </h1>
 
+        @if($resource->getPreviewGenerator()->previewAble($resource) === TRUE)
+            {{-- Show Content of Resource, if only one is assigned to the material --}}
+            <div class="col-sm-12 rounded" style="border: solid 1px; padding: 1em">
+
+                {!! $resource->getPreviewGenerator()->renderHTMLPreview($resource, NULL, 'resource') !!}
+
+            </div>
+        @endif
+
         <hr class="my-4">
 
         <p class="lead">
             <a class="btn btn-primary btn-lg" href="{{ route('pool.resource.edit', $resource->id) }}"
                role="button">Bearbeiten</a>
+
+            <a class="btn btn-primary btn-lg" href="{{ route('pool.resource.download', $resource->id) }}"
+               role="button">Download</a>
 
             @if($resource instanceof \App\Models\PdfFile)
                 <a class="btn btn-primary btn-lg" href="{{ route('pool.resource.assign.pdf.material', $resource->id) }}"

@@ -11,6 +11,7 @@ namespace App\Services\PreviewGeneration\Generators;
 use App\Models\File;
 use App\Models\ImageFile;
 use App\Models\Resource as ResourceEntity;
+use App\ResourceLimitations\ResourceLimitationInterface;
 use App\Services\PreviewGeneration\Exceptions\NotPreviewAbleException;
 use App\Services\PreviewGeneration\Interfaces\PreviewGeneratorInterface;
 use Illuminate\Support\Facades\View;
@@ -63,11 +64,12 @@ class ImagePreviewGenerator implements PreviewGeneratorInterface {
 	}
 
 	/**
-	 * @param ResourceEntity $resource
-	 * @param string|null    $context
+	 * @param ResourceEntity              $resource
+	 * @param ResourceLimitationInterface $limitation
+	 * @param string|null                 $context
 	 * @return string|false
 	 */
-	public function renderHTMLPreview(ResourceEntity $resource, $context = NULL) {
+	public function renderHTMLPreview(ResourceEntity $resource, ResourceLimitationInterface $limitation = NULL, $context = NULL) {
 
 		/** @var $resource File */
 		if ($resource->hasRemoteFile()) {
@@ -83,6 +85,7 @@ class ImagePreviewGenerator implements PreviewGeneratorInterface {
 
 		$view = View::make('resources.generators.image')
 					->with('resource', $resource)
+					->with('context', $context)
 					->with('src', $src)
 					->with('title', empty($resource->notes) ? 'Bild' : $resource->notes);
 

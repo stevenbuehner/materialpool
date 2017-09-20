@@ -10,6 +10,7 @@ namespace App\Services\PreviewGeneration\Generators;
 
 use App\Models\Resource as ResourceEntity;
 use App\Models\Text;
+use App\ResourceLimitations\ResourceLimitationInterface;
 use App\Services\PreviewGeneration\Exceptions\NotPreviewAbleException;
 use App\Services\PreviewGeneration\Interfaces\PreviewGeneratorInterface;
 use Illuminate\Support\Facades\View;
@@ -43,16 +44,18 @@ class TextPreviewGenerator implements PreviewGeneratorInterface {
 	}
 
 	/**
-	 * @param ResourceEntity $resource
-	 * @param string|null    $context
+	 * @param ResourceEntity              $resource
+	 * @param ResourceLimitationInterface $limitation
+	 * @param string|null                 $context
 	 * @return string|false
 	 */
-	public function renderHTMLPreview(ResourceEntity $resource, $context = NULL) {
+	public function renderHTMLPreview(ResourceEntity $resource, ResourceLimitationInterface $limitation = NULL, $context = NULL) {
 
 		/** @var $resource Text */
 
 		$view = View::make('resources.generators.text')
 					->with('resource', $resource)
+					->with('context', $context)
 					->with('content', $resource->content)
 					->with('title', 'Textschnipsel');
 

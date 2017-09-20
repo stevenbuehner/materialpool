@@ -79,7 +79,7 @@
                     @include('parts.select2.multi-ajax', [
                         'url' => route('api.v1.bibleverses.index'),
                         'displayField' => 'label',
-                        'selected' => $material->bibleverses,
+                        'selected' => $material->bibleverses->sortBy('from'),
                         'name' => 'bibleverses' ,
                         'placeholder' => 'Bibelverse eingeben',
                         'updateRelevanceUrl' => '/api/v1/material/' . $material->id . '/bibleverse/',

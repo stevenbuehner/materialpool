@@ -49,7 +49,7 @@
             {{-- Show Content of Resource, if only one is assigned to the material --}}
             <div class="col-sm-12 rounded" style="border: solid 1px; padding: 1em">
 
-                {!! $resource->getPreviewGenerator()->renderHTMLPreview($resource, 'material') !!}
+                {!! $resource->getPreviewGenerator()->renderHTMLPreview($resource, $resource->pivot->limitation, 'material') !!}
 
             </div>
 

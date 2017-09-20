@@ -4,6 +4,7 @@ namespace App\Services\PreviewGeneration\Interfaces;
 
 
 use App\Models\Resource as ResourceEntity;
+use App\ResourceLimitations\ResourceLimitationInterface;
 use Intervention\Image\Image;
 use Intervention\Image\Size;
 
@@ -23,10 +24,11 @@ interface PreviewGeneratorInterface {
 	public function getImagePreview(ResourceEntity $resource, Size $size);
 
 	/**
-	 * @param ResourceEntity $resource
-	 * @param string|null    $context
+	 * @param ResourceEntity              $resource
+	 * @param ResourceLimitationInterface $limitation
+	 * @param string|null                 $context
 	 * @return string|false
 	 */
-	public function renderHTMLPreview(ResourceEntity $resource, $context = NULL);
+	public function renderHTMLPreview(ResourceEntity $resource, ResourceLimitationInterface $limitation = NULL, $context = NULL);
 
 }

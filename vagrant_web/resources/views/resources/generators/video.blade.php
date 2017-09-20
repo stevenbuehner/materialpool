@@ -1,6 +1,5 @@
 @component('resources.generators.component')
     @slot('title')
-        {{ $title or class_basename($resource) }}
     @endslot
 
     @slot('menu')

@@ -9,6 +9,7 @@ namespace App\Services\PreviewGeneration\Generators;
 
 
 use App\Models\Resource as ResourceEntity;
+use App\ResourceLimitations\ResourceLimitationInterface;
 use App\Services\PreviewGeneration\Exceptions\NotPreviewAbleException;
 use App\Services\PreviewGeneration\Interfaces\PreviewGeneratorInterface;
 use Intervention\Image\Image;
@@ -36,12 +37,12 @@ class NoPreviewGenerator implements PreviewGeneratorInterface {
 	}
 
 	/**
-	 * @param ResourceEntity $resource
-	 * @param string|null    $context
-	 * @throws NotPreviewAbleException
-	 * @return string
+	 * @param ResourceEntity              $resource
+	 * @param ResourceLimitationInterface $limitation
+	 * @param string|null                 $context
+	 * @return string|false
 	 */
-	public function renderHTMLPreview(ResourceEntity $resource, $context = NULL) {
+	public function renderHTMLPreview(ResourceEntity $resource, ResourceLimitationInterface $limitation = NULL, $context = NULL) {
 		throw new NotPreviewAbleException();
 	}
 }

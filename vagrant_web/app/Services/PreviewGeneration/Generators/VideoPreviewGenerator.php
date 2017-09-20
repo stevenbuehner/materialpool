@@ -10,6 +10,7 @@ namespace App\Services\PreviewGeneration\Generators;
 use App\Models\Resource as ResourceEntity;
 use App\Models\Text;
 use App\Models\VideoFile;
+use App\ResourceLimitations\ResourceLimitationInterface;
 use App\Services\PreviewGeneration\Exceptions\NotPreviewAbleException;
 use App\Services\PreviewGeneration\Interfaces\PreviewGeneratorInterface;
 use FFMpeg\Coordinate\TimeCode;
@@ -97,17 +98,19 @@ class VideoPreviewGenerator implements PreviewGeneratorInterface {
 	}
 
 	/**
-	 * @param ResourceEntity $resource
-	 * @param string|null    $context
+	 * @param ResourceEntity              $resource
+	 * @param ResourceLimitationInterface $limitation
+	 * @param string|null                 $context
 	 * @return string|false
 	 */
-	public function renderHTMLPreview(ResourceEntity $resource, $context = NULL) {
+	public function renderHTMLPreview(ResourceEntity $resource, ResourceLimitationInterface $limitation = NULL, $context = NULL) {
 
 		/** @var $resource Text */
 		$view = View::make('resources.generators.video')
 					->with('resource', $resource)
-					->with('content', $resource->content)
-					->with('title', 'Film');
+					->with('context', $context)
+					->with('limitation', $limitation)
+					->with('content', $resource->content);
 
 		return $view->render();
 	}
