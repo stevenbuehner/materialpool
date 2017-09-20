@@ -1,3 +1,3 @@
 // window.Vue = require('vue');
 
-require('video.js');
+window.videojs = require('video.js');
