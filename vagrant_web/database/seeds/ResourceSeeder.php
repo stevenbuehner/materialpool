@@ -119,9 +119,10 @@ class ResourceSeeder extends Seeder {
 			->each(function (DocumentFile $r) {
 				$material = self::makeMaterialWithRandomUser();
 				$material->save();
+				$limitation = new \App\ResourceLimitations\PageLimitation();
+				$limitation->setPages([1, 3, 4, 5]);
 				$material->resources()
-						 ->attach($r,
-								  ['limitation' => serialize(new \App\ResourceLimitations\PageLimitation([5, 6, 8, 9]))]);
+						 ->attach($r, ['limitation' => serialize($limitation)]);
 				$material->keywords()->save(self::getRandomKeyword(), ['relevance' => rand(0, 255)]);
 			});
 
@@ -131,9 +132,10 @@ class ResourceSeeder extends Seeder {
 			->each(function (PdfFile $r) {
 				$material = self::makeMaterialWithRandomUser();
 				$material->save();
+				$limitation = new \App\ResourceLimitations\PageLimitation();
+				$limitation->setPages([1, 3, 4, 5]);
 				$material->resources()
-						 ->attach($r,
-								  ['limitation' => serialize(new \App\ResourceLimitations\PageLimitation([5, 6, 8, 9]))]);
+						 ->attach($r, ['limitation' => serialize($limitation)]);
 				$material->keywords()->save(self::getRandomKeyword(), ['relevance' => rand(0, 255)]);
 			});
 
