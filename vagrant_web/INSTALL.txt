@@ -47,3 +47,7 @@ cd webpack simple
 vue init .
 npm install
 npm run dev
+
+
+# Um Videos so zu konvertieren, dass sie im Web als Stream laufen können, müssen die Meta-Daten VORNE in der Datei positioniert sein
+# Einfach mit Handbrake (den Ordner der Dateien oder) die Videodatei auswählen und die Option "Web Optimized aktivieren"
