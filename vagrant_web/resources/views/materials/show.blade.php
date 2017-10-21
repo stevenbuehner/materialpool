@@ -86,5 +86,12 @@
     @endif {{-- End of has Resources --}}
 
 
+    @if($andereMaterialien->count() > 0)
+        <div class="alert alert-warning" role="alert">
+            <strong>@lang('pool.attention'):</strong>
+            {{trans_choice('pool.material.other-assigned-material.pl', $andereMaterialien->count(), ['count' => $andereMaterialien->count()])}}
+        </div>
+
+    @endif
 
 @endsection

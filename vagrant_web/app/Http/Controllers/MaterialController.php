@@ -10,6 +10,7 @@ use App\ResourceLimitations\ResourceLimitationService;
 use App\Services\TagExtraction\Properties\Property;
 use App\Services\TagExtraction\TagExtractionService;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class MaterialController extends Controller {
 
@@ -172,7 +173,16 @@ class MaterialController extends Controller {
 	public function show(Material $material) {
 		$material->load($this->withAttributes);
 
-		return view('materials.show', ['material' => $material]);
+		// Zeige andere Materialien, die ebenfalls mit diesen Ressourcen verknüpft sind
+		$resourceIds       = $material->resources->pluck('id');
+		$andereMaterialien = DB::table('material_resource')
+							   ->select('material_id')
+							   ->whereIn('resource_id', $resourceIds)
+							   ->where('material_id', '!=', $material->id)
+							   ->groupBy('material_id')->get();
+
+
+		return view('materials.show', ['material' => $material, 'andereMaterialien' => $andereMaterialien]);
 	}
 
 	/**
