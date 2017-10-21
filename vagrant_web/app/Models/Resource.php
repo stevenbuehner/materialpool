@@ -17,7 +17,6 @@ use Nanigans\SingleTableInheritance\SingleTableInheritanceTrait;
  * @property string $remote_path
  * @property string $local_path
  * @property string $content_hash
- * @property string $file_hash
  * @property string $notes
  */
 class Resource extends Model {
@@ -36,7 +35,7 @@ class Resource extends Model {
 		// 'created_at' => 'Date'
 	];
 	protected $guarded             = [
-		'id', 'created_by', 'options', 'content_hash', 'file_hash', 'type', 'created_at', 'updated_at'
+		'id', 'created_by', 'options', 'content_hash', 'type', 'created_at', 'updated_at'
 	];
 
 	protected $fillable = [

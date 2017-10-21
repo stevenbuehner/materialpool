@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\UpdateResourceHashes;
 use App\Models\Resource;
 use App\Models\Resource as ResourceEntity;
 use App\Models\Text;
@@ -81,9 +82,10 @@ class ResourceController extends Controller {
 
 
 		if ($resource instanceof \App\Models\File) {
-			$disk                        = Storage::disk(config('app.disks.resources'));
-			$tmpPath                     = $uploadedFile->getPath();
-			$resource->content_hash      = sha1_file($tmpPath);
+			$disk = Storage::disk(config('app.disks.resources'));
+			// $tmpPath                     = $uploadedFile->getPath() . DIRECTORY_SEPARATOR . $uploadedFile->getFilename();
+			// $sha1                        = sha1_file($tmpPath);
+			// $resource->content_hash      = $sha1;
 			$resource->original_filename = $uploadedFile->getClientOriginalName();
 			$resource->save();
 
@@ -92,11 +94,14 @@ class ResourceController extends Controller {
 			$relativeFilePath     = $disk->putFile($newTargetFolder, $uploadedFile);
 			$resource->local_path = config('app.disks.resources') . '::' . $relativeFilePath;
 
+
 		} else if ($resource instanceof Text) {
 			$resource->content = File::get($uploadedFile->getRealPath());
 		}
 
 		$resource->save();
+
+		UpdateResourceHashes::dispatch($resource);
 
 		return $resource;
 	}

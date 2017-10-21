@@ -10,7 +10,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 
-class GenerateResourceHashes implements ShouldQueue {
+class UpdateResourceHashes implements ShouldQueue {
 	use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
 	protected $resource;
@@ -18,7 +18,7 @@ class GenerateResourceHashes implements ShouldQueue {
 	/**
 	 * Create a new job instance.
 	 *
-	 * @return void
+	 * @param $resource Resource
 	 */
 	public function __construct(Resource $resource) {
 		$this->resource = $resource;
@@ -27,9 +27,9 @@ class GenerateResourceHashes implements ShouldQueue {
 	/**
 	 * Execute the job.
 	 *
-	 * @return void
+	 * @param $processor ResourceHashProcessor
 	 */
 	public function handle(ResourceHashProcessor $processor) {
-		$processor->createResourceHash($this->resource);
+		$processor->updateResourceHash($this->resource);
 	}
 }

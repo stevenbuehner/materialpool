@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Jobs\GenerateResourceHashes;
+use App\Jobs\UpdateResourceHashes;
 use App\Models\File;
 use App\Models\Resource;
 use Illuminate\Http\Request;
@@ -131,7 +131,7 @@ class ResourceController extends BaseController {
 				if (!$resource->exists) {
 					$resource->save();
 				}
-				dispatch(new GenerateResourceHashes($resource));
+				dispatch(new UpdateResourceHashes($resource));
 
 			} catch (\Exception $e) {
 
