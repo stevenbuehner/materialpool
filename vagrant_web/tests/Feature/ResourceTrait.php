@@ -1,9 +1,8 @@
 <?php
+
 namespace Tests\Feature;
 
 
-use App\Models\ForeignInstance;
-use App\Models\ForeignResourceKey;
 use App\Models\ImageFile;
 use App\Models\Keyword;
 use App\Models\Material;
@@ -21,13 +20,8 @@ Trait ResourceTrait {
 
 		/** @var Collection $resourceInstances */
 		/** @var Collection $users */
-		$users             = factory(User::class, 3)->create();
-		$resourceInstances = factory(ForeignInstance::class, 3)->make()
-															   ->each(function (ForeignInstance $fi, $i) use ($users) {
-																   $fi->user_id = $users->offsetGet($i)->id;
-																   $fi->save();
-															   });
-		$keywords          = factory(Keyword::class, 5)->create();
+		$users    = factory(User::class, 3)->create();
+		$keywords = factory(Keyword::class, 5)->create();
 
 		factory(Resource::class, 2)
 			->create([
@@ -39,6 +33,8 @@ Trait ResourceTrait {
 				$material->save();
 				$material->keywords()->save($tesKw);
 				$r->materials()->save($material);
+
+				\ResourceSeeder::addRandomMaterialUid($material, $material->creator);
 			});
 
 		factory(ImageFile::class, 5)
@@ -53,23 +49,9 @@ Trait ResourceTrait {
 				$material->keywords()->save($tesKw, ['relevance' => rand(0, 255)]);
 				$material->keywords()->attach($keywords->pluck('id'));
 				$r->materials()->save($material);
+
+				\ResourceSeeder::addRandomMaterialUid($material, $material->creator);
 			});
-
-		Resource::all()
-				->each(function (Resource $r) use ($resourceInstances) {
-
-					$fi = $resourceInstances->filter(function ($fi) use ($r) {
-						return $fi->user_id === $r->created_by;
-					})->first();
-
-					if ($fi) {
-						$remoteKey                      = new ForeignResourceKey();
-						$remoteKey->resource_id         = $r->id;
-						$remoteKey->foreign_instance_id = $fi->id;
-						$remoteKey->remote_id           = rand(1, 999999);
-						$remoteKey->save();
-					}
-				});
 	}
 
 	protected function getImageUploadData() {

@@ -8,7 +8,7 @@ use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\TestResponse;
 use Tests\TestCase;
 
-class ResourceApiControllerTest extends TestCase {
+class KeywordApiControllerTest extends TestCase {
 
 	use DatabaseMigrations;
 

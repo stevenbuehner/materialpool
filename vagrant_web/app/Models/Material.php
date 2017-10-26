@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\ResourceLimitations\ResourceLimitationInterface;
 use Backpack\CRUD\CrudTrait;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -61,6 +60,10 @@ class Material extends Model {
 	 */
 	protected function keyWordClassAndChildren($class) {
 		return $this->belongsToMany($class, 'keyword_material', 'material_id', 'keyword_id')->withPivot('relevance');
+	}
+
+	public function foreignIds() {
+		return $this->hasMany(ForeignMaterialId::class);
 	}
 
 	public function persons() {

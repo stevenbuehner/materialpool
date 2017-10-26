@@ -42,7 +42,7 @@ class Resource extends Model {
 		'remote_path', 'notes', 'is_public'
 	];
 
-	protected $hidden = ['options', 'local_path', 'pivot'];
+	protected $hidden = ['options', 'local_path'];
 
 	public function __construct(array $attributes = []) {
 		$this->options   = [];
@@ -67,6 +67,21 @@ class Resource extends Model {
 
 		// Type, local_path, content_hash, options, file dürfen nicht berücksichtigt werden ... das sind keine Daten, die gesetzt werden sollen an dieser Stelle
 		// 'type'=> 'in:' . join(',', array_keys(self::getSingleTableTypeMap())),
+	}
+
+	public function toArray() {
+		$attributes = $this->attributesToArray();
+		$attributes = array_merge($attributes, $this->relationsToArray());
+
+		if (isset($attributes['pivot']['material_id'])) {
+			unset($attributes['pivot']['material_id']);
+		}
+
+		if (isset($attributes['pivot']['resource_id'])) {
+			unset($attributes['pivot']['resource_id']);
+		}
+
+		return $attributes;
 	}
 
 	/**

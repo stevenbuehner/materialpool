@@ -52,20 +52,17 @@ class Keyword extends Model {
 		parent::__construct($attributes);
 	}
 
-
-	/*
-	|--------------------------------------------------------------------------
-	| FUNCTIONS
-	|--------------------------------------------------------------------------
-	*/
-
-
 	public static function getSingleTableClass($key) {
 		$map = self::getSingleTableTypeMap();
 
 		return isset($map[$key]) ? $map[$key] : NULL;
 	}
 
+	/*
+	|--------------------------------------------------------------------------
+	| FUNCTIONS
+	|--------------------------------------------------------------------------
+	*/
 
 	public static function boot() {
 		parent::boot();
@@ -122,6 +119,21 @@ class Keyword extends Model {
 
 		/** @var Builder $builder */
 		return $builder->where('title', 'like', '%' . $text . '%');
+	}
+
+	public function toArray() {
+		$attributes = $this->attributesToArray();
+		$attributes = array_merge($attributes, $this->relationsToArray());
+
+		if (isset($attributes['pivot']['material_id'])) {
+			unset($attributes['pivot']['material_id']);
+		}
+
+		if (isset($attributes['pivot']['keyword_id'])) {
+			unset($attributes['pivot']['keyword_id']);
+		}
+
+		return $attributes;
 	}
 
 	/**

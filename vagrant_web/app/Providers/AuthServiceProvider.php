@@ -2,8 +2,10 @@
 
 namespace App\Providers;
 
+use App\Models\ForeignMaterialId;
 use App\Models\Material;
 use App\Models\Resource;
+use App\Policies\ForeignMaterialIdPolicy;
 use App\Policies\MaterialPolicy;
 use App\Policies\ResourcePolicy;
 use Carbon\Carbon;
@@ -17,8 +19,9 @@ class AuthServiceProvider extends ServiceProvider {
 	 * @var array
 	 */
 	protected $policies = [
-		Material::class => MaterialPolicy::class,
-		Resource::class => ResourcePolicy::class,
+		Material::class          => MaterialPolicy::class,
+		Resource::class          => ResourcePolicy::class,
+		ForeignMaterialId::class => ForeignMaterialIdPolicy::class,
 	];
 
 	/**

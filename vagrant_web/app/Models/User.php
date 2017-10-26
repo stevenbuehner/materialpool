@@ -16,6 +16,7 @@ use Laravel\Passport\HasApiTokens;
  * @property string $email
  * @property string $password
  * @property string $remember_token
+ * @property int    $id
  */
 class User extends Authenticatable {
 	use Notifiable;
@@ -49,13 +50,8 @@ class User extends Authenticatable {
 		$this->notify(new ResetPasswordNotification($token));
 	}
 
-	/**
-	 * Get the foreignInstances that belong to this user
-	 *
-	 * @return \Illuminate\Database\Eloquent\Relations\HasMany
-	 */
-	public function foreignInstance() {
-		return $this->hasMany(ForeignInstance::class);
+	public function foreignMaterialIds() {
+		return $this->hasMany(ForeignMaterialId::class);
 	}
 
 	public function isSuperAdmin() {

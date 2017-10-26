@@ -20,7 +20,6 @@ class ClearAllTablesSeeder extends Seeder {
 		DB::table('resources')->delete();
 		DB::table('users')->delete();
 		DB::table('password_resets')->delete();
-		DB::table('foreign_instances')->delete();
-		DB::table('foreign_resource_keys')->delete();
+		DB::table('material_foreign_ids')->delete();
 	}
 }

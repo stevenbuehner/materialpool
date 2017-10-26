@@ -2,8 +2,6 @@
 
 use App\Models\AudioFile;
 use App\Models\DocumentFile;
-use App\Models\ForeignInstance;
-use App\Models\ForeignResourceKey;
 use App\Models\ImageFile;
 use App\Models\Keyword;
 use App\Models\Language;
@@ -18,15 +16,6 @@ use Illuminate\Database\Seeder;
 
 
 class ResourceSeeder extends Seeder {
-
-	/**
-	 * @return ForeignInstance
-	 */
-	static function getRandomForeignInstance() {
-		$fi = ForeignInstance::orderByRaw('RAND()')->take(1)->first();;
-
-		return $fi;
-	}
 
 	/**
 	 * Run the database seeds.
@@ -45,9 +34,6 @@ class ResourceSeeder extends Seeder {
 		factory(Person::class, 5)->create();
 		factory(Language::class, 5)->create();
 		factory(Place::class, 5)->create();
-		factory(ForeignInstance::class)->create(['user_id' => factory(User::class)->create()->id]);
-		factory(ForeignInstance::class)->create(['user_id' => factory(User::class)->create()->id]);
-		factory(ForeignInstance::class)->create(['user_id' => factory(User::class)->create()->id]);
 		factory(User::class, 5)->create();
 
 		factory(Resource::class, 2)
@@ -70,6 +56,8 @@ class ResourceSeeder extends Seeder {
 
 						return $bv;
 					});
+
+				self::addRandomMaterialUid($material, $material->creator);
 			});
 
 
@@ -83,10 +71,12 @@ class ResourceSeeder extends Seeder {
 				$material->save();
 				$material->resources()
 						 ->attach($r,
-								  ['limitation' => serialize(new \App\ResourceLimitations\TimeLimitation(0, 299))]);
+								  ['limitation' => serialize(new \App\ResourceLimitations\TimeLimitation())]);
 
 				$material->keywords()
 						 ->save(self::getRandomKeyword(), ['relevance' => rand(0, 255)]);
+
+				self::addRandomMaterialUid($material, $material->creator);
 			});
 
 
@@ -98,9 +88,11 @@ class ResourceSeeder extends Seeder {
 				$material->save();
 				$material->resources()
 						 ->attach($r,
-								  ['limitation' => serialize(new \App\ResourceLimitations\TimeLimitation(0, 255))]);
+								  ['limitation' => serialize(new \App\ResourceLimitations\TimeLimitation())]);
 				$material->keywords()->save(self::getRandomKeyword(), ['relevance' => rand(0,
 																						   255)]);
+
+				self::addRandomMaterialUid($material, $material->creator);
 			});
 
 
@@ -111,6 +103,8 @@ class ResourceSeeder extends Seeder {
 				$material->save();
 				$material->keywords()
 						 ->save(self::getRandomKeyword(), ['relevance' => rand(0, 255)]);
+
+				self::addRandomMaterialUid($material, $material->creator);
 			});
 
 
@@ -124,6 +118,8 @@ class ResourceSeeder extends Seeder {
 				$material->resources()
 						 ->attach($r, ['limitation' => serialize($limitation)]);
 				$material->keywords()->save(self::getRandomKeyword(), ['relevance' => rand(0, 255)]);
+
+				self::addRandomMaterialUid($material, $material->creator);
 			});
 
 		factory(PdfFile::class, 5)
@@ -137,28 +133,16 @@ class ResourceSeeder extends Seeder {
 				$material->resources()
 						 ->attach($r, ['limitation' => serialize($limitation)]);
 				$material->keywords()->save(self::getRandomKeyword(), ['relevance' => rand(0, 255)]);
+
+				self::addRandomMaterialUid($material, $material->creator);
 			});
 
 		$counter = 100;
-		Resource::all()->each(function (Resource $r) use (&$counter) {
-			// $fi        = self::getRandomForeignInstance();
-
-			$fi = ForeignInstance::where([
-											 'user_id' => $r->created_by
-										 ])->take(1)->get()->first();
-
-
-			if ($fi) {
-				$remoteKey                      = new ForeignResourceKey();
-				$remoteKey->resource_id         = $r->id;
-				$remoteKey->foreign_instance_id = $fi->id;
-				$remoteKey->remote_id           = $counter++;
-				$remoteKey->save();
-			}
-		});
-
 	}
 
+	/**
+	 * @return Material
+	 */
 	public static function makeMaterialWithRandomUser() {
 		$user = self::getRandomUser();
 
@@ -174,6 +158,10 @@ class ResourceSeeder extends Seeder {
 		return $user;
 	}
 
+	/**
+	 * @param $user_id
+	 * @return Material
+	 */
 	public static function makeMaterialWithUserId($user_id) {
 		return factory(Material::class)
 			->make([
@@ -189,6 +177,15 @@ class ResourceSeeder extends Seeder {
 		$kw = Keyword::orderByRaw('RAND()')->take(1)->first();;
 
 		return $kw;
+	}
+
+	public static function addRandomMaterialUid(Material $material, User $user) {
+		$fk = factory(\App\Models\ForeignMaterialId::class)->make();
+		$fk->material()->associate($material);
+		$fk->user()->associate($user);
+		$fk->save();
+
+		return $fk;
 	}
 
 

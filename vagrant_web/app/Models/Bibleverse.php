@@ -122,6 +122,21 @@ class Bibleverse extends Model implements BibleVerseInterface {
 		return $query;
 	}
 
+	public function toArray() {
+		$attributes = $this->attributesToArray();
+		$attributes = array_merge($attributes, $this->relationsToArray());
+
+		if (isset($attributes['pivot']['material_id'])) {
+			unset($attributes['pivot']['material_id']);
+		}
+
+		if (isset($attributes['pivot']['bibleverse_id'])) {
+			unset($attributes['pivot']['bibleverse_id']);
+		}
+
+		return $attributes;
+	}
+
 	public function getLabelAttribute() {
 		return $this->getBibleVerseString();
 	}

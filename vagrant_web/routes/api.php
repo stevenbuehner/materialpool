@@ -79,7 +79,14 @@ Route::group([
 	 * Aus der Sicht der Foreign Instance mit ihren eigenen IDs
 	 */
 
-	// Resources
+	// Neu
+	Route::get('material/{foreignMaterialId}', 'ForeignMaterialController@show')
+		 ->where('foreignMaterialId', '[0-9a-zA-Z_-]+')
+		 ->middleware('can:view,foreignMaterialId')
+		 ->name('foreignMaterialShow');
+
+
+	// ALT: Resources
 	Route::get('{foreignInstance}/resources', 'ForeignInstanceResourceController@index')
 		 ->where('foreignInstance', '[0-9]+');
 	Route::get('{foreignInstanceId}/resources/{remoteId}', 'ForeignInstanceResourceController@show')
@@ -92,7 +99,7 @@ Route::group([
 		 ->name('foreignInstanceResourceDelete');
 
 
-	// ForeignInstance + Resource => Material + Keywords
+	// ALT: ForeignInstance + Resource => Material + Keywords
 	Route::get('{foreignInstance}/materials', 'ForeignInstanceMaterialController@index')
 		 ->where('foreignInstance', '[0-9]+')
 		 ->name('foreignInstanceMaterialIndex');

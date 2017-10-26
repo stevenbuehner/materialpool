@@ -13,7 +13,7 @@
 
 use App\Models\AudioFile;
 use App\Models\DocumentFile;
-use App\Models\ForeignInstance;
+use App\Models\ForeignMaterialId;
 use App\Models\ImageFile;
 use App\Models\Keyword;
 use App\Models\Language;
@@ -170,11 +170,9 @@ $factory->define(Place::class, function (Faker\Generator $faker) {
 });
 
 
-$factory->define(ForeignInstance::class, function (Faker\Generator $faker) {
+$factory->define(ForeignMaterialId::class, function (Faker\Generator $faker) {
 	return [
-		'name'    => $faker->unique()->name,
-		'api_key' => preg_replace('~\.|\s|!\?~', '', $faker->unique()->text(50)),
-		'info'    => $faker->sentences(1, TRUE)
+		'foreign_id' => $faker->unique()->uuid
 	];
 });
 

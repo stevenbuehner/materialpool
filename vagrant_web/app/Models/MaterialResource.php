@@ -5,16 +5,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Relations\Pivot;
 
 /**
- * Class Material
+ * Class MaterialResource
  *
- * @package App\Models
- * @property object  $limitation
- * @property string  $title
- * @property string  $description
- * @property int     $rating (0-20)
- * @property boolean $from_bot
- * @property int     $created_by
- * @property int     $modified_by
+ * @property object $limitation
  */
 class MaterialResource extends Pivot {
 
