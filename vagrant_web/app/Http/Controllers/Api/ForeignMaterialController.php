@@ -71,6 +71,12 @@ class ForeignMaterialController extends BaseController {
 		/** @var Material $material */
 		$material = $foreignMaterialId->material;
 
+		$material->load([
+							'keywords',
+							'bibleverses',
+							'resources'
+						]);
+
 		$hidden = ['created_at', 'updated_at', 'icon'];
 		$material->bibleverses->each(function (Bibleverse $bv) use (&$hidden) {
 			$bv->setHidden($hidden);
