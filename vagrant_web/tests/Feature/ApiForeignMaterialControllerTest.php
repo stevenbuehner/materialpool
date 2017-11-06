@@ -10,6 +10,7 @@ use App\Models\Material;
 use App\Models\Person;
 use App\Models\Place;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\TestResponse;
 use Laravel\Passport\Passport;
@@ -204,7 +205,6 @@ class ApiForeignMaterialControllerTest extends TestCase {
 
 		// Resources-Uri
 		$uri = route('foreignMaterialStore', ['foreignMaterialId' => $uid]);
-
 
 		$response = $this->json('post', $uri, $data);
 
@@ -407,6 +407,7 @@ class ApiForeignMaterialControllerTest extends TestCase {
 		return $fm;
 	}
 
+
 	public function testUpdateFailUnauthorized() {
 		$fm       = ForeignMaterialId::firstOrFail();
 		$uri      = route('foreignMaterialUpdate', ['foreignMaterialId' => $fm->foreign_id]);
@@ -433,6 +434,86 @@ class ApiForeignMaterialControllerTest extends TestCase {
 		$uri  = route('foreignMaterialUpdate', ['foreignMaterialId' => $fm->foreign_id]);
 
 		$response = $this->json('put', $uri, $data);
+
+		$response->assertStatus(403); // Forbidden
+	}
+
+
+	public function testDelete() {
+		/** @var ForeignMaterialId $fm */
+		$fm  = ForeignMaterialId::inRandomOrder()->take(1)->get()->first();
+		$uid = $fm->foreign_id;
+		$this->assertInstanceOf(ForeignMaterialId::class, $fm);
+
+		/** @var User $testUser */
+		$testUser = $fm->user;
+		$this->assertInstanceOf(User::class, $testUser);
+
+		Passport::actingAs(
+			$testUser,
+			[]
+		);
+
+		/** @var Material $mat */
+		$mat = $fm->material;
+
+		// Resources-Uri
+		$uri = route('foreignMaterialDelete', ['foreignMaterialId' => $fm->foreign_id]);
+
+		$response     = $this->json('delete', $uri);
+		$responseData = $response->json();
+
+		$response->assertStatus(200); // Forbidden
+		$this->assertTrue($responseData['success'], 'Success-Status');
+
+
+		// Check if material and associations really are deleted
+		$mat->fresh(['keywords', 'bibleverses']);
+		$this->assertCount(0, $mat->keywords->toArray());
+		$this->assertCount(0, $mat->bibleverses->toArray());
+
+		$fmAfter = ForeignMaterialId::where('foreign_id', '=', $uid)->get();
+		$this->assertEquals(0, $fmAfter->count());
+
+		/** @var Collection $forIds */
+		// Check if there is
+		$forIds = $mat->foreignIds;
+
+		// Material still exists => But hopefully nut with the same $uid (!)
+		if ($forIds->count() > 0) {
+			$restMat = $forIds->filter(function (ForeignMaterialId $foreignMaterialId) use ($uid) {
+				return $foreignMaterialId->foreign_id == $uid;
+			});
+			$this->assertEquals(0, $restMat->count());
+		} else {
+			// Material should have been deleted
+			$this->assertNull(Material::find($mat->id));
+		}
+	}
+
+	public function testDeleteFailUnauthorized() {
+		$fm       = ForeignMaterialId::firstOrFail();
+		$uri      = route('foreignMaterialDelete', ['foreignMaterialId' => $fm->foreign_id]);
+		$response = $this->json('delete', $uri);
+
+		$response->assertStatus(401); // Unauthorized
+	}
+
+	public function testDeleteFailForbidden() {
+		/** @var User $testUser */
+		$testUser = User::take(1)->get()->first();
+		$this->assertInstanceOf(User::class, $testUser);
+
+		Passport::actingAs(
+			$testUser,
+			[]
+		);
+
+		/** @var ForeignMaterialId $fm */
+		$fm  = ForeignMaterialId::where('user_id', '!=', $testUser->id)->firstOrFail();
+		$uri = route('foreignMaterialDelete', ['foreignMaterialId' => $fm->foreign_id]);
+
+		$response = $this->json('delete', $uri);
 
 		$response->assertStatus(403); // Forbidden
 	}

@@ -92,6 +92,10 @@ Route::group([
 		 ->where('foreignMaterialId', '[0-9a-zA-Z_-]+')
 		 ->middleware('can:update,foreignMaterialId')
 		 ->name('foreignMaterialUpdate');
+	Route::delete('material/{foreignMaterialId}', 'ForeignMaterialController@destroy')
+		 ->where('foreignMaterialId', '[0-9a-zA-Z_-]+')
+		 ->middleware('can:delete,foreignMaterialId')
+		 ->name('foreignMaterialDelete');
 
 	// ALT: Resources
 	Route::get('{foreignInstance}/resources', 'ForeignInstanceResourceController@index')

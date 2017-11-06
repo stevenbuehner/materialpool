@@ -3,9 +3,15 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Requests\FullMaterialRequest;
+use App\Jobs\CheckLonelyBibleverse;
+use App\Jobs\CheckLonelyKeyword;
+use App\Jobs\CheckLonelyResource;
 use App\Models\Bibleverse;
 use App\Models\ForeignMaterialId;
+use App\Models\Keyword;
 use App\Models\Material;
+use App\Models\Person;
+use App\Models\Resource;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Support\Facades\Auth;
 use StevenBuehner\BibleVerseBundle\Service\BibleVerseService;
@@ -127,8 +133,8 @@ class ForeignMaterialController extends BaseController {
 	/**
 	 * Update the specified material in storage.
 	 *
-	 * @param  \Illuminate\Http\Request $request
-	 * @param  Material                 $material
+	 * @param  FullMaterialRequest $request
+	 * @param  ForeignMaterialId   $foreignMaterialId
 	 * @return \Illuminate\Http\Response
 	 */
 	public function update(FullMaterialRequest $request, ForeignMaterialId $foreignMaterialId) {
@@ -171,10 +177,65 @@ class ForeignMaterialController extends BaseController {
 	/**
 	 * Remove the specified material from storage.
 	 *
-	 * @param  Material $material
+	 * @param  ForeignMaterialId $foreignMaterialId
 	 */
-	public function destroy(Material $material) {
+	public function destroy(ForeignMaterialId $foreignMaterialId) {
+		/** @var Material $material */
+		$material = Material::withCount('foreignIds')->where(
+			['id' => $foreignMaterialId->material_id]
+		)->get()->first();
 
+
+		/*
+		If this is the only ForeignMaterialId assigned to this material,
+		then delete the material and oll the associations to it
+		*/
+		if ($material->foreign_ids_count == 1) {
+
+			// Store associations for afterward-jobs
+			$author      = $material->author;
+			$keywords    = $material->keywords;
+			$bibleverses = $material->bibleverses;
+			$resources   = $material->resources;
+
+
+			if ($author instanceof Person) {
+				$material->author()->dissociate();
+				CheckLonelyKeyword::dispatch($author);
+			}
+
+			if ($keywords->count() > 0) {
+				$material->keywords()->detach();
+
+				$keywords->each(function (Keyword $keyword) {
+					CheckLonelyKeyword::dispatch($keyword);
+				});
+			}
+
+			if ($bibleverses->count() > 0) {
+				$material->bibleverses()->detach();
+
+				$bibleverses->each(function (Bibleverse $bibleverse) {
+					CheckLonelyBibleverse::dispatch($bibleverse);
+				});
+			}
+
+			if ($resources->count() > 0) {
+				$material->resources()->detach();
+
+				$resources->each(function (Resource $resource) {
+					CheckLonelyResource::dispatch($resource);
+				});
+			}
+
+			$material->delete();
+		}
+
+
+		$foreignMaterialId->delete();
+
+		return ['success' => TRUE];
 
 	}
+
 }

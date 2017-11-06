@@ -16,6 +16,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
  * @property boolean $from_bot
  * @property int     $created_by
  * @property int     $modified_by
+ * @property int     $author_id
  */
 class Material extends Model {
 
