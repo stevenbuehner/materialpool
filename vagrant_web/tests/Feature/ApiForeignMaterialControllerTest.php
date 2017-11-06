@@ -177,9 +177,7 @@ class ApiForeignMaterialControllerTest extends TestCase {
 		);
 
 		// ForeignMaterialUID
-		$uid          = 'test_' . factory(ForeignMaterialId::class)->make()->foreign_id;
-		$testMaterial = factory(Material::class);
-
+		$uid = 'test_' . factory(ForeignMaterialId::class)->make()->foreign_id;
 
 		$data = $this->getTestDataMaterial();
 
@@ -228,6 +226,37 @@ class ApiForeignMaterialControllerTest extends TestCase {
 			'keywords'    => [],
 			'bibleverses' => []
 		];
+	}
+
+	public function testCreateFailExistsAlready() {
+		/** @var User $testUser */
+		$testUser = User::take(1)->get()->first();
+		$this->assertInstanceOf(User::class, $testUser);
+
+		Passport::actingAs(
+			$testUser,
+			[]
+		);
+
+		// ForeignMaterialUID
+		$uid  = 'test_' . factory(ForeignMaterialId::class)->make()->foreign_id;
+		$data = $this->getTestDataMaterial();
+		$uri  = route('foreignMaterialStore', ['foreignMaterialId' => $uid]);
+
+		// Create Material for the first time (everything should be fine)
+		$response = $this->json('post', $uri, $data);
+		$fm       = ForeignMaterialId::where([
+												 'foreign_id' => $uid,
+												 'user_id'    => $testUser->id
+											 ])->firstOrFail();
+
+		$response->assertStatus(200);
+		$this->validMaterialShouldLookLike($fm, $response);
+
+		// Create same (!) material for the secibd time (should fail)
+		$response = $this->json('post', $uri, $data);
+
+		$response->assertStatus(409);
 	}
 
 
