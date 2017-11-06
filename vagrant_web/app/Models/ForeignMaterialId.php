@@ -19,7 +19,7 @@ class ForeignMaterialId extends Model {
 	protected $table = 'material_foreign_ids';
 
 	protected $fillable = [
-		'material_id', 'foreign_id'
+		'material_id', 'foreign_id', 'user_id'
 	];
 
 	public function getRouteKeyName() {

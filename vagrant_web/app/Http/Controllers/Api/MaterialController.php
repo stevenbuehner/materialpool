@@ -2,22 +2,18 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Requests\KeywordRequest;
 use App\Http\Requests\MaterialRequest;
-use App\Models\Bibleverse;
-use App\Models\Keyword;
 use App\Models\Material;
-use App\Models\Person;
 use App\Models\Resource;
-use App\Services\TagExtraction\Interfaces\RelevanceInterface;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Validator;
 use StevenBuehner\BibleVerseBundle\Service\BibleVerseService;
 
 
 class MaterialController extends BaseController {
+
+	use MaterialHelperTrait;
 
 	protected $withAttributes = [];
 	protected $bibleVerseService;
@@ -67,7 +63,7 @@ class MaterialController extends BaseController {
 		$material->from_bot    = TRUE;
 
 
-		$this->fillAuthor($request, $material);
+		$this->fillAuthor($request->get('author'), $material);
 		// necessary to assign keywords and bibleverses
 		$material->save();
 
@@ -80,81 +76,6 @@ class MaterialController extends BaseController {
 		return $material;
 	}
 
-	protected function fillAuthor(Request $request, Material $material) {
-
-		if ($request->has('author')) {
-			$author = Person::firstOrCreate(['title' => trim($request->get('author'))]);
-			$material->author()->associate($author);
-		}
-	}
-
-	protected function fillKeywords(Request $request, Material $material) {
-		$keywordIds = [];
-
-		if ($request->has('keywords')) {
-
-			$keywordRequestRules = (new KeywordRequest())->rules();
-
-			if (is_array($request->get('keywords'))) {
-
-				foreach ($request->get('keywords') as $keyword) {
-					$validator = Validator::make($keyword, $keywordRequestRules);
-
-					if ($validator->valid()) {
-						$data  = $validator->getData();
-						$type  = isset($data['type']) ? $data['type'] : NULL;
-						$class = Keyword::getSingleTableClass($type);
-
-						if ($class !== NULL) {
-							/** @var Keyword $kw */
-							$kw                  = $class::firstOrCreate(['title' => $data['title']]);
-							$relevance           = isset($keyword['relevance']) ? $keyword['relevance'] : RelevanceInterface::RELEVANCE_EXIF_MAX;
-							$keywordIds[$kw->id] = ['relevance' => $relevance];
-						}
-					}
-				}
-
-			}
-
-			$material->keywords()->sync($keywordIds);
-		}
-
-		return count($keywordIds);
-
-	}
-
-	protected function fillBibleverses(Request $request, Material $material) {
-		$bibleverseIds = [];
-
-		if ($request->has('bibleverses')) {
-
-			if (is_array($request->get('bibleverses'))) {
-
-				foreach ($request->get('bibleverses') as $bibleverseData) {
-					if (isset($bibleverseData['from']) && isset($bibleverseData['to'])) {
-						$bv = Bibleverse::firstOrNew(
-							[
-								'from' => $bibleverseData['from'],
-								'to'   => $bibleverseData['to']
-							]
-						);
-
-						if ($this->bibleVerseService->isBibleVerseValid($bv)) {
-							$bv->save();
-							$relevance              = isset($bibleverseData['relevance']) ? $bibleverseData['relevance'] : RelevanceInterface::RELEVANCE_EXIF_MAX;
-							$bibleverseIds[$bv->id] = ['relevance' => $relevance];
-						}
-
-					}
-				}
-
-			}
-
-			$material->bibleverses()->sync($bibleverseIds);
-		}
-
-		return count($bibleverseIds);
-	}
 
 	public function associateResources(Material $material, Request $request) {
 
@@ -195,7 +116,7 @@ class MaterialController extends BaseController {
 	public function update(MaterialRequest $request, Material $material) {
 
 		$material->fill($request->all());
-		$this->fillAuthor($request, $material);
+		$this->fillAuthor($request->get('author'), $material);
 		$material->save();
 
 		$this->fillKeywords($request, $material);

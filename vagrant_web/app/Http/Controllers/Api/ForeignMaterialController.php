@@ -2,15 +2,19 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Requests\FullMaterialRequest;
 use App\Http\Requests\MaterialRequest;
+use App\Models\Bibleverse;
 use App\Models\ForeignMaterialId;
 use App\Models\Material;
-use Illuminate\Http\Request;
 use Illuminate\Routing\Controller as BaseController;
+use Illuminate\Support\Facades\Auth;
 use StevenBuehner\BibleVerseBundle\Service\BibleVerseService;
 
 
 class ForeignMaterialController extends BaseController {
+
+	use MaterialHelperTrait;
 
 	protected $withAttributes = [];
 	protected $bibleVerseService;
@@ -26,7 +30,8 @@ class ForeignMaterialController extends BaseController {
 			'material.bibleverses' => function ($q) {
 				$q->orderBy('bibleverse_material.relevance', 'desc');
 			},
-			'material.resources'
+			'material.resources',
+			'material.author'
 		];
 
 		$this->middleware(['auth:api']);
@@ -50,8 +55,6 @@ class ForeignMaterialController extends BaseController {
 	 */
 	public function show(ForeignMaterialId $foreignMaterialId) {
 
-		$foreignMaterialId->load($this->withAttributes);
-
 		return $this->turnForeignMaterialIdIntoCustomFormat($foreignMaterialId);
 	}
 
@@ -60,21 +63,66 @@ class ForeignMaterialController extends BaseController {
 	 * @return array
 	 */
 	public function turnForeignMaterialIdIntoCustomFormat(ForeignMaterialId $foreignMaterialId) {
-		$result       = $foreignMaterialId->material->toArray();
-		$result['id'] = $foreignMaterialId->foreign_id;
+		/** @var Material $material */
+		$material = $foreignMaterialId->material;
+
+		$hidden = ['created_at', 'updated_at', 'icon'];
+		$material->bibleverses->each(function (Bibleverse $bv) use (&$hidden) {
+			$bv->setHidden($hidden);
+		});
+
+		$result                = $material->attributesToArray();
+		$result['id']          = $foreignMaterialId->foreign_id;
+		$result['keywords']    = $material->keywords;
+		$result['bibleverses'] = $material->bibleverses;
+		$result['resources']   = $material->resources();
+		$result['author']      = $material->author_id !== NULL ? $material->author->title : NULL;
 
 		return $result;
 	}
 
 
 	/**
-	 * Store a newly created material in storage.
-	 *
+	 * @param FullMaterialRequest $request
+	 * @param                     $foreignMaterialId
 	 */
-	public function store(Request $request) {
+	public function store(FullMaterialRequest $request, $foreignMaterialId) {
 
+		/** @var ForeignMaterialId $fm */
+		$fm = ForeignMaterialId::firstOrNew(
+			['foreign_id' => $foreignMaterialId,
+			 'user_id'    => Auth::id()]
+		);
+
+		if (TRUE === $fm->exists) {
+			return response('Material with this id exists already for this user', 409);
+		}
+
+		/** @var Material $mat */
+		$mat              = new Material(
+			array_merge(
+				$defaults = ['from_bot' => TRUE],
+				$request->all()
+			)
+		);
+		$mat->created_by  = Auth::id();
+		$mat->modified_by = Auth::id();
+
+		if ($request->has('author')) {
+			$this->fillAuthor($request->get('author'), $mat);
+		}
+
+		// necessary to assign keywords and bibleverses
+		$mat->save();
+
+		// Foreign-Material-ID gleich mitabspeichern
+		$fm->material()->associate($mat)->save();
+
+		$this->fillKeywords($request, $mat);
+		$this->fillBibleverses($request, $mat);
+
+		return $this->turnForeignMaterialIdIntoCustomFormat($fm);
 	}
-
 
 	/**
 	 * Update the specified material in storage.
@@ -85,7 +133,6 @@ class ForeignMaterialController extends BaseController {
 	 */
 	public function update(MaterialRequest $request, Material $material) {
 	}
-
 
 	/**
 	 * Remove the specified material from storage.

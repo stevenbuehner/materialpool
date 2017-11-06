@@ -84,6 +84,10 @@ Route::group([
 		 ->where('foreignMaterialId', '[0-9a-zA-Z_-]+')
 		 ->middleware('can:view,foreignMaterialId')
 		 ->name('foreignMaterialShow');
+	Route::post('material/{foreignMaterialId}', 'ForeignMaterialController@store')
+		 ->where('foreignMaterialId', '[0-9a-zA-Z_-]+')
+		 ->middleware('can:create,App\Models\ForeignMaterialId')
+		 ->name('foreignMaterialStore');
 
 
 	// ALT: Resources
