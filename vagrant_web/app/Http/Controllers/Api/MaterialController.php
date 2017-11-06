@@ -67,8 +67,8 @@ class MaterialController extends BaseController {
 		// necessary to assign keywords and bibleverses
 		$material->save();
 
-		$this->fillKeywords($request, $material);
-		$this->fillBibleverses($request, $material);
+		$this->syncKeywords($request, $material);
+		$this->syncBibleverses($request, $material);
 
 		// Reload from DB with Relations
 		$material = $material->fresh($this->withAttributes);
@@ -119,8 +119,8 @@ class MaterialController extends BaseController {
 		$this->fillAuthor($request->get('author'), $material);
 		$material->save();
 
-		$this->fillKeywords($request, $material);
-		$this->fillBibleverses($request, $material);
+		$this->syncKeywords($request, $material);
+		$this->syncBibleverses($request, $material);
 
 
 		return $material->fresh($this->withAttributes);

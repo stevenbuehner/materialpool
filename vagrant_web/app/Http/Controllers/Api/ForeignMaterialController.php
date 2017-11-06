@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Requests\FullMaterialRequest;
-use App\Http\Requests\MaterialRequest;
 use App\Models\Bibleverse;
 use App\Models\ForeignMaterialId;
 use App\Models\Material;
@@ -118,8 +117,9 @@ class ForeignMaterialController extends BaseController {
 		// Foreign-Material-ID gleich mitabspeichern
 		$fm->material()->associate($mat)->save();
 
-		$this->fillKeywords($request, $mat);
-		$this->fillBibleverses($request, $mat);
+		$this->syncKeywords($request, $mat);
+		$this->syncBibleverses($request, $mat);
+
 
 		return $this->turnForeignMaterialIdIntoCustomFormat($fm);
 	}
@@ -131,7 +131,41 @@ class ForeignMaterialController extends BaseController {
 	 * @param  Material                 $material
 	 * @return \Illuminate\Http\Response
 	 */
-	public function update(MaterialRequest $request, Material $material) {
+	public function update(FullMaterialRequest $request, ForeignMaterialId $foreignMaterialId) {
+
+		/** @var Material $material */
+		$material = Material::withCount('foreignIds')->where(
+			['id' => $foreignMaterialId->material_id]
+		)->get()->first();
+
+		if ($material->foreign_ids_count > 1) {
+			return response('The requested material exists but is connected with multiple other foreignMaterialIds.',
+							409);
+		}
+
+		// Update data
+		$material->fill(
+			array_merge(
+				$request->all(),
+				$override = [
+					'modified_by' => Auth::id()
+				]
+			)
+		);
+
+
+		if ($request->has('author')) {
+			$this->fillAuthor($request->get('author'), $material);
+		}
+
+		$material->save();
+
+		$this->syncKeywords($request, $material);
+		$this->syncBibleverses($request, $material);
+
+
+		return $this->turnForeignMaterialIdIntoCustomFormat($foreignMaterialId);
+
 	}
 
 	/**

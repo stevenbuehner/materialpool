@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Requests\KeywordRequest;
+use App\Jobs\CheckLonelyBibleverse;
+use App\Jobs\CheckLonelyKeyword;
 use App\Models\Bibleverse;
 use App\Models\Keyword;
 use App\Models\Material;
@@ -34,7 +36,7 @@ trait MaterialHelperTrait {
 		return NULL;
 	}
 
-	protected function fillKeywords(Request $request, Material $material) {
+	protected function syncKeywords(Request $request, Material $material) {
 		$keywordIds = [];
 
 		if ($request->has('keywords')) {
@@ -59,17 +61,28 @@ trait MaterialHelperTrait {
 						}
 					}
 				}
-
 			}
 
+			// Check which keywords have been deleted
+			$oldIds     = $material->keywords->pluck('id')->toArray();
+			$newIds     = array_keys($keywordIds);
+			$deletedIds = array_diff($oldIds, $newIds);
+
+
+			// Syn keywords
 			$material->keywords()->sync($keywordIds);
+
+
+			foreach ($deletedIds as $delId) {
+				CheckLonelyKeyword::dispatch(Keyword::find($delId));
+			}
 		}
 
 		return count($keywordIds);
 
 	}
 
-	protected function fillBibleverses(Request $request, Material $material) {
+	protected function syncBibleverses(Request $request, Material $material) {
 		$bibleverseIds = [];
 
 		if ($request->has('bibleverses')) {
@@ -93,12 +106,25 @@ trait MaterialHelperTrait {
 
 					}
 				}
-
 			}
 
+			// Check which bibleverses have been deleted
+			$oldIds     = $material->bibleverses->pluck('id')->toArray();
+			$newIds     = array_keys($bibleverseIds);
+			$deletedIds = array_diff($oldIds, $newIds);
+
+
+			// Sync bibleverses
 			$material->bibleverses()->sync($bibleverseIds);
+
+
+			foreach ($deletedIds as $delId) {
+				CheckLonelyBibleverse::dispatch(Bibleverse::find($delId));
+			}
 		}
 
 		return count($bibleverseIds);
 	}
+
+
 }

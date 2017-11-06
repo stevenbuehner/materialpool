@@ -88,7 +88,10 @@ Route::group([
 		 ->where('foreignMaterialId', '[0-9a-zA-Z_-]+')
 		 ->middleware('can:create,App\Models\ForeignMaterialId')
 		 ->name('foreignMaterialStore');
-
+	Route::put('material/{foreignMaterialId}', 'ForeignMaterialController@update')
+		 ->where('foreignMaterialId', '[0-9a-zA-Z_-]+')
+		 ->middleware('can:update,foreignMaterialId')
+		 ->name('foreignMaterialUpdate');
 
 	// ALT: Resources
 	Route::get('{foreignInstance}/resources', 'ForeignInstanceResourceController@index')

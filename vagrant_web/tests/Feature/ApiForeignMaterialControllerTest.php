@@ -2,10 +2,13 @@
 
 namespace Tests\Feature;
 
+use App\Jobs\CheckLonelyBibleverse;
+use App\Jobs\CheckLonelyKeyword;
 use App\Models\ForeignMaterialId;
 use App\Models\Keyword;
 use App\Models\Material;
 use App\Models\Person;
+use App\Models\Place;
 use App\Models\User;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\TestResponse;
@@ -245,12 +248,12 @@ class ApiForeignMaterialControllerTest extends TestCase {
 
 		// Create Material for the first time (everything should be fine)
 		$response = $this->json('post', $uri, $data);
-		$fm       = ForeignMaterialId::where([
-												 'foreign_id' => $uid,
-												 'user_id'    => $testUser->id
-											 ])->firstOrFail();
-
 		$response->assertStatus(200);
+
+		$fm = ForeignMaterialId::where([
+										   'foreign_id' => $uid,
+										   'user_id'    => $testUser->id
+									   ])->firstOrFail();
 		$this->validMaterialShouldLookLike($fm, $response);
 
 		// Create same (!) material for the secibd time (should fail)
@@ -259,5 +262,179 @@ class ApiForeignMaterialControllerTest extends TestCase {
 		$response->assertStatus(409);
 	}
 
+	public function testUpdate() {
+
+		$fm = $this->setUpUpdateTest();
+
+		$uri  = route('foreignMaterialUpdate', ['foreignMaterialId' => $fm->foreign_id]);
+		$data = [
+			'title'       => 'Test Update',
+			'rating'      => 12,
+			'from_bot'    => FALSE,
+			'description' => 'Description changed',
+			'author'      => "Steven Buehner",
+			'keywords'    => [
+				['title'     => 'Steven Buehner',
+				 'type'      => Person::getSingleTableType(),
+				 'relevance' => 200
+				],
+				['title'     => 'Stuttgart',
+				 'type'      => Place::getSingleTableType(),
+				 'relevance' => 100
+				]
+			],
+			'bibleverses' => [
+				['from'      => 1001001,
+				 'to'        => 1001002,
+				 'relevance' => 200]
+			]
+		];
+
+
+		$response     = $this->json('put', $uri, $data);
+		$responseData = $response->json();
+
+		$response->assertStatus(200);
+		$this->validMaterialShouldLookLike($fm, $response);
+
+		$this->assertEquals($data['title'], $responseData['title']);
+		$this->assertEquals($data['rating'], $responseData['rating']);
+		$this->assertEquals($data['from_bot'], $responseData['from_bot']);
+		$this->assertEquals($data['from_bot'], $responseData['from_bot']);
+		$this->assertEquals($data['author'], $responseData['author']);
+
+		$this->assertArraySubset(
+			[
+				[
+					'title' => $data['keywords'][0]['title'],
+					'type'  => $data['keywords'][0]['type'],
+					'pivot' => [
+						'relevance' => $data['keywords'][0]['relevance']
+					]
+				],
+				[
+					'title' => $data['keywords'][1]['title'],
+					'type'  => $data['keywords'][1]['type'],
+					'pivot' => [
+						'relevance' => $data['keywords'][1]['relevance']
+					]
+				]
+			],
+			$responseData['keywords']
+		);
+
+		$this->assertArraySubset(
+			[
+
+				[
+					'from'  => $data['bibleverses'][0]['from'],
+					'to'    => $data['bibleverses'][0]['to'],
+					'pivot' => [
+						'relevance' => $data['bibleverses'][0]['relevance']
+					]
+				]
+			],
+			$responseData['bibleverses']
+		);
+
+
+		// Test Removing Keywords and Bibleveres
+		$data['keywords']    =
+			[
+				['title'     => 'Stuttgart',
+				 'type'      => Place::getSingleTableType(),
+				 'relevance' => 100
+				]
+			];
+		$data['bibleverses'] = [];
+		$data['author']      = "Max Mustermann";
+
+		$this->expectsJobs(CheckLonelyBibleverse::class);
+		$this->expectsJobs(CheckLonelyKeyword::class);
+
+		$response     = $this->json('put', $uri, $data);
+		$responseData = $response->json();
+
+		$this->assertEquals($data['title'], $responseData['title']);
+		$this->assertEquals($data['rating'], $responseData['rating']);
+		$this->assertEquals($data['from_bot'], $responseData['from_bot']);
+		$this->assertEquals($data['description'], $responseData['description']);
+		$this->assertEquals($data['author'], $responseData['author']);
+		$this->assertCount(1, $responseData['keywords']);
+		$this->assertCount(0, $responseData['bibleverses']);
+
+		$this->assertArraySubset(
+			[
+				[
+					'title' => $data['keywords'][0]['title'],
+					'type'  => $data['keywords'][0]['type'],
+					'pivot' => [
+						'relevance' => $data['keywords'][0]['relevance']
+					]
+				]
+			],
+			$responseData['keywords']
+		);
+
+	}
+
+	/**
+	 * @return ForeignMaterialId
+	 */
+	public function setUpUpdateTest() {
+		/** @var User $testUser */
+		$testUser = User::take(1)->get()->first();
+		$this->assertInstanceOf(User::class, $testUser);
+
+		Passport::actingAs(
+			$testUser,
+			[]
+		);
+
+		// ForeignMaterialUID
+		$uid  = 'test_' . factory(ForeignMaterialId::class)->make()->foreign_id;
+		$data = $this->getTestDataMaterial();
+		$uri  = route('foreignMaterialStore', ['foreignMaterialId' => $uid]);
+
+		$response = $this->json('post', $uri, $data);
+		$response->assertStatus(200);
+
+		$fm = ForeignMaterialId::where([
+										   'foreign_id' => $uid,
+										   'user_id'    => $testUser->id
+									   ])->firstOrFail();
+
+		return $fm;
+	}
+
+	public function testUpdateFailUnauthorized() {
+		$fm       = ForeignMaterialId::firstOrFail();
+		$uri      = route('foreignMaterialUpdate', ['foreignMaterialId' => $fm->foreign_id]);
+		$response = $this->json('put', $uri, $data = []);
+
+		$response->assertStatus(401); // Unauthorized
+	}
+
+	public function testUpdateFailForbidden() {
+		/** @var User $testUser */
+		$testUser = User::take(1)->get()->first();
+		$this->assertInstanceOf(User::class, $testUser);
+
+		Passport::actingAs(
+			$testUser,
+			[]
+		);
+
+		/** @var ForeignMaterialId $fm */
+		$fm = ForeignMaterialId::where('user_id', '!=', $testUser->id)->firstOrFail();
+
+		// ForeignMaterialUID
+		$data = $this->getTestDataMaterial();
+		$uri  = route('foreignMaterialUpdate', ['foreignMaterialId' => $fm->foreign_id]);
+
+		$response = $this->json('put', $uri, $data);
+
+		$response->assertStatus(403); // Forbidden
+	}
 
 }
