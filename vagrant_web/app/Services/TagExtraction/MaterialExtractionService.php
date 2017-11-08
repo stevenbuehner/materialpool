@@ -9,6 +9,7 @@ use App\Services\TagExtraction\Properties\BibleverseProperty;
 use App\Services\TagExtraction\Properties\KeywordProperty;
 use App\Services\TagExtraction\Properties\OcrTextProperty;
 use App\Services\TagExtraction\Properties\Property;
+use App\Services\TagExtraction\Properties\RatingProperty;
 use App\Services\TagExtraction\Properties\TitleProperty;
 use App\Services\TagExtraction\ResourceHandles\HandlerInterface;
 use Illuminate\Support\Collection;
@@ -52,13 +53,14 @@ class MaterialExtractionService {
 		$material->save();
 		$material->resources()->attach($resources->pluck('id'));
 
+		// Add defaultproperties
+		$properties = $properties->merge($this->getDefaultProperties());
 
 		// Extract properties from resources
 		foreach ($resources as $resource) {
 			$resProp    = $this->extractPropertiesFromResources($resource);
 			$properties = $properties->merge($resProp);
 		}
-
 
 		// Extract properties from additionalInformation
 		foreach ($additionalInformation->get('properties', []) as $keywordString) {
@@ -78,6 +80,10 @@ class MaterialExtractionService {
 			 ->save();
 
 		return $material;
+	}
+
+	protected function getDefaultProperties() {
+		return collect([new RatingProperty(10)]);
 	}
 
 	public function extractPropertiesFromResources(Resource $resource) {
