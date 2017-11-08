@@ -53,7 +53,7 @@ class ApiForeignMaterialControllerTest extends TestCase {
 		$this->assertInstanceOf(Material::class, $fm->material);
 
 		// Resources-Uri
-		$uri = route('foreignMaterialShow', ['foreignMaterialId' => $fm->foreign_id]);
+		$uri = route('api.v1.foreignMaterialShow', ['foreignMaterialId' => $fm->foreign_id]);
 
 		$response = $this->json('get', $uri);
 
@@ -138,7 +138,7 @@ class ApiForeignMaterialControllerTest extends TestCase {
 		// Dont't authorize via oAuth
 
 		// Resources-Uri
-		$uri = route('foreignMaterialShow', ['foreignMaterialId' => $fm->foreign_id]);
+		$uri = route('api.v1.foreignMaterialShow', ['foreignMaterialId' => $fm->foreign_id]);
 
 		$response = $this->json('get', $uri);
 		$response->assertStatus(401); // Unauthorized
@@ -163,7 +163,7 @@ class ApiForeignMaterialControllerTest extends TestCase {
 		);
 
 		// Resources-Uri
-		$uri = route('foreignMaterialShow', ['foreignMaterialId' => $fm->foreign_id]);
+		$uri = route('api.v1.foreignMaterialShow', ['foreignMaterialId' => $fm->foreign_id]);
 
 		$response = $this->json('get', $uri);
 		$response->assertStatus(403); // Forbidden
@@ -204,7 +204,7 @@ class ApiForeignMaterialControllerTest extends TestCase {
 		$data['bibleverses'][] = ['from' => 1001001, 'to' => 1001002];
 
 		// Resources-Uri
-		$uri = route('foreignMaterialStore', ['foreignMaterialId' => $uid]);
+		$uri = route('api.v1.foreignMaterialStore', ['foreignMaterialId' => $uid]);
 
 		$response = $this->json('post', $uri, $data);
 
@@ -244,7 +244,7 @@ class ApiForeignMaterialControllerTest extends TestCase {
 		// ForeignMaterialUID
 		$uid  = 'test_' . factory(ForeignMaterialId::class)->make()->foreign_id;
 		$data = $this->getTestDataMaterial();
-		$uri  = route('foreignMaterialStore', ['foreignMaterialId' => $uid]);
+		$uri  = route('api.v1.foreignMaterialStore', ['foreignMaterialId' => $uid]);
 
 		// Create Material for the first time (everything should be fine)
 		$response = $this->json('post', $uri, $data);
@@ -266,7 +266,7 @@ class ApiForeignMaterialControllerTest extends TestCase {
 
 		$fm = $this->setUpUpdateTest();
 
-		$uri  = route('foreignMaterialUpdate', ['foreignMaterialId' => $fm->foreign_id]);
+		$uri  = route('api.v1.foreignMaterialUpdate', ['foreignMaterialId' => $fm->foreign_id]);
 		$data = [
 			'title'       => 'Test Update',
 			'rating'      => 12,
@@ -394,7 +394,7 @@ class ApiForeignMaterialControllerTest extends TestCase {
 		// ForeignMaterialUID
 		$uid  = 'test_' . factory(ForeignMaterialId::class)->make()->foreign_id;
 		$data = $this->getTestDataMaterial();
-		$uri  = route('foreignMaterialStore', ['foreignMaterialId' => $uid]);
+		$uri  = route('api.v1.foreignMaterialStore', ['foreignMaterialId' => $uid]);
 
 		$response = $this->json('post', $uri, $data);
 		$response->assertStatus(200);
@@ -410,7 +410,7 @@ class ApiForeignMaterialControllerTest extends TestCase {
 
 	public function testUpdateFailUnauthorized() {
 		$fm       = ForeignMaterialId::firstOrFail();
-		$uri      = route('foreignMaterialUpdate', ['foreignMaterialId' => $fm->foreign_id]);
+		$uri      = route('api.v1.foreignMaterialUpdate', ['foreignMaterialId' => $fm->foreign_id]);
 		$response = $this->json('put', $uri, $data = []);
 
 		$response->assertStatus(401); // Unauthorized
@@ -431,7 +431,7 @@ class ApiForeignMaterialControllerTest extends TestCase {
 
 		// ForeignMaterialUID
 		$data = $this->getTestDataMaterial();
-		$uri  = route('foreignMaterialUpdate', ['foreignMaterialId' => $fm->foreign_id]);
+		$uri  = route('api.v1.foreignMaterialUpdate', ['foreignMaterialId' => $fm->foreign_id]);
 
 		$response = $this->json('put', $uri, $data);
 
@@ -458,7 +458,7 @@ class ApiForeignMaterialControllerTest extends TestCase {
 		$mat = $fm->material;
 
 		// Resources-Uri
-		$uri = route('foreignMaterialDelete', ['foreignMaterialId' => $fm->foreign_id]);
+		$uri = route('api.v1.foreignMaterialDelete', ['foreignMaterialId' => $fm->foreign_id]);
 
 		$response     = $this->json('delete', $uri);
 		$responseData = $response->json();
@@ -493,7 +493,7 @@ class ApiForeignMaterialControllerTest extends TestCase {
 
 	public function testDeleteFailUnauthorized() {
 		$fm       = ForeignMaterialId::firstOrFail();
-		$uri      = route('foreignMaterialDelete', ['foreignMaterialId' => $fm->foreign_id]);
+		$uri      = route('api.v1.foreignMaterialDelete', ['foreignMaterialId' => $fm->foreign_id]);
 		$response = $this->json('delete', $uri);
 
 		$response->assertStatus(401); // Unauthorized
@@ -511,7 +511,7 @@ class ApiForeignMaterialControllerTest extends TestCase {
 
 		/** @var ForeignMaterialId $fm */
 		$fm  = ForeignMaterialId::where('user_id', '!=', $testUser->id)->firstOrFail();
-		$uri = route('foreignMaterialDelete', ['foreignMaterialId' => $fm->foreign_id]);
+		$uri = route('api.v1.foreignMaterialDelete', ['foreignMaterialId' => $fm->foreign_id]);
 
 		$response = $this->json('delete', $uri);
 

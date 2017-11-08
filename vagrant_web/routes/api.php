@@ -79,23 +79,23 @@ Route::group([
 	 * Aus der Sicht der Foreign Instance mit ihren eigenen IDs
 	 */
 
-	// Neu
+	// Neu - Material
 	Route::get('material/{foreignMaterialId}', 'ForeignMaterialController@show')
 		 ->where('foreignMaterialId', '[0-9a-zA-Z_-]+')
 		 ->middleware('can:view,foreignMaterialId')
-		 ->name('foreignMaterialShow');
+		 ->name('api.v1.foreignMaterialShow');
 	Route::post('material/{foreignMaterialId}', 'ForeignMaterialController@store')
 		 ->where('foreignMaterialId', '[0-9a-zA-Z_-]+')
 		 ->middleware('can:create,App\Models\ForeignMaterialId')
-		 ->name('foreignMaterialStore');
+		 ->name('api.v1.foreignMaterialStore');
 	Route::put('material/{foreignMaterialId}', 'ForeignMaterialController@update')
 		 ->where('foreignMaterialId', '[0-9a-zA-Z_-]+')
 		 ->middleware('can:update,foreignMaterialId')
-		 ->name('foreignMaterialUpdate');
+		 ->name('api.v1.foreignMaterialUpdate');
 	Route::delete('material/{foreignMaterialId}', 'ForeignMaterialController@destroy')
 		 ->where('foreignMaterialId', '[0-9a-zA-Z_-]+')
 		 ->middleware('can:delete,foreignMaterialId')
-		 ->name('foreignMaterialDelete');
+		 ->name('api.v1.foreignMaterialDelete');
 
 	// ALT: Resources
 	Route::get('{foreignInstance}/resources', 'ForeignInstanceResourceController@index')
