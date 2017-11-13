@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\ResourceHelperTrait;
 use App\Jobs\UpdateResourceHashes;
 use App\Models\File;
+use App\Models\ForeignMaterialId;
 use App\Models\Resource;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller as BaseController;
@@ -12,6 +14,7 @@ use Illuminate\Support\Facades\Storage;
 
 class ResourceController extends BaseController {
 
+	use ResourceHelperTrait;
 
 	public function __construct() {
 		$this->middleware(['auth:api']);
@@ -53,39 +56,69 @@ class ResourceController extends BaseController {
 
 	public function store(Request $request) {
 
-		if (Auth::guest()) {
-			response('No user given', 404);
+		// Check requirements
+		if (!($request->hasFile('file') xor !empty($request->get('content', NULL)))) {
+			return response()->json([
+										'success' => FALSE,
+										'error'   => 'Files XOR Content!'
+									])
+							 ->setStatusCode(409);
 		}
 
-		$resource = $this->getResourceFromRequest($request);
+		$uid = $request->get('foreign_material_id', NULL);
+		if ($request->get('create_material_from_resource', FALSE) === TRUE) {
 
-		$this->handleResourceFileUpload($resource, $request);
+			if (empty($uid)) {
+				return response()->json([
+											'success' => FALSE,
+											'error'   => 'Missing parameter foreign_material_id when using create_material_from_ressource=TRUE'
+										])
+								 ->setStatusCode(409);
+			}
 
-		$this->assignFieldValues($resource, $request);
+			$fid = ForeignMaterialId::where(
+				['foreign_id' => $uid,
+				 'user_id'    => Auth::id()]
+			)->first();
 
-		$resource->save();
-
-		return $resource;
-	}
-
-	/**
-	 * @param Request $request
-	 * @return Resource
-	 */
-	protected function getResourceFromRequest(Request $request) {
-		$class = Resource::getSingleTableClass($request->get('type', ''));
-
-		if ($class === NULL) {
-			if ($request->hasFile('file')) {
-				$class = File::class;
-			} else {
-				$class = Resource::class;
+			if ($fid !== NULL) {
+				return response()->json([
+											'success' => FALSE,
+											'error'   => 'The ForeignMaterialID for this user exists already'
+										])
+								 ->setStatusCode(409);
 			}
 		}
 
-		/** @var Resource $resource */
-		$resource = new $class();
-		$resource->creator()->associate(Auth::user());
+
+		if ($request->hasFile('file')) {
+			$resource = $this->handleResourceUpload($request);
+		} else {
+			$resource = $this->handleResourceContent($request);
+		}
+
+
+		if ($request->get('create_material_from_resource', FALSE) === TRUE) {
+			$material = $this->createMaterialFromResources($resource);
+
+			$fid = ForeignMaterialId::create(
+				['user_id'     => Auth::id(),
+				 'foreign_id'  => $uid,
+				 'material_id' => $material->id]
+			);
+		}
+
+
+		// Also load attributes that have not been touched (like remote_path)
+		return $resource->fresh();
+
+	}
+
+	public function update(Request $request, Resource $resource) {
+
+		$resource->fill($request->all());
+		$this->handleResourceFileUpload($resource, $request);
+		$resource->save();
 
 		return $resource;
 	}
@@ -144,17 +177,30 @@ class ResourceController extends BaseController {
 		}
 	}
 
-	protected function assignFieldValues(Resource $resource, Request $request) {
-		$resource->fill($request->all());
-	}
+	/**
+	 * @param Request $request
+	 * @return Resource
+	 */
+	protected function getResourceFromRequest(Request $request) {
+		$class = Resource::getSingleTableClass($request->get('type', ''));
 
-	public function update(Request $request, Resource $resource) {
+		if ($class === NULL) {
+			if ($request->hasFile('file')) {
+				$class = File::class;
+			} else {
+				$class = Resource::class;
+			}
+		}
 
-		$resource->fill($request->all());
-		$this->handleResourceFileUpload($resource, $request);
-		$resource->save();
+		/** @var Resource $resource */
+		$resource = new $class();
+		$resource->creator()->associate(Auth::user());
 
 		return $resource;
+	}
+
+	protected function assignFieldValues(Resource $resource, Request $request) {
+		$resource->fill($request->all());
 	}
 
 

@@ -9,7 +9,7 @@ use Illuminate\Auth\Access\HandlesAuthorization;
 class ResourcePolicy {
 	use HandlesAuthorization;
 
-	public function before($user, $ability) {
+	public function before(User $user, $ability) {
 		if ($user->isSuperAdmin()) {
 			return TRUE;
 		}

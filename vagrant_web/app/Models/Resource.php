@@ -18,6 +18,9 @@ use Nanigans\SingleTableInheritance\SingleTableInheritanceTrait;
  * @property string $local_path
  * @property string $content_hash
  * @property string $notes
+ * @property bool   $is_public
+ * @property        $created_at
+ * @property        $updated_at
  */
 class Resource extends Model {
 	use SingleTableInheritanceTrait;
@@ -42,7 +45,7 @@ class Resource extends Model {
 		'remote_path', 'notes', 'is_public'
 	];
 
-	protected $hidden = ['options', 'local_path'];
+	protected $hidden = ['options', 'local_path', 'created_at', 'updated_at'];
 
 	public function __construct(array $attributes = []) {
 		$this->options   = [];

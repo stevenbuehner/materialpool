@@ -12,11 +12,12 @@ use Laravel\Passport\HasApiTokens;
  * Class User
  *
  * @package App\Models
- * @property string $name
- * @property string $email
- * @property string $password
- * @property string $remember_token
- * @property int    $id
+ * @property string  $name
+ * @property string  $email
+ * @property string  $password
+ * @property string  $remember_token
+ * @property int     $id
+ * @property boolean $is_admin
  */
 class User extends Authenticatable {
 	use Notifiable;
@@ -28,7 +29,7 @@ class User extends Authenticatable {
 	 * @var array
 	 */
 	protected $fillable = [
-		'name', 'email', 'password',
+		'name', 'email', 'password', 'is_admin'
 	];
 
 	/**
@@ -38,6 +39,10 @@ class User extends Authenticatable {
 	 */
 	protected $hidden = [
 		'password', 'remember_token',
+	];
+
+	protected $casts = [
+		'is_admin' => 'boolean'
 	];
 
 	/**

@@ -10,6 +10,7 @@ use App\Models\Keyword;
 use App\Models\PdfFile;
 use App\Models\Resource;
 use App\Models\Text;
+use App\Models\Url;
 use App\Models\VideoFile;
 use Illuminate\Http\UploadedFile;
 
@@ -77,6 +78,19 @@ class ResourceRecognitionService {
 		}
 
 		return $class;
+	}
+
+	/**
+	 * @param string $content
+	 * @return string
+	 */
+	public function guessResourceContent(&$content) {
+
+		if (preg_match('%^((https?://)|(www\.))([a-z0-9-].?)+(:[0-9]+)?(/.*)?$%i', $content) === 1) {
+			return Url::class;
+		}
+
+		return Text::class;
 	}
 
 }

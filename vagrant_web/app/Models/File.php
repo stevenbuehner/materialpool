@@ -31,6 +31,7 @@ class File extends Resource {
 		// Add Attribute
 		$this->appends[]             = 'original_filename';
 		$this->fillable[]            = 'original_filename';
+
 		$this->additionalEditViews[] = 'resources.files.edit-partial';
 	}
 

@@ -23,7 +23,7 @@ class Text extends Resource implements TextContentInterface {
 		parent::__construct($attributes);
 
 		// Add Attribute
-		// $this->appends[]  = 'content';
+		$this->appends[]  = 'content';
 		$this->fillable[] = 'content';
 		// TODO: $this->additionalEditViews[] = 'resources.text.edit-partial';
 	}

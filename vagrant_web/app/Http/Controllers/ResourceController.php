@@ -17,6 +17,8 @@ use Illuminate\Support\Facades\Storage;
 
 class ResourceController extends Controller {
 
+	use ResourceHelperTrait;
+
 	public function __construct() {
 		$this->middleware(['auth']);
 	}
@@ -68,59 +70,6 @@ class ResourceController extends Controller {
 		return redirect(route('pool.material.show', $material->id));
 	}
 
-	/**
-	 * @param UploadedFile $uploadedFile
-	 * @return Resource
-	 * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException
-	 */
-	protected function handleResourceUpload(UploadedFile $uploadedFile) {
-		/** @var ResourceRecognitionService $recognitionService */
-		$recognitionService   = resolve('app.resource.type.recognition');
-		$resourceClass        = $recognitionService->guessResourceFile($uploadedFile);
-		$resource             = new $resourceClass();
-		$resource->created_by = Auth()->id();
-
-
-		if ($resource instanceof \App\Models\File) {
-			$disk = Storage::disk(config('app.disks.resources'));
-			// $tmpPath                     = $uploadedFile->getPath() . DIRECTORY_SEPARATOR . $uploadedFile->getFilename();
-			// $sha1                        = sha1_file($tmpPath);
-			// $resource->content_hash      = $sha1;
-			$resource->original_filename = $uploadedFile->getClientOriginalName();
-			$resource->save();
-
-			$newTargetFolder      = DIRECTORY_SEPARATOR . intval($resource->id / 10000);
-			$newTargetFolder      .= DIRECTORY_SEPARATOR . intval($resource->id / 100);
-			$relativeFilePath     = $disk->putFile($newTargetFolder, $uploadedFile);
-			$resource->local_path = config('app.disks.resources') . '::' . $relativeFilePath;
-
-
-		} else if ($resource instanceof Text) {
-			$resource->content = File::get($uploadedFile->getRealPath());
-		}
-
-		$resource->save();
-
-		UpdateResourceHashes::dispatch($resource);
-
-		return $resource;
-	}
-
-	protected function createMaterialFromResources($resources, $metaData) {
-
-		if (!is_array($resources)) {
-			$resources = [$resources];
-		}
-
-		$tagExtractionProperties                 = [];
-		$tagExtractionProperties['properties'][] = $metaData;
-
-		/** @var MaterialExtractionService $materialService */
-		$materialService = resolve(MaterialExtractionService::class);
-		$material        = $materialService->createGuessedMaterialFromResource($resources, $tagExtractionProperties);
-
-		return $material;
-	}
 
 	/**
 	 * Display the specified resource.
