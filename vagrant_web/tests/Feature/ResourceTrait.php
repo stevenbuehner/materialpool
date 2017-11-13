@@ -7,6 +7,7 @@ use App\Models\ImageFile;
 use App\Models\Keyword;
 use App\Models\Material;
 use App\Models\Resource;
+use App\Models\Text;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\UploadedFile;
@@ -23,7 +24,7 @@ Trait ResourceTrait {
 		$users    = factory(User::class, 3)->create();
 		$keywords = factory(Keyword::class, 5)->create();
 
-		factory(Resource::class, 2)
+		factory(Text::class, 2)
 			->create([
 						 'created_by' => $users->offsetGet(0)->first()->id
 					 ])

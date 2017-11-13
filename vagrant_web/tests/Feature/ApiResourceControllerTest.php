@@ -2,8 +2,6 @@
 
 namespace Tests\Feature;
 
-use App\Jobs\CheckDuplicateResources;
-use App\Jobs\UpdateResourceHashes;
 use App\Models\File;
 use App\Models\ImageFile;
 use App\Models\PdfFile;
@@ -12,6 +10,7 @@ use App\Models\Text;
 use App\Models\Url;
 use App\Models\User;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
+use Illuminate\Foundation\Testing\TestResponse;
 use Illuminate\Support\Facades\Storage;
 use Laravel\Passport\Passport;
 use League\Flysystem\Adapter\Local;
@@ -65,10 +64,10 @@ class ApiResourceControllerTest extends TestCase {
 		$this->assertInstanceOf(ImageFile::class, $resource);
 	}
 
-	protected function authenticatePassport() {
+	protected function authenticatePassport($testUser = NULL) {
 
 		Passport::actingAs(
-			$this->testUser,
+			$testUser === NULL ? $this->testUser : $testUser,
 			[]
 		);
 
@@ -92,25 +91,7 @@ class ApiResourceControllerTest extends TestCase {
 		$responseData = $response->json();
 		$response->assertStatus(200);
 
-
-		// Struktur validieren
-		$expectedStucture = [
-			'id',
-			'type',
-			'remote_path',
-			'notes',
-			'is_public',
-			'content_hash'
-		];
-
-		if (TRUE === $isFileResource) {
-			$expectedStucture[] = 'original_filename';
-		} else {
-			$expectedStucture[] = 'content';
-		}
-
-		$response->assertJsonStructure($expectedStucture);
-
+		$this->verifyResourceJsonResult($response, $isFileResource);
 
 		// Inhalt validieren
 		$response->assertJsonFragment(['is_public' => $data['is_public'],
@@ -157,6 +138,28 @@ class ApiResourceControllerTest extends TestCase {
 
 
 		return $response;
+	}
+
+	protected function verifyResourceJsonResult(TestResponse $response, $isFileResource = TRUE) {
+
+
+		// Struktur validieren
+		$expectedStucture = [
+			'id',
+			'type',
+			'remote_path',
+			'notes',
+			'is_public',
+			'content_hash'
+		];
+
+		if (TRUE === $isFileResource) {
+			$expectedStucture[] = 'original_filename';
+		} else {
+			$expectedStucture[] = 'content';
+		}
+
+		$response->assertJsonStructure($expectedStucture);
 	}
 
 	public function testCreateResourcePdfFileUpload() {
@@ -272,34 +275,95 @@ class ApiResourceControllerTest extends TestCase {
 
 
 	public function testGetResourceShow() {
-		$resource = File::first();
-		$this->assertNotNull($resource);
-		$uri      = '/api/v1/resources/' . $resource->id;
-		$response = $this->json('get', $uri);
+
+		$this->authenticatePassport();
+
+		/** @var User $testuser */
+		$testuser = $this->testUser;
+		$resource = $testuser->resources->first();
+		$this->assertInstanceOf(Resource::class, $resource);
+
+		$uri          = route('api.v1.resources.show', ['resource' => $resource->id]);
+		$response     = $this->json('get', $uri);
+		$responseData = $response->json();
+
 
 		$response->assertStatus(200);
-		$response->assertJsonStructure([
-										   'id', 'remote_path', 'notes', 'is_public', 'content_hash', 'type', 'created_at', 'updated_at', 'original_filename'
-									   ]);
-		$response->assertJson([
-								  'id'                => $resource->id,
-								  'remote_path'       => $resource->remote_path,
-								  'notes'             => $resource->notes,
-								  'is_public'         => $resource->is_public,
-								  'content_hash'      => $resource->content_hash,
-								  'type'              => $resource->type,
-								  'created_at'        => $resource->created_at,
-								  'updated_at'        => $resource->updated_at,
-								  'original_filename' => $resource->original_filename
-							  ]);
+		$this->verifyResourceJsonResult($response, $isFileResource = $resource instanceof File);
+	}
 
+	public function testGetResourceFile() {
+
+		$resource = File::all()->first();
+		$this->assertInstanceOf(File::class, $resource);
+
+		/** @var User $user */
+		$user = $resource->creator;
+		$this->assertInstanceOf(User::class, $user);
+
+		$this->authenticatePassport($user);
+
+		$uri          = route('api.v1.resources.show', ['resource' => $resource->id]);
+		$response     = $this->json('get', $uri);
+		$responseData = $response->json();
+
+
+		$response->assertStatus(200);
+		$this->verifyResourceJsonResult($response, $isFileResource = $resource instanceof File);
+	}
+
+	public function testGetResourceText() {
+
+		$resource = Text::all()->first();
+		$this->assertInstanceOf(Text::class, $resource);
+
+		/** @var User $user */
+		$user = $resource->creator;
+		$this->assertInstanceOf(User::class, $user);
+
+		$this->authenticatePassport($user);
+
+		$uri          = route('api.v1.resources.show', ['resource' => $resource->id]);
+		$response     = $this->json('get', $uri);
+		$responseData = $response->json();
+
+
+		$response->assertStatus(200);
+		$this->verifyResourceJsonResult($response, $isFileResource = $resource instanceof File);
 	}
 
 	public function testGetResourceShowNotFound() {
-		$uri      = '/api/v1/resources/9999999';
+
+		$this->authenticatePassport();
+		$uri      = route('api.v1.resources.show', ['resource' => 999999]);
 		$response = $this->json('get', $uri);
 
 		$response->assertStatus(404);
+	}
+
+
+	public function testGetResourceForbidden() {
+
+		$this->authenticatePassport();
+
+		$resource = Resource::where(
+			'created_by', '!=', $this->testUser->id
+		)->first();
+		$this->assertInstanceOf(Resource::class, $resource);
+
+
+		$uri      = route('api.v1.resources.show', ['resource' => $resource->id]);
+		$response = $this->json('get', $uri);
+
+		$response->assertStatus(403); // Forbidden
+	}
+
+	public function testGetResourceUnauthorized() {
+
+		$uri      = route('api.v1.resources.show', ['resource' => 999999]);
+		$response = $this->json('get', $uri);
+
+		$response->assertStatus(401); // Unauthorized
 	}
 
 

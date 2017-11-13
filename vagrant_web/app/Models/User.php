@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Backpack\Base\app\Notifications\ResetPasswordNotification as ResetPasswordNotification;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Passport\HasApiTokens;
@@ -12,12 +13,14 @@ use Laravel\Passport\HasApiTokens;
  * Class User
  *
  * @package App\Models
- * @property string  $name
- * @property string  $email
- * @property string  $password
- * @property string  $remember_token
- * @property int     $id
- * @property boolean $is_admin
+ * @property string     $name
+ * @property string     $email
+ * @property string     $password
+ * @property string     $remember_token
+ * @property int        $id
+ * @property boolean    $is_admin
+ *
+ * @property Collection $resources
  */
 class User extends Authenticatable {
 	use Notifiable;
@@ -61,5 +64,9 @@ class User extends Authenticatable {
 
 	public function isSuperAdmin() {
 		return $this->getAttribute('is_admin') === TRUE;
+	}
+
+	public function resources() {
+		return $this->hasMany(Resource::class, 'created_by');
 	}
 }

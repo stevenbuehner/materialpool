@@ -98,10 +98,13 @@ Route::group([
 
 
 	// Neu - Ressourcen
+	Route::get('resources/{resource}', 'ResourceController@show')
+		 ->where('resource', '[0-9]+')
+		 ->middleware('can:view,resource')
+		 ->name('api.v1.resources.show');
 	Route::post('resources/', 'ResourceController@store')
-		->middleware('can:create,App\Models\Resource')
+		 ->middleware('can:create,App\Models\Resource')
 		 ->name('api.v1.resources.store');
-
 
 
 	// ALT: Resources

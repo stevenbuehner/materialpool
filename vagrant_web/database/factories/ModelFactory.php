@@ -135,7 +135,7 @@ $factory->define(Text::class, function (Faker\Generator $faker) {
 		'local_path'   => NULL,
 		'content_hash' => sha1($content),
 		'content'      => $content,
-		'notes'        => '',
+		'notes'        => $faker->text(),
 		'is_public'    => $faker->boolean()
 	];
 });
