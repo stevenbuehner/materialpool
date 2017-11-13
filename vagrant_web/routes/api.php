@@ -12,7 +12,7 @@
 */
 
 Route::group([
-				 // 'middleware' => 'auth:api',
+				 // 'middleware' => 'auth:api', // im Konstruktor der Klassen eingebettet
 				 'prefix'    => 'v1',
 				 'namespace' => 'Api'
 			 ], function () {
@@ -27,8 +27,7 @@ Route::group([
 	Route::put('resources/{resource}', 'ResourceController@update')
 		 ->where(['resource' => '[0-9]+'])
 		 ->name('api.v1.resources.update');
-	Route::post('resources/', 'ResourceController@store')
-		 ->name('api.v1.resources.store');
+
 
 	// Materials
 	Route::get('materials', 'MaterialController@index')
@@ -97,6 +96,14 @@ Route::group([
 		 ->middleware('can:delete,foreignMaterialId')
 		 ->name('api.v1.foreignMaterialDelete');
 
+
+	// Neu - Ressourcen
+	Route::post('resources/', 'ResourceController@store')
+		->middleware('can:create,App\Models\Resource')
+		 ->name('api.v1.resources.store');
+
+
+
 	// ALT: Resources
 	Route::get('{foreignInstance}/resources', 'ForeignInstanceResourceController@index')
 		 ->where('foreignInstance', '[0-9]+');
@@ -108,7 +115,6 @@ Route::group([
 	Route::delete('{foreignInstanceId}/resource/{remoteResourceId}', 'ForeignInstanceResourceController@destroy')
 		 ->where(['foreignInstanceId', '[0-9]+', 'remoteResourceId' => '[0-9]+'])
 		 ->name('foreignInstanceResourceDelete');
-
 
 	// ALT: ForeignInstance + Resource => Material + Keywords
 	Route::get('{foreignInstance}/materials', 'ForeignInstanceMaterialController@index')
