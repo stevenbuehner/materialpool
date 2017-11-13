@@ -2,6 +2,8 @@
 
 namespace Tests\Feature;
 
+use App\Jobs\CheckDuplicateResources;
+use App\Jobs\UpdateResourceHashes;
 use App\Models\File;
 use App\Models\ImageFile;
 use App\Models\PdfFile;
@@ -9,7 +11,6 @@ use App\Models\Resource;
 use App\Models\Text;
 use App\Models\Url;
 use App\Models\User;
-use App\Policies\ResourcePolicy;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Support\Facades\Storage;
 use Laravel\Passport\Passport;
@@ -45,7 +46,7 @@ class ApiResourceControllerTest extends TestCase {
 		parent::tearDown();
 	}
 
-	public function testCreateResourceFileUpload() {
+	public function testCreateResourceImageFileUpload() {
 
 		$this->authenticatePassport();
 
@@ -62,36 +63,6 @@ class ApiResourceControllerTest extends TestCase {
 		$response = $this->uploadFilesSuccessful($dataBild);
 		$resource = $response->getOriginalContent();
 		$this->assertInstanceOf(ImageFile::class, $resource);
-
-
-		// PDF Upload
-		$dataPdf = [
-			'file'                          => $this->getUploadedFile(__DIR__ . '/../testFiles/PDF.pdf',
-																	  'Balloning.pdf'),
-			'notes'                         => 'Viele Notizen',
-			'is_public'                     => TRUE,
-			'create_material_from_resource' => TRUE,
-			'foreign_material_id'           => uniqid('test_', TRUE)
-		];
-
-		$response = $this->uploadFilesSuccessful($dataPdf);
-		$resource = $response->getOriginalContent();
-		$this->assertInstanceOf(PdfFile::class, $resource);
-
-
-		// Text Upload as file
-		$dataText = [
-			'file'                          => $this->getUploadedFile(__DIR__ . '/../testFiles/Text.txt',
-																	  'Einfältig, Beispiel, Papier, von Klaus-Dieter Mauer, am 18.10.2015, Richtung.txt'),
-			'notes'                         => 'Das ist egal',
-			'is_public'                     => FALSE,
-			'create_material_from_resource' => TRUE,
-			'foreign_material_id'           => uniqid('test_', TRUE)
-		];
-
-		$response = $this->uploadFilesSuccessful($dataText, $isFileResource = FALSE);
-		$resource = $response->getOriginalContent();
-		$this->assertInstanceOf(Text::class, $resource);
 	}
 
 	protected function authenticatePassport() {
@@ -188,7 +159,46 @@ class ApiResourceControllerTest extends TestCase {
 		return $response;
 	}
 
-	public function testCreateResourceByContent() {
+	public function testCreateResourcePdfFileUpload() {
+
+		$this->authenticatePassport();
+
+		// PDF Upload
+		$dataPdf = [
+			'file'                          => $this->getUploadedFile(__DIR__ . '/../testFiles/PDF.pdf',
+																	  'Balloning.pdf'),
+			'notes'                         => 'Viele Notizen',
+			'is_public'                     => TRUE,
+			'create_material_from_resource' => TRUE,
+			'foreign_material_id'           => uniqid('test_', TRUE)
+		];
+
+		$response = $this->uploadFilesSuccessful($dataPdf);
+		$resource = $response->getOriginalContent();
+		$this->assertInstanceOf(PdfFile::class, $resource);
+
+	}
+
+	public function testCreateResourceTextFileUpload() {
+
+		$this->authenticatePassport();
+
+		// Text Upload as file
+		$dataText = [
+			'file'                          => $this->getUploadedFile(__DIR__ . '/../testFiles/Text.txt',
+																	  'Einfältig, Beispiel, Papier, von Klaus-Dieter Mauer, am 18.10.2015, Richtung.txt'),
+			'notes'                         => 'Das ist egal',
+			'is_public'                     => FALSE,
+			'create_material_from_resource' => TRUE,
+			'foreign_material_id'           => uniqid('test_', TRUE)
+		];
+
+		$response = $this->uploadFilesSuccessful($dataText, $isFileResource = FALSE);
+		$resource = $response->getOriginalContent();
+		$this->assertInstanceOf(Text::class, $resource);
+	}
+
+	public function testCreateResourceByTextContent() {
 
 		$this->authenticatePassport();
 
@@ -204,7 +214,12 @@ class ApiResourceControllerTest extends TestCase {
 		$response = $this->uploadFilesSuccessful($dataText, FALSE);
 		$resource = $response->getOriginalContent();
 		$this->assertInstanceOf(Text::class, $resource);
+	}
 
+
+	public function testCreateResourceByOtherTextContent() {
+
+		$this->authenticatePassport();
 
 		// Check Without MaterialCreation
 		// Text Upload
@@ -219,6 +234,12 @@ class ApiResourceControllerTest extends TestCase {
 		$this->assertInstanceOf(Text::class, $resource);
 		$this->assertEquals(0, $resource->materials->count(), "Erwarte kein verknüpftes Material");
 
+	}
+
+
+	public function testCreateResourceByUrlContent() {
+
+		$this->authenticatePassport();
 
 		// Url-Content
 		$dataUrl = [
