@@ -56,7 +56,7 @@ class FileExifHandler implements HandlerInterface {
 		$localAbsolutePath = $localPathPrefix . $localRelativePath;
 
 
-		$fileEntity = $this->exifReader->files($localAbsolutePath)->first();
+		$fileEntity = $this->exifReader->reset()->files($localAbsolutePath)->first();
 		/** @var MetadataBag $metaData */
 		$metaData = $fileEntity->getMetadatas();
 
