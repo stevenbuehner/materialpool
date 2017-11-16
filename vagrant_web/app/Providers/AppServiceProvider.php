@@ -14,6 +14,7 @@ use App\Services\TagExtraction\ResourceHandles\FileNameHandler;
 use App\Services\TagExtraction\TagExtractionService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
 use Monolog\Logger;
@@ -83,7 +84,7 @@ class AppServiceProvider extends ServiceProvider {
 		$this->app->singleton(VideoPreviewGenerator::class);
 
 		$this->app->singleton('PHPExiftool\Reader', function ($app) {
-			$logger = new Logger('exiftool');
+			$logger = Log::getMonolog();
 			$reader = Reader::create($logger);
 
 			return $reader;
