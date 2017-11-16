@@ -118,7 +118,7 @@ class ResourceController extends BaseController {
 	/**
 	 * @param Request              $request
 	 * @param \App\Models\Resource $resource
-	 * @return $this|Resource
+	 * @return Resource
 	 */
 	public function update(Request $request, Resource $resource) {
 
@@ -137,6 +137,30 @@ class ResourceController extends BaseController {
 		}
 
 		return $resource;
+	}
+
+	/**
+	 * @param Resource $resource
+	 */
+	public function destroy(Resource $resource) {
+
+		$t = Resource::where('id', '=', $resource->id)->has('materials')->get();
+
+		if ($t->count() >= 1) {
+			return response(['message' => 'Resource is assigned to materials. Please delete materials first.'])
+				->setStatusCode(409);
+
+		}
+
+		// Delete from filesystem
+		if ($resource instanceof File) {
+			$resource->deleteLocalFile();
+		}
+
+		// Delete in DB
+		$resource->delete();
+
+		return [];
 	}
 
 

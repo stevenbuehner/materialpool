@@ -613,5 +613,105 @@ class ApiResourceControllerTest extends TestCase {
 		$response->assertStatus(401); // Unauthorized
 	}
 
+	public function testDeleteTextSuccess() {
+		// Resource
+		$resource = Text::first();
+		$this->assertInstanceOf(Text::class, $resource);
+
+		// Resource needs to have material
+		$this->assertGreaterThanOrEqual(1, $resource->materials->count());
+
+		/** @var User $user */
+		$user = $resource->creator;
+		$this->assertInstanceOf(User::class, $user);
+
+		$this->authenticatePassport($user);
+
+		// First Fail (because materials exist)
+		$uri      = route('api.v1.resources.delete', ['resource' => $resource->id]);
+		$response = $this->json('delete', $uri);
+		$response->assertStatus(409);
+		$response->assertJsonStructure(['message']);
+		$resource = $resource->fresh();
+		$this->assertNotNull($resource);
+
+		$resource->materials()->detach();
+		$response = $this->json('delete', $uri);
+
+		$response->assertStatus(200);
+		$response->assertJsonMissing(['message']);
+
+		$resource = $resource->fresh();
+		$this->assertNull($resource);
+	}
+
+	public function testDeleteFileSuccess() {
+		/** @var File $resource */
+		$resource = File::first();
+		$this->assertInstanceOf(File::class, $resource);
+
+		$resource->materials()->detach();
+		$this->assertLessThan(1, $resource->materials->count());
+
+		/** @var User $user */
+		$user = $resource->creator;
+		$this->assertInstanceOf(User::class, $user);
+
+		$this->authenticatePassport($user);
+
+		$this->assertTrue($resource->localFileExists(), 'There is not real file attached to be deleted');
+
+		// First Fail (because materials exist)
+		$uri      = route('api.v1.resources.delete', ['resource' => $resource->id]);
+		$response = $this->json('delete', $uri);
+
+		$response->assertStatus(200);
+		$response->assertJsonMissing(['message']);
+
+		$this->assertFalse($resource->localFileExists(), 'File has not been deleted');
+
+
+		$resource = $resource->fresh();
+		$this->assertNull($resource);
+	}
+
+	public function testDeleteForbidden() {
+
+		$this->authenticatePassport();
+
+		$resourceUser = User::where('id', '!=', $this->testUser->id)->first();
+		$this->assertInstanceOf(User::class, $resourceUser);
+
+		$resource = new Text();
+		$resource->creator()->associate($resourceUser);
+		$resource->content = "Das ist viel Text :-)";
+		$resource->notes   = "Meine Notitzen";
+		$resource->save();
+
+
+		$this->assertInstanceOf(Text::class, $resource);
+
+		// Resource needs to have material
+		$this->assertLessThan(1, $resource->materials->count());
+
+		$uri      = route('api.v1.resources.delete', ['resource' => $resource->id]);
+		$response = $this->json('delete', $uri);
+
+		$response->assertStatus(403); // Forbidden
+
+	}
+
+	public function testDeleteUnauthorized() {
+		// Resource
+		$resource = Text::first();
+		$this->assertInstanceOf(Text::class, $resource);
+
+		// NO authorization
+
+		$uri      = route('api.v1.resources.delete', ['resource' => $resource->id]);
+		$response = $this->json('delete', $uri);
+		$response->assertStatus(401); // Unauthorized
+	}
+
 
 }

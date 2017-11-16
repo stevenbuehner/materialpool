@@ -102,6 +102,10 @@ Route::group([
 		 ->where('resource', '[0-9]+')
 		 ->middleware('can:update,resource')
 		 ->name('api.v1.resources.update');
+	Route::delete('resources/{resource}', 'ResourceController@destroy')
+		 ->where('resource', '[0-9]+')
+		 ->middleware('can:delete,resource')
+		 ->name('api.v1.resources.delete');
 
 
 	// ALT: Resources
