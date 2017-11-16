@@ -266,7 +266,8 @@ return [
 	],
 
 	'disks' => [
-		'resources' => 'resources'
+		'resources' => 'resources',
+		'testfiles' => 'testfiles'
 	],
 
 	'resource' => [

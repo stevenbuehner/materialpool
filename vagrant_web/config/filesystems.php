@@ -62,6 +62,12 @@ return [
 			'visibility' => 'private',
 		],
 
+		'testfiles' => [
+			'driver'     => 'local',
+			'root'       => base_path('tests/testFiles'),
+			'visibility' => 'private'
+		],
+
 		's3' => [
 			'driver' => 's3',
 			'key'    => env('AWS_KEY'),

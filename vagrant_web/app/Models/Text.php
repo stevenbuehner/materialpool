@@ -69,6 +69,5 @@ class Text extends Resource implements TextContentInterface {
 	public function setContentAttribute($value) {
 		$value = trim($value);
 		$this->setOption(self::$CONTENT_OPTION, $value);
-		$this->content_hash = sha1($value);
 	}
 }

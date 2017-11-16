@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 
+use App\Jobs\UpdateResourceHashes;
 use App\Models\ImageFile;
 use App\Models\Keyword;
 use App\Models\Material;
@@ -11,6 +12,7 @@ use App\Models\Text;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 
 Trait ResourceTrait {
 
@@ -36,6 +38,8 @@ Trait ResourceTrait {
 				$r->materials()->save($material);
 
 				\ResourceSeeder::addRandomMaterialUid($material, $material->creator);
+
+				UpdateResourceHashes::dispatch($r);
 			});
 
 		factory(ImageFile::class, 5)
@@ -52,6 +56,8 @@ Trait ResourceTrait {
 				$r->materials()->save($material);
 
 				\ResourceSeeder::addRandomMaterialUid($material, $material->creator);
+
+				UpdateResourceHashes::dispatch($r);
 			});
 	}
 

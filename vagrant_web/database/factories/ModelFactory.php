@@ -26,6 +26,7 @@ use App\Models\Text;
 use App\Models\User;
 use App\Models\VideoFile;
 
+
 /** @var \Illuminate\Database\Eloquent\Factory $factory */
 $factory->define(User::class, function (Faker\Generator $faker) {
 	static $password;
@@ -50,24 +51,22 @@ $factory->define(Material::class, function (Faker\Generator $faker) {
 
 
 $factory->define(Resource::class, function (Faker\Generator $faker) {
-	static $secret;
 
 	return [
 		'remote_path'  => 'https://www.allmystery.de/static/upics/942586_handy.jpg',
 		'local_path'   => 'some/file/path',
-		'content_hash' => $secret ?: $secret = sha1('secret'),
+		'content_hash' => 'just a fake hash',
 		'notes'        => $faker->sentences(3, TRUE),
 		'is_public'    => $faker->boolean()
 	];
 });
 
 $factory->define(AudioFile::class, function (Faker\Generator $faker) {
-	static $secret;
 
 	return [
 		'remote_path'  => 'http://some/file/path',
 		'local_path'   => 'some/file/path',
-		'content_hash' => $secret ?: $secret = sha1('secret'),
+		'content_hash' => 'just a fake hash',
 		'notes'        => $faker->sentences(3, TRUE),
 		'is_public'    => $faker->boolean()
 
@@ -75,24 +74,29 @@ $factory->define(AudioFile::class, function (Faker\Generator $faker) {
 });
 
 $factory->define(VideoFile::class, function (Faker\Generator $faker) {
-	static $secret;
 
 	return [
 		'remote_path'  => 'http://some/file/path',
 		'local_path'   => 'some/file/path',
-		'content_hash' => $secret ?: $secret = sha1('secret'),
+		'content_hash' => 'just a fake hash',
 		'notes'        => $faker->sentences(3, TRUE),
 		'is_public'    => $faker->boolean()
 	];
 });
 
 $factory->define(ImageFile::class, function (Faker\Generator $faker) {
-	static $secret;
+
+	$testStorage = Storage::disk(config('app.disks.testfiles'));
+	$liveStorage = Storage::disk(config('app.disks.resources'));
+
+	$src        = $testStorage->read('Bild.jpg');
+	$targetPath = uniqid('testing/') . '.jpg';
+	$liveStorage->write($targetPath, $src);
 
 	return [
 		'remote_path'       => 'https://www.allmystery.de/static/upics/942586_handy.jpg',
-		'local_path'        => 'some/file/path',
-		'content_hash'      => $secret ?: $secret = sha1('secret'),
+		'local_path'        => config('app.disks.resources') . '::' . $targetPath,
+		'content_hash'      => 'just a fake hash',
 		'notes'             => $faker->sentences(3, TRUE),
 		'is_public'         => $faker->boolean(),
 		'original_filename' => 'Ich bin ein Dateiname.jpg'
@@ -100,24 +104,29 @@ $factory->define(ImageFile::class, function (Faker\Generator $faker) {
 });
 
 $factory->define(DocumentFile::class, function (Faker\Generator $faker) {
-	static $secret;
 
 	return [
 		'remote_path'  => 'http://some/file/path',
 		'local_path'   => 'some/file/path',
-		'content_hash' => $secret ?: $secret = sha1('secret'),
+		'content_hash' => 'just a fake hash',
 		'notes'        => $faker->sentences(3, TRUE),
 		'is_public'    => $faker->boolean()
 	];
 });
 
 $factory->define(PdfFile::class, function (Faker\Generator $faker) {
-	static $secret;
+
+	$testStorage = Storage::disk(config('app.disks.testfiles'));
+	$liveStorage = Storage::disk(config('app.disks.resources'));
+
+	$src        = $testStorage->read('PDF.pdf');
+	$targetPath = uniqid('testing/') . '.pdf';
+	$liveStorage->write($targetPath, $src);
 
 	return [
 		'remote_path'  => 'http://www.ubtech.eu/wp-content/uploads/2013/02/BuecherBLUB.pdf',
-		'local_path'   => '',
-		'content_hash' => $secret ?: $secret = sha1('secret'),
+		'local_path'   => config('app.disks.resources') . '::' . $targetPath,
+		'content_hash' => 'just a fake hash',
 		'notes'        => $faker->sentences(3, TRUE),
 		'is_public'    => $faker->boolean()
 	];
@@ -133,7 +142,7 @@ $factory->define(Text::class, function (Faker\Generator $faker) {
 	return [
 		'remote_path'  => NULL,
 		'local_path'   => NULL,
-		'content_hash' => sha1($content),
+		'content_hash' => 'just a fake hash',
 		'content'      => $content,
 		'notes'        => $faker->text(),
 		'is_public'    => $faker->boolean()

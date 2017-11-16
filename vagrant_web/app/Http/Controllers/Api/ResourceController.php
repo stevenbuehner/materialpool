@@ -3,14 +3,12 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\ResourceHelperTrait;
-use App\Jobs\UpdateResourceHashes;
 use App\Models\File;
 use App\Models\ForeignMaterialId;
 use App\Models\Resource;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage;
 
 class ResourceController extends BaseController {
 
@@ -55,6 +53,9 @@ class ResourceController extends BaseController {
 	}
 
 	public function store(Request $request) {
+
+		$this->validateResourceRequest($request, Resource::class, $allowPartialUpdate = FALSE);
+
 
 		// Check requirements
 		if (!($request->hasFile('file') xor !empty($request->get('content', NULL)))) {
@@ -114,68 +115,30 @@ class ResourceController extends BaseController {
 
 	}
 
+	/**
+	 * @param Request              $request
+	 * @param \App\Models\Resource $resource
+	 * @return $this|Resource
+	 */
 	public function update(Request $request, Resource $resource) {
 
-		$resource->fill($request->all());
-		$this->handleResourceFileUpload($resource, $request);
-		$resource->save();
+		$this->validateResourceRequest($request, get_class($resource), $allowPartialUpdate = TRUE);
+
+		try {
+			if ($request->hasFile('file')) {
+				$resource = $this->handleResourceUpload($request, $resource);
+			} else {
+				$resource = $this->handleResourceContent($request, $resource);
+			}
+
+
+		} catch (\Exception $e) {
+			return response(['message' => $e->getMessage()])->setStatusCode(500);
+		}
 
 		return $resource;
 	}
 
-	/**
-	 * @param Resource $resource
-	 * @param Request  $request
-	 * @throws \Exception
-	 */
-	protected function handleResourceFileUpload(Resource $resource, Request $request) {
-		$diskName = config('app.disks.resources');
-		$disk     = Storage::disk('resources');
-
-		if ($request->hasFile('file')) {
-
-			if (!$resource instanceof File) {
-				throw new \Exception("ResourceType is not a filetype");
-			}
-
-			try {
-
-				$file = $request->file('file');
-
-				// $extension     = $file->getClientOriginalExtension();
-				$localFilePath = $resource->created_by . DIRECTORY_SEPARATOR . $resource->type;
-
-				$localFile = $disk->putFile($localFilePath, $file);
-
-				if ($localFile === FALSE) {
-					throw new \Exception('File was not stored');
-				}
-
-				// Delete existing file of Resource if available
-				/** @var File $resource */
-				if ($resource->hasLocalFile()) {
-					$resource->deleteLocalFile();
-				}
-
-				$resource->local_path        = $diskName . '::' . $localFile;
-				$resource->original_filename = $file->getClientOriginalName();
-
-				// FIXME: If Sync-Queue is used, $resource has not been Stored yet and the Process loads a new instance into $resource (with the old paths)
-				if (!$resource->exists) {
-					$resource->save();
-				}
-				dispatch(new UpdateResourceHashes($resource));
-
-			} catch (\Exception $e) {
-
-				if (!empty($resource->local_path) && $disk->exists($resource->local_path)) {
-					$disk->delete($resource->local_path);
-				}
-
-				throw $e;
-			}
-		}
-	}
 
 	/**
 	 * @param Request $request

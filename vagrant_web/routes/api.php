@@ -19,14 +19,8 @@ Route::group([
 
 
 	// Resources
-	Route::get('resources/{resource}', 'ResourceController@show')
-		 ->where(['resource' => '[0-9]+'])
-		 ->name('api.v1.resources.show');
 	Route::get('resources/find', 'ResourceController@find')
 		 ->name('api.v1.resources.find');
-	Route::put('resources/{resource}', 'ResourceController@update')
-		 ->where(['resource' => '[0-9]+'])
-		 ->name('api.v1.resources.update');
 
 
 	// Materials
@@ -96,7 +90,6 @@ Route::group([
 		 ->middleware('can:delete,foreignMaterialId')
 		 ->name('api.v1.foreignMaterialDelete');
 
-
 	// Neu - Ressourcen
 	Route::get('resources/{resource}', 'ResourceController@show')
 		 ->where('resource', '[0-9]+')
@@ -105,6 +98,10 @@ Route::group([
 	Route::post('resources/', 'ResourceController@store')
 		 ->middleware('can:create,App\Models\Resource')
 		 ->name('api.v1.resources.store');
+	Route::put('resources/{resource}', 'ResourceController@update')
+		 ->where('resource', '[0-9]+')
+		 ->middleware('can:update,resource')
+		 ->name('api.v1.resources.update');
 
 
 	// ALT: Resources

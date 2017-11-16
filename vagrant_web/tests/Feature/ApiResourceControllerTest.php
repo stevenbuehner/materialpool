@@ -11,11 +11,10 @@ use App\Models\Url;
 use App\Models\User;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\TestResponse;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Laravel\Passport\Passport;
-use League\Flysystem\Adapter\Local;
 use League\Flysystem\Filesystem;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Tests\TestCase;
 use function GuzzleHttp\Psr7\mimetype_from_filename;
 
@@ -25,20 +24,23 @@ class ApiResourceControllerTest extends TestCase {
 
 	/** @var  Filesystem $testStorage */
 	protected $testStorage;
+
+	/** @var  User $testUser */
 	protected $testUser;
 
 	public function setUp() {
 		parent::setUp();
+
+		Storage::fake(config('app.disks.resources'));
+
+		// Setup TestStorage
+		$this->testStorage = Storage::disk(config('app.disks.testfiles'));
 
 		$this->setUpTestData();
 
 		/** @var User $testUser */
 		$this->testUser = User::first();
 		$this->assertInstanceOf(User::class, $this->testUser);
-
-		// Setup TestStorage
-		$localAdapter      = new Local(__DIR__ . '/../testFiles');
-		$this->testStorage = new \League\Flysystem\Filesystem($localAdapter);
 	}
 
 	public function tearDown() {
@@ -78,8 +80,6 @@ class ApiResourceControllerTest extends TestCase {
 	}
 
 	protected function uploadFilesSuccessful($data, $isFileResource = TRUE) {
-		$storageDisk = 'resources';
-		Storage::fake($storageDisk);
 
 		// Resources-Uri
 		$uri      = route('api.v1.resources.store');
@@ -101,10 +101,12 @@ class ApiResourceControllerTest extends TestCase {
 			$response->assertJsonFragment(
 				['original_filename' => $file->getClientOriginalName()]
 			);
+			$this->assertFalse(isset($responseData['content']), 'content not allowed here');
 		} else if (isset($data['content'])) {
 			$responseContent = $responseData['content'];
 			$this->assertGreaterThanOrEqual(0, strpos($data['content'], $responseContent),
 											'Content is included propperly');
+			$this->assertFalse(isset($responseData['original_filename']), 'original_filename not allowed here');
 		}
 
 		/** @var Resource $resource */
@@ -116,7 +118,7 @@ class ApiResourceControllerTest extends TestCase {
 		if (TRUE === $isFileResource) {
 			$this->assertInstanceOf(File::class, $resource);
 
-			$this->assertTrue(Storage::disk($storageDisk)->exists($resource->getLocalFilePath()));
+			$this->assertTrue(Storage::disk(config('app.disks.resources'))->exists($resource->getLocalFilePath()));
 			$this->assertTrue($resource->hasLocalFile());
 			$this->assertNotNull($resource->getLocalUrl());
 			$this->assertNotNull($resource->getLocalMimeType());
@@ -124,7 +126,7 @@ class ApiResourceControllerTest extends TestCase {
 
 			$this->assertTrue($resource->deleteLocalFile());
 
-			$this->assertFalse(Storage::disk($storageDisk)->exists($resource->getLocalFilePath()));
+			$this->assertFalse(Storage::disk(config('app.disks.resources'))->exists($resource->getLocalFilePath()));
 			$this->assertNull($resource->local_path);
 			$this->assertFalse($resource->hasLocalFile());
 		}
@@ -160,6 +162,8 @@ class ApiResourceControllerTest extends TestCase {
 		}
 
 		$response->assertJsonStructure($expectedStucture);
+
+		$response->assertJsonMissing(['message']);
 	}
 
 	public function testCreateResourcePdfFileUpload() {
@@ -351,6 +355,9 @@ class ApiResourceControllerTest extends TestCase {
 		)->first();
 		$this->assertInstanceOf(Resource::class, $resource);
 
+		// Make shure it is not public -> not accessible
+		$resource->is_public = FALSE;
+		$resource->save();
 
 		$uri      = route('api.v1.resources.show', ['resource' => $resource->id]);
 		$response = $this->json('get', $uri);
@@ -363,6 +370,246 @@ class ApiResourceControllerTest extends TestCase {
 		$uri      = route('api.v1.resources.show', ['resource' => 999999]);
 		$response = $this->json('get', $uri);
 
+		$response->assertStatus(401); // Unauthorized
+	}
+
+	public function testUpdateResourceAttributes() {
+
+		$this->authenticatePassport();
+
+		/** @var User $user */
+		$user = $this->testUser;
+		$this->assertInstanceOf(User::class, $user);
+
+		$resource = $user->resources->first();
+		$this->assertInstanceOf(Resource::class, $resource);
+
+		$uri = route('api.v1.resources.update', ['resource' => $resource->id]);
+
+		// Not allowed to change created_by
+		$response = $this->put($uri, ['created_by' => 999]);
+		$response->assertStatus(200);
+		$this->assertInstanceOf(Resource::class, $response->getOriginalContent());
+		$this->assertNotSame($resource, $response->getOriginalContent());
+		$this->assertEquals($resource->created_by, $response->getOriginalContent()->created_by);
+
+		// Not allowed to change id
+		$response = $this->put($uri, ['id' => 999]);
+		$response->assertStatus(200);
+		$this->assertInstanceOf(Resource::class, $response->getOriginalContent());
+		$this->assertNotSame($resource, $response->getOriginalContent());
+		$this->assertEquals($resource->id, $response->getOriginalContent()->id);
+
+		// Not allowed to change options
+		$response = $this->put($uri, ['options' => 'Test']);
+		$response->assertStatus(200);
+		$this->assertInstanceOf(Resource::class, $response->getOriginalContent());
+		$this->assertNotSame($resource, $response->getOriginalContent());
+		$this->assertEquals($resource->toArray(), $response->getOriginalContent()->toArray());
+
+		// Not allowed to change type
+		$response = $this->put($uri, ['type' => 'test']);
+		$response->assertStatus(200);
+		$this->assertInstanceOf(Resource::class, $response->getOriginalContent());
+		$this->assertNotSame($resource, $response->getOriginalContent());
+		$this->assertEquals($resource->type, $response->getOriginalContent()->type);
+
+		// Not allowed to change hash
+		$response = $this->put($uri, ['content_hash' => 'test']);
+		$response->assertStatus(200);
+		$this->assertInstanceOf(Resource::class, $response->getOriginalContent());
+		$this->assertNotSame($resource, $response->getOriginalContent());
+		$this->assertEquals($resource->content_hash, $response->getOriginalContent()->content_hash);
+
+		// Not allowed to change created_at
+		$response = $this->put($uri, ['created_at' => '2017-09-09']);
+		$response->assertStatus(200);
+		$this->assertInstanceOf(Resource::class, $response->getOriginalContent());
+		$this->assertNotSame($resource, $response->getOriginalContent());
+		$this->assertEquals($resource->created_at, $response->getOriginalContent()->created_at);
+
+		// Not allowed to change updated_at
+		$response = $this->put($uri, ['updated_at' => '2017-09-09']);
+		$response->assertStatus(200);
+		$this->assertInstanceOf(Resource::class, $response->getOriginalContent());
+		$this->assertNotSame($resource, $response->getOriginalContent());
+		$this->assertEquals($resource->updated_at, $response->getOriginalContent()->updated_at);
+
+
+		// Should work!
+		$response = $this->put($uri, ['notes' => $notes = 'This is a different title']);
+		$response->assertStatus(200);
+		$this->assertInstanceOf(Resource::class, $response->getOriginalContent());
+		$this->assertNotSame($resource, $response->getOriginalContent());
+		$this->assertEquals($notes, $response->getOriginalContent()->notes);
+
+		// Should work!
+		$response = $this->put($uri, ['remote_path' => $remotePath = 'http://google.de']);
+		$response->assertStatus(200);
+		$this->assertInstanceOf(Resource::class, $response->getOriginalContent());
+		$this->assertNotSame($resource, $response->getOriginalContent());
+		$this->assertEquals($remotePath, $response->getOriginalContent()->remote_path);
+
+		// Should work!
+		$resource->is_public = FALSE;
+		$resource->save();
+		$response = $this->put($uri, ['is_public' => $isPublic = TRUE]);
+		$response->assertStatus(200);
+		$this->assertInstanceOf(Resource::class, $response->getOriginalContent());
+		$this->assertNotSame($resource, $response->getOriginalContent());
+		$this->assertEquals($isPublic, $response->getOriginalContent()->is_public);
+	}
+
+	public function testUpdateFileFailNotFiletype() {
+
+		// Not Image-Resource
+		$resource = Text::first();
+		$this->assertInstanceOf(Resource::class, $resource);
+
+
+		/** @var User $user */
+		$user = $resource->creator;
+		$this->assertInstanceOf(User::class, $user);
+
+		$this->authenticatePassport($user);
+
+
+		// Should not work, because not a filetype
+		$uri      = route('api.v1.resources.update', ['resource' => $resource->id]);
+		$data     = [
+			'file' => $this->getUploadedFile(__DIR__ . '/../testFiles/Bild.jpg',
+											 $originalFilename = 'Langer Bildname.jpg'),
+		];
+		$response = $this->put($uri, $data);
+
+		$response->assertStatus(500);
+		$response->assertJsonStructure(['message']);
+	}
+
+	public function testUpdateFileFailNotContenttype() {
+
+		// Not Image-Resource
+		$resource = File::first();
+		$this->assertInstanceOf(File::class, $resource);
+
+
+		/** @var User $user */
+		$user = $resource->creator;
+		$this->assertInstanceOf(User::class, $user);
+
+		$this->authenticatePassport($user);
+
+
+		// Should not work, because not a filetype
+		$uri      = route('api.v1.resources.update', ['resource' => $resource->id]);
+		$data     = [
+			'content' => 'Das waere schlecht, wenn das ginge'
+		];
+		$response = $this->put($uri, $data);
+
+		$response->assertStatus(500);
+		$response->assertJsonStructure(['message']);
+	}
+
+
+	public function testUpdateFileSuccess() {
+
+		// Not Image-Resource
+		$resource = File::first();
+		$this->assertInstanceOf(File::class, $resource);
+
+		/** @var User $user */
+		$user = $resource->creator;
+		$this->assertInstanceOf(User::class, $user);
+
+		$this->authenticatePassport($user);
+
+
+		// Should not work, because not a filetype
+		$uri      = route('api.v1.resources.update', ['resource' => $resource->id]);
+		$data     = [
+			'file' => $this->getUploadedFile(__DIR__ . '/../testFiles/Bild.jpg',
+											 $originalFilename = 'Langer Bildname.jpg'),
+		];
+		$response = $this->put($uri, $data);
+
+		$response->assertStatus(200);
+		$this->verifyResourceJsonResult($response, $isFile = TRUE);
+		$this->assertInstanceOf(ImageFile::class, $response->getOriginalContent());
+		$resource = $resource->fresh();
+		$this->assertEquals($response->getOriginalContent()->toArray(), $resource->toArray());
+
+	}
+
+	public function testUpdateContentSuccess() {
+
+		// Resource
+		$resource = Text::first();
+		$this->assertInstanceOf(Text::class, $resource);
+
+		/** @var User $user */
+		$user = $resource->creator;
+		$this->assertInstanceOf(User::class, $user);
+
+		$this->authenticatePassport($user);
+
+
+		// Should not work, because not a filetype
+		$uri      = route('api.v1.resources.update', ['resource' => $resource->id]);
+		$data     = [
+			'content' => "Ein schöner Rücken kann auch entzücken"
+		];
+		$response = $this->put($uri, $data);
+
+		$response->assertStatus(200);
+		$this->verifyResourceJsonResult($response, $isFile = FALSE);
+		$this->assertInstanceOf(Text::class, $response->getOriginalContent());
+		$resource = $resource->fresh();
+		$this->assertEquals($response->getOriginalContent()->toArray(), $resource->toArray());
+	}
+
+	public function testUpdateForbidden() {
+
+		// Resource
+		$resource = Resource::first();
+		$this->assertInstanceOf(Text::class, $resource);
+
+		// Different user than Resource-Owner
+		$user = User::where('id', '!=', $resource->created_by)->first();
+		$this->assertInstanceOf(User::class, $user);
+
+		// authorize via oAuth
+		$this->authenticatePassport($user);
+
+		// Resources-Uri
+		$uri      = route('api.v1.resources.update', ['resource' => $resource->id]);
+		$dataText = [
+			'content'   => 'Das ist mein anderer Inhalt, den es zu würdigen sich lohnt!',
+			'notes'     => 'keine Notiz',
+			'is_public' => TRUE,
+		];
+
+		$response = $this->json('put', $uri, $dataText);
+		$response->assertStatus(403); // Forbidden
+	}
+
+	public function testUpdateUnauthorized() {
+
+		// Resource
+		$resource = Text::first();
+		$this->assertInstanceOf(Text::class, $resource);
+
+		// Dont't authorize via oAuth
+
+		// Resources-Uri
+		$uri      = route('api.v1.resources.update', ['resource' => $resource->id]);
+		$dataText = [
+			'content'   => 'Das ist mein anderer Inhalt, den es zu würdigen sich lohnt!',
+			'notes'     => 'keine Notiz',
+			'is_public' => TRUE,
+		];
+
+		$response = $this->json('put', $uri, $dataText);
 		$response->assertStatus(401); // Unauthorized
 	}
 
