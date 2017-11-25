@@ -11,8 +11,19 @@ use Illuminate\Database\Eloquent\Relations\Pivot;
  */
 class MaterialResource extends Pivot {
 
-	public function getLimitationAttribute($value) {
-		return unserialize($value);
+	protected $casts = [
+	];
+
+
+	public function getLimitationAttribute() {
+		return unserialize($this->attributes['limitation']);
 	}
+
+	public function setLimitationAttribute($limitation) {
+		$this->attributes['limitation'] = serialize($limitation);
+
+		return $this;
+	}
+
 
 }

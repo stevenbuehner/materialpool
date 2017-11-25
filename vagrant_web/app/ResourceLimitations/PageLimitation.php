@@ -3,6 +3,10 @@
 namespace App\ResourceLimitations;
 
 
+use App\Models\DocumentFile;
+use App\Models\PdfFile;
+use App\Models\Resource;
+
 class PageLimitation implements ResourceLimitationInterface {
 
 	/** @var int[] $pages */
@@ -51,12 +55,30 @@ class PageLimitation implements ResourceLimitationInterface {
 	 * Takes the string, used in the webinterface and extracts all the neccessary limitation data from it
 	 *
 	 * @return ResourceLimitationInterface
+	 * @throws InvalidLimitationRequestException
 	 */
 	public function insertFromWebValue(string $value) {
 		$pages = preg_split('~\s*,\s*~', $value);
+
+		foreach ($pages as $page) {
+			if (!is_numeric($page)) {
+				throw new InvalidLimitationRequestException();
+			}
+		}
+
 		$this->setPages($pages);
 
 		return $this;
+	}
+
+
+	/**
+	 * Formats the limitation-data back to an string-value, which may be used in the webinterface
+	 *
+	 * @return string
+	 */
+	public function toWebValue() {
+		return join(',', $this->getPages());
 	}
 
 	/**
@@ -80,5 +102,16 @@ class PageLimitation implements ResourceLimitationInterface {
 		$result .= join(', ', $ranges);
 
 		return $result;
+	}
+
+
+	/**
+	 * Returns true if the given Resource is able to use this $limitation
+	 *
+	 * @param Resource $resource
+	 * @return bool
+	 */
+	public function isResourceApplicable(Resource $resource) {
+		return ($resource instanceof DocumentFile || $resource instanceof PdfFile);
 	}
 }

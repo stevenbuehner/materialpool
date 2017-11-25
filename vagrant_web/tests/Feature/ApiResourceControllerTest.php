@@ -13,7 +13,6 @@ use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\TestResponse;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
-use Laravel\Passport\Passport;
 use League\Flysystem\Filesystem;
 use Tests\TestCase;
 use function GuzzleHttp\Psr7\mimetype_from_filename;
@@ -64,15 +63,6 @@ class ApiResourceControllerTest extends TestCase {
 		$response = $this->uploadFilesSuccessful($dataBild);
 		$resource = $response->getOriginalContent();
 		$this->assertInstanceOf(ImageFile::class, $resource);
-	}
-
-	protected function authenticatePassport($testUser = NULL) {
-
-		Passport::actingAs(
-			$testUser === NULL ? $this->testUser : $testUser,
-			[]
-		);
-
 	}
 
 	protected function getUploadedFile($path, $name) {

@@ -64,16 +64,16 @@ trait MaterialHelperTrait {
 			}
 
 			// Check which keywords have been deleted
-			$oldIds     = $material->keywords->pluck('id')->toArray();
-			$newIds     = array_keys($keywordIds);
-			$deletedIds = array_diff($oldIds, $newIds);
+			// $oldIds     = $material->keywords->pluck('id')->toArray();
+			// $newIds     = array_keys($keywordIds);
+			// $deletedIds = array_diff($oldIds, $newIds);
 
 
-			// Syn keywords
-			$material->keywords()->sync($keywordIds);
+			// Sync keywords
+			$result = $material->keywords()->sync($keywordIds);
 
 
-			foreach ($deletedIds as $delId) {
+			foreach ($result['detached'] as $delId) {
 				CheckLonelyKeyword::dispatch(Keyword::find($delId));
 			}
 		}
@@ -109,16 +109,16 @@ trait MaterialHelperTrait {
 			}
 
 			// Check which bibleverses have been deleted
-			$oldIds     = $material->bibleverses->pluck('id')->toArray();
-			$newIds     = array_keys($bibleverseIds);
-			$deletedIds = array_diff($oldIds, $newIds);
+			// $oldIds     = $material->bibleverses->pluck('id')->toArray();
+			// $newIds     = array_keys($bibleverseIds);
+			// $deletedIds = array_diff($oldIds, $newIds);
 
 
 			// Sync bibleverses
-			$material->bibleverses()->sync($bibleverseIds);
+			$result = $material->bibleverses()->sync($bibleverseIds);
 
 
-			foreach ($deletedIds as $delId) {
+			foreach ($result['detached'] as $delId) {
 				CheckLonelyBibleverse::dispatch(Bibleverse::find($delId));
 			}
 		}

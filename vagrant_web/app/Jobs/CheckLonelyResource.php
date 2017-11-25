@@ -31,15 +31,15 @@ class CheckLonelyResource implements ShouldQueue {
 	 */
 	public function handle() {
 
-		// Test for material-keyword-relationship
-		$BibleverseHasMaterial = $this->resourceToCheck::has('materials')
+		// Test for material-resource-relationship
+		$resourceHasMaterial = $this->resourceToCheck::has('materials')
 													   ->where('id', '=', $this->resourceToCheck->id)
 													   ->take(1)
 													   ->get()
 													   ->count();
 
-		if ($BibleverseHasMaterial === 0) {
-			Log::alert("The assigned material was deleted and now the resource is lonely. Resource-id: {$this->resourceToCheck->id}");
+		if ($resourceHasMaterial === 0) {
+			Log::alert("This resource seems to be lonely (no material attached to it). Resource-id: {$this->resourceToCheck->id}");
 
 			// TODO: What to do with lonley resources?
 			// Do Nothing for now

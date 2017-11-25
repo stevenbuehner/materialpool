@@ -7,6 +7,9 @@
 
 namespace App\ResourceLimitations;
 
+use App\Models\Resource;
+use App\Models\Url;
+
 class AnkerLimitation implements ResourceLimitationInterface {
 
 	/** @var  string $anker */
@@ -54,10 +57,30 @@ class AnkerLimitation implements ResourceLimitationInterface {
 		return $this;
 	}
 
+
+	/**
+	 * Formats the limitation-data back to an string-value, which may be used in the webinterface
+	 *
+	 * @return string
+	 */
+	public function toWebValue() {
+		return $this->getAnker();
+	}
+
 	/**
 	 * @return string
 	 */
 	public function getLimitationText() {
 		return '';
+	}
+
+	/**
+	 * Returns true if the given Resource is able to use this $limitation
+	 *
+	 * @param Resource $resource
+	 * @return bool
+	 */
+	public function isResourceApplicable(Resource $resource) {
+		return ($resource instanceof Url);
 	}
 }

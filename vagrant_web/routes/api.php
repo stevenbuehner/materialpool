@@ -107,6 +107,19 @@ Route::group([
 		 ->middleware('can:delete,resource')
 		 ->name('api.v1.resources.delete');
 
+	// Neu Attach/Detach Resources + Materials
+	Route::post('material/{foreignMaterialId}/resource/{resource}', 'ResourceMaterialController@attach')
+		 ->where('resource', '[0-9]+')
+		 ->where('foreignMaterialId', '[0-9a-zA-Z_-]+')
+		 ->middleware('can:update,foreignMaterialId')
+		 ->middleware('can:view,resource')
+		 ->name('api.v1.materialresource.attach');
+	Route::delete('material/{foreignMaterialId}/resource/{resource}', 'ResourceMaterialController@detach')
+		 ->where('resource', '[0-9]+')
+		 ->where('foreignMaterialId', '[0-9a-zA-Z_-]+')
+		 ->middleware('can:update,foreignMaterialId')
+		// ->middleware('can:view,resource') // Even if the resource owner made his resource not public anymore, the detaching should work
+		 ->name('api.v1.materialresource.detach');
 
 	// ALT: Resources
 	Route::get('{foreignInstance}/resources', 'ForeignInstanceResourceController@index')

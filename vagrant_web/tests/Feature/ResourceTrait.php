@@ -12,9 +12,18 @@ use App\Models\Text;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\Storage;
+use Laravel\Passport\Passport;
 
 Trait ResourceTrait {
+
+	protected function authenticatePassport($testUser = NULL) {
+
+		Passport::actingAs(
+			$testUser === NULL ? $this->testUser : $testUser,
+			[]
+		);
+
+	}
 
 	protected function setUpTestData() {
 

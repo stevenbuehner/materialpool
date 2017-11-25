@@ -7,6 +7,10 @@
 
 namespace App\ResourceLimitations;
 
+use App\Models\AudioFile;
+use App\Models\Resource;
+use App\Models\VideoFile;
+
 class TimeLimitation implements ResourceLimitationInterface {
 
 	/** @var float $start */
@@ -88,9 +92,30 @@ class TimeLimitation implements ResourceLimitationInterface {
 	}
 
 	/**
+	 * Formats the limitation-data back to an string-value, which may be used in the webinterface
+	 *
+	 * @return string
+	 */
+	public function toWebValue() {
+		// TODO: Implement toWebValue() method.
+
+		return '';
+	}
+
+	/**
 	 * @return string
 	 */
 	public function getLimitationText() {
 		return 'von ' . $this->getStart() . '-' . $this->getEnd();
+	}
+
+	/**
+	 * Returns true if the given Resource is able to use this $limitation
+	 *
+	 * @param Resource $resource
+	 * @return bool
+	 */
+	public function isResourceApplicable(Resource $resource) {
+		return ($resource instanceof VideoFile || $resource instanceof AudioFile);
 	}
 }
