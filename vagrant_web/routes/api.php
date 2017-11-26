@@ -121,25 +121,4 @@ Route::group([
 		// ->middleware('can:view,resource') // Even if the resource owner made his resource not public anymore, the detaching should work
 		 ->name('api.v1.materialresource.detach');
 
-	// ALT: Resources
-	Route::get('{foreignInstance}/resources', 'ForeignInstanceResourceController@index')
-		 ->where('foreignInstance', '[0-9]+');
-	Route::get('{foreignInstanceId}/resources/{remoteId}', 'ForeignInstanceResourceController@show')
-		 ->where(['foreignInstanceId', '[0-9]+', 'remoteId' => '[0-9]+']);
-	Route::post('{foreignInstance}/resources/{type}', 'ForeignInstanceResourceController@store')
-		 ->where(['foreignInstance' => '[0-9]+', 'type' => join('|',
-																array_keys(\App\Models\Resource::getSingleTableTypeMap()))]);
-	Route::delete('{foreignInstanceId}/resource/{remoteResourceId}', 'ForeignInstanceResourceController@destroy')
-		 ->where(['foreignInstanceId', '[0-9]+', 'remoteResourceId' => '[0-9]+'])
-		 ->name('foreignInstanceResourceDelete');
-
-	// ALT: ForeignInstance + Resource => Material + Keywords
-	Route::get('{foreignInstance}/materials', 'ForeignInstanceMaterialController@index')
-		 ->where('foreignInstance', '[0-9]+')
-		 ->name('foreignInstanceMaterialIndex');
-
-	Route::post('{foreignInstance}/resource/{remoteResourceId}/materials', 'ForeignInstanceMaterialController@store')
-		 ->where(['foreignInstance' => '[0-9]+', 'remoteResourceId' => '[0-9]+'])
-		 ->name('foreignInstanceMaterialStore');
-
 });
