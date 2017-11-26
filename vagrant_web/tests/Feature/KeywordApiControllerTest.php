@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\Keyword;
 use App\Models\Person;
+use Defuse\Crypto\Key;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\TestResponse;
 use Tests\TestCase;
@@ -25,7 +26,7 @@ class KeywordApiControllerTest extends TestCase {
 
 		$response->assertStatus(200);
 		$this->assertKeywordStructure($response);
-		$this->assertKeywordData($response, "My Name", Person::getSingleTableType(), "my_name", NULL);
+		$this->assertKeywordData($response, "My Name", Person::getSingleTableType(), Person::getSingleTableType()."_my_name", NULL);
 	}
 
 	protected function assertKeywordStructure(TestResponse $response) {
@@ -56,7 +57,7 @@ class KeywordApiControllerTest extends TestCase {
 
 		$response->assertStatus(200);
 		$this->assertKeywordStructure($response);
-		$this->assertKeywordData($response, "My Test", Keyword::getSingleTableType(), "my_test", NULL);
+		$this->assertKeywordData($response, "My Test", Keyword::getSingleTableType(), Keyword::getSingleTableType(). "_my_test", NULL);
 	}
 
 	public function testKeywordCreateKeywordWithoutType() {
@@ -71,7 +72,7 @@ class KeywordApiControllerTest extends TestCase {
 
 		$response->assertStatus(200);
 		$this->assertKeywordStructure($response);
-		$this->assertKeywordData($response, "Some Keyword", Keyword::getSingleTableType(), "some_keyword", NULL);
+		$this->assertKeywordData($response, "Some Keyword", Keyword::getSingleTableType(), Keyword::getSingleTableType()."_some_keyword", NULL);
 	}
 
 	public function testKeywordCreatePersonWithoutType() {
@@ -86,7 +87,7 @@ class KeywordApiControllerTest extends TestCase {
 
 		$response->assertStatus(200);
 		$this->assertKeywordStructure($response);
-		$this->assertKeywordData($response, "Some Person", Person::getSingleTableType(), "some_person", NULL);
+		$this->assertKeywordData($response, "Some Person", Person::getSingleTableType(), Person::getSingleTableType()."_some_person", NULL);
 	}
 
 }

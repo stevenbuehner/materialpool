@@ -42,7 +42,7 @@ class MaterialExtractionService {
 	 */
 	public function createGuessedMaterialFromResource($resources, $additionalInformation = []) {
 
-		$resources             = collect($resources);
+		$resources             = ($resources instanceof Resource) ? collect([$resources]) : collect($resources);
 		$additionalInformation = collect($additionalInformation);
 		$properties            = new Collection();
 		$material              = new Material();

@@ -13,7 +13,7 @@ class BibleverseApiControllerTest extends TestCase {
 	public function testBibleverseCreateWithFromAndTo() {
 
 		$method = 'post';
-		$uri    = route('api.v1.bibleverses.create');
+		$uri    = route('api.v1.bibleverses.store');
 		$data   = [
 			'from' => 1001001,
 			'to'   => '1001001'
@@ -44,7 +44,7 @@ class BibleverseApiControllerTest extends TestCase {
 
 	public function testBibleverseCreateWithLabel() {
 		$method = 'post';
-		$uri    = route('api.v1.bibleverses.create');
+		$uri    = route('api.v1.bibleverses.store');
 		$data   = [
 			'label' => 'Gen 1,1'
 		];

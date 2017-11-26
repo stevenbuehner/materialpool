@@ -39,7 +39,7 @@ class Keyword extends Model {
 	protected        $fillable              = ['title'];
 	protected        $guarded               = ['type', 'lc_title'];
 	protected        $hidden                = [
-		'_lft', '_rgt', 'updated_at', 'created_at', 'custom_icon'
+		'_lft', '_rgt', 'updated_at', 'created_at'
 	];
 
 	protected $appends = [
