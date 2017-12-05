@@ -86,7 +86,7 @@ class ForeignMaterialController extends BaseController {
 		$result['id']          = $foreignMaterialId->foreign_id;
 		$result['keywords']    = $material->keywords;
 		$result['bibleverses'] = $material->bibleverses;
-		$result['resources']   = $material->resources();
+		$result['resources']   = $material->resources;
 		$result['author']      = $material->author_id !== NULL ? $material->author->title : NULL;
 
 		return $result;

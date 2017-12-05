@@ -123,6 +123,7 @@ class ApiForeignMaterialControllerTest extends TestCase {
 			 'resources'   => [
 				 '*' => [
 					 'id',
+					 'content_hash',
 					 'pivot' =>
 						 ['limitation'],
 				 ]
