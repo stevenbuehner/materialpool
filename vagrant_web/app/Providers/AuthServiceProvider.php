@@ -3,9 +3,11 @@
 namespace App\Providers;
 
 use App\Models\ForeignMaterialId;
+use App\Models\ForeignResourceId;
 use App\Models\Material;
 use App\Models\Resource;
 use App\Policies\ForeignMaterialIdPolicy;
+use App\Policies\ForeignResourceIdPolicy;
 use App\Policies\MaterialPolicy;
 use App\Policies\ResourcePolicy;
 use Carbon\Carbon;
@@ -22,6 +24,7 @@ class AuthServiceProvider extends ServiceProvider {
 		Material::class          => MaterialPolicy::class,
 		Resource::class          => ResourcePolicy::class,
 		ForeignMaterialId::class => ForeignMaterialIdPolicy::class,
+		ForeignResourceId::class => ForeignResourceIdPolicy::class
 	];
 
 	/**

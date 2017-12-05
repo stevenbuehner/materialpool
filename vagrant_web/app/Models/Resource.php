@@ -104,12 +104,16 @@ class Resource extends Model {
 					->using(MaterialResource::class);
 	}
 
-	public function foreignResourceKeys() {
-		return $this->hasMany(ForeignResourceKey::class);
-	}
 
 	public function creator() {
 		return $this->belongsTo(User::class, 'created_by');
+	}
+
+	/**
+	 * @return \Illuminate\Database\Eloquent\Relations\HasMany
+	 */
+	public function foreignIds() {
+		return $this->hasMany(ForeignResourceId::class, 'resource_id');
 	}
 
 	/**

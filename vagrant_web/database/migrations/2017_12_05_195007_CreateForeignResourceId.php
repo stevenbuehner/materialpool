@@ -4,17 +4,17 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateForeignMaterialIdsTable extends Migration {
+class CreateForeignResourceId extends Migration {
 	/**
 	 * Run the migrations.
 	 *
 	 * @return void
 	 */
 	public function up() {
-		Schema::create('material_foreign_ids', function (Blueprint $table) {
+		Schema::create('resource_foreign_ids', function (Blueprint $table) {
 			$table->increments('id');
 
-			$table->integer('material_id');
+			$table->integer('resource_id');
 			$table->integer('user_id');
 			$table->string('foreign_id');
 
@@ -33,6 +33,6 @@ class CreateForeignMaterialIdsTable extends Migration {
 	 * @return void
 	 */
 	public function down() {
-		Schema::drop('material_foreign_ids');
+		Schema::drop('resource_foreign_ids');
 	}
 }

@@ -19,6 +19,8 @@ use Laravel\Passport\HasApiTokens;
  * @property string     $remember_token
  * @property int        $id
  * @property boolean    $is_admin
+ * @property Collection $foreignResourceIds
+ * @property Collection $foreignMaterialIds
  *
  * @property Collection $resources
  */
@@ -60,6 +62,10 @@ class User extends Authenticatable {
 
 	public function foreignMaterialIds() {
 		return $this->hasMany(ForeignMaterialId::class);
+	}
+
+	public function foreignResourceIds() {
+		return $this->hasMany(ForeignResourceId::class);
 	}
 
 	public function isSuperAdmin() {

@@ -64,6 +64,9 @@ class ResourceDuplicationHandlingService {
 
 	protected function migrateSlaveIntoMasterResource(Res $slaveResource, Res $masterResource) {
 
+		DB::beginTransaction();
+
+		// Update material_resource
 		try {
 			DB::table('material_resource')
 			  ->where('resource_id', '=', $slaveResource->id)
@@ -77,16 +80,27 @@ class ResourceDuplicationHandlingService {
 				  ->delete();
 
 			} else {
+				DB::rollBack();
 				throw($e);
 			}
 		}
 
+		// Update resource_foreign_ids
+		try{
+			DB::table('resource_foreign_ids')
+			  ->where('resource_id', '=', $slaveResource->id)
+			  ->update(['resource_id' => $masterResource->id]);
+		}catch (\Exception $e){
+			DB::rollBack();
+			throw($e);
+		}
+
+		DB::commit();
 
 		if ($slaveResource instanceof File && $slaveResource->local_path !== $masterResource->local_path) {
 			Log::info('Deleting duplicate File of Resource: ' . $slaveResource->local_path);
 			$slaveResource->deleteLocalFile();
 		}
-
 
 		Log::info('Deleting duplicate resource entry in db ' . $slaveResource->id . ' in favor of ' . $masterResource->id);
 		$slaveResource->delete();

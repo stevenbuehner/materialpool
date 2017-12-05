@@ -14,6 +14,7 @@
 use App\Models\AudioFile;
 use App\Models\DocumentFile;
 use App\Models\ForeignMaterialId;
+use App\Models\ForeignResourceId;
 use App\Models\ImageFile;
 use App\Models\Keyword;
 use App\Models\Language;
@@ -184,6 +185,13 @@ $factory->define(ForeignMaterialId::class, function (Faker\Generator $faker) {
 		'foreign_id' => $faker->unique()->uuid
 	];
 });
+
+$factory->define(ForeignResourceId::class, function (Faker\Generator $faker) {
+	return [
+		'foreign_id' => $faker->unique()->uuid
+	];
+});
+
 
 $factory->define(\App\Models\Bibleverse::class, function (Faker\Generator $faker) {
 	$minFromChapter = rand(1, 50);

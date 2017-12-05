@@ -72,20 +72,20 @@ Route::group([
 	 * Aus der Sicht der Foreign Instance mit ihren eigenen IDs
 	 */
 
-	// Neu - Material
-	Route::get('material/{foreignMaterialId}', 'ForeignMaterialController@show')
+	// Neu - Foreign-Material
+	Route::get('foreign-materials/{foreignMaterialId}', 'ForeignMaterialController@show')
 		 ->where('foreignMaterialId', '[0-9a-zA-Z_-]+')
 		 ->middleware('can:view,foreignMaterialId')
 		 ->name('api.v1.foreignMaterialShow');
-	Route::post('material/{foreignMaterialId}', 'ForeignMaterialController@store')
+	Route::post('foreign-materials/{foreignMaterialId}', 'ForeignMaterialController@store')
 		 ->where('foreignMaterialId', '[0-9a-zA-Z_-]+')
 		 ->middleware('can:create,App\Models\ForeignMaterialId')
 		 ->name('api.v1.foreignMaterialStore');
-	Route::put('material/{foreignMaterialId}', 'ForeignMaterialController@update')
+	Route::put('foreign-materials/{foreignMaterialId}', 'ForeignMaterialController@update')
 		 ->where('foreignMaterialId', '[0-9a-zA-Z_-]+')
 		 ->middleware('can:update,foreignMaterialId')
 		 ->name('api.v1.foreignMaterialUpdate');
-	Route::delete('material/{foreignMaterialId}', 'ForeignMaterialController@destroy')
+	Route::delete('foreign-materials/{foreignMaterialId}', 'ForeignMaterialController@destroy')
 		 ->where('foreignMaterialId', '[0-9a-zA-Z_-]+')
 		 ->middleware('can:delete,foreignMaterialId')
 		 ->name('api.v1.foreignMaterialDelete');
@@ -95,26 +95,49 @@ Route::group([
 		 ->where('resource', '[0-9]+')
 		 ->middleware('can:view,resource')
 		 ->name('api.v1.resources.show');
+	Route::get('foreign-resources/{foreignResourceId}', 'ForeignResourceController@showForeign')
+		 ->where('foreignResourceId', '[0-9a-zA-Z_-]+')
+		 ->middleware('can:view,foreignResourceId')
+		 ->name('api.v1.foreignResources.show');
+
 	Route::post('resources/', 'ResourceController@store')
 		 ->middleware('can:create,App\Models\Resource')
 		 ->name('api.v1.resources.store');
+	Route::post('foreign-resources/', 'ForeignResourceController@storeForeign')
+		 ->middleware('can:create,App\Models\ForeignResourceId')
+		 ->name('api.v1.foreignResources.store');
+
 	Route::put('resources/{resource}', 'ResourceController@update')
 		 ->where('resource', '[0-9]+')
 		 ->middleware('can:update,resource')
 		 ->name('api.v1.resources.update');
+	Route::put('foreign-resources/{foreignResourceId}', 'ForeignResourceController@updateForeign')
+		 ->where('foreignResourceId', '[0-9a-zA-Z_-]+')
+		 ->middleware('can:update,foreignResourceId')
+		 ->name('api.v1.foreignResources.update');
+
 	Route::delete('resources/{resource}', 'ResourceController@destroy')
 		 ->where('resource', '[0-9]+')
 		 ->middleware('can:delete,resource')
 		 ->name('api.v1.resources.delete');
+	Route::delete('foreign-resources/{foreignResourceId}', 'ForeignResourceController@destroyForeign')
+		 ->where('foreignResourceId', '[0-9a-zA-Z_-]+')
+		 ->middleware('can:delete,foreignResourceId')
+		 ->name('api.v1.foreignResources.delete');
+
 
 	// Neu Attach/Detach Resources + Materials
-	Route::post('material/{foreignMaterialId}/resource/{resource}', 'ResourceMaterialController@attach')
+	Route::post('foreign-material/{foreignMaterialId}/resource/{resource}', 'ResourceMaterialController@attach')
 		 ->where('resource', '[0-9]+')
 		 ->where('foreignMaterialId', '[0-9a-zA-Z_-]+')
 		 ->middleware('can:update,foreignMaterialId')
 		 ->middleware('can:view,resource')
 		 ->name('api.v1.materialresource.attach');
-	Route::delete('material/{foreignMaterialId}/resource/{resource}', 'ResourceMaterialController@detach')
+	Route::post('foreign-material/{foreignMaterialId}/sync', 'ResourceMaterialController@sync')
+		 ->where('foreignMaterialId', '[0-9a-zA-Z_-]+')
+		 ->middleware('can:update,foreignMaterialId')
+		 ->name('api.v1.materialresource.sync');
+	Route::delete('foreign-material/{foreignMaterialId}/resource/{resource}', 'ResourceMaterialController@detach')
 		 ->where('resource', '[0-9]+')
 		 ->where('foreignMaterialId', '[0-9a-zA-Z_-]+')
 		 ->middleware('can:update,foreignMaterialId')

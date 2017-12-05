@@ -47,6 +47,7 @@ Trait ResourceTrait {
 				$r->materials()->save($material);
 
 				\ResourceSeeder::addRandomMaterialUid($material, $material->creator);
+				\ResourceSeeder::addRandomResourceUid($r, $material->creator);
 
 				UpdateResourceHashes::dispatch($r);
 			});
@@ -65,6 +66,7 @@ Trait ResourceTrait {
 				$r->materials()->save($material);
 
 				\ResourceSeeder::addRandomMaterialUid($material, $material->creator);
+				\ResourceSeeder::addRandomResourceUid($r, $material->creator);
 
 				UpdateResourceHashes::dispatch($r);
 			});

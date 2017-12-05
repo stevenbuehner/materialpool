@@ -158,7 +158,9 @@ class ResourceController extends BaseController {
 		}
 
 		// Delete in DB
+		$resource->foreignIds()->delete();
 		$resource->delete();
+
 
 		return [];
 	}

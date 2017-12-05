@@ -2,6 +2,7 @@
 
 use App\Models\AudioFile;
 use App\Models\DocumentFile;
+use App\Models\ForeignResourceId;
 use App\Models\ImageFile;
 use App\Models\Keyword;
 use App\Models\Language;
@@ -58,6 +59,7 @@ class ResourceSeeder extends Seeder {
 					});
 
 				self::addRandomMaterialUid($material, $material->creator);
+				self::addRandomResourceUid($r, $material->creator);
 			});
 
 
@@ -77,6 +79,7 @@ class ResourceSeeder extends Seeder {
 						 ->save(self::getRandomKeyword(), ['relevance' => rand(0, 255)]);
 
 				self::addRandomMaterialUid($material, $material->creator);
+				self::addRandomResourceUid($r, $material->creator);
 			});
 
 
@@ -93,6 +96,7 @@ class ResourceSeeder extends Seeder {
 																						   255)]);
 
 				self::addRandomMaterialUid($material, $material->creator);
+				self::addRandomResourceUid($r, $material->creator);
 			});
 
 
@@ -105,6 +109,7 @@ class ResourceSeeder extends Seeder {
 						 ->save(self::getRandomKeyword(), ['relevance' => rand(0, 255)]);
 
 				self::addRandomMaterialUid($material, $material->creator);
+				self::addRandomResourceUid($r, $material->creator);
 			});
 
 
@@ -120,6 +125,7 @@ class ResourceSeeder extends Seeder {
 				$material->keywords()->save(self::getRandomKeyword(), ['relevance' => rand(0, 255)]);
 
 				self::addRandomMaterialUid($material, $material->creator);
+				self::addRandomResourceUid($r, $material->creator);
 			});
 
 		factory(PdfFile::class, 5)
@@ -135,6 +141,7 @@ class ResourceSeeder extends Seeder {
 				$material->keywords()->save(self::getRandomKeyword(), ['relevance' => rand(0, 255)]);
 
 				self::addRandomMaterialUid($material, $material->creator);
+				self::addRandomResourceUid($r, $material->creator);
 			});
 
 		$counter = 100;
@@ -170,15 +177,6 @@ class ResourceSeeder extends Seeder {
 				   ]);
 	}
 
-	/**
-	 * @return Keyword
-	 */
-	static function getRandomKeyword() {
-		$kw = Keyword::orderByRaw('RAND()')->take(1)->first();;
-
-		return $kw;
-	}
-
 	public static function addRandomMaterialUid(Material $material, User $user) {
 		$fk = factory(\App\Models\ForeignMaterialId::class)->make();
 		$fk->material()->associate($material);
@@ -186,6 +184,30 @@ class ResourceSeeder extends Seeder {
 		$fk->save();
 
 		return $fk;
+	}
+
+	/**
+	 * @param Resource $resource
+	 * @param User     $user
+	 * @return ForeignResourceId
+	 */
+	public static function addRandomResourceUid(Resource $resource, User $user) {
+		/** @var \App\Models\ForeignResourceId $fk */
+		$fk = factory(\App\Models\ForeignResourceId::class)->make();
+		$fk->resource()->associate($resource);
+		$fk->user()->associate($user);
+		$fk->save();
+
+		return $fk;
+	}
+
+	/**
+	 * @return Keyword
+	 */
+	static function getRandomKeyword() {
+		$kw = Keyword::orderByRaw('RAND()')->take(1)->first();;
+
+		return $kw;
 	}
 
 
