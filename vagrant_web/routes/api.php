@@ -127,21 +127,22 @@ Route::group([
 
 
 	// Neu Attach/Detach Resources + Materials
-	Route::post('foreign-material/{foreignMaterialId}/resource/{resource}', 'ResourceMaterialController@attach')
-		 ->where('resource', '[0-9]+')
+	Route::post('foreign-material/{foreignMaterialId}/foreign-resource/{foreignResourceId}',
+				'ForeignResourceMaterialController@attach')
 		 ->where('foreignMaterialId', '[0-9a-zA-Z_-]+')
+		 ->where('foreignResourceId', '[0-9a-zA-Z_-]+')
 		 ->middleware('can:update,foreignMaterialId')
-		 ->middleware('can:view,resource')
+		 ->middleware('can:view,foreignResourceId')
 		 ->name('api.v1.materialresource.attach');
-	Route::post('foreign-material/{foreignMaterialId}/sync', 'ResourceMaterialController@sync')
+	Route::delete('foreign-material/{foreignMaterialId}/foreign-resource/{resource}',
+				  'ForeignResourceMaterialController@detach')
+		 ->where('foreignMaterialId', '[0-9a-zA-Z_-]+')
+		 ->where('foreignResourceId', '[0-9a-zA-Z_-]+')
+		 ->middleware('can:update,foreignMaterialId')
+		// ->middleware('can:view,foreignResourceId') // Even if the resource owner made his resource not public anymore, the detaching should work
+		 ->name('api.v1.materialresource.detach');
+	Route::post('foreign-material/{foreignMaterialId}/sync', 'ForeignResourceMaterialController@sync')
 		 ->where('foreignMaterialId', '[0-9a-zA-Z_-]+')
 		 ->middleware('can:update,foreignMaterialId')
 		 ->name('api.v1.materialresource.sync');
-	Route::delete('foreign-material/{foreignMaterialId}/resource/{resource}', 'ResourceMaterialController@detach')
-		 ->where('resource', '[0-9]+')
-		 ->where('foreignMaterialId', '[0-9a-zA-Z_-]+')
-		 ->middleware('can:update,foreignMaterialId')
-		// ->middleware('can:view,resource') // Even if the resource owner made his resource not public anymore, the detaching should work
-		 ->name('api.v1.materialresource.detach');
-
 });

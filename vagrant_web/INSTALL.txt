@@ -34,7 +34,7 @@ php artisan db:seed
 
 
 // Material Grabber API Client (mit Passwort)
-php artisan passport:client --password
+php artisan passport:client --password --name="Material Grabber"
 
 
 # In der PHP.ini müssen die Upload-Parameter noch gesetzt werden

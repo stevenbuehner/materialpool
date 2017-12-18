@@ -22,6 +22,21 @@ class ForeignResourceController extends ResourceController {
 			]
 		);
 
+		// Check if a resource with this foreignResourceKey exists already
+
+		$foreignResource = ForeignResourceId::where([
+														'user_id'    => \Auth::id(),
+														'foreign_id' => $validatedData['id']
+													])->get()->first();
+
+		if ($foreignResource !== NULL) {
+			return response()->json([
+										'success' => FALSE,
+										'error'   => 'The ForeignResourceId for this user exists already'
+									])
+							 ->setStatusCode(409);
+		}
+
 		$resource = $this->store($request);
 
 		if (!$resource instanceof Resource) {

@@ -5,11 +5,13 @@ namespace App\Models;
 use Backpack\CRUD\CrudTrait;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Class Material
  *
  * @package App\Models
+ * @property int     $id
  * @property string  $title
  * @property string  $description
  * @property int     $rating (0-20)
@@ -46,6 +48,30 @@ class Material extends Model {
 	protected $hidden = [
 		'author_id'
 	];
+
+	public function __construct(array $attributes = []) {
+		parent::__construct($attributes);
+	}
+
+	public function foreignResources($userId) {
+
+		$fi = new        ForeignResourceId();
+
+		$query = DB::table($fi->getTable())
+				   ->where('user_id', $userId)
+				   ->join('resources', $fi->getTable() . '.resource_id', 'resources.id')
+				   ->join('material_resource', 'resources.id', 'material_resource.resource_id')
+				   ->where('material_resource.material_id', $this->id)
+				   ->select($fi->getTable() . '.*');
+
+		$builder = $fi->newEloquentBuilder($query); //->with('resource');
+		$builder->setModel($fi);
+		$builder->with('resource');
+
+		$c = $builder->get();
+
+		return $c;
+	}
 
 	public function resources() {
 		return $this->belongsToMany(Resource::class, 'material_resource', 'material_id', 'resource_id')

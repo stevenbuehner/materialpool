@@ -4,12 +4,12 @@ namespace App\Services\TagExtraction\Interfaces;
 
 interface RelevanceInterface {
 
-
 	const RELEVANCE_EXIF_MIN = 40;
 	const RELEVANCE_EXIF_MAX = 49;
 
 	const RELEVANCE_USER_MIN = 100;
-	const RELEVANCE_USER_MAX = 199;
+	const RELEVANCE_USER_AVG = 200;
+	const RELEVANCE_USER_MAX = 300;
 
 	/**
 	 *
