@@ -12,5 +12,6 @@ class DatabaseSeeder extends Seeder {
 		// $this->call(UsersTableSeeder::class);
 		$this->call(\ClearAllTablesSeeder::class);
 		$this->call(\ResourceSeeder::class);
+		$this->call(\ApiKeysSeeder::class);
 	}
 }
