@@ -5,12 +5,11 @@ namespace App\Jobs;
 use App\Models\Resource;
 use App\Services\Processors\ResourceHashProcessor;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 
-class UpdateResourceHashes implements ShouldQueue {
+class UpdateResourceHashes {
 	use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
 	protected $resource;

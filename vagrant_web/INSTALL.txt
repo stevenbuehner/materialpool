@@ -39,6 +39,9 @@ php artisan passport:client --password --name="Material Grabber"
 
 # In der PHP.ini müssen die Upload-Parameter noch gesetzt werden
 # upload_max_filesize und max_file_uploads
+# sudo vi /etc/php/7.1/apache2/php.ini
+upload_max_filesize = 100M
+post_max_size = 100M
 
 
 
