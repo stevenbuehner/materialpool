@@ -58,7 +58,7 @@ class MaterialController extends Controller {
 	public function indexByBibleverse(int $from, int $to) {
 
 		$matQuery = Material::query()
-							->select('materials.*')
+							->select(['materials.*', 'bibleverse_material.relevance'])
 							->distinct()
 							->with($this->withAttributes)
 							->orderBy('bibleverse_material.relevance', 'asc')
