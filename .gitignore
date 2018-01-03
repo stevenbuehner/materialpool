@@ -29,3 +29,5 @@ vagrant_web/storage/framework/cache
 phpunit.phar
 _ide_helper.php
 vagrant_web/public/img/octicons
+.bash_history
+npm-debug.log

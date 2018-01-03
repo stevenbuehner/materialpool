@@ -16,10 +16,14 @@ mix.js('resources/assets/js/app.js', 'public/js')
     .js('resources/assets/js/media.js', 'public/js')
     .sass('resources/assets/sass/app.scss', 'public/css')
     .sass('resources/assets/sass/media.scss', 'public/css')
-    //     .extract(['select2', 'select2-bootstrap-theme'])
     .copyDirectory('node_modules/octicons/build/svg', 'public/img/octicons')
-    .version()
-    .browserSync()
 ;
+
+mix.version();
+
+if (mix.inProduction()) {
+} else {
+    mix.browserSync('materialpool.test')
+}
 
 // , 'tether', 'axios', 'jquery'

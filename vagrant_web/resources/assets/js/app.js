@@ -5,9 +5,6 @@
  * building robust, powerful web applications using Vue and Laravel.
  */
 
-require('./my_bootstrap');
+require('./my_bootstrap.js')
 
 require('jquery-bar-rating');
-
-
-// select2

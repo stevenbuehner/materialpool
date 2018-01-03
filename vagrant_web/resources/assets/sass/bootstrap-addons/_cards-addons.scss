@@ -1,0 +1,10 @@
+$card-bg: white;
+$card-hover-bg: darken($card-bg, 5%);
+
+.card.card-clickable {
+
+  &:hover {
+    background-color: $card-hover-bg;
+    cursor: pointer;
+  }
+}

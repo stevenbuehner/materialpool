@@ -4,9 +4,9 @@
 # All Vagrant configuration
 webserver_name="test.app"
 
-database_name="testdatabase"
-database_user="testuser"
-database_password="testpassword"
+database_name="materialpool"
+database_user="homestead"
+database_password="secret"
 
 # Languages, PHP Package and xDebug
 php_timezone          = "UTC"    # http://php.net/manual/en/timezones.php
@@ -66,6 +66,7 @@ Vagrant.configure("2") do |config|
   config.vm.provision :shell, path: "~/Sites/vagrant_scripts/install_phpunit.sh"
   
   config.vm.provision :shell, path: "~/Sites/vagrant_scripts/setup_terminal_startdir.sh", privileged: false, env: {"START_DIR" => remote_web}  
+  config.vm.provision :shell, path: "~/Sites/vagrant_scripts/setup_history_path.sh", privileged: false, env: {"HISTORY_DIR" => remote_share}  
   
   # Install ZIP-Package for exif-tool
     config.vm.provision :shell, :inline => "apt-get install libarchive-zip-perl", privileged: true

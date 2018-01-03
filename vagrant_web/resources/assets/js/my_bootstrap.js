@@ -16,6 +16,10 @@ window.Popper = require('popper.js');
 require('bootstrap');
 $.fn.select2.defaults.set("theme", "bootstrap");
 
+// Cards ergänzung
+require('./bootstrap-addons/cards-addons.js');
+
+
 
 /**
  * Vue is a modern JavaScript library for building interactive web interfaces
