@@ -87,6 +87,6 @@ class PdfPreviewGenerator implements PreviewGeneratorInterface {
 	 * @return bool
 	 */
 	public function previewAble(ResourceEntity $resource) {
-		return $resource instanceof PdfFile;
+		return ($resource instanceof PdfFile && $resource->hasLocalFile() && $resource->localFileExists());
 	}
 }

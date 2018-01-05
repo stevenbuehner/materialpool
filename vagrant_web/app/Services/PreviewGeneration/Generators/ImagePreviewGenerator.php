@@ -45,7 +45,6 @@ class ImagePreviewGenerator implements PreviewGeneratorInterface {
 				$localFile = $resource->getLocalFile();
 				$image     = $this->imageManager->make($localFile);
 
-
 			} catch (\Exception $e) {
 				throw new NotPreviewAbleException("Error while creating preview image", 0, $e);
 			}
@@ -97,6 +96,6 @@ class ImagePreviewGenerator implements PreviewGeneratorInterface {
 	 * @return bool
 	 */
 	public function previewAble(ResourceEntity $resource) {
-		return $resource instanceof ImageFile;
+		return ($resource instanceof ImageFile && $resource->hasLocalFile() && $resource->localFileExists());
 	}
 }

@@ -73,7 +73,7 @@ class ResourceSeeder extends Seeder {
 				$material->save();
 				$material->resources()
 						 ->attach($r,
-								  ['limitation' => serialize(new \App\ResourceLimitations\TimeLimitation())]);
+								  ['limitation' => new \App\ResourceLimitations\TimeLimitation()]);
 
 				$material->keywords()
 						 ->save(self::getRandomKeyword(), ['relevance' => rand(0, 255)]);
@@ -91,7 +91,7 @@ class ResourceSeeder extends Seeder {
 				$material->save();
 				$material->resources()
 						 ->attach($r,
-								  ['limitation' => serialize(new \App\ResourceLimitations\TimeLimitation())]);
+								  ['limitation' => new \App\ResourceLimitations\TimeLimitation()]);
 				$material->keywords()->save(self::getRandomKeyword(), ['relevance' => rand(0,
 																						   255)]);
 
@@ -121,7 +121,7 @@ class ResourceSeeder extends Seeder {
 				$limitation = new \App\ResourceLimitations\PageLimitation();
 				$limitation->setPages([1, 3, 4, 5]);
 				$material->resources()
-						 ->attach($r, ['limitation' => serialize($limitation)]);
+						 ->attach($r, ['limitation' => $limitation]);
 				$material->keywords()->save(self::getRandomKeyword(), ['relevance' => rand(0, 255)]);
 
 				self::addRandomMaterialUid($material, $material->creator);
@@ -137,7 +137,7 @@ class ResourceSeeder extends Seeder {
 				$limitation = new \App\ResourceLimitations\PageLimitation();
 				$limitation->setPages([1, 3, 4, 5]);
 				$material->resources()
-						 ->attach($r, ['limitation' => serialize($limitation)]);
+						 ->attach($r, ['limitation' => $limitation]);
 				$material->keywords()->save(self::getRandomKeyword(), ['relevance' => rand(0, 255)]);
 
 				self::addRandomMaterialUid($material, $material->creator);

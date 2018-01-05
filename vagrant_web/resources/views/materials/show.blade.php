@@ -45,11 +45,11 @@
         @endphp
 
         {{-- List all Resources if more then one --}}
-        @if(count($material->resources) == 1 && $resource->getPreviewGenerator()->previewAble($resource) === TRUE)
+        @if(count($material->resources) == 1 && ResourcePreview::able($resource) === TRUE)
             {{-- Show Content of Resource, if only one is assigned to the material --}}
             <div class="col-sm-12 rounded" style="border: solid 1px; padding: 1em">
 
-                {!! $resource->getPreviewGenerator()->renderHTMLPreview($resource, $resource->pivot->limitation, 'material') !!}
+                {!! ResourcePreview::html($resource, $resource->pivot->limitation, 'material') !!}
 
             </div>
 
@@ -62,15 +62,10 @@
                              alt="Resource Image"
                              style="width:100%;">
 
-                        <div class="card-block">
-                            <h4 class="card-title">
-                                @if($resource instanceof \App\Models\File && !empty($resource->original_filename))
-                                    {{$resource->original_filename}}
-                                @else
-                                    {{ class_basename($resource) }}
-                                @endif
-                            </h4>
-                            <p class="card-text">{{$resource->notes}}</p>
+                        <div class="card-body">
+                            <h6 class="card-title">
+                                {{$resource->notes}}
+                            </h6>
                         </div>
 
                         <div class="card-footer">

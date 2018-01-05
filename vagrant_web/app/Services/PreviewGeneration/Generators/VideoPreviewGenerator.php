@@ -120,6 +120,6 @@ class VideoPreviewGenerator implements PreviewGeneratorInterface {
 	 * @return bool
 	 */
 	public function previewAble(ResourceEntity $resource) {
-		return $resource instanceof VideoFile;
+		return ($resource instanceof VideoFile && $resource->hasLocalFile() && $resource->localFileExists());
 	}
 }

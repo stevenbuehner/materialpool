@@ -2,10 +2,10 @@
 
 namespace App\Providers;
 
-use App\Http\View\Viewhelper\ResourceHelper;
+use App\Http\View\Helpers\ResourcePreviewHelper;
 use Illuminate\Support\ServiceProvider;
 
-class HtmlResourceProvider extends ServiceProvider {
+class HtmlHelperProvider extends ServiceProvider {
 
 	protected $defer = TRUE;
 
@@ -24,8 +24,10 @@ class HtmlResourceProvider extends ServiceProvider {
 	 * @return void
 	 */
 	public function register() {
-		$this->app->singleton('ResourceHelper', function () {
-			return new ResourceHelper();
-		});
+		$this->app->singleton('ResourcePreview', ResourcePreviewHelper::class);
+	}
+
+	public function provides() {
+		return ['ResourcePreview'];
 	}
 }
