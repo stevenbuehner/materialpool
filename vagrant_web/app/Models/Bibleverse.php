@@ -406,7 +406,9 @@ class Bibleverse extends Model implements BibleVerseInterface {
 	 */
 
 	public function materials() {
-		return $this->belongsToMany(Material::class)->withPivot('relevance');
+		return $this->belongsToMany(Material::class)
+					->withPivot('relevance')
+					->using(MaterialBibleverse::class);
 	}
 
 	public function __toString() {

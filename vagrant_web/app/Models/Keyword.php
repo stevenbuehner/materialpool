@@ -154,7 +154,8 @@ class Keyword extends Model {
 
 	public function materials() {
 		return $this->belongsToMany(Material::class, 'keyword_material', 'keyword_id', 'material_id')
-					->withPivot('relevance');
+					->withPivot('relevance')
+					->using(MaterialKeyword::class);
 	}
 
 	/**

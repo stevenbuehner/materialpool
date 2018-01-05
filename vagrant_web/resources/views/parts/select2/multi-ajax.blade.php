@@ -60,6 +60,8 @@ Optional Variables
 
             var $state = html.prepend(progressbar);
 
+            var maxRating = {{ \App\Services\TagExtraction\Interfaces\RelevanceInterface::RELEVANCE_USER_MAX }};
+
 
             updateItemRelevance();
 
@@ -76,7 +78,7 @@ Optional Variables
                     var lastRelevance = item.pivot.relevance;
                     var id            = item.id;
 
-                    var $input = $("<input data-id='" + id + "' type='range' min='0' max='200' step='1' value='" + lastRelevance + "'/>")
+                    var $input = $("<input data-id='" + id + "' type='range' min='0' max='" + maxRating + "' step='1' value='" + lastRelevance + "'/>")
                         .change(function (el) {
                             var val = parseInt($input.val());
                             updateItemRelevance(val);
@@ -164,7 +166,7 @@ Optional Variables
                 if (value === undefined) {
                     progressbar.css('width', '100%');
                 } else {
-                    progressbar.css('width', Math.round(value / 200 * 100, 1) + '%');
+                    progressbar.css('width', Math.round(value / maxRating * 100, 1) + '%');
                     item.pivot.relevance = value;
                 }
             }

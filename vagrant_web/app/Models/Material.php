@@ -95,7 +95,9 @@ class Material extends Model {
 	 * @return BelongsToMany
 	 */
 	protected function keyWordClassAndChildren($class) {
-		return $this->belongsToMany($class, 'keyword_material', 'material_id', 'keyword_id')->withPivot('relevance');
+		return $this->belongsToMany($class, 'keyword_material', 'material_id', 'keyword_id')
+					->withPivot('relevance')
+					->using(MaterialKeyword::class);
 	}
 
 	public function foreignIds() {
@@ -130,7 +132,9 @@ class Material extends Model {
 	 * @return BelongsToMany
 	 */
 	public function bibleverses() {
-		return $this->belongsToMany(Bibleverse::class)->withPivot('relevance');
+		return $this->belongsToMany(Bibleverse::class)
+					->withPivot('relevance')
+					->using(MaterialBibleverse::class);
 	}
 
 	public function author() {
