@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\ResourceLimitations\ResourceLimitationInterface;
 use Illuminate\Database\Eloquent\Relations\Pivot;
 
 /**
@@ -15,11 +16,22 @@ class MaterialResource extends Pivot {
 	];
 
 
+	/**
+	 * @return ResourceLimitationInterface|NULL
+	 */
 	public function getLimitationAttribute() {
-		return unserialize($this->attributes['limitation']);
+		if ($this->attributes['limitation'] !== NULL) {
+			return unserialize($this->attributes['limitation']);
+		}
+
+		return NULL;
 	}
 
-	public function setLimitationAttribute($limitation) {
+	/**
+	 * @param ResourceLimitationInterface|NULL $limitation
+	 * @return $this
+	 */
+	public function setLimitationAttribute(ResourceLimitationInterface $limitation = NULL) {
 		$this->attributes['limitation'] = serialize($limitation);
 
 		return $this;
