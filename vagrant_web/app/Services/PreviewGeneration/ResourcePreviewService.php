@@ -31,7 +31,7 @@ class ResourcePreviewService implements PreviewGeneratorInterface {
 		/** @var PreviewGeneratorInterface $generator */
 		$generator = $resource->getPreviewGenerator();
 
-		return $generator->previewAble($resource);
+		return $generator->imagePreviewAble($resource);
 	}
 
 	/**
@@ -60,7 +60,7 @@ class ResourcePreviewService implements PreviewGeneratorInterface {
 	 * Wraps the generator function of the resource and catches errors to log them but not show them in the frontend
 	 * It also adds cache functionality and default values
 	 *
-	 * @param Resource $resource
+	 * @param ResourceEntity $resource
 	 * @param Size     $size
 	 * @return Image
 	 */
@@ -139,7 +139,7 @@ class ResourcePreviewService implements PreviewGeneratorInterface {
 		$generator = $resource->getPreviewGenerator();
 		$result    = "";
 
-		if ($this->previewAble($resource)) {
+		if ($this->htmlPreviewAble($resource)) {
 			$result = $generator->renderHTMLPreview($resource, $limitation, $context);
 		} else {
 			$result = 'Resource is not previewable';
@@ -152,11 +152,18 @@ class ResourcePreviewService implements PreviewGeneratorInterface {
 	/**
 	 * Wraps the generator function of the resource and catches errors to log them but not show them in the frontend
 	 *
-	 * @param Resource $resource
+	 * @param ResourceEntity $resource
 	 * @return bool
 	 */
-	public function previewAble(ResourceEntity $resource) {
-		return $resource->getPreviewGenerator()->previewAble($resource);
+	public function imagePreviewAble(ResourceEntity $resource) {
+		return $resource->getPreviewGenerator()->imagePreviewAble($resource);
 	}
 
+	/**
+	 * @param ResourceEntity $resource
+	 * @return bool
+	 */
+	public function htmlPreviewAble(ResourceEntity $resource) {
+		return $resource->getPreviewGenerator()->htmlPreviewAble($resource);
+	}
 }

@@ -17,7 +17,7 @@
                     $firstResource = $m->resources->first();
                 @endphp
 
-                @if($resourceCount > 0 && $firstResource->getPreviewGenerator()->previewAble($firstResource) === TRUE)
+                @if($resourceCount > 0 && ResourcePreview::imagePossible($firstResource) === TRUE)
                     <img class="card-img-top "
                          src="{{route('resource.image.preview', ['resource' => $firstResource->id, 'width' => 300, 'height' => 300])}}"
                          alt="Resource Image"

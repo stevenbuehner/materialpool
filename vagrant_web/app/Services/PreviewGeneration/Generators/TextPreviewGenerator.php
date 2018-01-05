@@ -66,7 +66,15 @@ class TextPreviewGenerator implements PreviewGeneratorInterface {
 	 * @param Resource $resource
 	 * @return bool
 	 */
-	public function previewAble(ResourceEntity $resource) {
+	public function imagePreviewAble(ResourceEntity $resource) {
+		return FALSE;
+	}
+
+	/**
+	 * @param Resource $resource
+	 * @return bool
+	 */
+	public function htmlPreviewAble(ResourceEntity $resource) {
 		return $resource instanceof Text;
 	}
 }

@@ -14,8 +14,12 @@ class ResourcePreviewHelper {
 		$this->previewService = $previewService;
 	}
 
-	public function able(ResourceEntity $resource) {
-		return $this->previewService->previewAble($resource);
+	public function imagePossible(ResourceEntity $resource) {
+		return $this->previewService->imagePreviewAble($resource);
+	}
+
+	public function htmlPossible(ResourceEntity $resource) {
+		return $this->previewService->htmlPreviewAble($resource);
 	}
 
 	public function image(ResourceEntity $resource, $width = NULL, $height = NULL) {

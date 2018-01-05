@@ -14,7 +14,7 @@ interface PreviewGeneratorInterface {
 	 * @param Resource $resource
 	 * @return bool
 	 */
-	public function previewAble(ResourceEntity $resource);
+	public function imagePreviewAble(ResourceEntity $resource);
 
 	/**
 	 * @param Resource $resource
@@ -22,6 +22,12 @@ interface PreviewGeneratorInterface {
 	 * @return Image
 	 */
 	public function getImagePreview(ResourceEntity $resource, Size $size);
+
+	/**
+	 * @param Resource $resource
+	 * @return bool
+	 */
+	public function htmlPreviewAble(ResourceEntity $resource);
 
 	/**
 	 * @param ResourceEntity              $resource

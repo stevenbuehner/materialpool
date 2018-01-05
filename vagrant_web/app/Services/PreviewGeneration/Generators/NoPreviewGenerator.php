@@ -21,7 +21,7 @@ class NoPreviewGenerator implements PreviewGeneratorInterface {
 	 * @param Resource $resource
 	 * @return bool
 	 */
-	public function previewAble(ResourceEntity $resource) {
+	public function imagePreviewAble(ResourceEntity $resource) {
 		return FALSE;
 	}
 
@@ -44,5 +44,13 @@ class NoPreviewGenerator implements PreviewGeneratorInterface {
 	 */
 	public function renderHTMLPreview(ResourceEntity $resource, ResourceLimitationInterface $limitation = NULL, $context = NULL) {
 		throw new NotPreviewAbleException();
+	}
+
+	/**
+	 * @param Resource $resource
+	 * @return bool
+	 */
+	public function htmlPreviewAble(ResourceEntity $resource) {
+		return FALSE;
 	}
 }

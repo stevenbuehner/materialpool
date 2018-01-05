@@ -31,7 +31,7 @@ class MaterialResource extends Pivot {
 	 * @param ResourceLimitationInterface|NULL $limitation
 	 * @return $this
 	 */
-	public function setLimitationAttribute(ResourceLimitationInterface $limitation = NULL) {
+	public function setLimitationAttribute($limitation = NULL) {
 		$this->attributes['limitation'] = serialize($limitation);
 
 		return $this;

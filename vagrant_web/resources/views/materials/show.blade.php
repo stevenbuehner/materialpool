@@ -45,7 +45,7 @@
         @endphp
 
         {{-- List all Resources if more then one --}}
-        @if(count($material->resources) == 1 && ResourcePreview::able($resource) === TRUE)
+        @if(count($material->resources) == 1 && ResourcePreview::htmlPossible($resource) === TRUE)
             {{-- Show Content of Resource, if only one is assigned to the material --}}
             <div class="col-sm-12 rounded" style="border: solid 1px; padding: 1em">
 

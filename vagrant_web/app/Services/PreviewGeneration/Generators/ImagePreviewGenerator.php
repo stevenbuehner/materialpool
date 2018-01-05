@@ -95,7 +95,15 @@ class ImagePreviewGenerator implements PreviewGeneratorInterface {
 	 * @param Resource $resource
 	 * @return bool
 	 */
-	public function previewAble(ResourceEntity $resource) {
+	public function imagePreviewAble(ResourceEntity $resource) {
 		return ($resource instanceof ImageFile && $resource->hasLocalFile() && $resource->localFileExists());
+	}
+
+	/**
+	 * @param Resource $resource
+	 * @return bool
+	 */
+	public function htmlPreviewAble(ResourceEntity $resource) {
+		return $this->imagePreviewAble($resource);
 	}
 }
