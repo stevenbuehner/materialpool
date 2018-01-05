@@ -15,6 +15,9 @@ Optional Variables
 - string $name (html ID) - required when multiple fields are used
 - array $selected (id => value)
 - string $placeholder (Placeholder)
+
+Required in Model:
+The function toJson() / toArray() of the Model are used to inject the Model-Data into the JavaScript
 --}}
 
 <select id="{{$name or 'select2_ajax_multiple'}}"
@@ -25,7 +28,7 @@ Optional Variables
     @if(isset($selected))
         @foreach($selected as $item)
             <option value="{{$item['id']}}" selected="selected"
-                    data-item='{!! $item !!}'>{{$item[$displayField]}}</option>
+                    data-item='{!! $item->toJson() !!}'>{{$item[$displayField]}}</option>
         @endforeach
     @endif
 </select>
