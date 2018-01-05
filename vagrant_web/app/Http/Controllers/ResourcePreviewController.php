@@ -16,6 +16,6 @@ class ResourcePreviewController extends Controller {
 
 	public function getImage(Resource $resource, $width = NULL, $height = NULL) {
 
-		return $this->previewService->getPreviewImage($resource, $width, $height);
+		return $this->previewService->getImagePreviewByWidthAndHeight($resource, $width, $height);
 	}
 }

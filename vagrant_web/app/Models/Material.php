@@ -53,6 +53,13 @@ class Material extends Model {
 		parent::__construct($attributes);
 	}
 
+	/**
+	 *
+	 * Works but missing pivot in relation (!)
+	 *
+	 * @param $userId
+	 * @return mixed
+	 */
 	public function foreignResources($userId) {
 
 		$fi = new        ForeignResourceId();

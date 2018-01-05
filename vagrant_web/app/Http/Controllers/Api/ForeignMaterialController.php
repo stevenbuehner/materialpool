@@ -74,8 +74,15 @@ class ForeignMaterialController extends BaseController {
 		$material->load([
 							'keywords',
 							'bibleverses',
-							'resources'
+							'resources.foreignIds' => function ($query) use ($material) {
+								$query->where("user_id", "=", $material->created_by);
+							}
 						]);
+
+		// Remove Resources without foreignResourceId
+		$material->resources->each(function () {
+
+		});
 
 		$hidden = ['created_at', 'updated_at', 'icon'];
 		$material->bibleverses->each(function (Bibleverse $bv) use (&$hidden) {
@@ -86,7 +93,12 @@ class ForeignMaterialController extends BaseController {
 		$result['id']          = $foreignMaterialId->foreign_id;
 		$result['keywords']    = $material->keywords;
 		$result['bibleverses'] = $material->bibleverses;
-		$result['resources']   = $material->foreignResources($foreignMaterialId->user_id);
+		$result['resources']   = $material->resources->reject(function (Resource $resource) {
+			$count    = $resource->foreignIds->count();
+			$countAll = $resource->foreignIds;
+
+			return $resource->foreignIds->count() == 0;
+		});
 		$result['author']      = $material->author_id !== NULL ? $material->author->title : NULL;
 
 		return $result;

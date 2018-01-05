@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\ForeignMaterialId;
+use App\Models\ForeignResourceId;
 use App\Models\Material;
 use App\Models\PdfFile;
 use App\Models\Resource;
@@ -47,14 +48,14 @@ class ApiResourceMaterialControllerTest extends TestCase {
 
 		$this->authenticatePassport($this->testUser);
 
-		$newResource = $this->getNewCreatedResource($this->testUser);
+		$newForeignResource = $this->getNewCreatedForeignResource($this->testUser);
 
 		/** @var ForeignMaterialId $foreignMaterialId */
 		$foreignMaterialId = $this->testUser->foreignMaterialIds->first();
 		$resourcesBefore   = $foreignMaterialId->material->resources;
 		$this->assertInstanceOf(Collection::class, $resourcesBefore);
 		$uri = route('api.v1.materialresource.attach', [
-			'resource'          => $newResource->id,
+			'resource'          => $newForeignResource->foreign_id,
 			'foreignMaterialId' => $foreignMaterialId->foreign_id
 		]);
 
@@ -70,13 +71,14 @@ class ApiResourceMaterialControllerTest extends TestCase {
 		$this->assertInstanceOf(Collection::class, $resourcesAfter);
 		$this->assertEquals($resourcesBefore->count() + 1, $resourcesAfter->count(),
 							'Should be one more resource assigned');
-		$this->assertTrue($resourcesAfter->filter(function (Resource $resource) use ($newResource) {
-							  return $resource->id === $newResource->id;
+		$this->assertTrue($resourcesAfter->filter(function (Resource $resource) use ($newForeignResource) {
+							  return $resource->id === $newForeignResource->id;
 						  })->count() === 1);
 
 	}
 
-	protected function getNewCreatedResource(User $user) {
+	protected function getNewCreatedForeignResource(User $user) {
+		/** @var Resource $newResource */
 		$newResource = factory(Resource::class)->create([
 															'created_by' => $user->id
 														]);
@@ -84,7 +86,17 @@ class ApiResourceMaterialControllerTest extends TestCase {
 		$this->assertInstanceOf(Resource::class, $newResource);
 		$this->assertTrue($newResource->exists);
 
-		return $newResource;
+		/** @var ForeignResourceId $foreignResource */
+		$foreignResource = factory(ForeignResourceId::class)->make([
+																	   'user_id' => $user->id
+																   ]);
+
+		$newResource->foreignIds()->save($foreignResource);
+
+		$this->assertInstanceOf(ForeignResourceId::class, $foreignResource);
+		$this->assertTrue($foreignResource->exists);
+
+		return $foreignResource;
 
 	}
 
@@ -94,7 +106,7 @@ class ApiResourceMaterialControllerTest extends TestCase {
 
 		/** @var Resource $newResource */
 		// Type Resource is not applicable with PageLimitation (!) => Error
-		$newResource = $this->getNewCreatedResource($this->testUser);
+		$newForeignResource = $this->getNewCreatedForeignResource($this->testUser);
 
 		$limitation = new PageLimitation();
 		$limitation->setPages([1]);
@@ -105,7 +117,7 @@ class ApiResourceMaterialControllerTest extends TestCase {
 		$resourcesBefore   = $foreignMaterialId->material->resources;
 		$this->assertInstanceOf(Collection::class, $resourcesBefore);
 		$uri  = route('api.v1.materialresource.attach', [
-			'resource'          => $newResource->id,
+			'resource'          => $newForeignResource->foreign_id,
 			'foreignMaterialId' => $foreignMaterialId->foreign_id
 		]);
 		$data = [
@@ -122,7 +134,9 @@ class ApiResourceMaterialControllerTest extends TestCase {
 		$this->authenticatePassport($this->testUser);
 
 		/** @var PdfFile $newResource */
-		$newResource = factory(PdfFile::class, 1)->create(['created_by' => $this->testUser->id])->first();
+		$newResource        = factory(PdfFile::class, 1)->create(['created_by' => $this->testUser->id])->first();
+		$newForeignResource = $newResource->foreignIds()
+										  ->save(factory(ForeignResourceId::class)->make(['user_id' => $this->testUser->id]));
 		$this->assertInstanceOf(PdfFile::class, $newResource);
 
 		/** @var ForeignMaterialId $foreignMaterialId */
@@ -130,7 +144,7 @@ class ApiResourceMaterialControllerTest extends TestCase {
 		$resourcesBefore   = $foreignMaterialId->material->resources;
 		$this->assertInstanceOf(Collection::class, $resourcesBefore);
 		$uri = route('api.v1.materialresource.attach', [
-			'resource'          => $newResource->id,
+			'resource'          => $newForeignResource->foreign_id,
 			'foreignMaterialId' => $foreignMaterialId->foreign_id
 		]);
 
@@ -157,7 +171,10 @@ class ApiResourceMaterialControllerTest extends TestCase {
 		$this->authenticatePassport($this->testUser);
 
 		/** @var PdfFile $newResource */
-		$newResource = factory(PdfFile::class, 1)->create(['created_by' => $this->testUser->id])->first();
+		$newResource        = factory(PdfFile::class, 1)->create(['created_by' => $this->testUser->id])->first();
+		$newForeignResource = $newResource->foreignIds()
+										  ->save(factory(ForeignResourceId::class)->make(['user_id' => $this->testUser->id]));
+		$this->assertInstanceOf(ForeignResourceId::class, $newForeignResource);
 		$this->assertInstanceOf(PdfFile::class, $newResource);
 
 		$limitation = new PageLimitation();
@@ -169,7 +186,7 @@ class ApiResourceMaterialControllerTest extends TestCase {
 		$resourcesBefore   = $foreignMaterialId->material->resources;
 		$this->assertInstanceOf(Collection::class, $resourcesBefore);
 		$uri  = route('api.v1.materialresource.attach', [
-			'resource'          => $newResource->id,
+			'resource'          => $newForeignResource->foreign_id,
 			'foreignMaterialId' => $foreignMaterialId->foreign_id
 		]);
 		$data = [
@@ -208,34 +225,36 @@ class ApiResourceMaterialControllerTest extends TestCase {
 
 		$this->authenticatePassport($this->testUser);
 
-		$newResource       = $this->getNewCreatedResource($this->testUser);
-		$foreignMaterialId = uniqid('rm_test_');
-		$uri               = route('api.v1.materialresource.attach', [
-			'resource'          => $newResource->id,
+		$newForeignResource = $this->getNewCreatedForeignResource($this->testUser);
+		$foreignMaterialId  = uniqid('rm_test_');
+		$uri                = route('api.v1.materialresource.attach', [
+			'resource'          => $newForeignResource->foreign_id,
 			'foreignMaterialId' => $foreignMaterialId
 		]);
 
 		$response = $this->json('post', $uri);
 		$response->assertStatus(404); // Not Found
-		$this->assertEquals(0, $newResource->materials->count());
+		$this->assertEquals(0, $newForeignResource->resource->materials->count());
 
 	}
 
 	public function testAssignResourceNotExistantToMaterial() {
 		$this->authenticatePassport($this->testUser);
 
-		$newResource = $this->getNewCreatedResource($this->testUser);
+		$newForeignResource = $this->getNewCreatedForeignResource($this->testUser);
+		$newResource        = $newForeignResource->resource;
 
 		/** @var ForeignMaterialId $foreignMaterialId */
 		$foreignMaterialId = $this->testUser->foreignMaterialIds->first();
 		$resourcesBefore   = $foreignMaterialId->material->resources;
 		$this->assertInstanceOf(Collection::class, $resourcesBefore);
 		$uri = route('api.v1.materialresource.attach', [
-			'resource'          => $newResource->id,
+			'resource'          => $newForeignResource->foreign_id,
 			'foreignMaterialId' => $foreignMaterialId->foreign_id
 		]);
 
-		$newResource->delete();
+		$newForeignResource->resource->delete();
+		$newForeignResource->delete();
 
 		$response = $this->json('post', $uri);
 		$response->assertStatus(404); // Not Found
@@ -248,20 +267,20 @@ class ApiResourceMaterialControllerTest extends TestCase {
 	public function testAssignResourceToMaterialForbidden() {
 		$this->authenticatePassport($this->testUser);
 
-		$newResource = $this->getNewCreatedResource($this->testUser);
+		$newForeignResource = $this->getNewCreatedForeignResource($this->testUser);
 
 		/** @var ForeignMaterialId $foreignMaterialId */
 		$foreignMaterialId = ForeignMaterialId::where('user_id', '!=', $this->testUser->id)->first();
 		$resourcesBefore   = $foreignMaterialId->material->resources;
 		$this->assertInstanceOf(Collection::class, $resourcesBefore);
 		$uri = route('api.v1.materialresource.attach', [
-			'resource'          => $newResource->id,
+			'resource'          => $newForeignResource->foreign_id,
 			'foreignMaterialId' => $foreignMaterialId->foreign_id
 		]);
 
 		$response = $this->json('post', $uri);
 		$response->assertStatus(403); // Forbidden
-		$this->assertEquals(0, $newResource->materials->count());
+		$this->assertEquals(0, $newForeignResource->resource->materials->count());
 
 		$freshForeignMaterialId = $foreignMaterialId->fresh('material.resources');
 		$this->assertEquals($resourcesBefore->toArray(), $freshForeignMaterialId->material->resources->toArray());
@@ -270,9 +289,10 @@ class ApiResourceMaterialControllerTest extends TestCase {
 	public function testAssignResourceForbiddenToMaterial() {
 		$this->authenticatePassport($this->testUser);
 
-		$otherUser   = factory(User::class, 1)->create()->first();
-		$newResource = $this->getNewCreatedResource($otherUser);
-		$newResource->is_public = false;
+		$otherUser              = factory(User::class, 1)->create()->first();
+		$newForeignResource     = $this->getNewCreatedForeignResource($otherUser);
+		$newResource            = $newForeignResource->resource;
+		$newResource->is_public = FALSE;
 		$newResource->save();
 
 		/** @var ForeignMaterialId $foreignMaterialId */
@@ -283,7 +303,7 @@ class ApiResourceMaterialControllerTest extends TestCase {
 		$this->assertInstanceOf(Collection::class, $resourcesBefore);
 
 		$uri = route('api.v1.materialresource.attach', [
-			'resource'          => $newResource->id,
+			'resource'          => $newForeignResource->foreign_id,
 			'foreignMaterialId' => $foreignMaterialId->foreign_id
 		]);
 
@@ -299,14 +319,14 @@ class ApiResourceMaterialControllerTest extends TestCase {
 
 		// No Authentication (!)
 
-		$newResource = $this->getNewCreatedResource($this->testUser);
+		$newForeignResource = $this->getNewCreatedForeignResource($this->testUser);
 
 		/** @var ForeignMaterialId $foreignMaterialId */
 		$foreignMaterialId = $this->testUser->foreignMaterialIds->first();
 		$resourcesBefore   = $foreignMaterialId->material->resources;
 		$this->assertInstanceOf(Collection::class, $resourcesBefore);
 		$uri = route('api.v1.materialresource.attach', [
-			'resource'          => $newResource->id,
+			'resource'          => $newForeignResource->foreign_id,
 			'foreignMaterialId' => $foreignMaterialId->foreign_id
 		]);
 
@@ -324,15 +344,21 @@ class ApiResourceMaterialControllerTest extends TestCase {
 		$this->assertInstanceOf(ForeignMaterialId::class, $foreignMaterialId);
 
 		/** @var Material $materialBefore */
+		$testUser = $this->testUser;
+		$foreignMaterialId->load(['material.resources.foreignIds' => function ($query) use ($testUser) {
+			$query->where('user_id', '=', $testUser->id);
+		}]);
 		$materialBefore = $foreignMaterialId->material;
 
 		/** @var Resource $resourcesBefore */
-		$resourcesBefore = $materialBefore->resources;
+		$resourcesBefore = $materialBefore->resources->reject(function ($resource) {
+			return $resource->foreignIds->count() == 0;
+		});
 		$resBefore       = $resourcesBefore->first();
 
 		$this->assertInstanceOf(Resource::class, $resBefore);
 		$uri = route('api.v1.materialresource.detach', [
-			'resource'          => $resBefore->id,
+			'resource'          => $resBefore->foreignIds->first()->foreign_id,
 			'foreignMaterialId' => $foreignMaterialId->foreign_id
 		]);
 
@@ -358,7 +384,7 @@ class ApiResourceMaterialControllerTest extends TestCase {
 		$user = factory(User::class, 1)->create()->first();
 		$this->assertInstanceOf(User::class, $user);
 
-		$resource = $this->getNewCreatedResource($user);
+		$foreignResourceId = $this->getNewCreatedForeignResource($user);
 
 		/** @var ForeignMaterialId $foreignMaterialId */
 		$foreignMaterialId = ForeignMaterialId::where('user_id', '!=', $this->testUser->id)->first();
@@ -371,7 +397,7 @@ class ApiResourceMaterialControllerTest extends TestCase {
 		$resourcesBefore = $materialBefore->resources;
 
 		$uri = route('api.v1.materialresource.detach', [
-			'resource'          => $resource->id,
+			'resource'          => $foreignResourceId->foreign_id,
 			'foreignMaterialId' => $foreignMaterialId->foreign_id
 		]);
 
@@ -394,8 +420,9 @@ class ApiResourceMaterialControllerTest extends TestCase {
 		$user = factory(User::class, 1)->create()->first();
 		$this->assertInstanceOf(User::class, $user);
 
-		$resource = $this->getNewCreatedResource($user);
-		$resource->is_public = false;
+		$foreinResourceId    = $this->getNewCreatedForeignResource($user);
+		$resource            = $foreinResourceId->resource;
+		$resource->is_public = FALSE;
 		$resource->save();
 
 		/** @var ForeignMaterialId $foreignMaterialId */
@@ -410,7 +437,7 @@ class ApiResourceMaterialControllerTest extends TestCase {
 		$resourcesBefore = $materialBefore->resources;
 
 		$uri = route('api.v1.materialresource.detach', [
-			'resource'          => $resource->id,
+			'resource'          => $foreinResourceId->foreign_id,
 			'foreignMaterialId' => $foreignMaterialId->foreign_id
 		]);
 
@@ -482,11 +509,11 @@ class ApiResourceMaterialControllerTest extends TestCase {
 		$foreignMaterialId = $this->testUser->foreignMaterialIds()->has('material.resources')->first();
 		$this->assertInstanceOf(ForeignMaterialId::class, $foreignMaterialId);
 
-		$resourceId = 99999;
-		$this->assertNull(Resource::find($resourceId));
+		$foreignResourceId = uniqid('rm_test_');
+		$this->assertEquals(0, ForeignResourceId::where('foreign_id', '=', $foreignResourceId)->get()->count());
 
 		$uri = route('api.v1.materialresource.detach', [
-			'resource'          => $resourceId,
+			'resource'          => $foreignResourceId,
 			'foreignMaterialId' => $foreignMaterialId->foreign_id
 		]);
 

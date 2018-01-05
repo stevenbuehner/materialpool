@@ -134,7 +134,7 @@ Route::group([
 		 ->middleware('can:update,foreignMaterialId')
 		 ->middleware('can:view,foreignResourceId')
 		 ->name('api.v1.materialresource.attach');
-	Route::delete('foreign-material/{foreignMaterialId}/foreign-resource/{resource}',
+	Route::delete('foreign-material/{foreignMaterialId}/foreign-resource/{foreignResourceId}',
 				  'ForeignResourceMaterialController@detach')
 		 ->where('foreignMaterialId', '[0-9a-zA-Z_-]+')
 		 ->where('foreignResourceId', '[0-9a-zA-Z_-]+')

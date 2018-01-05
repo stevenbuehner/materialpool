@@ -93,9 +93,9 @@ class ResourceController extends BaseController {
 
 
 		if ($request->hasFile('file')) {
-			$resource = $this->handleResourceUpload($request);
+			$resource = $this->handleSingleResourceFileData($request);
 		} else {
-			$resource = $this->handleResourceContent($request);
+			$resource = $this->handleContentResourceUpload($request);
 		}
 
 
@@ -126,9 +126,9 @@ class ResourceController extends BaseController {
 
 		try {
 			if ($request->hasFile('file')) {
-				$resource = $this->handleResourceUpload($request, $resource);
+				$resource = $this->handleSingleResourceFileData($request, $resource);
 			} else {
-				$resource = $this->handleResourceContent($request, $resource);
+				$resource = $this->handleContentResourceUpload($request, $resource);
 			}
 
 

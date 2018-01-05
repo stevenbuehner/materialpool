@@ -2,18 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Jobs\UpdateResourceHashes;
 use App\Models\Resource;
 use App\Models\Resource as ResourceEntity;
 use App\Models\Text;
-use App\Services\ResourceRecognition\ResourceRecognitionService;
-use App\Services\TagExtraction\MaterialExtractionService;
 use Illuminate\Http\Request;
-use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Response;
-use Illuminate\Support\Facades\Storage;
 
 class ResourceController extends Controller {
 
@@ -46,7 +40,7 @@ class ResourceController extends Controller {
 	}
 
 	/**
-	 * Store a newly created resource in storage.
+	 * Store a newly created resource or resoures (plural!) in storage and create single material for them.
 	 *
 	 * @param  \Illuminate\Http\Request $request
 	 * @return \Illuminate\Http\Response
@@ -57,15 +51,9 @@ class ResourceController extends Controller {
 			return redirect(route('pool.resource.create'))->withErrors(['Missing upload file']);
 		}
 
-		$uploadedFiles = $request->file('file');
-		$metaData      = $request->get('meta', '');
-		$resources     = [];
-
-		foreach ($uploadedFiles as $file) {
-			$resources[] = $this->handleResourceUpload($file);
-		}
-
-		$material = $this->createMaterialFromResources($resources, $metaData);
+		$metaData  = $request->get('meta', '');
+		$resources = $this->handleMultiResourceFileData($request);
+		$material  = $this->createMaterialFromResources($resources, $metaData);
 
 		return redirect(route('pool.material.show', $material->id));
 	}

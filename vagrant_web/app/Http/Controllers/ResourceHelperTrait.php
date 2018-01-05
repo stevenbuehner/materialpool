@@ -28,21 +28,32 @@ trait ResourceHelperTrait {
 
 	}
 
-	/**
-	 *
-	 * @param $request
-	 * @param $resource - optional resource to save data to
-	 * @return Resource
-	 *
-	 * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException
-	 */
-	protected function handleResourceUpload(Request $request, Resource $resource = NULL) {
+	protected function handleMultiResourceFileData(Request $request) {
+
+		/** @var UploadedFile $uploadedFiles */
+		$uploadedFiles = $request->files('file');
+
+		if (!is_array($uploadedFiles)) {
+			$uploadedFiles = [$uploadedFiles];
+		}
+
+		$resources = [];
+
+		foreach ($uploadedFiles as $key => $file) {
+			$resources[$key] = $this->handleResourceFileUpload($file);
+			$resources[$key] = $this->handleGerneralResourceAttributes($resources[$key], $request);
+		}
+
+		return $resources;
+	}
+
+	protected function handleResourceFileUpload(UploadedFile $file, Resource $resource = NULL) {
 
 		/** @var ResourceRecognitionService $recognitionService */
-		/** @var UploadedFile $uploadedFile */
+		/** @var UploadedFile $file */
 		$recognitionService = resolve('app.resource.type.recognition');
-		$uploadedFile       = $request->file('file');
-		$resourceClass      = $recognitionService->guessResourceFile($uploadedFile);
+
+		$resourceClass = $recognitionService->guessResourceFile($file);
 
 		if ($resource) {
 			if ($resource instanceof $resourceClass) {
@@ -54,24 +65,23 @@ trait ResourceHelperTrait {
 			$resource = new $resourceClass();
 		}
 
-		$this->handleGerneralResourceAttributes($resource, $request);
+		$this->handleCreatedByRessourceAttributes($resource);
 
 		if ($resource instanceof \App\Models\File) {
 			$disk = Storage::disk(config('app.disks.resources'));
 			// $tmpPath                     = $uploadedFile->getPath() . DIRECTORY_SEPARATOR . $uploadedFile->getFilename();
 			// $sha1                        = sha1_file($tmpPath);
 			// $resource->content_hash      = $sha1;
-			$resource->original_filename = $uploadedFile->getClientOriginalName();
+			$resource->original_filename = $file->getClientOriginalName();
 			$resource->save();
 
 			$newTargetFolder      = DIRECTORY_SEPARATOR . intval($resource->id / 10000);
 			$newTargetFolder      .= DIRECTORY_SEPARATOR . intval($resource->id / 100);
-			$relativeFilePath     = $disk->putFile($newTargetFolder, $uploadedFile);
+			$relativeFilePath     = $disk->putFile($newTargetFolder, $file);
 			$resource->local_path = config('app.disks.resources') . '::' . $relativeFilePath;
 
-
 		} else if ($resource instanceof Text) {
-			$resource->content = \File::get($uploadedFile->getRealPath());
+			$resource->content = \File::get($file->getRealPath());
 		}
 
 		$resource->save();
@@ -82,17 +92,42 @@ trait ResourceHelperTrait {
 		$resource = $resource->fresh();
 
 		return $resource;
+
 	}
 
-	protected function handleGerneralResourceAttributes(Resource $resource, Request $request) {
+	protected function handleCreatedByRessourceAttributes(Resource $resource) {
 
 		if ($resource->created_by === NULL) {
 			$resource->created_by = Auth::id();
 		}
 
+		return $resource;
+	}
+
+	protected function handleGerneralResourceAttributes(Resource $resource, Request $request) {
+
 		$resource->notes       = $request->get('notes', $resource->notes);
 		$resource->is_public   = $request->get('is_public', $resource->is_public);
 		$resource->remote_path = $request->get('remote_path', $resource->remote_path);
+
+		$resource->save();
+
+		return $resource;
+	}
+
+	/**
+	 *
+	 * @param $request
+	 * @param $resource - optional resource to save data to
+	 * @return Resource
+	 *
+	 * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException
+	 */
+	protected function handleSingleResourceFileData(Request $request, Resource $resource = NULL) {
+
+		$uploadedFile = $request->file('file');
+		$resource     = $this->handleResourceFileUpload($uploadedFile, $resource);
+		$resource     = $this->handleGerneralResourceAttributes($resource, $request);
 
 		return $resource;
 	}
@@ -118,7 +153,7 @@ trait ResourceHelperTrait {
 		return $material;
 	}
 
-	protected function handleResourceContent(Request $request, Resource $resource = NULL) {
+	protected function handleContentResourceUpload(Request $request, Resource $resource = NULL) {
 		/** @var ResourceRecognitionService $recognitionService */
 		$recognitionService = resolve('app.resource.type.recognition');
 		$content            = $request->get('content',
@@ -135,6 +170,7 @@ trait ResourceHelperTrait {
 			$resource = new $resourceClass();
 		}
 
+		$this->handleCreatedByRessourceAttributes($resource);
 		$this->handleGerneralResourceAttributes($resource, $request);
 
 		if ($resource instanceof TextContentInterface) {
@@ -150,6 +186,7 @@ trait ResourceHelperTrait {
 
 		return $resource;
 	}
+
 
 	/**
 	 * @param Request $request
