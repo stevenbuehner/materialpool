@@ -44,7 +44,7 @@
                     @endforeach
                 </div>
 
-                <div class="card-block">
+                <div class="card-body">
                     <a class="btn btn-secondary pull-right btn-sm" role="button">weiteres Material erstellen</a>
                 </div>
             @else

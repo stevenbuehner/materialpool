@@ -6,7 +6,7 @@
     <div class="card-columns">
 
         <div class="card">
-            <div class="card-block">
+            <div class="card-body">
                 <h3 class="card-title">Dateibasierte Resource</h3>
                 <p class="card-text">Bilder, Dokumente, Filme, ...</p>
 

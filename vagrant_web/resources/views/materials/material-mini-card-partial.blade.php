@@ -1,6 +1,6 @@
 <div class="card">
 
-    <div class="card-block">
+    <div class="card-body">
         <div class="card-title">
             {{ str_limit($material->title, 50)}}
         </div>

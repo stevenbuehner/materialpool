@@ -107,32 +107,26 @@
         </div>
 
 
-        <div class="col-md-4 col-sm-12 ">
-            @if($material->resources->count())
-                <h5>zugeordnete Resourcen</h5>
+        @if($material->resources->count())
+            <h5>zugeordnete Resourcen</h5>
 
-                <div id="resource-assignment">
-                    @foreach($material->resources as $r)
-                        @include('resources.resource-mini-card-with-limitation',
-                        ['resource' => $r])
-                    @endforeach
-                </div>
-
-
+            <div class="card-columns">
+                @foreach($material->resources as $r)
+                    @include('resources.resource-mini-card-with-limitation',
+                    ['resource' => $r,
+                    'limitation' => $r->pivot->limitation])
+                @endforeach
+            </div>
 
 
-                <div class="card-block">
-                    <a class="btn btn-secondary pull-right btn-sm" role="button" href="#">weitere Resource zuordnen</a>
-                </div>
-            @else
-                <div class="alert alert-warning">
-                    Keine Ressourcen zugeordnet
+            <a class="btn btn-secondary pull-right btn-sm" role="button" href="#">weitere Resource zuordnen</a>
+        @else
+            <div class="alert alert-warning">
+                Keine Ressourcen zugeordnet
 
-                    <a class="btn btn-sm btn-secondary" role="button" href="#">Resource zuordnen</a>
-                </div>
-            @endif
-
-        </div>
+                <a class="btn btn-sm btn-secondary" role="button" href="#">Resource zuordnen</a>
+            </div>
+        @endif
 
 
     </div>

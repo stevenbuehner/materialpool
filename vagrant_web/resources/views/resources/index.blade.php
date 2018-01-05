@@ -6,7 +6,7 @@
         @foreach($resources as $r)
             <div class="card">
 
-                <div class="card-block">
+                <div class="card-body">
                     <h3 class="card-title">{{ $r->type }}</h3>
                     <p class="card-text">{{ $r->local_path }}</p>
                     <a href="{{ URL::route('pool.resource.show', $r->id) }}"

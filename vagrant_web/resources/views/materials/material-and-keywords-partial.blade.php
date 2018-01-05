@@ -9,7 +9,7 @@
         </div>
     </div>
 
-    <div class="card-block">
+    <div class="card-body">
 
         <h2 class="card-title">
             {{$material->title}}

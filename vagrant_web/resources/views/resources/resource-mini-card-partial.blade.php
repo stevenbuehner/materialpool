@@ -1,6 +1,6 @@
 <div class="card">
 
-    <div class="card-block">
+    <div class="card-body">
         {{ class_basename($resource)}}-Resource
 
         @if(!empty($resource->notes))
