@@ -31,7 +31,7 @@ trait ResourceHelperTrait {
 	protected function handleMultiResourceFileData(Request $request) {
 
 		/** @var UploadedFile $uploadedFiles */
-		$uploadedFiles = $request->files('file');
+		$uploadedFiles = $request->file('file');
 
 		if (!is_array($uploadedFiles)) {
 			$uploadedFiles = [$uploadedFiles];
