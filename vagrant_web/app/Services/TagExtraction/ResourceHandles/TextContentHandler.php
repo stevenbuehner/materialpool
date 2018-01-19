@@ -36,14 +36,14 @@ class TextContentHandler implements HandlerInterface {
 		$firstLineResults = $this->searchInFirstLine($resource);
 		$result           = $result->merge($firstLineResults);
 
-		$result = $result->merge($this->searchInEveryLineAfterFirst($resource));
-		$unique = $result->unique();
-
 		// Eine Property ist auf jeden Fall OCR
-		// Also mindestens zwei Tags werden gefordert
-		if ($firstLineResults->count() > 3) {
+		// Also mindestens drei Tags werden gefordert
+		if ($firstLineResults->count() > 4) {
 			$this->removeFirstLine($resource);
 		}
+
+		$result = $result->merge($this->searchInEveryLine($resource));
+		$unique = $result->unique();
 
 		return $unique;
 	}
@@ -60,8 +60,14 @@ class TextContentHandler implements HandlerInterface {
 			// get Content
 			$content = $resource->getContent();
 
+			// Was there a firstLine backed up previously?
+			$firstLine = $resource->getFirstLine();
+
 			// Use the first line in textfiles to find any tags
-			$firstLine = strtok($content, "\n");
+			if ($firstLine === FALSE) {
+				$firstLine = strtok($content, "\n");
+			}
+
 			$foundTags = $this->tagExtractionService->extractPartsFromStrings($firstLine, 2, $context = ['firstline']);
 
 			// How many tags where found in the first line of text? => At least three are needed, to identify this as info
@@ -95,16 +101,33 @@ class TextContentHandler implements HandlerInterface {
 		return $result;
 	}
 
-	protected function searchInEveryLineAfterFirst(Resource $resource) {
+	protected function removeFirstLine(Resource $resource) {
+		if ($resource instanceof TextContentInterface && $resource->getFirstLine() === FALSE) {
+
+			// get Content
+			$content = $resource->getContent();
+
+			// Delete the first line in the $content
+			$firstLine        = strtok($content, "\n");
+			$withoutFirstLine = preg_replace('/^.+\n/', '', $content);
+
+			$resource->setFirstLine($firstLine);
+			$resource->setContent($withoutFirstLine);
+
+			$resource->save();
+		} else {
+			Log::error('This file is not of mimetype text/plain. Could not delete FirstContentLine',
+					   ['resource_id' => $resource->id]);
+		}
+	}
+
+	protected function searchInEveryLine(Resource $resource) {
 		$result = new Collection();
 
 		if ($resource instanceof TextContentInterface) {
 
 			// get Content
 			$content = $resource->getContent();
-
-			// Delete the first line in the $content
-			$content = preg_replace('/^.+\n/', '', $content);
 
 			// Extract bibleverses
 			$foundBibleVerses = $this->bibleVerseService->stringToBibleVerse($content);
@@ -117,7 +140,6 @@ class TextContentHandler implements HandlerInterface {
 				return $b;
 			});
 
-			// Create a Ocr-Text-Property from anything BUT the first line
 			// Use this Ocr-Text only (MIN-Relevance) if the searchInFirstLine got less than 3 Keywords => use whole text
 			$ocrProperty = new OcrTextProperty(str_limit($content, 200), RelevanceInterface::RELEVANCE_EXIF_MIN);
 			$result->push($ocrProperty);
@@ -129,22 +151,5 @@ class TextContentHandler implements HandlerInterface {
 		}
 
 		return $result;
-	}
-
-	protected function removeFirstLine(Resource $resource) {
-		if ($resource instanceof TextContentInterface) {
-			// get Content
-			$content = $resource->getContent();
-
-			// Delete the first line in the $content
-			$content = preg_replace('/^.+\n/', '', $content);
-
-			$resource->setContent($content);
-
-			$resource->save();
-		} else {
-			Log::error('This file is not of mimetype text/plain. Could not delete FirstContentLine',
-					   ['resource_id' => $resource->id]);
-		}
 	}
 }

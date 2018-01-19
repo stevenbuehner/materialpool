@@ -52,4 +52,27 @@ class Url extends Resource implements TextContentInterface {
 	public function getContentAttribute() {
 		return $this->getUrlAttribute();
 	}
+
+	/**
+	 * Stores the first line, if it is needed in the future
+	 *
+	 * @param string $firstLine
+	 * @return
+	 */
+	public function setFirstLine($firstLine) {
+		$this->setOption(self::$FIRST_LINE, $firstLine);
+	}
+
+	/**
+	 * Returns the previously stored firstLine or returns FALSE if none has been stored yet
+	 *
+	 * @return string|FALSE
+	 */
+	public function getFirstLine() {
+		if ($this->hasOption(self::$FIRST_LINE)) {
+			return $this->getOption(self::$FIRST_LINE);
+		} else {
+			return FALSE;
+		}
+	}
 }

@@ -134,6 +134,16 @@ class Resource extends Model {
 
 	/**
 	 * @param $key string
+	 * @return bool
+	 */
+	protected function hasOption(string $key) {
+		$options = $this->getAttribute('options');
+
+		return isset($options[$key]);
+	}
+
+	/**
+	 * @param $key string
 	 * @param $value mixed
 	 */
 	protected function setOption(string $key, $value) {
