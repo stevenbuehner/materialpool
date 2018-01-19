@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Exceptions\InvalidResourceTypeException;
 use App\Jobs\UpdateResourceHashes;
+use App\Models\Material;
 use App\Models\Resource;
 use App\Models\Text;
 use App\Services\ResourceRecognition\ResourceRecognitionService;
@@ -133,8 +134,8 @@ trait ResourceHelperTrait {
 	}
 
 	/**
-	 * @param        $resources
-	 * @param string $metaData
+	 * @param Resource|Resource[] $resources
+	 * @param string              $metaData
 	 * @return Material
 	 */
 	protected function createMaterialFromResources($resources, $metaData = '') {
@@ -143,8 +144,8 @@ trait ResourceHelperTrait {
 			$resources = [$resources];
 		}
 
-		$tagExtractionProperties                 = [];
-		$tagExtractionProperties['properties'][] = $metaData;
+		$tagExtractionProperties               = [];
+		$tagExtractionProperties['metatext'][] = $metaData;
 
 		/** @var MaterialExtractionService $materialService */
 		$materialService = resolve(MaterialExtractionService::class);

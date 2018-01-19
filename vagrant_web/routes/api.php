@@ -90,6 +90,11 @@ Route::group([
 		 ->middleware('can:delete,foreignMaterialId')
 		 ->name('api.v1.foreignMaterialDelete');
 
+	Route::post('foreign-materials/{foreignMaterialId}/create-from-resource', 'ForeignMaterialController@createFromResources')
+		 ->where('foreignMaterialId', '[0-9a-zA-Z_-]+')
+		 ->middleware('can:create,App\Models\ForeignMaterialId')
+		 ->name('api.v1.foreignMaterialCreateFromResource');
+
 	// Neu - Ressourcen
 	Route::get('resources/{resource}', 'ResourceController@show')
 		 ->where('resource', '[0-9]+')

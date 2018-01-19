@@ -17,6 +17,7 @@ class FullMaterialRequest extends FormRequest {
 
 	/**
 	 * Get the validation rules that apply to the request.
+	 * Notice: Also used in ForeignMaterialController
 	 *
 	 * @return array
 	 */

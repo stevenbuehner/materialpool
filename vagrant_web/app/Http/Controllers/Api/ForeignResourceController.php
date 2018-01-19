@@ -11,7 +11,7 @@ class ForeignResourceController extends ResourceController {
 
 	public function showForeign(ForeignResourceId $foreignResourceId) {
 
-		return $foreignResourceId;
+		return $foreignResourceId->load('resource');
 	}
 
 	public function storeForeign(Request $request) {

@@ -62,10 +62,19 @@ class MaterialExtractionService {
 			$properties = $properties->merge($resProp);
 		}
 
-		// Extract properties from additionalInformation
-		foreach ($additionalInformation->get('properties', []) as $keywordString) {
+		// Extract properties from additionalInformations metatext
+		foreach ($additionalInformation->get('metatext', []) as $keywordString) {
 			$foundTags  = $this->tagExtractionService->extractPartsFromStrings($keywordString);
 			$properties = $properties->merge($foundTags);
+		}
+
+		// Extract properties from additionalInformations properties
+		foreach ($additionalInformation->get('properties', []) as $property) {
+			if ($property instanceof PropertyInterface) {
+				$properties = $properties->push($property);
+			}else{
+				// Log error?
+			}
 		}
 
 		// Make shure we have every property only once!
