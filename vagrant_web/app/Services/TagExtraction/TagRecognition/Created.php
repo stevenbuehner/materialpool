@@ -68,9 +68,11 @@ class Created extends AbstractTagRecognition implements PreRecognitionProcessInt
 	}
 
 	protected function isValidDate(\DateTime $dateTime) {
-		$dateTime = $dateTime;
 
-		if ($dateTime->format('Y') <= 500) {
+		$year = $dateTime->format('Y');
+
+		// Max values for timestamp in MySql
+		if ($year < 1970 || $year >= 2038) {
 			return FALSE;
 		}
 
