@@ -5,6 +5,7 @@ namespace App\Services\TagExtraction\ResourceHandles;
 use App\Models\File;
 use App\Models\Person;
 use App\Models\Resource;
+use App\Services\TagExtraction\Interfaces\PropertyInterface;
 use App\Services\TagExtraction\Interfaces\RelevanceInterface;
 use App\Services\TagExtraction\Properties\AuthorProperty;
 use App\Services\TagExtraction\Properties\KeywordProperty;
@@ -80,6 +81,9 @@ class FileExifHandler implements HandlerInterface {
 		$result              = $result->merge($allResultProperties);
 
 		$result->unique();
+
+		$result = $this->filterIgnorePatterns($result);
+
 
 		return $result;
 	}
@@ -232,8 +236,7 @@ class FileExifHandler implements HandlerInterface {
 		foreach ($allNames as $authorName) {
 
 			// Only add high quality names
-			// Todo put the names into config
-			if (!in_array(strtolower($authorName), ['unknown', '', 'unbekannt', 'nobody'])) {
+			if (!$this->doesTagMatchIgnorePattern($authorName, config('tagging.exif.author.ignore.patterns', []))) {
 				$result->push(new AuthorProperty($authorName, RelevanceInterface::RELEVANCE_EXIF_MAX));
 				$result->push(new KeywordProperty($authorName, Person::class, RelevanceInterface::RELEVANCE_EXIF_MAX));
 			}
@@ -270,6 +273,16 @@ class FileExifHandler implements HandlerInterface {
 		return $result;
 	}
 
+	protected function doesTagMatchIgnorePattern($tagText, $allPaterns) {
+		foreach ($allPaterns as $pattern) {
+			if (preg_match($pattern, $tagText) === 1) {
+				return TRUE;
+			}
+		}
+
+		return FALSE;
+	}
+
 	/**
 	 * @param MetadataBag $metaDataBag
 	 * @return Collection
@@ -291,6 +304,31 @@ class FileExifHandler implements HandlerInterface {
 		}
 
 		return $result;
+	}
+
+	protected function filterIgnorePatterns(Collection $collection) {
+
+		return $collection->reject(function (PropertyInterface $property) {
+			if ($property instanceof KeywordProperty) {
+				$value    = $property->getValue();
+				$patterns = config('tagging.exif.keywords.ignore.patterns', []);
+
+				return $this->doesTagMatchIgnorePattern($value, $patterns);
+
+			} else if ($property instanceof AuthorProperty) {
+				return TRUE;
+
+				// THis has been done before already, hasn't it?
+
+				$value    = $property->getValue();
+				$patterns = config('tagging.exif.author.ignore.patterns', []);
+
+				return $this->doesTagMatchIgnorePattern($value, $patterns);
+			}
+
+
+			return FALSE;
+		});
 	}
 
 	/**
