@@ -29,7 +29,12 @@ class ResourceSeeder extends Seeder {
 		$tesKw->save();
 
 		// Create Testadmin
-		factory(User::class)->create(['name' => 'admin', 'password' => bcrypt('admin'), 'email' => 'admin@test.app']);
+		factory(User::class)->create([
+										 'name'           => 'admin',
+										 'password'       => bcrypt('admin'),
+										 'email'          => 'admin@test.app',
+										 'remember_token' => 'i6VuECaXTUHgjHwvdVemEtyu6nPxx90y3Qva9eFNhMgDk5PSKMLrCuCBck4s'
+									 ]);
 
 		factory(Keyword::class, 5)->create();
 		factory(Person::class, 5)->create();
