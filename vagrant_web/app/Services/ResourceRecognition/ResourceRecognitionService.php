@@ -26,7 +26,22 @@ class ResourceRecognitionService {
 
 		$mimeType  = $requestFile->getMimeType();
 		$mimeParts = preg_split('~\/~', $mimeType);
-		$class     = Resource::class;
+
+		// Check for length (too big files are stored as file and not in DB)
+		if ($mimeType == 'text/plain' && $requestFile->getSize() < 1024 * 512 /* 0,5 MB */) {
+			return Text::class;
+		}
+
+		return $this->guessResourceFileFromMimeType($mimeType);
+	}
+
+	/**
+	 * @param $mimeType
+	 * @return string
+	 */
+	public function guessResourceFileFromMimeType($mimeType) {
+
+		$class = Resource::class;
 
 		switch ($mimeType) {
 			case 'image/jpg':
@@ -38,11 +53,6 @@ class ResourceRecognitionService {
 				break;
 
 			case 'text/plain':
-				// Check for length (too big files are stored as file and not in DB)
-				if ($requestFile->getSize() < 1024 * 512 /* 0,5 MB */) {
-					$class = Text::class;
-				}
-
 				// Check for first line (if it has keywords etc. than use it as so
 				break;
 
@@ -52,7 +62,6 @@ class ResourceRecognitionService {
 				break;
 
 			case'application/msword':
-			case'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
 			case'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
 
 				$class = DocumentFile::class;

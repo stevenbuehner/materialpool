@@ -2,12 +2,15 @@
 
 namespace App\Services\Processors;
 
-use App\Jobs\CheckDuplicateResources;
 use App\Models\File;
 use App\Models\Resource;
 
 class ResourceHashProcessor {
 
+	/**
+	 * @param Resource $resource
+	 * @return bool true if hash has changed
+	 */
 	public function updateResourceHash(Resource $resource) {
 
 		if ($resource instanceof File) {
@@ -20,9 +23,11 @@ class ResourceHashProcessor {
 			$resource->content_hash = $sha1;
 			$resource->save();
 
-			CheckDuplicateResources::dispatch($resource);
+			return TRUE;
 
 		}
+
+		return FALSE;
 	}
 
 }

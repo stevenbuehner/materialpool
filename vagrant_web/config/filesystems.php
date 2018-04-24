@@ -62,6 +62,13 @@ return [
 			'visibility' => 'private',
 		],
 
+		'bundles' => [
+			'driver'     => 'local',
+			'root'       => storage_path('app/bundles'),
+			'url'        => env('APP_URL') . '/bundle-resources',
+			'visibility' => 'private'
+		],
+
 		'testfiles' => [
 			'driver'     => 'local',
 			'root'       => base_path('tests/testFiles'),

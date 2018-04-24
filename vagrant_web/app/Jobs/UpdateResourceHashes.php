@@ -29,6 +29,10 @@ class UpdateResourceHashes {
 	 * @param $processor ResourceHashProcessor
 	 */
 	public function handle(ResourceHashProcessor $processor) {
-		$processor->updateResourceHash($this->resource);
+		$hashChanged = $processor->updateResourceHash($this->resource);
+
+		if ($hashChanged) {
+			CheckDuplicateResources::dispatch($this->resource)->onConnection($this->connection)->onQueue($this->queue);
+		}
 	}
 }

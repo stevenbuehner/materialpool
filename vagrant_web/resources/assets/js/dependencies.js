@@ -1,3 +1,10 @@
+
+/**
+ * First we will load all of this project's JavaScript dependencies which
+ * includes Vue and other libraries. It is a great starting point when
+ * building robust, powerful web applications using Vue and Laravel.
+ */
+
 window._ = require('lodash');
 
 /**
@@ -30,6 +37,8 @@ require('./bootstrap-addons/cards-addons.js');
 window.Vue = require('vue');
 //Vue.config.devtools = true
 
+window.BootstrapVule = require('bootstrap-vue');
+
 /**
  * We'll load the axios HTTP library which allows us to easily issue requests
  * to our Laravel back-end. This library automatically handles sending the
@@ -58,3 +67,6 @@ window.axios.defaults.headers.common = {
 //     key: 'your-pusher-key'
 // });
 
+
+
+require('jquery-bar-rating');

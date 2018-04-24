@@ -105,7 +105,8 @@ class Keyword extends Model {
 			throw new InvalidKeywordTypeException();
 		}
 
-		$class = $map[$type];
+		$class                   = $map[$type];
+		$otherAttributes['type'] = $type;
 
 		return $class::firstOrNew(array_merge($otherAttributes, ['title' => $value]));
 	}

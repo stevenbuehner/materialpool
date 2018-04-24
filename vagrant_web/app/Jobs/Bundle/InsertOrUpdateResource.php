@@ -1,0 +1,172 @@
+<?php
+
+namespace App\Jobs\Bundle;
+
+use App\Jobs\UpdateResourceHashes;
+use App\Models\Bundle;
+use App\Models\File;
+use App\Models\ForeignResourceId;
+use App\Services\Bundles\BundlesService;
+use App\Services\ResourceRecognition\ResourceRecognitionService;
+use Carbon\Carbon;
+use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\DB;
+
+class InsertOrUpdateResource implements ShouldQueue {
+	use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+
+
+	/** @var  Bundle $bundle */
+	protected $bundle;
+
+	protected $localFileInfo;
+
+	/**
+	 * InsertOrUpdateResource constructor.
+	 *
+	 * @param Bundle $bundle
+	 * @param        $localFileInfo
+	 */
+	public function __construct(Bundle $bundle, $localFileInfo) {
+		$this->bundle        = $bundle;
+		$this->localFileInfo = $localFileInfo;
+	}
+
+	/**
+	 * Execute the job.
+	 *
+	 */
+	public function handle(BundlesService $bundlesService) {
+
+
+		/** @var ForeignResourceId $foreignRes */
+		$foreignRes = ForeignResourceId::where(['foreign_id' => $this->getUUID()])
+									   ->with(['resource'])->first();
+
+		try {
+
+			DB::beginTransaction();
+
+			if ($foreignRes !== NULL && $foreignRes->resource !== NULL) {
+
+				// Update
+				/** @var File $resource */
+				$resource = $foreignRes->resource;
+
+				// Just compare modified-timestamps and filePath from the last import
+				if ($foreignRes->{ForeignResourceId::UPDATED_AT} != new Carbon($this->localFileInfo->file_modified) || $resource->getLocalFilePath() != $this->getLocalFilePath()) {
+
+					$this->updateResource($bundlesService, $resource);
+
+					$foreignRes->setCreatedAt($this->localFileInfo->file_created);
+					$foreignRes->setUpdatedAt($this->localFileInfo->file_modified);
+
+				}
+
+				if ($foreignRes->bundle_id !== $this->bundle->id) {
+					$foreignRes->bundle_id = $this->bundle->id;
+				}
+
+				if ($foreignRes->isDirty()) {
+					$foreignRes->saveOrFail();
+				}
+
+
+			} else {
+
+				// Insert
+				$resource = $this->createResource($bundlesService);
+
+				$foreignResource = new ForeignResourceId(
+					[
+						'user_id'     => $resource->created_by,
+						'foreign_id'  => $this->localFileInfo->uuid,
+						'resource_id' => $resource->id,
+						'bundle_id'   => $this->bundle->id
+					]
+				);
+				$foreignResource->setUpdatedAt($this->localFileInfo->file_modified);
+				$foreignResource->setCreatedAt($this->localFileInfo->file_created);
+				$foreignResource->saveOrFail();
+
+			}
+
+			DB::commit();
+		} catch (\Exception $e) {
+			DB::rollBack();
+
+			throw $e;
+		}
+
+
+	}
+
+
+	protected function getUUID() {
+		return $this->localFileInfo->uuid;
+	}
+
+	protected function getLocalFilePath() {
+		return $this->bundle->container_root . '/' . BundlesService::BUNDLE_FILES_DIR . '/' . $this->localFileInfo->file_path;
+	}
+
+	protected function updateResource(BundlesService $bundlesService, File $resource) {
+
+		if ($resource->notes !== $this->localFileInfo->notes) {
+			$resource->notes = $this->localFileInfo->notes;
+		}
+
+		if ($resource->is_public !== (bool) $this->localFileInfo->is_public) {
+			$resource->is_public = (bool) $this->localFileInfo->is_public;
+		}
+
+		if ($resource->remote_path !== $this->localFileInfo->public_path) {
+			$resource->remote_path = $this->localFileInfo->public_path;
+		}
+
+		if ($resource->original_filename !== $this->localFileInfo->original_basename) {
+			$resource->original_filename = $this->localFileInfo->original_basename;
+		}
+
+		if ($resource->getLocalFilePath() !== $this->getLocalFilePath()) {
+			$resource->setLocalStorageAndPath($bundlesService->getBundleDiskName(), $this->getLocalFilePath());
+		}
+
+		if ($resource->isDirty()) {
+			$resource->saveOrFail();
+
+			UpdateResourceHashes::dispatch($resource)->onQueue($this->queue)->onConnection($this->connection);
+		}
+
+		return $resource;
+
+	}
+
+	/**
+	 * @param BundlesService $bundlesService
+	 * @return File
+	 */
+	protected function createResource(BundlesService $bundlesService) {
+
+		/** @var ResourceRecognitionService $recognitionService */
+		$recognitionService = resolve('app.resource.type.recognition');
+
+		$resourceClass = $recognitionService->guessResourceFileFromMimeType($this->localFileInfo->mime_type);
+
+		/** @var File $resource */
+		$resource             = new $resourceClass();
+		$resource->created_by = 1; // admin
+
+		$resource = $this->updateResource($bundlesService, $resource);
+
+		// $resource->saveOrFail();
+
+		return $resource;
+	}
+
+
+}

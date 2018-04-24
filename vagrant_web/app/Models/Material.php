@@ -19,6 +19,7 @@ use Illuminate\Support\Facades\DB;
  * @property int     $created_by
  * @property int     $modified_by
  * @property int     $author_id
+ * @property Person  $author
  */
 class Material extends Model {
 

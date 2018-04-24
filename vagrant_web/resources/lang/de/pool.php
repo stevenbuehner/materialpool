@@ -17,6 +17,12 @@ return [
 	'edit-material'                       => 'Material bearbeiten',
 	'download-file'                       => 'Datei herunterladen',
 	'attention'                           => 'Achtung',
-
+	'file-count'                          => '{0} keine Dateien|[1] :value Datei|[2,*] :value Dateien',
+	'material-count'                      => '{0} keine Materialien |[1] :value Material|[2,*] :value Materialien',
+	'and'                                 => 'und',
+	'install-bundle-version'              => 'v:version installieren',
+	'update-bundle-version'               => 'auf v:version aktualisieren',
+	'installed-bundle-version'            => 'v:version installiert',
+	'bundle-not-available-anymore'        => 'Bundle nicht mehr verfügbar'
 
 ];

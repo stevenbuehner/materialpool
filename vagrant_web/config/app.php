@@ -269,7 +269,8 @@ return [
 
 	'disks' => [
 		'resources' => 'resources',
-		'testfiles' => 'testfiles'
+		'testfiles' => 'testfiles',
+		'bundles'   => 'bundles'
 	],
 
 	'resource' => [

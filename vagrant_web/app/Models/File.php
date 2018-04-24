@@ -29,8 +29,8 @@ class File extends Resource {
 		parent::__construct($attributes);
 
 		// Add Attribute
-		$this->appends[]             = 'original_filename';
-		$this->fillable[]            = 'original_filename';
+		$this->appends[]  = 'original_filename';
+		$this->fillable[] = 'original_filename';
 
 		$this->additionalEditViews[] = 'resources.files.edit-partial';
 	}
@@ -60,6 +60,10 @@ class File extends Resource {
 
 	public function getOriginalFilenameAttribute() {
 		return $this->getOption(self::$ORIGINAL_FILENAME, NULL);
+	}
+
+	public function setLocalStorageAndPath($storageName, $path) {
+		$this->setLocalPathAttribute($storageName . '::' . $path);
 	}
 
 	public function setLocalPathAttribute($path) {

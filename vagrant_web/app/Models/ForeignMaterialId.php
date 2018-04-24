@@ -16,13 +16,14 @@ use Illuminate\Database\Eloquent\Model;
  * @property          $updated_at
  * @property Material $material
  * @property User     $user
+ * @property Bundle   $bundle
  */
 class ForeignMaterialId extends Model {
 
 	protected $table = 'material_foreign_ids';
 
 	protected $fillable = [
-		'material_id', 'foreign_id', 'user_id'
+		'material_id', 'foreign_id', 'user_id', 'bundle_id'
 	];
 
 	public function getRouteKeyName() {
@@ -43,6 +44,13 @@ class ForeignMaterialId extends Model {
 	 */
 	public function user() {
 		return $this->belongsTo(User::class);
+	}
+
+	/**
+	 * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+	 */
+	public function bundle() {
+		return $this->belongsTo(Bundle::class);
 	}
 
 }
