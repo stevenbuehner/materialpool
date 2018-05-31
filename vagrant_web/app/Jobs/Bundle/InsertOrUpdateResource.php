@@ -132,7 +132,7 @@ class InsertOrUpdateResource implements ShouldQueue {
 			$resource->original_filename = $this->localFileInfo->original_basename;
 		}
 
-		if ($resource->getLocalFilePath() !== $this->getLocalFilePath()) {
+		if (!$resource->hasLocalFile() || $resource->getLocalFilePath() !== $this->getLocalFilePath()) {
 			$resource->setLocalStorageAndPath($bundlesService->getBundleDiskName(), $this->getLocalFilePath());
 		}
 

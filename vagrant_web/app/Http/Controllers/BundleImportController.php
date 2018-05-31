@@ -196,7 +196,7 @@ class BundleImportController extends Controller {
 
 		if ($openJobs == 0) {
 			$info                      = $this->bundlesService->getLocalBundleData($bundle);
-			$bundle->installed_version = $info->version;
+			$bundle->installed_version = $info['version'];
 			$bundle->update_available  = FALSE;
 			$bundle->is_installed      = TRUE;
 			$bundle->setUpdatedAt($bundle->freshTimestamp());
