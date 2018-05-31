@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Services\PreviewGeneration\Generators\NoPreviewGenerator;
 use App\Services\PreviewGeneration\Interfaces\PreviewGeneratorInterface;
 use App\Services\TagExtraction\ResourceHandles\HandlerInterface;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Nanigans\SingleTableInheritance\SingleTableInheritanceTrait;
 
@@ -12,18 +13,18 @@ use Nanigans\SingleTableInheritance\SingleTableInheritanceTrait;
  * Class Resource
  *
  * @package App
- * @property int    $id
- * @property int    $created_by
- * @property string $remote_path
- * @property string $local_path
- * @property string $content_hash
- * @property string $notes
- * @property bool   $is_public
- * @property        $created_at
- * @property        $updated_at
- * @property int    $user_id
- * @property User   $creator
- * @property        $materials
+ * @property int        $id
+ * @property int        $created_by
+ * @property string     $remote_path
+ * @property string     $local_path
+ * @property string     $content_hash
+ * @property string     $notes
+ * @property bool       $is_public
+ * @property            $created_at
+ * @property            $updated_at
+ * @property int        $user_id
+ * @property User       $creator
+ * @property Collection $materials
  */
 class Resource extends Model {
 	use SingleTableInheritanceTrait;

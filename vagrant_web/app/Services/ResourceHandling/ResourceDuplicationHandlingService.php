@@ -8,6 +8,7 @@
 namespace App\Services\ResourceHandling;
 
 
+use App\Jobs\CheckDuplicateMaterials;
 use App\Models\File;
 use App\Models\Resource as Res;
 use App\Services\ResourceHandling\Exceptions\MissingResourceHashException;
@@ -57,6 +58,7 @@ class ResourceDuplicationHandlingService {
 		   ->chunk(30, function ($slaveResources) use ($resourceToCheck) {
 			   foreach ($slaveResources as $slave) {
 				   $this->migrateSlaveIntoMasterResource($slave, $resourceToCheck);
+				   CheckDuplicateMaterials::dispatch($resourceToCheck);
 			   }
 		   });
 
@@ -86,11 +88,11 @@ class ResourceDuplicationHandlingService {
 		}
 
 		// Update resource_foreign_ids
-		try{
+		try {
 			DB::table('resource_foreign_ids')
 			  ->where('resource_id', '=', $slaveResource->id)
 			  ->update(['resource_id' => $masterResource->id]);
-		}catch (\Exception $e){
+		} catch (\Exception $e) {
 			DB::rollBack();
 			throw($e);
 		}
