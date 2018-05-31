@@ -46,12 +46,18 @@ class KeywordProperty extends Property {
 	}
 
 	public function getKeywordValue() {
-		list($class, $title) = $this->getValue();
+		list($class, $title) = parent::getValue();
 		$newKeyword = $class::firstOrNew([
-												'title' => $title
-											]);
+											 'title' => $title
+										 ]);
 
 		return $newKeyword;
+	}
+
+	public function getValue() {
+		list($class, $title) = parent::getValue();
+
+		return $title;
 	}
 
 	public function setKeywordValue($title, $class = Keyword::class) {
@@ -60,6 +66,6 @@ class KeywordProperty extends Property {
 	}
 
 	public function __toString() {
-		return 'r=' . $this->getRelevance() . ',v=' . json_encode($this->getValue());
+		return 'r=' . $this->getRelevance() . ',v=' . json_encode(parent::getValue());
 	}
 }

@@ -49,7 +49,7 @@
                                                 <a href="{{route('pool.bundles.update.init', ['bundle' => $bundle->id])}}"
                                                    class="btn-primary btn">{{__('pool.update-bundle-version', ['version' => $infos->get($bundle->uuid)['version']])}}</a>
                                             @else
-                                                <span class="badge badge-success">{{__('pool.installed-bundle-version', ['version' => $bundle->uuid])}}</span>
+                                                <span class="badge badge-success">{{__('pool.installed-bundle-version', ['version' => $bundle->installed_version])}}</span>
                                             @endif
                                         @else
                                             {{__('pool.bundle-not-available-anymore')}}

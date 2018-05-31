@@ -92,12 +92,20 @@
 
                             // console.log(response);
 
-                            var data            = response.data;
-                            self.progress.value = self.progress.value + data.done;
+                            var data = response.data;
+
+                            if (isNaN(self.progress.value)) {
+                                // After stopping on error
+                                self.progress.value = data.done;
+                                self.progress.max   = data.done + data.open;
+                            } else {
+                                self.progress.value = self.progress.value + data.done;
+                            }
 
                             if (self.progress.max <= self.progress.value + data.open) {
                                 self.progress.max = self.progress.value + data.open;
                             }
+
                         }).then(function () {
 
                         if (self.continueRunning()) {

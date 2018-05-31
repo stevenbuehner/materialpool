@@ -13,7 +13,7 @@ use Illuminate\Queue\SerializesModels;
 class CheckDuplicateResources implements ShouldQueue {
 	use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-	/** @var Resource $resourceToCheck */
+	/** @var \App\Models\Resource $resourceToCheck */
 	protected $resourceToCheck;
 
 	/**
