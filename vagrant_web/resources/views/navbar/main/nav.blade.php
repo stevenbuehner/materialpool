@@ -1,4 +1,4 @@
-<nav class="navbar navbar-toggleable-md navbar-light bg-faded nav-main">
+<nav class="navbar navbar-expand-md navbar-light bg-faded nav-main">
     <div class="container">
 
         <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse"
@@ -16,14 +16,30 @@
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
 
             <ul class="navbar-nav mr-auto">
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ route('pool.material.index') }}">Material</a>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="{{ route('pool.material.index') }}" role="button"
+                       data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+                       id="navbarMaterial">Material</a>
+                    <div class="dropdown-menu" aria-labelledby="navbarMaterial">
+                        <a class="dropdown-item" href="{{ route('pool.material.index') }}">Auflisten</a>
+                        <a class="dropdown-item" href="{{ route('pool.material.create') }}">Erstellen</a>
+                    </div>
                 </li>
+
+
                 <li class="nav-item">
                     <a class="nav-link" href="{{ route('pool.searchbar.index') }}">Sumaske</a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link disabled" href="{{ route('pool.resource.index') }}">Resourcen</a>
+
+
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="{{ route('pool.resource.index') }}" role="button"
+                       data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+                       id="navbarRessourcen">Resourcen</a>
+                    <div class="dropdown-menu" aria-labelledby="navbarRessourcen">
+                        <a class="dropdown-item" href="{{ route('pool.resource.index') }}">Auflisten</a>
+                        <a class="dropdown-item" href="{{ route('pool.resource.create') }}">Erstellen</a>
+                    </div>
                 </li>
 
 
