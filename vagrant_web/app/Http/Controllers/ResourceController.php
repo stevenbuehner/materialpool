@@ -51,9 +51,17 @@ class ResourceController extends Controller {
 			return redirect(route('pool.resource.create'))->withErrors(['Missing upload file']);
 		}
 
-		$metaData  = $request->get('meta', '');
-		$resources = $this->handleMultiResourceFileData($request);
-		$material  = $this->createMaterialFromResources($resources, $metaData);
+		$oneMaterial = (bool) $request->get('one_material', FALSE);
+		$metaData    = $request->get('meta', '');
+		$resources   = $this->handleMultiResourceFileData($request);
+
+		if ($oneMaterial === TRUE) {
+			$resources = [$resources];
+		}
+
+		foreach ($resources as $resource) {
+			$material = $this->createMaterialFromResources($resource, $metaData);
+		}
 
 		return redirect(route('pool.material.show', $material->id));
 	}

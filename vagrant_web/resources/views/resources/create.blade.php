@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-    <h1>Erstelle eine neue Resource</h1>
+    <h1>Erstelle Material anhand von Dateien</h1>
 
     <div class="card-columns">
 
@@ -28,6 +28,11 @@
                             }
                         });
                     </script>
+                </div>
+
+                <div class="form-check">
+                    {!! Form::checkbox('one_material', '1', TRUE, ['class' => 'form-check-input']) !!}
+                    {!! Form::label('one_material', 'Alle Dateien gehören zu EINEM Material', ['class' => 'form-check-label']) !!}
                 </div>
 
                 <div class="form-group">
