@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Services\PreviewGeneration\Generators\TextLargePreviewGenerator;
 use App\Services\PreviewGeneration\Generators\TextThumbPreviewGenerator;
 use App\Services\PreviewGeneration\Interfaces\PreviewGeneratorInterface;
+use App\Services\Processors\ContentHashProviderInterface;
 use App\Services\TagExtraction\ResourceHandles\FileNameHandler;
 use App\Services\TagExtraction\ResourceHandles\HandlerInterface;
 use App\Services\TagExtraction\ResourceHandles\TextContentHandler;
@@ -16,7 +17,7 @@ use App\Services\TagExtraction\ResourceHandles\TextContentInterface;
  * @package App\Models
  * @property string $content
  */
-class Text extends Resource implements TextContentInterface {
+class Text extends Resource implements TextContentInterface, ContentHashProviderInterface {
 
 	protected static $singleTableType   = 'text';
 	protected static $CONTENT_OPTION    = 'c';
@@ -53,10 +54,6 @@ class Text extends Resource implements TextContentInterface {
 			TextContentHandler::class,
 			FileNameHandler::class
 		];
-	}
-
-	public function getContent() {
-		return $this->getOption(self::$CONTENT_OPTION);
 	}
 
 	public function getContentAttribute() {
@@ -116,8 +113,18 @@ class Text extends Resource implements TextContentInterface {
 		$this->setOption(self::$ORIGINAL_FILENAME, $originalFileName);
 	}
 
-
 	public function getOriginalFilenameAttribute() {
 		return $this->getOption(self::$ORIGINAL_FILENAME, NULL);
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getContentsForHash() {
+		return $this->getContent();
+	}
+
+	public function getContent() {
+		return $this->getOption(self::$CONTENT_OPTION);
 	}
 }

@@ -29,8 +29,10 @@ use Illuminate\Support\Facades\DB;
  * @property Collection $tags;
  * @property Collection $places;
  * @property User|NULL  $creator;
- * @property User|NULL  $modified;
+ * @property User|NULL  $modifier;
  * @property Collection $bibleverses;
+ * @property            $updated_at;
+ * @property            $created_at;
  */
 class Material extends Model {
 

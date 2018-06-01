@@ -2,9 +2,10 @@
 
 namespace App\Models;
 
+use App\Services\Processors\ContentHashProviderInterface;
 use App\Services\TagExtraction\ResourceHandles\TextContentInterface;
 
-class Url extends Resource implements TextContentInterface {
+class Url extends Resource implements TextContentInterface, ContentHashProviderInterface {
 
 	protected static $singleTableType = 'link';
 	protected static $URL_OPTION      = 'u';
@@ -26,17 +27,6 @@ class Url extends Resource implements TextContentInterface {
 	}
 
 	/**
-	 * @return string
-	 */
-	public function getContent() {
-		return $this->getUrlAttribute();
-	}
-
-	public function getUrlAttribute() {
-		return $this->getOption(self::$URL_OPTION);
-	}
-
-	/**
 	 * @param string $content
 	 */
 	public function setContent($value) {
@@ -51,6 +41,10 @@ class Url extends Resource implements TextContentInterface {
 
 	public function getContentAttribute() {
 		return $this->getUrlAttribute();
+	}
+
+	public function getUrlAttribute() {
+		return $this->getOption(self::$URL_OPTION);
 	}
 
 	/**
@@ -74,5 +68,19 @@ class Url extends Resource implements TextContentInterface {
 		} else {
 			return FALSE;
 		}
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getContentsForHash() {
+		return $this->getContent();
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getContent() {
+		return $this->getUrlAttribute();
 	}
 }

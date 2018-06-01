@@ -46,15 +46,7 @@ class MaterialDuplicationHandlingService {
 
 					if ($this->doMaterialsHaveTheSameResources($m1, $m2)) {
 
-						// Merge in das Material, das vom User bearbeitet wurde, wenn verfügbar
-						if ($m1->from_bot) {
-							$main   = $m2;
-							$second = $m1;
-						} else {
-							$main   = $m1;
-							$second = $m2;
-						}
-
+						list($main, $second) = $this->determineMainAndSecondMaterial($m1, $m2);
 
 						DB::beginTransaction();
 
@@ -112,6 +104,32 @@ class MaterialDuplicationHandlingService {
 		});
 
 		return ($r1Ids->diff($r2Ids)->count() === 0);
+	}
+
+	protected function determineMainAndSecondMaterial(Material $m1, Material $m2) {
+
+		$main   = $m1;
+		$second = $m2;
+
+		if ($m1->from_bot === TRUE && $m2->from_bot) {
+
+			// Nehme das zuletzt bearbeitete Material
+			if ($m2->updated_at > $m1->updated_at) {
+				$main   = $m2;
+				$second = $m1;
+			}
+
+		} else {
+
+			// Merge in das Material, das vom User bearbeitet wurde, wenn verfügbar
+			if ($m2->from_bot === FALSE) {
+				$main   = $m2;
+				$second = $m1;
+			}
+		}
+
+
+		return [$main, $second];
 	}
 
 	protected function mergeMaterials(Material $main, Material $second) {

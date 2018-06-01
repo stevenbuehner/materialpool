@@ -2,8 +2,16 @@
 
 namespace App\Models;
 
-class Book extends Resource {
+use App\Services\Processors\ContentHashProviderInterface;
 
-	protected static $singleTableType       = 'book';
+class Book extends Resource implements ContentHashProviderInterface {
 
+	protected static $singleTableType = 'book';
+
+	/**
+	 * @return string
+	 */
+	public function getContentsForHash() {
+		return $this->options;
+	}
 }
