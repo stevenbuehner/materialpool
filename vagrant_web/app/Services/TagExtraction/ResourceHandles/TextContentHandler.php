@@ -6,6 +6,7 @@ use App\Models\File;
 use App\Models\Resource;
 use App\Services\TagExtraction\Interfaces\RelevanceInterface;
 use App\Services\TagExtraction\Properties\BibleverseProperty;
+use App\Services\TagExtraction\Properties\OcrTextProperty;
 use App\Services\TagExtraction\Properties\Property;
 use App\Services\TagExtraction\TagExtractionService;
 use Illuminate\Support\Collection;
@@ -75,14 +76,12 @@ class TextContentHandler implements HandlerInterface {
 						  ['resource_id' => $resource->id, 'handler' => __CLASS__]);
 
 				// Use the whole Textfile as OCR-Information
-				/*
 				$otherLines = trim($content);
 				if (strlen($otherLines) > 3) {
 					$ocrProperty = new OcrTextProperty(str_limit($content, 200),
 													   RelevanceInterface::RELEVANCE_EXIF_MAX - 10);
 					$result->push($ocrProperty);
 				}
-				*/
 
 			} else {
 				// Max relevance, because used added it
@@ -142,8 +141,8 @@ class TextContentHandler implements HandlerInterface {
 			});
 
 			// Use this Ocr-Text only (MIN-Relevance) if the searchInFirstLine got less than 3 Keywords => use whole text
-			// $ocrProperty = new OcrTextProperty(str_limit($content, 200), RelevanceInterface::RELEVANCE_EXIF_MIN);
-			// $result->push($ocrProperty);
+			$ocrProperty = new OcrTextProperty(str_limit($content, 200), RelevanceInterface::RELEVANCE_EXIF_MIN);
+			$result->push($ocrProperty);
 
 		} else {
 			Log::error('This file is not of mimetype text/plain.', ['resource_id' => $resource->id]);

@@ -31,7 +31,7 @@ class FileNameHandler implements HandlerInterface {
 		// the more commas and other stuff the filename hast, the less likely is it a title
 		$title       = trim(pathinfo($filename, PATHINFO_FILENAME));
 		$countCommas = substr_count($title, ',') + substr_count($title, ';');
-		$titleProp   = new TitleProperty(str_limit($title, 255), $relevance = max(19 - $countCommas, 0));
+		$titleProp   = new TitleProperty($title, $relevance = max(19 - $countCommas, 0));
 
 
 		// Extract all Information possible from filename if at least two keywords exist
