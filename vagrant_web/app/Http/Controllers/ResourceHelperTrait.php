@@ -82,10 +82,13 @@ trait ResourceHelperTrait {
 			$resource->local_path = config('app.disks.resources') . '::' . $relativeFilePath;
 
 		} else if ($resource instanceof Text) {
-			$resource->content = \File::get($file->getRealPath());
+			$resource->content           = \File::get($file->getRealPath());
+			$resource->original_filename = $file->getClientOriginalName();
 		}
 
-		$resource->save();
+		if ($resource->isDirty()) {
+			$resource->save();
+		}
 
 		UpdateResourceHashes::dispatch($resource);
 

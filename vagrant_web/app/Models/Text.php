@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Services\PreviewGeneration\Generators\TextLargePreviewGenerator;
 use App\Services\PreviewGeneration\Generators\TextThumbPreviewGenerator;
 use App\Services\PreviewGeneration\Interfaces\PreviewGeneratorInterface;
+use App\Services\TagExtraction\ResourceHandles\FileNameHandler;
 use App\Services\TagExtraction\ResourceHandles\HandlerInterface;
 use App\Services\TagExtraction\ResourceHandles\TextContentHandler;
 use App\Services\TagExtraction\ResourceHandles\TextContentInterface;
@@ -17,9 +18,10 @@ use App\Services\TagExtraction\ResourceHandles\TextContentInterface;
  */
 class Text extends Resource implements TextContentInterface {
 
-	protected static $singleTableType = 'text';
-	protected static $CONTENT_OPTION  = 'c';
-	protected static $FIRST_LINE      = 'fl';
+	protected static $singleTableType   = 'text';
+	protected static $CONTENT_OPTION    = 'c';
+	protected static $FIRST_LINE        = 'fl';
+	protected static $ORIGINAL_FILENAME = 'of';
 
 	public function __construct(array $attributes = []) {
 		parent::__construct($attributes);
@@ -27,12 +29,18 @@ class Text extends Resource implements TextContentInterface {
 		// Add Attribute
 		$this->appends[]  = 'content';
 		$this->fillable[] = 'content';
+
+		// Add Attribute to store information about the original filename (when uploading) to extract tags etc
+		$this->appends[]  = 'original_filename';
+		$this->fillable[] = 'original_filename';
+
 		// TODO: $this->additionalEditViews[] = 'resources.text.edit-partial';
 	}
 
 	public static function getValidationRules() {
-		$rules            = parent::getValidationRules();
-		$rules['content'] = 'string|min:3';
+		$rules                      = parent::getValidationRules();
+		$rules['content']           = 'string|min:3';
+		$rules['original_filename'] = 'string';
 
 		return $rules;
 	}
@@ -42,7 +50,8 @@ class Text extends Resource implements TextContentInterface {
 	 */
 	public function getTagExtractionClasses() {
 		return [
-			TextContentHandler::class
+			TextContentHandler::class,
+			FileNameHandler::class
 		];
 	}
 
@@ -101,5 +110,14 @@ class Text extends Resource implements TextContentInterface {
 		} else {
 			return FALSE;
 		}
+	}
+
+	public function setOriginalFilenameAttribute($originalFileName) {
+		$this->setOption(self::$ORIGINAL_FILENAME, $originalFileName);
+	}
+
+
+	public function getOriginalFilenameAttribute() {
+		return $this->getOption(self::$ORIGINAL_FILENAME, NULL);
 	}
 }
