@@ -17,6 +17,6 @@ class OcrTextProperty extends Property {
 	 * @param Material $material
 	 */
 	function insertYourselfToItem(Material $material) {
-		$material->description = str_limit(trim($this->getValue()), 1000);
+		// $material->description = str_limit(trim($this->getValue()), 1000);
 	}
 }
