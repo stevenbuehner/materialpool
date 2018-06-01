@@ -21,7 +21,7 @@ class Title implements PreRecognitionProcessInterface {
 	 * @return string
 	 */
 	public function preProcessInput($inputValue, $context) {
-		$pregSearchString = '~(^|,)\s*(' . join('|', self::RECOGNIZED_LABELS) . '):?\s+([^,;]*?)\s*(?=$|,|;)~i';
+		$pregSearchString = '~(^|,|;)\s*(' . join('|', self::RECOGNIZED_LABELS) . '):?\s+([^,;]*?)\s*(?=$|,|;)~i';
 		$tags             = [];
 
 		if (1 === preg_match($pregSearchString, $inputValue, $match)) {
