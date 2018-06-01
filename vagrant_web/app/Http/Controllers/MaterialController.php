@@ -7,6 +7,7 @@ use App\Models\Bibleverse;
 use App\Models\Keyword;
 use App\Models\Material;
 use App\ResourceLimitations\ResourceLimitationService;
+use App\Services\MaterialHandling\MaterialHandlingService;
 use App\Services\ResourceHandling\FileHandlingService;
 use App\Services\TagExtraction\Properties\Property;
 use App\Services\TagExtraction\TagExtractionService;
@@ -262,7 +263,8 @@ class MaterialController extends Controller {
 		}
 
 
-		$material->delete();
+		$materialService = resolve(MaterialHandlingService::class);
+		$materialService->deleteMaterialAndAssociations($material);
 		$deletedMaterials++;
 
 		return view('materials.destroyConfirm',

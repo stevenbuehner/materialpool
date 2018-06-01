@@ -8,15 +8,10 @@ use App\Models\Keyword;
 use App\Models\Material;
 use App\Models\Resource;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 
 
 class MaterialDuplicationHandlingService {
-
-	public static function flatToIds(Model $m) {
-		return [$m->id];
-	}
 
 	/**
 	 * @param \App\Models\Resource $resource
