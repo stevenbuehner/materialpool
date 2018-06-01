@@ -6,7 +6,8 @@ use App\ResourceLimitations\ResourceLimitationService;
 use App\Services\PdfPreview\LocalPdfFileProvider;
 use App\Services\PreviewGeneration\Generators\ImagePreviewGenerator;
 use App\Services\PreviewGeneration\Generators\NoPreviewGenerator;
-use App\Services\PreviewGeneration\Generators\TextPreviewGenerator;
+use App\Services\PreviewGeneration\Generators\TextLargePreviewGenerator;
+use App\Services\PreviewGeneration\Generators\TextThumbPreviewGenerator;
 use App\Services\PreviewGeneration\Generators\VideoPreviewGenerator;
 use App\Services\ResourceRecognition\ResourceRecognitionService;
 use App\Services\TagExtraction\MaterialExtractionService;
@@ -17,7 +18,6 @@ use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
-use Monolog\Logger;
 use PHPExiftool\Reader;
 use StevenBuehner\BibleVerseBundle\Service\BibleVerseService;
 use StevenBuehner\PdfPreview\Interfaces\LocalPdfProviderInterface;
@@ -77,10 +77,11 @@ class AppServiceProvider extends ServiceProvider {
 		$this->app->singleton(MaterialExtractionService::class);
 		$this->app->singleton(ResourceLimitationService::class);
 
-		// ResourcePreview Generators
+		// ResourcePreview Generators as Singletons
 		$this->app->singleton(NoPreviewGenerator::class);
 		$this->app->singleton(ImagePreviewGenerator::class);
-		$this->app->singleton(TextPreviewGenerator::class);
+		$this->app->singleton(TextLargePreviewGenerator::class);
+		$this->app->singleton(TextThumbPreviewGenerator::class);
 		$this->app->singleton(VideoPreviewGenerator::class);
 
 		$this->app->singleton('PHPExiftool\Reader', function ($app) {

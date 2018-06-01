@@ -18,9 +18,10 @@ class PdfFile extends File {
 	}
 
 	/**
+	 * @param $size
 	 * @return PreviewGeneratorInterface
 	 */
-	public function getPreviewGenerator() {
+	public function getPreviewGenerator($size = 'large') {
 		return resolve(PdfPreviewGenerator::class);
 	}
 

@@ -18,7 +18,7 @@ use Intervention\Image\Image;
 use Intervention\Image\ImageManager;
 use Intervention\Image\Size;
 
-class TextPreviewGenerator implements PreviewGeneratorInterface {
+class TextLargePreviewGenerator implements PreviewGeneratorInterface {
 
 	protected $imageManager;
 
@@ -53,7 +53,7 @@ class TextPreviewGenerator implements PreviewGeneratorInterface {
 
 		/** @var $resource Text */
 
-		$view = View::make('resources.generators.text')
+		$view = View::make('resources.generators.text-large')
 					->with('resource', $resource)
 					->with('context', $context)
 					->with('content', $resource->content)

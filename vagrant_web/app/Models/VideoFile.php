@@ -10,9 +10,10 @@ class VideoFile extends File {
 	protected static $singleTableType = 'video';
 
 	/**
+	 * @param $size
 	 * @return PreviewGeneratorInterface
 	 */
-	public function getPreviewGenerator() {
+	public function getPreviewGenerator($size = 'large') {
 		return resolve(VideoPreviewGenerator::class);
 	}
 }

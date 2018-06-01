@@ -1,5 +1,9 @@
 @extends('layouts.app')
 
+@push('scripts')
+    <script src="/cards-addons.js"></script>
+@endpush
+
 @section('content')
 
     <h1>{{$material->title}}</h1>
@@ -63,27 +67,32 @@
         @endphp
 
         {{-- List all Resources if more then one --}}
-        @if(count($material->resources) == 1 && ResourcePreview::htmlPossible($resource) === TRUE)
+        @if(count($material->resources) == 1 && ResourcePreview::htmlPossible($resource, 'large') === TRUE)
             {{-- Show Content of Resource, if only one is assigned to the material --}}
             <div class="col-sm-12 rounded" style="border: solid 1px; padding: 1em">
 
-                {!! ResourcePreview::html($resource, $resource->pivot->limitation, 'material') !!}
+                {!! ResourcePreview::html($resource, $resource->pivot->limitation, 'material', 'large') !!}
 
             </div>
 
         @else
             @foreach($material->resources as $resource)
                 <div class="col-sm-6 col-md-4 col-lg-4 col-xl-3">
-                    <div class="card ">
-                        <img class="card-img-top "
-                             src="{{route('resource.image.preview', ['resource' => $resource->id, 'width' => 300, 'height' => 300])}}"
-                             alt="Resource Image"
-                             style="width:100%;">
+                    <div class="card card-clickable" data-url="{{ URL::route('pool.resource.show', $resource->id) }}">
 
                         <div class="card-body">
-                            <h6 class="card-title">
-                                {{$resource->notes}}
-                            </h6>
+
+                            @if(ResourcePreview::imagePossible($resource, 'thumb') === TRUE)
+                                <img class="card-img-top "
+                                     src="{{route('resource.image.preview', ['resource' => $resource->id, 'width' => 300, 'height' => 300])}}"
+                                     alt="Resource Image"
+                                     style="width:100%;"/>
+                            @elseif(ResourcePreview::htmlPossible($resource, 'thumb') === TRUE)
+                                {!! ResourcePreview::html($resource, $resource->pivot->limitation, 'material', 'thumb') !!}
+                            @else
+                                No Preview
+                            @endif
+
                         </div>
 
                         <div class="card-footer">
@@ -106,5 +115,9 @@
         </div>
 
     @endif
+
+    <script>
+        $('.card-clickable').card();
+    </script>
 
 @endsection

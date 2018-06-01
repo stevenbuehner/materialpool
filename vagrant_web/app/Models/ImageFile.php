@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Services\PreviewGeneration\Generators\ImagePreviewGenerator;
+use App\Services\PreviewGeneration\Interfaces\PreviewGeneratorInterface;
 
 class ImageFile extends File {
 
@@ -15,7 +16,11 @@ class ImageFile extends File {
 		return $rules;
 	}
 
-	public function getPreviewGenerator() {
+	/**
+	 * @param $size
+	 * @return PreviewGeneratorInterface
+	 */
+	public function getPreviewGenerator($size = 'large') {
 		return resolve(ImagePreviewGenerator::class);
 	}
 }

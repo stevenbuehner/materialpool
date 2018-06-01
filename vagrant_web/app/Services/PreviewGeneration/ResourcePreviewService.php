@@ -15,7 +15,7 @@ use Intervention\Image\ImageManagerStatic;
 use Intervention\Image\Size;
 use League\Flysystem\FileNotFoundException;
 
-class ResourcePreviewService implements PreviewGeneratorInterface {
+class ResourcePreviewService {
 
 	// Not implemented yet
 	protected $usePreviewImageCache   = NULL;
@@ -61,7 +61,7 @@ class ResourcePreviewService implements PreviewGeneratorInterface {
 	 * It also adds cache functionality and default values
 	 *
 	 * @param ResourceEntity $resource
-	 * @param Size     $size
+	 * @param Size           $size
 	 * @return Image
 	 */
 	public function getImagePreview(ResourceEntity $resource, Size $size) {
@@ -134,12 +134,12 @@ class ResourcePreviewService implements PreviewGeneratorInterface {
 	 * @param null                             $context
 	 * @return false|string
 	 */
-	public function renderHTMLPreview(ResourceEntity $resource, ResourceLimitationInterface $limitation = NULL, $context = NULL) {
+	public function renderHTMLPreview(ResourceEntity $resource, ResourceLimitationInterface $limitation = NULL, $context = NULL, $size) {
 
-		$generator = $resource->getPreviewGenerator();
+		$generator = $resource->getPreviewGenerator($size);
 		$result    = "";
 
-		if ($this->htmlPreviewAble($resource)) {
+		if ($this->htmlPreviewAble($resource, $size)) {
 			$result = $generator->renderHTMLPreview($resource, $limitation, $context);
 		} else {
 			$result = 'Resource is not previewable';
@@ -148,6 +148,13 @@ class ResourcePreviewService implements PreviewGeneratorInterface {
 		return $result;
 	}
 
+	/**
+	 * @param ResourceEntity $resource
+	 * @return bool
+	 */
+	public function htmlPreviewAble(ResourceEntity $resource, $size) {
+		return $resource->getPreviewGenerator($size)->htmlPreviewAble($resource);
+	}
 
 	/**
 	 * Wraps the generator function of the resource and catches errors to log them but not show them in the frontend
@@ -155,15 +162,7 @@ class ResourcePreviewService implements PreviewGeneratorInterface {
 	 * @param ResourceEntity $resource
 	 * @return bool
 	 */
-	public function imagePreviewAble(ResourceEntity $resource) {
-		return $resource->getPreviewGenerator()->imagePreviewAble($resource);
-	}
-
-	/**
-	 * @param ResourceEntity $resource
-	 * @return bool
-	 */
-	public function htmlPreviewAble(ResourceEntity $resource) {
-		return $resource->getPreviewGenerator()->htmlPreviewAble($resource);
+	public function imagePreviewAble(ResourceEntity $resource, $size) {
+		return $resource->getPreviewGenerator($size)->imagePreviewAble($resource);
 	}
 }

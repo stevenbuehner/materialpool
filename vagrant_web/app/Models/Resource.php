@@ -120,9 +120,10 @@ class Resource extends Model {
 	}
 
 	/**
+	 * @param $size
 	 * @return PreviewGeneratorInterface
 	 */
-	public function getPreviewGenerator() {
+	public function getPreviewGenerator($size = 'large') {
 		return resolve(NoPreviewGenerator::class);
 	}
 

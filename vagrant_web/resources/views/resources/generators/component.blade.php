@@ -1,5 +1,6 @@
 <div class="resource-content">
-    <h4>{{$title or ''}}</h4>
+    <h5 class="card-title">{{$title or ''}}</h5>
+
 
     <div class="content">
         {{$slot}}

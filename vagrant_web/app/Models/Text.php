@@ -2,7 +2,8 @@
 
 namespace App\Models;
 
-use App\Services\PreviewGeneration\Generators\TextPreviewGenerator;
+use App\Services\PreviewGeneration\Generators\TextLargePreviewGenerator;
+use App\Services\PreviewGeneration\Generators\TextThumbPreviewGenerator;
 use App\Services\PreviewGeneration\Interfaces\PreviewGeneratorInterface;
 use App\Services\TagExtraction\ResourceHandles\HandlerInterface;
 use App\Services\TagExtraction\ResourceHandles\TextContentHandler;
@@ -54,10 +55,17 @@ class Text extends Resource implements TextContentInterface {
 	}
 
 	/**
+	 * @param $size
 	 * @return PreviewGeneratorInterface
 	 */
-	public function getPreviewGenerator() {
-		return resolve(TextPreviewGenerator::class);
+	public function getPreviewGenerator($size = 'large') {
+
+		switch ($size) {
+			case 'thumb':
+				return resolve(TextThumbPreviewGenerator::class);
+			default:
+				return resolve(TextLargePreviewGenerator::class);
+		}
 	}
 
 	/**
