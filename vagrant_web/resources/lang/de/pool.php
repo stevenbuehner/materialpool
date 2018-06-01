@@ -13,6 +13,7 @@ return [
 	'download'                            => 'herunterladen',
 	'download-all'                        => 'alles herunterladen',
 	'edit'                                => 'bearbeiten',
+	'delete'                              => 'löschen',
 	'download-whole-pdf'                  => 'ganzes PDF herunterladen',
 	'edit-material'                       => 'Material bearbeiten',
 	'download-file'                       => 'Datei herunterladen',

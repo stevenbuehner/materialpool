@@ -2,7 +2,7 @@
 
 @section('content')
 
-    <h1>{{$material->title}}</h1>
+    <h1>{{__('pool.material.delete.headline')}}</h1>
 
     <small>
         @lang('pool.Contains')
@@ -14,45 +14,23 @@
         @endif
     </small>
 
-    <div class="row" id="keywords_app">
-        @if(count($material->bibleverses) || count ($material->keywords))
-            <div>
-                @foreach($material->keywords as $keyword)
-                    @include('keywords.linked', ['keyword' => $keyword])
-                @endforeach
-
-                @foreach($material->bibleverses->sortBy('from') as $bv)
-                    @include('bibleverses.tag', ['bibleverse' => $bv])
-                @endforeach
-            </div>
-        @endif
-
-        <p>{!! nl2br(e($material->description)) !!}</p>
+    <div class="alert alert-warning" role="alert">
+        <strong>@lang('pool.attention'):</strong>
+        {{__('pool.material.delete.shure')}}
     </div>
-
-
-    <script>
-        var keywordVue = new Vue({
-            el: '#keywords_app',
-            created: function () {
-            },
-
-            mounted: function () {
-            }
-        });
-
-    </script>
 
     <div class="row" style="margin-bottom: 1em">
         <a href="{{ URL::route('pool.material.edit',[$material->id]) }}"
-           class="btn btn-primary"
-           title="@lang('pool.edit-material')"
-        >@lang('pool.edit')</a>
+           class="btn btn-danger btn-"
+           title="@lang('pool.material.delete')"
+        >@lang('pool.material.delete')</a>
 
-        <a href="{{ URL::route('pool.material.delete',[$material->id]) }}"
-           class="btn btn-danger"
-           title="@lang('pool.delete')"
-        >@lang('pool.delete')</a>
+
+        {!! Form::open(['route' => ['pool.material.destroy', $material->id], 'files' => FALSE, 'method' => 'DELETE']) !!}
+        {!! Form::hidden('deleteResources', '1') !!}
+        {!! Form::submit(trans_choice('pool.material.delete.and.resources', count($material->resources), ['count' => count($material->resources)]), [
+        'class' => 'btn btn-danger', 'title' => trans_choice('pool.material.delete.and.resources', count($material->resources), ['count' => count($material->resources)])]) !!}
+        {!! Form::close() !!}
     </div>
 
     @if(count($material->resources)) {{-- Beginn of has Resources --}}
@@ -98,13 +76,5 @@
     </div>
     @endif {{-- End of has Resources --}}
 
-
-    @if($andereMaterialien->count() > 0)
-        <div class="alert alert-warning" role="alert">
-            <strong>@lang('pool.attention'):</strong>
-            {{trans_choice('pool.material.other-assigned-material.pl', $andereMaterialien->count(), ['count' => $andereMaterialien->count()])}}
-        </div>
-
-    @endif
 
 @endsection

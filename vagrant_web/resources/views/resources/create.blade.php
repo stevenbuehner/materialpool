@@ -31,7 +31,7 @@
                 </div>
 
                 <div class="form-check">
-                    {!! Form::checkbox('one_material', '1', TRUE, ['class' => 'form-check-input']) !!}
+                    {!! Form::checkbox('one_material', '1', FALSE, ['class' => 'form-check-input']) !!}
                     {!! Form::label('one_material', 'Alle Dateien gehören zu EINEM Material', ['class' => 'form-check-label']) !!}
                 </div>
 

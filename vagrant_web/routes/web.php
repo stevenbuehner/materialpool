@@ -23,6 +23,12 @@ Route::group(['prefix' => 'pool', 'as' => 'pool.'], function () {
 
 	// route name: "pool.material.index", ...
 	Route::resource('material', 'MaterialController');
+
+
+	Route::get('material/{material}/delete', 'MaterialController@delete')
+		 ->where('material', '[0-9]+')
+		 ->name('material.delete');
+
 	Route::get('/keyword/{lcKeyword}', 'MaterialController@indexBySingleKeyword')
 		 ->name('material.by.keyword');
 	Route::get('/bibleverse/{from}-{to}', 'MaterialController@indexByBibleverse')

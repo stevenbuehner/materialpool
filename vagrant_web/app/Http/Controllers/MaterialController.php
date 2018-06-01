@@ -7,8 +7,10 @@ use App\Models\Bibleverse;
 use App\Models\Keyword;
 use App\Models\Material;
 use App\ResourceLimitations\ResourceLimitationService;
+use App\Services\ResourceHandling\FileHandlingService;
 use App\Services\TagExtraction\Properties\Property;
 use App\Services\TagExtraction\TagExtractionService;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
@@ -218,7 +220,54 @@ class MaterialController extends Controller {
 	 * @param  Material $material
 	 * @return \Illuminate\Http\Response
 	 */
-	public function destroy(Material $material) {
-		//
+	public function delete(Material $material) {
+
+		return view('materials.delete', [
+			'material' => $material->load('resources')
+		]);
+
+	}
+
+	/**
+	 * Remove the specified resource from storage.
+	 *
+	 * @param  Material $material
+	 * @param           $request
+	 * @return \Illuminate\Http\Response
+	 */
+	public function destroy(Material $material, Request $request) {
+
+		$delResources     = (bool) $request->get('deleteResources', FALSE);
+		$deletedResources = 0;
+		$ignoredResources = 0;
+		$deletedMaterials = 0;
+
+		if ($delResources === TRUE) {
+
+			/** @var FileHandlingService $service */
+			$service = resolve(FileHandlingService::class);
+
+			/** @var \App\Models\Resource $resource */
+			foreach ($material->resources as $resource) {
+
+				if ($resource->materials->count() > 1) {
+					$material->resources()->detach($resource->id);
+					$ignoredResources++;
+				} else {
+					$service->deleteResourceCompletely($resource);
+					$deletedResources++;
+				}
+
+			}
+		}
+
+
+		$material->delete();
+		$deletedMaterials++;
+
+		return view('materials.destroyConfirm',
+					compact('deletedResources', 'ignoredResources', 'deletedMaterials')
+		);
+
 	}
 }

@@ -9,6 +9,7 @@ namespace App\Services\ResourceHandling;
 
 
 use App\Models\File;
+use App\Models\Resource;
 use App\Services\ResourceHandling\Exceptions\RemoteFileDoesNotExistException;
 use Illuminate\Support\Facades\Storage;
 
@@ -37,6 +38,21 @@ class FileHandlingService {
 
 		// TODO: Unfinished! Stopped here!
 // 		$resource->setLocalPath
+
+	}
+
+	/**
+	 * @param \App\Models\Resource $resource
+	 */
+	public function deleteResourceCompletely(Resource $resource) {
+
+		// Delete Files from Disk
+		if ($resource instanceof File) {
+			$resource->deleteLocalFile();
+		}
+
+		// Delete in DB
+			$resource->delete();
 
 	}
 
