@@ -6,7 +6,9 @@ return [
 		'keywords' => [
 			'ignore' => [
 				'patterns' => [
-					'~.*http://.*~i'
+					'~.*http://.*~i',
+					'~^PDFCreator.*$~i',
+					'~^[\(\)\[\]\.\-\+\*\#\:\;\,]+$~',
 				],
 				'values'   => []
 			],
