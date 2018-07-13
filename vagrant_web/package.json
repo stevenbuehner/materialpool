@@ -2,32 +2,50 @@
   "private": true,
   "scripts": {
     "dev": "npm run development",
-    "development": "cross-env NODE_ENV=development node_modules/webpack/bin/webpack.js --progress --hide-modules --config=node_modules/laravel-mix/setup/webpack.config.js",
+    "development": "php artisan vue-i18n:generate; cross-env NODE_ENV=development webpack-dev-server --open --hot --mode=development",
     "watch": "cross-env NODE_ENV=development node_modules/webpack/bin/webpack.js --watch --progress --hide-modules --config=node_modules/laravel-mix/setup/webpack.config.js",
     "watch-poll": "npm run watch -- --watch-poll",
     "hot": "cross-env NODE_ENV=development node_modules/webpack-dev-server/bin/webpack-dev-server.js --inline --hot --config=node_modules/laravel-mix/setup/webpack.config.js",
     "prod": "npm run production",
-    "production": "cross-env NODE_ENV=production node_modules/webpack/bin/webpack.js --no-progress --hide-modules --config=node_modules/laravel-mix/setup/webpack.config.js"
-  },
-  "devDependencies": {
-    "browser-sync": "^2.23.2",
-    "browser-sync-webpack-plugin": "^1.2.0",
-    "cross-env": "^5.1",
-    "laravel-mix": "^1.0"
+    "production": "npm run build",
+    "build": "php artisan vue-i18n:generate; cross-env NODE_ENV=production webpack --progress --hide-modules --mode=production"
   },
   "dependencies": {
     "axios": "^0.17",
     "bootstrap": "^4.0.0-beta",
+    "bootstrap-vue": "^2.0.0-rc.8",
     "jquery": "^3.2",
     "jquery-bar-rating": "^1.2.2",
-    "lodash": "^4.17.4",
+    "lodash": "^4.17.10",
     "octicons": "^6.0.1",
     "popper.js": "^1.11.0",
     "select2": "github:select2/select2",
     "select2-bootstrap-theme": "0.1.0-beta.10",
-    "vue": "^2.5.7",
     "tether": "^1.4.0",
     "video.js": "^5.20.3",
-    "bootstrap-vue": "^2.0.0-rc.8"
+    "vue": "^2.5.7",
+    "vue-flash-message": "^0.6.2",
+    "vue-i18n": "^8.0.0",
+    "vue-router": "^3.0.1",
+    "vue-star-rating": "^1.6.0",
+    "vuex": "^3.0.0"
+  },
+  "devDependencies": {
+    "babel-core": "^6.26.0",
+    "babel-loader": "^7.1.5",
+    "babel-preset-env": "^1.7.0",
+    "babel-preset-stage-2": "^6.24.1",
+    "cross-env": "^5.2.0",
+    "css-loader": "^0.28.11",
+    "file-loader": "^1.1.11",
+    "mini-css-extract-plugin": "^0.4.1",
+    "node-sass": "^4.9.2",
+    "sass-loader": "^7.0.3",
+    "style-loader": "^0.21.0",
+    "vue-loader": "^13.7.2",
+    "vue-template-compiler": "^2.5.16",
+    "webpack": "^4.16.0",
+    "webpack-cli": "^3.0.8",
+    "webpack-dev-server": "^3.1.4"
   }
 }

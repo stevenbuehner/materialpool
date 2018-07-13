@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Models\Exceptions\InvalidKeywordTypeException;
 use Backpack\CRUD\CrudTrait;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Kalnoy\Nestedset\NodeTrait;
 use Nanigans\SingleTableInheritance\SingleTableInheritanceTrait;
@@ -12,12 +13,13 @@ use Nanigans\SingleTableInheritance\SingleTableInheritanceTrait;
 /**
  * Class Keyword
  *
- * @property int    $id
- * @property string $title
- * @property string $type
- * @property string $lc_title
- * @property int    $parent_id
- * @property string $custom_icon
+ * @property int        $id
+ * @property string     $title
+ * @property string     $type
+ * @property string     $lc_title
+ * @property int        $parent_id
+ * @property string     $custom_icon
+ * @property Collection $materials
  */
 class Keyword extends Model {
 	use NodeTrait;

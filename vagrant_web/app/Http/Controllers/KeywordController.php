@@ -70,7 +70,8 @@ class KeywordController extends Controller {
 	 * @return \Illuminate\Http\Response
 	 */
 	public function update(Request $request, Keyword $keyword) {
-		//
+
+		throw new \Exception('Not implemented yet');
 	}
 
 	/**

@@ -38,7 +38,7 @@ class Material extends Model {
 
 	use CrudTrait;
 
-	public const MAX_RATING = 20;
+	const MAX_RATING = 20;
 
 	protected $casts = [
 		'from_bot'    => 'boolean',

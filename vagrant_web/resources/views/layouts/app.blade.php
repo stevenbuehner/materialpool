@@ -7,8 +7,8 @@
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
 
     <!-- Latest compiled and minified CSS -->
-    <link rel="stylesheet" href="/css/dependencies.css">
-    <link rel="stylesheet" href="{{ mix('/css/app.css') }}">
+   <!-- <link rel="stylesheet" href="/css/dependencies.css">
+    <link rel="stylesheet" href="/css/app.css"> -->
     <link rel="stylesheet" href="/css/develop.css">
 @stack('styles')
 
@@ -24,13 +24,13 @@
             'csrfToken' => csrf_token(),
         ]) !!};
     </script>
-    <script src="/js/dependencies.js"></script>
-    <script src="{{ mix('/js/app.js') }}"></script>
+    <script src="http://localhost:8080/js/dependencies_build.js"></script>
+    <script src="http://localhost:8080/js/app_build.js"></script>
     @stack('scripts')
 
 </head>
 <body>
-<div id="app">
+<div id="mainContainer">
 
     @include('navbar.main.nav')
 

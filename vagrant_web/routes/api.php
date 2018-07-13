@@ -54,12 +54,19 @@ Route::group([
 		 ->name('api.v1.keywords.show');
 	Route::post('keywords', 'KeywordController@create')
 		 ->name('api.v1.keywords.create');
+	Route::put('keywords/{keyword}', 'KeywordController@update')
+		 ->where(['keyword' => '[0-9]+'])
+		 ->name('api.v1.keywords.update');
 
 
 	// Material <- Keywords-Relevance
 	Route::put('material/{material}/keyword/{keyword?}', 'KeywordController@createOrUpdateAssignment')
+		 ->where(['material' => '[0-9]+'])
+		 ->where(['keyword' => '[0-9]+'])
 		 ->name('api.v1.keywords.updateAssignment');
 	Route::delete('material/{material}/keyword/{keyword}', 'KeywordController@deleteAssignment')
+		 ->where(['material' => '[0-9]+'])
+		 ->where(['keyword' => '[0-9]+'])
 		 ->name('api.v1.keywords.deleteAssignment');
 
 	// Material <- Bibleverse-Relevance
@@ -90,7 +97,8 @@ Route::group([
 		 ->middleware('can:delete,foreignMaterialId')
 		 ->name('api.v1.foreignMaterialDelete');
 
-	Route::post('foreign-materials/{foreignMaterialId}/create-from-resource', 'ForeignMaterialController@createFromResources')
+	Route::post('foreign-materials/{foreignMaterialId}/create-from-resource',
+				'ForeignMaterialController@createFromResources')
 		 ->where('foreignMaterialId', '[0-9a-zA-Z_-]+')
 		 ->middleware('can:create,App\Models\ForeignMaterialId')
 		 ->name('api.v1.foreignMaterialCreateFromResource');

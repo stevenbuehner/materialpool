@@ -21,7 +21,7 @@ class MaterialRequest extends FormRequest {
 	 */
 	public function rules() {
 		return [
-			'title'       => 'bail|required|string|min:3|max:255',
+			'title'       => 'bail|string|min:3|max:255',
 			'description' => 'bail|nullable|string',
 			'rating'      => 'bail|nullable|integer|between:0,20'
 		];

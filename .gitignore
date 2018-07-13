@@ -31,3 +31,4 @@ _ide_helper.php
 vagrant_web/public/img/octicons
 .bash_history
 npm-debug.log
+develop.css

@@ -1,6 +1,49 @@
 run composer install
 set phpexiftool executeable (+x) for web-user in vendor/phpexiftool/exiftool/exiftool
 
+
+
+# let's get "node_modules" out of the synced folder
+# mkdir /home/vagrant/node_modules
+# cd /home/vagrant/web
+# ln -s /home/vagrant/node_modules/ node_modules
+
+# install node
+sudo curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash -
+sudo apt-get install -y nodejs
+nodejs -v
+npm -v
+
+
+# alte Empfehlung von Laravel:
+# sudo npm install --global gulp
+
+# Bei Fehlern:
+# https://github.com/JeffreyWay/laravel-mix/issues/1072
+rm -rf node_modules
+rm package-lock.json yarn.lock
+npm cache clear --force
+npm install
+
+
+# Evt. installieren fehlender Pakte
+npm install browser-sync-webpack-plugin browser-sync babel-loader style-loader css-loader postcss-loader
+
+
+# https://jmfeurprier.com/2015/10/02/how-to-install-node-js-with-ubuntu-and-vagrant-in-a-synced-folder/
+
+# install g++ to compile stuff
+sudo apt-get install -y g++
+
+
+
+# install a node.js package locally in the project
+npm install karma
+
+
+
+
+
 #Update npm
 # sudo npm install npm@latest -g
 
@@ -13,14 +56,23 @@ sudo npm install -g n
 sudo n stable
 
 
-Dann alte Pakete löschen
+Dann alle Pakete löschen
 rm -rf node_modules
+
+# Zum kompilieren wird noch der g++ compiler benötigt
+sudo apt-get install g++
+npm install babel-cli
+npm install webpack
+
 npm install
 # Wenn Fehler auftreten (=> Nochmal löschen und nochmal installieren :-) )
 
-
 # Zur Info - neue NPM Pakete installieren die in Zukunft auch gebraucht werden
 # npm install PAKETNAME --save-dev
+
+# Pakete zusammencompilieren und veröffentlichen
+npm run dev
+
 
 php artisan migrate
 php artisan module:migrate
@@ -58,3 +110,43 @@ npm run dev
 
 # Um Videos so zu konvertieren, dass sie im Web als Stream laufen können, müssen die Meta-Daten VORNE in der Datei positioniert sein
 # Einfach mit Handbrake (den Ordner der Dateien oder) die Videodatei auswählen und die Option "Web Optimized aktivieren"
+
+
+
+
+#Installieren auf meinem Mini-Server
+sudo apt-get install -y php-imagick
+sudo sed -i "s@upload_max_filesize = 2M@upload_max_filesize = 200M@" /etc/php/7.0/apache2/php.ini
+sudo sed -i "s@max_file_uploads = 20@max_file_uploads = 100@" /etc/php/7.0/apache2/php.ini
+sudo rm /etc/php/7.0/apache2/conf.d/20-xdebug.ini
+sudo service apache2 restart
+
+sudo usermod -a -G www-data steven
+id steven
+groups steven
+
+
+#Local: (ACHTUNG: Storage darf nicht mitkopiert werden!)
+rsync -av --exclude=".git*" --exclude=".idea*" --exclude="*.DS_Store" --exclude="node_modules/*" --exclude=".env" --exclude=".env.example" --exclude="storage/*" ~/Sites/material_pool/vagrant_web/ steven@192.168.3.108:/var/www/wissensbase
+cd /var/www/wissensbase
+sudo chown -R www-data.www-data .
+
+sudo -u www-data php artisan config:clear
+sudo -u www-data php artisan config:cache
+sudo -u www-data php artisan route:clear
+sudo -u www-data php artisan route:cache
+sudo -u www-data php artisan responsecache:flush
+sudo -u www-data php artisan optimize --force
+sudo -u www-data php artisan view:clear
+
+#Im www
+php artisan passport:keys --force
+php artisan key:generate
+
+
+
+
+
+
+
+

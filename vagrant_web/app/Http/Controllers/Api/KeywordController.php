@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller as BaseController;
 use App\Http\Requests\KeywordRequest;
 use App\Models\Keyword;
 use App\Models\Material;
+use App\Services\KeywordHandling\KeywordHandlingService;
 use App\Services\TagExtraction\Interfaces\RelevanceInterface;
 use App\Services\TagExtraction\Properties\KeywordProperty;
 use App\Services\TagExtraction\Properties\Property;
@@ -81,6 +82,40 @@ class KeywordController extends BaseController {
 		$keyword = $keyword->fresh();
 
 		return $keyword;
+	}
+
+	public function update(KeywordRequest $keywordRequest, Keyword $keyword) {
+
+		if ($keywordRequest->has('title')) {
+			$newTitle = trim($keywordRequest->get('title'));
+
+			// is there already an existing keyword with this name
+
+			$alreadyExisting = Keyword::where([
+												  'type'  => $keyword->type,
+												  'title' => $newTitle])
+									  ->where('id', '!=', $keyword->id)->first();
+
+			if ($alreadyExisting) {
+				// Merge all other Keywords
+
+				/** @var KeywordHandlingService $service */
+				$service = resolve(KeywordHandlingService::class);
+				$service->mergeKeywords($alreadyExisting, $keyword);
+
+				$keyword = $alreadyExisting;
+			} else {
+				$keyword->title = $newTitle;
+			}
+
+		}
+
+		if ($keyword->isDirty()) {
+			$keyword->save();
+		}
+
+		return $keyword;
+
 	}
 
 	public function createOrUpdateAssignment(Material $material, Keyword $keyword, Request $request) {

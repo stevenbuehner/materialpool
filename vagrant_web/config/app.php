@@ -200,6 +200,14 @@ return [
 		// Backpack\CRUD\CrudServiceProvider::class,
 
 
+		// Insert JavaScript via blade Helper --> auto discovered
+		// \Laracasts\Utilities\JavaScript\JavaScriptServiceProvider::class,
+
+
+		// Artisan Command to generate i18n files for JavaScript --> auto discovered
+		// \MartinLindhe\VueInternationalizationGenerator\GeneratorProvider::class,
+
+
 		/*
 		 * My Packages / Providers
 		 */
