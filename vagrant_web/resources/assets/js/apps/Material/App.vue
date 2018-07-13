@@ -40,21 +40,32 @@
 
                 <from-bot :from-bot="material.from_bot" @toggleRequest="submitFromBot(!material.from_bot)"></from-bot>
 
-                <div v-for="tag in orderedKeywordsAndBibleversesByRelevance" :key="tag.is + tag.id">
+                <div v-for="tag in keywordsAndBibleveres" :key="tag.is + tag.id">
                     <keyword
                             v-if="tag.is=='keyword'"
                             :keyword="tag"
-                            :editable="editable"
                             :material-id="material.id"
+                            :editable="editable"
                             @saving="flashStartSaving('Keyword')"
-                            @saved="keywordUpdated"
-                            @savingError="keywordUpdateError"
                             @savingPivot="flashStartSaving('Keyword Piot')"
+                            @saved="keywordUpdated"
                             @savedPivot="keywordUpdated"
-                            @savingPivotError="keywordUpdated"
+                            @savingError="tagUpdateError"
+                            @savingPivotError="tagUpdateError"
                     ></keyword>
 
-                    <bibleverse v-if="tag.is =='bibleverse'" :bibleverse="tag"></bibleverse>
+                    <bibleverse v-if="tag.is =='bibleverse'"
+                                :bibleverse="tag"
+                                :material-id="material.id"
+                                :editable="editable"
+                                @saving="flashStartSaving('Bibleverse')"
+                                @savingPivot="flashStartSaving('Bibleverse Piot')"
+                                @saved="bibleverseUpdated"
+                                @savedPivot="bibleverseUpdated"
+                                @savingError="tagUpdateError"
+                                @savingPivotError="tagUpdateError"
+
+                    ></bibleverse>
                 </div>
 
 
@@ -106,7 +117,7 @@
                 return '/api/v1/materials/' + this.material.id;
             },
 
-            orderedKeywordsAndBibleversesByRelevance() {
+            keywordsAndBibleveres() {
 
                 this.material.keywords.forEach((kw) => {
                     kw.is = 'keyword';
@@ -116,9 +127,12 @@
                     bv.is = 'bibleverse';
                 });
 
-                return this.material.keywords.concat(this.material.bibleverses.sort((k1, k2) => {
+                return this.material.keywords.concat(this.material.bibleverses);
+
+                /*.sort((k1, k2) => {
                     return k1.pivot.relevance - k2.pivot.relevance;
                 }));
+                */
             }
 
         },
@@ -174,8 +188,6 @@
 
             keywordUpdated({newKeyword, oldKeyword}) {
 
-                console.log(newKeyword, oldKeyword);
-
                 // Success
                 const index = this.material.keywords.findIndex((kw) => {
                     return kw.id === oldKeyword.id;
@@ -190,7 +202,23 @@
 
             },
 
-            keywordUpdateError({keyword, msg}) {
+            bibleverseUpdated({oldBibleverse, newBibleverse}) {
+
+                // Success
+                const index = this.material.bibleverses.findIndex((bv) => {
+                    return bv.id === oldBibleverse.id;
+                });
+
+                if (index !== -1) {
+                    this.material.bibleverses.splice(index, 1, newBibleverse); // https://vuejs.org/2016/02/06/common-gotchas/
+                    this.flashSaved('Keyword "' + newBibleverse.label + '"');
+                } else {
+                    console.error('Changed bibleverse was not found in Array!');
+                }
+
+            },
+
+            tagUpdateError({tag, msg}) {
                 this.flash(msg, 'error', {})
             },
 

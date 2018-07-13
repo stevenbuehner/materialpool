@@ -1,14 +1,18 @@
 <template>
     <div class="from-bot-wrapper" @click="toggleRequest">
-        <div class="btn btn-sm from-bot" :class="{'btn-secondary' : fromBot, 'btn-success' : !fromBot}">
+        <div class="btn btn-sm from-bot" :class="{'btn-secondary' : fromBot, 'btn-success' : !fromBot}"
+             :style="{color: theme.colors.color, backgroundColor: fromBot ? theme.colors.background : theme.colors.progressbar.default}">
             <span class="icon"
-                  :style="{backgroundImage : fromBot ? 'url(/img/icons/entypo-plus/laptop.svg)' : 'url(/img/icons/entypo-plus/fingerprint.svg)'}"></span>
+                  :style="{backgroundImage : fromBot ? 'url(/img/icons/entypo-plus/laptop.svg)' : 'url(/img/icons/entypo-plus/fingerprint.svg)', }"></span>
             <span class="text">{{ label }}</span>
         </div>
     </div>
 </template>
 
 <script>
+
+    import {tagging} from './theme';
+
     export default {
         name: "from-bot",
         props: {
@@ -19,6 +23,11 @@
         },
 
         computed: {
+
+            theme() {
+                return tagging;
+            },
+
             label() {
                 return this.fromBot ? 'from bot' : 'by user';
             }

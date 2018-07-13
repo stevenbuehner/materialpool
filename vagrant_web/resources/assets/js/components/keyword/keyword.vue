@@ -1,14 +1,15 @@
 <template>
     <div class="kw-wrapper">
-        <button class="sb-keyword btn btn-sm btn-secondary sb-keyword-textview"
-                :class="{'tag-readonly' : !editable, 'tag-editable' : editable}"
-                @click.right.prevent="$refs.menu.openMenu($event)"
-                @mousedown.left="startDrag"
-                role="button">
+        <div class="sb-keyword btn btn-sm btn-secondary"
+             :class="{'tag-readonly' : !editable, 'tag-editable' : editable}"
+             @click.right.prevent="$refs.menu.openMenu($event)"
+             @mousedown.left.prevent="startDrag"
+             role="button"
+             :style="{color: theme.colors.color, backgroundColor: theme.colors.background}">
             <div class="sb-progress-bar" :style="styleObject"></div>
             <span class="icon" :style="{backgroundImage : 'url(' + keyword.icon + ')'}"></span>
             <span class="text">{{ keyword.title }}</span>
-        </button>
+        </div>
 
         <b-modal ref="editKeyword" title="Edit Keyword" @ok="storeModalChanges">
             <div class="container-fluid">
@@ -54,8 +55,15 @@
     import contextMenu from './../context-menu/context-menu.vue';
     import contextMenuItem from "../context-menu/context-menu-item.vue";
     import axios from 'axios';
+    import {tagging} from './../theme';
+
+    import {draggingSupport} from "./dragging.mixin";
 
     export default {
+
+        mixins: [
+            draggingSupport
+        ],
 
         props: {
             keyword: {
@@ -90,38 +98,32 @@
             return {
                 menuIsOpen: false,
                 modifiedKeyword: {},
-
-                dragging: {
-                    dragging: false,
-                    xStart: 0,
-                    xEnd: 0,
-                    backupRelevance: 0
-                }
             };
         },
 
         computed: {
+
+            theme() {
+                return tagging;
+            },
 
             searchLink() {
                 return '/pool/keyword/' + this.keyword.lc_title;
             },
 
             relevance() {
-                if (this.dragging.dragging === true) {
+                if (this.dragging.ongoing === true) {
                     return this.dragDifference;
                 } else {
                     return this.keyword.pivot.relevance;
                 }
             },
 
-            dragDifference() {
-                return Math.min(Math.max(this.dragging.xEnd - this.dragging.xStart, 0), 300);
-            },
 
             styleObject: function () {
                 return {
                     width: this.relevance / 300 * 100 + '%',
-                    backgroundColor: this.dragging.dragging === true ? '#218838' : '#97eac8'
+                    backgroundColor: this.dragging.ongoing === true ? this.theme.colors.progressbar.dragging : this.theme.colors.progressbar.default,
                 }
             },
 
@@ -140,56 +142,11 @@
             // Clone the parts that may be eddited
             this.modifiedKeyword = {
                 title: this.keyword.title,
-                pivot: {
-                    relevance: this.keyword.pivot.relevance
-                }
             };
 
         },
 
         methods: {
-
-            startDrag(event) {
-                this.dragging.dragging = true;
-                this.dragging.xStart   = this.dragging.xEnd = event.clientX;
-
-                window.addEventListener('mouseup', this.stopDrag);
-                window.addEventListener('mousemove', this.doDrag);
-                window.addEventListener('keydown', this.keydown)
-
-            },
-            doDrag(event) {
-                this.dragging.xEnd = event.clientX;
-            },
-            stopDrag(event) {
-
-                // Remove Event Listeners
-                window.removeEventListener('mouseup', this.stopDrag);
-                window.removeEventListener('mousemove', this.doDrag);
-                window.removeEventListener('keydown', this.keydown);
-
-
-                if (this.dragging.dragging /* true if dragging was not canceled */
-                    && event /* Event exists when dragging was not canceled */
-                ) {
-                    this.doDrag(event); // Use the last mouse coordinates
-                    this.updateKeywordPivot({relevance: this.dragDifference})
-                    this.dragging.dragging = false;
-                }
-
-
-            },
-            cancelDrag() {
-                this.dragging.dragging = false;
-                this.stopDrag();
-            },
-            keydown(event) {
-                event = event || window.event;
-                if (event.keyCode === 27) {
-                    // ESC Pressed
-                    this.cancelDrag();
-                }
-            },
 
             storeModalChanges() {
                 if (this.keyword.title != this.modifiedKeyword.title) {
@@ -214,14 +171,14 @@
                         }
                     ).catch((response) => {
                         this.$emit('savingError', {
-                            keyword: this.keyword,
+                            tag: this.keyword, // "Tag" is used for bibleverses and keywords
                             msg: this.parseResponseErrors(response.response)
                         });
                     });
 
             },
 
-            updateKeywordPivot(pivot) {
+            updatePivot(pivot) {
                 this.$emit('savingPivot', {pivot: pivot});
 
                 pivot._method = 'PUT';
@@ -236,14 +193,14 @@
                         }
                     ).catch((response) => {
                         this.$emit('savingPivotError', {
-                            keyword: this.keyword,
+                            tag: this.keyword,  // "tag" is used for bibleverses and keywords
                             msg: this.parseResponseErrors(response.response)
                         });
                     });
             },
 
             parseResponseErrors(response) {
-                var msg = 'Error! ';
+                let msg = 'Error! ';
 
                 if (response.data && response.data.errors) {
                     for (let i in response.data.errors) {
@@ -282,20 +239,20 @@
 <style scoped>
     .kw-wrapper {
         float: left;
-    }
-
-    .sb-keyword {
         position: relative;
         margin-bottom: 0.5rem;
         margin-right: 0.25rem;
+    }
+
+    .sb-keyword {
         border: 0;
     }
 
-    .sb-keyword .text {
+    .text {
         position: relative;
     }
 
-    .sb-keyword > .sb-progress-bar {
+    .sb-progress-bar {
         position: absolute;
         left: 0;
         top: 0;
