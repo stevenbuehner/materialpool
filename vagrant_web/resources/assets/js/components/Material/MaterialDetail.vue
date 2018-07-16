@@ -1,0 +1,300 @@
+<template>
+    <div>
+        <flash-message class="flashMessageHolder col-md-4 col-sm-6 col-lg-3 col-xs-12">This is some test</flash-message>
+
+        <edditable-text type="h1"
+                        :value="myMaterial.title"
+                        @value-changed="submitTitle"
+                        classes="materialTitle"
+                        placeholder="Please enter a title here ..."></edditable-text>
+
+
+        <div class="meta row">
+            <div class="col-lg-12">
+                <star-rating
+                        :increment="1"
+                        :max-rating="20"
+                        inactive-color="lightgray"
+                        active-color="black"
+                        :star-size="15"
+                        :inline="true"
+                        @rating-selected="submitRating"
+                        text-class="starRatingText"
+                        :rating="myMaterial.rating"
+                >
+                </star-rating>
+
+                Contains
+                {{$tc('pool.resource-count', myMaterial.resources.length, {name : myMaterial.resources.length}) }},
+                {{$t('pool.eddited')}} {{myMaterial.updated_at}},
+                {{$t('pool.by')}} {{myMaterial.creator.name}}
+
+                <span v-if="myMaterial.author">{{$t('pool.resource-author-is', {name: myMaterial.author.title} )}}</span>
+
+            </div>
+
+        </div>
+
+        <div class="row">
+            <div class="col-lg-12" id="allTags">
+
+                <from-bot :from-bot="myMaterial.from_bot" @toggleRequest="submitFromBot(!myMaterial.from_bot)"></from-bot>
+
+                <div v-for="tag in keywordsAndBibleveres" :key="tag.is + tag.id">
+                    <keyword
+                            v-if="tag.is=='keyword'"
+                            :keyword="tag"
+                            :material-id="myMaterial.id"
+                            :editable="editable"
+                            @saving="flashStartSaving('Keyword')"
+                            @savingPivot="flashStartSaving('Keyword Piot')"
+                            @saved="keywordUpdated"
+                            @savedPivot="keywordUpdated"
+                            @savingError="tagUpdateError"
+                            @savingPivotError="tagUpdateError"
+                    ></keyword>
+
+                    <bibleverse v-if="tag.is =='bibleverse'"
+                                :bibleverse="tag"
+                                :material-id="myMaterial.id"
+                                :editable="editable"
+                                @saving="flashStartSaving('Bibleverse')"
+                                @savingPivot="flashStartSaving('Bibleverse Piot')"
+                                @saved="bibleverseUpdated"
+                                @savedPivot="bibleverseUpdated"
+                                @savingError="tagUpdateError"
+                                @savingPivotError="tagUpdateError"
+
+                    ></bibleverse>
+                </div>
+
+
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-12">
+                <edditable-text type="div"
+                                classes="card card-body"
+                                :value="myMaterial.description"
+                                @value-changed="submitDescription"
+                                placeholder="Insert description ..."></edditable-text>
+            </div>
+        </div>
+
+        <div class="row" v-if="myMaterial.resources.length >0">
+            <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12" v-for="resource in myMaterial.resources">
+                <resource :resource="resource"></resource>
+            </div>
+        </div>
+
+
+    </div>
+</template>
+
+<script>
+    import keyword from './../keyword/keyword.vue';
+    import bibleverse from './../bibleverse/biblevers.vue';
+    import resource from './../resource/resource.vue';
+    import edditableText from './../edditable.vue';
+    import fromBot from './../fromBot.vue';
+    // https://github.com/craigh411/vue-star-rating/#props
+    import starRating from 'vue-star-rating';
+
+    import axios from 'axios';
+
+    export default {
+        name: "MaterialApp",
+
+        props: {
+            material: {
+                required: true,
+                type: Object
+            },
+            editable: {
+                required: false,
+                type: Boolean,
+                default: true
+            }
+        },
+
+        data() {
+            return {
+                myMaterial: {}
+            };
+        },
+
+        computed: {
+            materialApiUrl() {
+                return '/api/v1/materials/' + this.myMaterial.id;
+            },
+
+            keywordsAndBibleveres() {
+
+                this.myMaterial.keywords.forEach((kw) => {
+                    kw.is = 'keyword';
+                });
+
+                this.myMaterial.bibleverses.forEach((bv) => {
+                    bv.is = 'bibleverse';
+                });
+
+                return this.myMaterial.keywords.concat(this.myMaterial.bibleverses);
+
+                /*.sort((k1, k2) => {
+                    return k1.pivot.relevance - k2.pivot.relevance;
+                }));
+                */
+            }
+
+        },
+
+
+        methods: {
+            submitTitle(newTitle) {
+                this.submitMaterialUpdate({title: newTitle, from_bot: false}, 'Title');
+            },
+
+            submitRating(newRating) {
+                this.submitMaterialUpdate({rating: newRating}, 'Rating');
+            },
+
+            submitDescription(newDescription) {
+                this.submitMaterialUpdate({description: newDescription, from_bot: false}, 'Description');
+            },
+
+            submitFromBot(newValue) {
+                this.submitMaterialUpdate({'from_bot': newValue}, 'From bot');
+            },
+
+            submitMaterialUpdate(data, propertyName) {
+
+                data._method = 'PUT';
+
+                const result = axios.post(this.materialApiUrl, data);
+
+                if (propertyName) {
+                    const startSavingMessage = this.flashStartSaving(propertyName);
+
+                    result.then((response) => {
+                        // On Success
+                        this.flashSaved(propertyName);
+
+                        if (response.data.from_bot !== undefined) {
+                            this.myMaterial.from_bot = response.data.from_bot;
+                        }
+
+                    }).catch(() => {
+                        // On Error
+                        this.flashError(propertyName);
+                    }).then(() => {
+                        // Always
+                        startSavingMessage.destroy();
+                    });
+                }
+
+
+                return result;
+
+            },
+
+            keywordUpdated({newKeyword, oldKeyword}) {
+
+                // Success
+                const index = this.myMaterial.keywords.findIndex((kw) => {
+                    return kw.id === oldKeyword.id;
+                });
+
+                if (index !== -1) {
+                    this.myMaterial.keywords.splice(index, 1, newKeyword); // https://vuejs.org/2016/02/06/common-gotchas/
+                    this.flashSaved('Keyword "' + newKeyword.title + '"');
+                } else {
+                    console.error('Renamed keyword was not found in Array!');
+                }
+
+            },
+
+            bibleverseUpdated({oldBibleverse, newBibleverse}) {
+
+                // Success
+                const index = this.myMaterial.bibleverses.findIndex((bv) => {
+                    return bv.id === oldBibleverse.id;
+                });
+
+                if (index !== -1) {
+                    this.myMaterial.bibleverses.splice(index, 1, newBibleverse); // https://vuejs.org/2016/02/06/common-gotchas/
+                    this.flashSaved('Keyword "' + newBibleverse.label + '"');
+                } else {
+                    console.error('Changed bibleverse was not found in Array!');
+                }
+
+            },
+
+            tagUpdateError({tag, msg}) {
+                this.flash(msg, 'error', {})
+            },
+
+
+            flashStartSaving(propertyName) {
+                return this.flash('Saving ' + propertyName[0].toUpperCase() + propertyName.substring(1).toLowerCase() + ' now ...', 'warning', {
+                    important: false,
+                    timeout: 2000
+                });
+            },
+
+            flashSaved(propertyName) {
+                console.debug('saved Flash: ', propertyName);
+                return this.flash(propertyName[0].toUpperCase() + propertyName.substring(1).toLowerCase() + ' saved', 'success', {
+                    timeout: 2000,
+                    important: false
+                })
+            },
+            flashError(propertyName) {
+                console.debug('Error Flash: ', propertyName);
+                return this.flash('An error accured while while saving ' + propertyName.toLowerCase(), 'error', {
+                    important: true
+                });
+            }
+
+
+        },
+
+
+        components: {
+            keyword,
+            bibleverse,
+            resource,
+            edditableText,
+            starRating,
+            fromBot
+        },
+
+        created() {
+            // Deep Copy Material
+            this.myMaterial = JSON.parse(JSON.stringify(this.material));
+        }
+    }
+</script>
+
+<style scoped>
+    .meta {
+        font-size: smaller;
+    }
+
+</style>
+
+<style>
+    .materialTitle {
+        font-size: 2em;
+    }
+
+    .starRatingText {
+        font-size: smaller;
+    }
+
+    .flashMessageHolder {
+        position: fixed;
+        top: 1em;
+        right: 1em;
+    }
+</style>
