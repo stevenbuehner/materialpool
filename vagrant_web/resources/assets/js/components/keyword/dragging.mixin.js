@@ -19,8 +19,12 @@ export const draggingSupport = {
     methods: {
 
         startDrag(event) {
+            if (this.editable !== true) {
+                return;
+            }
+
             this.dragging.ongoing = true;
-            this.dragging.xStart   = this.dragging.xEnd = event.clientX;
+            this.dragging.xStart  = this.dragging.xEnd = event.clientX;
 
             window.addEventListener('mouseup', this.stopDrag);
             window.addEventListener('mousemove', this.doDrag);
