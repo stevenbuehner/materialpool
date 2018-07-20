@@ -91,7 +91,13 @@
 
                 return axios.post(this.bibleverseUpdatePivotApiUrl, pivot)
                     .then((response) => {
-                            // Success
+                            // on success
+
+                            // Update this bibleverse data directly
+                            this.bibleverse.pivot = response.data.pivot;
+
+                            // And also offer the parent the option to update the data
+                            // The parent may then repopulate the props.bibleverse
                             this.$emit('savedPivot', {
                                 oldBibleverse: this.bibleverse,
                                 newBibleverse: response.data // response contains pivot-data
@@ -163,7 +169,7 @@
         margin-left: 0;
     }
 
-    .mini{
+    .mini {
         margin-bottom: .125rem;
         margin-top: .125rem;
         margin-left: 0;

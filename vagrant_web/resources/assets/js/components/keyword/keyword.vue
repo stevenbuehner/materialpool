@@ -19,6 +19,7 @@
                     </div>
                     <div class="col-sm-9">
                         <b-form-input
+                                name="keywordText"
                                 id="keywordText"
                                 type="text"
                                 v-model="modifiedKeyword.title"
@@ -167,13 +168,24 @@
 
                 return axios.post(this.keywordUpdateApiUrl, properties)
                     .then((response) => {
-                            // Success
+                            // on success
+
+                            // Update this keyword directly
+                            for (let i in properties) {
+                                if (i !== 'PUT' && response.data[i] !== undefined) {
+                                    this.keyword[i] = response.data[i];
+                                }
+                            }
+
+                            // And also offer the parent the option to update the data
+                            // The parent may then repopulate the props.keyword
                             this.$emit('saved', {
                                 oldKeyword: this.keyword,
                                 newKeyword: {...response.data, pivot: this.keyword.pivot} // response misses pivot-data
                             });
                         }
                     ).catch((response) => {
+                        // on failure
                         this.$emit('savingError', {
                             tag: this.keyword, // "Tag" is used for bibleverses and keywords
                             msg: this.parseResponseErrors(response.response)
@@ -189,13 +201,20 @@
 
                 return axios.post(this.keywordUpdatePivotApiUrl, pivot)
                     .then((response) => {
-                            // Success
+                            // on success
+
+                            // Update this keyword directly
+                            this.keyword.pivot = response.data.pivot;
+
+                            // And also offer the parent the option to update the data
+                            // The parent may then repopulate the props.keyword
                             this.$emit('savedPivot', {
                                 oldKeyword: this.keyword,
                                 newKeyword: response.data // response contains pivot-data
                             });
                         }
                     ).catch((response) => {
+                        // on failure
                         this.$emit('savingPivotError', {
                             tag: this.keyword,  // "tag" is used for bibleverses and keywords
                             msg: this.parseResponseErrors(response.response)
@@ -279,7 +298,7 @@
         margin-left: 0;
     }
 
-    .mini{
+    .mini {
         margin-bottom: .125rem;
         margin-top: .125rem;
         margin-left: 0;
