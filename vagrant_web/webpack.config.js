@@ -13,7 +13,8 @@ module.exports = {
         dependencies: [
             './resources/assets/js/dependencies.js',
         ],
-        materialApp: './resources/assets/js/apps/Material/main.js'
+        materialApp: './resources/assets/js/apps/MaterialEdit/main.js',
+        searchApp: './resources/assets/js/apps/SearchApp/main.js'
     },
     output: {
         path: path.resolve(__dirname, './public/'),

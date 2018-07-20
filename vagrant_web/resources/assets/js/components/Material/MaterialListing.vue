@@ -2,20 +2,27 @@
     <div class="material-listing">
         <div class="material-listing-menue"></div>
         <div class="material-listing-data">
-            <material v-for="material in materials" v-bind:material="material"></material>
+            <material v-for="material in materials" v-bind:material="material" :key="material.id"></material>
         </div>
     </div>
 </template>
 
 <script>
+    import MaterialListingItem from './MaterialListingItem.vue';
+
     export default {
         mounted() {
             console.log('Material-Listing component mounted.')
         },
-        props : ['materials']
+
+        props: ['materials'],
+
+        components: {
+            material: MaterialListingItem
+        }
     }
 </script>
 
-<style lang="css">
+<style scoped>
 
 </style>

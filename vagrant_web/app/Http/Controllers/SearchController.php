@@ -26,7 +26,7 @@ class SearchController extends Controller {
 		$queryString          = $request->get('q', '');
 		$queryString          = str_replace('%', '*', $queryString);
 		$queryPage            = $request->get('page', 1);
-		$paginationSize       = 5;
+		$paginationSize       = 15;
 		$bibleVerseExtraction = resolve('BibleVerseService');
 		$result               = collect();
 

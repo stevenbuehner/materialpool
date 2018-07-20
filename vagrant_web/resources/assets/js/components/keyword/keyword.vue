@@ -1,12 +1,12 @@
 <template>
-    <div class="kw-wrapper">
-        <div class="sb-keyword btn btn-sm btn-secondary"
+    <div class="kw-wrapper" :class="[size]">
+        <div class="btn btn-sm btn-secondary sb-keyword"
              :class="{'tag-readonly' : !editable, 'tag-editable' : editable}"
              @click.right.prevent="$refs.menu.openMenu($event)"
              @mousedown.left.prevent="startDrag"
              role="button"
              :style="{color: theme.colors.color, backgroundColor: theme.colors.background}">
-            <div class="sb-progress-bar" :style="styleObject"></div>
+            <div v-if="hasPivot" class="sb-progress-bar" :style="styleObject"></div>
             <span class="icon" :style="{backgroundImage : 'url(' + keyword.icon + ')'}"></span>
             <span class="text">{{ keyword.title }}</span>
         </div>
@@ -84,7 +84,7 @@
             size: {
                 type: String,
                 required: false,
-                default: 'small'
+                default: 'normal'
             },
             editable: {
                 type: Boolean,
@@ -117,6 +117,10 @@
                 } else {
                     return this.keyword.pivot.relevance;
                 }
+            },
+
+            hasPivot() {
+                return this.keyword.pivot !== undefined && this.keyword.pivot.relevance !== undefined;
             },
 
 
@@ -238,10 +242,11 @@
 
 <style scoped>
     .kw-wrapper {
-        float: left;
+        display: inline-block;
         position: relative;
         margin-bottom: 0.5rem;
         margin-right: 0.25rem;
+        line-height: 1em;
     }
 
     .sb-keyword {
@@ -260,7 +265,7 @@
         border-radius: .2rem;
     }
 
-    .sb-keyword .icon {
+    .icon {
         position: relative;
         display: inline-block;
         background-size: contain;
@@ -274,8 +279,22 @@
         margin-left: 0;
     }
 
-    input {
+    .mini{
+        margin-bottom: .125rem;
+        margin-top: .125rem;
+        margin-left: 0;
+        margin-right: .125em;
+    }
 
+    .mini .icon {
+        height: 0.7rem;
+        width: 0.7rem;
+        margin-right: .05rem;
+    }
+
+    .mini .sb-keyword {
+        font-size: 0.7em;
+        padding: .125rem .25rem;
     }
 
 </style>

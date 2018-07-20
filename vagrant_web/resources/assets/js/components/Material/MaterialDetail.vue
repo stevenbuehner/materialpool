@@ -40,7 +40,7 @@
 
                 <from-bot :from-bot="myMaterial.from_bot" @toggleRequest="submitFromBot(!myMaterial.from_bot)"></from-bot>
 
-                <div v-for="tag in keywordsAndBibleveres" :key="tag.is + tag.id">
+                <div v-for="tag in keywordsAndBibleveres" :key="tag.is + tag.id" class="tag-wrapper">
                     <keyword
                             v-if="tag.is=='keyword'"
                             :keyword="tag"
@@ -290,6 +290,10 @@
 
     .starRatingText {
         font-size: smaller;
+    }
+
+    .tag-wrapper{
+        display:inline-block;
     }
 
     .flashMessageHolder {

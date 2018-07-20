@@ -1,5 +1,5 @@
 <template>
-    <div class="bibleverse-wrapper">
+    <div class="bibleverse-wrapper" :class="[size]">
         <div class="btn btn-sm btn-secondary sb-bibleverse"
              :class="{'tag-readonly' : !editable, 'tag-editable' : editable}"
              @mousedown.left.prevent="startDrag"
@@ -127,10 +127,11 @@
 <style scoped>
 
     .bibleverse-wrapper {
-        float: left;
+        display: inline-block;
         position: relative;
         margin-bottom: 0.5rem;
         margin-right: 0.25rem;
+        line-height: 1em;
     }
 
     .sb-bibleverse {
@@ -162,8 +163,23 @@
         margin-left: 0;
     }
 
-    input {
-
+    .mini{
+        margin-bottom: .125rem;
+        margin-top: .125rem;
+        margin-left: 0;
+        margin-right: .125em;
     }
+
+    .mini .icon {
+        height: 0.7rem;
+        width: 0.7rem;
+        margin-right: .05rem;
+    }
+
+    .mini .sb-bibleverse {
+        font-size: 0.7em;
+        padding: .125rem .25rem;
+    }
+
 
 </style>
