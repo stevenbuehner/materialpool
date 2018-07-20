@@ -1,5 +1,5 @@
 <template>
-    <div class="material">
+    <div class="material" @click.prevent="goToMaterial">
         <div class="head">
             <div class="title">{{material.title}}</div>
             <small class="meta-info">
@@ -23,21 +23,42 @@
                     size="mini"></biblevers>
         </div>
         <small class="description">{{material.description}}</small>
+
+        <b-modal ref="materialDetail" title="Material Detail">
+            <material-detail :material="material"></material-detail>
+        </b-modal>
     </div>
 </template>
 
 <script>
     import Keyword from './../keyword/keyword.vue'
     import Biblevers from "../bibleverse/biblevers.vue";
+    import materialDetail from './MaterialDetail.vue';
+    import bModal from 'bootstrap-vue/es/components/modal/modal';
+
 
     export default {
         mounted() {
         },
         props: ['material'],
 
+        computed: {
+            materialDetailLink() {
+                return '/pool/material/' + this.material.id;
+            }
+        },
+
+        methods: {
+            goToMaterial() {
+                this.$refs.materialDetail.show();
+            }
+        },
+
         components: {
             Biblevers,
-            Keyword
+            Keyword,
+            bModal,
+            materialDetail
         }
     }
 </script>
@@ -46,6 +67,7 @@
     .material {
         border-bottom: 0.1rem solid gray;
         padding: 0.5rem;
+        cursor: pointer;
     }
 
     .head {

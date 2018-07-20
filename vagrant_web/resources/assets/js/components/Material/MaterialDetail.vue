@@ -25,9 +25,13 @@
                 </star-rating>
 
                 Contains
-                {{$tc('pool.resource-count', myMaterial.resources.length, {name : myMaterial.resources.length}) }},
+                <span v-if="myMaterial.resources !== undefined">
+                    {{$tc('pool.resource-count', myMaterial.resources.length, {name : myMaterial.resources.length}) }},
+                </span>
                 {{$t('pool.eddited')}} {{myMaterial.updated_at}},
-                {{$t('pool.by')}} {{myMaterial.creator.name}}
+                <span v-if="myMaterial.creator !== undefined && myMaterial.creator.name !== undefined">
+                    {{$t('pool.by')}} {{myMaterial.creator.name}}
+                </span>
 
                 <span v-if="myMaterial.author">{{$t('pool.resource-author-is', {name: myMaterial.author.title} )}}</span>
 
@@ -38,7 +42,8 @@
         <div class="row">
             <div class="col-lg-12" id="allTags">
 
-                <from-bot :from-bot="myMaterial.from_bot" @toggleRequest="submitFromBot(!myMaterial.from_bot)"></from-bot>
+                <from-bot :from-bot="myMaterial.from_bot"
+                          @toggleRequest="submitFromBot(!myMaterial.from_bot)"></from-bot>
 
                 <div v-for="tag in keywordsAndBibleveres" :key="tag.is + tag.id" class="tag-wrapper">
                     <keyword
@@ -82,7 +87,7 @@
             </div>
         </div>
 
-        <div class="row" v-if="myMaterial.resources.length >0">
+        <div class="row" v-if="myMaterial.resources !== undefined && myMaterial.resources.length >0">
             <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12" v-for="resource in myMaterial.resources">
                 <resource :resource="resource"></resource>
             </div>
@@ -98,6 +103,7 @@
     import resource from './../resource/resource.vue';
     import edditableText from './../edditable.vue';
     import fromBot from './../fromBot.vue';
+    import flashMessage from 'vue-flash-message';
     // https://github.com/craigh411/vue-star-rating/#props
     import starRating from 'vue-star-rating';
 
@@ -266,7 +272,8 @@
             resource,
             edditableText,
             starRating,
-            fromBot
+            fromBot,
+            flashMessage
         },
 
         created() {
@@ -292,8 +299,8 @@
         font-size: smaller;
     }
 
-    .tag-wrapper{
-        display:inline-block;
+    .tag-wrapper {
+        display: inline-block;
     }
 
     .flashMessageHolder {

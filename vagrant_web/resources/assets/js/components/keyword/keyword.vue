@@ -240,7 +240,6 @@
             },
 
             goToKeywordSearch() {
-                console.log('Go to search');
                 window.location.href = this.searchLink;
             }
 

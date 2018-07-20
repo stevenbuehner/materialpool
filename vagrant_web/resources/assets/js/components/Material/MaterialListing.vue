@@ -18,7 +18,7 @@
         props: ['materials'],
 
         components: {
-            material: MaterialListingItem
+            material: MaterialListingItem,
         }
     }
 </script>
