@@ -3,11 +3,17 @@
         <div class="btn btn-sm btn-secondary sb-bibleverse"
              :class="{'tag-readonly' : !editable, 'tag-editable' : editable}"
              @mousedown.left.prevent="startDrag"
+             @click.right.prevent="$refs.menu.openMenu($event)"
              :style="{color: theme.colors.color, backgroundColor: theme.colors.background}">
             <div class="sb-progress-bar" :style="styleObject"></div>
             <span class="icon" :style="{backgroundImage: 'url('+ bibleverse.icon+')'}"></span>
             <span class="text">{{ bibleverse.label }}</span>
         </div>
+
+        <context-menu ref="menu">
+            <context-menu-item @click="">Suche nach '{{bibleverse.label}}'</context-menu-item>
+            <context-menu-item v-if="editable" @click="">Bibelstelle bearbeiten</context-menu-item>
+        </context-menu>
     </div>
 </template>
 
@@ -16,6 +22,8 @@
 
     import {draggingSupport} from "../keyword/dragging.mixin";
     import {tagging} from './../theme';
+    import contextMenu from './../context-menu/context-menu.vue';
+    import contextMenuItem from "../context-menu/context-menu-item.vue";
 
     import axios from 'axios';
 
@@ -124,6 +132,11 @@
 
             },
         },
+
+        components: {
+            contextMenu,
+            contextMenuItem
+        }
 
     }
 

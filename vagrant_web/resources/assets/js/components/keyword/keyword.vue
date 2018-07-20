@@ -43,7 +43,6 @@
         <context-menu ref="menu">
             <context-menu-item @click="goToKeywordSearch">Suche nach '{{keyword.title}}'</context-menu-item>
             <context-menu-item v-if="editable" @click="openKeywordEditModal">Alle Tags umbenennen</context-menu-item>
-            <context-menu-item disabled>Deaktiviert</context-menu-item>
         </context-menu>
 
     </div>
