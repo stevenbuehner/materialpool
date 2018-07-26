@@ -7,8 +7,8 @@
              role="button"
              :style="{color: theme.colors.color, backgroundColor: theme.colors.background}">
             <div v-if="hasPivot" class="sb-progress-bar" :style="styleObject"></div>
-            <span class="icon" :style="{backgroundImage : 'url(' + keyword.icon + ')'}"></span>
-            <span class="text">{{ keyword.title }}</span>
+            <span class="icon" :style="{backgroundImage : 'url(' + myKeyword.icon + ')'}"></span>
+            <span class="text">{{ myKeyword.title }}</span>
         </div>
 
         <b-modal ref="editKeyword" title="Edit Keyword" @ok="storeModalChanges">
@@ -22,7 +22,7 @@
                                 name="keywordText"
                                 id="keywordText"
                                 type="text"
-                                v-model="modifiedKeyword.title"
+                                v-model="modifiedKeywordData.title"
                                 autofocus
                         ></b-form-input>
                     </div>
@@ -41,7 +41,7 @@
 
 
         <context-menu ref="menu">
-            <context-menu-item @click="goToKeywordSearch">Suche nach '{{keyword.title}}'</context-menu-item>
+            <context-menu-item @click="goToKeywordSearch">Suche nach '{{myKeyword.title}}'</context-menu-item>
             <context-menu-item v-if="editable" @click="openKeywordEditModal">Alle Tags umbenennen</context-menu-item>
         </context-menu>
 
@@ -66,6 +66,7 @@
         ],
 
         props: {
+            // Passing in only. Later working with myKeyword (data)
             keyword: {
                 type: Object,
                 required: true
@@ -93,11 +94,17 @@
             }
         },
 
+        model: {
+            prop: 'keyword',
+            event: 'saved'
+        },
+
 
         data: function () {
             return {
                 menuIsOpen: false,
-                modifiedKeyword: {},
+                modifiedKeywordData: {},
+                myKeyword: {}
             };
         },
 
@@ -108,19 +115,19 @@
             },
 
             searchLink() {
-                return '/pool/keyword/' + this.keyword.lc_title;
+                return '/pool/keyword/' + this.myKeyword.lc_title;
             },
 
             relevance() {
                 if (this.dragging.ongoing === true) {
                     return this.dragDifference;
                 } else {
-                    return this.keyword.pivot.relevance;
+                    return this.myKeyword.pivot.relevance;
                 }
             },
 
             hasPivot() {
-                return this.keyword.pivot !== undefined && this.keyword.pivot.relevance !== undefined;
+                return this.myKeyword.pivot !== undefined && this.myKeyword.pivot.relevance !== undefined;
             },
 
 
@@ -132,11 +139,11 @@
             },
 
             keywordUpdateApiUrl() {
-                return '/api/v1/keywords/' + this.keyword.id;
+                return '/api/v1/keywords/' + this.myKeyword.id;
             },
 
             keywordUpdatePivotApiUrl() {
-                return '/api/v1/material/' + this.materialId + '/keyword/' + this.keyword.id;
+                return '/api/v1/material/' + this.materialId + '/keyword/' + this.myKeyword.id;
             },
 
         },
@@ -144,18 +151,21 @@
         created: function () {
 
             // Clone the parts that may be eddited
-            this.modifiedKeyword = {
+            this.modifiedKeywordData = {
                 title: this.keyword.title,
             };
+
+            // Needs to be copied. Because any changes in properties are not recognized in computed properties
+            this.myKeyword = JSON.parse(JSON.stringify(this.keyword));
 
         },
 
         methods: {
 
             storeModalChanges() {
-                if (this.keyword.title != this.modifiedKeyword.title) {
-                    // this.$emit('dataChanged', {title: this.modifiedKeyword.title});
-                    this.updateKeywordData({title: this.modifiedKeyword.title})
+                if (this.myKeyword.title != this.modifiedKeywordData.title) {
+                    // this.$emit('dataChanged', {title: this.modifiedKeywordData.title});
+                    this.updateKeywordData({title: this.modifiedKeywordData.title})
                 }
             },
 
@@ -167,26 +177,22 @@
 
                 return axios.post(this.keywordUpdateApiUrl, properties)
                     .then((response) => {
-                            // on success
 
-                            // Update this keyword directly
+
                             for (let i in properties) {
                                 if (i !== 'PUT' && response.data[i] !== undefined) {
-                                    this.keyword[i] = response.data[i];
+                                    this.myKeyword[i] = response.data[i];
                                 }
                             }
 
-                            // And also offer the parent the option to update the data
-                            // The parent may then repopulate the props.keyword
-                            this.$emit('saved', {
-                                oldKeyword: this.keyword,
-                                newKeyword: {...response.data, pivot: this.keyword.pivot} // response misses pivot-data
-                            });
+                            this.emitSaved(myKeyword);
+
                         }
                     ).catch((response) => {
+
                         // on failure
                         this.$emit('savingError', {
-                            tag: this.keyword, // "Tag" is used for bibleverses and keywords
+                            tag: this.myKeyword, // "Tag" is used for bibleverses and keywords
                             msg: this.parseResponseErrors(response.response)
                         });
                     });
@@ -200,25 +206,23 @@
 
                 return axios.post(this.keywordUpdatePivotApiUrl, pivot)
                     .then((response) => {
-                            // on success
 
-                            // Update this keyword directly
-                            this.keyword.pivot = response.data.pivot;
+                            this.myKeyword.pivot = response.data.pivot;
 
-                            // And also offer the parent the option to update the data
-                            // The parent may then repopulate the props.keyword
-                            this.$emit('savedPivot', {
-                                oldKeyword: this.keyword,
-                                newKeyword: response.data // response contains pivot-data
-                            });
+                            this.emitSaved(this.myKeyword);
+
                         }
                     ).catch((response) => {
                         // on failure
                         this.$emit('savingPivotError', {
-                            tag: this.keyword,  // "tag" is used for bibleverses and keywords
+                            tag: this.myKeyword,  // "tag" is used for bibleverses and keywords
                             msg: this.parseResponseErrors(response.response)
                         });
                     });
+            },
+
+            emitSaved(newKeyword) {
+                this.$emit('saved', newKeyword);
             },
 
             parseResponseErrors(response) {
@@ -231,7 +235,6 @@
                 }
 
                 return msg;
-
             },
 
 

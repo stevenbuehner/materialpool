@@ -6,12 +6,12 @@
              @click.right.prevent="$refs.menu.openMenu($event)"
              :style="{color: theme.colors.color, backgroundColor: theme.colors.background}">
             <div class="sb-progress-bar" :style="styleObject"></div>
-            <span class="icon" :style="{backgroundImage: 'url('+ bibleverse.icon+')'}"></span>
-            <span class="text">{{ bibleverse.label }}</span>
+            <span class="icon" :style="{backgroundImage: 'url('+ myBibleverse.icon+')'}"></span>
+            <span class="text">{{ myBibleverse.label }}</span>
         </div>
 
         <context-menu ref="menu">
-            <context-menu-item @click="">Suche nach '{{bibleverse.label}}'</context-menu-item>
+            <context-menu-item @click="">Suche nach '{{myBibleverse.label}}'</context-menu-item>
             <context-menu-item v-if="editable" @click="">Bibelstelle bearbeiten</context-menu-item>
         </context-menu>
     </div>
@@ -58,8 +58,16 @@
         },
 
 
+        model: {
+            prop: 'bibleverse',
+            event: 'saved'
+        },
+
+
         data: function () {
-            return {};
+            return {
+                myBibleverse: {},
+            };
         },
 
         computed: {
@@ -72,7 +80,7 @@
                 if (this.dragging.ongoing === true) {
                     return this.dragDifference;
                 } else {
-                    return this.bibleverse.pivot.relevance;
+                    return this.myBibleverse.pivot.relevance;
                 }
             },
             styleObject: function () {
@@ -82,13 +90,14 @@
                 }
             },
             bibleverseUpdatePivotApiUrl() {
-                return '/api/v1/material/' + this.materialId + '/bibleverse/' + this.bibleverse.id;
+                return '/api/v1/material/' + this.materialId + '/bibleverse/' + this.myBibleverse.id;
             },
         },
 
         created: function () {
 
-
+            // Needs to be copied. Because any changes in properties are not recognized in computed properties
+            this.myBibleverse = JSON.parse(JSON.stringify(this.bibleverse));
         },
 
         methods: {
@@ -102,18 +111,14 @@
                             // on success
 
                             // Update this bibleverse data directly
-                            this.bibleverse.pivot = response.data.pivot;
+                            this.myBibleverse.pivot = response.data.pivot;
 
-                            // And also offer the parent the option to update the data
-                            // The parent may then repopulate the props.bibleverse
-                            this.$emit('savedPivot', {
-                                oldBibleverse: this.bibleverse,
-                                newBibleverse: response.data // response contains pivot-data
-                            });
+                            this.emitSaved(this.myBibleverse);
+
                         }
                     ).catch((response) => {
                         this.$emit('savingPivotError', {
-                            tag: this.bibleverse,  // "tag" is used for bibleverses and keywords
+                            tag: this.myBibleverse,  // "tag" is used for bibleverses and keywords
                             msg: this.parseResponseErrors(response.response)
                         });
                     });
@@ -130,6 +135,10 @@
 
                 return msg;
 
+            },
+
+            emitSaved(newBibleverse) {
+                this.$emit('saved', newBibleverse);
             },
         },
 

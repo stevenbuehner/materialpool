@@ -2,11 +2,13 @@
     <div>
         <flash-message class="flashMessageHolder col-md-4 col-sm-6 col-lg-3 col-xs-12">This is some test</flash-message>
 
-        <edditable-text type="h1"
-                        :value="myMaterial.title"
-                        @value-changed="submitTitle"
-                        classes="materialTitle"
-                        placeholder="Please enter a title here ..."></edditable-text>
+        <edditable-text
+                type="h1"
+                :value="myMaterial.title"
+                @value-changed="submitTitle"
+                classes="materialTitle"
+                placeholder="Please enter a title here ...">
+        </edditable-text>
 
 
         <div class="meta row">
@@ -20,8 +22,7 @@
                         :inline="true"
                         @rating-selected="submitRating"
                         text-class="starRatingText"
-                        :rating="myMaterial.rating"
-                >
+                        :rating="myMaterial.rating">
                 </star-rating>
 
                 Contains
@@ -40,40 +41,41 @@
         </div>
 
         <div class="row">
-            <div class="col-lg-12" id="allTags">
+            <div class="col-lg-12" id="allTags" v-if="!editTagsModeEnabled">
 
                 <from-bot :from-bot="myMaterial.from_bot"
                           @toggleRequest="submitFromBot(!myMaterial.from_bot)"></from-bot>
 
-                <div v-for="tag in keywordsAndBibleveres" :key="tag.is + tag.id" class="tag-wrapper">
-                    <keyword
-                            v-if="tag.is=='keyword'"
-                            :keyword="tag"
+                <keyword v-for="(tag, key) in material.keywords" :key="'k' + tag.id"
+                         v-model="material.keywords[key]"
+                         :material-id="myMaterial.id"
+                         :editable="editable"
+                         @saving="flashStartSaving('Keyword')"
+                         @savingPivot="flashStartSaving('Keyword Piot')"
+                         @savingError="flashUpdateTagError"
+                         @savingPivotError="flashUpdateTagError"
+                ></keyword>
+
+                <bibleverse v-for="(tag, key) in material.bibleverses" :key="'b' + tag.id"
+                            v-model="material.bibleverses[key]"
                             :material-id="myMaterial.id"
                             :editable="editable"
-                            @saving="flashStartSaving('Keyword')"
-                            @savingPivot="flashStartSaving('Keyword Piot')"
-                            @saved="keywordUpdated"
-                            @savedPivot="keywordUpdated"
-                            @savingError="tagUpdateError"
-                            @savingPivotError="tagUpdateError"
-                    ></keyword>
+                            @saving="flashStartSaving('Bibleverse')"
+                            @savingPivot="flashStartSaving('Bibleverse Piot')"
+                            @savingError="flashUpdateTagError"
+                            @savingPivotError="flashUpdateTagError"
+                ></bibleverse>
 
-                    <bibleverse v-if="tag.is =='bibleverse'"
-                                :bibleverse="tag"
-                                :material-id="myMaterial.id"
-                                :editable="editable"
-                                @saving="flashStartSaving('Bibleverse')"
-                                @savingPivot="flashStartSaving('Bibleverse Piot')"
-                                @saved="bibleverseUpdated"
-                                @savedPivot="bibleverseUpdated"
-                                @savingError="tagUpdateError"
-                                @savingPivotError="tagUpdateError"
-
-                    ></bibleverse>
+                <div class="btn btn-sm btn-primary" v-if="keywordsAndBibleveres.length === 0 && editable === true">Tags
+                    hinzufügen
                 </div>
 
+            </div>
 
+            <div class="col col-lg-12 mb-2" v-else>
+                <keyword-input :keywords="myMaterial.keywords"
+                               :material-id="myMaterial.id"
+                ></keyword-input>
             </div>
         </div>
 
@@ -99,15 +101,16 @@
 
 <script>
     import keyword from './../keyword/keyword.vue';
+    import keywordInput from './../keyword/keywordInput.vue';
     import bibleverse from './../bibleverse/biblevers.vue';
     import resource from './../resource/resource.vue';
     import edditableText from './../edditable.vue';
     import fromBot from './../fromBot.vue';
-    import flashMessage from 'vue-flash-message';
-    // https://github.com/craigh411/vue-star-rating/#props
     import starRating from 'vue-star-rating';
-
     import axios from 'axios';
+
+
+    // https://github.com/craigh411/vue-star-rating/#props
 
     export default {
         name: "MaterialApp",
@@ -121,12 +124,14 @@
                 required: false,
                 type: Boolean,
                 default: true
-            }
+            },
+
         },
 
         data() {
             return {
-                myMaterial: {}
+                myMaterial: {},
+                editTagsModeEnabled: false,
             };
         },
 
@@ -204,22 +209,6 @@
 
             },
 
-            keywordUpdated({newKeyword, oldKeyword}) {
-
-                // Success
-                const index = this.myMaterial.keywords.findIndex((kw) => {
-                    return kw.id === oldKeyword.id;
-                });
-
-                if (index !== -1) {
-                    this.myMaterial.keywords.splice(index, 1, newKeyword); // https://vuejs.org/2016/02/06/common-gotchas/
-                    this.flashSaved('Keyword "' + newKeyword.title + '"');
-                } else {
-                    console.error('Renamed keyword was not found in Array!');
-                }
-
-            },
-
             bibleverseUpdated({oldBibleverse, newBibleverse}) {
 
                 // Success
@@ -236,7 +225,7 @@
 
             },
 
-            tagUpdateError({tag, msg}) {
+            flashUpdateTagError({tag, msg}) {
                 this.flash(msg, 'error', {})
             },
 
@@ -262,18 +251,17 @@
                 });
             }
 
-
         },
 
 
         components: {
             keyword,
+            keywordInput,
             bibleverse,
             resource,
             edditableText,
             starRating,
-            fromBot,
-            flashMessage
+            fromBot
         },
 
         created() {
@@ -291,21 +279,14 @@
 </style>
 
 <style>
-    .materialTitle {
-        font-size: 2em;
-    }
-
     .starRatingText {
         font-size: smaller;
-    }
-
-    .tag-wrapper {
-        display: inline-block;
     }
 
     .flashMessageHolder {
         position: fixed;
         top: 1em;
         right: 1em;
+        z-index: 1000;
     }
 </style>

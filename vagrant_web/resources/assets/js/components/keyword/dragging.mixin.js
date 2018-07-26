@@ -46,8 +46,16 @@ export const draggingSupport = {
                 && event /* Event exists when dragging was not canceled */
             ) {
                 this.doDrag(event); // Use the last mouse coordinates
-                this.updatePivot({relevance: this.dragDifference});
+
                 this.dragging.ongoing = false;
+
+                if (this.dragging.xEnd === this.dragging.xStart) {
+                    // Don't call an Pivot update - this was only a missdirected single click
+                    // To set the relevance = 0 we can use negative direction
+                } else {
+                    this.updatePivot({relevance: this.dragDifference});
+                }
+
             }
 
 
