@@ -108,6 +108,7 @@
     import fromBot from './../fromBot.vue';
     import starRating from 'vue-star-rating';
     import axios from 'axios';
+    import {materialUpdateRoute} from './../serverRoutes';
 
 
     // https://github.com/craigh411/vue-star-rating/#props
@@ -136,9 +137,6 @@
         },
 
         computed: {
-            materialApiUrl() {
-                return '/api/v1/materials/' + this.myMaterial.id;
-            },
 
             keywordsAndBibleveres() {
 
@@ -182,7 +180,7 @@
 
                 data._method = 'PUT';
 
-                const result = axios.post(this.materialApiUrl, data);
+                const result = axios.post(materialUpdateRoute(this.materialId.id), data);
 
                 if (propertyName) {
                     const startSavingMessage = this.flashStartSaving(propertyName);

@@ -24,6 +24,7 @@
     import {tagging} from './../theme';
     import contextMenu from './../context-menu/context-menu.vue';
     import contextMenuItem from "../context-menu/context-menu-item.vue";
+    import {bibleverseUpdatePivotRoute} from './../serverRoutes';
 
     import axios from 'axios';
 
@@ -88,10 +89,7 @@
                     width: this.relevance / 300 * 100 + '%',
                     backgroundColor: this.dragging.ongoing === true ? this.theme.colors.progressbar.dragging : this.theme.colors.progressbar.default,
                 }
-            },
-            bibleverseUpdatePivotApiUrl() {
-                return '/api/v1/material/' + this.materialId + '/bibleverse/' + this.myBibleverse.id;
-            },
+            }
         },
 
         created: function () {
@@ -106,7 +104,7 @@
 
                 pivot._method = 'PUT';
 
-                return axios.post(this.bibleverseUpdatePivotApiUrl, pivot)
+                return axios.post(bibleverseUpdatePivotRoute(this.materialId, this.myBibleverse.id), pivot)
                     .then((response) => {
                             // on success
 

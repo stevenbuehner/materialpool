@@ -56,6 +56,7 @@
     import contextMenuItem from "../context-menu/context-menu-item.vue";
     import axios from 'axios';
     import {tagging} from './../theme';
+    import {keywordSearchLink, keywordUpdatePivotRoute, keywordUpdateRoute} from './../serverRoutes';
 
     import {draggingSupport} from "./dragging.mixin";
 
@@ -115,7 +116,7 @@
             },
 
             searchLink() {
-                return '/pool/keyword/' + this.myKeyword.lc_title;
+                return keywordSearchLink(this.myKeyword);
             },
 
             relevance() {
@@ -136,14 +137,6 @@
                     width: this.relevance / 300 * 100 + '%',
                     backgroundColor: this.dragging.ongoing === true ? this.theme.colors.progressbar.dragging : this.theme.colors.progressbar.default,
                 }
-            },
-
-            keywordUpdateApiUrl() {
-                return '/api/v1/keywords/' + this.myKeyword.id;
-            },
-
-            keywordUpdatePivotApiUrl() {
-                return '/api/v1/material/' + this.materialId + '/keyword/' + this.myKeyword.id;
             },
 
         },
@@ -175,7 +168,7 @@
 
                 properties._method = 'PUT';
 
-                return axios.post(this.keywordUpdateApiUrl, properties)
+                return axios.post(keywordUpdateRoute(this.myKeyword.id), properties)
                     .then((response) => {
 
 
@@ -204,7 +197,7 @@
 
                 pivot._method = 'PUT';
 
-                return axios.post(this.keywordUpdatePivotApiUrl, pivot)
+                return axios.post(keywordUpdatePivotRoute(this.materialId, this.myKeyword.id), pivot)
                     .then((response) => {
 
                             this.myKeyword.pivot = response.data.pivot;
