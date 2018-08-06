@@ -1,5 +1,5 @@
 <template>
-    <div v-if="!editNow" @click="startEdditing" class="displayArea">
+    <div v-if="!editNow" @dblclick.prevent="startEdditing" class="displayArea">
         <component :is="type" :class="classes">
             {{text}}
             <div v-if="text === ''" class="missingTextPlaceholder">{{placeholder}}</div>

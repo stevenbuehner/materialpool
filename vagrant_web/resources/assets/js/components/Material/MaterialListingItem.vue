@@ -1,5 +1,7 @@
 <template>
-    <div class="material" @click.prevent="goToMaterial">
+    <div class="material"
+         @click.prevent="openMaterialModal"
+         @dblclick.prevent="goToMaterial">
         <div class="head">
             <div class="title">{{material.title}}</div>
             <small class="meta-info">
@@ -9,14 +11,14 @@
         </div>
         <div class="tags">
             <keyword v-for="keyword in material.keywords"
-                     :key="keyword.id"
+                     :key="'k' + keyword.id"
                      :keyword="keyword"
                      :materialId="material.id"
                      :editable="false"
                      size="mini"></keyword>
             <biblevers
                     v-for="bibleverse in material.bibleverses"
-                    :key="bibleverse.id"
+                    :key="'b' + bibleverse.id"
                     :bibleverse="bibleverse"
                     :materialId="material.id"
                     :editable="false"
@@ -49,8 +51,17 @@
         },
 
         methods: {
-            goToMaterial() {
+            openMaterialModal() {
                 this.$refs.materialDetail.show();
+            },
+
+            goToMaterial() {
+                this.$router.push(
+                    {
+                        name: 'material-detail',
+                        params: {id: this.material.id}
+                    }
+                );
             }
         },
 

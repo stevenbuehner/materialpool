@@ -113,6 +113,101 @@ class SearchController extends Controller {
 		return $paginator;
 	}
 
+
+	public function guess2(Request $request) {
+		/** @var BibleVerseService $bibleVerseExtraction */
+		$queryString          = $request->get('q', '');
+		$queryString          = str_replace('%', '*', $queryString);
+		$queryPage            = $request->get('page', 1);
+		$paginationSize       = 15;
+		$bibleVerseExtraction = resolve('BibleVerseService');
+		$result               = collect();
+
+
+		// Wildcard Search
+		/*
+		$result->push(
+			[
+				'text'  => $queryString,
+				'icon'  => '/img/icons/ayce.svg',
+				'type'  => '*',
+				'query' => [
+					'type' => '*',
+					'text' => $queryString
+				]
+			]
+		);
+		*/
+
+
+		// Search For Bibleverses
+		$verses = $bibleVerseExtraction->stringToBibleVerse($queryString);
+
+		foreach ($verses as $b) {
+			$bModel = Bibleverse::findOrNewFromBibleverseInterface($b);
+			$result->push(
+				[
+					'type'  => 'b',
+					'query' => [
+						'type' => 'b',
+						'from' => $bModel->from,
+						'to'   => $bModel->to
+					],
+					'item'  => $bModel
+				]
+			);
+		}
+
+
+		$restString = $bibleVerseExtraction->getLastRestString();
+
+		$resultTotalCount = $result->count();
+
+		if ($resultTotalCount > ($paginationSize * $queryPage)) {
+			// Dony Query but limit the $result
+			$result = $result->splice(($paginationSize) * ($queryPage - 1), $paginationSize);
+		} else {
+			$takeFromResult = max(0, $resultTotalCount - $paginationSize * ($queryPage - 1));
+			$takeFromQuery  = $paginationSize - $takeFromResult;
+
+			if ($takeFromResult > 0) {
+				$result = $result->splice(($paginationSize) * ($queryPage - 1), $takeFromResult);
+			} else {
+				$result = collect();
+			}
+
+			if ($takeFromQuery > 0) {
+				$offset = max(0, ($paginationSize * ($queryPage - 1)) - $resultTotalCount);
+
+				// Search for Keywords
+				$query = Keyword::searchQuery($restString)
+								->offset($offset)
+								->limit($takeFromQuery)
+								->get();
+
+				$query->each(function (Keyword $keyword) use ($result) {
+					$result->push(
+						[
+							'type'  => 'k',
+							'query' => [
+								'type' => 'k',
+								'id'   => $keyword->id
+							],
+							'item'  => $keyword
+						]
+					);
+				});
+			}
+		}
+
+
+		$paginator = new Paginator($result, $paginationSize, $queryPage);
+		$paginator->hasMorePagesWhen($result->count() == $paginationSize);
+		$paginator->setPath(url()->current());
+
+		return $paginator;
+	}
+
 	public function get(Request $request) {
 		$query = $this->turnRequestIntoQuery($request);
 

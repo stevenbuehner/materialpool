@@ -1,6 +1,5 @@
 <template>
     <vue-select class="v-select"
-                id="searchInput"
                 name="searchInput"
                 :options="options"
                 @search="onSearch"
@@ -34,10 +33,17 @@
 <script>
     import vueSelect from 'vue-select';
     import axios from 'axios';
+    import {searchGuessRoute} from "./../serverRoutes";
 
     export default {
 
-        props: {},
+        props: {
+            preselectedOptions: {
+                type: Array,
+                default: [],
+                required: false
+            }
+        },
 
         data() {
             return {
@@ -48,11 +54,7 @@
         },
 
 
-        computed: {
-            autocompleteUrl() {
-                return '/pool/search/guess';
-            }
-        },
+        computed: {},
 
         watch: {
             selectedValues(after, before) {
@@ -76,25 +78,27 @@
 
                 let data = {q: search};
 
-                axios.get(vm.autocompleteUrl, {params: data})
+                axios.get(searchGuessRoute, {params: data})
                     .then(({data}) => {
                         vm.options = data.data;
                     })
                     .catch((response) => {
-                        console.error(reponse);
+                        console.error(response);
                     })
                     .then(() => {
                         // Always
                         loading(false);
                     });
 
-            }, 350),
+            }, 250),
 
 
         },
 
         created() {
-
+            if (this.preselectedOptions.length > 0) {
+                this.selectedValues = this.preselectedOptions;
+            }
         },
 
         components: {
@@ -107,7 +111,7 @@
 <style>
     .selected-tag .close {
         margin-left: 0.25rem;
-        top:-.15rem;
+        top: -.15rem;
         position: relative;
     }
 </style>
@@ -154,6 +158,6 @@
     }
 
     .v-select .dropdown-menu .active > a {
-         color: green;
+        color: green;
     }
 </style>

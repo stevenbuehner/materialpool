@@ -4,7 +4,7 @@
         <hr>
         <searchbar-outcome :materials="materials"></searchbar-outcome>
         <hr>
-        <searchbar-footer></searchbar-footer>
+        <searchbar-footer :paging="paging"></searchbar-footer>
     </div>
 </template>
 
@@ -13,6 +13,7 @@
     import searchbarOutcome from './searchbarOutcome.vue';
     import searchbarFooter from './searchbarFooter.vue';
     import axios from 'axios';
+    import {searchUrl} from './../serverRoutes'
 
     export default {
         data() {
@@ -31,11 +32,7 @@
             };
         },
 
-        computed: {
-            getSearchUrl() {
-                return "/pool/search/get";
-            }
-        },
+        computed: {},
 
         methods: {
             updateMaterialList: function (searchData) {
@@ -46,7 +43,7 @@
                     page: 1
                 };
 
-                axios.post(this.getSearchUrl, data)
+                axios.post(searchUrl, data)
                     .then((response) => {
                         let result = response.data;
 

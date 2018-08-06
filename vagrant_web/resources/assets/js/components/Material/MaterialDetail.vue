@@ -109,7 +109,10 @@
     import starRating from 'vue-star-rating';
     import axios from 'axios';
     import {materialUpdateRoute} from './../serverRoutes';
+    import flashMessage from 'vue-flash-message';
+    import Vue from 'vue';
 
+    Vue.use(flashMessage);
 
     // https://github.com/craigh411/vue-star-rating/#props
 
@@ -180,7 +183,7 @@
 
                 data._method = 'PUT';
 
-                const result = axios.post(materialUpdateRoute(this.materialId.id), data);
+                const result = axios.post(materialUpdateRoute(this.material.id), data);
 
                 if (propertyName) {
                     const startSavingMessage = this.flashStartSaving(propertyName);

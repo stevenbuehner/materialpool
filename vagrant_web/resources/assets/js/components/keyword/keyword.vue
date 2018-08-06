@@ -4,6 +4,7 @@
              :class="{'tag-readonly' : !editable, 'tag-editable' : editable}"
              @click.right.prevent="$refs.menu.openMenu($event)"
              @mousedown.left.prevent="startDrag"
+             @dblclick.prevent="openKeywordEditModal"
              role="button"
              :style="{color: theme.colors.color, backgroundColor: theme.colors.background}">
             <div v-if="hasPivot" class="sb-progress-bar" :style="styleObject"></div>
@@ -232,7 +233,9 @@
 
 
             openKeywordEditModal() {
-                this.$refs.editKeyword.show();
+                if (this.editable === true) {
+                    this.$refs.editKeyword.show();
+                }
             },
 
             goToKeywordSearch() {

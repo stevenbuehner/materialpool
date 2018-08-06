@@ -4,23 +4,10 @@
 
     @php
 
-        $resources = [];
+        $mph = new \App\Http\View\Helpers\MaterialPreviewHelper();
+        $arMat = $mph->materialToArray($material, ['previewable']);
 
-        /** @var \App\Models\Resource $resource */
-        foreach($material->resources as $resource){
-            $data = $resource->toArray();
-            $prevGen = $resource->getPreviewGenerator();
-            $data['previewable'] = [
-                'image' => $prevGen->imagePreviewAble($resource),
-                'html' => $prevGen->htmlPreviewAble($resource)
-            ];
-            $resources[] = $data;
-        }
-
-        $arMat = $material->toArray();
-        $arMat['resources'] = $resources;
-
-       // JavaScript::put(['material' => $arMat])
+        //         JavaScript::put(['material' => $arMat])
     @endphp
 
     <div id="app">

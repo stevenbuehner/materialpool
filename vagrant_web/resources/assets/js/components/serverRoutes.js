@@ -21,3 +21,6 @@ export const keywordSearchLink = (keyword) => {
 export const bibleverseUpdatePivotRoute = (materialId, bibleverseId) => {
     return '/api/v1/material/' + materialId + '/bibleverse/' + bibleverseId;
 };
+
+// Search
+export const searchUrl = '/pool/search/get';
