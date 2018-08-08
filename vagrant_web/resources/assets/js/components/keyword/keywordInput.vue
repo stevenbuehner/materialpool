@@ -1,52 +1,59 @@
 <template>
-    <div>
-        <vue-select class="v-select"
-                    multiple
-                    placeholder="Text eingeben"
-                    :options="selectableOptions"
-                    v-model="myTags"
-                    :push-tags="true"
-                    @search="onSearch"
-                    language="de-DE"
-        >
-            <template slot="no-options">
-                Gib einen Suchbegriff ein
-            </template>
+    <div class="card">
 
-            <template slot="option" slot-scope="option" label="test">
-                <div class="d-center">
-                    {{option}}
-                </div>
-            </template>
+        <div class="card-header">
+            <keyword v-for="kw in myKeywords"
+                     :key="getKeywordkey(kw)"
+                     :keyword="kw"
+                     :material-id="materialId"
+                     :removeable="true"
+                     @removed="keywordRemoved"
+            ></keyword>
+        </div>
 
-            <template slot="selected-option" slot-scope="option">
-                <div class="selected d-center">
-                    <span class="icon" :style="{backgroundImage: 'url('+ option.item.icon+')'}"></span>
-                    <span v-if="option.type === 'b'" class="bibleverse">{{ option.item.label }}</span>
-                    <span v-if="option.type === 'k'" class="keyword">{{ option.item.title }}</span>
+        <div class="card-body">
+
+            <div class="input-group">
+                <input class="form-control" type="text" placeholder="Keywordtext hier eingeben"
+                       v-model="keywordInput">
+                <div class="input-group-append">
+                    <button class="btn btn-outline-secondary"
+                            type="button"
+                            :class="{'disabled' : keywordInput.length < 3}"
+                            @click="requestCreateNewKeyword"
+                    >Neu
+                    </button>
                 </div>
-            </template>
-        </vue-select>
+            </div>
+
+        </div>
+
+        <div class="card-footer" v-if="displayableSuggestedKeywords.length > 0">
+            <span v-if="stillLoading">Vorschläge werden gesucht ...</span>
+            <h4 v-if="suggestedKeywords.length > 0" class="suggestions">Weitere Vorschläge</h4>
+            <button type="button"
+                    class="btn btn-outline-secondary btn-sm mr-1 mb-1"
+                    v-for="kw in displayableSuggestedKeywords"
+                    :key="'s' + kw.id"
+                    @click="requestAddKeyword(kw)"
+            >{{kw.title}}
+            </button>
+        </div>
+
     </div>
 </template>
 
 <script>
     import vueSelect from 'vue-select';
-    import {searchGuessRoute2} from "./../serverRoutes";
+    import {createKeywordRoute, materialAddKeywordRoute, searchGuessKeywords} from "./../serverRoutes";
     import axios from 'axios';
+    import keyword from './../keyword/keyword.vue';
 
     export default {
 
         props: {
+            // Only passing in. Later working with myKeywords
             keywords: {
-                type: Array,
-                required: false,
-                default() {
-                    return [];
-                }
-            },
-
-            bibleverses: {
                 type: Array,
                 required: false,
                 default() {
@@ -60,20 +67,70 @@
             }
         },
 
+        model: {
+            prop: 'keywords',
+            event: 'updated'
+        },
+
         data() {
             return {
-                selectableOptions: [],
-                myTags: []
+                myKeywords: [],
+
+                keywordInput: '',
+
+                stillLoading: false,
+                suggestedKeywords: [],
+
             };
         },
 
-        computed: {},
+        computed: {
+
+            myKeywordIds() {
+                return this.myKeywords.map((el) => {
+                    return el.id;
+                });
+            },
+
+            displayableSuggestedKeywords() {
+                return this.suggestedKeywords.filter((el) => {
+                    for (let i in this.myKeywordIds) {
+                        if (el.id === this.myKeywordIds[i]) {
+                            return false;
+                        }
+                    }
+
+                    return true;
+                });
+            }
+
+        },
+
+        watch: {
+            keywordInput(newValue, oldValue) {
+                this.setStillLoading(true);
+                this.search(this.setStillLoading, newValue, this);
+            }
+        },
 
         methods: {
-            onSearch(search, loading) {
-                loading(true);
-                this.search(loading, search, this);
+            getKeywordkey(kw) {
+
+                let k = kw.id;
+
+                if (kw.pivot !== undefined && kw.pivot.relevance !== undefined) {
+                    k = k + 'r' + kw.pivot.relevance;
+                } else {
+                    k = k + 'un';
+                }
+
+                return k;
             },
+
+            setStillLoading(isLoading) {
+                this.stillLoading = isLoading;
+            },
+
 
             // _.debounce is a function provided by lodash to limit how
             // often a particularly expensive operation can be run.
@@ -84,9 +141,9 @@
 
                 let data = {q: search};
 
-                axios.get(searchGuessRoute2, {params: data})
+                axios.get(searchGuessKeywords, {params: data})
                     .then(({data}) => {
-                        vm.parseSearchResult(data.data);
+                        vm.parseSearchResult(data);
                     })
                     .catch((response) => {
                         console.error(response);
@@ -98,49 +155,100 @@
 
             }, 250),
 
+
             parseSearchResult(data) {
-                this.selectableOptions = data;
+                this.suggestedKeywords = data;
+            },
+
+            requestCreateNewKeyword() {
+                this.createNewKeyword(this.keywordInput);
+                this.keywordInput = '';
+            },
+
+            createNewKeyword(title) {
+
+                let params = {
+                    title: title
+                };
+
+                axios.post(createKeywordRoute, params)
+                    .then(({data}) => {
+
+                        console.log('created Keyword');
+
+                        this.requestAddKeyword(data);
+                    })
+                    .catch((response) => {
+                        console.error(response);
+                    });
+            },
+
+            requestAddKeyword(kw) {
+
+                if (this.myKeywords.find((el) => {
+                    return el.id === kw.id;
+                }) === undefined) {
+                    this.doAddKeyword(kw, this.materialId);
+                }
+
+            },
+
+            doAddKeyword(kw, materialId) {
+
+                this.insertOrUpdateKeyword(kw);
+
+                let params = {
+                    _method: 'PUT'
+                };
+
+                axios.post(materialAddKeywordRoute(materialId, kw.id), params)
+                    .then(({data}) => {
+                        console.log('added Keyword');
+                        this.insertOrUpdateKeyword(data);
+                    })
+                    .catch((response) => {
+                        console.error(response);
+                    });
+
+            },
+
+            insertOrUpdateKeyword(kw) {
+                let foundIndex = this.myKeywords.findIndex((el) => {
+                    return el.id === kw.id;
+                });
+
+                if (foundIndex >= 0) {
+                    this.myKeywords.splice(foundIndex, 1, kw);
+                    // this.$set(this.myKeywords, foundIndex, kw)
+                } else {
+                    this.myKeywords.push(kw);
+                }
+
+                this.$emit('updated', this.myKeywords);
+            },
+
+            keywordRemoved(kw) {
+                let foundIndex = this.myKeywords.findIndex((el) => {
+                    return el.id === kw.id;
+                });
+
+                if (foundIndex > 0) {
+                    this.myKeywords.splice(foundIndex, 1);
+                }
             }
+
+
         },
 
         created() {
+
             // Deep Copy Keywords
-            let keywordsCopy = JSON.parse(JSON.stringify(this.keywords));
-
-            for (let i in keywordsCopy) {
-                this.myTags.push({
-                    type: 'k',
-                    /*
-                    query: {
-                        id: keywordsCopy[i].id,
-                        type: 'k'
-                    },
-                    */
-                    item: keywordsCopy[i]
-                })
-            }
-
-            // Deep Copy Bibleverses
-            let bibleversesCopy = JSON.parse(JSON.stringify(this.bibleverses));
-
-            for (let i in bibleversesCopy) {
-                this.myTags.push({
-                    type: 'b',
-                    /*
-                    query: {
-                        from: undefined,
-                        to: undefined,
-                        type: 'b'
-                    },
-                    */
-                    item: bibleversesCopy[i]
-                })
-            }
-
+            this.myKeywords = JSON.parse(JSON.stringify(this.keywords));
         },
 
         components: {
-            vueSelect
+            vueSelect,
+            keyword
         }
     }
 </script>
@@ -169,33 +277,9 @@
         margin-left: 0;
     }
 
-    img {
-        height: auto;
-        max-width: 2.5rem;
-        margin-right: 1rem;
-    }
+    .suggestions {
+        font-size: 1em;
+        font-weight: bold;
 
-    .d-center {
-        align-items: center;
-        display: inline-flex;
-    }
-
-    .v-select .dropdown li {
-        border-bottom: 1px solid rgba(112, 128, 144, 0.1);
-    }
-
-    .v-select .dropdown li:last-child {
-        border-bottom: none;
-    }
-
-    .v-select .dropdown li a {
-        padding: 10px 20px;
-        width: 100%;
-        font-size: 1.25em;
-        color: #3c3c3c;
-    }
-
-    .v-select .dropdown-menu .active > a {
-        color: green;
     }
 </style>

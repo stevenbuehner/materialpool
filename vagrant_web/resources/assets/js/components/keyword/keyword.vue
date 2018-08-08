@@ -44,6 +44,7 @@
         <context-menu ref="menu">
             <context-menu-item @click="goToKeywordSearch">Suche nach '{{myKeyword.title}}'</context-menu-item>
             <context-menu-item v-if="editable" @click="openKeywordEditModal">Alle Tags umbenennen</context-menu-item>
+            <context-menu-item v-if="removeable" @click="removeKeyword">Tag entfernen</context-menu-item>
         </context-menu>
 
     </div>
@@ -57,7 +58,12 @@
     import contextMenuItem from "../context-menu/context-menu-item.vue";
     import axios from 'axios';
     import {tagging} from './../theme';
-    import {keywordSearchLink, keywordUpdatePivotRoute, keywordUpdateRoute} from './../serverRoutes';
+    import {
+        keywordSearchLink,
+        keywordUpdatePivotRoute,
+        keywordUpdateRoute,
+        materialRemoveKeywordRoute
+    } from './../serverRoutes';
 
     import {draggingSupport} from "./dragging.mixin";
 
@@ -93,7 +99,12 @@
                 type: Boolean,
                 required: false,
                 default: true
-            }
+            },
+            removeable: {
+                type: Boolean,
+                required: false,
+                default: false
+            },
         },
 
         model: {
@@ -215,8 +226,29 @@
                     });
             },
 
+            removeKeyword() {
+
+                let params = {
+                    _method: 'DELETE'
+                };
+
+                axios.post(materialRemoveKeywordRoute(this.materialId, this.myKeyword.id), params)
+                    .then((response) => {
+                            this.emitRemoved();
+                        }
+                    ).catch((response) => {
+                    // on failure
+                    console.error('Failed to remove keyword', this.myKeyword)
+                });
+
+            },
+
             emitSaved(newKeyword) {
                 this.$emit('saved', newKeyword);
+            },
+
+            emitRemoved() {
+                this.$emit('removed', this.myKeyword);
             },
 
             parseResponseErrors(response) {

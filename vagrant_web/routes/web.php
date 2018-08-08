@@ -52,6 +52,8 @@ Route::group(['prefix' => 'pool', 'as' => 'pool.'], function () {
 		 ->name('searchbar.guess');
 	Route::get('search/guess2', 'SearchController@guess2')
 		 ->name('searchbar.guess2');
+	Route::get('search/guess/keywords', 'SearchController@guessKeywords')
+		 ->name('searchbar.guessKeywords');
 	Route::post('search/get', 'SearchController@get')
 		 ->name('searchbar.get');
 

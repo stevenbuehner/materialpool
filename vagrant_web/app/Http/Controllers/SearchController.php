@@ -208,6 +208,25 @@ class SearchController extends Controller {
 		return $paginator;
 	}
 
+
+	public function guessKeywords(Request $request) {
+
+		$queryString    = $request->get('q', '');
+		$queryString    = str_replace('%', '*', $queryString);
+		$queryPage      = $request->get('page', 1);
+		$paginationSize = 15;
+
+		$queryString = str_replace('%', '*', $queryString);
+
+		// Search for Keywords
+		$keywords = Keyword::searchQuery($queryString)
+						   ->offset(($paginationSize) * ($queryPage - 1))
+						   ->limit($paginationSize)
+						   ->get();
+
+		return $keywords;
+	}
+
 	public function get(Request $request) {
 		$query = $this->turnRequestIntoQuery($request);
 

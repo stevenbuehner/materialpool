@@ -41,23 +41,26 @@
         </div>
 
         <div class="row">
-            <div class="col-lg-12" id="allTags" v-if="!editTagsModeEnabled">
+            <div class="col-lg-11" id="allTags" v-if="!editTagsModeEnabled">
 
                 <from-bot :from-bot="myMaterial.from_bot"
                           @toggleRequest="submitFromBot(!myMaterial.from_bot)"></from-bot>
 
-                <keyword v-for="(tag, key) in material.keywords" :key="'k' + tag.id"
-                         v-model="material.keywords[key]"
+                <keyword v-for="(tag, key) in myMaterial.keywords"
+                         :key="'k' + tag.id"
+                         v-model="myMaterial.keywords[key]"
                          :material-id="myMaterial.id"
                          :editable="editable"
                          @saving="flashStartSaving('Keyword')"
                          @savingPivot="flashStartSaving('Keyword Piot')"
                          @savingError="flashUpdateTagError"
                          @savingPivotError="flashUpdateTagError"
+                         :removeable="true"
+                         @removed="removeKeyword(key)"
                 ></keyword>
 
-                <bibleverse v-for="(tag, key) in material.bibleverses" :key="'b' + tag.id"
-                            v-model="material.bibleverses[key]"
+                <bibleverse v-for="(tag, key) in myMaterial.bibleverses" :key="'b' + tag.id"
+                            v-model="myMaterial.bibleverses[key]"
                             :material-id="myMaterial.id"
                             :editable="editable"
                             @saving="flashStartSaving('Bibleverse')"
@@ -66,16 +69,26 @@
                             @savingPivotError="flashUpdateTagError"
                 ></bibleverse>
 
+
                 <div class="btn btn-sm btn-primary" v-if="keywordsAndBibleveres.length === 0 && editable === true">Tags
                     hinzufügen
                 </div>
 
             </div>
 
-            <div class="col col-lg-12 mb-2" v-else>
-                <keyword-input :keywords="myMaterial.keywords"
-                               :material-id="myMaterial.id"
+            <div class="col col-lg-11 mb-2" v-else>
+                <keyword-input
+                        v-model="myMaterial.keywords"
+                        :material-id="myMaterial.id"
                 ></keyword-input>
+            </div>
+            <div class="col col-lg-1 mb-2">
+                <span class="icon editIcon"
+                      v-if="editable && editTagsModeEnabled === false"
+                      @click="editTagsModeEnabled=true"></span>
+                <span class="icon doneIcon"
+                      v-if="editable && editTagsModeEnabled === true"
+                      @click="editTagsModeEnabled=false"></span>
             </div>
         </div>
 
@@ -210,6 +223,11 @@
 
             },
 
+            removeKeyword(index){
+                this.myMaterial.keywords.splice(index, 1);
+            },
+
+
             bibleverseUpdated({oldBibleverse, newBibleverse}) {
 
                 // Success
@@ -277,11 +295,23 @@
         font-size: smaller;
     }
 
-</style>
+    .icon {
+        background-repeat: no-repeat;
+        background-size: 0.8em;
+        display: inline-block;
+        width: 1em;
+        height: 1em;
+        position: relative;
+        top: 0.25em;
+        cursor: pointer;
+    }
 
-<style>
-    .starRatingText {
-        font-size: smaller;
+    .editIcon {
+        background-image: url("/img/icons/entypo-plus/lock.svg");
+    }
+
+    .doneIcon {
+        background-image: url("/img/icons/entypo-plus/lock-open.svg");
     }
 
     .flashMessageHolder {
@@ -290,4 +320,14 @@
         right: 1em;
         z-index: 1000;
     }
+
+
+</style>
+
+<style>
+    .starRatingText {
+        font-size: smaller;
+    }
+
+
 </style>
