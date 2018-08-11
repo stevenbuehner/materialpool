@@ -42,7 +42,7 @@
         </div>
 
         <div class="row">
-            <div class="col-lg-11" id="allTags" v-if="!editTagsModeEnabled">
+            <div class="col-lg-11 col-md-11 col-sm-11 col-11" id="allTags" v-if="!editTagsModeEnabled">
 
                 <from-bot :from-bot="myMaterial.from_bot"
                           @toggleRequest="submitFromBot(!myMaterial.from_bot)"></from-bot>
@@ -79,19 +79,19 @@
 
             </div>
 
-            <div class="col col-lg-6 mb-2" v-if="editTagsModeEnabled">
+            <div class="col col-md-6 col-sm-6 col-12 mb-2" v-if="editTagsModeEnabled">
                 <keyword-input
                         v-model="myMaterial.keywords"
                         :material-id="myMaterial.id"
                 ></keyword-input>
             </div>
-            <div class="col col-lg-5 mb-2" v-if="editTagsModeEnabled">
+            <div class="col col-md-5 col-sm-6 col-12 mb-2" v-if="editTagsModeEnabled">
                 <bibleverse-input
                         v-model="myMaterial.bibleverses"
                         :material-id="myMaterial.id"
                 ></bibleverse-input>
             </div>
-            <div class="col col-lg-1 mb-2">
+            <div class="col col-md-1 col-12 mb-2">
                 <span class="icon editIcon"
                       v-if="editable && editTagsModeEnabled === false"
                       @click="editTagsModeEnabled=true"></span>

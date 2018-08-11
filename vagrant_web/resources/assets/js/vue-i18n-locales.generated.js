@@ -1,9 +1,9 @@
 export default {
     "de": {
         "pool": {
-            "resource-count": "{0} keine Ressourcen|{1} 1 Resource|[2,*] {COUNT} Resourcen",
+            "resource-count": "{0} keine Ressourcen|{1} 1 Resource|{2,*} {COUNT} Resourcen",
             "material-count": "{0} keine Materialien |[1] {value} Material|[2,*] {value} Materialien",
-            "material-other-count": "{0} kein anderes Material|{1} 1 anderes Material|[2,*] {COUNT} andere Materialien",
+            "material-other-count": "{0} kein anderes Material|{1} 1 anderes Material|{2,*} {COUNT} andere Materialien",
             "material-other-assigned-material-pl": "{0} kein anderes Material ist dieser Ressource zugewiesen|{1} 1 anderes Material ist dieser Ressource zugewiesen|[2,*] {COUNT} andere Materialien sind dieser Ressource zugewiesen",
             "resource-author-is": "Original von {name}",
             "Contains": "Enthält",
@@ -42,9 +42,9 @@ export default {
             "next": "Next &raquo;"
         },
         "pool": {
-            "resource-count": "{0} no resources|{1} 1 resource|[2,*] {COUNT} resources",
+            "resource-count": "{0} no resources|{1} 1 resource|{2,*} {COUNT} resources",
             "material-count": "{0} No materials|[1] {value} material|[2,*] {value} materials",
-            "material-other-count": "{0} no other materials|{1} 1 othermaterial|[2,*] {COUNT} other materials",
+            "material-other-count": "{0} no other materials|{1} 1 othermaterial|{2,*} {COUNT} other materials",
             "material-other-assigned-material-pl": "{0} no other matierial is assigned to theese resoruces|{1} 1 other material is assigned to theese resources|[2,*] {COUNT} other materials are assigned to theese resources",
             "material-delete": "Delete Material",
             "material-deleted": "Deleted material",

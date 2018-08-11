@@ -2,6 +2,9 @@ export const searchGuessRoute  = '/pool/search/guess';
 export const searchGuessRoute2 = '/pool/search/guess2';
 
 // Material
+export const materialShowRoute = (materialId) => {
+    return '/pool/material/' + materialId;
+};
 export const materialUpdateRoute = (materialId) => {
     return '/api/v1/materials/' + materialId;
 };

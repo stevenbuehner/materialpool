@@ -1,6 +1,7 @@
 import Vue from 'vue';
 import VueI18n from 'vue-i18n';
 import MaterialDetail from './../../components/Material/MaterialDetail.vue';
+import MaterialCardListing from './../../components/Material/MaterialCardListing.vue';
 import axios from 'axios';
 import VueFlashMessage from 'vue-flash-message';
 
@@ -24,7 +25,8 @@ let vueInstance = new Vue({
     el: '#app',
     i18n: materialpool.i18n,
     components: {
-        MaterialDetail
+        MaterialDetail,
+        MaterialCardListing
     }
 });
 
