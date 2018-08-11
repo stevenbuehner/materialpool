@@ -53,7 +53,7 @@ class Bibleverse extends Model implements BibleVerseInterface {
 	];
 
 	protected $hidden = [
-		'from', 'to', 'created_at', 'updated_at'
+		'created_at', 'updated_at'
 	];
 
 	protected $appends = [
