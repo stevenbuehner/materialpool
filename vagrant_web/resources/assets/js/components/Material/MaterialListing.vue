@@ -2,7 +2,10 @@
     <div class="material-listing">
         <div class="material-listing-menue"></div>
         <div class="material-listing-data">
-            <material v-for="material in materials" v-bind:material="material" :key="material.id"></material>
+            <material v-for="material in materials"
+                      :material="material"
+                      :key="material.id"
+            ></material>
         </div>
     </div>
 </template>

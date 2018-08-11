@@ -32,6 +32,9 @@ export const materialRemoveBibleverseRoute = (materialID, bibleverseId) => {
     return '/api/v1/material/' + materialID + '/bibleverse/' + bibleverseId;
 };
 export const createBibleverseRoute = '/api/v1/bibleverses';
+export const bibleverseSearchLink          = (bibleverse) => {
+    return '/pool/bibleverse/' + bibleverse.from + '-' + bibleverse.to;
+};
 
 // Search
 export const searchUrl              = '/pool/search/get';

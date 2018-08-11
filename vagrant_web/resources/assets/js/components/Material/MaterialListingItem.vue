@@ -27,7 +27,7 @@
         <small class="description">{{material.description}}</small>
 
         <b-modal ref="materialDetail" title="Material Detail">
-            <material-detail :material="material"></material-detail>
+            <material-detail :material="material" :editable="false"></material-detail>
         </b-modal>
     </div>
 </template>

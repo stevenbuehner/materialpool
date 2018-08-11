@@ -11,7 +11,8 @@
         </div>
 
         <context-menu ref="menu">
-            <context-menu-item @click="">Suche nach '{{myBibleverse.label}}'</context-menu-item>
+            <context-menu-item @click.prevent="searchForBibleverse">Suche nach '{{myBibleverse.label}}'
+            </context-menu-item>
             <context-menu-item v-if="removeable" @click.prevent="removeBibleverse">löschen</context-menu-item>
         </context-menu>
     </div>
@@ -24,7 +25,7 @@
     import {tagging} from './../theme';
     import contextMenu from './../context-menu/context-menu.vue';
     import contextMenuItem from "../context-menu/context-menu-item.vue";
-    import {bibleverseUpdatePivotRoute, materialRemoveBibleverseRoute} from './../serverRoutes';
+    import {bibleverseSearchLink, bibleverseUpdatePivotRoute, materialRemoveBibleverseRoute} from './../serverRoutes';
 
     import axios from 'axios';
 
@@ -147,6 +148,10 @@
 
             emitRemoved() {
                 this.$emit('removed', this.myBibleverse);
+            },
+
+            searchForBibleverse() {
+                window.location.href = bibleverseSearchLink(this.myBibleverse);;
             },
 
             removeBibleverse() {
