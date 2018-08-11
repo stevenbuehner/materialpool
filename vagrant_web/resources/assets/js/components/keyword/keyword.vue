@@ -43,8 +43,8 @@
 
         <context-menu ref="menu">
             <context-menu-item @click="goToKeywordSearch">Suche nach '{{myKeyword.title}}'</context-menu-item>
-            <context-menu-item v-if="editable" @click="openKeywordEditModal">Alle Tags umbenennen</context-menu-item>
-            <context-menu-item v-if="removeable" @click="removeKeyword">Tag entfernen</context-menu-item>
+            <context-menu-item v-if="editable" @click="openKeywordEditModal">umbenennen</context-menu-item>
+            <context-menu-item v-if="removeable" @click="removeKeyword">löschen</context-menu-item>
         </context-menu>
 
     </div>

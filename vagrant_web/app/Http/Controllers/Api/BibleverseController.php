@@ -126,7 +126,7 @@ class BibleverseController extends BaseController {
 				$bibleverse->id =>
 					[
 						'relevance' => $request->get('relevance',
-													 RelevanceInterface::RELEVANCE_USER_MAX)
+													 RelevanceInterface::RELEVANCE_USER_AVG)
 					]
 			],
 			$doNotDetachOtherRelationships = FALSE);

@@ -25,7 +25,7 @@
                         :rating="myMaterial.rating">
                 </star-rating>
 
-                Contains
+                (
                 <span v-if="myMaterial.resources !== undefined">
                     {{$tc('pool.resource-count', myMaterial.resources.length, {name : myMaterial.resources.length}) }},
                 </span>
@@ -35,6 +35,7 @@
                 </span>
 
                 <span v-if="myMaterial.author">{{$t('pool.resource-author-is', {name: myMaterial.author.title} )}}</span>
+                )
 
             </div>
 
@@ -67,6 +68,8 @@
                             @savingPivot="flashStartSaving('Bibleverse Piot')"
                             @savingError="flashUpdateTagError"
                             @savingPivotError="flashUpdateTagError"
+                            :removeable="true"
+                            @removed="removeBibleverse(key)"
                 ></bibleverse>
 
 
@@ -76,11 +79,17 @@
 
             </div>
 
-            <div class="col col-lg-11 mb-2" v-else>
+            <div class="col col-lg-6 mb-2" v-if="editTagsModeEnabled">
                 <keyword-input
                         v-model="myMaterial.keywords"
                         :material-id="myMaterial.id"
                 ></keyword-input>
+            </div>
+            <div class="col col-lg-5 mb-2" v-if="editTagsModeEnabled">
+                <bibleverse-input
+                        v-model="myMaterial.bibleverses"
+                        :material-id="myMaterial.id"
+                ></bibleverse-input>
             </div>
             <div class="col col-lg-1 mb-2">
                 <span class="icon editIcon"
@@ -116,6 +125,7 @@
     import keyword from './../keyword/keyword.vue';
     import keywordInput from './../keyword/keywordInput.vue';
     import bibleverse from './../bibleverse/biblevers.vue';
+    import bibleverseInput from './../bibleverse/bibleverseInput.vue';
     import resource from './../resource/resource.vue';
     import edditableText from './../edditable.vue';
     import fromBot from './../fromBot.vue';
@@ -223,8 +233,13 @@
 
             },
 
-            removeKeyword(index){
+            removeKeyword(index) {
                 this.myMaterial.keywords.splice(index, 1);
+            },
+
+            removeBibleverse(index) {
+                console.log("Removing Keyword with index: ", index);
+                this.myMaterial.bibleverses.splice(index, 1);
             },
 
 
@@ -277,6 +292,7 @@
             keyword,
             keywordInput,
             bibleverse,
+            bibleverseInput,
             resource,
             edditableText,
             starRating,

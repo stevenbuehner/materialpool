@@ -28,7 +28,12 @@ export const keywordSearchLink          = (keyword) => {
 export const bibleverseUpdatePivotRoute = (materialId, bibleverseId) => {
     return '/api/v1/material/' + materialId + '/bibleverse/' + bibleverseId;
 };
+export const materialRemoveBibleverseRoute = (materialID, bibleverseId) => {
+    return '/api/v1/material/' + materialID + '/bibleverse/' + bibleverseId;
+};
+export const createBibleverseRoute = '/api/v1/bibleverses';
 
 // Search
-export const searchUrl           = '/pool/search/get';
-export const searchGuessKeywords = '/pool/search/guess/keywords';
+export const searchUrl              = '/pool/search/get';
+export const searchGuessKeywords    = '/pool/search/guess/keywords';
+export const searchGuessBibleverses = '/pool/search/guess/bibleverses';

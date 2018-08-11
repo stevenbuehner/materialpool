@@ -86,6 +86,10 @@ class Bibleverse extends Model implements BibleVerseInterface {
 		return (int) sprintf('%03d%03d%03d', $bookId, $chapter, $verse);
 	}
 
+	public static function makeFromBibleverseInterface(BibleVerseInterface $bibleVerse, $bibleId = NULL) {
+		return new self(self::getBibleverseCreateData($bibleVerse, $bibleId));
+	}
+
 	/**
 	 * @param BibleVerseInterface $bibleVerse
 	 * @param null                $bibleId

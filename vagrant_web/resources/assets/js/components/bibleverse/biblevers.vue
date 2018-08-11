@@ -12,7 +12,7 @@
 
         <context-menu ref="menu">
             <context-menu-item @click="">Suche nach '{{myBibleverse.label}}'</context-menu-item>
-            <context-menu-item v-if="editable" @click="">Bibelstelle bearbeiten</context-menu-item>
+            <context-menu-item v-if="removeable" @click.prevent="removeBibleverse">löschen</context-menu-item>
         </context-menu>
     </div>
 </template>
@@ -24,7 +24,7 @@
     import {tagging} from './../theme';
     import contextMenu from './../context-menu/context-menu.vue';
     import contextMenuItem from "../context-menu/context-menu-item.vue";
-    import {bibleverseUpdatePivotRoute} from './../serverRoutes';
+    import {bibleverseUpdatePivotRoute, materialRemoveBibleverseRoute} from './../serverRoutes';
 
     import axios from 'axios';
 
@@ -55,7 +55,13 @@
                 type: Boolean,
                 required: false,
                 default: true
-            }
+            },
+
+            removeable: {
+                type: Boolean,
+                required: false,
+                default: false
+            },
         },
 
 
@@ -138,6 +144,27 @@
             emitSaved(newBibleverse) {
                 this.$emit('saved', newBibleverse);
             },
+
+            emitRemoved() {
+                this.$emit('removed', this.myBibleverse);
+            },
+
+            removeBibleverse() {
+
+                let params = {
+                    _method: 'DELETE'
+                };
+
+                axios.post(materialRemoveBibleverseRoute(this.materialId, this.myBibleverse.id), params)
+                    .then((response) => {
+                            this.emitRemoved();
+                        }
+                    ).catch((response) => {
+                    // on failure
+                    console.error('Failed to remove bibleverse', this.myBibleverse);
+                });
+
+            }
         },
 
         components: {

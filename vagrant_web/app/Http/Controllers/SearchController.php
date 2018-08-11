@@ -227,6 +227,26 @@ class SearchController extends Controller {
 		return $keywords;
 	}
 
+	public function guessBibleverse(Request $request) {
+
+		$queryString          = $request->get('q', '');
+		$bibleVerseExtraction = resolve('BibleVerseService');
+		$result               = collect();
+
+		// Search For Bibleverses
+		$verses = $bibleVerseExtraction->stringToBibleVerse($queryString);
+
+
+		foreach ($verses as $verse) {
+			$temp = Bibleverse::makeFromBibleverseInterface($verse);
+			$temp->setHidden(['created_at', 'updated_at']);
+
+			$result->push($temp);
+		}
+
+		return $result;
+	}
+
 	public function get(Request $request) {
 		$query = $this->turnRequestIntoQuery($request);
 

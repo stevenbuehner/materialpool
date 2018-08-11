@@ -127,7 +127,7 @@ class KeywordController extends BaseController {
 				$keyword->id =>
 					[
 						'relevance' => $request->get('relevance',
-													 RelevanceInterface::RELEVANCE_USER_MAX)
+													 RelevanceInterface::RELEVANCE_USER_AVG)
 					]
 			],
 			$doNotDetachOtherRelationships = FALSE);

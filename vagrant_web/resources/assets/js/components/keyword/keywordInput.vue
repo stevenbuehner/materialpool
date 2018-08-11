@@ -29,10 +29,17 @@
         </div>
 
         <div class="card-footer" v-if="displayableSuggestedKeywords.length > 0">
+            <hollow-dots-spinner v-if="stillLoading"
+                                 :dot-size="10"
+                                 :dots-num="3"
+                                 :animation-duration="1500"
+                                 color="grey"></hollow-dots-spinner>
             <span v-if="stillLoading">Vorschläge werden gesucht ...</span>
-            <h4 v-if="suggestedKeywords.length > 0" class="suggestions">Weitere Vorschläge</h4>
+
+            <h4 v-if="!stillLoading && suggestedKeywords.length > 0" class="suggestions">Gefundene Vorschläge:</h4>
             <button type="button"
                     class="btn btn-outline-secondary btn-sm mr-1 mb-1"
+                    v-if="!stillLoading"
                     v-for="kw in displayableSuggestedKeywords"
                     :key="'s' + kw.id"
                     @click="requestAddKeyword(kw)"
@@ -44,10 +51,11 @@
 </template>
 
 <script>
-    import vueSelect from 'vue-select';
     import {createKeywordRoute, materialAddKeywordRoute, searchGuessKeywords} from "./../serverRoutes";
     import axios from 'axios';
     import keyword from './../keyword/keyword.vue';
+    import {HollowDotsSpinner} from 'epic-spinners'
+
 
     export default {
 
@@ -108,8 +116,14 @@
 
         watch: {
             keywordInput(newValue, oldValue) {
-                this.setStillLoading(true);
-                this.search(this.setStillLoading, newValue, this);
+
+                if (newValue.length > 1) {
+                    this.setStillLoading(true);
+                    this.search(this.setStillLoading, newValue, this);
+                }else{
+                    this.suggestedKeywords = [];
+                }
+
             }
         },
 
@@ -234,6 +248,7 @@
 
                 if (foundIndex > 0) {
                     this.myKeywords.splice(foundIndex, 1);
+                    this.$emit('updated', this.myKeywords);
                 }
             }
 
@@ -244,23 +259,15 @@
 
             // Deep Copy Keywords
             this.myKeywords = JSON.parse(JSON.stringify(this.keywords));
+
         },
 
         components: {
-            vueSelect,
-            keyword
+            keyword,
+            HollowDotsSpinner
         }
     }
 </script>
-
-
-<style>
-    .selected-tag .close {
-        margin-left: 0.25rem;
-        top: -.15rem;
-        position: relative;
-    }
-</style>
 
 
 <style scoped>
