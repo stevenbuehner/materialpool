@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller as BaseController;
 use App\Http\Requests\KeywordRequest;
+use App\Models\Exceptions\InvalidKeywordTypeException;
 use App\Models\Keyword;
 use App\Models\Material;
 use App\Services\KeywordHandling\KeywordHandlingService;
@@ -108,11 +109,27 @@ class KeywordController extends BaseController {
 				$keyword->title = $newTitle;
 			}
 
+			if ($keyword->isDirty()) {
+				$keyword->save();
+			}
 		}
 
-		if ($keyword->isDirty()) {
-			$keyword->save();
+
+		if ($keywordRequest->has('type')) {
+			$type    = $keywordRequest->get('type');
+			$handler = resolve(KeywordHandlingService::class);
+
+			try {
+				$handler->changeKeywordType($keyword, $type);
+			} catch (InvalidKeywordTypeException $e) {
+				throw $e;
+			}
+
+			// Reload with new type
+			$keyword = Keyword::find($keyword->id);
+
 		}
+
 
 		return $keyword;
 

@@ -29,7 +29,26 @@
                     </div>
                 </div>
 
-                <div class="row">
+                <div class="row mt-2">
+                    <div class="col-sm-3">
+                        <label for="selectType">Select Type:</label>
+                    </div>
+                    <div class="col-sm-9">
+                        <b-form-select
+                                name="keywordType"
+                                id="keywordType"
+                                type="text"
+                                v-model="modifiedKeywordData.type"
+                        >
+                            <option value="key">Keyword</option>
+                            <option value="person">Person</option>
+                            <option value="place">Place</option>
+                            <option value="lang">Language</option>
+                        </b-form-select>
+                    </div>
+                </div>
+
+                <div class="row mt-2">
                     <div class="col-sm-3">
                         <label for="selectIcon">Select Icon:</label>
                     </div>
@@ -42,8 +61,8 @@
 
 
         <context-menu ref="menu">
-            <context-menu-item @click="goToKeywordSearch">Suche nach '{{myKeyword.title}}'</context-menu-item>
-            <context-menu-item v-if="editable" @click="openKeywordEditModal">umbenennen</context-menu-item>
+            <context-menu-item @click="goToKeywordSearch">nach '{{myKeyword.title}}' suchen</context-menu-item>
+            <context-menu-item v-if="editable" @click="openKeywordEditModal">bearbeiten</context-menu-item>
             <context-menu-item v-if="removeable" @click="removeKeyword">löschen</context-menu-item>
         </context-menu>
 
@@ -54,6 +73,7 @@
 <script>
     import bModal from 'bootstrap-vue/es/components/modal/modal';
     import bFormInput from 'bootstrap-vue/es/components/form-input/form-input';
+    import bFormSelect from 'bootstrap-vue/es/components/form-select/form-select';
     import contextMenu from './../context-menu/context-menu.vue';
     import contextMenuItem from "../context-menu/context-menu-item.vue";
     import axios from 'axios';
@@ -155,11 +175,6 @@
 
         created: function () {
 
-            // Clone the parts that may be eddited
-            this.modifiedKeywordData = {
-                title: this.keyword.title,
-            };
-
             // Needs to be copied. Because any changes in properties are not recognized in computed properties
             this.myKeyword = JSON.parse(JSON.stringify(this.keyword));
 
@@ -168,10 +183,17 @@
         methods: {
 
             storeModalChanges() {
-                if (this.myKeyword.title != this.modifiedKeywordData.title) {
-                    // this.$emit('dataChanged', {title: this.modifiedKeywordData.title});
-                    this.updateKeywordData({title: this.modifiedKeywordData.title})
+
+                // Ignore if nothing was changed
+                if (this.myKeyword.title === this.modifiedKeywordData.title
+                    && this.myKeyword.type == this.modifiedKeywordData.type) {
+                    return;
                 }
+
+                this.updateKeywordData({
+                    title: this.modifiedKeywordData.title,
+                    type: this.modifiedKeywordData.type
+                });
             },
 
             updateKeywordData(properties) {
@@ -184,13 +206,12 @@
                     .then((response) => {
 
 
-                            for (let i in properties) {
-                                if (i !== 'PUT' && response.data[i] !== undefined) {
-                                    this.myKeyword[i] = response.data[i];
-                                }
+                            for (let i in response.data) {
+                                this.myKeyword[i] = response.data[i]
                             }
 
-                            this.emitSaved(myKeyword);
+                            this.emitSaved(this.myKeyword);
+                            return response.data;
 
                         }
                     ).catch((response) => {
@@ -215,6 +236,8 @@
                             this.myKeyword.pivot = response.data.pivot;
 
                             this.emitSaved(this.myKeyword);
+
+                            return response.data;
 
                         }
                     ).catch((response) => {
@@ -265,7 +288,15 @@
 
 
             openKeywordEditModal() {
+
                 if (this.editable === true) {
+
+                    // Clone the parts that may be eddited
+                    this.modifiedKeywordData = {
+                        title: this.keyword.title,
+                        type: this.keyword.type,
+                    };
+
                     this.$refs.editKeyword.show();
                 }
             },
@@ -274,12 +305,14 @@
                 window.location.href = this.searchLink;
             }
 
-        },
+        }
+        ,
 
         components: {
             ContextMenuItem: contextMenuItem,
             bModal,
             bFormInput,
+            bFormSelect,
             contextMenu
         }
 
