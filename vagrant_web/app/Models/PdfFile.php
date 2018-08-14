@@ -10,6 +10,12 @@ class PdfFile extends File {
 	const PAGE_COUNT_KEY = 'pdfPageCount';
 	protected static $singleTableType = 'pdf';
 
+	public function __construct(array $attributes = []) {
+		parent::__construct($attributes);
+
+		$this->append('page_count');
+	}
+
 	public static function getValidationRules() {
 		$rules         = parent::getValidationRules();
 		$rules['file'] = 'required|file|mimes:pdf';
@@ -68,6 +74,20 @@ class PdfFile extends File {
 		}
 
 		return FALSE;
+	}
+
+	/**
+	 * @return int|NULL
+	 */
+	public function getPageCountAttribute() {
+		return $this->getOption(self::PAGE_COUNT_KEY, NULL);
+	}
+
+	/**
+	 * @param int|NULL $pageCount
+	 */
+	public function setPageCountAttribute($pageCount) {
+		$this->setOption(self::PAGE_COUNT_KEY, $pageCount);
 	}
 
 

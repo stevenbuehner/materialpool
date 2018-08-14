@@ -2,7 +2,7 @@ export const searchGuessRoute  = '/pool/search/guess';
 export const searchGuessRoute2 = '/pool/search/guess2';
 
 // Material
-export const materialShowRoute = (materialId) => {
+export const materialShowRoute   = (materialId) => {
     return '/pool/material/' + materialId;
 };
 export const materialUpdateRoute = (materialId) => {
@@ -28,16 +28,36 @@ export const keywordSearchLink          = (keyword) => {
 };
 
 // Bibleverse
-export const bibleverseUpdatePivotRoute = (materialId, bibleverseId) => {
+export const bibleverseUpdatePivotRoute    = (materialId, bibleverseId) => {
     return '/api/v1/material/' + materialId + '/bibleverse/' + bibleverseId;
 };
 export const materialRemoveBibleverseRoute = (materialID, bibleverseId) => {
     return '/api/v1/material/' + materialID + '/bibleverse/' + bibleverseId;
 };
-export const createBibleverseRoute = '/api/v1/bibleverses';
+export const createBibleverseRoute         = '/api/v1/bibleverses';
 export const bibleverseSearchLink          = (bibleverse) => {
     return '/pool/bibleverse/' + bibleverse.from + '-' + bibleverse.to;
 };
+
+//Resources
+export const resourceEditLink         = (resource) => {
+    return '/pool/resource/' + resource.id;
+};
+export const resourceDownloadLink     = (resource) => {
+    return '/pool/resource/' + resource.id + '/download';
+};
+export const pdfPreviewImageFirstPage = (resource, width, height) => {
+    width  = width || 1024;
+    height = height || 1024;
+
+    return '/resource/image/' + resource.id + '/' + width + '/' + height;
+};
+export const pdfPreviewImageForPage   = (resource, page) => {
+    page = page || 1;
+
+    return '/pdfpreview/res-' + resource.id + '/page-' + page;
+};
+
 
 // Search
 export const searchUrl              = '/pool/search/get';

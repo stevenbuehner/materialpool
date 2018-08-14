@@ -1,20 +1,30 @@
 <template>
-    <div class="resource">
-        <image-preview v-if="resource.previewable.image === true" :resource="resource"></image-preview>
-        <html-preview v-else-if="resource.previewable.html === true" :resource="resource"></html-preview>
-        <div v-else>
-            NO PREVIEW
+    <div class="resource card">
+        <component :is="previewComponent" :resource="resource"></component>
+
+        <div class="card-body">
+            <div class="meta">
+                <span class="author"></span>
+            </div>
+            <button class="btn btn-outline-primary" @click.prevent="downloadResource">download</button>
+            <button class="btn btn-outline-primary" @click.prevent="goToResource">open</button>
         </div>
+
     </div>
 </template>
 
 <script>
     import imagePreview from './image-preview.vue'
-    import htmlPreview from './html-preview.vue'
+    import textPreview from './text-preview.vue'
+    import pdfPreview from './pdf-preview.vue'
+    import audioPreview from './audio-preview.vue'
+    import videoPreview from './video-preview.vue'
+    import docPreview from './doc-preview.vue'
+    import resPreview from './res-preview.vue'
+    import {resourceDownloadLink, resourceEditLink} from './../serverRoutes';
 
 
     export default {
-        name: "resource",
         props: {
             resource: {
                 required: true,
@@ -22,18 +32,39 @@
             }
         },
 
+        computed: {
+            previewComponent() {
+                return this.resource.type + '-preview';
+            }
+        },
+
+        methods: {
+
+            downloadResource() {
+                window.location = resourceDownloadLink(this.resource);
+            },
+
+            goToResource() {
+                window.location = resourceEditLink(this.resource);
+            }
+        },
+
 
         components: {
             imagePreview,
-            htmlPreview
+            textPreview,
+            pdfPreview,
+            audioPreview,
+            videoPreview,
+            docPreview,
+            resPreview
         }
     }
 </script>
 
 <style scoped>
 
-    .resource{
-
+    .resource {
     }
 
 </style>

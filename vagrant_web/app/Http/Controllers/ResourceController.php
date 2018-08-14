@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Material;
 use App\Models\Resource;
 use App\Models\Resource as ResourceEntity;
 use App\Models\Text;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Response;
+use Intervention\Image\Size;
 
 class ResourceController extends Controller {
 
@@ -133,10 +135,14 @@ class ResourceController extends Controller {
 				'Content-disposition' => "attachment; filename=\"" . $resource->getOriginalFilenameAttribute() . "\""
 			]);
 		} else if ($resource instanceof Text) {
+
+			$filename = $resource->getOriginalFilenameAttribute();
+			$filename = empty($filename) ? "resource id-" . $resource->id . ".txt" : $filename;
+
 			return Response::make($resource->content, 200, [
 				'Content-type'        => 'text/plain',
-				'Content-Disposition' => "attachment; filename=\"resource id" . $resource->id . ".txt\"",
-				'Content-Length'      => sizeof($resource->content)
+				'Content-Disposition' => "attachment; filename=\"$filename\"",
+				// 'Content-Length'      => strlen(utf8_decode($resource->content)) // FIxMe: Not working
 			]);
 		}
 	}
