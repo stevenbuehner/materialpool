@@ -22,9 +22,13 @@
     import docPreview from './doc-preview.vue'
     import resPreview from './res-preview.vue'
     import {resourceDownloadLink, resourceEditLink} from './../serverRoutes';
+    import resourceLinks from './resource-links.mixin';
 
 
     export default {
+
+        mixins: [resourceLinks],
+
         props: {
             resource: {
                 required: true,

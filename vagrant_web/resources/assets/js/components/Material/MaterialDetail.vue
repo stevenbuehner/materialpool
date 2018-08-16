@@ -109,13 +109,19 @@
                                 classes="card card-body"
                                 :value="myMaterial.description"
                                 @value-changed="submitDescription"
-                                placeholder="Insert description ..."></edditable-text>
+                                placeholder="Click here to insert description ..."></edditable-text>
             </div>
         </div>
 
-        <div class="row" v-if="myMaterial.resources !== undefined && myMaterial.resources.length >0">
+        <div class="row" v-if="myMaterial.resources !== undefined && myMaterial.resources.length > 1">
             <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12" v-for="resource in myMaterial.resources">
-                <resource :resource="resource"></resource>
+                <resource-preview :resource="resource"></resource-preview>
+            </div>
+        </div>
+
+        <div class="row" v-if="myMaterial.resources !== undefined && myMaterial.resources.length === 1">
+            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                <resource-detail :resource="myMaterial.resources[0]"></resource-detail>
             </div>
         </div>
 
@@ -128,7 +134,8 @@
     import keywordInput from './../keyword/keywordInput.vue';
     import bibleverse from './../bibleverse/biblevers.vue';
     import bibleverseInput from './../bibleverse/bibleverseInput.vue';
-    import resource from './../resource/resource.vue';
+    import resourcePreview from './../resource/resource-preview.vue';
+    import resourceDetail from './../resource/resource-detail.vue';
     import edditableText from './../edditable.vue';
     import fromBot from './../fromBot.vue';
     import starRating from 'vue-star-rating';
@@ -246,8 +253,8 @@
                 this.materialWasModified();
             },
 
-            materialWasModified(){
-              this.myMaterial.from_bot = false;
+            materialWasModified() {
+                this.myMaterial.from_bot = false;
             },
 
             bibleverseUpdated({oldBibleverse, newBibleverse}) {
@@ -301,7 +308,8 @@
             keywordInput,
             bibleverse,
             bibleverseInput,
-            resource,
+            resourcePreview,
+            resourceDetail,
             edditableText,
             starRating,
             fromBot
