@@ -149,11 +149,21 @@ class KeywordController extends BaseController {
 			],
 			$doNotDetachOtherRelationships = FALSE);
 
+		$material->from_bot = FALSE;
+		$material->save();
+
 		return $material->keywords()->where('keywords.id', '=', $keyword->id)->get()->first();
+
 	}
 
+
 	public function deleteAssignment(Material $material, Keyword $keyword) {
+
+		$material->from_bot = FALSE;
+		$material->save();
+
 		return $material->keywords()->detach($keyword);
+
 	}
 
 

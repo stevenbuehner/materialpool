@@ -63,7 +63,7 @@
         <context-menu ref="menu">
             <context-menu-item @click="goToKeywordSearch">nach '{{myKeyword.title}}' suchen</context-menu-item>
             <context-menu-item v-if="editable" @click="openKeywordEditModal">bearbeiten</context-menu-item>
-            <context-menu-item v-if="removeable" @click="removeKeyword">löschen</context-menu-item>
+            <context-menu-item v-if="removeable" @click="removeKeyword">entfernen</context-menu-item>
         </context-menu>
 
     </div>

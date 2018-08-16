@@ -131,10 +131,17 @@ class BibleverseController extends BaseController {
 			],
 			$doNotDetachOtherRelationships = FALSE);
 
+		$material->from_bot = FALSE;
+		$material->save();
+
 		return $material->bibleverses()->where('bibleverses.id', '=', $bibleverse->id)->get()->first();
 	}
 
 	public function deleteAssignment(Material $material, Bibleverse $bibleverse) {
+		
+		$material->from_bot = FALSE;
+		$material->save();
+
 		return $material->bibleverses()->detach($bibleverse);
 	}
 }

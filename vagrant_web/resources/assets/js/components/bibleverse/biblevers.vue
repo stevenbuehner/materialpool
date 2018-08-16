@@ -13,7 +13,7 @@
         <context-menu ref="menu">
             <context-menu-item @click.prevent="searchForBibleverse">Suche nach '{{myBibleverse.label}}'
             </context-menu-item>
-            <context-menu-item v-if="removeable" @click.prevent="removeBibleverse">löschen</context-menu-item>
+            <context-menu-item v-if="removeable" @click.prevent="removeBibleverse">entfernen</context-menu-item>
         </context-menu>
     </div>
 </template>

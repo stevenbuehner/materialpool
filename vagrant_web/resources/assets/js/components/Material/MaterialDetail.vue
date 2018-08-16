@@ -83,12 +83,14 @@
                 <keyword-input
                         v-model="myMaterial.keywords"
                         :material-id="myMaterial.id"
+                        @updated="materialWasModified"
                 ></keyword-input>
             </div>
             <div class="col col-md-5 col-sm-6 col-12 mb-2" v-if="editTagsModeEnabled">
                 <bibleverse-input
                         v-model="myMaterial.bibleverses"
                         :material-id="myMaterial.id"
+                        @updated="materialWasModified"
                 ></bibleverse-input>
             </div>
             <div class="col col-md-1 col-12 mb-2">
@@ -235,13 +237,18 @@
 
             removeKeyword(index) {
                 this.myMaterial.keywords.splice(index, 1);
+                this.materialWasModified();
             },
 
             removeBibleverse(index) {
                 console.log("Removing Keyword with index: ", index);
                 this.myMaterial.bibleverses.splice(index, 1);
+                this.materialWasModified();
             },
 
+            materialWasModified(){
+              this.myMaterial.from_bot = false;
+            },
 
             bibleverseUpdated({oldBibleverse, newBibleverse}) {
 
@@ -253,6 +260,7 @@
                 if (index !== -1) {
                     this.myMaterial.bibleverses.splice(index, 1, newBibleverse); // https://vuejs.org/2016/02/06/common-gotchas/
                     this.flashSaved('Keyword "' + newBibleverse.label + '"');
+                    this.materialWasModified();
                 } else {
                     console.error('Changed bibleverse was not found in Array!');
                 }
