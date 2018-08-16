@@ -4,11 +4,21 @@ export default {
     methods: {
 
         downloadResource() {
-            window.location = resourceDownloadLink(this.resource);
+            window.location = this.resourceDownloadUrl;
         },
 
         goToResource() {
-            window.location = resourceEditLink(this.resource);
+            window.location = this.resourceEditLink;
         }
     },
+
+    computed: {
+        resourceUrl() {
+            return resourceEditLink(this.resource);
+        },
+
+        resourceDownloadUrl() {
+            return resourceDownloadLink(this.resource);
+        },
+    }
 }

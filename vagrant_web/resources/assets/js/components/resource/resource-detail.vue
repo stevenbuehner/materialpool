@@ -19,7 +19,7 @@
 </template>
 
 <script>
-    import imageDetail from './image-preview.vue'
+    import imageDetail from './image-detail.vue'
     import textDetail from './text-detail.vue'
     import pdfDetail from './pdf-preview.vue'
     import audioDetail from './audio-preview.vue'
