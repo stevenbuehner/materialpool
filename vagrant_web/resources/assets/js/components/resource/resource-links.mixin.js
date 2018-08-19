@@ -8,7 +8,7 @@ export default {
         },
 
         goToResource() {
-            window.location = this.resourceEditLink;
+            window.location = this.resourceUrl;
         }
     },
 

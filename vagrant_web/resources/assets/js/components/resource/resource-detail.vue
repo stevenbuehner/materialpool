@@ -21,7 +21,7 @@
 <script>
     import imageDetail from './image-detail.vue'
     import textDetail from './text-detail.vue'
-    import pdfDetail from './pdf-preview.vue'
+    import pdfDetail from './pdf-detail.vue'
     import audioDetail from './audio-preview.vue'
     import videoDetail from './video-preview.vue'
     import docDetail from './doc-preview.vue'

@@ -27,11 +27,12 @@
 
 <script>
 
-    import {pdfPreviewImageFirstPage, pdfPreviewImageForPage} from './../serverRoutes';
+    import {pdfPreviewImageFirstPage} from './../serverRoutes';
     import bImageLazy from 'bootstrap-vue/src/components/image/img-lazy';
+    import pdfMixin from './pdf-mixin';
 
     export default {
-        mixins: [],
+        mixins: [pdfMixin],
 
         props: {
             resource: {
@@ -51,9 +52,6 @@
             };
         },
         computed: {
-            pageCount() {
-                return this.resource.page_count || 0;
-            },
 
             currentlyDisplayedImage() {
                 return this.previewImages[this.currentlyDisplayedPageIndex];
@@ -71,11 +69,7 @@
                     });
                 } else if (this.pageCount > 0) {
                     for (let i = 1; i <= this.pageCount && i <= this.maxPreviewPages; i++) {
-                        urls.push({
-                            src: pdfPreviewImageForPage(this.resource, i),
-                            title: 'Seite ' + i,
-                            page_no: i
-                        });
+                        urls.push(this.generatePreviewObject(this.resource, i));
                     }
                 }
 
