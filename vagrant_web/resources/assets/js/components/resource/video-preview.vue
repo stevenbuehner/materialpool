@@ -1,6 +1,6 @@
 <template>
     <div class="card-header">
-        General Resource-Preview
+        Video-Preview missing
     </div>
 </template>
 

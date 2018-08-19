@@ -3,9 +3,10 @@
 namespace App\ResourceLimitations;
 
 use App\Models\Resource;
+use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\View\View;
 
-interface ResourceLimitationInterface {
+interface ResourceLimitationInterface extends Arrayable {
 
 	/**
 	 * @return View
@@ -18,9 +19,6 @@ interface ResourceLimitationInterface {
 	 * @return string
 	 */
 	public function getLimitationText();
-
-	/** @return array */
-	public function toArray();
 
 	/**
 	 * Takes the string, used in the webinterface and extracts all the neccessary limitation data from it

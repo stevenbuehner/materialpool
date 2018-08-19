@@ -67,9 +67,10 @@
                         page_no: 1
                     });
                 } else if (this.pageCount > 0) {
-                    for (let i = 1; i <= this.pageCount; i++) {
-                        urls.push(this.generatePreviewObject(this.resource, i));
-                    }
+
+                    urls = this.previewablePages.map((pageNo) => {
+                        return this.generatePreviewObject(this.resource, pageNo);
+                    });
                 }
 
                 return urls;

@@ -1,4 +1,4 @@
-import {pdfPreviewImageFirstPage, pdfPreviewImageForPage} from './../serverRoutes';
+import {pdfPreviewImageForPage} from './../serverRoutes';
 
 export default {
 
@@ -7,6 +7,29 @@ export default {
         pageCount() {
             return this.resource.page_count || 0;
         },
+
+        previewablePages() {
+
+            let result = [];
+
+            if (this.resource.pivot && this.resource.pivot.limitation && this.resource.pivot.limitation.pages && this.resource.pivot.limitation.pages.length > 0) {
+
+                let pages = this.resource.pivot.limitation.pages;
+
+                for (let i in pages) {
+                    if (pages[i] > 0 && pages[i] <= this.pageCount) {
+                        result.push(pages[i]);
+                    }
+                }
+
+            } else {
+                for (let i = 1; i <= this.pageCount; i++) {
+                    result.push(i);
+                }
+            }
+
+            return result;
+        }
     },
 
     methods: {
