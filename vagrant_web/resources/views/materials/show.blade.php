@@ -5,7 +5,7 @@
     @php
 
         $mph = new \App\Http\View\Helpers\MaterialPreviewHelper();
-        $arMat = $mph->materialToArray($material, ['previewable']);
+        $arMat = $mph->materialToArray($material, []);
 
         //         JavaScript::put(['material' => $arMat])
     @endphp

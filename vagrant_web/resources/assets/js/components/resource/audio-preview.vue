@@ -1,6 +1,6 @@
 <template>
     <div class="card-header">
-        Audio-Preview missing
+        No Audio Preview (go to Audio Details)
     </div>
 </template>
 

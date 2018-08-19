@@ -24,7 +24,7 @@ class ResourceRecognitionService {
 
 	public function guessResourceFile(UploadedFile $requestFile) {
 
-		$mimeType  = $requestFile->getMimeType();
+		$mimeType  = $requestFile->getClientMimeType();
 		$mimeParts = preg_split('~\/~', $mimeType);
 
 		// Check for length (too big files are stored as file and not in DB)
@@ -73,6 +73,7 @@ class ResourceRecognitionService {
 				break;
 
 			case 'audio':
+			case 'audio/mp3':
 
 				$class = AudioFile::class;
 				break;
