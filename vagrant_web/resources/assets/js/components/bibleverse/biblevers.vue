@@ -106,7 +106,7 @@
         },
 
         methods: {
-            updatePivot(pivot) {
+            updateRelevance(pivot) {
                 this.$emit('savingPivot', {pivot: pivot});
 
                 pivot._method = 'PUT';

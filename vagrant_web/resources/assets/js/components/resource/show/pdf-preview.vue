@@ -27,9 +27,9 @@
 
 <script>
 
-    import {pdfPreviewImageFirstPage} from './../serverRoutes';
+    import {pdfPreviewImageFirstPage} from './../../serverRoutes';
     import bImageLazy from 'bootstrap-vue/src/components/image/img-lazy';
-    import pdfMixin from './pdf-mixin';
+    import pdfMixin from './../pdf-mixin';
 
     export default {
         mixins: [pdfMixin],

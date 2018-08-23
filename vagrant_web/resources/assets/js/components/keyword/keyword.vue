@@ -200,53 +200,51 @@
 
                 this.$emit('saving', properties);
 
-                properties._method = 'PUT';
+                const promise = this.$store.dispatch('keywords/update', {id: this.keyword.id, data: properties});
 
-                return axios.post(keywordUpdateRoute(this.myKeyword.id), properties)
-                    .then((response) => {
+                promise.then((keyword) => {
 
+                    for (let prop in keyword) {
+                        // This is actually only neccessary, if the parent does not update the keyword anyway
+                        this.myKeyword[prop] = keyword[prop];
+                    }
 
-                            for (let i in response.data) {
-                                this.myKeyword[i] = response.data[i]
-                            }
+                    this.emitSaved(this.myKeyword);
+                }).catch((response) => {
 
-                            this.emitSaved(this.myKeyword);
-                            return response.data;
-
-                        }
-                    ).catch((response) => {
-
-                        // on failure
-                        this.$emit('savingError', {
-                            tag: this.myKeyword, // "Tag" is used for bibleverses and keywords
-                            msg: this.parseResponseErrors(response.response)
-                        });
+                    // on failure
+                    this.$emit('savingError', {
+                        tag: this.keyword, // "Tag" is used for bibleverses and keywords
+                        msg: this.parseResponseErrors(response.response)
                     });
+                });
 
             },
 
-            updatePivot(pivot) {
-                this.$emit('savingPivot', {pivot: pivot});
+            updateRelevance(relevance) {
 
-                pivot._method = 'PUT';
+                this.$emit('savingPivot', {relevance: relevance});
 
-                return axios.post(keywordUpdatePivotRoute(this.materialId, this.myKeyword.id), pivot)
-                    .then((response) => {
+                const promise = this.$store.dispatch('keywords/updateRelevance', {
+                    materialId: this.materialId,
+                    keywordId: this.keyword.id,
+                    relevance: relevance
+                });
 
-                            this.myKeyword.pivot = response.data.pivot;
+                promise.then((keyword) => {
 
-                            this.emitSaved(this.myKeyword);
+                    this.myKeyword.pivot = keyword.pivot;
 
-                            return response.data;
+                    this.emitSaved(keyword);
+                }).catch((response) => {
 
-                        }
-                    ).catch((response) => {
-                        // on failure
-                        this.$emit('savingPivotError', {
-                            tag: this.myKeyword,  // "tag" is used for bibleverses and keywords
-                            msg: this.parseResponseErrors(response.response)
-                        });
+                    // on failure
+                    this.$emit('savingPivotError', {
+                        tag: this.keyword,  // "tag" is used for bibleverses and keywords
+                        msg: this.parseResponseErrors(response.response)
                     });
+                });
+
             },
 
             removeKeyword() {
@@ -305,8 +303,7 @@
                 window.location.href = this.searchLink;
             }
 
-        }
-        ,
+        },
 
         components: {
             ContextMenuItem: contextMenuItem,

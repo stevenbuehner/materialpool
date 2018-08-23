@@ -1,6 +1,4 @@
-const state = {
-    materials: []
-};
+const state = {};
 
 const getters = {
     getMaterialById: (state) => (id) => {

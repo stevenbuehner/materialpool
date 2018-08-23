@@ -11,6 +11,7 @@
     "build": "php artisan vue-i18n:generate; cross-env NODE_ENV=production webpack --progress --hide-modules --mode=production"
   },
   "dependencies": {
+    "@vuex-orm/core": "^0.26.0",
     "axios": "^0.17",
     "bootstrap": "^4.0.0-beta",
     "bootstrap-vue": "^2.0.0-rc.8",
@@ -27,6 +28,8 @@
     "tether": "^1.4.0",
     "video.js": "^5.20.3",
     "vue": "^2.5.7",
+    "vue-async-computed": "^3.4.1",
+    "vue-audio-visual": "^1.2.0",
     "vue-flash-message": "^0.6.2",
     "vue-i18n": "^8.0.0",
     "vue-router": "^3.0.1",

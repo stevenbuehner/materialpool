@@ -21,8 +21,8 @@
     import videoPreview from './video-preview.vue'
     import docPreview from './doc-preview.vue'
     import resPreview from './res-preview.vue'
-    import {resourceDownloadLink, resourceEditLink} from './../serverRoutes';
-    import resourceLinks from './resource-links.mixin';
+    import {resourceDownloadLink, resourceEditLink} from './../../serverRoutes';
+    import resourceLinks from './../resource-links.mixin';
 
 
     export default {

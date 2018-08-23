@@ -53,7 +53,7 @@ export const draggingSupport = {
                     // Don't call an Pivot update - this was only a missdirected single click
                     // To set the relevance = 0 we can use negative direction
                 } else {
-                    this.updatePivot({relevance: this.dragDifference});
+                    this.updateRelevance(this.dragDifference);
                 }
 
             }

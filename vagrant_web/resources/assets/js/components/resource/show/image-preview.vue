@@ -1,21 +1,27 @@
 <template>
+    <b-card :title="title"
+            :img-src="resourceImagePreviewUrl"
+            img-alt="Preview Image"
+            img-top
+            tag="article"
+            class="mb-2 myCard"
+            @click="goToResource">
 
-    <b-image-lazy
-            :src="resourceImagePreviewUrl"
-            fluid
-            :alt="resource.notes"
-            center
-            @click="goToResource"></b-image-lazy>
+        <p class="card-text">
+            {{resource.notes}}
+        </p>
+
+        <b-button :href="resourceDownloadUrl" variant="primary">{{$t('pool.download-file')}}</b-button>
+
+    </b-card>
 
 </template>
 
 <script>
 
-    import bImageLazy from 'bootstrap-vue/src/components/image/img-lazy';
     import bCard from 'bootstrap-vue/es/components/card/card'
     import bButton from 'bootstrap-vue/es/components/button/button'
-    import {pdfPreviewImageFirstPage} from './../serverRoutes';
-    import resourceLinks from './resource-links.mixin';
+    import resourceLinks from './../resource-links.mixin';
 
     export default {
 
@@ -29,11 +35,11 @@
                 },
                 width: {
                     required: false,
-                    default: 1024
+                    default: 300
                 },
                 height: {
                     required: false,
-                    default: 1024
+                    default: 300
                 }
             },
 
@@ -50,7 +56,7 @@
             },
 
             resourceImagePreviewUrl() {
-                return pdfPreviewImageFirstPage(this.resource, this.width, this.height);
+                return '/resource/image/' + this.resource.id + '/' + this.width + '/' + this.height
             },
 
         },
@@ -62,8 +68,7 @@
         },
         components: {
             bCard,
-            bButton,
-            bImageLazy
+            bButton
         }
     }
 </script>

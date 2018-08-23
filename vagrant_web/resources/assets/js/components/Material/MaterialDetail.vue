@@ -1,131 +1,137 @@
 <template>
     <div>
-        <flash-message class="flashMessageHolder col-md-4 col-sm-6 col-lg-3 col-xs-12">This is some test</flash-message>
+        <div v-if="!material">Material is loading</div>
+        <div v-if="material">
 
-        <edditable-text
-                type="h1"
-                :value="myMaterial.title"
-                @value-changed="submitTitle"
-                classes="materialTitle"
-                placeholder="Please enter a title here ...">
-        </edditable-text>
+            <flash-message class="flashMessageHolder col-md-4 col-sm-6 col-lg-3 col-xs-12">This is some test
+            </flash-message>
+
+            <edditable-text
+                    type="h1"
+                    :value="material.title"
+                    @value-changed="submitTitle"
+                    classes="materialTitle"
+                    placeholder="Please enter a title here ...">
+            </edditable-text>
 
 
-        <div class="meta row">
-            <div class="col-lg-12">
-                <star-rating
-                        :increment="1"
-                        :max-rating="20"
-                        inactive-color="lightgray"
-                        active-color="black"
-                        :star-size="15"
-                        :inline="true"
-                        @rating-selected="submitRating"
-                        text-class="starRatingText"
-                        :rating="myMaterial.rating">
-                </star-rating>
+            <div class="meta row">
+                <div class="col-lg-12">
+                    <star-rating
+                            :increment="1"
+                            :max-rating="20"
+                            inactive-color="lightgray"
+                            active-color="black"
+                            :star-size="15"
+                            :inline="true"
+                            @rating-selected="submitRating"
+                            text-class="starRatingText"
+                            :rating="material.rating">
+                    </star-rating>
 
-                (
-                <span v-if="myMaterial.resources !== undefined">
-                    {{$tc('pool.resource-count', myMaterial.resources.length, {name : myMaterial.resources.length}) }},
+                    (
+                    <span v-if="material.resources !== undefined">
+                    {{$tc('pool.resource-count', material.resources.length, {name : material.resources.length}) }},
                 </span>
-                {{$t('pool.eddited')}} {{myMaterial.updated_at}},
-                <span v-if="myMaterial.creator !== undefined && myMaterial.creator.name !== undefined">
-                    {{$t('pool.by')}} {{myMaterial.creator.name}}
+                    {{$t('pool.eddited')}} {{material.updated_at}},
+                    <span v-if="material.creator !== undefined && material.creator.name !== undefined">
+                    {{$t('pool.by')}} {{material.creator.name}}
                 </span>
 
-                <span v-if="myMaterial.author">{{$t('pool.resource-author-is', {name: myMaterial.author.title} )}}</span>
-                )
+                    <span v-if="material.author">{{$t('pool.resource-author-is', {name: material.author.title} )}}</span>
+                    )
 
-            </div>
-
-        </div>
-
-        <div class="row">
-            <div class="col-lg-11 col-md-11 col-sm-11 col-11" id="allTags" v-if="!editTagsModeEnabled">
-
-                <from-bot :from-bot="myMaterial.from_bot"
-                          @toggleRequest="submitFromBot(!myMaterial.from_bot)"></from-bot>
-
-                <keyword v-for="(tag, key) in myMaterial.keywords"
-                         :key="'k' + tag.id"
-                         v-model="myMaterial.keywords[key]"
-                         :material-id="myMaterial.id"
-                         :editable="editable"
-                         @saving="flashStartSaving('Keyword')"
-                         @savingPivot="flashStartSaving('Keyword Piot')"
-                         @savingError="flashUpdateTagError"
-                         @savingPivotError="flashUpdateTagError"
-                         :removeable="true"
-                         @removed="removeKeyword(key)"
-                ></keyword>
-
-                <bibleverse v-for="(tag, key) in myMaterial.bibleverses" :key="'b' + tag.id"
-                            v-model="myMaterial.bibleverses[key]"
-                            :material-id="myMaterial.id"
-                            :editable="editable"
-                            @saving="flashStartSaving('Bibleverse')"
-                            @savingPivot="flashStartSaving('Bibleverse Piot')"
-                            @savingError="flashUpdateTagError"
-                            @savingPivotError="flashUpdateTagError"
-                            :removeable="true"
-                            @removed="removeBibleverse(key)"
-                ></bibleverse>
-
-
-                <div class="btn btn-sm btn-primary" v-if="keywordsAndBibleveres.length === 0 && editable === true">Tags
-                    hinzufügen
                 </div>
 
             </div>
 
-            <div class="col col-md-6 col-sm-6 col-12 mb-2" v-if="editTagsModeEnabled">
-                <keyword-input
-                        v-model="myMaterial.keywords"
-                        :material-id="myMaterial.id"
-                        @updated="materialWasModified"
-                ></keyword-input>
-            </div>
-            <div class="col col-md-5 col-sm-6 col-12 mb-2" v-if="editTagsModeEnabled">
-                <bibleverse-input
-                        v-model="myMaterial.bibleverses"
-                        :material-id="myMaterial.id"
-                        @updated="materialWasModified"
-                ></bibleverse-input>
-            </div>
-            <div class="col col-md-1 col-12 mb-2">
+            <div class="row">
+                <div class="col-lg-11 col-md-11 col-sm-11 col-11" id="allTags" v-if="!editTagsModeEnabled">
+
+                    <from-bot :from-bot="material.from_bot"
+                              @toggleRequest="submitFromBot(!material.from_bot)"></from-bot>
+
+                    <keyword v-for="(tag, key) in material.keywords"
+                             :key="'k' + tag.id"
+                             v-model="material.keywords[key]"
+                             :material-id="material.id"
+                             :editable="editable"
+                             @saving="flashStartSaving('Keyword')"
+                             @savingPivot="flashStartSaving('Keyword Piot')"
+                             @savingError="flashUpdateTagError"
+                             @savingPivotError="flashUpdateTagError"
+                             :removeable="true"
+                             @removed="removeKeyword(key)"
+                    ></keyword>
+
+                    <bibleverse v-for="(tag, key) in material.bibleverses" :key="'b' + tag.id"
+                                v-model="material.bibleverses[key]"
+                                :material-id="material.id"
+                                :editable="editable"
+                                @saving="flashStartSaving('Bibleverse')"
+                                @savingPivot="flashStartSaving('Bibleverse Piot')"
+                                @savingError="flashUpdateTagError"
+                                @savingPivotError="flashUpdateTagError"
+                                :removeable="true"
+                                @removed="removeBibleverse(key)"
+                    ></bibleverse>
+
+
+                    <div class="btn btn-sm btn-primary" v-if="keywordsAndBibleveres.length === 0 && editable === true">
+                        Tags
+                        hinzufügen
+                    </div>
+
+                </div>
+
+                <div class="col col-md-6 col-sm-6 col-12 mb-2" v-if="editTagsModeEnabled">
+                    <keyword-input
+                            v-model="material.keywords"
+                            :material-id="material.id"
+                            @updated="materialWasModified"
+                    ></keyword-input>
+                </div>
+                <div class="col col-md-5 col-sm-6 col-12 mb-2" v-if="editTagsModeEnabled">
+                    <bibleverse-input
+                            v-model="material.bibleverses"
+                            :material-id="material.id"
+                            @updated="materialWasModified"
+                    ></bibleverse-input>
+                </div>
+                <div class="col col-md-1 col-12 mb-2">
                 <span class="icon editIcon"
                       v-if="editable && editTagsModeEnabled === false"
                       @click="editTagsModeEnabled=true"></span>
-                <span class="icon doneIcon"
-                      v-if="editable && editTagsModeEnabled === true"
-                      @click="editTagsModeEnabled=false"></span>
+                    <span class="icon doneIcon"
+                          v-if="editable && editTagsModeEnabled === true"
+                          @click="editTagsModeEnabled=false"></span>
+                </div>
             </div>
-        </div>
 
-        <div class="row">
-            <div class="col-lg-12">
-                <edditable-text type="div"
-                                classes="card card-body"
-                                :value="myMaterial.description"
-                                @value-changed="submitDescription"
-                                placeholder="Click here to insert description ..."></edditable-text>
+            <div class="row">
+                <div class="col-lg-12">
+                    <edditable-text type="div"
+                                    classes="card card-body"
+                                    :value="material.description"
+                                    @value-changed="submitDescription"
+                                    placeholder="Click here to insert description ..."></edditable-text>
+                </div>
             </div>
-        </div>
 
-        <div class="row" v-if="myMaterial.resources !== undefined && myMaterial.resources.length > 1">
-            <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12" v-for="resource in myMaterial.resources">
-                <resource-preview :resource="resource"></resource-preview>
+            <div class="row" v-if="material.resources !== undefined && material.resources.length > 1">
+                <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12" v-for="resource in material.resources">
+                    <resource-preview :resource="resource"></resource-preview>
+                </div>
             </div>
-        </div>
 
-        <div class="row" v-if="myMaterial.resources !== undefined && myMaterial.resources.length === 1">
-            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                <resource-detail :resource="myMaterial.resources[0]"></resource-detail>
+            <div class="row" v-if="material.resources !== undefined && material.resources.length === 1">
+                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                    <resource-detail :resource="material.resources[0]"></resource-detail>
+                </div>
             </div>
+
+
         </div>
-
-
     </div>
 </template>
 
@@ -134,17 +140,17 @@
     import keywordInput from './../keyword/keywordInput.vue';
     import bibleverse from './../bibleverse/biblevers.vue';
     import bibleverseInput from './../bibleverse/bibleverseInput.vue';
-    import resourcePreview from './../resource/resource-preview.vue';
-    import resourceDetail from './../resource/resource-detail.vue';
+    import resourcePreview from './../resource/show/resource-preview.vue';
+    import resourceDetail from './../resource/show/resource-detail.vue';
     import edditableText from './../edditable.vue';
     import fromBot from './../fromBot.vue';
     import starRating from 'vue-star-rating';
-    import axios from 'axios';
-    import {materialUpdateRoute} from './../serverRoutes';
     import flashMessage from 'vue-flash-message';
     import Vue from 'vue';
+    import AsyncComputed from 'vue-async-computed';
 
     Vue.use(flashMessage);
+    Vue.use(AsyncComputed);
 
     // https://github.com/craigh411/vue-star-rating/#props
 
@@ -152,9 +158,9 @@
         name: "MaterialApp",
 
         props: {
-            material: {
+            id: {
                 required: true,
-                type: Object
+                type: Number
             },
             editable: {
                 required: false,
@@ -166,7 +172,7 @@
 
         data() {
             return {
-                myMaterial: {},
+                material: null,
                 editTagsModeEnabled: false,
             };
         },
@@ -175,26 +181,45 @@
 
             keywordsAndBibleveres() {
 
-                this.myMaterial.keywords.forEach((kw) => {
+                this.material.keywords.forEach((kw) => {
                     kw.is = 'keyword';
                 });
 
-                this.myMaterial.bibleverses.forEach((bv) => {
+                this.material.bibleverses.forEach((bv) => {
                     bv.is = 'bibleverse';
                 });
 
-                return this.myMaterial.keywords.concat(this.myMaterial.bibleverses);
+                return this.material.keywords.concat(this.material.bibleverses);
 
                 /*.sort((k1, k2) => {
                     return k1.pivot.relevance - k2.pivot.relevance;
                 }));
                 */
-            }
+            },
 
+        },
+
+        asyncComputed: {},
+
+        watch: {
+            id(newValue) {
+                this.material = null;
+                this.getMaterial();
+            }
+        },
+
+        created() {
+            this.getMaterial();
         },
 
 
         methods: {
+            getMaterial() {
+                this.$store.dispatch('materials/getMaterial', this.id).then((material) => {
+                    this.material = material;
+                })
+            },
+
             submitTitle(newTitle) {
                 this.submitMaterialUpdate({title: newTitle, from_bot: false}, 'Title');
             },
@@ -213,9 +238,7 @@
 
             submitMaterialUpdate(data, propertyName) {
 
-                data._method = 'PUT';
-
-                const result = axios.post(materialUpdateRoute(this.material.id), data);
+                const result = this.$store.dispatch('materials/updateMaterial', {id: this.material.id, data});
 
                 if (propertyName) {
                     const startSavingMessage = this.flashStartSaving(propertyName);
@@ -223,49 +246,48 @@
                     result.then((response) => {
                         // On Success
                         this.flashSaved(propertyName);
-
-                        if (response.data.from_bot !== undefined) {
-                            this.myMaterial.from_bot = response.data.from_bot;
-                        }
-
                     }).catch(() => {
                         // On Error
                         this.flashError(propertyName);
-                    }).then(() => {
+                    }).then((data) => {
                         // Always
                         startSavingMessage.destroy();
+                        return data;
                     });
                 }
 
+                result.then((data) => {
+                    this.getMaterial();
+                    return data;
+                });
 
                 return result;
-
             },
 
             removeKeyword(index) {
-                this.myMaterial.keywords.splice(index, 1);
+                this.material.keywords.splice(index, 1);
                 this.materialWasModified();
             },
 
             removeBibleverse(index) {
                 console.log("Removing Keyword with index: ", index);
-                this.myMaterial.bibleverses.splice(index, 1);
+                this.material.bibleverses.splice(index, 1);
                 this.materialWasModified();
             },
 
             materialWasModified() {
-                this.myMaterial.from_bot = false;
+                this.material.from_bot = false;
             },
 
             bibleverseUpdated({oldBibleverse, newBibleverse}) {
 
                 // Success
-                const index = this.myMaterial.bibleverses.findIndex((bv) => {
+                const index = this.material.bibleverses.findIndex((bv) => {
                     return bv.id === oldBibleverse.id;
                 });
 
                 if (index !== -1) {
-                    this.myMaterial.bibleverses.splice(index, 1, newBibleverse); // https://vuejs.org/2016/02/06/common-gotchas/
+                    this.material.bibleverses.splice(index, 1, newBibleverse); // https://vuejs.org/2016/02/06/common-gotchas/
                     this.flashSaved('Keyword "' + newBibleverse.label + '"');
                     this.materialWasModified();
                 } else {
@@ -315,10 +337,6 @@
             fromBot
         },
 
-        created() {
-            // Deep Copy Material
-            this.myMaterial = JSON.parse(JSON.stringify(this.material));
-        }
     }
 </script>
 

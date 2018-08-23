@@ -10,7 +10,7 @@
 
 <script>
     import AudioVisualLine from 'vue-audio-visual/src/components/AvLine';
-    import resourceLinks from './resource-links.mixin';
+    import resourceLinks from './../resource-links.mixin';
 
     export default {
         mixins: [resourceLinks],

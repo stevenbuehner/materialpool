@@ -29,10 +29,10 @@
 
 <script>
 
-    import {pdfPreviewImageFirstPage} from './../serverRoutes';
+    import {pdfPreviewImageFirstPage} from './../../serverRoutes';
     import bImage from 'bootstrap-vue/src/components/image/img';
     import bImageLazy from 'bootstrap-vue/src/components/image/img-lazy';
-    import pdfMixin from './pdf-mixin';
+    import pdfMixin from './../pdf-mixin';
     import bModal from 'bootstrap-vue/src/components/modal/modal';
 
     export default {

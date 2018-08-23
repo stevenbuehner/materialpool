@@ -37,7 +37,7 @@
     import Biblevers from "../bibleverse/biblevers.vue";
     import materialDetail from './MaterialDetail.vue';
     import bModal from 'bootstrap-vue/es/components/modal/modal';
-    import {materialUpdateRoute} from './../serverRoutes';
+    import {api_v1_materials_update} from './../serverRoutes';
 
 
     export default {
@@ -47,7 +47,7 @@
 
         computed: {
             materialDetailLink() {
-                return materialUpdateRoute(this.material.id);
+                return api_v1_materials_update(this.material.id);
             }
         },
 

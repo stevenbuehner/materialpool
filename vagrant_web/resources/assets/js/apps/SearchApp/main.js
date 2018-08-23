@@ -2,6 +2,7 @@ import Vue from 'vue';
 import VueI18n from 'vue-i18n';
 import axios from 'axios';
 import VueRouter from 'vue-router';
+import {store} from './../store/index'; // Before routes to use in BeforeRouting-Functions
 import {routes} from './routes';
 import mainApp from './App.vue';
 
@@ -24,6 +25,7 @@ let vueInstance = new Vue({
     i18n: materialpool.i18n,
     router: new VueRouter({routes}),
     render: h => h(mainApp),
-    components: {}
+    components: {},
+    store
 });
 

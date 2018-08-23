@@ -14,6 +14,9 @@ class ResourceController extends BaseController {
 
 	use ResourceHelperTrait;
 
+	protected $allowedAssociations = ['materials', 'materials.keywords', 'materials.bibleverses'];
+
+
 	public function __construct() {
 		$this->middleware(['auth:api']);
 	}
@@ -22,10 +25,29 @@ class ResourceController extends BaseController {
 	 * Display the specified resource.
 	 *
 	 * @param  Resource $resource
+	 * @param Request   $request
 	 * @return Resource
 	 */
-	public function show(Resource $resource) {
-		return $resource;
+	public function show(Resource $resource, Request $request) {
+		return $this->useRelations($resource, $request);
+	}
+
+	protected function useRelations($resource, Request $request) {
+
+		if ($resource === NULL) {
+			return $resource;
+		}
+
+		$useRelations = [];
+
+		foreach ($request->get('relations', []) as $rel) {
+			if (in_array($rel, $this->allowedAssociations)) {
+				$useRelations[] = $rel;
+			}
+		}
+
+		return $resource->load($useRelations);
+
 	}
 
 	public function find(Request $request) {
@@ -164,7 +186,6 @@ class ResourceController extends BaseController {
 
 		return [];
 	}
-
 
 	/**
 	 * @param Request $request

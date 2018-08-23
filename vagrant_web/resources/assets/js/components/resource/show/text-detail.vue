@@ -1,16 +1,16 @@
 <template>
-    <div class="card-header">
-        <div>{{resource.content | trim(300) }}</div>
+    <div>
+        <my-text-block :text="resource.content"></my-text-block>
     </div>
 </template>
 
 <script>
-    import truncateFilter from './../filters/truncate-filter.mixin';
+
+    import myTextBlock from './../../my-text-block.vue';
+
 
     export default {
-        mixins: [
-            truncateFilter,
-        ],
+        mixins: [],
 
         props: {
             resource: {
@@ -18,6 +18,11 @@
                 type: Object
             }
         },
+
+        components: {
+            myTextBlock
+        }
+
     }
 </script>
 

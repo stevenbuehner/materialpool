@@ -5,9 +5,7 @@ export const searchGuessRoute2 = '/pool/search/guess2';
 export const materialShowRoute   = (materialId) => {
     return '/pool/material/' + materialId;
 };
-export const materialUpdateRoute = (materialId) => {
-    return '/api/v1/materials/' + materialId;
-};
+
 
 // Keyword
 export const materialAddKeywordRoute    = (materialID, keywordId) => {
@@ -17,12 +15,7 @@ export const materialRemoveKeywordRoute = (materialID, keywordId) => {
     return '/api/v1/material/' + materialID + '/keyword/' + keywordId;
 };
 export const createKeywordRoute         = '/api/v1/keywords/';
-export const keywordUpdateRoute         = (keywordId) => {
-    return '/api/v1/keywords/' + keywordId;
-};
-export const keywordUpdatePivotRoute    = (materialId, keywordId) => {
-    return '/api/v1/material/' + materialId + '/keyword/' + keywordId;
-};
+
 export const keywordSearchLink          = (keyword) => {
     return '/pool/keyword/' + keyword.lc_title;
 };
@@ -63,3 +56,25 @@ export const pdfPreviewImageForPage   = (resource, page) => {
 export const searchUrl              = '/pool/search/get';
 export const searchGuessKeywords    = '/pool/search/guess/keywords';
 export const searchGuessBibleverses = '/pool/search/guess/bibleverses';
+
+
+// API - Material
+export const api_v1_materials_show = (materialsId)=>{
+    return '/api/v1/materials/' + materialsId;
+}
+
+// API - Resource
+export const api_v1_resources_show = (resourceId) => {
+    return '/api/v1/resources/' + resourceId;
+};
+export const api_v1_materials_update= (materialId) => {
+    return '/api/v1/materials/' + materialId;
+};
+
+// API - Keywords
+export const api_v1_keywords_update = (keywordId) => {
+    return '/api/v1/keywords/' + keywordId;
+};
+export const api_v1_keywords_updateassignment = (materialId, keywordId) => {
+    return '/api/v1/material/' + materialId + '/keyword/' + keywordId;
+};

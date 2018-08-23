@@ -26,7 +26,7 @@
     import videoDetail from './video-preview.vue'
     import docDetail from './doc-preview.vue'
     import resDetail from './res-preview.vue'
-    import resourceLinks from './resource-links.mixin';
+    import resourceLinks from './../resource-links.mixin';
 
 
     export default {

@@ -1,12 +1,16 @@
 import Vue from 'vue';
 import VueX from 'vuex';
-import material from './modules/material';
+import resources from './modules/resources';
+import materials from './modules/materials';
+import keywords from './modules/keywords';
 
 Vue.use(VueX);
 
 export const store = new VueX.Store({
 
-    modules: [material],
-
-
+    modules: {
+        resources,
+        materials,
+        keywords
+    }
 });
