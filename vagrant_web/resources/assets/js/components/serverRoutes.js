@@ -11,10 +11,6 @@ export const materialShowRoute   = (materialId) => {
 export const materialAddKeywordRoute    = (materialID, keywordId) => {
     return '/api/v1/material/' + materialID + '/keyword/' + keywordId;
 };
-export const materialRemoveKeywordRoute = (materialID, keywordId) => {
-    return '/api/v1/material/' + materialID + '/keyword/' + keywordId;
-};
-export const createKeywordRoute         = '/api/v1/keywords/';
 
 export const keywordSearchLink          = (keyword) => {
     return '/pool/keyword/' + keyword.lc_title;
@@ -72,9 +68,13 @@ export const api_v1_materials_update= (materialId) => {
 };
 
 // API - Keywords
+export const api_v1_keywords_create= '/api/v1/keywords/';
 export const api_v1_keywords_update = (keywordId) => {
     return '/api/v1/keywords/' + keywordId;
 };
 export const api_v1_keywords_updateassignment = (materialId, keywordId) => {
     return '/api/v1/material/' + materialId + '/keyword/' + keywordId;
+};
+export const api_v1_keywords_deleteassignment = (materialID, keywordId) => {
+    return '/api/v1/material/' + materialID + '/keyword/' + keywordId;
 };

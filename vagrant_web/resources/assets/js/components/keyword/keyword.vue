@@ -76,7 +76,6 @@
     import bFormSelect from 'bootstrap-vue/es/components/form-select/form-select';
     import contextMenu from './../context-menu/context-menu.vue';
     import contextMenuItem from "../context-menu/context-menu-item.vue";
-    import axios from 'axios';
     import {tagging} from './../theme';
     import {
         keywordSearchLink,
@@ -233,9 +232,11 @@
 
                 promise.then((keyword) => {
 
+                    // Nur für den Fall, dass die Komponente irgendwo eingesetzt wird, wo sich das im Hintergrund nicht aktualisiert
                     this.myKeyword.pivot = keyword.pivot;
 
                     this.emitSaved(keyword);
+
                 }).catch((response) => {
 
                     // on failure
@@ -249,27 +250,19 @@
 
             removeKeyword() {
 
-                let params = {
-                    _method: 'DELETE'
-                };
+                const promise = this.$store.dispatch('keywords/deleteAssignment', {
+                    materialId: this.materialId,
+                    keywordId: this.myKeyword.id
+                });
 
-                axios.post(materialRemoveKeywordRoute(this.materialId, this.myKeyword.id), params)
-                    .then((response) => {
-                            this.emitRemoved();
-                        }
-                    ).catch((response) => {
-                    // on failure
-                    console.error('Failed to remove keyword', this.myKeyword)
+                promise.then((response) => {
+                    this.$emit('removed', this.myKeyword);
                 });
 
             },
 
             emitSaved(newKeyword) {
                 this.$emit('saved', newKeyword);
-            },
-
-            emitRemoved() {
-                this.$emit('removed', this.myKeyword);
             },
 
             parseResponseErrors(response) {

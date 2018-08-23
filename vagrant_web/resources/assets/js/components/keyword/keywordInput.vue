@@ -51,7 +51,7 @@
 </template>
 
 <script>
-    import {createKeywordRoute, materialAddKeywordRoute, searchGuessKeywords} from "./../serverRoutes";
+    import {createKeywordRoute, searchGuessKeywords} from "./../serverRoutes";
     import axios from 'axios';
     import keyword from './../keyword/keyword.vue';
     import {HollowDotsSpinner} from 'epic-spinners'
@@ -120,7 +120,7 @@
                 if (newValue.length > 1) {
                     this.setStillLoading(true);
                     this.search(this.setStillLoading, newValue, this);
-                }else{
+                } else {
                     this.suggestedKeywords = [];
                 }
 
@@ -181,20 +181,12 @@
 
             createNewKeyword(title) {
 
-                let params = {
-                    title: title
-                };
+                const promise = this.$store.dispatch('keywords/createAndAssign', {
+                    title,
+                    type: 'key',
+                    materialId: this.materialId
+                });
 
-                axios.post(createKeywordRoute, params)
-                    .then(({data}) => {
-
-                        console.log('created Keyword');
-
-                        this.requestAddKeyword(data);
-                    })
-                    .catch((response) => {
-                        console.error(response);
-                    });
             },
 
             requestAddKeyword(kw) {
@@ -202,27 +194,13 @@
                 if (this.myKeywords.find((el) => {
                     return el.id === kw.id;
                 }) === undefined) {
-                    this.doAddKeyword(kw, this.materialId);
-                }
-
-            },
-
-            doAddKeyword(kw, materialId) {
-
-                this.insertOrUpdateKeyword(kw);
-
-                let params = {
-                    _method: 'PUT'
-                };
-
-                axios.post(materialAddKeywordRoute(materialId, kw.id), params)
-                    .then(({data}) => {
-                        console.log('added Keyword');
+                    this.$store.dispatch('keywords/updateRelevance', {
+                        materialId: this.materialId,
+                        keywordId: kw.id
+                    }).then((data) => {
                         this.insertOrUpdateKeyword(data);
-                    })
-                    .catch((response) => {
-                        console.error(response);
                     });
+                }
 
             },
 

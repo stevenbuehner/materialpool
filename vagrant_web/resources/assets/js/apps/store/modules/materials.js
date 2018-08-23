@@ -113,28 +113,61 @@ const actions = {
         let mat = getters.getMaterial(materialId);
         console.info('Received Update request');
 
-        if (mat && mat.keywords && mat.keywords.length > 0) {
-            mat.keywords.forEach((kw, index) => {
+        if (mat && mat.keywords) {
 
-                if (kw.id == keyword.id) {
-                    console.info('Updating keyword: ' + keyword.id);
+            let found = mat.keywords.find(kw => kw.id == keyword.id);
 
-                    let keywordToUpdate = mat.keywords[index];
+            if (!found) {
+                found = keyword;
+                mat.keywords.push(found);
+            } else {
 
-                    for (let prop in keyword) {
-                        keywordToUpdate[prop] = keyword[prop];
-                    }
-
-                    // Update pivot
-                    mat.keywords[index].pivot = pivot;
-
+                for (let prop in keyword) {
+                    found[prop] = keyword[prop];
                 }
 
-            });
+            }
+
+
+            // Update pivot
+            if (pivot) {
+                found.pivot = pivot;
+            }
 
             commit('setMaterial', mat);
         }
 
+    },
+
+    addKeywordToMaterial: ({commit, getters, dispatch}, {materialId, keyword, relevance}) => {
+
+        let mat = getters.getMaterial(materialId);
+
+        if (mat) {
+            const found = mat.keywords.find(el => el.id == keyword.id);
+
+            if (found === undefined) {
+                keyword.pivot = {relevance: relevance}
+                mat.keywords.push(keyword);
+                commit('setMaterial', mat);
+            } else {
+                dispatch('updateMaterialKeywords', {materialId, keyword, pivot: {relevance}});
+            }
+        }
+
+    },
+
+    removeKeywordFromMaterial: ({commit, getters, dispatch}, {materialId, keywordId}) => {
+
+        let mat = getters.getMaterial(materialId);
+
+        if (mat && mat.keywords) {
+            mat.keywords = mat.keywords.filter((el) => {
+                return el.id != keywordId
+            });
+
+            commit('setMaterial', mat);
+        }
     },
 
 
@@ -143,7 +176,7 @@ const actions = {
         let mat = getters.getMaterial(id);
 
         if (mat && mat.keywords && mat.keywords.length > 0) {
-            dispatch('keywords/removeKeywordsFromMaterial', {materialId: id, keywords: mat.keywords});
+            dispatch('keywords/removeAllKeywordsFromMaterial', {materialId: id, keywords: mat.keywords});
         }
 
         commit('clearMaterial', id);
