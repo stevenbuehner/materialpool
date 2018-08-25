@@ -2,7 +2,14 @@
     <div>
         <searchbar-header @searchUpdated="updateMaterialList"></searchbar-header>
         <hr>
-        <searchbar-outcome :materialIds="materialIds"></searchbar-outcome>
+        <searchbar-outcome :materialIds="materialIds" v-if="!isLoading"></searchbar-outcome>
+        <div class="d-flex justify-content-between align-items-center">
+            <hollow-dots-spinner :dot-size="10"
+                                 :dots-num="3"
+                                 :animation-duration="1500"
+                                 v-if="isLoading"
+                                 color="grey"></hollow-dots-spinner>
+        </div>
         <hr>
         <searchbar-footer :paging="paging"></searchbar-footer>
     </div>
@@ -12,8 +19,17 @@
     import searchbarHeader from './searchbarHeader.vue';
     import searchbarOutcome from './searchbarOutcome.vue';
     import searchbarFooter from './searchbarFooter.vue';
+    import {HollowDotsSpinner} from 'epic-spinners'
 
     export default {
+
+        props: {
+            page: {
+                required: false,
+                default: 1
+            }
+        },
+
         data() {
             return {
                 materialIds: [],
@@ -26,14 +42,28 @@
                     prev_page_url: null,
                     to: 3,
                     total: 3,
-                }
+                },
+                lastSearchData: [],
+                isLoading: false,
             };
         },
 
         computed: {},
 
+        watch: {
+            page() {
+                this.updateMaterialList();
+            }
+        },
+
         methods: {
             updateMaterialList: function (searchData, page) {
+
+                page       = page || this.page;
+                searchData = searchData || this.lastSearchData;
+
+                this.lastSearchData = searchData;
+                this.isLoading      = true;
 
                 const promise = this.$store.dispatch('search/materials', {
                     query: searchData,
@@ -41,6 +71,8 @@
                 }).then(({materials, paging}) => {
                     this.paging      = paging;
                     this.materialIds = materials.map(m => m.id);
+                }).then(() => {
+                    this.isLoading = false;
                 });
 
             },
@@ -50,7 +82,8 @@
         components: {
             searchbarHeader,
             searchbarOutcome,
-            searchbarFooter
+            searchbarFooter,
+            HollowDotsSpinner
         }
     }
 </script>

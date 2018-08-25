@@ -5,9 +5,7 @@ import ResourceDetail from './../../components/resource/resource.vue';
 export const routes = [
 
     {
-        path: '/search/:page?', component: SearchPage, name: 'search', props: true, children: [
-            {path: 'query', component: SearchPage, name: 'searchquerry', props: true}
-        ]
+        path: '/search/:page?', component: SearchPage, name: 'search', props: true
     },
     {
         path: '/material/:id', component: MaterialDetail, name: 'material-detail', props: (route) => {

@@ -1,8 +1,7 @@
 <template>
     <div class="material"
          v-if="material"
-         @click.prevent="openMaterialModal"
-         @dblclick.prevent="goToMaterial">
+         @click.prevent="goToMaterial">
         <div class="head">
             <div class="title">{{material.title}}</div>
             <small class="meta-info">
@@ -27,9 +26,6 @@
         </div>
         <small class="description">{{material.description}}</small>
 
-        <b-modal ref="materialDetail" title="Material Detail">
-            <material-detail :id="material.id" :editable="false"></material-detail>
-        </b-modal>
     </div>
 </template>
 
@@ -37,7 +33,6 @@
     import Keyword from './../keyword/keyword.vue'
     import Biblevers from "../bibleverse/biblevers.vue";
     import materialDetail from './MaterialDetail.vue';
-    import bModal from 'bootstrap-vue/es/components/modal/modal';
     import {api_v1_materials_update} from './../serverRoutes';
 
 
@@ -75,10 +70,6 @@
                 })
             },
 
-            openMaterialModal() {
-                this.$refs.materialDetail.show();
-            },
-
             goToMaterial() {
                 this.$router.push(
                     {
@@ -93,7 +84,6 @@
         components: {
             Biblevers,
             Keyword,
-            bModal,
             materialDetail
         }
     }

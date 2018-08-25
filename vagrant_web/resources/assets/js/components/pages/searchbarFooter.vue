@@ -4,6 +4,8 @@
                 v-model="paging.current_page"
                 :limit="10"
                 :number-of-pages="paging.last_page"
+                use-router
+                :link-gen="linkGeneration"
                 align="center">
 
         </b-pagination-nav>
@@ -20,6 +22,17 @@
                 type: Object,
                 required: true,
                 default: {}
+            }
+        },
+
+        methods: {
+            linkGeneration(pageNum) {
+                return {
+                    name: 'search',
+                    params: {
+                        page: pageNum
+                    }
+                }
             }
         },
 
