@@ -26,7 +26,8 @@
         props: {
             page: {
                 required: false,
-                default: 1
+                default: 1,
+                type: Number
             }
         },
 
@@ -65,7 +66,7 @@
                 this.lastSearchData = searchData;
                 this.isLoading      = true;
 
-                const promise = this.$store.dispatch('search/materials', {
+                this.$store.dispatch('search/materials', {
                     query: searchData,
                     page: page
                 }).then(({materials, paging}) => {

@@ -21,7 +21,9 @@
             paging: {
                 type: Object,
                 required: true,
-                default: {}
+                default() {
+                    return {};
+                }
             }
         },
 

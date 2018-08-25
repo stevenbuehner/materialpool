@@ -1,37 +1,77 @@
 import {searchUrl} from './../../../components/serverRoutes';
 import axios from 'axios';
 
+const MAX_CACHE_HISTORY = 20;
+
 
 const state = {
     selectedSearchValues: {},
 
-    lastSearchQueryJson: '',
-    lastSearchPromise: null,
+    searchCacheHistory: [],
+    searchCache: {}
 };
 
-const getters   = {
-    getLastSearchPromise: (state) => {
-        return state.lastSearchPromise;
+const getters = {
+
+    hasCacheEntry: (state) => (query) => {
+        const json = JSON.stringify(query);
+
+        return !!state.searchCache[json];
     },
-    getLastSearchQueryAsJson: (state) => {
-        return state.lastSearchQueryJson;
+
+    getCacheEntry: (state) => (query) => {
+        const json    = JSON.stringify(query);
+        const promise = state.searchCache[json];
+
+        let myIndex = null;
+        state.searchCacheHistory.find((el, index) => {
+            myIndex = index;
+            return el === json;
+        });
+
+
+        // Put requested Cache at last position in array
+        if (myIndex !== null) {
+            state.searchCacheHistory.push(state.searchCacheHistory.splice(myIndex, 1)[0]);
+
+        }
+
+        return promise;
+
     }
+
 };
+
 const mutations = {
-    setSearchValues(state, values) {
-        state.selectedSearchValues = values;
-    },
 
-    setLastSearchPromise(state, value) {
-        state.lastSearchPromise = value;
-    },
+    putSearchCache(state, {query, promise}) {
 
-    setLastSearchQuery(state, value) {
-        state.lastSearchQueryJson = JSON.stringify(value);
-    },
+        const jsonQuery = JSON.stringify(query);
 
-    setLastSearchQueryAsJson(state, value) {
-        state.lastSearchQueryJson = value;
+        // Does cache already exist?
+        if (state.searchCache[jsonQuery]) {
+
+            // => Remove Cached Element (don't need it twice)
+            state.searchCacheHistory = state.searchCacheHistory.filter((el) => {
+                return el !== jsonQuery;
+            });
+
+        } else if (state.searchCacheHistory.length >= MAX_CACHE_HISTORY) {
+
+            // Remove first element of array
+            const firstIndex = state.searchCacheHistory.shift();
+
+            // Delete the cache
+            if (state.searchCache[first]) {
+                delete state.searchCache[first];
+            }
+
+        }
+
+        // Add new Cache Entry to the back
+        state.searchCache[jsonQuery] = promise;
+        state.searchCacheHistory.push(jsonQuery);
+
     }
 };
 
@@ -47,47 +87,49 @@ const actions = {
             page: page
         };
 
-        const current = JSON.stringify(data);
-        const last    = getters.getLastSearchQueryAsJson;
+        let resultPromise = null;
 
-        if (current === last) {
+        if (getters.hasCacheEntry(data)) {
+
             console.log('Using cached Searchresults for:', query);
 
-            return getters.getLastSearchPromise;
+            resultPromise = getters.getCacheEntry(data);
+
+        } else {
+
+            console.log('updating Searchresults for:', query);
+
+            resultPromise = axios.post(searchUrl, data)
+                .then(response => response.data)
+                .then((data) => {
+
+                    const materials = data.data;
+                    // const materialIds = materials.map(m => m.id);
+                    const paging    = {
+                        current_page: data.current_page,
+                        from: data.from,
+                        last_page: data.last_page,
+                        next_page_url: data.next_page_url,
+                        per_page: data.per_page,
+                        prev_page_url: data.prev_page_url,
+                        to: data.to,
+                        total: data.total,
+                    };
+
+                    for (let i in materials) {
+                        dispatch('materials/setMaterial', materials[i], {root: true});
+                    }
+
+                    return {materials, paging};
+
+                });
+
         }
 
-        console.log('updating Searchresults for:', query);
-
-        const resultPromise = axios.post(searchUrl, data)
-            .then(response => response.data)
-            .then((data) => {
-
-                const materials = data.data;
-                // const materialIds = materials.map(m => m.id);
-                const paging    = {
-                    current_page: data.current_page,
-                    from: data.from,
-                    last_page: data.last_page,
-                    next_page_url: data.next_page_url,
-                    per_page: data.per_page,
-                    prev_page_url: data.prev_page_url,
-                    to: data.to,
-                    total: data.total,
-                };
-
-                for (let i in materials) {
-                    dispatch('materials/setMaterial', materials[i], {root: true});
-                }
-
-                return {materials, paging};
-
-            });
-
-        commit('setLastSearchPromise', resultPromise);
-        commit('setLastSearchQuery', data);
+        commit('putSearchCache', {query: data, promise: resultPromise});
 
         return resultPromise;
-    },
+    }
 
 };
 
