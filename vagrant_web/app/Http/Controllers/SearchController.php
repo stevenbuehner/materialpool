@@ -258,7 +258,7 @@ class SearchController extends Controller {
 		$matQuery   = Material::query()
 							  ->select('materials.*')
 							  ->distinct()
-							  ->with(['author', 'keywords', 'bibleverses'])
+							  ->with(['author', 'keywords', 'bibleverses', 'resources'])
 							  ->orderBy('materials.rating', 'desc');
 
 
