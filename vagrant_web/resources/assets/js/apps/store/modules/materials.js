@@ -176,7 +176,7 @@ const actions = {
         let mat = getters.getMaterial(id);
 
         if (mat && mat.keywords && mat.keywords.length > 0) {
-            dispatch('keywords/removeAllKeywordsFromMaterial', {materialId: id, keywords: mat.keywords});
+            dispatch('keywords/removeAllKeywordsFromMaterial', {materialId: id, keywords: mat.keywords}, {root: true});
         }
 
         commit('clearMaterial', id);

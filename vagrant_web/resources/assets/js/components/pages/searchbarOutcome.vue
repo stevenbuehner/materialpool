@@ -1,6 +1,6 @@
 <template>
     <div>
-        <material-listing :materials="materials"></material-listing>
+        <material-listing :materialIds="materialIds"></material-listing>
     </div>
 </template>
 
@@ -11,7 +11,7 @@
     export default {
 
         props: {
-            materials: {
+            materialIds: {
                 required: true,
                 type: Array
             }

@@ -2,7 +2,7 @@
     <div>
         <searchbar-header @searchUpdated="updateMaterialList"></searchbar-header>
         <hr>
-        <searchbar-outcome :materials="materials"></searchbar-outcome>
+        <searchbar-outcome :materialIds="materialIds"></searchbar-outcome>
         <hr>
         <searchbar-footer :paging="paging"></searchbar-footer>
     </div>
@@ -12,13 +12,11 @@
     import searchbarHeader from './searchbarHeader.vue';
     import searchbarOutcome from './searchbarOutcome.vue';
     import searchbarFooter from './searchbarFooter.vue';
-    import axios from 'axios';
-    import {searchUrl} from './../serverRoutes'
 
     export default {
         data() {
             return {
-                materials: [],
+                materialIds: [],
                 paging: {
                     current_page: 1,
                     from: 1,
@@ -35,32 +33,18 @@
         computed: {},
 
         methods: {
-            updateMaterialList: function (searchData) {
-                console.log('updating', searchData);
+            updateMaterialList: function (searchData, page) {
 
-                var data = {
-                    q: searchData,
-                    page: 1
-                };
+                const promise = this.$store.dispatch('search/materials', {
+                    query: searchData,
+                    page: page
+                }).then(({materials, paging}) => {
+                    this.paging      = paging;
+                    this.materialIds = materials.map(m => m.id);
+                });
 
-                axios.post(searchUrl, data)
-                    .then((response) => {
-                        let result = response.data;
+            },
 
-                        this.materials = result.data
-
-                        this.paging = {
-                            current_page: result.current_page,
-                            from: result.from,
-                            last_page: result.last_page,
-                            next_page_url: result.next_page_url,
-                            per_page: result.per_page,
-                            prev_page_url: result.prev_page_url,
-                            to: result.to,
-                            total: result.total,
-                        }
-                    });
-            }
         },
 
         components: {

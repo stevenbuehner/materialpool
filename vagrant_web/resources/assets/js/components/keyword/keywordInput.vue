@@ -51,7 +51,7 @@
 </template>
 
 <script>
-    import {createKeywordRoute, searchGuessKeywords} from "./../serverRoutes";
+    import {searchGuessKeywords} from "./../serverRoutes";
     import axios from 'axios';
     import keyword from './../keyword/keyword.vue';
     import {HollowDotsSpinner} from 'epic-spinners'

@@ -1,5 +1,6 @@
 <template>
     <div class="material"
+         v-if="material"
          @click.prevent="openMaterialModal"
          @dblclick.prevent="goToMaterial">
         <div class="head">
@@ -27,7 +28,7 @@
         <small class="description">{{material.description}}</small>
 
         <b-modal ref="materialDetail" title="Material Detail">
-            <material-detail :material="material" :editable="false"></material-detail>
+            <material-detail :id="material.id" :editable="false"></material-detail>
         </b-modal>
     </div>
 </template>
@@ -41,17 +42,39 @@
 
 
     export default {
-        mounted() {
+        created() {
+            this.getMaterial();
         },
-        props: ['material'],
+
+        props: ['id'],
+
+        data() {
+            return {
+                material: null,
+            }
+        },
 
         computed: {
             materialDetailLink() {
-                return api_v1_materials_update(this.material.id);
+                return api_v1_materials_update(this.id);
+            },
+
+        },
+
+        watch: {
+            id(newValue) {
+                this.material = null;
+                this.getMaterial();
             }
         },
 
         methods: {
+            getMaterial() {
+                this.$store.dispatch('materials/getMaterial', this.id).then((material) => {
+                    this.material = material;
+                })
+            },
+
             openMaterialModal() {
                 this.$refs.materialDetail.show();
             },
@@ -65,6 +88,7 @@
                 );
             }
         },
+
 
         components: {
             Biblevers,

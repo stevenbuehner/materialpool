@@ -6,12 +6,7 @@ export const materialShowRoute   = (materialId) => {
     return '/pool/material/' + materialId;
 };
 
-
 // Keyword
-export const materialAddKeywordRoute    = (materialID, keywordId) => {
-    return '/api/v1/material/' + materialID + '/keyword/' + keywordId;
-};
-
 export const keywordSearchLink          = (keyword) => {
     return '/pool/keyword/' + keyword.lc_title;
 };

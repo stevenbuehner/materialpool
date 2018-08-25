@@ -7,7 +7,8 @@
                 label="text"
                 multiple
                 placeholder="Suchbegriffe hier eingeben"
-                v-model="selectedValues">
+                v-model="lineValues"
+                @input="$emit('updated', lineValues)">
 
         <template slot="no-options">
             Gib einen Suchbegriff ein
@@ -32,40 +33,35 @@
 
 <script>
     import vueSelect from 'vue-select';
-    import axios from 'axios';
-    import {searchGuessRoute} from "./../serverRoutes";
 
     export default {
 
         props: {
-            preselectedOptions: {
-                type: Array,
-                default: [],
-                required: false
+            lineValues: {
+                required: true,
             }
         },
 
         data() {
             return {
                 options: [],
-                selectedValues: []
-
             };
         },
 
 
-        computed: {},
-
-        watch: {
-            selectedValues(after, before) {
-                this.$emit('change', after);
-            }
+        model: {
+            prop: 'lineValues',
+            event: 'updated'
         },
+
+
+        watch: {},
 
 
         methods: {
             onSearch(search, loading) {
                 loading(true);
+
                 this.search(loading, search, this);
             },
 
@@ -76,17 +72,9 @@
             // _.throttle), visit: https://lodash.com/docs#debounce
             search: _.debounce((loading, search, vm) => {
 
-                let data = {q: search};
-
-                axios.get(searchGuessRoute, {params: data})
-                    .then(({data}) => {
+                vm.$store.dispatch('tagsearch/searchTags', search)
+                    .then((data) => {
                         vm.options = data.data;
-                    })
-                    .catch((response) => {
-                        console.error(response);
-                    })
-                    .then(() => {
-                        // Always
                         loading(false);
                     });
 
@@ -96,9 +84,6 @@
         },
 
         created() {
-            if (this.preselectedOptions.length > 0) {
-                this.selectedValues = this.preselectedOptions;
-            }
         },
 
         components: {

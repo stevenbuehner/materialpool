@@ -2,9 +2,9 @@
     <div class="material-listing">
         <div class="material-listing-menue"></div>
         <div class="material-listing-data">
-            <material v-for="material in materials"
-                      :material="material"
-                      :key="material.id"
+            <material v-for="id in materialIds"
+                      :id="id"
+                      :key="id"
             ></material>
         </div>
     </div>
@@ -18,7 +18,7 @@
             console.log('Material-Listing component mounted.')
         },
 
-        props: ['materials'],
+        props: ['materialIds'],
 
         components: {
             material: MaterialListingItem,

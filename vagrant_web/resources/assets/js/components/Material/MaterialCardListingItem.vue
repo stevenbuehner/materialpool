@@ -39,7 +39,7 @@
     import Biblevers from "../bibleverse/biblevers.vue";
     import materialDetail from './MaterialDetail.vue';
     import bModal from 'bootstrap-vue/es/components/modal/modal';
-    import {materialShowRoute, api_v1_materials_update} from './../serverRoutes';
+    import {api_v1_materials_update} from './../serverRoutes';
 
 
     export default {
@@ -59,7 +59,11 @@
             },
 
             goToMaterial() {
-                window.location.href = materialShowRoute(this.material.id);
+                this.$router.push({
+                    name: 'material-details',
+                    props: {id: this.material.id}
+                })
+//                window.location.href = materialShowRoute(this.material.id);
             }
         },
 

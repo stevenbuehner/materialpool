@@ -77,12 +77,7 @@
     import contextMenu from './../context-menu/context-menu.vue';
     import contextMenuItem from "../context-menu/context-menu-item.vue";
     import {tagging} from './../theme';
-    import {
-        keywordSearchLink,
-        keywordUpdatePivotRoute,
-        keywordUpdateRoute,
-        materialRemoveKeywordRoute
-    } from './../serverRoutes';
+    import {keywordSearchLink} from './../serverRoutes';
 
     import {draggingSupport} from "./dragging.mixin";
 
