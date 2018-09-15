@@ -32,3 +32,4 @@ vagrant_web/public/img/octicons
 .bash_history
 npm-debug.log
 develop.css
+.phpstorm.meta.php
