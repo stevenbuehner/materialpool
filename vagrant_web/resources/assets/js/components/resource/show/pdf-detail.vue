@@ -1,7 +1,7 @@
 <template>
     <div class="row">
         <div v-for="image in previewImages"
-             class="col-lg-3 col-md-4 col-sm-6 col-1 imageContainer img-thumbnail"
+             class="col-lg-3 col-md-4 col-sm-6 col-12 imageContainer img-thumbnail"
              @click="showModalImage(image)">
             <b-image-lazy
                     :src="image.src"
