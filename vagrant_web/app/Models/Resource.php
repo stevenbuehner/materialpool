@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Jobs\UpdateResourceHashes;
 use App\Services\PreviewGeneration\Generators\NoPreviewGenerator;
 use App\Services\PreviewGeneration\Interfaces\PreviewGeneratorInterface;
 use App\Services\TagExtraction\ResourceHandles\HandlerInterface;
@@ -140,6 +141,13 @@ class Resource extends Model {
 		return $this->belongsToMany(Material::class, 'material_resource', 'resource_id', 'material_id')
 					->withPivot('limitation')
 					->using(MaterialResource::class);
+	}
+
+	/**
+	 * @return array of jobs that need to be run after creating this resource
+	 */
+	public function getPostCreateJobs() {
+		return [new UpdateResourceHashes($this)];
 	}
 
 	/**

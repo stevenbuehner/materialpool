@@ -7,6 +7,7 @@
 
 namespace App\Services\PreviewGeneration\Generators;
 
+use App\Jobs\CalculatePdfPageSize;
 use App\Models\PdfFile;
 use App\Models\Resource as ResourceEntity;
 use App\ResourceLimitations\ResourceLimitationInterface;
@@ -70,7 +71,13 @@ class PdfPreviewGenerator implements PreviewGeneratorInterface {
 	public function renderHTMLPreview(ResourceEntity $resource, ResourceLimitationInterface $limitation = NULL, $context = NULL) {
 
 		/** @var $resource PdfFile */
-		$pageCount = $resource->getPdfCountAndSaveCache();
+		$pageCount = $resource->page_count;
+
+		if ($pageCount === NULL) {
+			CalculatePdfPageSize::dispatch($resource);
+			$resource  = $resource->fresh();
+			$pageCount = $resource->page_count;
+		}
 
 		$view = View::make('resources.generators.pdf')
 					->with('resource', $resource)
@@ -86,15 +93,15 @@ class PdfPreviewGenerator implements PreviewGeneratorInterface {
 	 * @param Resource $resource
 	 * @return bool
 	 */
-	public function imagePreviewAble(ResourceEntity $resource) {
-		return ($resource instanceof PdfFile && $resource->hasLocalFile() && $resource->localFileExists());
+	public function htmlPreviewAble(ResourceEntity $resource) {
+		return $this->imagePreviewAble($resource);
 	}
 
 	/**
 	 * @param Resource $resource
 	 * @return bool
 	 */
-	public function htmlPreviewAble(ResourceEntity $resource) {
-		return $this->imagePreviewAble($resource);
+	public function imagePreviewAble(ResourceEntity $resource) {
+		return ($resource instanceof PdfFile && $resource->hasLocalFile() && $resource->localFileExists());
 	}
 }

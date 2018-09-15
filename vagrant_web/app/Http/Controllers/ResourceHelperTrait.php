@@ -3,19 +3,20 @@
 namespace App\Http\Controllers;
 
 use App\Exceptions\InvalidResourceTypeException;
-use App\Jobs\UpdateResourceHashes;
 use App\Models\Material;
 use App\Models\Resource;
 use App\Models\Text;
 use App\Services\ResourceRecognition\ResourceRecognitionService;
 use App\Services\TagExtraction\MaterialExtractionService;
 use App\Services\TagExtraction\ResourceHandles\TextContentInterface;
+use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 
 trait ResourceHelperTrait {
+	use DispatchesJobs;
 
 	protected $bibleVerseService;
 
@@ -43,6 +44,7 @@ trait ResourceHelperTrait {
 		foreach ($uploadedFiles as $key => $file) {
 			$resources[$key] = $this->handleResourceFileUpload($file);
 			$resources[$key] = $this->handleGerneralResourceAttributes($resources[$key], $request);
+			$resources[$key] = $this->queuePostCreationJobs($resources[$key]);
 		}
 
 		return $resources;
@@ -90,10 +92,8 @@ trait ResourceHelperTrait {
 			$resource->save();
 		}
 
-		UpdateResourceHashes::dispatch($resource);
-
 		// Hashes have been updated ...
-		$resource = $resource->fresh();
+		// $resource = $resource->fresh();
 
 		return $resource;
 
@@ -119,6 +119,23 @@ trait ResourceHelperTrait {
 		return $resource;
 	}
 
+	protected function queuePostCreationJobs(Resource $resource) {
+
+		$jobs = $resource->getPostCreateJobs();
+
+		foreach ($jobs as $job) {
+			$this->dispatch($job);
+		}
+
+		if (count($jobs) > 0) {
+			// Maybe something was changed during a job
+			$resource = $resource->fresh();
+		}
+
+		return $resource;
+
+	}
+
 	/**
 	 *
 	 * @param $request
@@ -132,6 +149,8 @@ trait ResourceHelperTrait {
 		$uploadedFile = $request->file('file');
 		$resource     = $this->handleResourceFileUpload($uploadedFile, $resource);
 		$resource     = $this->handleGerneralResourceAttributes($resource, $request);
+
+		$this->queuePostCreationJobs($resource);
 
 		return $resource;
 	}
@@ -183,10 +202,10 @@ trait ResourceHelperTrait {
 
 		$resource->save();
 
-		UpdateResourceHashes::dispatch($resource);
+		// UpdateResourceHashes::dispatch($resource);
 
 		// Hash will be updated ...
-		$resource = $resource->fresh();
+		// $resource = $resource->fresh();
 
 		return $resource;
 	}
