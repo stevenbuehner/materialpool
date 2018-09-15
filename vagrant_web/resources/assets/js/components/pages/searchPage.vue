@@ -28,6 +28,12 @@
                 required: false,
                 default: 1,
                 type: Number
+            },
+
+            quicksearch: {
+                type: String,
+                required: false,
+                default: ''
             }
         },
 
@@ -58,6 +64,7 @@
         },
 
         methods: {
+
             updateMaterialList: function (searchData, page) {
 
                 page       = page || this.page;

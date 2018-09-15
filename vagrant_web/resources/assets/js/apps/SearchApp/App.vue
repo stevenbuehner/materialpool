@@ -1,13 +1,24 @@
 <template>
     <div>
-        <router-view></router-view>
+        <main-navbar class="mb-2"></main-navbar>
+        <router-view class="container"></router-view>
     </div>
 </template>
 
 <script>
-    export default {}
+    import mainNavbar from './../../components/navbar/mainNavbar.vue';
+
+    export default {
+        name: 'AppWrapper',
+
+        components: {
+            mainNavbar
+        }
+    }
 </script>
 
 <style scoped>
-
+    .container {
+        padding-top: 4.5rem;
+    }
 </style>

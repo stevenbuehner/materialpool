@@ -27,25 +27,19 @@
                     size="mini"></biblevers>
         </div>
         <small class="description">{{material.description}}</small>
-
-        <b-modal ref="materialDetail" title="Material Detail">
-            <material-detail :material="material" :editable="false"></material-detail>
-        </b-modal>
     </div>
 </template>
 
 <script>
     import Keyword from './../keyword/keyword.vue'
     import Biblevers from "../bibleverse/biblevers.vue";
-    import materialDetail from './MaterialDetail.vue';
-    import bModal from 'bootstrap-vue/es/components/modal/modal';
     import {api_v1_materials_update} from './../serverRoutes';
 
 
     export default {
         mounted() {
         },
-        props: ['id'],
+        props: ['material'],
 
         computed: {
             materialDetailLink() {
@@ -54,15 +48,12 @@
         },
 
         methods: {
-            openMaterialModal() {
-                this.$refs.materialDetail.show();
-            },
 
             goToMaterial() {
                 this.$router.push({
-                    name: 'material-details',
-                    props: {id: this.material.id}
-                })
+                    name: 'material-detail',
+                    params: {id: this.material.id}
+                });
 //                window.location.href = materialShowRoute(this.material.id);
             }
         },
@@ -70,8 +61,6 @@
         components: {
             Biblevers,
             Keyword,
-            bModal,
-            materialDetail
         }
     }
 </script>

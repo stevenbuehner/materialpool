@@ -25,7 +25,6 @@ Route::group([
 
 	// Materials
 	Route::get('materials', 'MaterialController@index')
-		 ->where(['material' => '[0-9]+'])
 		 ->name('api.v1.materials.index');
 	Route::get('materials/{material}', 'MaterialController@show')
 		 ->where(['material' => '[0-9]+'])

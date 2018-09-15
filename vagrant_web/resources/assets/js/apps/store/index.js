@@ -5,14 +5,17 @@ import materials from './modules/materials';
 import keywords from './modules/keywords';
 import search from './modules/search';
 import tagsearch from './modules/tagsearch';
+import materialapp from './modules/materialapp';
 
 Vue.use(VueX);
+
 
 export const store = new VueX.Store({
 
     modules: {
         resources,
         materials,
+        materialapp,
         keywords,
         search,
         tagsearch

@@ -55,6 +55,7 @@
     import axios from 'axios';
     import keyword from './../keyword/keyword.vue';
     import {HollowDotsSpinner} from 'epic-spinners'
+    import _ from 'lodash';
 
 
     export default {

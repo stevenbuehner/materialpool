@@ -52,7 +52,8 @@ export const searchGuessBibleverses = '/pool/search/guess/bibleverses';
 // API - Material
 export const api_v1_materials_show = (materialsId)=>{
     return '/api/v1/materials/' + materialsId;
-}
+};
+export const api_v1_materials_index = '/api/v1/materials';
 
 // API - Resource
 export const api_v1_resources_show = (resourceId) => {

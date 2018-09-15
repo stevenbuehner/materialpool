@@ -47,7 +47,7 @@ class MaterialController extends BaseController {
 							 ->orderBy('updated_at')
 							 ->paginate(50);
 
-		return view('materials.listing', compact('materials'));
+		return $materials;
 	}
 
 

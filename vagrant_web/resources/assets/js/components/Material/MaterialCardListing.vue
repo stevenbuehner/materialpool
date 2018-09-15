@@ -16,7 +16,7 @@
 
     export default {
 
-        props: ['materialIds'],
+        props: ['materials'],
 
         components: {
             material: MaterialCardListingItem,

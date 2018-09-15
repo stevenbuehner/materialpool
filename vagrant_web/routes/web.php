@@ -17,6 +17,15 @@ Route::get('/', function () {
 	return view('welcome');
 });
 
+// VueJS Setup for history-Routing
+Route::group(['prefix' => 'vue', 'as' => '.vue'], function () {
+
+	Route::get('{vue_capture?}', function () {
+		return view('vuerouter.index');
+	})->where('vue_capture', '[\/\w\.-]*');
+
+});
+
 
 // Admin Interface Routes
 Route::group(['prefix' => 'pool', 'as' => 'pool.'], function () {
