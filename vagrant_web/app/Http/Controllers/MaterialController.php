@@ -20,7 +20,12 @@ class MaterialController extends Controller {
 	protected $withAttributes = [];
 
 	public function __construct() {
-		$this->withAttributes = [
+		$this->withAttributes = self::withAttributes();
+		$this->middleware(['auth']);
+	}
+
+	public static function withAttributes() {
+		return [
 			'keywords'    => function ($q) {
 				$q->orderBy('keyword_material.relevance', 'desc');
 			},
@@ -30,8 +35,6 @@ class MaterialController extends Controller {
 			'resources',
 			'creator',
 			'author'];
-
-		$this->middleware(['auth']);
 	}
 
 	/**

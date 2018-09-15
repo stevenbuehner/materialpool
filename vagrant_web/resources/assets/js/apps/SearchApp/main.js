@@ -40,3 +40,24 @@ let vueInstance = new Vue({
     store
 });
 
+
+if (window.materialpool) {
+
+    /* Auto load stuff into vuex store */
+    if (window.materialpool.store) {
+        if (window.materialpool.store.materials && window.materialpool.store.materials.length > 0) {
+            const mat = window.materialpool.store.materials;
+
+            for (let i in mat) {
+                store.commit('materials/setMaterial', mat[i]);
+            }
+        }
+    }
+
+    /* Redirect to vue-route */
+    if (window.materialpool.route) {
+        router.push(window.materialpool.route);
+    }
+
+}
+

@@ -2,14 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Material;
 use App\Models\Resource;
 use App\Models\Resource as ResourceEntity;
 use App\Models\Text;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Response;
-use Intervention\Image\Size;
 
 class ResourceController extends Controller {
 
@@ -65,7 +63,14 @@ class ResourceController extends Controller {
 			$material = $this->createMaterialFromResources($resource, $metaData);
 		}
 
-		return redirect(route('pool.material.show', $material->id));
+
+		return view('vuerouter.index', [
+			'store' => [
+				'materials' => [
+					$material->load(MaterialController::withAttributes()),
+				]],
+			'route' => ['name' => 'material-detail', 'params' => ['id' => $material->id]]
+		]);
 	}
 
 

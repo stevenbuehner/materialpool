@@ -22,6 +22,20 @@
 <div id="app">
 </div>
 
+
+@php
+
+    if(isset($store) && is_array($store)){
+	    echo '<script>' . JavaScript::constructJavaScript(['store' => $store]) .'</script>' . "\n";
+    }
+
+    if(isset($route) ){
+        echo '<script>' . JavaScript::constructJavaScript(['route' => $route]).'</script>' . "\n";
+    }
+
+@endphp
+
+
 <script src="http://localhost:8080/js/searchApp_build.js"></script>
 
 </body>
