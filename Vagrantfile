@@ -73,7 +73,7 @@ Vagrant.configure("2") do |config|
 
   config.vm.network :forwarded_port, guest: 80, host: 8000
   config.vm.network :forwarded_port, guest: 3306, host: 33060
-  config.vm.network :forwarded_port, guest: 9000, host: 9000
+  config.vm.network :forwarded_port, guest: 9000, host: 9003
   	
   # SSH Configuration
   config.ssh.username 	= ssh_username
