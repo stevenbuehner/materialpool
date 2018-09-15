@@ -1,7 +1,7 @@
 <template>
     <div class="material"
          v-if="material"
-         @click.prevent="goToMaterial">
+         @click.prevent="goToMaterial(material.id)">
         <div class="head">
             <div class="title">{{material.title}}</div>
             <small class="meta-info">
@@ -34,52 +34,32 @@
     import Biblevers from "../bibleverse/biblevers.vue";
     import materialDetail from './MaterialDetail.vue';
     import {api_v1_materials_update} from './../serverRoutes';
+    import materialStoreMixin from './materialStore.mixin';
 
 
     export default {
+
+        mixins: [
+            materialStoreMixin
+        ],
+
         created() {
-            this.getMaterial();
+            this.updateMaterialData(this.id);
         },
 
         props: ['id'],
-
-        data() {
-            return {
-                material: null,
-            }
-        },
 
         computed: {
             materialDetailLink() {
                 return api_v1_materials_update(this.id);
             },
-
         },
 
         watch: {
             id(newValue) {
-                this.material = null;
-                this.getMaterial();
+                this.updateMaterialData(newValue);
             }
         },
-
-        methods: {
-            getMaterial() {
-                this.$store.dispatch('materials/getMaterial', this.id).then((material) => {
-                    this.material = material;
-                })
-            },
-
-            goToMaterial() {
-                this.$router.push(
-                    {
-                        name: 'material-detail',
-                        params: {id: this.material.id}
-                    }
-                );
-            }
-        },
-
 
         components: {
             Biblevers,

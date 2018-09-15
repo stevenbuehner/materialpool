@@ -45,7 +45,7 @@
     export default {
         mounted() {
         },
-        props: ['material'],
+        props: ['id'],
 
         computed: {
             materialDetailLink() {
