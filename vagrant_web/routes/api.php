@@ -12,6 +12,38 @@
 */
 
 Route::group([
+				 'middleware' => 'auth:api',
+				 'prefix'     => 'v2',
+				 'namespace'  => 'Api'
+			 ], function () {
+
+
+	// Neu: Attach/Detach Resources + Materials
+	Route::post('material/{material}/resource/{resource}/attach',
+				'ResourceMaterialController@attach')
+		 ->where('material', '[0-9]+')
+		 ->where('resource', '[0-9]+')
+		 ->middleware('can:update,material')
+		 ->middleware('can:view,resource')
+		 ->name('api.v2.materialresource.attach');
+
+	Route::delete('material/{material}/resource/{resource}/detach',
+				  'ResourceMaterialController@detach')
+		 ->where('material', '[0-9]+')
+		 ->where('resource', '[0-9]+')
+		 ->middleware('can:update,material')
+		// ->middleware('can:view,resource') // Even if the resource owner made his resource not public anymore, the detaching should work
+		 ->name('api.v2.materialresource.detach');
+
+	Route::post('material/{material}/sync', 'ResourceMaterialController@sync')
+		 ->where('material', '[0-9]+')
+		 ->middleware('can:update,material')
+		 ->name('api.v2.materialresources.sync');
+
+});
+
+
+Route::group([
 				 // 'middleware' => 'auth:api', // im Konstruktor der Klassen eingebettet
 				 'prefix'    => 'v1',
 				 'namespace' => 'Api'
@@ -138,7 +170,7 @@ Route::group([
 		 ->name('api.v1.foreignResources.delete');
 
 
-	// Neu Attach/Detach Resources + Materials
+	// Neu Attach/Detach Foreign-Resources + Foreign-Materials
 	Route::post('foreign-material/{foreignMaterialId}/foreign-resource/{foreignResourceId}',
 				'ForeignResourceMaterialController@attach')
 		 ->where('foreignMaterialId', '[0-9a-zA-Z_-]+')

@@ -129,7 +129,22 @@ const actions = {
         commit('putSearchCache', {query: data, promise: resultPromise});
 
         return resultPromise;
-    }
+    },
+
+    materialsWithParams: ({commit, getters, dispatch}, {material, page}) => {
+
+        let searchQuery = [];
+
+        if (material.title) {
+            searchQuery.push({
+                type: '*',
+                text: material.title
+            });
+        }
+
+        return dispatch('materials', {query: [searchQuery], page});
+
+    },
 
 };
 

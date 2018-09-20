@@ -14,8 +14,8 @@ class ResourceController extends BaseController {
 
 	use ResourceHelperTrait;
 
+	const DEFAULT_RELATIONS = ['materials', 'materials.keywords', 'materials.bibleverses'];
 	protected $allowedAssociations = ['materials', 'materials.keywords', 'materials.bibleverses'];
-
 
 	public function __construct() {
 		$this->middleware(['auth:api']);
@@ -40,10 +40,14 @@ class ResourceController extends BaseController {
 
 		$useRelations = [];
 
-		foreach ($request->get('relations', []) as $rel) {
-			if (in_array($rel, $this->allowedAssociations)) {
-				$useRelations[] = $rel;
+		if ($request->has('relations')) {
+			foreach ($request->get('relations', []) as $rel) {
+				if (in_array($rel, $this->allowedAssociations)) {
+					$useRelations[] = $rel;
+				}
 			}
+		} else {
+			$useRelations = self::DEFAULT_RELATIONS;
 		}
 
 		return $resource->load($useRelations);
@@ -133,7 +137,7 @@ class ResourceController extends BaseController {
 
 
 		// Also load attributes that have not been touched (like remote_path)
-		return $resource->fresh();
+		return $resource->fresh(self::DEFAULT_RELATIONS);
 
 	}
 
@@ -158,7 +162,7 @@ class ResourceController extends BaseController {
 			return response(['message' => $e->getMessage()])->setStatusCode(500);
 		}
 
-		return $resource;
+		return $resource->fresh(self::DEFAULT_RELATIONS);
 	}
 
 	/**

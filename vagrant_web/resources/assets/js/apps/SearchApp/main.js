@@ -8,10 +8,10 @@ import {routes} from './routes';
 import mainApp from './App.vue';
 // Styling
 import './../../../sass/app.scss';
+import {i18n} from "../../localisation";
 
 require('lodash');
 
-require('./../../localisation');
 require('vue-flash-message/dist/vue-flash-message.min.css');
 
 Vue.use(VueI18n);
@@ -33,7 +33,7 @@ const router = new VueRouter({
 
 let vueInstance = new Vue({
     el: '#app',
-    i18n: materialpool.i18n,
+    i18n,
     router: router,
     render: h => h(mainApp),
     components: {},

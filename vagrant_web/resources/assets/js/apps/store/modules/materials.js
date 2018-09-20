@@ -1,4 +1,9 @@
-import {api_v1_materials_show, api_v1_materials_update} from './../../../components/serverRoutes'
+import {
+    api_v1_materials_show,
+    api_v1_materials_update,
+    api_v2_materialresource_attach,
+    api_v2_materialresource_detach
+} from './../../../components/serverRoutes'
 import axios from 'axios'
 
 
@@ -7,7 +12,7 @@ const state = {
     loadingPromise: {}
 };
 
-const getters   = {
+const getters = {
     getMaterial: (state) => (id) => {
         if (state.materials[id]) {
             return state.materials[id];
@@ -17,13 +22,28 @@ const getters   = {
     },
 
     getMaterialLoadingPromise: (state) => (id) => {
+
         if (state.loadingPromise[id]) {
+
             return state.loadingPromise[id];
+
+        } else if (state.materials[id]) {
+
+            state.loadingPromise[id] = new Promise(function (resolve, reject) {
+                resolve(state.materials[id]);
+            });
+
+            return state.loadingPromise[id];
+
         } else {
+
             return false;
+
         }
+
     }
 };
+
 const mutations = {
     setMaterial(state, material) {
         state.materials[material.id] = material;
@@ -180,7 +200,73 @@ const actions = {
         }
 
         commit('clearMaterial', id);
-    }
+    },
+
+    attachResource: ({commit, getters, dispatch}, {materialId, resourceId, limitation}) => {
+
+        const url = api_v2_materialresource_attach(materialId, resourceId);
+        let data  = {};
+
+        if (limitation && limitation.type && limitation.value) {
+            data = {
+                limitation: {
+                    type: limitation.type,
+                    value: limitation.value
+                }
+            }
+        }
+
+        const result = axios.post(url, data)
+            .then((result) => result.data)
+            .catch((err) => {
+                if (err.error) {
+                    return err.error;
+                } else {
+                    return err;
+                }
+            });
+
+        // Update material-Cache
+        result.then(({material}) => {
+            commit('clearMaterial', material.id);
+            commit('setMaterial', material);
+        });
+
+        // Update resource-cache
+        result.then(({resource}) => {
+            dispatch('resources/setResource', resource, {root: true});
+        });
+
+        return result;
+    },
+
+    detachResource: ({commit, getters, dispatch}, {materialId, resourceId}) => {
+
+        const url = api_v2_materialresource_detach(materialId, resourceId);
+
+        const result = axios.delete(url)
+            .then((result) => result.data)
+            .catch((err) => {
+                if (err.error) {
+                    return err.error;
+                } else {
+                    return err;
+                }
+            });
+
+        // Update material-Cache
+        result.then(({material}) => {
+            commit('clearMaterial', material.id);
+            commit('setMaterial', material);
+        });
+
+        // Update resource-cache
+        result.then(({resource}) => {
+            dispatch('resources/setResource', resource, {root: true});
+        });
+
+        return result;
+    },
 
 };
 

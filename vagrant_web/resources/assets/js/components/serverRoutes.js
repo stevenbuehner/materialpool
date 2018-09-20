@@ -2,12 +2,12 @@ export const searchGuessRoute  = '/pool/search/guess';
 export const searchGuessRoute2 = '/pool/search/guess2';
 
 // Material
-export const materialShowRoute   = (materialId) => {
+export const materialShowRoute = (materialId) => {
     return '/pool/material/' + materialId;
 };
 
 // Keyword
-export const keywordSearchLink          = (keyword) => {
+export const keywordSearchLink = (keyword) => {
     return '/pool/keyword/' + keyword.lc_title;
 };
 
@@ -42,6 +42,15 @@ export const pdfPreviewImageForPage   = (resource, page) => {
     return '/pdfpreview/res-' + resource.id + '/page-' + page;
 };
 
+// Resource-Material Assignment
+export const api_v2_materialresource_attach = (materialId, resourceId) => {
+    return '/api/v2/material/' + materialId + '/resource/' + resourceId + '/attach';
+};
+
+export const api_v2_materialresource_detach = (materialId, resourceId) => {
+    return '/api/v2/material/' + materialId + '/resource/' + resourceId + '/detach';
+};
+
 
 // Search
 export const searchUrl              = '/pool/search/get';
@@ -50,22 +59,22 @@ export const searchGuessBibleverses = '/pool/search/guess/bibleverses';
 
 
 // API - Material
-export const api_v1_materials_show = (materialsId)=>{
+export const api_v1_materials_show  = (materialsId) => {
     return '/api/v1/materials/' + materialsId;
 };
 export const api_v1_materials_index = '/api/v1/materials';
 
 // API - Resource
-export const api_v1_resources_show = (resourceId) => {
+export const api_v1_resources_show   = (resourceId) => {
     return '/api/v1/resources/' + resourceId;
 };
-export const api_v1_materials_update= (materialId) => {
+export const api_v1_materials_update = (materialId) => {
     return '/api/v1/materials/' + materialId;
 };
 
 // API - Keywords
-export const api_v1_keywords_create= '/api/v1/keywords/';
-export const api_v1_keywords_update = (keywordId) => {
+export const api_v1_keywords_create           = '/api/v1/keywords/';
+export const api_v1_keywords_update           = (keywordId) => {
     return '/api/v1/keywords/' + keywordId;
 };
 export const api_v1_keywords_updateassignment = (materialId, keywordId) => {

@@ -2,6 +2,10 @@ import MaterialApp from './../Material/App.vue'
 import MaterialDetail from './../../components/Material/MaterialDetail.vue';
 import SearchPage from './../../components/pages/searchPage.vue';
 import ResourceDetail from './../../components/resource/resource.vue';
+import AssignApp from './../Assign/AssignApp.vue';
+import PassportClient from './../../components/passport/Clients.vue';
+import PassportAuthorizedClient from './../../components/passport/AuthorizedClients.vue';
+import PassportPersonalAccessTokens from './../../components/passport/PersonalAccessTokens.vue';
 
 export const routes = [
 
@@ -30,7 +34,22 @@ export const routes = [
             return {id: parseInt(route.params.id)};
         }
     },
-
+    {
+        path: '/resource/:id/assign', component: AssignApp, name: 'resource-assign', props: (route) => {
+            return {id: parseInt(route.params.id)};
+        }
+    },
+    {
+        path: '/passport/client', component: PassportClient, name: 'passport-client'
+    },
+    {
+        path: '/passport/authorizedclient', component: PassportAuthorizedClient, name: 'passport-authorizedclient'
+    },
+    {
+        path: '/passport/personalaccesstokens',
+        component: PassportPersonalAccessTokens,
+        name: 'passport-personalaccesstokens'
+    },
     {path: '*', redirect: '/search'}
 
 ];

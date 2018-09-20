@@ -129,7 +129,7 @@
 
         asyncComputed: {
             resource() {
-                return this.$store.dispatch('resources/getResource', this.id);
+                return this.$store.dispatch('resources/updateResource', this.id);
             }
         },
 

@@ -3,8 +3,7 @@
         <div v-if="!material">Material is loading</div>
         <div v-if="material">
 
-            <flash-message class="flashMessageHolder col-md-4 col-sm-6 col-lg-3 col-xs-12">This is some test
-            </flash-message>
+            <flash-message class="flashMessageHolder col-md-4 col-sm-6 col-lg-3 col-xs-12">This is some test</flash-message>
 
             <edditable-text
                     type="h1"

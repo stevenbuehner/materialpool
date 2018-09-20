@@ -5,8 +5,8 @@
 @endpush
 
 @push("scripts")
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.5.17/dist/vue.js"></script>
     <script src="/vendor/pdfpreview/js/pdfpreview.js"></script>
-    <script src="/js/pdf.assign.material.js"></script>
 @endpush
 
 @section('content')

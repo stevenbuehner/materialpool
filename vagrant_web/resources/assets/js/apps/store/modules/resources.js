@@ -8,16 +8,21 @@ const state = {
 };
 
 const getters   = {
-    getResource: (state) => (id) => {
+    updateResource: (state) => (id) => {
         if (state.resources[id]) {
             return state.resources[id];
         }
 
         return null;
     },
+
     getResourceLoadingPromise: (state) => (id) => {
         if (state.loadingPromise[id]) {
             return state.loadingPromise[id];
+        } else if (state.resources[id]) {
+            return state.loadingPromise[id] = new Promise(function (resolve, reject) {
+                resolve(state.resources[id]);
+            });
         } else {
             return false;
         }
@@ -46,7 +51,7 @@ const actions = {
         if (loadingPromise === false) {
             loadingPromise = new Promise((resolve, reject) => {
 
-                let res = getters.getResource(id);
+                let res = getters.updateResource(id);
 
                 if (res) {
                     resolve(res);
@@ -57,7 +62,7 @@ const actions = {
                         }
                     }).then((response) => {
                         dispatch('setResource', response.data);
-                        resolve(getters.getResource(id));
+                        resolve(getters.updateResource(id));
                     }).catch(() => {
                         reject('Could not find Resource');
                     });
@@ -75,6 +80,7 @@ const actions = {
     },
 
     setResource: ({commit}, resource) => {
+        commit('clearResource', resource.id);
         commit('setResource', resource);
     },
 

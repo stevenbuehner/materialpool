@@ -10,6 +10,7 @@
                 <div class="originalFilename" v-if="resource.original_filename !== undefined">Dateiname: {{resource.original_filename}}</div>
                 <div class="limitation" v-if="resource.pivot && resource.pivot.limitation">Limitation: {{resource.pivot.limitation}}</div>
                 <div class="creator">Ersteller-ID: {{resource.created_by}}</div>
+                <div class="resource-id">Resource-ID: {{resource.id}}</div>
             </div>
             <button class="btn btn-outline-primary" @click.prevent="downloadResource">download</button>
             <button class="btn btn-outline-primary" @click.prevent="goToResource">open</button>

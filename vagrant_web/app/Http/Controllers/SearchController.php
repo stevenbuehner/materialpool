@@ -309,6 +309,14 @@ class SearchController extends Controller {
 							});
 						}
 					}
+
+					// Im Titel suchen
+					if (count($matchAllStrings) > 0) {
+						foreach ($matchAllStrings as $string) {
+							// ToDo: Check if $string is Querry-Injection-Save!
+							$q->orWhere('materials.title', 'like', "%$string%");
+						}
+					}
 				});
 
 				if ($keywordsAvailable === TRUE) {

@@ -5,7 +5,7 @@
 </template>
 
 <script>
-    import truncateFilter from './../../filters/truncate-filter.mixin';
+    import truncateFilter from '../../../filters/truncate-filter.mixin';
 
     export default {
         mixins: [

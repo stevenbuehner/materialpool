@@ -6,6 +6,7 @@ import keywords from './modules/keywords';
 import search from './modules/search';
 import tagsearch from './modules/tagsearch';
 import materialapp from './modules/materialapp';
+import recentmaterials from './modules/recentmaterials';
 
 Vue.use(VueX);
 
@@ -18,6 +19,7 @@ export const store = new VueX.Store({
         materialapp,
         keywords,
         search,
-        tagsearch
+        tagsearch,
+        recentmaterials
     }
 });

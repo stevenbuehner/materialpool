@@ -1,10 +1,11 @@
 export default {
     "de": {
         "pool": {
-            "resource-count": "{0} keine Ressourcen|{1} 1 Resource|{2,*} {COUNT} Resourcen",
-            "material-count": "{0} keine Materialien |[1] {value} Material|[2,*] {value} Materialien",
-            "material-other-count": "{0} kein anderes Material|{1} 1 anderes Material|{2,*} {COUNT} andere Materialien",
-            "material-other-assigned-material-pl": "{0} kein anderes Material ist dieser Ressource zugewiesen|{1} 1 anderes Material ist dieser Ressource zugewiesen|[2,*] {COUNT} andere Materialien sind dieser Ressource zugewiesen",
+            "material": "Material|Materialien",
+            "resource-count": "keine Ressourcen|1 Resource|COUNT Resourcen",
+            "material-count": "keine Materialien|1 Material|{COUNT} Materialien",
+            "material-other-count": "kein anderes Material|1 anderes Material|{COUNT} andere Materialien",
+            "material-other-assigned-material-pl": "kein anderes Material ist dieser Ressource zugewiesen|1 anderes Material ist dieser Ressource zugewiesen|{COUNT} andere Materialien sind dieser Ressource zugewiesen",
             "resource-author-is": "Original von {name}",
             "Contains": "Enthält",
             "eddited": "bearbeitet",
@@ -22,7 +23,23 @@ export default {
             "install-bundle-version": "v{version} installieren",
             "update-bundle-version": "auf v{version} aktualisieren",
             "installed-bundle-version": "v{version} installiert",
-            "bundle-not-available-anymore": "Bundle nicht mehr verfügbar"
+            "bundle-not-available-anymore": "Bundle nicht mehr verfügbar",
+            "ID": "ID",
+            "material-selected": "kein Material ausgewählt|ein Material ausgewählt|{COUNT} Materialien ausgewählt",
+            "Material-ID": "Material ID",
+            "select-pages-first": "Bitte wähle zuerst einige Seiten aus",
+            "Material-title": "Material titel",
+            "Title": "Titel",
+            "add-material-selected-pages": "Ausgewählte Seiten einem Material zuordnen",
+            "create-material-selected-pages": "Neues Material aus selektieren Seiten erstellen",
+            "Cancel": "Abbrechen",
+            "Select-a-material": "Wähle ein Material",
+            "add": "hinzufügen",
+            "new": "neu",
+            "create": "erstellen",
+            "Loading-resource": "Lade Ressource ...",
+            "Resource-loading-failed": "Laden der Resource fehlgeschlagen!",
+            "remove": "entfernen"
         }
     },
     "en": {
@@ -42,10 +59,11 @@ export default {
             "next": "Next &raquo;"
         },
         "pool": {
-            "resource-count": "{0} no resources|{1} 1 resource|{2,*} {COUNT} resources",
-            "material-count": "{0} No materials|[1] {value} material|[2,*] {value} materials",
-            "material-other-count": "{0} no other materials|{1} 1 othermaterial|{2,*} {COUNT} other materials",
-            "material-other-assigned-material-pl": "{0} no other matierial is assigned to theese resoruces|{1} 1 other material is assigned to theese resources|[2,*] {COUNT} other materials are assigned to theese resources",
+            "material": "material|materials",
+            "resource-count": "no resources|1 resource|{COUNT} resources",
+            "material-count": "no materials|1 material|{COUNT} materials",
+            "material-other-count": "no other materials|1 othermaterial|{COUNT} other materials",
+            "material-other-assigned-material-pl": "no other matierial is assigned to theese resoruces|1 other material is assigned to theese resources|{COUNT} other materials are assigned to theese resources",
             "material-delete": "Delete Material",
             "material-deleted": "Deleted material",
             "material-delete-headline": "Delete Material",
@@ -72,7 +90,23 @@ export default {
             "installed-bundle-version": "v{version} installed",
             "bundle-not-available-anymore": "Bundle not available anymore",
             "bundle-jobs-deleted": "{0} No jobs needed to be deleted|[1] {count} job was deleted|[2,*] {count} jobs have been deleted-",
-            "bundle-jobs-created": "{0} No new jobs created|[1] {count} new job was created|[2,*] {count} new jobs have been created-"
+            "bundle-jobs-created": "{0} No new jobs created|[1] {count} new job was created|[2,*] {count} new jobs have been created-",
+            "ID": "ID",
+            "material-selected": "no material selected|one material selected|{COUNT} materials selected",
+            "Material-ID": "Material ID",
+            "select-pages-first": "Please select some pages first",
+            "Material-title": "Material title",
+            "Title": "Title",
+            "add-material-selected-pages": "Add selected pages to material",
+            "create-material-selected-pages": "Create new material with selected pages",
+            "Cancel": "Cancel",
+            "Select-a-material": "Select a material",
+            "add": "add",
+            "new": "new",
+            "create": "create",
+            "Loading-resource": "Loading resource ...",
+            "Resource-loading-failed": "Resource loading failed!",
+            "remove": "remove"
         },
         "validation": {
             "accepted": "The {attribute} must be accepted.",

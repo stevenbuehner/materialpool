@@ -145,7 +145,8 @@ php artisan key:generate
 
 
 
-
+# Sprachdateien für JS kompilieren
+php artisan vue-i18n:generate
 
 
 

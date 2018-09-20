@@ -1,0 +1,229 @@
+<template>
+    <div class="col-12 col-sm-6 col-md-3 col-lg-3 col-xl-2  pb-4 pt-2 cell"
+         v-show="isVisible"
+         :class="{selectable : isSelectable,
+         selected : isSelected}"
+    >
+
+        <div class="pills">
+            <b-badge pill
+                     :variant="assignedMaterials === 0 ? 'danger' : 'success'"
+            >{{assignedMaterials}}
+            </b-badge>
+        </div>
+
+        <div class="content-container" @click="handleClick">
+            <div class="image-container">
+                <transition name="fade">
+                    <img v-show="imageLoaded" :src="image" @load="imageLoaded = true"/>
+                </transition>
+                <hollow-dots-spinner v-if="!imageLoaded"
+                                     :dot-size="10"
+                                     :dots-num="3"
+                                     :animation-duration="1500"
+                                     color="grey"></hollow-dots-spinner>
+            </div>
+
+            <div class="banderole"></div>
+        </div>
+
+        <div class="menue-container d-flex justify-content-between">
+            <div class="left" @click="firstPageSelected"></div>
+            <div class="middle">{{label}}</div>
+            <div class="right" @click="lastPageSelected"></div>
+        </div>
+
+    </div>
+</template>
+
+<script>
+
+    import bBadge from 'bootstrap-vue/src/components/badge/badge';
+    import {HollowDotsSpinner} from 'epic-spinners'
+
+    export default {
+
+        data: function () {
+            return {
+                isVisible: true,
+                imageLoaded: false,
+            }
+        },
+
+        props: {
+            index: {
+                required: true,
+                type: Number
+            },
+            image: {
+                type: String
+            },
+            isSelectable: {
+                default: true,
+                type: Boolean
+            },
+            isSelected: {
+                default: false,
+                type: Boolean
+            },
+            assignedMaterials: {
+                default: 0,
+                type: Number
+            }
+        },
+
+        computed: {
+            label: function () {
+                return this.index;
+            }
+        },
+
+        methods: {
+            handleClick: function (event) {
+                if (this.isSelectable === true) {
+                    if (event.shiftKey) {
+                        this.lastPageSelected();
+                    } else if (event.metaKey) {
+                        this.addPageSelected();
+                    } else if (event.altKey) {
+                        this.zoomInRequested();
+                    } else {
+                        this.firstPageSelected();
+                    }
+                }
+            },
+
+            firstPageSelected: function () {
+                // EventHandler.$emit('firstPageSelected', this.index);
+                this.$emit('firstPageSelected', this.index)
+            },
+            lastPageSelected: function () {
+                // EventHandler.$emit('lastPageSelected', this.index);
+                this.$emit('lastPageSelected', this.index);
+            },
+            addPageSelected: function () {
+                // EventHandler.$emit('addPageSelection', this.index);
+                this.$emit('addPageSelection', this.index);
+            },
+
+            zoomInRequested: function () {
+                this.$emit('zoomInRequested', this.image);
+            },
+
+            hidePage: function () {
+                this.isVisible = false;
+            },
+            showPage: function () {
+                this.isVisible = true;
+            },
+
+            checkSelectionRequest: function () {
+                if (this.isSelectable !== true) {
+                    console.log("Page is not selectable!");
+                }
+
+                return this.isSelectable === true;
+            }
+        },
+
+        components: {
+            bBadge,
+            HollowDotsSpinner
+        }
+    }
+</script>
+
+<style scoped>
+
+    .cell {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+    .pills {
+        position: absolute;
+        z-index: 100;
+        left: 0;
+        top: 0;
+    }
+
+    .content-container {
+        border: 1px solid lightgrey;
+        border-radius: 0.25em;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        overflow: hidden;
+        position: relative;
+    }
+
+    .selected .content-container {
+        border: 1px solid #709aed;
+        border-radius: 7px;
+        outline: none;
+        box-shadow: 0 0 0.5em #8eaeed;
+        background-color: rgba(142, 174, 237, 0.05);
+    }
+
+    .banderole {
+        height: 1em;
+        width: 100%;
+        background-color: #709aed;
+        box-shadow: 0 0 0.5em #8eaeed;
+        transform: rotate(135deg);
+        position: absolute;
+        bottom: 10%;
+        right: -25%;
+        display: none;
+    }
+
+    .selected .banderole {
+        display: inline-block;
+    }
+
+    .image-container {
+        overflow: hidden;
+        position: relative;
+    }
+
+    .image-container img {
+        max-height: 101%;
+        max-width: 105%;
+    }
+
+    .menue-container {
+        height: 1.75em;
+        font-size: 1em;
+        padding-top: 0.5em;
+    }
+
+    .menue-container div {
+        width: 1.25em;
+        height: 100%;
+    }
+
+    .menue-container .left {
+        background: url(/vendor/pdfpreview/img/align-left.svg) no-repeat;
+    }
+
+    .menue-container .middle {
+        flex: 1;
+        text-align: center;
+    }
+
+    .menue-container .right {
+        background: url(/vendor/pdfpreview/img/align-right.svg) no-repeat;
+    }
+
+    .fade-enter-active, .fade-leave-active {
+        transition: opacity .5s;
+    }
+
+    .fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */
+    {
+        opacity: 0;
+    }
+
+</style>
