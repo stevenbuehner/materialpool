@@ -39,8 +39,11 @@
         </b-form>
 
         <div class="resultList">
+            <hr>
+
             <ul v-if="!searchOngoing">
                 <li v-for="mat in materialSuggestions"
+                    class="material"
                     @click="selectAndReturnMaterial(mat)">
                     ({{$t('pool.ID')}}: {{mat.id}}) {{mat.title}}
                 </li>
@@ -56,6 +59,19 @@
                      variant="danger">
                 {{searchErrorMessage}}
             </b-alert>
+
+            <hr v-if="lastMaterials.length > 0 && materialSuggestions.length > 0">
+
+            <div class="lastMaterials" v-if="lastMaterials.length > 0">
+                <span class="labelLastMaterials">{{$t('pool.last-used-materials')}}:</span>
+                <ul>
+                    <li v-for="mat in lastMaterials"
+                        class="material"
+                        @click="selectAndReturnMaterial(mat)">
+                        ({{$t('pool.ID')}}: {{mat.id}}) {{mat.title}}
+                    </li>
+                </ul>
+            </div>
         </div>
 
     </b-modal>
@@ -90,7 +106,15 @@
             };
         },
 
-        props: {},
+        props: {
+            lastMaterials: {
+                type: Array,
+                required: false,
+                default() {
+                    return [];
+                }
+            }
+        },
 
         watch: {
             'form.title': function (newVal, oldVal) {
@@ -205,5 +229,25 @@
 </script>
 
 <style scoped>
+    .labelLastMaterials {
+        font-weight: bold;
+    }
 
+    ul {
+        padding-left: 0;
+    }
+
+    .material {
+        padding: 0.5em;
+        border: 1px solid white;
+        list-style: none;
+        cursor: pointer;
+
+    }
+
+    .material:hover {
+        border: 1px solid grey;
+        background-color: lightgrey;
+
+    }
 </style>

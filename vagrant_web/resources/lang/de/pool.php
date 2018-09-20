@@ -42,4 +42,6 @@ return [
 	'Loading-resource'               => 'Lade Ressource ...',
 	'Resource-loading-failed'        => 'Laden der Resource fehlgeschlagen!',
 	'remove'                         => 'entfernen',
+	'last-used-materials'            => 'Zuletzt verwendete Materialien',
+
 ];

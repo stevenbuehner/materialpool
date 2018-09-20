@@ -39,7 +39,8 @@ export default {
             "create": "erstellen",
             "Loading-resource": "Lade Ressource ...",
             "Resource-loading-failed": "Laden der Resource fehlgeschlagen!",
-            "remove": "entfernen"
+            "remove": "entfernen",
+            "last-used-materials": "Zuletzt verwendete Materialien"
         }
     },
     "en": {
@@ -106,7 +107,8 @@ export default {
             "create": "create",
             "Loading-resource": "Loading resource ...",
             "Resource-loading-failed": "Resource loading failed!",
-            "remove": "remove"
+            "remove": "remove",
+            "last-used-materials": "Last used materials"
         },
         "validation": {
             "accepted": "The {attribute} must be accepted.",

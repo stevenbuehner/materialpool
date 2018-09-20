@@ -37,7 +37,7 @@ trait ResourceMaterialTrait {
 			}
 
 		} else {
-			$material->resources()->syncWithoutDetaching([$resource->id]);
+			$material->resources()->syncWithoutDetaching([$resource->id => ['limitation' => NULL]]);
 		}
 
 		return $this->getFreshMatAndResource($material, $resource);

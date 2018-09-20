@@ -55,7 +55,9 @@
         ></div>
 
         <material-selector
+                v-if="resource"
                 ref="materialSelector"
+                :last-materials="materialsNotInEverySelection"
         ></material-selector>
     </div>
 </template>
@@ -123,7 +125,29 @@
                     }
 
                 });
-            }
+            },
+
+            materialsNotInEverySelection() {
+
+                return this.resource.materials.filter((mat) => {
+
+                    const matPages = this.resourceLimitationPages(mat.id);
+
+                    // Material gehört zu ALLEN Seiten => keine Limitation
+                    if (matPages.length === 0) {
+                        return false;
+
+                        // Material hat Limitation
+                    } else {
+
+                        return this.selectedPages.filter((page) => {
+                            return matPages.includes(page);
+                        }).length < this.selectedPages.length;
+
+                    }
+
+                });
+            },
 
         },
 
@@ -169,7 +193,7 @@
                     this.serverDoResourceMaterialAttachment(material.id, this.id, newPageLimitation);
 
                 }).catch((error) => {
-                    console.error('Error while setting new Limitation: ', error)
+                    console.info('Error while setting new Limitation: ', error)
                 })
 
             },
@@ -215,7 +239,7 @@
 
                 let limitation = undefined;
 
-                if (pages && Array.isArray(pages) && pages.length > 0) {
+                if (pages && Array.isArray(pages) && pages.length > 0 && pages.length < this.resource.page_count) {
                     limitation = {
                         type: 'page',
                         value: pages.join(',')

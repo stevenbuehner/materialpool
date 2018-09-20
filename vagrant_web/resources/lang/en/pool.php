@@ -51,4 +51,5 @@ return [
 	'Loading-resource'               => 'Loading resource ...',
 	'Resource-loading-failed'        => 'Resource loading failed!',
 	'remove'                         => 'remove',
+	'last-used-materials'            => 'Last used materials',
 ];
