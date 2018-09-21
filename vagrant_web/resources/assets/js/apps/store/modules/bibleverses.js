@@ -43,7 +43,7 @@ const mutations = {
 const actions = {
     get: ({getters, commit}, bibleverseId) => {
 
-        const biblevers = getters.getKeyword(bibleverseId);
+        const biblevers = getters.getBibleverse(bibleverseId);
 
         if (biblevers) {
             return new Promise((resolve, reject) => {
@@ -58,12 +58,12 @@ const actions = {
             });
     },
 
-    getMultiple: async ({dispatch}, keywordIds) => {
+    getMultiple: async ({dispatch}, bibleverseIds) => {
 
         const queue = new TaskQueue(Promise, MAX_SIMULTANEOUS_DOWNLOADS);
 
         return await Promise.all(
-            keywordIds.map(
+            bibleverseIds.map(
                 queue.wrap(
                     async id => await dispatch('get', id)
                 )
