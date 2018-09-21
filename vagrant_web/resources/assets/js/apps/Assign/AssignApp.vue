@@ -8,7 +8,8 @@
                           class="my-1
                           my-md-0 mx-1"
                           :title="selectedPages.length > 0 ? $t('pool.create-material-selected-pages') : $t('pool.select-pages-first')"
-                          :disabled="selectedPages.length === 0">{{$t('pool.new')}}
+                          :disabled="selectedPages.length === 0"
+                          @click="btnCreateNewMaterialFromSelection">{{$t('pool.new')}}
                 </b-button>
                 <b-button size="sm"
                           class="my-1
@@ -59,6 +60,10 @@
                 ref="materialSelector"
                 :last-materials="materialsNotInEverySelection"
         ></material-selector>
+
+        <material-creator
+                ref="materialCreator"
+        ></material-creator>
     </div>
 </template>
 
@@ -73,7 +78,8 @@
     import bDropdownItem from 'bootstrap-vue/src/components/dropdown/dropdown-item';
     import bButton from 'bootstrap-vue/src/components/button/button';
     import bTooltip from 'bootstrap-vue/src/directives/tooltip/tooltip';
-    import materialSelector from './../../components/selectors/materialSelector.vue';
+    import materialSelector from '../../components/modals/selectors/materialSelector.vue';
+    import materialCreator from '../../components/modals/creators/materialCreator.vue';
     import truncate from './../../filters/truncate-filter.mixin'
 
     import {uniqueArray} from "../../helper/ArrayHelper";
@@ -230,6 +236,14 @@
 
             },
 
+            btnCreateNewMaterialFromSelection() {
+                this.$refs.materialCreator.showPromise().then((material) => {
+                    console.log(material);
+                }).catch((err) => {
+                    console.error('Closed Material-Creation early:', err);
+                })
+            },
+
 
             pageSelectionUpdated: function (selection) {
                 this.selectedPages = selection;
@@ -273,7 +287,8 @@
             bNavItemDropdown,
             bDropdownItem,
             bButton,
-            materialSelector
+            materialSelector,
+            materialCreator
         },
 
         directives: {

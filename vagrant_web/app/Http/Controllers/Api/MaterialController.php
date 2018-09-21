@@ -60,7 +60,7 @@ class MaterialController extends BaseController {
 		$material              = new Material($request->all());
 		$material->created_by  = Auth::id();
 		$material->modified_by = Auth::id();
-		$material->from_bot    = TRUE;
+		$material->from_bot    = $request->get('from_bot', TRUE);
 
 
 		$this->fillAuthor($request->get('author'), $material);

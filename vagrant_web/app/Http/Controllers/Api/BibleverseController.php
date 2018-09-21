@@ -7,7 +7,6 @@ use App\Models\Bibleverse;
 use App\Models\Material;
 use App\Services\TagExtraction\Interfaces\RelevanceInterface;
 use Illuminate\Http\Request;
-use Illuminate\Support\Collection;
 use StevenBuehner\BibleVerseBundle\Service\BibleVerseService;
 
 
@@ -76,14 +75,8 @@ class BibleverseController extends BaseController {
 		return $bibleverse;
 	}
 
-	/**
-	 * Display the specified resource.
-	 *
-	 * @param  \App\Models\Bibleverse $bibleverse
-	 * @return \Illuminate\Http\Response
-	 */
 	public function show(Bibleverse $bibleverse) {
-		//
+		return $bibleverse;
 	}
 
 	/**

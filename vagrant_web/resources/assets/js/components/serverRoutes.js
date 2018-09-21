@@ -1,10 +1,6 @@
 export const searchGuessRoute  = '/pool/search/guess';
 export const searchGuessRoute2 = '/pool/search/guess2';
 
-// Material
-export const materialShowRoute = (materialId) => {
-    return '/pool/material/' + materialId;
-};
 
 // Keyword
 export const keywordSearchLink = (keyword) => {
@@ -18,7 +14,6 @@ export const bibleverseUpdatePivotRoute    = (materialId, bibleverseId) => {
 export const materialRemoveBibleverseRoute = (materialID, bibleverseId) => {
     return '/api/v1/material/' + materialID + '/bibleverse/' + bibleverseId;
 };
-export const createBibleverseRoute         = '/api/v1/bibleverses';
 export const bibleverseSearchLink          = (bibleverse) => {
     return '/pool/bibleverse/' + bibleverse.from + '-' + bibleverse.to;
 };
@@ -73,6 +68,10 @@ export const api_v1_materials_update = (materialId) => {
 };
 
 // API - Keywords
+export function api_v1_keywords_show(keywordId) {
+    return '/api/v1/keywords/' + keywordId;
+}
+
 export const api_v1_keywords_create           = '/api/v1/keywords/';
 export const api_v1_keywords_update           = (keywordId) => {
     return '/api/v1/keywords/' + keywordId;
@@ -83,3 +82,18 @@ export const api_v1_keywords_updateassignment = (materialId, keywordId) => {
 export const api_v1_keywords_deleteassignment = (materialID, keywordId) => {
     return '/api/v1/material/' + materialID + '/keyword/' + keywordId;
 };
+
+// API - Bibleverses
+export function api_v1_bibleverses_show(bibleverseId) {
+    return '/api/v1/bibleverses/' + bibleverseId;
+}
+
+export const api_v1_bibleverses_create = '/api/v1/bibleverses';
+
+export function api_v1_bibleverse_updateassignment(materialId, bibleverseId) {
+    return '/api/v1/material/' + materialId + '/bibleverse/' + bibleverseId;
+}
+
+export function api_v1_bibleverse_deleteassignment(materialID, bibleverseId) {
+    return '/api/v1/material/' + materialID + '/bibleverse/' + bibleverseId;
+}

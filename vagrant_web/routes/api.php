@@ -73,6 +73,8 @@ Route::group([
 	// Bibleverses
 	Route::get('bibleverses', 'BibleverseController@index')
 		 ->name('api.v1.bibleverses.index');
+	Route::get('bibleverses/{bibleverse}', 'BibleverseController@show')
+		 ->name('api.v1.bibleverses.show');
 	Route::post('bibleverses', 'BibleverseController@store')
 		 ->name('api.v1.bibleverses.store');
 
