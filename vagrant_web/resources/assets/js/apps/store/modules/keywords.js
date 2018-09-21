@@ -3,7 +3,8 @@ import {
     api_v1_keywords_create,
     api_v1_keywords_deleteassignment,
     api_v1_keywords_update,
-    api_v1_keywords_updateassignment
+    api_v1_keywords_updateassignment,
+    searchGuessKeywords
 } from './../../../components/serverRoutes'
 
 
@@ -179,6 +180,15 @@ const actions = {
         });
 
     },
+
+    search: ({commit, getters, dispatch}, searchText) => {
+
+        const data = {q: searchText};
+
+        return axios.get(searchGuessKeywords, {params: data})
+            .then(({data}) => data);
+
+    }
 
 
 };

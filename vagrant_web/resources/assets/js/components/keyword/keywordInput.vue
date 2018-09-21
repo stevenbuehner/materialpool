@@ -51,8 +51,6 @@
 </template>
 
 <script>
-    import {searchGuessKeywords} from "./../serverRoutes";
-    import axios from 'axios';
     import keyword from './../keyword/keyword.vue';
     import {HollowDotsSpinner} from 'epic-spinners'
     import _ from 'lodash';
@@ -154,14 +152,13 @@
             // _.throttle), visit: https://lodash.com/docs#debounce
             search: _.debounce((loading, search, vm) => {
 
-                let data = {q: search};
-
-                axios.get(searchGuessKeywords, {params: data})
-                    .then(({data}) => {
-                        vm.parseSearchResult(data);
+                vm.$store.dispatch('keywords/search', search)
+                    .then((keywords) => {
+                        console.log(keywords);
+                        vm.suggestedKeywords = keywords;
                     })
-                    .catch((response) => {
-                        console.error(response);
+                    .catch((err) => {
+                        console.error(err);
                     })
                     .then(() => {
                         // Always
@@ -171,10 +168,6 @@
             }, 250),
 
 
-            parseSearchResult(data) {
-                this.suggestedKeywords = data;
-            },
-
             requestCreateNewKeyword() {
                 this.createNewKeyword(this.keywordInput);
                 this.keywordInput = '';
@@ -182,7 +175,7 @@
 
             createNewKeyword(title) {
 
-                const promise = this.$store.dispatch('keywords/createAndAssign', {
+                 this.$store.dispatch('keywords/createAndAssign', {
                     title,
                     type: 'key',
                     materialId: this.materialId
