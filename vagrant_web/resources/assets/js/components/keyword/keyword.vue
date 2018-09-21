@@ -96,7 +96,7 @@
 
             materialId: {
                 type: Number,
-                required: true
+                required: false
             },
 
             searchlink: {
@@ -215,44 +215,64 @@
 
             },
 
+            /* used by mixin */
             updateRelevance(relevance) {
 
                 this.$emit('savingPivot', {relevance: relevance});
 
-                const promise = this.$store.dispatch('keywords/updateRelevance', {
-                    materialId: this.materialId,
-                    keywordId: this.keyword.id,
-                    relevance: relevance
-                });
+                if (this.materialId) {
 
-                promise.then((keyword) => {
+                    const promise = this.$store.dispatch('keywords/updateRelevance', {
+                        materialId: this.materialId,
+                        keywordId: this.keyword.id,
+                        relevance: relevance
+                    });
 
-                    // Nur für den Fall, dass die Komponente irgendwo eingesetzt wird, wo sich das im Hintergrund nicht aktualisiert
-                    this.myKeyword.pivot = keyword.pivot;
+                    promise.then((keyword) => {
+
+                        // Nur für den Fall, dass die Komponente irgendwo eingesetzt wird, wo sich das im Hintergrund nicht aktualisiert
+                        this.myKeyword.pivot = keyword.pivot;
+
+                        this.emitSaved(keyword);
+
+                    }).catch((response) => {
+
+                        // on failure
+                        this.$emit('savingPivotError', {
+                            tag: this.keyword,  // "tag" is used for bibleverses and keywords
+                            msg: this.parseResponseErrors(response.response)
+                        });
+                    });
+                } else {
+
+                    console.info('Relevance can only be changed in the backend when a material-id is given!');
+
+                    let pivot            = this.myKeyword.pivot || {};
+                    pivot.relevance      = relevance;
+                    this.myKeyword.pivot = pivot;
 
                     this.emitSaved(keyword);
 
-                }).catch((response) => {
+                }
 
-                    // on failure
-                    this.$emit('savingPivotError', {
-                        tag: this.keyword,  // "tag" is used for bibleverses and keywords
-                        msg: this.parseResponseErrors(response.response)
-                    });
-                });
 
             },
 
             removeKeyword() {
 
-                const promise = this.$store.dispatch('keywords/deleteAssignment', {
-                    materialId: this.materialId,
-                    keywordId: this.myKeyword.id
-                });
-
-                promise.then((response) => {
+                if (this.materialId) {
+                    this.$store.dispatch('keywords/deleteAssignment', {
+                        materialId: this.materialId,
+                        keywordId: this.myKeyword.id
+                    })
+                        .then((response) => {
+                            this.$emit('removed', this.myKeyword);
+                        });
+                } else {
+                    console.info('Missing MaterialID -> The association is only removed in frontend!');
                     this.$emit('removed', this.myKeyword);
-                });
+                }
+
 
             },
 

@@ -25,9 +25,7 @@
     import {tagging} from './../theme';
     import contextMenu from './../context-menu/context-menu.vue';
     import contextMenuItem from "../context-menu/context-menu-item.vue";
-    import {bibleverseSearchLink, bibleverseUpdatePivotRoute, materialRemoveBibleverseRoute} from './../serverRoutes';
-
-    import axios from 'axios';
+    import {bibleverseSearchLink} from './../serverRoutes';
 
     export default {
 
@@ -43,7 +41,7 @@
 
             materialId: {
                 type: Number,
-                required: true
+                required: false
             },
 
             size: {
@@ -106,27 +104,41 @@
         },
 
         methods: {
-            updateRelevance(pivot) {
-                this.$emit('savingPivot', {pivot: pivot});
 
-                pivot._method = 'PUT';
+            /* used by mixin */
+            updateRelevance(relevance) {
 
-                return axios.post(bibleverseUpdatePivotRoute(this.materialId, this.myBibleverse.id), pivot)
-                    .then((response) => {
-                            // on success
+                this.$emit('savingPivot', {relevance: relevance});
 
-                            // Update this bibleverse data directly
-                            this.myBibleverse.pivot = response.data.pivot;
-
-                            this.emitSaved(this.myBibleverse);
-
-                        }
-                    ).catch((response) => {
+                if (this.materialId) {
+                    this.$store.dispatch('bibleverses/updateRelevance', {
+                        materialId: this.materialId,
+                        bibleverseId: this.myBibleverse.id,
+                        relevance: relevance
+                    }).then((bibleverse) => {
+                        // Update this bibleverse data directly
+                        this.myBibleverse.pivot = bibleverse.pivot;
+                        this.emitSaved(this.myBibleverse);
+                    }).catch((response) => {
                         this.$emit('savingPivotError', {
                             tag: this.myBibleverse,  // "tag" is used for bibleverses and keywords
                             msg: this.parseResponseErrors(response.response)
                         });
                     });
+                }
+                else {
+
+                    console.info('Can not add bibleverse to material at the server because no materialId given', this.myBibleverse);
+
+                    let pivot               = this.myBibleverse.pivot || {};
+                    pivot.relevance         = relevance;
+                    this.myBibleverse.pivot = pivot;
+
+                    this.emitSaved(this.myBibleverse);
+
+                }
+
+
             },
 
             parseResponseErrors(response) {
@@ -151,23 +163,29 @@
             },
 
             searchForBibleverse() {
-                window.location.href = bibleverseSearchLink(this.myBibleverse);;
+                window.location.href = bibleverseSearchLink(this.myBibleverse);
             },
 
             removeBibleverse() {
 
-                let params = {
-                    _method: 'DELETE'
-                };
+                if (this.materialId) {
 
-                axios.post(materialRemoveBibleverseRoute(this.materialId, this.myBibleverse.id), params)
-                    .then((response) => {
-                            this.emitRemoved();
-                        }
-                    ).catch((response) => {
-                    // on failure
-                    console.error('Failed to remove bibleverse', this.myBibleverse);
-                });
+                    this.$store.dispatch('bibleverses/deleteAssignment', {
+                        materialId: this.materialId,
+                        bibleverseId: this.myBibleverse.id
+                    }).then(() => {
+                        this.emitRemoved();
+                    }).catch((response) => {
+                        console.error('Failed to remove bibleverse', this.myBibleverse);
+                    });
+
+                } else {
+
+                    console.info('Can not remove bibleverse from material at the server because no materialId given', this.myBibleverse);
+                    this.emitRemoved();
+
+                }
+
 
             }
         },

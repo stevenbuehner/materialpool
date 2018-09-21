@@ -70,7 +70,7 @@
 
             materialId: {
                 type: Number,
-                required: true
+                required: false
             }
         },
 
@@ -175,11 +175,25 @@
 
             createNewKeyword(title) {
 
-                 this.$store.dispatch('keywords/createAndAssign', {
-                    title,
-                    type: 'key',
-                    materialId: this.materialId
-                });
+                let promise;
+
+                if (this.materialId) {
+                    promise = this.$store.dispatch('keywords/createAndAssign', {
+                        title,
+                        type: 'key',
+                        materialId: this.materialId
+                    });
+                } else {
+                    console.info('Missing Material ID: Association is not stored remotely!');
+                    promise = this.$store.dispatch('keywords/create', {
+                        title,
+                        type: 'key',
+                    });
+                }
+
+                promise.then((keyword) => {
+                    this.insertOrUpdateKeyword(keyword);
+                })
 
             },
 
@@ -188,12 +202,20 @@
                 if (this.myKeywords.find((el) => {
                     return el.id === kw.id;
                 }) === undefined) {
-                    this.$store.dispatch('keywords/updateRelevance', {
-                        materialId: this.materialId,
-                        keywordId: kw.id
-                    }).then((data) => {
-                        this.insertOrUpdateKeyword(data);
-                    });
+
+                    if (this.materialId) {
+                        this.$store.dispatch('keywords/updateRelevance', {
+                            materialId: this.materialId,
+                            keywordId: kw.id
+                        }).then((data) => {
+                            this.insertOrUpdateKeyword(data);
+                        });
+                    } else {
+                        console.info('Missing Material ID: Association is not stored remotely!');
+                        this.insertOrUpdateKeyword(kw);
+                    }
+
+
                 }
 
             },
@@ -218,7 +240,7 @@
                     return el.id === kw.id;
                 });
 
-                if (foundIndex > 0) {
+                if (foundIndex >= 0) {
                     this.myKeywords.splice(foundIndex, 1);
                     this.$emit('updated', this.myKeywords);
                 }

@@ -2,14 +2,19 @@ import axios from 'axios'
 import {
     api_v1_keywords_create,
     api_v1_keywords_deleteassignment,
+    api_v1_keywords_show,
     api_v1_keywords_update,
     api_v1_keywords_updateassignment,
     searchGuessKeywords
 } from './../../../components/serverRoutes'
+import {TaskQueue} from 'cwait';
+
+const MAX_SIMULTANEOUS_DOWNLOADS = 6;
 
 
 const state = {
-    keywordMaterialIds: {}
+    keywordMaterialIds: {},
+    keywords: {},
 };
 
 const getters = {
@@ -19,6 +24,14 @@ const getters = {
             return state.keywordMaterialIds[keywordId]
         } else {
             return {};
+        }
+    },
+
+    getKeyword: (state) => (keywordId) => {
+        if (state.keywords[keywordId]) {
+            return state.keywords[keywordId];
+        } else {
+            return false;
         }
     }
 };
@@ -45,11 +58,46 @@ const mutations = {
 
     clearKeywordMaterial(state, {keywordId}) {
         state.keywordMaterialIds[keywordId] = {};
+    },
+
+    setKeyword(state, keyword) {
+        state.keywords[keyword.id] = keyword;
     }
 
 };
 
 const actions = {
+    get: ({getters, commit}, keywordId) => {
+
+        const keyword = getters.getKeyword(keywordId);
+
+        if (keyword) {
+            return new Promise((resolve, reject) => {
+                resolve(keyword);
+            });
+        }
+
+
+        return axios.get(api_v1_keywords_show(keywordId))
+            .then(({data}) => {
+                commit('setKeyword', data);
+                return data;
+            });
+    },
+
+    getMultiple: async ({dispatch}, keywordIds) => {
+
+        const queue = new TaskQueue(Promise, MAX_SIMULTANEOUS_DOWNLOADS);
+
+        return await Promise.all(
+            keywordIds.map(
+                queue.wrap(
+                    async id => await dispatch('get', id)
+                )
+            )
+        );
+    },
+
     create: ({commit, getters, dispatch}, {title, type}) => {
 
         let params = {
@@ -70,13 +118,11 @@ const actions = {
 
     },
 
-    createAndAssign: ({commit, getters, dispatch}, {title, type, materialId, relevance}) => {
-        const createPromise = dispatch('create', {title, type});
+    createAndAssign: async ({commit, getters, dispatch}, {title, type, materialId, relevance}) => {
+        const keyword          = await dispatch('create', {title, type});
+        const keywordRelevance = await  dispatch('updateRelevance', {materialId, keywordId: keyword.id, relevance});
 
-        return createPromise.then((keyword) => {
-            return dispatch('updateRelevance', {materialId, keywordId: keyword.id, relevance})
-        });
-
+        return keywordRelevance;
     },
 
     update: ({commit, getters, dispatch}, {id, data}) => {

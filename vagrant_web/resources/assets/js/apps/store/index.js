@@ -3,6 +3,7 @@ import VueX from 'vuex';
 import resources from './modules/resources';
 import materials from './modules/materials';
 import keywords from './modules/keywords';
+import bibleverses from './modules/bibleverses';
 import search from './modules/search';
 import tagsearch from './modules/tagsearch';
 import materialapp from './modules/materialapp';
@@ -18,6 +19,7 @@ export const store = new VueX.Store({
         materials,
         materialapp,
         keywords,
+        bibleverses,
         search,
         tagsearch,
         recentmaterials

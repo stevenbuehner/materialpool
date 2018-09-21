@@ -59,8 +59,6 @@
 
 <script>
 
-    import {bibleverseUpdatePivotRoute, createBibleverseRoute, searchGuessBibleverses} from './../serverRoutes'
-    import axios from 'axios';
     import bibleverse from './biblevers.vue'
     import {HollowDotsSpinner} from 'epic-spinners'
 
@@ -78,7 +76,7 @@
 
             materialId: {
                 type: Number,
-                required: true
+                required: false
             }
         },
 
@@ -143,26 +141,16 @@
             // _.throttle), visit: https://lodash.com/docs#debounce
             search: _.debounce((loading, search, vm) => {
 
-                let data = {q: search};
-
-                axios.get(searchGuessBibleverses, {params: data})
-                    .then(({data}) => {
-                        vm.parseSearchResult(data);
-                    })
-                    .catch((response) => {
-                        console.error(response);
-                    })
-                    .then(() => {
-                        // Always
-                        loading(false);
-                    });
+                vm.$store.dispatch('bibleverses/search', search)
+                    .then((bibleverses) => {
+                        vm.suggestedBibleverses = bibleverses;
+                    }).then(() => {
+                    // Always
+                    loading(false);
+                });
 
             }, 250),
 
-
-            parseSearchResult(data) {
-                this.suggestedBibleverses = data;
-            },
 
             addBibleverseClick(bv) {
                 this.searchInput = '';
@@ -171,75 +159,46 @@
 
             addBibleverseToMaterial(bv) {
 
-                const promise = new Promise(
-                    (resolve, reject) => {
+                return new Promise((resolve, reject) => {
 
-                        if (bv.id === undefined) {
-                            this.createNewBibleverse(bv.from, bv.to).then(
-                                (bibleverse) => {
-                                    resolve(this.appendBibleverseToMaterial(bibleverse.id, this.materialId));
-                                }
-                            )
-                        } else {
-                            resolve(this.appendBibleverseToMaterial(bv.id, this.materialId));
-                        }
+                    if (bv.id === undefined) {
+                        resolve(this.createNewBibleverse(bv.from, bv.to));
+                    } else {
+                        resolve(bv);
                     }
-                );
 
+                }).then((bibleverse) => {
 
-                promise.then((bibleverse) => {
+                    if (this.materialId) {
+                        return this.appendBibleverseToMaterial(bibleverse.id, this.materialId);
+                    } else {
+                        console.info('Can not append bibleverse to material when materialId is missing!');
+                        return bibleverse
+                    }
+
+                }).then((bibleverse) => {
+
                     this.myBibleverses.push(bibleverse);
                     this.$emit('updated', this.myBibleverses);
+
                 })
 
             },
 
             createNewBibleverse(from, to) {
-
-                let params = {
-                    from: from,
-                    to: to,
-                };
-
-                return axios.post(createBibleverseRoute, params)
-                    .then(({data}) => {
-
-                        console.log('created Bibleverse');
-                        return data;
-
-                    })
-                    .catch((response) => {
-                        console.error(response);
-                    });
+                return this.$store.dispatch('bibleverses/create', {from: from, to: to});
             },
 
             appendBibleverseToMaterial(bvId, materialId) {
-
-                let params = {
-                    _method: 'PUT'
-                };
-
-                return axios.post(bibleverseUpdatePivotRoute(materialId, bvId), params)
-                    .then(({data}) => {
-
-                        console.log('Bibleverse assigned to material');
-
-                        return data;
-
-                    })
-                    .catch((response) => {
-                        console.error(response);
-                    });
-
+                return this.$store.dispatch('bibleverses/updateRelevance', {bibleverseId: bvId, materialId})
             },
-
 
             bibleverseRemoved(bv) {
                 let foundIndex = this.myBibleverses.findIndex((el) => {
                     return el.id === bv.id;
                 });
 
-                if (foundIndex > 0) {
+                if (foundIndex >= 0) {
                     this.myBibleverses.splice(foundIndex, 1);
                     this.$emit('updated', this.myBibleverses);
                 }
