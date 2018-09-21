@@ -87,6 +87,7 @@ module.exports = {
         })
     ],
     resolve: {
+        extensions: ['*', '.js', '.vue', '.json'],//in webpack 2.2 default resolve .js .json
         alias: {
             'vue$': 'vue/dist/vue.esm.js'
         }

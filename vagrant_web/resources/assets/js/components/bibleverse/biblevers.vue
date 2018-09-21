@@ -4,6 +4,7 @@
              :class="{'tag-readonly' : !editable, 'tag-editable' : editable}"
              @mousedown.left.prevent="startDrag"
              @click.right.prevent="$refs.menu.openMenu($event)"
+             role="button"
              :style="{color: theme.colors.color, backgroundColor: theme.colors.background}">
             <div class="sb-progress-bar" :style="styleObject"></div>
             <span class="icon" :style="{backgroundImage: 'url('+ myBibleverse.icon+')'}"></span>
@@ -85,8 +86,10 @@
             relevance() {
                 if (this.dragging.ongoing === true) {
                     return this.dragDifference;
-                } else {
+                } else if (this.myBibleverse.pivot) {
                     return this.myBibleverse.pivot.relevance;
+                } else {
+                    return 0;
                 }
             },
             styleObject: function () {
@@ -118,7 +121,7 @@
                     }).then((bibleverse) => {
                         // Update this bibleverse data directly
                         this.myBibleverse.pivot = bibleverse.pivot;
-                        this.emitSaved(this.myBibleverse);
+                        this.emitSaved(bibleverse);
                     }).catch((response) => {
                         this.$emit('savingPivotError', {
                             tag: this.myBibleverse,  // "tag" is used for bibleverses and keywords

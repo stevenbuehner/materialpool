@@ -2,17 +2,17 @@
     <div class="kw-wrapper" :class="[size]">
         <div class="btn btn-sm btn-secondary sb-keyword"
              :class="{'tag-readonly' : !editable, 'tag-editable' : editable}"
-             @click.right.prevent="$refs.menu.openMenu($event)"
              @mousedown.left.prevent="startDrag"
+             @click.right.prevent="$refs.menu.openMenu($event)"
              @dblclick.prevent="openKeywordEditModal"
              role="button"
              :style="{color: theme.colors.color, backgroundColor: theme.colors.background}">
-            <div v-if="hasPivot" class="sb-progress-bar" :style="styleObject"></div>
+            <div class="sb-progress-bar" :style="styleObject"></div>
             <span class="icon" :style="{backgroundImage : 'url(' + myKeyword.icon + ')'}"></span>
             <span class="text">{{ myKeyword.title }}</span>
         </div>
 
-        <b-modal ref="editKeyword" title="Edit Keyword" @ok="storeModalChanges">
+        <b-modal ref="editKeyword" lazy title="Edit Keyword" @ok="storeModalChanges">
             <div class="container-fluid">
                 <div class="row">
                     <div class="col-sm-3">
@@ -148,15 +148,12 @@
             relevance() {
                 if (this.dragging.ongoing === true) {
                     return this.dragDifference;
-                } else {
+                } else if (this.myKeyword.pivot) {
                     return this.myKeyword.pivot.relevance;
+                } else {
+                    return 0;
                 }
             },
-
-            hasPivot() {
-                return this.myKeyword.pivot !== undefined && this.myKeyword.pivot.relevance !== undefined;
-            },
-
 
             styleObject: function () {
                 return {
@@ -251,7 +248,7 @@
                     pivot.relevance      = relevance;
                     this.myKeyword.pivot = pivot;
 
-                    this.emitSaved(keyword);
+                    this.emitSaved(this.myKeyword);
 
                 }
 
