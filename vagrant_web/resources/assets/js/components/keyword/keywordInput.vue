@@ -122,7 +122,14 @@
                 } else {
                     this.suggestedKeywords = [];
                 }
+            },
 
+            keywords: {
+                handler: function () {
+                    this.init();
+                },
+                deep: true,
+                imediately: true
             }
         },
 
@@ -244,15 +251,20 @@
                     this.myKeywords.splice(foundIndex, 1);
                     this.$emit('updated', this.myKeywords);
                 }
-            }
+            },
 
+            init() {
+
+                // Deep Copy Keywords
+                this.myKeywords = JSON.parse(JSON.stringify(this.keywords));
+
+            }
 
         },
 
         created() {
 
-            // Deep Copy Keywords
-            this.myKeywords = JSON.parse(JSON.stringify(this.keywords));
+            this.init();
 
         },
 

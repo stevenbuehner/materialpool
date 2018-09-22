@@ -111,6 +111,14 @@
             searchInput(newValue, oldValue) {
                 this.setStillLoading(true);
                 this.search(this.setStillLoading, newValue, this);
+            },
+
+            bibleverses: {
+                handler: function () {
+                    this.init();
+                },
+                deep: true,
+                imediately: true
             }
         },
 
@@ -202,14 +210,19 @@
                     this.myBibleverses.splice(foundIndex, 1);
                     this.$emit('updated', this.myBibleverses);
                 }
+            },
+
+            init() {
+
+                // Deep Copy bibleverses
+                this.myBibleverses = JSON.parse(JSON.stringify(this.bibleverses));
             }
 
         },
 
         created() {
 
-            // Deep Copy bibleverses
-            this.myBibleverses = JSON.parse(JSON.stringify(this.bibleverses));
+            this.init();
 
         },
 
