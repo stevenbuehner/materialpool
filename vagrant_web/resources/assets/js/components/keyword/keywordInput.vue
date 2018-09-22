@@ -2,12 +2,13 @@
     <div class="card">
 
         <div class="card-header">
-            <keyword v-for="kw in myKeywords"
+            <keyword v-for="(kw, index) in myKeywords"
                      :key="getKeywordkey(kw)"
-                     :keyword="kw"
+                     v-model="myKeywords[index]"
                      :material-id="materialId"
                      :removeable="true"
                      @removed="keywordRemoved"
+                     @saved="keywordUpdated(kw, index)"
             ></keyword>
         </div>
 
@@ -130,7 +131,8 @@
                 },
                 deep: true,
                 imediately: true
-            }
+            },
+
         },
 
         methods: {
@@ -239,7 +241,7 @@
                     this.myKeywords.push(kw);
                 }
 
-                this.$emit('updated', this.myKeywords);
+                this.emitUpdate();
             },
 
             keywordRemoved(kw) {
@@ -249,8 +251,17 @@
 
                 if (foundIndex >= 0) {
                     this.myKeywords.splice(foundIndex, 1);
-                    this.$emit('updated', this.myKeywords);
+                    this.emitUpdate();
                 }
+            },
+
+            /** i.e. pivot or something like that */
+            keywordUpdated(kw, index) {
+                this.emitUpdate();
+            },
+
+            emitUpdate() {
+                this.$emit('updated', this.myKeywords);
             },
 
             init() {

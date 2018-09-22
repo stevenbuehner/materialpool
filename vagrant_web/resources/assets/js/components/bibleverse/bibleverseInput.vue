@@ -2,12 +2,13 @@
     <div class="card">
 
         <div class="card-header">
-            <bibleverse v-for="bv in myBibleverses"
+            <bibleverse v-for="(bv, index) in myBibleverses"
                         :key="getBibleverseKey(bv)"
-                        :bibleverse="bv"
+                        v-model="myBibleverses[index]"
                         :material-id="materialId"
                         :removeable="true"
                         @removed="bibleverseRemoved"
+                        @saved="bibleverseUpdated(bv, index)"
             ></bibleverse>
 
             <transition name="fade">
@@ -119,7 +120,7 @@
                 },
                 deep: true,
                 imediately: true
-            }
+            },
         },
 
 
@@ -187,7 +188,7 @@
                 }).then((bibleverse) => {
 
                     this.myBibleverses.push(bibleverse);
-                    this.$emit('updated', this.myBibleverses);
+                    this.emitUpdate();
 
                 })
 
@@ -208,8 +209,17 @@
 
                 if (foundIndex >= 0) {
                     this.myBibleverses.splice(foundIndex, 1);
-                    this.$emit('updated', this.myBibleverses);
+                    this.emitUpdate();
                 }
+            },
+
+            /** i.e. pivot or something like that */
+            bibleverseUpdated(bv, index){
+                this.emitUpdate();
+            },
+
+            emitUpdate(){
+                this.$emit('updated', this.myBibleverses);
             },
 
             init() {
