@@ -1,5 +1,6 @@
 import {
     api_v1_materials_show,
+    api_v1_materials_store,
     api_v1_materials_update,
     api_v2_materialresource_attach,
     api_v2_materialresource_detach
@@ -99,6 +100,47 @@ const actions = {
             materialId: material.id,
             keywords: material.keywords
         }, {root: true});
+    },
+
+
+    create: ({commit, dispatch}, {title, from_bot, description, rating, author, keywords, bibleverses}) => {
+
+        let data = {
+            title
+        };
+
+        if (from_bot === true || from_bot === false) {
+            data.from_bot = from_bot;
+        }
+
+        if (description) {
+            data.description = description;
+        }
+
+        if (rating) {
+            data.rating = parseInt(rating);
+        }
+
+        if (author) {
+            data.author = author;
+        }
+
+        if (keywords) {
+            data.keywords = keywords;
+        }
+
+        if (bibleverses) {
+            data.bibleverses = bibleverses;
+        }
+
+        const result = axios.post(api_v1_materials_store, data)
+            .then((result) => result.data);
+
+        result.then((material) => {
+            commit('setMaterial', material);
+        });
+
+        return result;
     },
 
     updateMaterial: ({commit, getters, dispatch}, {id, data}) => {

@@ -53,16 +53,18 @@ export const searchGuessKeywords    = '/pool/search/guess/keywords';
 export const searchGuessBibleverses = '/pool/search/guess/bibleverses';
 
 
-// API - Material
+// API - Resource
+export const api_v1_resources_show = (resourceId) => {
+    return '/api/v1/resources/' + resourceId;
+};
+
+// API - Materials
 export const api_v1_materials_show  = (materialsId) => {
     return '/api/v1/materials/' + materialsId;
 };
+export const api_v1_materials_store = '/api/v1/materials/';
 export const api_v1_materials_index = '/api/v1/materials';
 
-// API - Resource
-export const api_v1_resources_show   = (resourceId) => {
-    return '/api/v1/resources/' + resourceId;
-};
 export const api_v1_materials_update = (materialId) => {
     return '/api/v1/materials/' + materialId;
 };

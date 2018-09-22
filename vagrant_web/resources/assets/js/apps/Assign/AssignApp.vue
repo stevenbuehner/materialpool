@@ -30,6 +30,12 @@
                                 @click.prevent.default="btnRemoveSelectionFromMaterial(mat.id)"
                         >{{$t('pool.delete')}}
                         </b-button>
+                        <b-button
+                                variant="primary"
+                                size="sm"
+                                :to="{name:'material-detail', params: {id:mat.id}}"
+                        >{{$t('pool.open')}}
+                        </b-button>
                         {{mat.title | trim(70) }}
                     </b-dropdown-item>
                 </b-nav-item-dropdown>
@@ -193,17 +199,13 @@
 
                 this.$refs.materialSelector.showPromise().then((material) => {
 
-                    const currentLimitation = this.resourceLimitationPages(material.id);
-                    const newPageLimitation = uniqueArray(currentLimitation.concat(this.selectedPages));
-
-                    this.serverDoResourceMaterialAttachment(material.id, this.id, newPageLimitation);
+                    this.attachCurrentSelectionToMaterial(material.id);
 
                 }).catch((error) => {
                     console.info('Error while setting new Limitation: ', error)
                 })
 
             },
-
 
             btnRemoveSelectionFromMaterial(matId) {
 
@@ -237,16 +239,27 @@
             },
 
             btnCreateNewMaterialFromSelection() {
-                this.$refs.materialCreator.showPromise().then((material) => {
-                    console.log(material);
-                }).catch((err) => {
-                    console.error('Closed Material-Creation early:', err);
+                this.$refs.materialCreator
+                    .showPromise()
+                    .then((material) => {
+                        return this.attachCurrentSelectionToMaterial(material.id);
+                    }).catch((err) => {
+                    console.info('Closed Material-Creation with reason:', err);
                 })
             },
 
 
             pageSelectionUpdated: function (selection) {
                 this.selectedPages = selection;
+            },
+
+            attachCurrentSelectionToMaterial(materialId) {
+
+                const currentLimitation = this.resourceLimitationPages(materialId);
+                const newPageLimitation = uniqueArray(currentLimitation.concat(this.selectedPages));
+
+                return this.serverDoResourceMaterialAttachment(materialId, this.id, newPageLimitation);
+
             },
 
             serverDoResourceMaterialAttachment(materialId, resourceId, pages) {

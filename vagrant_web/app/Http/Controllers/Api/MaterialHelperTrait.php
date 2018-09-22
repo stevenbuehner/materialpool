@@ -36,6 +36,13 @@ trait MaterialHelperTrait {
 		return NULL;
 	}
 
+	/**
+	 * As 'keywords' => ['type', 'title', 'relevance']
+	 *
+	 * @param Request  $request
+	 * @param Material $material
+	 * @return int
+	 */
 	protected function syncKeywords(Request $request, Material $material) {
 		$keywordIds = [];
 

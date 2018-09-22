@@ -3,7 +3,7 @@
         <div class="btn btn-sm btn-secondary sb-keyword"
              :class="{'tag-readonly' : !editable, 'tag-editable' : editable}"
              @mousedown.left.prevent="startDrag"
-             @click.right.prevent="$refs.menu.openMenu($event)"
+             @click.right.prevent="openRightClickMenu"
              @dblclick.prevent="openKeywordEditModal"
              role="button"
              :style="{color: theme.colors.color, backgroundColor: theme.colors.background}">
@@ -61,7 +61,8 @@
 
 
         <context-menu ref="menu">
-            <context-menu-item @click="goToKeywordSearch">nach '{{myKeyword.title}}' suchen</context-menu-item>
+            <context-menu-item v-if="searchable" @click="goToKeywordSearch">nach '{{myKeyword.title}}' suchen
+            </context-menu-item>
             <context-menu-item v-if="editable" @click="openKeywordEditModal">bearbeiten</context-menu-item>
             <context-menu-item v-if="removeable" @click="removeKeyword">entfernen</context-menu-item>
         </context-menu>
@@ -108,6 +109,12 @@
                 type: String,
                 required: false,
                 default: 'normal'
+            },
+
+            searchable: {
+                type: Boolean,
+                required: false,
+                default: true
             },
             editable: {
                 type: Boolean,
@@ -306,7 +313,13 @@
 
             goToKeywordSearch() {
                 window.location.href = this.searchLink;
-            }
+            },
+
+            openRightClickMenu() {
+                if (this.searchable || this.editable || this.removeable) {
+                    this.$refs.menu.openMenu()
+                }
+            },
 
         },
 

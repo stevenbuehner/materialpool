@@ -6,38 +6,43 @@
                      :key="getKeywordkey(kw)"
                      v-model="myKeywords[index]"
                      :material-id="materialId"
-                     :removeable="true"
+                     :removeable="!disabled"
+                     :editable="!disabled"
+                     :searchable="!disabled"
+                     :dragable="!disabled"
                      @removed="keywordRemoved"
                      @saved="keywordUpdated(kw, index)"
             ></keyword>
         </div>
 
-        <div class="card-body">
+        <div class="card-body" v-if="!disabled">
 
             <div class="input-group">
-                <input class="form-control" type="text" placeholder="Keywordtext hier eingeben"
+                <input class="form-control"
+                       type="text"
+                       :placeholder="$t('pool.Insert-keywordtext-here')"
                        v-model="keywordInput">
                 <div class="input-group-append">
                     <button class="btn btn-outline-secondary"
                             type="button"
                             :class="{'disabled' : keywordInput.length < 3}"
                             @click="requestCreateNewKeyword"
-                    >Neu
+                    >{{$t('pool.new')}}
                     </button>
                 </div>
             </div>
 
         </div>
 
-        <div class="card-footer" v-if="displayableSuggestedKeywords.length > 0">
+        <div class="card-footer" v-if="displayableSuggestedKeywords.length > 0 && !disabled">
             <hollow-dots-spinner v-if="stillLoading"
                                  :dot-size="10"
                                  :dots-num="3"
                                  :animation-duration="1500"
                                  color="grey"></hollow-dots-spinner>
-            <span v-if="stillLoading">Vorschläge werden gesucht ...</span>
+            <span v-if="stillLoading">{{$t('pool.Looking-for-suggestions')}}</span>
 
-            <h4 v-if="!stillLoading && suggestedKeywords.length > 0" class="suggestions">Gefundene Vorschläge:</h4>
+            <h4 v-if="!stillLoading && suggestedKeywords.length > 0" class="suggestions">{{$t('pool.Found-suggestions')}}:</h4>
             <button type="button"
                     class="btn btn-outline-secondary btn-sm mr-1 mb-1"
                     v-if="!stillLoading"
@@ -72,7 +77,14 @@
             materialId: {
                 type: Number,
                 required: false
-            }
+            },
+
+            disabled: {
+                type: Boolean,
+                required: false,
+                default: false
+            },
+
         },
 
         model: {

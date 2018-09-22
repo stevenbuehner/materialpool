@@ -1,4 +1,13 @@
 export const draggingSupport = {
+
+    props: {
+        dragable: {
+            type: Boolean,
+            required: false,
+            default: true,
+        }
+    },
+
     data() {
         return {
             dragging: {
@@ -19,7 +28,7 @@ export const draggingSupport = {
     methods: {
 
         startDrag(event) {
-            if (this.editable !== true) {
+            if (this.dragable !== true) {
                 return;
             }
 

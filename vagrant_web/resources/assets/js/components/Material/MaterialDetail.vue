@@ -367,7 +367,7 @@
         position: fixed;
         top: 1em;
         right: 1em;
-        z-index: 1000;
+        z-index: 99999;
     }
 
 
@@ -377,6 +377,4 @@
     .starRatingText {
         font-size: smaller;
     }
-
-
 </style>

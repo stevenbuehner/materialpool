@@ -6,7 +6,10 @@
                         :key="getBibleverseKey(bv)"
                         v-model="myBibleverses[index]"
                         :material-id="materialId"
-                        :removeable="true"
+                        :removeable="!disabled"
+                        :editable="!disabled"
+                        :searchable="!disabled"
+                        :dragable="!disabled"
                         @removed="bibleverseRemoved"
                         @saved="bibleverseUpdated(bv, index)"
             ></bibleverse>
@@ -26,10 +29,12 @@
 
         </div>
 
-        <div class="card-body">
+        <div class="card-body" v-if="!disabled">
 
             <div class="input-group">
-                <input class="form-control" type="text" placeholder="Bibelvers hier eingeben"
+                <input class="form-control"
+                       type="text"
+                       :placeholder="$t('pool.Insert-bibleverse-here')"
                        v-model="searchInput">
 
                 <div class="input-group-append" v-if="stillLoading">
@@ -49,10 +54,9 @@
 
         </div>
 
-        <div class="card-footer" v-if="displayableSuggestedBibleverses.length > 0">
-            <span v-if="stillLoading">Vorschläge werden gesucht ...</span>
-            <h4 v-if="displayableSuggestedBibleverses.length > 0" class="suggestions">Bibelversvorschläge</h4>
-
+        <div class="card-footer" v-if="displayableSuggestedBibleverses.length > 0 && !disabled">
+            <span v-if="stillLoading">{{$t('pool.Looking-for-suggestions')}}</span>
+            <h4 v-if="displayableSuggestedBibleverses.length > 0" class="suggestions">{{$t('pool.Bibleversesuggestions')}}</h4>
         </div>
 
     </div>
@@ -78,7 +82,14 @@
             materialId: {
                 type: Number,
                 required: false
-            }
+            },
+
+            disabled: {
+                type: Boolean,
+                required: false,
+                default: false
+            },
+
         },
 
         model: {
@@ -214,11 +225,11 @@
             },
 
             /** i.e. pivot or something like that */
-            bibleverseUpdated(bv, index){
+            bibleverseUpdated(bv, index) {
                 this.emitUpdate();
             },
 
-            emitUpdate(){
+            emitUpdate() {
                 this.$emit('updated', this.myBibleverses);
             },
 

@@ -6,13 +6,18 @@
              @hide="cancelPromise"
     >
         <template slot="modal-footer">
-            <button type="button" class="btn btn-danger btn-sm" @click="hide">{{$t('pool.Cancel')}}</button>
-            <button type="button" class="btn btn-primary btn-sm" @click="onReset">{{$t('pool.Reset')}}</button>
-            <button type="button" class="btn btn-success btn-sm" @click="createAndReturnMaterial">{{$t('pool.Save')}}
+            <button type="button" class="btn btn-danger btn-sm" @click="hide" :disabled="buttonsDisabled">
+                {{$t('pool.Cancel')}}
+            </button>
+            <button type="button" class="btn btn-primary btn-sm" @click="onReset" :disabled="buttonsDisabled">
+                {{$t('pool.Reset')}}
+            </button>
+            <button type="button" class="btn btn-success btn-sm" @click="onSubmit" :disabled="buttonsDisabled">
+                {{$t('pool.Save')}}
             </button>
         </template>
 
-        <b-form @submit.stop.prevent="onSubmit" @reset="onReset">
+        <b-form @submit.prevent="onSubmit" @reset="onReset">
             <b-form-group horizontal
                           breakpoint="md"
                           :label="$t('pool.Title')"
@@ -21,9 +26,10 @@
             >
                 <b-form-input id="materialtitle"
                               type="text"
-                              v-model="form.title"
+                              v-model.lazy.trim="form.title"
                               required
-                              :placeholder="$t('pool.Material-title')">
+                              :placeholder="$t('pool.Material-title')"
+                              :disabled="formDisabled">
                 </b-form-input>
             </b-form-group>
 
@@ -36,9 +42,10 @@
             >
                 <b-form-input id="materialdescription"
                               type="text"
-                              v-model="form.description"
+                              v-model.lazy.trim="form.description"
                               required
-                              :placeholder="$t('pool.Add-description-here')">
+                              :placeholder="$t('pool.Add-description-here')"
+                              :disabled="formDisabled">
                 </b-form-input>
             </b-form-group>
 
@@ -51,23 +58,61 @@
             >
                 <b-form-input id="materialauthor"
                               type="text"
-                              v-model="form.author"
+                              v-model.lazy.trim="form.author"
                               required
-                              :placeholder="$t('pool.Name-of-material-author')">
+                              :placeholder="$t('pool.Name-of-material-author')"
+                              :disabled="formDisabled">
                 </b-form-input>
             </b-form-group>
 
+
+            <b-form-group horizontal
+                          breakpoint="md"
+                          :label="$t('pool.Rating')"
+                          :label-cols="labelCols"
+            >
+                <star-rating
+                        :increment="1"
+                        :max-rating="20"
+                        inactive-color="lightgray"
+                        active-color="black"
+                        :star-size="15"
+                        :inline="true"
+                        text-class="starRatingText"
+                        :rating="form.rating"
+                        :read-only="formDisabled">
+                </star-rating>
+            </b-form-group>
+
+
             <div class="row">
                 <div class="col-6">
-                    <keyword-input v-model="keywordInput"></keyword-input>
+                    <keyword-input
+                            v-model="keywordInput"
+                            @updated="updateKeywordForm"
+                            :disabled="formDisabled"></keyword-input>
                 </div>
                 <div class="col-6">
-                    <bibleverse-input v-model="bibleverseInput"></bibleverse-input>
+                    <bibleverse-input
+                            v-model="bibleverseInput"
+                            @updated="updateBibleverseForm"
+                            :disabled="formDisabled"></bibleverse-input>
                 </div>
             </div>
 
 
         </b-form>
+
+
+        <b-alert v-for="(alert, index) in formErrors"
+                 :variant="'danger'"
+                 class="mt-1 mb-1"
+                 :show="3"
+                 fade
+                 dismissible
+                 @dismissed="formErrors.splice(index,1)"
+                 :key="alert">{{alert}}
+        </b-alert>
 
     </b-modal>
 </template>
@@ -75,6 +120,7 @@
 <script>
 
     import bForm from 'bootstrap-vue/src/components/form/form';
+    import bAlert from 'bootstrap-vue/src/components/alert/alert';
     import bFormGroup from 'bootstrap-vue/src/components/form-group/form-group';
     import bFormInput from 'bootstrap-vue/src/components/form-input/form-input';
     import bModal from 'bootstrap-vue/src/components/modal/modal';
@@ -89,13 +135,13 @@
         data() {
             return {
                 form: {
-                    title: this.title,
-                    description: this.description,
-                    rating: this.rating,
+                    title: '',
+                    description: '',
+                    rating: null,
                     from_bot: false,
-                    author: this.author,
-                    keywords: this.keywordIds,
-                    bibleverses: this.bibleverseIds
+                    author: '',
+                    keywords: [],
+                    bibleverses: [],
                 },
 
                 keywordInput: [],
@@ -106,7 +152,8 @@
                 reject: null,
                 resolve: null,
 
-                searchErrorMessage: '',
+                formErrors: [],
+                materialCreationRunning: false,
             };
         },
 
@@ -140,30 +187,32 @@
                 type: Array,
                 required: false,
                 default() {
-                    return [22, 46, 66];
+                    return [];
                 }
             },
             bibleverseIds: {
                 type: Array,
                 required: false,
                 default() {
-                    return [213];
+                    return [];
                 }
             }
 
         },
 
+        computed: {
+            formDisabled() {
+                return this.materialCreationRunning;
+            },
+
+            buttonsDisabled() {
+                return this.materialCreationRunning;
+            }
+        },
+
         created() {
 
-            this.$store.dispatch('keywords/getMultiple', this.keywordIds)
-                .then((keywords) => {
-                    this.keywordInput = keywords;
-                });
-
-            this.$store.dispatch('bibleverses/getMultiple', this.bibleverseIds)
-                .then((bibleverse) => {
-                    this.bibleverseInput = bibleverse;
-                });
+            this.onReset();
 
         },
 
@@ -194,14 +243,62 @@
 
             createAndReturnMaterial() {
 
-
                 if (typeof this.resolve === 'function') {
-                    this.resolve(material);
-                    this.$refs.myModal.hide();
-                    // this.resolve = null; // already done during hide()
-                    // this.reject  = null; // already done during hide()
-                    this.$store.commit('recentmaterials/addRecentMaterialId', material.id);
+
+                    this.materialCreationRunning = true;
+
+                    this.$store.dispatch('materials/create', this.form)
+                        .then((material) => {
+                            console.info('Created successfull: ', material);
+
+                            this.resolve(material);
+                            this.resolve = null; // already done during hide()
+                            this.reject  = null; // already done during hide()
+
+                            this.$refs.myModal.hide();
+
+                            this.$store.commit('recentmaterials/addRecentMaterialId', material.id);
+                        })
+                        .catch((response) => {
+                            console.error(response);
+                        })
+                        .then(() => {
+                            // Always
+                            this.materialCreationRunning = false;
+                        });
                 }
+            },
+
+            updateBibleverseForm(bibleverses) {
+                this.form.bibleverses = bibleverses.map((bv) => {
+                    let response = {
+                        from: bv.from,
+                        to: bv.to,
+                        id: bv.id,
+                    };
+
+                    if (bv.pivot && bv.pivot.relevance) {
+                        response.relevance = bv.pivot.relevance;
+                    }
+
+                    return response;
+                });
+            },
+
+            updateKeywordForm(keywords) {
+                this.form.keywords = keywords.map((kw) => {
+                    let response = {
+                        type: kw.type,
+                        title: kw.title,
+                        id: kw.id,
+                    };
+
+                    if (kw.pivot && kw.pivot.relevance) {
+                        response.relevance = kw.pivot.relevance;
+                    }
+
+                    return response;
+                });
             },
 
             hide() {
@@ -209,10 +306,60 @@
             },
 
             onSubmit() {
-                this.createAndReturnMaterial();
+
+                this.checkRequirements();
+
+                if (this.formErrors.length === 0) {
+                    this.createAndReturnMaterial();
+                }
+
+            },
+
+            checkRequirements() {
+
+                this.formErrors = [];
+
+                // Check title
+                if (!this.form.title || this.form.title.length < 3) {
+                    this.formErrors.push(this.$tc('pool.min-length', this.form.title.length, {
+                        COUNT: this.form.title.length,
+                        REQUIRED: 3,
+                        FIELD: this.$t('pool.Title')
+                    }));
+                }
+
+                if (!this.form.rating) {
+                    this.formErrors.push(this.$tc('pool.rating-missing'));
+                }
+
+                if (this.form.keywords.length < 3) {
+                    this.formErrors.push(this.$tc('pool.min-3-keywords'));
+                }
+
             },
 
             onReset() {
+                this.formErrors = [];
+
+                this.form.title       = this.title;
+                this.form.description = this.description;
+                this.form.rating      = this.rating;
+                this.form.from_bot    = false;
+                this.form.author      = this.author;
+                this.form.keywords    = [];
+                this.form.bibleverses = [];
+
+                this.$store.dispatch('keywords/getMultiple', this.keywordIds)
+                    .then((keywords) => {
+                        this.keywordInput = keywords;
+                        this.updateKeywordForm(keywords);
+                    });
+
+                this.$store.dispatch('bibleverses/getMultiple', this.bibleverseIds)
+                    .then((bibleverses) => {
+                        this.bibleverseInput = bibleverses;
+                        this.updateBibleverseForm(bibleverses);
+                    });
 
             }
         },
@@ -221,6 +368,7 @@
             BibleverseInput,
             KeywordInput,
             bForm,
+            bAlert,
             bFormGroup,
             bFormInput,
             bModal,
