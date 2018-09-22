@@ -360,8 +360,8 @@
                         this.bibleverseInput = bibleverses;
                         this.updateBibleverseForm(bibleverses);
                     });
+            },
 
-            }
         },
 
         components: {

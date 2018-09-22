@@ -27,10 +27,10 @@
             <div class="banderole"></div>
         </div>
 
-        <div class="menue-container d-flex justify-content-between">
-            <div class="left" @click="firstPageSelected"></div>
+        <div class="menue-container d-flex justify-content-around">
+            <div :class="isSelected ? 'minus' : 'plus'" @click="addPageSelected"></div>
             <div class="middle">{{label}}</div>
-            <div class="right" @click="lastPageSelected"></div>
+            <div class="zoom" @click="zoomInRequested"></div>
         </div>
 
     </div>
@@ -107,7 +107,7 @@
             },
 
             zoomInRequested: function () {
-                this.$emit('zoomInRequested', this.image);
+                this.$emit('zoomInRequest', this.image);
             },
 
             hidePage: function () {
@@ -204,17 +204,23 @@
         height: 100%;
     }
 
-    .menue-container .left {
-        background: url(/vendor/pdfpreview/img/align-left.svg) no-repeat;
+    .menue-container .zoom {
+        background: url(/img/icons/entypo-plus/resize-full-screen.svg) no-repeat;
+        cursor: pointer;
     }
 
     .menue-container .middle {
-        flex: 1;
         text-align: center;
     }
 
-    .menue-container .right {
-        background: url(/vendor/pdfpreview/img/align-right.svg) no-repeat;
+    .menue-container .plus {
+        background: url(/img/icons/entypo-plus/plus.svg) no-repeat;
+        cursor: pointer;
+    }
+
+    .menue-container .minus {
+        background: url(/img/icons/entypo-plus/minus.svg) no-repeat;
+        cursor: pointer;
     }
 
     .fade-enter-active, .fade-leave-active {

@@ -87,7 +87,6 @@
     import materialSelector from '../../components/modals/selectors/materialSelector.vue';
     import materialCreator from '../../components/modals/creators/materialCreator.vue';
     import truncate from './../../filters/truncate-filter.mixin'
-
     import {uniqueArray} from "../../helper/ArrayHelper";
 
     export default {
@@ -115,6 +114,7 @@
                 selectedPages: [],
 
                 showMaterialSelector: false,
+
             }
         },
 
@@ -282,6 +282,7 @@
                 });
 
             },
+
 
 
         },

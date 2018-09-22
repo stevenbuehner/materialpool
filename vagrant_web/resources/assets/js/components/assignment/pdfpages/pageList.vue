@@ -11,14 +11,28 @@
                 @firstPageSelected="firstPageSelected"
                 @lastPageSelected="lastPageSelected"
                 @addPageSelection="addPageSelection"
+                @zoomInRequest="showZoom(page.image)"
         >Page {{page.label}}
         </page>
+
+        <b-modal ref="imageZoomModal"
+                 centered
+                 hide-footer
+                 lazy
+                 :title="zoomedImage.title"
+                 size="lg">
+            <b-image :src="zoomedImage.src"
+                     fluid
+                     @click="hideZoom()"></b-image>
+        </b-modal>
     </div>
 </template>
 
 <script>
 
     import Page from './page.vue';
+    import bModal from 'bootstrap-vue/src/components/modal/modal';
+    import bImage from 'bootstrap-vue/src/components/image/img'
 
     export default {
 
@@ -44,7 +58,13 @@
             }
 
             return {
-                selectedPages: sel
+                selectedPages: sel,
+
+                zoomedImage: {
+                    title: '',
+                    src: ''
+                }
+
             };
         },
 
@@ -95,7 +115,7 @@
                 }
 
                 return res;
-            }
+            },
 
         },
 
@@ -165,10 +185,29 @@
 
             },
 
+
+            showZoom(image) {
+
+                if (image) {
+                    this.zoomedImage.src = image;
+                }
+
+                this.$refs.imageZoomModal.show();
+
+            },
+
+            hideZoom() {
+
+                this.$refs.imageZoomModal.hide();
+
+            }
+
         },
 
         components: {
-            Page
+            Page,
+            bModal,
+            bImage,
         }
 
     }
