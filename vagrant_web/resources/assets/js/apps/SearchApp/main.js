@@ -10,6 +10,8 @@ import mainApp from './App.vue';
 import './../../../sass/app.scss';
 import {i18n} from "../../localisation";
 
+
+
 require('lodash');
 
 require('vue-flash-message/dist/vue-flash-message.min.css');

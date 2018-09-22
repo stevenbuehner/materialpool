@@ -56,7 +56,8 @@ export default {
             "Looking-for-suggestions": "Vorschläge werden gesucht ...",
             "Found-suggestions": "Gefundene Vorschläge",
             "Insert-bibleverse-here": "Bibelvers hier eingeben",
-            "Bibleversesuggestions": "Bibelversvorschläge"
+            "Bibleversesuggestions": "Bibelversvorschläge",
+            "Upload-resource-and-add-to-material": "Resource hochladen um sie diesem Material hinzuzufügen"
         }
     },
     "en": {
@@ -140,7 +141,8 @@ export default {
             "Looking-for-suggestions": "Looking for suggestions ...",
             "Found-suggestions": "Found suggestions",
             "Insert-bibleverse-here": "Insert bibleverse here",
-            "Bibleversesuggestions": "Bibleverse Suggestions"
+            "Bibleversesuggestions": "Bibleverse Suggestions",
+            "Upload-resource-and-add-to-material": "Upload resource and to add it to this material"
         },
         "validation": {
             "accepted": "The {attribute} must be accepted.",

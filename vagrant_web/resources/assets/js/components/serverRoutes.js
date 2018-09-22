@@ -54,9 +54,11 @@ export const searchGuessBibleverses = '/pool/search/guess/bibleverses';
 
 
 // API - Resource
-export const api_v1_resources_show = (resourceId) => {
+export function api_v1_resources_show(resourceId) {
     return '/api/v1/resources/' + resourceId;
-};
+}
+
+export const api_v1_resources_store = '/api/v1/resources/';
 
 // API - Materials
 export const api_v1_materials_show  = (materialsId) => {

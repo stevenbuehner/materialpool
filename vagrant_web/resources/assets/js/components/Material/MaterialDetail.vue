@@ -3,7 +3,8 @@
         <div v-if="!material">Material is loading</div>
         <div v-if="material">
 
-            <flash-message class="flashMessageHolder col-md-4 col-sm-6 col-lg-3 col-xs-12">This is some test</flash-message>
+            <flash-message class="flashMessageHolder col-md-4 col-sm-6 col-lg-3 col-xs-12">This is some test
+            </flash-message>
 
             <edditable-text
                     type="h1"
@@ -129,8 +130,9 @@
                 </div>
             </div>
 
-
         </div>
+
+        <resource-uploader @resource-created="addResourceToThisMaterial"></resource-uploader>
     </div>
 </template>
 
@@ -147,6 +149,7 @@
     import flashMessage from 'vue-flash-message';
     import Vue from 'vue';
     import AsyncComputed from 'vue-async-computed';
+    import ResourceUploader from "../uploader/resourceUploader";
 
     Vue.use(flashMessage);
     Vue.use(AsyncComputed);
@@ -263,6 +266,14 @@
                 return result;
             },
 
+            addResourceToThisMaterial(resource) {
+                this.$store.dispatch('materials/attachResource',
+                    {materialId: this.id, resourceId: resource.id}
+                ).then(({material}) => {
+                    this.material = material;
+                })
+            },
+
             removeKeyword(index) {
                 this.material.keywords.splice(index, 1);
                 this.materialWasModified();
@@ -325,6 +336,7 @@
 
 
         components: {
+            ResourceUploader,
             keyword,
             keywordInput,
             bibleverse,
