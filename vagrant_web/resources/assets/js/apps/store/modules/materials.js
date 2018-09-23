@@ -3,7 +3,8 @@ import {
     api_v1_materials_store,
     api_v1_materials_update,
     api_v2_materialresource_attach,
-    api_v2_materialresource_detach
+    api_v2_materialresource_detach,
+    api_v2_materials_delete
 } from './../../../components/serverRoutes'
 import axios from 'axios'
 
@@ -66,6 +67,16 @@ const actions = {
         let loadingPromise = getters.getMaterialLoadingPromise(id);
 
         if (loadingPromise === false) {
+            const mat = getters.getMaterial(id);
+
+            if (mat) {
+                return new Promise((resolve, reject) => {
+                    resolve(mat);
+                });
+            }
+        }
+
+        if (loadingPromise === false) {
             loadingPromise = new Promise((resolve, reject) => {
 
                 let res = getters.getMaterial(id);
@@ -84,9 +95,6 @@ const actions = {
             });
 
             commit('setMaterialLoadingPromise', {id: id, promise: loadingPromise});
-
-        } else {
-            loadingPromise = loadingPromise;
         }
 
         return loadingPromise;
@@ -309,6 +317,18 @@ const actions = {
 
         return result;
     },
+
+    deleteMaterial: ({commit, dispatch}, id) => {
+
+        return axios.delete(api_v2_materials_delete(id)).then(({data}) => {
+
+            commit('clearMaterial', id);
+
+            return (data.success && data.success === true);
+
+        });
+
+    }
 
 };
 

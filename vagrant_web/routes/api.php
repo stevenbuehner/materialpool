@@ -40,6 +40,16 @@ Route::group([
 		 ->middleware('can:update,material')
 		 ->name('api.v2.materialresources.sync');
 
+
+	// Neu: Material
+	Route::delete('materials/{material}',
+				  'MaterialController@destroy')
+		 ->where('material', '[0-9]+')
+		 ->middleware('can:delete,material')
+		// ->middleware('can:view,resource') // Even if the resource owner made his resource not public anymore, the detaching should work
+		 ->name('api.v2.material.delete');
+
+
 });
 
 

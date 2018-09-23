@@ -1,4 +1,4 @@
-import {api_v1_resources_show} from './../../../components/serverRoutes'
+import {api_v1_resources_delete, api_v1_resources_show} from './../../../components/serverRoutes'
 import axios from 'axios'
 
 
@@ -76,6 +76,18 @@ const actions = {
         }
 
         return loadingPromise;
+
+    },
+
+    deleteResource: ({commit}, id) => {
+
+        return axios.delete(api_v1_resources_delete(id)).then(({data}) => {
+
+            commit('clearResource', id);
+
+            return (data.success && data.success === true);
+
+        });
 
     },
 

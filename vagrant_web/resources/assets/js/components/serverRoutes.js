@@ -58,6 +58,10 @@ export function api_v1_resources_show(resourceId) {
     return '/api/v1/resources/' + resourceId;
 }
 
+export function api_v1_resources_delete(resourceId) {
+    return '/api/v1/resources/' + resourceId;
+}
+
 export const api_v1_resources_store = '/api/v1/resources/';
 
 // API - Materials
@@ -69,6 +73,9 @@ export const api_v1_materials_index = '/api/v1/materials';
 
 export const api_v1_materials_update = (materialId) => {
     return '/api/v1/materials/' + materialId;
+};
+export const api_v2_materials_delete = (materialId) => {
+    return '/api/v2/materials/' + materialId;
 };
 
 // API - Keywords

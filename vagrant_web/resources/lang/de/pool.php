@@ -60,5 +60,10 @@ return [
 	'Insert-bibleverse-here'              => 'Bibelvers hier eingeben',
 	'Bibleversesuggestions'               => 'Bibelversvorschläge',
 	'Upload-resource-and-add-to-material' => 'Resource hochladen um sie diesem Material hinzuzufügen',
+	'Material-is-loading'                 => 'Material lädt ...',
+	'Yes'                                 => 'Ja',
+	'No'                                  => 'Nein',
+	'go-back'                             => 'gehe zurück',
+	'detach'                              => 'lösen',
 
 ];

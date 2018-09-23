@@ -69,5 +69,10 @@ return [
 	'Insert-bibleverse-here'              => 'Insert bibleverse here',
 	'Bibleversesuggestions'               => 'Bibleverse Suggestions',
 	'Upload-resource-and-add-to-material' => 'Upload resource and to add it to this material',
+	'Material-is-loading'                 => 'Material is loading ...',
+	'Yes'                                 => 'Yes',
+	'No'                                  => 'No',
+	'go-back'                             => 'go back',
+	'detach'                              => 'detach',
 
 ];

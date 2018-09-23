@@ -138,6 +138,6 @@ class MaterialController extends BaseController {
 		$material->keywords()->detach();
 		$material->delete();
 
-		return TRUE;
+		return ['success' => true];
 	}
 }

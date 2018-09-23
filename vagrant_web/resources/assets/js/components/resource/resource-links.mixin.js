@@ -1,4 +1,4 @@
-import {resourceDownloadLink, resourceEditLink} from './../serverRoutes'
+import {resourceDownloadLink} from './../serverRoutes'
 
 export default {
     methods: {
@@ -7,18 +7,13 @@ export default {
             window.location = this.resourceDownloadUrl;
         },
 
-        goToResource() {
-            window.location = this.resourceUrl;
-        }
     },
 
     computed: {
-        resourceUrl() {
-            return resourceEditLink(this.resource);
-        },
 
         resourceDownloadUrl() {
             return resourceDownloadLink(this.resource);
         },
+
     }
 }

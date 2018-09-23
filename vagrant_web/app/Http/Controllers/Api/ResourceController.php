@@ -188,7 +188,7 @@ class ResourceController extends BaseController {
 		$resource->delete();
 
 
-		return [];
+		return ['success' => TRUE];
 	}
 
 	/**

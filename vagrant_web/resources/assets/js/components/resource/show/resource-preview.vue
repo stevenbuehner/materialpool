@@ -6,8 +6,18 @@
             <div class="meta">
                 <span class="author"></span>
             </div>
-            <button class="btn btn-outline-primary" @click.prevent="downloadResource">download</button>
-            <button class="btn btn-outline-primary" @click.prevent="goToResource">open</button>
+            <slot name="buttons">
+
+            </slot>
+            <slot name="buttons">
+                <slot name="default-buttons">
+                    <button class="btn btn-outline-primary" @click.prevent="downloadResource">download</button>
+                    <router-link :to="{name:'resource-detail', params: {id: resource.id}}"
+                                 class="btn btn-outline-primary">{{$t('pool.open')}}
+                    </router-link>
+                </slot>
+                <slot name="additional-buttons"></slot>
+            </slot>
         </div>
 
     </div>
@@ -21,7 +31,7 @@
     import videoPreview from './video-preview.vue'
     import docPreview from './doc-preview.vue'
     import resPreview from './res-preview.vue'
-    import {resourceDownloadLink, resourceEditLink} from './../../serverRoutes';
+    import {resourceDownloadLink} from './../../serverRoutes';
     import resourceLinks from './../resource-links.mixin';
 
 
@@ -48,9 +58,6 @@
                 window.location = resourceDownloadLink(this.resource);
             },
 
-            goToResource() {
-                window.location = resourceEditLink(this.resource);
-            }
         },
 
 

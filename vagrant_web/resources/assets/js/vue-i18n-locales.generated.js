@@ -57,7 +57,12 @@ export default {
             "Found-suggestions": "Gefundene Vorschläge",
             "Insert-bibleverse-here": "Bibelvers hier eingeben",
             "Bibleversesuggestions": "Bibelversvorschläge",
-            "Upload-resource-and-add-to-material": "Resource hochladen um sie diesem Material hinzuzufügen"
+            "Upload-resource-and-add-to-material": "Resource hochladen um sie diesem Material hinzuzufügen",
+            "Material-is-loading": "Material lädt ...",
+            "Yes": "Ja",
+            "No": "Nein",
+            "go-back": "gehe zurück",
+            "detach": "lösen"
         }
     },
     "en": {
@@ -142,7 +147,12 @@ export default {
             "Found-suggestions": "Found suggestions",
             "Insert-bibleverse-here": "Insert bibleverse here",
             "Bibleversesuggestions": "Bibleverse Suggestions",
-            "Upload-resource-and-add-to-material": "Upload resource and to add it to this material"
+            "Upload-resource-and-add-to-material": "Upload resource and to add it to this material",
+            "Material-is-loading": "Material is loading ...",
+            "Yes": "Yes",
+            "No": "No",
+            "go-back": "go back",
+            "detach": "detach"
         },
         "validation": {
             "accepted": "The {attribute} must be accepted.",

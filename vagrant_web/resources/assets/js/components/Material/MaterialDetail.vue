@@ -1,6 +1,12 @@
 <template>
     <div>
-        <div v-if="!material">Material is loading</div>
+        <div v-if="!material && !errorOnLoadingMessage">{{$t('pool.Material-is-loading')}}</div>
+        <div class="alert alert-warning"
+             v-if="!material && errorOnLoadingMessage">
+            {{errorOnLoadingMessage}}
+            <a href="javascript:history.go(-1)" class="btn btn-primary">{{$t('pool.go-back')}}</a>
+        </div>
+
         <div v-if="material">
 
             <flash-message class="flashMessageHolder col-md-4 col-sm-6 col-lg-3 col-xs-12">This is some test
@@ -120,19 +126,41 @@
 
             <div class="row" v-if="material.resources !== undefined && material.resources.length > 1">
                 <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12" v-for="resource in material.resources">
-                    <resource-preview :resource="resource"></resource-preview>
+                    <resource-preview :resource="resource">
+                        <template slot="additional-buttons">
+                            <button class="btn btn-outline-danger" @click.prevent="btnDetachResource(resource)">
+                                {{$t('pool.detach')}}
+                            </button>
+                        </template>
+                    </resource-preview>
                 </div>
             </div>
 
             <div class="row" v-if="material.resources !== undefined && material.resources.length === 1">
                 <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                    <resource-detail :resource="material.resources[0]"></resource-detail>
+                    <resource-detail :resource="material.resources[0]">
+                        <template slot="additional-buttons">
+                            <button class="btn btn-outline-danger"
+                                    @click.prevent="btnDetachResource(material.resources[0])">
+                                {{$t('pool.detach')}}
+                            </button>
+                        </template>
+                    </resource-detail>
+                </div>
+            </div>
+
+            <div class="row" v-if="material.resources !== undefined && material.resources.length === 0">
+                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                    Material ohne Resourcen
+                    <button class="btn btn-sm btn-danger" @click="btnDeleteMaterial">{{$t('pool.delete')}}</button>
                 </div>
             </div>
 
         </div>
 
-        <resource-uploader @resource-created="addResourceToThisMaterial"></resource-uploader>
+        <resource-uploader v-if="material" @resource-created="addResourceToThisMaterial"></resource-uploader>
+
+        <custom-dialog ref="myDialog"></custom-dialog>
     </div>
 </template>
 
@@ -150,6 +178,8 @@
     import Vue from 'vue';
     import AsyncComputed from 'vue-async-computed';
     import ResourceUploader from "../uploader/resourceUploader";
+    import {resourceDownloadLink} from "../serverRoutes";
+    import customDialog from './../modals/dialogs/customDialog';
 
     Vue.use(flashMessage);
     Vue.use(AsyncComputed);
@@ -176,6 +206,7 @@
             return {
                 material: null,
                 editTagsModeEnabled: false,
+                errorOnLoadingMessage: null,
             };
         },
 
@@ -216,10 +247,16 @@
 
 
         methods: {
+
             getMaterial() {
+                this.errorOnLoadingMessage = null;
+
                 this.$store.dispatch('materials/getMaterial', this.id).then((material) => {
-                    this.material = material;
-                })
+                    this.material              = material;
+                    this.errorOnLoadingMessage = null;
+                }).catch((response) => {
+                    this.errorOnLoadingMessage = response;
+                });
             },
 
             submitTitle(newTitle) {
@@ -272,6 +309,72 @@
                 ).then(({material}) => {
                     this.material = material;
                 })
+            },
+
+            btnDetachResource(resource) {
+
+                this.$store.dispatch('materials/detachResource',
+                    {materialId: this.id, resourceId: resource.id}
+                ).then(({material, resource}) => {
+                    this.material = material;
+
+                    if (resource.material && resource.material.length === 0) {
+                        this.$refs.myDialog.show({
+                            title: 'Rückfrage',
+                            content: 'Diese Ressource ist jetzt keinem Material mehr zugeordnet.<br/>Soll ' + (resource.original_filename ? '"' + resource.original_filename + '"' : 'sie') + ' <b>jetzt komplett</b> gelöscht werden?',
+                            yesText: 'Ja, löschen',
+                            yesVariant: 'success',
+                            noText: 'Nein, so lassen',
+                            noVariant: 'warning',
+                            allowBackdrop: false
+                        }).then((answerPositive) => {
+
+                            if (answerPositive === true) {
+                                this.$refs.myDialog.show({
+                                    title: 'Lösche Resource',
+                                    content: 'Lösche ' + (resource.original_filename ? '"' + resource.original_filename + '"' : 'Ressource') + '...',
+                                    yesEnabled: false,
+                                    noEnabled: false,
+                                    allowBackdrop: false
+                                });
+
+                                this.$store.dispatch('resources/deleteResource', resource.id)
+                                    .then(() => {
+                                        this.$refs.myDialog.show({
+                                            title: 'Resource gelöscht',
+                                            content: 'Resource erfolgreich gelöscht!',
+                                            yesText: 'ok',
+                                            yesVariant: 'primary',
+                                            yesEnabled: true,
+                                            noEnabled: false,
+                                            allowBackdrop: true,
+                                        });
+                                    });
+                            }
+
+                        }).catch(({message}) => {
+                            this.$refs.myDialog.show({
+                                title: 'Warnung',
+                                content: message,
+                                yesText: 'ok',
+                                yesVariant: 'primary',
+                                yesEnabled: true,
+                                noEnabled: false,
+                                allowBackdrop: true,
+                            });
+                        });
+                    }
+
+                });
+            },
+
+            btnDeleteMaterial() {
+
+                this.$store.dispatch('materials/deleteMaterial', this.id)
+                    .then(() => {
+                        window.history.back();
+                    });
+
             },
 
             removeKeyword(index) {
@@ -330,7 +433,11 @@
                 return this.flash('An error accured while while saving ' + propertyName.toLowerCase(), 'error', {
                     important: true
                 });
-            }
+            },
+
+            downloadResource(resource) {
+                window.location = resourceDownloadLink(resource);
+            },
 
         },
 
@@ -345,7 +452,8 @@
             resourceDetail,
             edditableText,
             starRating,
-            fromBot
+            fromBot,
+            customDialog,
         },
 
     }
