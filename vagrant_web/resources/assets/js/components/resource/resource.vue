@@ -34,8 +34,10 @@
                                         class="btn btn-warning">Limitierung bearbeiten</button>
                                 <button v-if="!material.pivot.limitation && isLimitable"
                                         class="btn btn-success">Limitierung erstellen</button>
+                                <button @click="btnDetachMaterialFromResource(material)"
+                                        class="btn btn-outline-danger">{{$t('pool.remove')}}</button>
                                 <router-link :to="{name: 'material-detail', params: {id: material.id}}"
-                                             class="btn btn-primary">Öffnen</router-link>
+                                             class="btn btn-primary">{{$t('pool.open')}}</router-link>
                             </span>
 
                         </b-list-group-item>
@@ -70,6 +72,8 @@
 
         <material-selector ref="materialSelector"></material-selector>
 
+        <custom-dialog ref="myDialog"></custom-dialog>
+
     </div>
 </template>
 
@@ -89,6 +93,7 @@
     import Vue from 'vue';
     import AsyncComputed from 'vue-async-computed';
     import MaterialSelector from "../modals/selectors/materialSelector";
+    import CustomDialog from "../modals/dialogs/customDialog";
 
     Vue.use(AsyncComputed);
 
@@ -160,6 +165,63 @@
                 });
 
             },
+
+            btnDetachMaterialFromResource(material) {
+
+                this.$store.dispatch('materials/detachResource',
+                    {materialId: material.id, resourceId: this.id}
+                ).then(({material, resource}) => {
+                    this.resource = resource;
+
+                    if (material.resources && material.resources.length === 0) {
+                        this.$refs.myDialog.show({
+                            title: 'Rückfrage',
+                            content: 'Diesem Material ist jetzt keine Ressource mehr zugeordet<br/>Soll ' + (material.title ? '"' + material.title + '"' : 'es') + ' <b>jetzt komplett</b> gelöscht werden?',
+                            yesText: 'Ja, löschen',
+                            yesVariant: 'success',
+                            noText: 'Nein, so lassen',
+                            noVariant: 'warning',
+                            allowBackdrop: false
+                        }).then((answerPositive) => {
+
+                            if (answerPositive === true) {
+                                this.$refs.myDialog.show({
+                                    title: 'Lösche Material',
+                                    content: 'Lösche ' + (material.title ? '"' + material.title + '"' : 'Material') + '...',
+                                    yesEnabled: false,
+                                    noEnabled: false,
+                                    allowBackdrop: false
+                                });
+
+                                this.$store.dispatch('materials/deleteMaterial', material.id)
+                                    .then(() => {
+                                        this.$refs.myDialog.show({
+                                            title: 'Material gelöscht',
+                                            content: 'Material erfolgreich gelöscht!',
+                                            yesText: 'ok',
+                                            yesVariant: 'primary',
+                                            yesEnabled: true,
+                                            noEnabled: false,
+                                            allowBackdrop: true,
+                                        });
+                                    });
+                            }
+
+                        }).catch(({message}) => {
+                            this.$refs.myDialog.show({
+                                title: 'Warnung',
+                                content: message,
+                                yesText: 'ok',
+                                yesVariant: 'primary',
+                                yesEnabled: true,
+                                noEnabled: false,
+                                allowBackdrop: true,
+                            });
+                        });
+                    }
+
+                });
+            }
         },
 
         filters: {
@@ -169,6 +231,7 @@
         },
 
         components: {
+            CustomDialog,
             MaterialSelector,
             resourceDetail,
             bTabs,
