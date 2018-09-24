@@ -2,7 +2,7 @@ import MaterialApp from './../Material/App.vue'
 import MaterialDetail from './../../components/Material/MaterialDetail.vue';
 import SearchPage from './../../components/pages/searchPage.vue';
 import ResourceDetail from './../../components/resource/resource.vue';
-import AssignApp from './../Assign/AssignApp.vue';
+import AssignApp from './../Assign/PdfAssignApp.vue';
 import PassportClient from './../../components/passport/Clients.vue';
 import PassportAuthorizedClient from './../../components/passport/AuthorizedClients.vue';
 import PassportPersonalAccessTokens from './../../components/passport/PersonalAccessTokens.vue';

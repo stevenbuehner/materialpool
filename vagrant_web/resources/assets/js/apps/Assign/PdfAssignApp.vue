@@ -50,6 +50,14 @@
         >{{loadingMsg}}
         </b-alert>
 
+        <b-alert
+                :show="resource && !resource.page_count"
+                fade
+                variant="warning"
+                class="mt-4 mb-4"
+        >Sorry, Page-Count is missing. I am unable to display PDF-Pages.
+        </b-alert>
+
         <page-list class=""
                    v-if="resource"
                    ref="pagelist"
@@ -282,7 +290,6 @@
                 });
 
             },
-
 
 
         },

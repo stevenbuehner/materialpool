@@ -74,5 +74,6 @@ return [
 	'No'                                  => 'No',
 	'go-back'                             => 'go back',
 	'detach'                              => 'detach',
+	'resource-assignments'                => 'assign',
 
 ];

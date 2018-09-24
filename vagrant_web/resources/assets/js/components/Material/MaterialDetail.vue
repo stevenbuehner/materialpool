@@ -4,7 +4,7 @@
         <div class="alert alert-warning"
              v-if="!material && errorOnLoadingMessage">
             {{errorOnLoadingMessage}}
-            <a href="javascript:history.go(-1)" class="btn btn-primary">{{$t('pool.go-back')}}</a>
+            <a href='#' class="btn btn-primary" @click="$router.go(-1)">{{$t('pool.go-back')}}</a>
         </div>
 
         <div v-if="material">
@@ -372,7 +372,7 @@
 
                 this.$store.dispatch('materials/deleteMaterial', this.id)
                     .then(() => {
-                        window.history.back();
+                        this.$router.go(-1);
                     });
 
             },

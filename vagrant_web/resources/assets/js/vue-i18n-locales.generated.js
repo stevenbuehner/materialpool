@@ -62,7 +62,8 @@ export default {
             "Yes": "Ja",
             "No": "Nein",
             "go-back": "gehe zurück",
-            "detach": "lösen"
+            "detach": "lösen",
+            "resource-assignments": "zuordnen"
         }
     },
     "en": {
@@ -152,7 +153,8 @@ export default {
             "Yes": "Yes",
             "No": "No",
             "go-back": "go back",
-            "detach": "detach"
+            "detach": "detach",
+            "resource-assignments": "assign"
         },
         "validation": {
             "accepted": "The {attribute} must be accepted.",

@@ -15,6 +15,9 @@
                     <router-link :to="{name:'resource-detail', params: {id: resource.id}}"
                                  class="btn btn-outline-primary">{{$t('pool.open')}}
                     </router-link>
+                    <router-link v-if="resource.type=='pdf'" :to="{name:'resource-assign', params: {id: resource.id}}"
+                                 class="btn btn-outline-primary">{{$t('pool.resource-assignments')}}
+                    </router-link>
                 </slot>
                 <slot name="additional-buttons"></slot>
             </slot>

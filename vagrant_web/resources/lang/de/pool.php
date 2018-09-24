@@ -65,5 +65,5 @@ return [
 	'No'                                  => 'Nein',
 	'go-back'                             => 'gehe zurück',
 	'detach'                              => 'lösen',
-
+	'resource-assignments'                => 'zuordnen',
 ];
