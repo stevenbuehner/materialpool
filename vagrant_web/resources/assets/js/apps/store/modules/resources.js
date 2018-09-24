@@ -58,7 +58,7 @@ const actions = {
                 } else {
                     axios.get(api_v1_resources_show(id), {
                         params: {
-                            relations: ['materials', 'materials.keywords', 'materials.bibleverses']
+                            relations: ['materials', 'materials.keywords', 'materials.bibleverses', 'creator']
                         }
                     }).then((response) => {
                         dispatch('setResource', response.data);

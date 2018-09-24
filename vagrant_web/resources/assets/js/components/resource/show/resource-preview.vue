@@ -4,15 +4,16 @@
 
         <div class="card-body">
             <div class="meta">
-                <span class="author"></span>
+                <div v-if="resource.creator">
+                    Creator:
+                    <user-name :user="resource.creator"></user-name>
+                </div>
             </div>
-            <slot name="buttons">
 
-            </slot>
             <slot name="buttons">
                 <slot name="default-buttons">
-                    <button class="btn btn-outline-primary" @click.prevent="downloadResource">download</button>
-                    <router-link :to="{name:'resource-detail', params: {id: resource.id}}"
+                    <button v-if="showDownload" class="btn btn-outline-primary" @click.prevent="downloadResource">download</button>
+                    <router-link v-if="showOpen" :to="{name:'resource-detail', params: {id: resource.id}}"
                                  class="btn btn-outline-primary">{{$t('pool.open')}}
                     </router-link>
                     <router-link v-if="resource.type=='pdf'" :to="{name:'resource-assign', params: {id: resource.id}}"
@@ -36,6 +37,7 @@
     import resPreview from './res-preview.vue'
     import {resourceDownloadLink} from './../../serverRoutes';
     import resourceLinks from './../resource-links.mixin';
+    import UserName from "../../user/user-name";
 
 
     export default {
@@ -46,7 +48,19 @@
             resource: {
                 required: true,
                 type: Object
-            }
+            },
+
+            showDownload: {
+                type: Boolean,
+                required: false,
+                default: true
+            },
+
+            showOpen: {
+                type: Boolean,
+                required: false,
+                default: true
+            },
         },
 
         computed: {
@@ -65,6 +79,7 @@
 
 
         components: {
+            UserName,
             imagePreview,
             textPreview,
             pdfPreview,

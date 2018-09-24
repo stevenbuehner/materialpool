@@ -9,10 +9,10 @@
 
             <b-tabs card>
                 <b-tab title="Vorschau">
-                    Preview
+                    <resource-detail :resource="resource" v-if="resource" :showOpen="false"></resource-detail>
                 </b-tab>
 
-                <b-tab title="Materialien">
+                <b-tab title="Materialien" v-if="resource">
                     <b-list-group v-if="resource">
                         <b-list-group-item
                                 class="d-flex justify-content-between align-items-center"
@@ -21,7 +21,7 @@
 
                             <div class="materialData">
                                 {{material.title}}
-                                <div class="limitation">
+                                <div class="limitation" v-if="isLimitable">
                                     <component
                                             :is="limitationComponent"
                                             :limitation="material.pivot.limitation">
@@ -30,9 +30,9 @@
                             </div>
 
                             <span class="materialNavi">
-                                <button v-if="material.pivot.limitation"
+                                <button v-if="material.pivot.limitation && isLimitable"
                                         class="btn btn-warning">Limitierung bearbeiten</button>
-                                <button v-if="!material.pivot.limitation"
+                                <button v-if="!material.pivot.limitation && isLimitable"
                                         class="btn btn-success">Limitierung erstellen</button>
                                 <router-link :to="{name: 'material-detail', params: {id: material.id}}"
                                              class="btn btn-primary">Öffnen</router-link>
@@ -44,7 +44,7 @@
                     <div class="d-flex justify-content-center pt-2">
                         <button class="btn btn-secondary"
                                 title="Material zuordnen"
-                                @click="assignMaterial">+
+                                @click="btnAddMaterialToResource">+
                         </button>
                     </div>
                 </b-tab>
@@ -52,10 +52,13 @@
                 <b-tab title="MetaInfo" v-if="resource">
                     <b-list-group>
                         <b-list-group-item
-                                v-for="(value, index) in resource"
+                                v-for="(value, index) in metaInfo"
                                 :key="index"
                                 v-if="index != 'materials'">
-                            <b>{{index}}:</b> {{value}}
+
+                            <b>{{index}}:</b>
+                            <user v-if="index ==='creator'" :user="value"></user>
+                            <span v-else>{{value}}</span>
                         </b-list-group-item>
                     </b-list-group>
                 </b-tab>
@@ -65,27 +68,27 @@
         <span v-if="loading">Still loading</span>
         {{errorMsg}}
 
-        <component
-                v-if="resourceComponent !== null"
-                :is="resourceComponent"
-                v-model="resource"></component>
-
+        <material-selector ref="materialSelector"></material-selector>
 
     </div>
 </template>
 
 <script>
     import resourceLinks from './resource-links.mixin';
-    import pdfEdit from './edit/pdfEdit.vue';
     import bTabs from 'bootstrap-vue/src/components/tabs/tabs';
     import bTab from 'bootstrap-vue/src/components/tabs/tab';
     import bListGroup from 'bootstrap-vue/src/components/list-group/list-group';
     import bListGroupItem from 'bootstrap-vue/src/components/list-group/list-group-item';
     import pdfLimitation from './limitation/pdfLimitation.vue';
+    import {isResourceTypeLimitable} from "./limitation/limitable";
+    import resourceDetail from './show/resource-detail'
+
+    import user from './../user/user-name';
 
 
     import Vue from 'vue';
     import AsyncComputed from 'vue-async-computed';
+    import MaterialSelector from "../modals/selectors/materialSelector";
 
     Vue.use(AsyncComputed);
 
@@ -109,34 +112,54 @@
         },
 
         computed: {
-
-            resourceComponent() {
-                if (this.resource === null) {
-                    return false
-                } else {
-                    return this.resource.type + 'Edit';
-                }
+            limitationComponent() {
+                return this.resource ? this.resource.type + 'Limitation' : false;
             },
 
-            limitationComponent() {
-                if (this.resource === null) {
-                    return false
-                } else {
-                    return this.resource.type + 'Limitation';
+            isLimitable() {
+                return isResourceTypeLimitable(this.resource.type);
+            },
+
+            metaInfo() {
+
+                let info = {};
+
+                for (let i in this.resource) {
+                    if (i !== 'created_by' && this.resource[i] !== '' && i !== 'type') {
+                        info[i] = this.resource[i];
+                    }
                 }
+
+                return info;
             }
         },
 
         asyncComputed: {
-            resource() {
-                return this.$store.dispatch('resources/updateResource', this.id);
+            resource: {
+                get() {
+                    return this.$store.dispatch('resources/getResource', this.id);
+                },
+                default: null
             }
         },
 
         methods: {
-            assignMaterial() {
-                alert('Not implemented yet');
-            }
+            btnAddMaterialToResource() {
+
+                this.$refs.materialSelector.showPromise().then((material) => {
+
+                    return this.$store.dispatch('materials/attachResource', {
+                        materialId: material.id,
+                        resourceId: this.id
+                    }).then(({resource}) => {
+                        this.resource = resource;
+                    }).catch((error) => {
+                        alert(error);
+                    });
+
+                });
+
+            },
         },
 
         filters: {
@@ -146,12 +169,14 @@
         },
 
         components: {
-            pdfEdit,
+            MaterialSelector,
+            resourceDetail,
             bTabs,
             bTab,
             bListGroup,
             bListGroupItem,
-            pdfLimitation
+            pdfLimitation,
+            user
         }
     }
 </script>

@@ -15,7 +15,7 @@ class ResourceController extends BaseController {
 	use ResourceHelperTrait;
 
 	const DEFAULT_RELATIONS = ['materials', 'materials.keywords', 'materials.bibleverses'];
-	protected $allowedAssociations = ['materials', 'materials.keywords', 'materials.bibleverses'];
+	protected $allowedAssociations = ['materials', 'materials.keywords', 'materials.bibleverses', 'creator'];
 
 	public function __construct() {
 		$this->middleware(['auth:api']);

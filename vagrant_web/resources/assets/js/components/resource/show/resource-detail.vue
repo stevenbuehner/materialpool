@@ -18,8 +18,10 @@
             </div>
             <slot name="buttons">
                 <slot name="default-buttons">
-                    <button class="btn btn-outline-primary" @click.prevent="downloadResource">download</button>
-                    <router-link :to="{name:'resource-detail', params: {id: resource.id}}"
+                    <button v-if="showDownload" class="btn btn-outline-primary" @click.prevent="downloadResource">
+                        download
+                    </button>
+                    <router-link v-if="showOpen" :to="{name:'resource-detail', params: {id: resource.id}}"
                                  class="btn btn-outline-primary">{{$t('pool.open')}}
                     </router-link>
                     <router-link v-if="resource.type=='pdf'" :to="{name:'resource-assign', params: {id: resource.id}}"
@@ -52,7 +54,19 @@
             resource: {
                 required: true,
                 type: Object
-            }
+            },
+
+            showDownload: {
+                type: Boolean,
+                required: false,
+                default: true
+            },
+
+            showOpen: {
+                type: Boolean,
+                required: false,
+                default: true
+            },
         },
 
         computed: {
