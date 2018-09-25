@@ -35,8 +35,12 @@
 
 @endphp
 
-
-<script src="http://localhost:8080/js/searchApp_build.js"></script>
+@if (env('APP_ENV') =='production')
+    <script src="/js/searchApp_build.js"></script>
+    <link rel="stylesheet" type="text/css" href="/css/searchApp.css">
+@else
+    <script src="http://localhost:8080/js/searchApp_build.js"></script>
+@endif
 
 </body>
 </html>

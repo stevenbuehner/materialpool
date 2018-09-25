@@ -114,23 +114,33 @@ npm run dev
 
 
 
+
+
+# Sprachdateien für JS kompilieren
+php artisan vue-i18n:generate
+
+
+
+
+
+
+
 #Installieren auf meinem Mini-Server
 sudo apt-get install -y php-imagick
 sudo sed -i "s@upload_max_filesize = 2M@upload_max_filesize = 200M@" /etc/php/7.0/apache2/php.ini
 sudo sed -i "s@max_file_uploads = 20@max_file_uploads = 100@" /etc/php/7.0/apache2/php.ini
 sudo rm /etc/php/7.0/apache2/conf.d/20-xdebug.ini
 sudo service apache2 restart
+sudo apt-get install composer
 
 sudo usermod -a -G www-data steven
 id steven
 groups steven
 
+# Dateien kopieren
+rsync -av --exclude=".git*" --exclude=".idea*" --exclude="*.DS_Store" --exclude="node_modules/*" --exclude=".env" --exclude="vendor/*" --exclude=".env.example" --exclude="storage/*" ~/Sites/material_pool/vagrant_web/ steven@192.168.3.108:/var/www/wissensbase
 
-#Local: (ACHTUNG: Storage darf nicht mitkopiert werden!)
-rsync -av --exclude=".git*" --exclude=".idea*" --exclude="*.DS_Store" --exclude="node_modules/*" --exclude=".env" --exclude=".env.example" --exclude="storage/*" ~/Sites/material_pool/vagrant_web/ steven@192.168.3.108:/var/www/wissensbase
-cd /var/www/wissensbase
-sudo chown -R www-data.www-data .
-
+# Anschließend System-Reset:
 sudo -u www-data php artisan config:clear
 sudo -u www-data php artisan config:cache
 sudo -u www-data php artisan route:clear
@@ -145,8 +155,26 @@ php artisan key:generate
 
 
 
-# Sprachdateien für JS kompilieren
-php artisan vue-i18n:generate
+## UPDATEs ###
+
+# Lokal: NPM production package kompilieren
+npm run prod
+
+# SSH in die Maschine
+ssh steven@192.168.3.108
+cd /var/www/wissensbase
+sudo chown -R steven.steven .
+
+#Local: (ACHTUNG: Storage darf nicht mitkopiert werden!)
+rsync -av --exclude=".git*" --exclude=".idea*" --exclude="*.DS_Store" --exclude="node_modules/*" --exclude=".env" --exclude="vendor/*" --exclude=".env.example" --exclude="storage/*" ~/Sites/material_pool/vagrant_web/ steven@192.168.3.108:/var/www/wissensbase
+
+# Auf dem Server wieder
+cd /var/www/wissensbase
+composer install
+sudo chown -R www-data.www-data .
+
+
+
 
 
 
