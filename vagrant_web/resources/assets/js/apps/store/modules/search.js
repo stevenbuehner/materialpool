@@ -62,8 +62,8 @@ const mutations = {
             const firstIndex = state.searchCacheHistory.shift();
 
             // Delete the cache
-            if (state.searchCache[first]) {
-                delete state.searchCache[first];
+            if (state.searchCache[firstIndex]) {
+                delete state.searchCache[firstIndex];
             }
 
         }

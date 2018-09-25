@@ -1,17 +1,33 @@
 <template>
     <div>
-        <searchbar-header @searchUpdated="updateMaterialList"></searchbar-header>
+
+        <searchbar-header
+                @searchUpdated="updateMaterialList"
+        ></searchbar-header>
+
         <hr>
-        <searchbar-outcome :materialIds="materialIds" v-if="!isLoading"></searchbar-outcome>
+
+        <searchbar-outcome
+                :materialIds="materialIds"
+                v-if="!isLoading"
+        ></searchbar-outcome>
+
         <div class="d-flex justify-content-between align-items-center">
-            <hollow-dots-spinner :dot-size="10"
-                                 :dots-num="3"
-                                 :animation-duration="1500"
-                                 v-if="isLoading"
-                                 color="grey"></hollow-dots-spinner>
+            <hollow-dots-spinner
+                    :dot-size="10"
+                    :dots-num="3"
+                    :animation-duration="1500"
+                    v-if="isLoading"
+                    color="grey"
+            ></hollow-dots-spinner>
         </div>
+
         <hr>
-        <searchbar-footer :paging="paging"></searchbar-footer>
+
+        <searchbar-footer
+                :paging="paging"
+        ></searchbar-footer>
+
     </div>
 </template>
 
