@@ -31,6 +31,8 @@ class CheckDuplicateResources implements ShouldQueue {
 	 *
 	 */
 	public function handle(ResourceDuplicationHandlingService $service) {
+
+
 		$service->mergeDuplicatesOfResource($this->resourceToCheck);
 	}
 }

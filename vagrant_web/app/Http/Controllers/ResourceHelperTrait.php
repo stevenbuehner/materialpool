@@ -3,14 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Exceptions\InvalidResourceTypeException;
-use App\Models\Material;
 use App\Models\Resource;
 use App\Models\Text;
 use App\Services\ResourceRecognition\ResourceRecognitionService;
-use App\Services\TagExtraction\MaterialExtractionService;
-use App\Services\TagExtraction\ResourceHandles\TextContentInterface;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
@@ -92,6 +90,8 @@ trait ResourceHelperTrait {
 			$resource->save();
 		}
 
+		Log::info("Resource ({$resource->id}, {$resource->original_filename}) was created and uploaded to: {$resource->local_path}");
+
 		// Hashes have been updated ...
 		// $resource = $resource->fresh();
 
@@ -130,6 +130,9 @@ trait ResourceHelperTrait {
 		if (count($jobs) > 0) {
 			// Maybe something was changed during a job
 			$resource = $resource->fresh();
+
+			Log::info("Queue jobs for resource ({$resource->id})!", $jobs);
+
 		}
 
 		return $resource;

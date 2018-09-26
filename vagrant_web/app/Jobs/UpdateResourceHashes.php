@@ -8,6 +8,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
 
 class UpdateResourceHashes {
 	use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
@@ -29,10 +30,13 @@ class UpdateResourceHashes {
 	 * @param $processor ResourceHashProcessor
 	 */
 	public function handle(ResourceHashProcessor $processor) {
+		Log::info("Starting Job UpdateResourceHashes for resource ({$this->resource->id})");
+
 		$hashChanged = $processor->updateResourceHash($this->resource);
 
 		if ($hashChanged) {
 			CheckDuplicateResources::dispatch($this->resource)->onConnection($this->connection)->onQueue($this->queue);
+			Log::info("Hash of resource ({$this->resource->id}) was updated to: " . $this->resource->content_hash);
 		}
 	}
 }

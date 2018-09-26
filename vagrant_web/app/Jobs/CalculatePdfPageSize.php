@@ -28,6 +28,11 @@ class CalculatePdfPageSize {
 	 * @param $processor PdfPageCounterService
 	 */
 	public function handle(PdfPageCounterService $processor) {
+
+		Log::info("Start job: " . self::class . " for Resource", $this->resource);
+
 		$this->resource = $processor->countPdfPages($this->resource);
+
+		Log::info("End job: " . self::class . " for Resource", $this->resource);
 	}
 }
