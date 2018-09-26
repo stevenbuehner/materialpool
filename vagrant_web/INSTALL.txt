@@ -170,7 +170,7 @@ rsync -av --exclude=".git*" --exclude=".idea*" --exclude="*.DS_Store" --exclude=
 
 # Auf dem Server wieder
 cd /var/www/wissensbase
-composer install
+composer install --no-dev
 sudo chown -R www-data.www-data .
 
 
