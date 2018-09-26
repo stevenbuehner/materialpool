@@ -63,7 +63,8 @@ export default {
             "No": "Nein",
             "go-back": "gehe zurück",
             "detach": "lösen",
-            "resource-assignments": "zuordnen"
+            "resource-assignments": "zuordnen",
+            "select-all": "alles auswählen"
         }
     },
     "en": {
@@ -154,7 +155,8 @@ export default {
             "No": "No",
             "go-back": "go back",
             "detach": "detach",
-            "resource-assignments": "assign"
+            "resource-assignments": "assign",
+            "select-all": "select all"
         },
         "validation": {
             "accepted": "The {attribute} must be accepted.",

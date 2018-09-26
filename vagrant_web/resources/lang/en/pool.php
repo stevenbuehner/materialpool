@@ -75,5 +75,6 @@ return [
 	'go-back'                             => 'go back',
 	'detach'                              => 'detach',
 	'resource-assignments'                => 'assign',
+	'select-all'                          => 'select all',
 
 ];

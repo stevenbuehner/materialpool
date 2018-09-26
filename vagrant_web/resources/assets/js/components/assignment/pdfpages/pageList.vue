@@ -53,7 +53,7 @@
             let sel = {};
 
             // Init selectedPages to watch for
-            for (let i = 1; i <= this.pageCount; i++) {
+            for (let i = 1; i <= this.resource.page_count; i++) {
                 sel[i] = false;
             }
 
@@ -124,7 +124,6 @@
                 handler: function (newVal, oldVal) {
                     // console.log('Selection changed', newVal);
 
-
                     this.$emit('page-selection-updated', this.selectedPagesArray);
                 },
                 deep: true,
@@ -183,6 +182,13 @@
                 // this.selectedPages[pageIndex] = !this.selectedPages[pageIndex];
                 this.$set(this.selectedPages, pageIndex, !this.selectedPages[pageIndex]);
 
+            },
+
+
+            selectAllPages(){
+                for (let i in this.selectedPages){
+                    this.selectedPages[i] = true;
+                }
             },
 
 

@@ -5,16 +5,13 @@
 
             <b-navbar-nav>
                 <b-button size="sm"
-                          class="my-1
-                          my-md-0 mx-1"
+                          class="my-1 my-md-0 mx-1"
                           :title="selectedPages.length > 0 ? $t('pool.create-material-selected-pages') : $t('pool.select-pages-first')"
                           :disabled="selectedPages.length === 0"
                           @click="btnCreateNewMaterialFromSelection">{{$t('pool.new')}}
                 </b-button>
                 <b-button size="sm"
-                          class="my-1
-                          my-md-0
-                          mx-1"
+                          class="my-1 my-md-0 mx-1"
                           :title="selectedPages.length > 0 ? $t('pool.add-material-selected-pages') : $t('pool.select-pages-first')"
                           :disabled="selectedPages.length === 0"
                           @click="btnAddPageSelectionToMaterial">{{$t('pool.add')}}
@@ -39,6 +36,14 @@
                         {{mat.title | trim(70) }}
                     </b-dropdown-item>
                 </b-nav-item-dropdown>
+            </b-navbar-nav>
+
+            <b-navbar-nav class="ml-auto">
+                <b-button size="sm"
+                          class="my-1 my-md-0 mx-1"
+                          v-if="resource.page_count !== selectedPages.length"
+                          @click="btnSelectAllPages">{{$t('pool.select-all')}}
+                </b-button>
             </b-navbar-nav>
 
         </b-navbar>
@@ -254,6 +259,10 @@
                     }).catch((err) => {
                     console.info('Closed Material-Creation with reason:', err);
                 })
+            },
+
+            btnSelectAllPages() {
+                this.$refs.pagelist.selectAllPages();
             },
 
 

@@ -66,4 +66,5 @@ return [
 	'go-back'                             => 'gehe zurück',
 	'detach'                              => 'lösen',
 	'resource-assignments'                => 'zuordnen',
+	'select-all'                          => 'alles auswählen',
 ];
