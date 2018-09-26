@@ -89,7 +89,8 @@ Route::get('pdfpreview/res-{resource}/page-{page}', 'ResourcePreviewController@g
 	 ->where('resource', '[0-9]+')
 	 ->where('page', '[0-9]+')
 	 ->name('PdfPreview/ImagePreview')
-	 ->middleware(\Spatie\ResponseCache\Middlewares\CacheResponse::class);
+	 ->middleware(\Spatie\ResponseCache\Middlewares\CacheResponse::class)
+	 ->middleware(\App\Http\Middleware\CacheControlHeaders::class);
 
 Route::get('/bibleverse/{from}-{to}', 'Api\BibleverseController@show')
 	 ->name('bibleverse')
