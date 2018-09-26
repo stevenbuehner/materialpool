@@ -3,7 +3,6 @@
 namespace App\Providers;
 
 use App\ResourceLimitations\ResourceLimitationService;
-use App\Services\PdfPreview\LocalPdfFileProvider;
 use App\Services\PreviewGeneration\Generators\ImagePreviewGenerator;
 use App\Services\PreviewGeneration\Generators\NoPreviewGenerator;
 use App\Services\PreviewGeneration\Generators\TextLargePreviewGenerator;
@@ -20,7 +19,6 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
 use PHPExiftool\Reader;
 use StevenBuehner\BibleVerseBundle\Service\BibleVerseService;
-use StevenBuehner\PdfPreview\Interfaces\LocalPdfProviderInterface;
 
 class AppServiceProvider extends ServiceProvider {
 	/**
@@ -90,9 +88,6 @@ class AppServiceProvider extends ServiceProvider {
 
 			return $reader;
 		});
-
-		// Provider for PdfPreview Generation
-		$this->app->singleton(LocalPdfProviderInterface::class, LocalPdfFileProvider::class);
 
 		Carbon::setLocale(config('app.locale'));
 	}

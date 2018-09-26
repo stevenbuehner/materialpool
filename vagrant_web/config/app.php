@@ -208,10 +208,6 @@ return [
 		// \MartinLindhe\VueInternationalizationGenerator\GeneratorProvider::class,
 
 
-		/*
-		 * My Packages / Providers
-		 */
-		StevenBuehner\PdfPreview\PdfPreviewProvider::class,
 		App\Providers\HtmlHelperProvider::class,
 
 
@@ -289,7 +285,11 @@ return [
 			'cacheTime' => 60 * 24 * 1
 		]
 
-	]
+	],
 
+	'preview' => [
+		'resolution'   => 144,
+		'outputFormat' => 'jpg' // 'jpg', 'jpeg', 'png',
+	]
 
 ];

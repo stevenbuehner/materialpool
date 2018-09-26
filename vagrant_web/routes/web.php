@@ -85,6 +85,11 @@ Route::get('/resource/image/{resource}/{width?}/{height?}', 'ResourcePreviewCont
 	 ->where('width', '[0-9]+')
 	 ->where('height', '[0-9]+');
 
+Route::get('pdfpreview/res-{resource}/page-{page}', 'ResourcePreviewController@getPageImage')
+	 ->where('resource', '[0-9]+')
+	 ->where('page', '[0-9]+')
+	 ->name('PdfPreview/ImagePreview')
+	 ->middleware(\Spatie\ResponseCache\Middlewares\CacheResponse::class);
 
 Route::get('/bibleverse/{from}-{to}', 'Api\BibleverseController@show')
 	 ->name('bibleverse')

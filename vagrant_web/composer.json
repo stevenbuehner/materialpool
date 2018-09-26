@@ -41,8 +41,7 @@
     ],
     "psr-4": {
       "App\\": "app/",
-      "Modules\\": "Modules/",
-      "StevenBuehner\\PdfPreview\\": "packages/stevenbuehner/pdfpreview/src"
+      "Modules\\": "Modules/"
     }
   },
   "autoload-dev": {

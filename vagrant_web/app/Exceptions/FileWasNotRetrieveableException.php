@@ -1,6 +1,6 @@
 <?php
 
-namespace StevenBuehner\PdfPreview\Exceptions;
+namespace App\Exceptions;
 
 class FileWasNotRetrieveableException extends \Exception {
 

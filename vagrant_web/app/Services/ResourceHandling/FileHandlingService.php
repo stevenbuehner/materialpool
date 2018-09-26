@@ -10,6 +10,7 @@ namespace App\Services\ResourceHandling;
 
 use App\Models\File;
 use App\Models\Resource;
+use App\Services\ResourceHandling\Exceptions\LocalFileDoesNotExistException;
 use App\Services\ResourceHandling\Exceptions\RemoteFileDoesNotExistException;
 use Illuminate\Support\Facades\Storage;
 
@@ -52,8 +53,32 @@ class FileHandlingService {
 		}
 
 		// Delete in DB
-			$resource->delete();
+		$resource->delete();
 
+	}
+
+	public function getLocalFilePath(File $resource) {
+
+		// Todo: Check Authorization
+
+
+		if ($resource->hasLocalFile()) {
+
+			$path = $resource->getAbsoluteLocalPath();
+
+			if ($path !== FALSE) {
+				return $path;
+			}
+
+
+			throw new LocalFileDoesNotExistException();
+
+		} else if ($resource->hasRemoteFile()) {
+			// Todo: Copy file to local Destination
+			die('Not implemented yet');
+		}
+
+		throw new RemoteFileDoesNotExistException();
 	}
 
 
