@@ -3,7 +3,7 @@
             :size="opt.size"
             lazy
             ref="myModal"
-            :centered="true"
+            centered
             :busy="opt.busy"
             @hide="onHide"
             @cancel="onCancel"

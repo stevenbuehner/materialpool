@@ -124,10 +124,10 @@
             </div>
 
             <div class="row" v-if="material.resources !== undefined && material.resources.length > 1">
-                <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12" v-for="resource in material.resources">
+                <div class="col-xl-3 col-lg-4 col-md-4 col-sm-6 col-xs-12" v-for="resource in material.resources">
                     <resource-preview :resource="resource">
                         <template slot="additional-buttons">
-                            <button class="btn btn-outline-danger btn-sm mb-1" @click.prevent="btnDetachResource(resource)">
+                            <button class="btn btn-outline-danger mb-1" @click.prevent="btnDetachResource(resource)">
                                 {{$t('pool.detach')}}
                             </button>
                         </template>
@@ -136,7 +136,7 @@
             </div>
 
             <div class="row" v-if="material.resources !== undefined && material.resources.length === 1">
-                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                <div class="col-xl-12 col-12">
                     <resource-detail :resource="material.resources[0]">
                         <template slot="additional-buttons">
                             <button class="btn btn-outline-danger mb-1"
@@ -157,7 +157,8 @@
 
         </div>
 
-        <resource-uploader v-if="material" @resource-created="addResourceToThisMaterial"></resource-uploader>
+        <resource-uploader v-if="material"
+                           @resource-created="addResourceToThisMaterial"></resource-uploader>
 
         <custom-dialog ref="myDialog"></custom-dialog>
     </div>

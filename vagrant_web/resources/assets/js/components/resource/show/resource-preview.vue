@@ -13,13 +13,13 @@
             <slot name="buttons">
                 <slot name="default-buttons">
                     <a v-if="showDownload"
-                       class="btn btn-outline-primary btn-sm mb-1"
+                       class="btn btn-outline-primary mb-1"
                        :href="downloadResourceLink(resource)">{{$t('pool.download')}}</a>
                     <router-link v-if="showOpen" :to="{name:'resource-detail', params: {id: resource.id}}"
-                                 class="btn btn-outline-primary btn-sm mb-1">{{$t('pool.open')}}
+                                 class="btn btn-outline-primary mb-1">{{$t('pool.open')}}
                     </router-link>
                     <router-link v-if="resource.type=='pdf'" :to="{name:'resource-assign', params: {id: resource.id}}"
-                                 class="btn btn-outline-primary btn-sm mb-1">{{$t('pool.resource-assignments')}}
+                                 class="btn btn-outline-primary mb-1">{{$t('pool.resource-assignments')}}
                     </router-link>
                 </slot>
                 <slot name="additional-buttons"></slot>
@@ -70,8 +70,7 @@
             }
         },
 
-        methods: {
-        },
+        methods: {},
 
 
         components: {
