@@ -19,23 +19,27 @@ export const bibleverseSearchLink          = (bibleverse) => {
 };
 
 //Resources
-export const resourceEditLink         = (resource) => {
+export const resourceEditLink           = (resource) => {
     return '/pool/resource/' + resource.id;
 };
-export const resourceDownloadLink     = (resource) => {
+export const resourceDownloadLink       = (resource) => {
     return '/pool/resource/' + resource.id + '/download';
 };
-export const pdfPreviewImageFirstPage = (resource, width, height) => {
+export const pdfPreviewImageFirstPage   = (resource, width, height) => {
     width  = width || 1024;
     height = height || 1024;
 
     return '/resource/image/' + resource.id + '/' + width + '/' + height;
 };
-export const pdfPreviewImageForPage   = (resource, page) => {
+export const pdfPreviewImageForPage     = (resource, page) => {
     page = page || 1;
 
     return '/pdfpreview/res-' + resource.id + '/page-' + page;
 };
+export const resourceLimitedpdfDownload = (resourceId, materialId) => {
+    return '/pool/resource/' + resourceId + '/material/' + materialId + '/pdfdownload';
+};
+
 
 // Resource-Material Assignment
 export const api_v2_materialresource_attach = (materialId, resourceId) => {

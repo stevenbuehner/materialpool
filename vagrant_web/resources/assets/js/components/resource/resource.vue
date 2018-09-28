@@ -31,13 +31,13 @@
 
                             <span class="materialNavi">
                                 <button v-if="material.pivot.limitation && isLimitable"
-                                        class="btn btn-warning">Limitierung bearbeiten</button>
+                                        class="btn btn-warning btn-sm">Limitierung bearbeiten</button>
                                 <button v-if="!material.pivot.limitation && isLimitable"
-                                        class="btn btn-success">Limitierung erstellen</button>
+                                        class="btn btn-success btn-sm">Limitierung erstellen</button>
                                 <button @click="btnDetachMaterialFromResource(material)"
-                                        class="btn btn-outline-danger">{{$t('pool.remove')}}</button>
+                                        class="btn btn-outline-danger btn-sm">{{$t('pool.remove')}}</button>
                                 <router-link :to="{name: 'material-detail', params: {id: material.id}}"
-                                             class="btn btn-primary">{{$t('pool.open')}}</router-link>
+                                             class="btn btn-primary btn-sm">{{$t('pool.open')}}</router-link>
                             </span>
 
                         </b-list-group-item>

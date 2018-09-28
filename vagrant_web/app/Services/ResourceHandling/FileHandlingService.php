@@ -57,6 +57,13 @@ class FileHandlingService {
 
 	}
 
+
+	/**
+	 * @param File $resource
+	 * @return string
+	 * @throws LocalFileDoesNotExistException
+	 * @throws RemoteFileDoesNotExistException
+	 */
 	public function getLocalFilePath(File $resource) {
 
 		// Todo: Check Authorization

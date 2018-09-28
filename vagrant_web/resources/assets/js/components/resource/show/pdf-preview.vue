@@ -1,10 +1,10 @@
 <template>
     <div>
         <div class="previewContainer">
-            <b-image-lazy :src="currentlyDisplayedImage.src"
-                          :alt="currentlyDisplayedImage.title"
-                          :key="currentlyDisplayedImage.src"
-                          class="card-img-top"></b-image-lazy>
+            <b-image :src="currentlyDisplayedImage.src"
+                     :alt="currentlyDisplayedImage.title"
+                     :key="currentlyDisplayedImage.src"
+                     class="card-img-top"></b-image>
 
             <span class="previous"
                   @click.prevent="previousPreviewImage"
@@ -17,7 +17,7 @@
                 <div
                         v-if="previewImages.length < pageCount"
                         class="limitedPreview"
-                >(Preview nur {{previewImages.length}}/{{pageCount}} Seiten)
+                >(Preview nur {{previewImages.length}}/{{previewPageNumbers.length}} Seiten)
                 </div>
             </div>
         </div>
@@ -28,7 +28,7 @@
 <script>
 
     import {pdfPreviewImageFirstPage} from './../../serverRoutes';
-    import bImageLazy from 'bootstrap-vue/src/components/image/img-lazy';
+    import bImage from 'bootstrap-vue/src/components/image/img';
     import pdfMixin from './../pdf-mixin';
 
     export default {
@@ -57,23 +57,44 @@
                 return this.previewImages[this.currentlyDisplayedPageIndex];
             },
 
+            previewPageNumbers() {
+
+                let pages = [];
+
+                if (this.pagePivotCount) {
+                    for (let i in this.resource.pivot.limitation.pages) {
+                        pages.push(this.resource.pivot.limitation.pages[i]);
+                    }
+                } else if (this.pageCount === 0) {
+                    pages.push(1);
+                } else if (this.pageCount > 0) {
+                    for (let i = 1; i <= this.pageCount; i++) {
+                        pages.push(i);
+                    }
+                }
+
+                return pages;
+
+            },
+
             previewImages() {
 
                 let urls = [];
 
-                if (this.pageCount === 0) {
-                    urls.push({
-                        src: pdfPreviewImageFirstPage(this.resource),
-                        title: 'Startseite',
-                        page_no: 1
-                    });
-                } else if (this.pageCount > 0) {
-                    for (let i = 1; i <= this.pageCount && i <= this.maxPreviewPages; i++) {
-                        urls.push(this.generatePreviewObject(this.resource, i));
+                for (let i in this.previewPageNumbers) {
+                    if (i < this.maxPreviewPages) {
+                        urls.push({
+                            src: pdfPreviewImageFirstPage(this.resource),
+                            title: this.$t('pool.Page') + ' ' + this.resource.pivot.limitation.pages[i],
+                            page_no: this.resource.pivot.limitation.pages[i]
+                        });
+                    } else {
+                        break;
                     }
                 }
 
                 return urls;
+
             }
         },
 
@@ -97,7 +118,7 @@
         },
 
         components: {
-            bImageLazy
+            bImage
         }
 
     }

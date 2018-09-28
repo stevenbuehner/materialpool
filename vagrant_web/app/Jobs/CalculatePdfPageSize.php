@@ -3,7 +3,7 @@
 namespace App\Jobs;
 
 use App\Models\Resource;
-use App\Services\ResourceHandling\PdfPageCounterService;
+use App\Services\ResourceHandling\PdfHandlingService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
@@ -25,9 +25,9 @@ class CalculatePdfPageSize {
 	/**
 	 * Execute the job.
 	 *
-	 * @param $processor PdfPageCounterService
+	 * @param $processor PdfHandlingService
 	 */
-	public function handle(PdfPageCounterService $processor) {
+	public function handle(PdfHandlingService $processor) {
 
 		Log::info("Start job: " . self::class . " for Resource", $this->resource);
 

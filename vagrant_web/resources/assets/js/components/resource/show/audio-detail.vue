@@ -1,7 +1,7 @@
 <template>
     <div ref="myAudioContainer">
         <audio-visual-line
-                :audio-src="resourceDownloadUrl"
+                :audio-src="downloadResourceLink(resource)"
                 line-color="grey"
                 :canv-width="audioCanvasWidth">
         </audio-visual-line>

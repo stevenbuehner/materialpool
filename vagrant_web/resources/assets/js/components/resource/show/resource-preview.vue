@@ -12,12 +12,14 @@
 
             <slot name="buttons">
                 <slot name="default-buttons">
-                    <button v-if="showDownload" class="btn btn-outline-primary" @click.prevent="downloadResource">download</button>
+                    <a v-if="showDownload"
+                       class="btn btn-outline-primary btn-sm mb-1"
+                       :href="downloadResourceLink(resource)">{{$t('pool.download')}}</a>
                     <router-link v-if="showOpen" :to="{name:'resource-detail', params: {id: resource.id}}"
-                                 class="btn btn-outline-primary">{{$t('pool.open')}}
+                                 class="btn btn-outline-primary btn-sm mb-1">{{$t('pool.open')}}
                     </router-link>
                     <router-link v-if="resource.type=='pdf'" :to="{name:'resource-assign', params: {id: resource.id}}"
-                                 class="btn btn-outline-primary">{{$t('pool.resource-assignments')}}
+                                 class="btn btn-outline-primary btn-sm mb-1">{{$t('pool.resource-assignments')}}
                     </router-link>
                 </slot>
                 <slot name="additional-buttons"></slot>
@@ -35,7 +37,6 @@
     import videoPreview from './video-preview.vue'
     import docPreview from './doc-preview.vue'
     import resPreview from './res-preview.vue'
-    import {resourceDownloadLink} from './../../serverRoutes';
     import resourceLinks from './../resource-links.mixin';
     import UserName from "../../user/user-name";
 
@@ -70,11 +71,6 @@
         },
 
         methods: {
-
-            downloadResource() {
-                window.location = resourceDownloadLink(this.resource);
-            },
-
         },
 
 

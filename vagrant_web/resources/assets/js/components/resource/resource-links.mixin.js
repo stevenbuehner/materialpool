@@ -1,19 +1,29 @@
-import {resourceDownloadLink} from './../serverRoutes'
+import {resourceDownloadLink, resourceLimitedpdfDownload} from './../serverRoutes'
 
 export default {
     methods: {
 
-        downloadResource() {
-            window.location = this.resourceDownloadUrl;
+        downloadResourceLink(resource) {
+
+
+            if (!this.hasLimitation(resource)) {
+                return resourceDownloadLink(resource);
+            }
+
+            switch (resource.type) {
+                case 'pdf':
+                    return resourceLimitedpdfDownload(resource.pivot.resource_id, resource.pivot.material_id)
+                default:
+                    return resourceDownloadLink(resource);
+            }
+
         },
+
+        hasLimitation(resource) {
+            return resource.pivot && resource.pivot.limitation;
+        }
 
     },
 
-    computed: {
-
-        resourceDownloadUrl() {
-            return resourceDownloadLink(this.resource);
-        },
-
-    }
+    computed: {}
 }

@@ -82,11 +82,13 @@ class Resource extends Model {
 		$attributes = array_merge($attributes, $this->relationsToArray());
 
 		if (isset($attributes['pivot']['material_id'])) {
-			unset($attributes['pivot']['material_id']);
+			// I need that stuff in vuejs
+			// unset($attributes['pivot']['material_id']);
 		}
 
 		if (isset($attributes['pivot']['resource_id'])) {
-			unset($attributes['pivot']['resource_id']);
+			// I need that stuff in vuejs
+			// unset($attributes['pivot']['resource_id']);
 		}
 
 		return $attributes;

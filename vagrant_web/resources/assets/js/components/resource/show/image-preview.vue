@@ -11,7 +11,7 @@
             {{resource.notes}}
         </p>
 
-        <b-button :href="resourceDownloadUrl" variant="primary">{{$t('pool.download-file')}}</b-button>
+        <b-button :href="downloadResourceLink(resource)" variant="primary">{{$t('pool.download-file')}}</b-button>
 
     </b-card>
 

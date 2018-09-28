@@ -84,8 +84,7 @@
 
 
                     <div class="btn btn-sm btn-primary" v-if="keywordsAndBibleveres.length === 0 && editable === true">
-                        Tags
-                        hinzufügen
+                        Tags hinzufügen
                     </div>
 
                 </div>
@@ -128,7 +127,7 @@
                 <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12" v-for="resource in material.resources">
                     <resource-preview :resource="resource">
                         <template slot="additional-buttons">
-                            <button class="btn btn-outline-danger" @click.prevent="btnDetachResource(resource)">
+                            <button class="btn btn-outline-danger btn-sm mb-1" @click.prevent="btnDetachResource(resource)">
                                 {{$t('pool.detach')}}
                             </button>
                         </template>
@@ -140,7 +139,7 @@
                 <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                     <resource-detail :resource="material.resources[0]">
                         <template slot="additional-buttons">
-                            <button class="btn btn-outline-danger"
+                            <button class="btn btn-outline-danger mb-1"
                                     @click.prevent="btnDetachResource(material.resources[0])">
                                 {{$t('pool.detach')}}
                             </button>
@@ -187,7 +186,6 @@
     // https://github.com/craigh411/vue-star-rating/#props
 
     export default {
-        name: "MaterialApp",
 
         props: {
             id: {
@@ -436,7 +434,7 @@
                 });
             },
 
-            downloadResource(resource) {
+            downloadResourceLink(resource) {
                 window.location = resourceDownloadLink(resource);
             },
 

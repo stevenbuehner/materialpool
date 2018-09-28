@@ -154,6 +154,10 @@ php artisan passport:keys --force
 php artisan key:generate
 
 
+# Die PHP-Bibliothek zLib wird für die PDF-Generierung gebraucht
+# https://manuals.setasign.com/fpdi-manual/v2/installation/#index-1
+
+
 
 ## UPDATEs ###
 

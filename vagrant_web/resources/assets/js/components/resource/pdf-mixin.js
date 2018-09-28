@@ -8,6 +8,14 @@ export default {
             return this.resource.page_count || 0;
         },
 
+        pagePivotCount() {
+            if (this.resource.pivot && this.resource.pivot.limitation && Array.isArray(this.resource.pivot.limitation.pages)) {
+                return this.resource.pivot.limitation.pages.length;
+            } else {
+                return undefined;
+            }
+        },
+
         previewablePages() {
 
             let result = [];

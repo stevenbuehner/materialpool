@@ -14,7 +14,7 @@ class ResourceController extends Controller {
 	use ResourceHelperTrait;
 
 	public function __construct() {
-		// $this->middleware(['auth']);
+		$this->middleware(['auth']);
 	}
 
 	/**
