@@ -64,7 +64,10 @@ export default {
             "go-back": "gehe zurück",
             "detach": "lösen",
             "resource-assignments": "zuordnen",
-            "select-all": "alles auswählen"
+            "select-all": "alles auswählen",
+            "only-limited-pages": "zeige nur {COUNT}\/{SUM} Seiten",
+            "limited-pages": "zeige {COUNT}\/{SUM} Seiten",
+            "Page": "Seite"
         }
     },
     "en": {
@@ -156,7 +159,10 @@ export default {
             "go-back": "go back",
             "detach": "detach",
             "resource-assignments": "assign",
-            "select-all": "select all"
+            "select-all": "select all",
+            "only-limited-pages": "show only {COUNT}\/{SUM} pages",
+            "limited-pages": "show {COUNT}\/{SUM} pages",
+            "Page": "Page"
         },
         "validation": {
             "accepted": "The {attribute} must be accepted.",

@@ -14,10 +14,9 @@
                   v-if="previewImages.length > 1">></span>
             <div class="label">
                 {{currentlyDisplayedImage.title}}
-                <div
-                        v-if="previewImages.length < pageCount"
-                        class="limitedPreview"
-                >(Preview nur {{previewImages.length}}/{{previewPageNumbers.length}} Seiten)
+                <div v-if="previewImages.length < pageCount"
+                     class="limitedPreview"
+                >({{previewPhrase}})
                 </div>
             </div>
         </div>
@@ -85,8 +84,8 @@
                     if (i < this.maxPreviewPages) {
                         urls.push({
                             src: pdfPreviewImageFirstPage(this.resource),
-                            title: this.$t('pool.Page') + ' ' + this.resource.pivot.limitation.pages[i],
-                            page_no: this.resource.pivot.limitation.pages[i]
+                            title: this.$t('pool.Page') + ' ' + this.previewPageNumbers[i],
+                            page_no: this.previewPageNumbers[i]
                         });
                     } else {
                         break;
@@ -95,6 +94,23 @@
 
                 return urls;
 
+            },
+
+            previewPhrase() {
+
+                if (this.previewPageNumbers.length > this.maxPreviewPages) {
+                    return this.$t('pool.only-limited-pages', {
+                        COUNT: this.previewImages.length,
+                        SUM: this.previewPageNumbers.length
+                    })
+                } else {
+                    return this.$t('pool.limited-pages', {
+                        COUNT: this.previewImages.length,
+                        SUM: this.previewPageNumbers.length
+                    })
+                }
+
+                // (Preview nur {{previewImages.length}}/{{previewPageNumbers.length}} Seiten)
             }
         },
 
@@ -155,9 +171,11 @@
     .label {
         position: absolute;
         bottom: 0;
+        left: 0;
+        right: 0;
         text-align: center;
-        padding: 1em;
-        background-color: rgba(255, 255, 255, 1);
+        padding: .25em .5em .25em .5em;
+        background-image: linear-gradient(rgba(255, 255, 255, 0.85), #ffffff);
     }
 
     .limitedPreview {

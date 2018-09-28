@@ -67,4 +67,8 @@ return [
 	'detach'                              => 'lösen',
 	'resource-assignments'                => 'zuordnen',
 	'select-all'                          => 'alles auswählen',
+	'only-limited-pages'                  => 'zeige nur :COUNT/:SUM Seiten',
+	'limited-pages'                       => 'zeige :COUNT/:SUM Seiten',
+	'Page'                                => 'Seite'
+
 ];

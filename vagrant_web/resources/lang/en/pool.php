@@ -76,5 +76,8 @@ return [
 	'detach'                              => 'detach',
 	'resource-assignments'                => 'assign',
 	'select-all'                          => 'select all',
+	'only-limited-pages'                  => 'show only :COUNT/:SUM pages',
+	'limited-pages'                       => 'show :COUNT/:SUM pages',
+	'Page'                                => 'Page'
 
 ];
