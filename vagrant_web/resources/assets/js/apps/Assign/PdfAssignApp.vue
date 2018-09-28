@@ -39,6 +39,18 @@
             </b-navbar-nav>
 
             <b-navbar-nav class="ml-auto">
+                <b-nav-item-dropdown :text="$t('pool.preview-size')" left>
+                    <b-dropdown-item @click="previewSize='lg'" :disabled="previewSize ==='lg'">
+                        {{$t('pool.large')}}
+                    </b-dropdown-item>
+                    <b-dropdown-item @click="previewSize='md'" :disabled="previewSize ==='md'">
+                        {{$t('pool.medium')}}
+                    </b-dropdown-item>
+                    <b-dropdown-item @click="previewSize='sm'" :disabled="previewSize ==='sm'">
+                        {{$t('pool.small')}}
+                    </b-dropdown-item>
+                </b-nav-item-dropdown>
+
                 <b-button size="sm"
                           class="my-1 my-md-0 mx-1"
                           v-if="resource.page_count !== selectedPages.length"
@@ -66,6 +78,7 @@
         <page-list class=""
                    v-if="resource"
                    ref="pagelist"
+                   :preview-size="previewSize"
                    :resource="resource"
                    @page-selection-updated="pageSelectionUpdated"
         ></page-list>
@@ -127,7 +140,7 @@
                 selectedPages: [],
 
                 showMaterialSelector: false,
-
+                previewSize: 'sm',
             }
         },
 

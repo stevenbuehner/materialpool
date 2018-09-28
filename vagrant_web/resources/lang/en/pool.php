@@ -78,6 +78,10 @@ return [
 	'select-all'                          => 'select all',
 	'only-limited-pages'                  => 'show only :COUNT/:SUM pages',
 	'limited-pages'                       => 'show :COUNT/:SUM pages',
-	'Page'                                => 'Page'
+	'Page'                                => 'Page',
+	'small'                               => 'small',
+	'medium'                              => 'medium',
+	'large'                               => 'large',
+	'preview-size'                               => 'Preview Size',
 
 ];

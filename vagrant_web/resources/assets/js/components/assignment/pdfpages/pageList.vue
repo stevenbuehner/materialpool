@@ -12,6 +12,7 @@
                 @lastPageSelected="lastPageSelected"
                 @addPageSelection="addPageSelection"
                 @zoomInRequest="showZoom(page.image)"
+                :class="pageSizeClass"
         >Page {{page.label}}
         </page>
 
@@ -40,6 +41,11 @@
             resource: {
                 type: Object,
                 required: true,
+            },
+            previewSize: {
+                type: String,
+                required: false,
+                default: 'md'
             },
             previewLinkPattern: {
                 type: String,
@@ -117,6 +123,28 @@
                 return res;
             },
 
+            pageSizeClass() {
+
+                let myClass = 'col-12 col-sm-6 col-md-3 col-lg-3 col-xl-2';
+
+                switch (this.previewSize) {
+                    case 'xs':
+                    case 'sm':
+                        myClass = 'col-6 col-sm-4 col-md-3 col-lg-3 col-xl-2';
+                        break;
+                    case 'md':
+                        myClass = 'col-12 col-sm-6 col-md-4 col-lg-3 col-xl-3';
+                        break;
+                    case 'lg':
+                    case 'xl':
+                    default:
+                        myClass = 'col-12 sm-12 col-md-6 col-lg-4 col-xl-4';
+                        break;
+                }
+
+                return myClass;
+            },
+
         },
 
         watch: {
@@ -185,8 +213,8 @@
             },
 
 
-            selectAllPages(){
-                for (let i in this.selectedPages){
+            selectAllPages() {
+                for (let i in this.selectedPages) {
                     this.selectedPages[i] = true;
                 }
             },

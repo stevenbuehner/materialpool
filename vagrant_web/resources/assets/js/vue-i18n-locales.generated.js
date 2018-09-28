@@ -67,7 +67,11 @@ export default {
             "select-all": "alles auswählen",
             "only-limited-pages": "zeige nur {COUNT}\/{SUM} Seiten",
             "limited-pages": "zeige {COUNT}\/{SUM} Seiten",
-            "Page": "Seite"
+            "Page": "Seite",
+            "small": "klein",
+            "medium": "mittel",
+            "large": "groß",
+            "preview-size": "Vorschau"
         }
     },
     "en": {
@@ -162,7 +166,11 @@ export default {
             "select-all": "select all",
             "only-limited-pages": "show only {COUNT}\/{SUM} pages",
             "limited-pages": "show {COUNT}\/{SUM} pages",
-            "Page": "Page"
+            "Page": "Page",
+            "small": "small",
+            "medium": "medium",
+            "large": "large",
+            "preview-size": "Preview Size"
         },
         "validation": {
             "accepted": "The {attribute} must be accepted.",

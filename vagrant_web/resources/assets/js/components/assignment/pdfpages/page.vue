@@ -1,5 +1,5 @@
 <template>
-    <div class="col-12 col-sm-6 col-md-3 col-lg-3 col-xl-2  pb-4 pt-2 cell"
+    <div class="pb-4 pt-2 cell"
          v-show="isVisible"
          :class="{selectable : isSelectable,
          selected : isSelected}"
