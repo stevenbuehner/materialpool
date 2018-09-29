@@ -6,10 +6,6 @@
     <meta name="viewport"
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
 
-    <!-- Latest compiled and minified CSS -->
-   <!-- <link rel="stylesheet" href="/css/dependencies.css">
-    <link rel="stylesheet" href="/css/app.css"> -->
-    <link rel="stylesheet" href="/css/develop.css">
 @stack('styles')
 
 
@@ -24,12 +20,25 @@
             'csrfToken' => csrf_token(),
         ]) !!};
     </script>
-    <script src="http://localhost:8080/js/dependencies_build.js"></script>
-    <script src="http://localhost:8080/js/app_build.js"></script>
+
+
+    @if (env('APP_ENV') =='production')
+        <script src="/js/dependencies_build.js"></script>
+        <script src="/js/app_build.js"></script>
+        <link rel="stylesheet" href="/css/app.css">
+        <link rel="stylesheet" href="/css/searchApp.css">
+    @else
+        <script src="http://localhost:8080/js/dependencies_build.js"></script>
+        <script src="http://localhost:8080/js/app_build.js"></script>
+    @endif
+
+
+
     @stack('scripts')
 
 </head>
 <body>
+
 <div id="mainContainer">
 
     @include('navbar.main.nav')
