@@ -1,5 +1,5 @@
 <template>
-    <div class="resource">
+    <div class="resource container">
 
         <div class="card">
 

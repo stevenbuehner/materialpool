@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div class="container-fluid">
         <material-card-listing
                 :materials="materials"
         ></material-card-listing>

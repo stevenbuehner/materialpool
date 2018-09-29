@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div class="container">
 
         <searchbar-header
                 @searchUpdated="updateMaterialList"

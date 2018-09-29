@@ -1,7 +1,7 @@
 <template>
     <div>
-        <main-navbar class="mb-2"></main-navbar>
-        <router-view class="container"></router-view>
+        <main-navbar></main-navbar>
+        <router-view class="main-area"></router-view>
     </div>
 </template>
 
@@ -18,7 +18,7 @@
 </script>
 
 <style scoped>
-    .container {
+    .main-area {
         padding-top: 4.5rem;
     }
 </style>

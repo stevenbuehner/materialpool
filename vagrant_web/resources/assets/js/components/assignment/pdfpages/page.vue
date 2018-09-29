@@ -107,7 +107,7 @@
             },
 
             zoomInRequested: function () {
-                this.$emit('zoomInRequest', this.image);
+                this.$emit('zoomInRequest', this.index);
             },
 
             hidePage: function () {

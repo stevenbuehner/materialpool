@@ -1,7 +1,7 @@
 <template>
-    <div>
+    <div class="container-fluid">
 
-        <b-navbar toggleable="sm" type="dark" variant="info" v-if="resource">
+        <b-navbar toggleable="sm" type="dark" variant="info" v-if="resource" fixed="top" class="sub-menu">
 
             <b-navbar-nav>
                 <b-button size="sm"
@@ -60,32 +60,33 @@
 
         </b-navbar>
 
-        <b-alert
-                :show="!resource"
-                fade
-                :variant="loadingType"
-        >{{loadingMsg}}
-        </b-alert>
+        <div class="content">
 
-        <b-alert
-                :show="resource && !resource.page_count"
-                fade
-                variant="warning"
-                class="mt-4 mb-4"
-        >Sorry, Page-Count is missing. I am unable to display PDF-Pages.
-        </b-alert>
+            <b-alert
+                    :show="!resource"
+                    fade
+                    :variant="loadingType"
+            >{{loadingMsg}}
+            </b-alert>
 
-        <page-list class=""
-                   v-if="resource"
-                   ref="pagelist"
-                   :preview-size="previewSize"
-                   :resource="resource"
-                   @page-selection-updated="pageSelectionUpdated"
-        ></page-list>
+            <b-alert
+                    :show="resource && !resource.page_count"
+                    fade
+                    variant="warning"
+                    class="mt-4 mb-4"
+            >Sorry, Page-Count is missing. I am unable to display PDF-Pages.
+            </b-alert>
 
-        <div class="col-12 md-4 col-lg-2 col-xl-1"
-             v-if="resource"
-        ></div>
+            <page-list class=""
+                       v-if="resource"
+                       ref="pagelist"
+                       :preview-size="previewSize"
+                       :resource="resource"
+                       @page-selection-updated="pageSelectionUpdated"
+            ></page-list>
+
+        </div>
+
 
         <material-selector
                 v-if="resource"

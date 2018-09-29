@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div class="container">
         <div v-if="!material && !errorOnLoadingMessage">{{$t('pool.Material-is-loading')}}</div>
         <div class="alert alert-warning"
              v-if="!material && errorOnLoadingMessage">

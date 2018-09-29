@@ -6,6 +6,7 @@ import AssignApp from './../Assign/PdfAssignApp.vue';
 import PassportClient from './../../components/passport/Clients.vue';
 import PassportAuthorizedClient from './../../components/passport/AuthorizedClients.vue';
 import PassportPersonalAccessTokens from './../../components/passport/PersonalAccessTokens.vue';
+import mainNavbar from './../../components/navbar/mainNavbar.vue';
 
 export const routes = [
 

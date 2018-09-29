@@ -1,7 +1,7 @@
 <template>
-    <div class="page-list row">
+    <div class="row">
         <page
-                v-for="page in pages"
+                v-for="(page, index) in pages"
                 :index="page.index"
                 :image="page.image"
                 :isSelectable="page.isSelectable"
@@ -11,7 +11,7 @@
                 @firstPageSelected="firstPageSelected"
                 @lastPageSelected="lastPageSelected"
                 @addPageSelection="addPageSelection"
-                @zoomInRequest="showZoom(page.image)"
+                @zoomInRequest="showZoom(index)"
                 :class="pageSizeClass"
         >Page {{page.label}}
         </page>
@@ -21,10 +21,26 @@
                  hide-footer
                  lazy
                  :title="zoomedImage.title"
-                 size="lg">
+                 :hide-header-close="true"
+                 size="lg"
+                 class="zoomImageModal">
             <b-image :src="zoomedImage.src"
                      fluid
                      @click="hideZoom()"></b-image>
+            <span class="previous"
+                  @click.prevent="showZoom(zoomedImage.previous)"
+                  v-if="zoomedImage.previous >= 0"><</span>
+            <span class="next"
+                  @click.prevent="showZoom(zoomedImage.next)"
+                  v-if="zoomedImage.next >= 0">></span>
+            <template slot="modal-header" v-if="zoomedImage.current >= 0">
+                <div class="checked-modal-page"
+                     :class="{selected: pages[zoomedImage.current].isSelected}"
+                     @click="addPageSelection(pages[zoomedImage.current].index)">
+                    <span v-if="selectedPagesArray.length > 0">selected pages: {{selectedPagesArray.join(', ')}}</span>
+                    <span v-if="selectedPagesArray.length === 0">click to select first page</span>
+                </div>
+            </template>
         </b-modal>
     </div>
 </template>
@@ -68,7 +84,10 @@
 
                 zoomedImage: {
                     title: '',
-                    src: ''
+                    src: '',
+                    current: -1,
+                    next: -1,
+                    previous: -1,
                 }
 
             };
@@ -122,6 +141,7 @@
 
                 return res;
             },
+
 
             pageSizeClass() {
 
@@ -219,14 +239,28 @@
                 }
             },
 
+            showZoom(arrayIndex) {
 
-            showZoom(image) {
+                if (this.pages[arrayIndex]) {
+                    this.zoomedImage.src     = this.pages[arrayIndex].image;
+                    this.zoomedImage.current = arrayIndex;
 
-                if (image) {
-                    this.zoomedImage.src = image;
+                    if (this.pages[arrayIndex + 1]) {
+                        this.zoomedImage.next = arrayIndex + 1;
+                    } else {
+                        this.zoomedImage.next = -1;
+                    }
+
+
+                    if (this.pages[arrayIndex - 1]) {
+                        this.zoomedImage.previous = arrayIndex - 1;
+                    } else {
+                        this.zoomedImage.previous = -1;
+                    }
+
+                    this.$refs.imageZoomModal.show();
                 }
 
-                this.$refs.imageZoomModal.show();
 
             },
 
@@ -234,7 +268,7 @@
 
                 this.$refs.imageZoomModal.hide();
 
-            }
+            },
 
         },
 
@@ -247,5 +281,58 @@
     }
 </script>
 
+<style>
+    .zoomImageModal header.modal-header {
+        padding: 0;
+    }
+</style>
+
 <style scoped>
+
+    .previous, .next {
+        position: absolute;
+        color: black;
+        font-size: 2em;
+        height: 100%;
+        top: 0;
+        cursor: pointer;
+        display: flex;
+        justify-content: center;
+        flex-direction: column;
+    }
+
+    .previous {
+        left: 0;
+        padding: 0 1em 0 .75em;
+    }
+
+    .next {
+        right: 0;
+        padding: 0 .75em 0 1em;
+    }
+
+    .previous:hover {
+        background-image: linear-gradient(to right, rgb(184, 184, 184), rgba(210, 210, 210, 0.05));
+    }
+
+    .next:hover {
+        background-image: linear-gradient(to left, rgb(184, 184, 184), rgba(210, 210, 210, 0.05));
+    }
+
+    .checked-modal-page, .checked-modal-page.selected:hover {
+        padding: 1rem;
+        text-align: center;
+        background-color: #ed7a76;
+        box-shadow: 0 0 0.5em #edc2b4;
+        width: 100%;
+        height: 100%;
+        cursor: pointer;
+    }
+
+    .checked-modal-page.selected, .checked-modal-page:hover {
+        background-color: #709aed;
+        box-shadow: 0 0 0.5em #8eaeed;
+    }
+
+
 </style>
