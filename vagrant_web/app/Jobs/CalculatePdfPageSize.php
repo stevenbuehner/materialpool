@@ -8,6 +8,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
 
 class CalculatePdfPageSize {
 	use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
@@ -29,10 +30,10 @@ class CalculatePdfPageSize {
 	 */
 	public function handle(PdfHandlingService $processor) {
 
-		Log::info("Start job: " . self::class . " for Resource", $this->resource);
+		Log::info("Start job: " . self::class . " for Resource", $this->resource->toArray());
 
 		$this->resource = $processor->countPdfPages($this->resource);
 
-		Log::info("End job: " . self::class . " for Resource", $this->resource);
+		Log::info("End job: " . self::class . " for Resource", $this->resource->toArray());
 	}
 }

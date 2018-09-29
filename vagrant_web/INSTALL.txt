@@ -162,21 +162,19 @@ php artisan key:generate
 ## UPDATEs ###
 
 # Lokal: NPM production package kompilieren
-npm run prod
+cd Sites/material_pool/vagrant_web/; npm run prod
 
 # SSH in die Maschine
 ssh steven@192.168.3.108
-cd /var/www/wissensbase
-sudo chown -R steven.steven .
+sudo chown -R steven.steven /var/www/wissensbase/
 
 #Local: (ACHTUNG: Storage darf nicht mitkopiert werden!)
 rsync -av --exclude=".git*" --exclude=".idea*" --exclude="*.DS_Store" --exclude="node_modules/*" --exclude=".env" --exclude="vendor/*" --exclude=".env.example" --exclude="storage/*" ~/Sites/material_pool/vagrant_web/ steven@192.168.3.108:/var/www/wissensbase
 
-# Auf dem Server wieder
-cd /var/www/wissensbase
-composer install --no-dev
-sudo chown -R www-data.www-data .
 
+# Auf dem Server wieder
+cd /var/www/wissensbase; composer install --no-dev
+sudo chown -R www-data.www-data /var/www/wissensbase/
 
 
 

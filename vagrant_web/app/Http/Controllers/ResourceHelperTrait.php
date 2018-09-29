@@ -3,9 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Exceptions\InvalidResourceTypeException;
+use App\Models\File;
 use App\Models\Resource;
 use App\Models\Text;
 use App\Services\ResourceRecognition\ResourceRecognitionService;
+use App\Services\TagExtraction\MaterialExtractionService;
+use App\Services\TagExtraction\ResourceHandles\TextContentInterface;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -40,9 +43,24 @@ trait ResourceHelperTrait {
 		$resources = [];
 
 		foreach ($uploadedFiles as $key => $file) {
-			$resources[$key] = $this->handleResourceFileUpload($file);
-			$resources[$key] = $this->handleGerneralResourceAttributes($resources[$key], $request);
-			$resources[$key] = $this->queuePostCreationJobs($resources[$key]);
+			try {
+				$resources[$key] = $this->handleResourceFileUpload($file);
+				$resources[$key] = $this->handleGerneralResourceAttributes($resources[$key], $request);
+				$resources[$key] = $this->queuePostCreationJobs($resources[$key]);
+			} catch (\Exception $e) {
+				//Todo: Cleanup again
+				Log::error('Error during File-Upload', [
+					'message' => $e->getMessage(),
+					'trace'   => $e->getTrace()
+				]);
+
+				if($resources[$key] instanceof File){
+
+				}
+
+
+			}
+
 		}
 
 		return $resources;
@@ -124,7 +142,15 @@ trait ResourceHelperTrait {
 		$jobs = $resource->getPostCreateJobs();
 
 		foreach ($jobs as $job) {
-			$this->dispatch($job);
+			try {
+				$this->dispatch($job);
+			} catch (\Exception $e) {
+				Log::Error("Error on Job-Execution for ({$resource->id})!", [
+					'resource' => $resource->toArray(),
+					'message'  => $e->getMessage(),
+					'trace'    => $e->getTrace()
+				]);
+			}
 		}
 
 		if (count($jobs) > 0) {
@@ -149,11 +175,22 @@ trait ResourceHelperTrait {
 	 */
 	protected function handleSingleResourceFileData(Request $request, Resource $resource = NULL) {
 
-		$uploadedFile = $request->file('file');
-		$resource     = $this->handleResourceFileUpload($uploadedFile, $resource);
-		$resource     = $this->handleGerneralResourceAttributes($resource, $request);
+		try {
+			$uploadedFile = $request->file('file');
+			$resource     = $this->handleResourceFileUpload($uploadedFile, $resource);
+			$resource     = $this->handleGerneralResourceAttributes($resource, $request);
 
-		$this->queuePostCreationJobs($resource);
+			$this->queuePostCreationJobs($resource);
+
+		} catch (\Exception $e) {
+			//Todo: Cleanup again
+			Log::error('Error during File-Upload', [
+				'message' => $e->getMessage(),
+				'trace'   => $e->getTrace()
+			]);
+
+		}
+
 
 		return $resource;
 	}

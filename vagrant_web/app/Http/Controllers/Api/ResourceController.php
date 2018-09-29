@@ -6,6 +6,7 @@ use App\Http\Controllers\ResourceHelperTrait;
 use App\Models\File;
 use App\Models\ForeignMaterialId;
 use App\Models\Resource;
+use App\Services\ResourceHandling\ResourceCleanupService;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Support\Facades\Auth;
@@ -178,15 +179,8 @@ class ResourceController extends BaseController {
 
 		}
 
-		// Delete from filesystem
-		if ($resource instanceof File) {
-			$resource->deleteLocalFile();
-		}
-
-		// Delete in DB
-		$resource->foreignIds()->delete();
-		$resource->delete();
-
+		$cleanupService = resolve(ResourceCleanupService::class);
+		$cleanupService->cleanUp($resource);
 
 		return ['success' => TRUE];
 	}
