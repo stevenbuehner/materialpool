@@ -71,7 +71,9 @@ export default {
             "small": "klein",
             "medium": "mittel",
             "large": "groß",
-            "preview-size": "Vorschau"
+            "preview-size": "Vorschau",
+            "create-new-resource": "Neue Resource erstellen",
+            "drop-file-to-upload-resource": "Datei hier hineinziehen um neue Resource zu erstellen"
         }
     },
     "en": {
@@ -170,7 +172,9 @@ export default {
             "small": "small",
             "medium": "medium",
             "large": "large",
-            "preview-size": "Preview Size"
+            "preview-size": "Preview Size",
+            "create-new-resource": "Create New Resource",
+            "drop-file-to-upload-resource": "Drop file to upload resource"
         },
         "validation": {
             "accepted": "The {attribute} must be accepted.",

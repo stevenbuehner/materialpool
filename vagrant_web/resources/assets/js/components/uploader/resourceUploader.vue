@@ -10,15 +10,17 @@
                       @error="onError"
         >
             <div class="d-flex align-items-center justify-content-center w-100"
-                 style="border-radius: 1rem;">
+                 style="border-radius: 1rem;"
+                 :style="styleObject">
                 <button class="btn btn-secondary" @click="triggerBrowse" v-if="!uploadRunning">
-                    {{$t('pool.Upload-resource-and-add-to-material')}}
+                    <slot> {{$t('pool.Upload-resource-and-add-to-material')}}</slot>
                 </button>
                 <h4 v-if="uploadRunning">Upload is beeing processed</h4>
             </div>
 
             <template slot="files" slot-scope="props">
-                <div v-for="(file, i) in props.files" :key="file.id" :class="{'mt-5': i === 0}" v-if="file.status !== 'success'">
+                <div v-for="(file, i) in props.files" :key="file.id" :class="{'mt-5': i === 0}"
+                     v-if="file.status !== 'success'">
                     <h4>{{ file.name }}</h4>
                     <div class="progress" style="width: 100%;">
                         <div class="progress-bar bg-success"
@@ -38,6 +40,16 @@
 
     export default {
         name: "resourceUploader",
+
+        props: {
+            styleObject: {
+                type: Object,
+                required: false,
+                default() {
+                    return {};
+                }
+            }
+        },
 
         data() {
             return {

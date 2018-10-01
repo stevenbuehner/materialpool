@@ -82,6 +82,7 @@ return [
 	'small'                               => 'small',
 	'medium'                              => 'medium',
 	'large'                               => 'large',
-	'preview-size'                               => 'Preview Size',
-
+	'preview-size'                        => 'Preview Size',
+	'create-new-resource'                 => 'Create New Resource',
+	'drop-file-to-upload-resource'        => 'Drop file to upload resource',
 ];

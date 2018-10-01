@@ -74,5 +74,7 @@ return [
 	'medium'                              => 'mittel',
 	'large'                               => 'groß',
 	'preview-size'                        => 'Vorschau',
+	'create-new-resource'                 => 'Neue Resource erstellen',
+	'drop-file-to-upload-resource'        => 'Datei hier fallen lassen um neue Resource zu erstellen',
 
 ];

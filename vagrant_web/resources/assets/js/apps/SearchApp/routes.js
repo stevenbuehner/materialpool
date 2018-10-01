@@ -6,7 +6,7 @@ import AssignApp from './../Assign/PdfAssignApp.vue';
 import PassportClient from './../../components/passport/Clients.vue';
 import PassportAuthorizedClient from './../../components/passport/AuthorizedClients.vue';
 import PassportPersonalAccessTokens from './../../components/passport/PersonalAccessTokens.vue';
-import mainNavbar from './../../components/navbar/mainNavbar.vue';
+import ResourceCreate from './../../components/resource/resourceCreate.vue'
 
 export const routes = [
 
@@ -29,6 +29,9 @@ export const routes = [
         path: '/material/:id', component: MaterialDetail, name: 'material-detail', props: (route) => {
             return {id: parseInt(route.params.id)};
         }
+    },
+    {
+        path: '/resource/create', component: ResourceCreate, name: 'resource-create', props: false
     },
     {
         path: '/resource/:id', component: ResourceDetail, name: 'resource-detail', props: (route) => {
