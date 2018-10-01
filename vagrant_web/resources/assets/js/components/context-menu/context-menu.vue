@@ -62,7 +62,9 @@
             },
 
             openMenu: function (event) {
-                event.preventDefault();
+                if (event) {
+                    event.preventDefault();
+                }
 
                 this.$root.$emit(MENU_OPEN_EVENT, this);
 
@@ -73,7 +75,6 @@
                     this.setMenu(event.y, event.x)
                 });
 
-                // event.preventDefault();
             },
         },
 

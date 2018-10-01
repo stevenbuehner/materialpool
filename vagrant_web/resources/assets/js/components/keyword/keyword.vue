@@ -315,9 +315,9 @@
                 window.location.href = this.searchLink;
             },
 
-            openRightClickMenu() {
+            openRightClickMenu(event) {
                 if (this.searchable || this.editable || this.removeable) {
-                    this.$refs.menu.openMenu()
+                    this.$refs.menu.openMenu(event)
                 }
             },
 

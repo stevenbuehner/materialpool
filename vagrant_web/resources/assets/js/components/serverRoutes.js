@@ -66,13 +66,13 @@ export function api_v1_resources_delete(resourceId) {
     return '/api/v1/resources/' + resourceId;
 }
 
-export const api_v1_resources_store = '/api/v1/resources/';
+export const api_v1_resources_store = '/api/v1/resources';
 
 // API - Materials
 export const api_v1_materials_show  = (materialsId) => {
     return '/api/v1/materials/' + materialsId;
 };
-export const api_v1_materials_store = '/api/v1/materials/';
+export const api_v1_materials_store = '/api/v1/materials';
 export const api_v1_materials_index = '/api/v1/materials';
 
 export const api_v1_materials_update = (materialId) => {
@@ -87,7 +87,7 @@ export function api_v1_keywords_show(keywordId) {
     return '/api/v1/keywords/' + keywordId;
 }
 
-export const api_v1_keywords_create           = '/api/v1/keywords/';
+export const api_v1_keywords_create           = '/api/v1/keywords';
 export const api_v1_keywords_update           = (keywordId) => {
     return '/api/v1/keywords/' + keywordId;
 };
