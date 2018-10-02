@@ -68,6 +68,11 @@ export function api_v1_resources_delete(resourceId) {
 
 export const api_v1_resources_store = '/api/v1/resources';
 
+export function api_v1_resources_create_material(resourceId) {
+    return '/api/v1/resources/' + resourceId + '/create-material';
+}
+
+
 // API - Materials
 export const api_v1_materials_show  = (materialsId) => {
     return '/api/v1/materials/' + materialsId;

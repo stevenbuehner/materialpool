@@ -31,22 +31,34 @@
 
                             <span class="materialNavi">
                                 <button v-if="material.pivot.limitation && isLimitable"
-                                        class="btn btn-warning btn-sm">Limitierung bearbeiten</button>
+                                        class="btn btn-warning btn-sm mb-1 mr-1">Limitierung bearbeiten</button>
                                 <button v-if="!material.pivot.limitation && isLimitable"
-                                        class="btn btn-success btn-sm">Limitierung erstellen</button>
+                                        class="btn btn-success btn-sm mb-1 mr-1">Limitierung erstellen</button>
                                 <button @click="btnDetachMaterialFromResource(material)"
-                                        class="btn btn-outline-danger btn-sm">{{$t('pool.remove')}}</button>
+                                        class="btn btn-outline-danger btn-sm mb-1 mr-1">{{$t('pool.remove')}}</button>
                                 <router-link :to="{name: 'material-detail', params: {id: material.id}}"
-                                             class="btn btn-primary btn-sm">{{$t('pool.open')}}</router-link>
+                                             class="btn btn-primary btn-sm mb-1 mr-1">{{$t('pool.open')}}</router-link>
                             </span>
 
                         </b-list-group-item>
                     </b-list-group>
 
                     <div class="d-flex justify-content-center pt-2">
-                        <button class="btn btn-secondary"
-                                title="Material zuordnen"
-                                @click="btnAddMaterialToResource">+
+                        <button class="btn btn-outline-secondary m-1"
+                                :title="$t('pool.auto-create-material')"
+                                v-if="resource.materials.length === 0"
+                                @click="btnCreateAutoMaterialFromResource">
+                            <span class="icon autocreation"></span>
+                        </button>
+                        <button class="btn btn-outline-secondary m-1"
+                                :title="$t('pool.create-and-assign-material')"
+                                @click="btnCreateAndAssignMaterialManually">
+                            <span class="icon manualcreation"></span>
+                        </button>
+                        <button class="btn btn-outline-secondary m-1"
+                                :title="$t('pool.assign-material')"
+                                @click="btnAddMaterialToResource">
+                            <span class="icon assign"></span>
                         </button>
                     </div>
                 </b-tab>
@@ -72,6 +84,8 @@
 
         <material-selector ref="materialSelector"></material-selector>
 
+        <material-creator ref="materialCreator"></material-creator>
+
         <custom-dialog ref="myDialog"></custom-dialog>
 
     </div>
@@ -94,6 +108,7 @@
     import AsyncComputed from 'vue-async-computed';
     import MaterialSelector from "../modals/selectors/materialSelector";
     import CustomDialog from "../modals/dialogs/customDialog";
+    import MaterialCreator from "../modals/creators/materialCreator";
 
     Vue.use(AsyncComputed);
 
@@ -113,6 +128,8 @@
             return {
                 loading: false,
                 errorMsg: null,
+
+                forceReload: 0,
             };
         },
 
@@ -144,7 +161,10 @@
                 get() {
                     return this.$store.dispatch('resources/getResource', this.id);
                 },
-                default: null
+                default: null,
+                watch() {
+                    this.forceReload
+                }
             }
         },
 
@@ -221,6 +241,34 @@
                     }
 
                 });
+            },
+
+            btnCreateAutoMaterialFromResource() {
+
+                this.$store.dispatch('resources/autoCreateMaterial', this.id)
+                    .then(({material}) => {
+
+                        this.$router.push({
+                            name: 'material-detail',
+                            params: {
+                                id: material.id
+                            }
+                        });
+                    });
+
+            },
+
+            btnCreateAndAssignMaterialManually() {
+                this.$refs.materialCreator.showPromise()
+                    .then((material) => {
+                        return this.$store.dispatch('materials/attachResource', {
+                            materialId: material.id,
+                            resourceId: this.id,
+                        })
+                    })
+                    .then(({material, resource}) => {
+                        this.forceReload++;
+                    });
             }
         },
 
@@ -231,6 +279,7 @@
         },
 
         components: {
+            MaterialCreator,
             CustomDialog,
             MaterialSelector,
             resourceDetail,
@@ -251,11 +300,31 @@
         color: grey;
     }
 
-    .materialMain {
+    .materialNavi {
 
     }
 
-    .materialNavi {
+    .icon {
+        position: relative;
+        display: inline-block;
+        background-size: contain;
+        background-position: 0 0;
+        height: 1rem;
+        background-repeat: no-repeat;
+        top: 0.1rem;
+        width: 1rem;
+    }
+
+    .autocreation {
+        background-image: url(/img/icons/entypo-plus/rocket.svg);
+    }
+
+    .manualcreation {
+        background-image: url(/img/icons/entypo-plus/new-message.svg);
+    }
+
+    .assign {
+        background-image: url(/img/icons/entypo-plus/flow-tree.svg);
     }
 
 </style>

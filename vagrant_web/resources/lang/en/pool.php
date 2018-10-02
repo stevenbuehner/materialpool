@@ -90,8 +90,8 @@ return [
 	'assign-material'                     => 'Assign material',
 	'try-again'                           => 'try again',
 	'Http-status-code'                    => 'HTTP Status Code',
-	''                                    => '',
-	''                                    => '',
+	'Material'                                    => 'Material',
+	'Resource'                                    => 'Resource',
 	''                                    => '',
 	''                                    => '',
 ];

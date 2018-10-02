@@ -162,6 +162,12 @@ Route::group([
 	Route::post('foreign-resources/', 'ForeignResourceController@storeForeign')
 		 ->middleware('can:create,App\Models\ForeignResourceId')
 		 ->name('api.v1.foreignResources.store');
+	Route::post('resources/{resource}/create-material', 'ResourceController@createMaterialFromResource')
+		 ->where('resource', '[0-9]+')
+		 ->middleware('can:create,App\Models\Material')
+		 ->middleware('can:view,resource')
+		 ->name('api.v1.resources.create-material');
+
 
 	Route::put('resources/{resource}', 'ResourceController@update')
 		 ->where('resource', '[0-9]+')

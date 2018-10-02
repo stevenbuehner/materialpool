@@ -142,6 +142,17 @@ class ResourceController extends BaseController {
 
 	}
 
+	public function createMaterialFromResource(Resource $resource) {
+
+		$material = $this->createMaterialFromResources($resource);
+
+		return [
+			'resource'  => $resource->fresh(self::DEFAULT_RELATIONS),
+			'material' => $material->fresh(\App\Http\Controllers\MaterialController::withAttributes())
+		];
+
+	}
+
 	/**
 	 * @param Request              $request
 	 * @param \App\Models\Resource $resource

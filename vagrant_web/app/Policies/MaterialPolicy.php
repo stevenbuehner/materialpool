@@ -33,7 +33,7 @@ class MaterialPolicy {
 	 * @return mixed
 	 */
 	public function create(User $user) {
-		//
+		return TRUE;
 	}
 
 	/**

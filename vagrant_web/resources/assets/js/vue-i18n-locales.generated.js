@@ -78,7 +78,9 @@ export default {
             "create-and-assign-material": "Erstelle zugehöriges Material",
             "assign-material": "Material zuordnen",
             "try-again": "nochmal versuchen",
-            "Http-status-code": "HTTP Status Code"
+            "Http-status-code": "HTTP Status Code",
+            "Material": "Material",
+            "Resource": "Resource"
         }
     },
     "en": {
@@ -185,6 +187,8 @@ export default {
             "assign-material": "Assign material",
             "try-again": "try again",
             "Http-status-code": "HTTP Status Code",
+            "Material": "Material",
+            "Resource": "Resource",
             "": ""
         },
         "validation": {

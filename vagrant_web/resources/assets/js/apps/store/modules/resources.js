@@ -1,4 +1,8 @@
-import {api_v1_resources_delete, api_v1_resources_show} from './../../../components/serverRoutes'
+import {
+    api_v1_resources_create_material,
+    api_v1_resources_delete,
+    api_v1_resources_show
+} from './../../../components/serverRoutes'
 import axios from 'axios'
 
 
@@ -102,6 +106,24 @@ const actions = {
 
     clearResource: ({commit}, id) => {
         commit('clearResource', id);
+    },
+
+    autoCreateMaterial: ({commit, dispatch}, resourceId) => {
+
+        const promise = axios.post(api_v1_resources_create_material(resourceId))
+            .then(({data}) => {
+                return {
+                    material: data.material,
+                    resource: data.resource
+                };
+            });
+
+        promise.then(({material, resource}) => {
+            dispatch('setResource', resource);
+            dispatch('materials/setMaterial', material, {root: true});
+        });
+
+        return promise;
     }
 
 };

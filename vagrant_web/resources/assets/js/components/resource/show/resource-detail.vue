@@ -27,6 +27,10 @@
                     <router-link v-if="resource.type=='pdf'" :to="{name:'resource-assign', params: {id: resource.id}}"
                                  class="btn btn-outline-primary  mb-1">{{$t('pool.resource-assignments')}}
                     </router-link>
+                    <button v-if="showDelete"
+                            class="btn btn-outline-danger mb-1"
+                            @click="btnDeleteResource(resource)">{{$t('pool.delete')}}
+                    </button>
                 </slot>
                 <slot name="additional-buttons"></slot>
             </slot>
@@ -67,6 +71,12 @@
                 required: false,
                 default: true
             },
+
+            showDelete: {
+                type: Boolean,
+                required: false,
+                default: true
+            },
         },
 
         computed: {
@@ -75,7 +85,28 @@
             }
         },
 
-        methods: {},
+        methods: {
+            btnDeleteResource(resource) {
+
+                resource = resource || this.resource;
+
+                if (resource.materials === undefined) {
+                    this.$store.dispatch('resources/getResource', this.resource.id)
+                        .then((resource) => {
+                            this.btnDeleteResource(resource);
+                        });
+                }
+                else if (resource.materials.length > 0) {
+                    alert('Löschen nicht möglich. Materialien sind noch zugewwiesen!')
+                } else {
+                    this.$store.dispatch('resources/deleteResource', resource.id)
+                        .then(() => {
+                            this.$router.go(-1);
+                        });
+                }
+
+            }
+        },
 
 
         components: {

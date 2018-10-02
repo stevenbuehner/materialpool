@@ -81,4 +81,7 @@ return [
 	'assign-material'                     => 'Material zuordnen',
 	'try-again'                           => 'nochmal versuchen',
 	'Http-status-code'                    => 'HTTP Status Code',
+	'Material'                            => 'Material',
+	'Resource'                            => 'Resource',
+
 ];

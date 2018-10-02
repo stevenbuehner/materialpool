@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Exceptions\InvalidResourceTypeException;
 use App\Models\File;
+use App\Models\Material;
 use App\Models\Resource;
 use App\Models\Text;
 use App\Services\ResourceRecognition\ResourceRecognitionService;
