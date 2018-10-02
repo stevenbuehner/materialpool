@@ -308,7 +308,8 @@
                     {materialId: this.id, resourceId: resource.id}
                 ).then(({material}) => {
                     this.material = material;
-                })
+                }).catch(() => {
+                });
             },
 
             btnDetachResource(resource) {
@@ -336,6 +337,7 @@
                                     yesEnabled: false,
                                     noEnabled: false,
                                     allowBackdrop: false
+                                }).catch(() => {
                                 });
 
                                 this.$store.dispatch('resources/deleteResource', resource.id)

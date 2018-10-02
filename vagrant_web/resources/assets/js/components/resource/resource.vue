@@ -181,7 +181,7 @@
                     }).catch((error) => {
                         alert(error);
                     });
-
+                }).catch(() => {
                 });
 
             },
@@ -211,6 +211,7 @@
                                     yesEnabled: false,
                                     noEnabled: false,
                                     allowBackdrop: false
+                                }).catch(() => {
                                 });
 
                                 this.$store.dispatch('materials/deleteMaterial', material.id)
