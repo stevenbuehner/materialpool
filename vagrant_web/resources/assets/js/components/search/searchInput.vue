@@ -6,12 +6,12 @@
                 language="de-DE"
                 label="text"
                 multiple
-                placeholder="Suchbegriffe hier eingeben"
+                :placeholder="$t('pool.Insert-search-phrase-here')"
                 v-model="lineValues"
                 @input="$emit('updated', lineValues)">
 
         <template slot="no-options">
-            Gib einen Suchbegriff ein
+            {{$t('pool.Insert-search-phrase')}}
         </template>
 
         <template slot="option" slot-scope="option">

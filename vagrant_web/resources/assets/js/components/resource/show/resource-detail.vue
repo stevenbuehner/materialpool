@@ -7,14 +7,14 @@
         <div>
             <div class="meta mb-2">
                 <div class="notes" v-if="resource.notes.length > 0">Notiz: {{resource.notes}}</div>
-                <div class="originalFilename" v-if="resource.original_filename !== undefined">Dateiname:
-                    {{resource.original_filename}}
+                <div class="originalFilename" v-if="resource.original_filename !== undefined">
+                    {{$t('pool.Filename')}}: {{resource.original_filename}}
                 </div>
-                <div class="limitation" v-if="resource.pivot && resource.pivot.limitation">Limitation:
-                    {{resource.pivot.limitation}}
+                <div class="limitation" v-if="resource.pivot && resource.pivot.limitation">
+                    {{$t('pool.Limitation')}}: {{resource.pivot.limitation}}
                 </div>
-                <div class="creator">Ersteller-ID: {{resource.created_by}}</div>
-                <div class="resource-id">Resource-ID: {{resource.id}}</div>
+                <div class="creator">{{$t('pool.Creator-ID')}}: {{resource.created_by}}</div>
+                <div class="resource-id">{{$t('pool.Resource-ID')}}: {{resource.id}}</div>
             </div>
             <slot name="buttons">
                 <slot name="default-buttons">
@@ -29,7 +29,8 @@
                     </router-link>
                     <button v-if="showDelete"
                             class="btn btn-outline-danger mb-1"
-                            @click="btnDeleteResource(resource)">{{$t('pool.delete')}}
+                            @click="btnDeleteResource(resource)"
+                            :title="$t('pool.Delete-resource')">{{$t('pool.delete')}}
                     </button>
                 </slot>
                 <slot name="additional-buttons"></slot>

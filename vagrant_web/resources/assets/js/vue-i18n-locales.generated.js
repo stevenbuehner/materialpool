@@ -81,7 +81,19 @@ export default {
             "Http-status-code": "HTTP Status Code",
             "Material": "Material",
             "Resource": "Resource",
-            "material-is-beeing-generated": "Einen Moment Geduld bitte. Das Material wird gerade erzeugt."
+            "material-is-beeing-generated": "Einen Moment Geduld bitte. Das Material wird gerade erzeugt.",
+            "Delete-resource": "Resource komplett löschen",
+            "Detach-resource": "Resource vom Material lösen",
+            "Material-without-resources": "Material ohne Resourcen",
+            "Click-here-to-insert-description": "Hier klicken um eine Materialbeschreibung einzufügen ...",
+            "Add-tags": "Tags hinzufügen",
+            "Filename": "Dateiname",
+            "Limitation": "Limitierung",
+            "Creator-ID": "Ersteller-ID",
+            "Resource-ID": "Resourcen-ID",
+            "Creator": "Ersteller",
+            "Insert-search-phrase": "Gib einen Suchbegriff ein",
+            "Insert-search-phrase-here": "Suchbegriff hier eingeben"
         }
     },
     "en": {
@@ -191,6 +203,18 @@ export default {
             "Material": "Material",
             "Resource": "Resource",
             "material-is-beeing-generated": "Please wait. Material is beeing generated just know.",
+            "Delete-resource": "Delete resource completely",
+            "Detach-resource": "Detach resource from material",
+            "Material-without-resources": "Material without resources",
+            "Click-here-to-insert-description": "Click here to insert description ...",
+            "Add-tags": "Add tags",
+            "Filename": "Filename",
+            "Limitation": "Limitation",
+            "Creator-ID": "Creator-ID",
+            "Resource-ID": "Resource-ID",
+            "Creator": "Creator",
+            "Insert-search-phrase": "Insert a searchphrase please",
+            "Insert-search-phrase-here": "Insert a searchphrase here",
             "": ""
         },
         "validation": {

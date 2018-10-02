@@ -84,7 +84,7 @@
 
 
                     <div class="btn btn-sm btn-primary" v-if="keywordsAndBibleveres.length === 0 && editable === true">
-                        Tags hinzufügen
+                        {{$t('pool.Add-tags')}}
                     </div>
 
                 </div>
@@ -119,7 +119,7 @@
                                     classes="card card-body"
                                     :value="material.description"
                                     @value-changed="submitDescription"
-                                    placeholder="Click here to insert description ..."></edditable-text>
+                                    :placeholder="$t('pool.Click-here-to-insert-description')"></edditable-text>
                 </div>
             </div>
 
@@ -127,7 +127,9 @@
                 <div class="col-xl-3 col-lg-4 col-md-4 col-sm-6 col-xs-12" v-for="resource in material.resources">
                     <resource-preview :resource="resource">
                         <template slot="additional-buttons">
-                            <button class="btn btn-outline-danger mb-1" @click.prevent="btnDetachResource(resource)">
+                            <button class="btn btn-outline-danger mb-1"
+                                    @click.prevent="btnDetachResource(resource)"
+                                    :title="$t('pool.Detach-resource')">
                                 {{$t('pool.detach')}}
                             </button>
                         </template>
@@ -140,7 +142,8 @@
                     <resource-detail :resource="material.resources[0]">
                         <template slot="additional-buttons">
                             <button class="btn btn-outline-danger mb-1"
-                                    @click.prevent="btnDetachResource(material.resources[0])">
+                                    @click.prevent="btnDetachResource(material.resources[0])"
+                                    :title="$t('pool.Detach-resource')">
                                 {{$t('pool.detach')}}
                             </button>
                         </template>
@@ -150,8 +153,11 @@
 
             <div class="row" v-if="material.resources !== undefined && material.resources.length === 0">
                 <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                    Material ohne Resourcen
-                    <button class="btn btn-sm btn-danger" @click="btnDeleteMaterial">{{$t('pool.delete')}}</button>
+                    {{$t('pool.Material-without-resources')}}
+                    <button class="btn btn-sm btn-danger"
+                            @click="btnDeleteMaterial"
+                            :title="$t('pool.Delete-resource')">{{$t('pool.delete')}}
+                    </button>
                 </div>
             </div>
 

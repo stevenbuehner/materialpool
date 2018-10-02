@@ -5,7 +5,7 @@
         <div class="card-body">
             <div class="meta">
                 <div v-if="resource.creator">
-                    Creator:
+                    {{$t('pool.Creator')}}:
                     <user-name :user="resource.creator"></user-name>
                 </div>
             </div>

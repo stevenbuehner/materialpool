@@ -84,6 +84,17 @@ return [
 	'Material'                            => 'Material',
 	'Resource'                            => 'Resource',
 	'material-is-beeing-generated'        => 'Einen Moment Geduld bitte. Das Material wird gerade erzeugt.',
-
+	'Delete-resource'                     => 'Resource komplett löschen',
+	'Detach-resource'                     => 'Resource vom Material lösen',
+	'Material-without-resources'          => 'Material ohne Resourcen',
+	'Click-here-to-insert-description'    => 'Hier klicken um eine Materialbeschreibung einzufügen ...',
+	'Add-tags'                            => 'Tags hinzufügen',
+	'Filename'                            => 'Dateiname',
+	'Limitation'                          => 'Limitierung',
+	'Creator-ID'                          => 'Ersteller-ID',
+	'Resource-ID'                         => 'Resourcen-ID',
+	'Creator'                             => 'Ersteller',
+	'Insert-search-phrase'                => 'Gib einen Suchbegriff ein',
+	'Insert-search-phrase-here'           => 'Suchbegriff hier eingeben',
 
 ];
