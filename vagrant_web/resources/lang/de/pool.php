@@ -83,5 +83,7 @@ return [
 	'Http-status-code'                    => 'HTTP Status Code',
 	'Material'                            => 'Material',
 	'Resource'                            => 'Resource',
+	'material-is-beeing-generated'        => 'Einen Moment Geduld bitte. Das Material wird gerade erzeugt.',
+
 
 ];

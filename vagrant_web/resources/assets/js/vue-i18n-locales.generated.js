@@ -80,7 +80,8 @@ export default {
             "try-again": "nochmal versuchen",
             "Http-status-code": "HTTP Status Code",
             "Material": "Material",
-            "Resource": "Resource"
+            "Resource": "Resource",
+            "material-is-beeing-generated": "Einen Moment Geduld bitte. Das Material wird gerade erzeugt."
         }
     },
     "en": {
@@ -189,6 +190,7 @@ export default {
             "Http-status-code": "HTTP Status Code",
             "Material": "Material",
             "Resource": "Resource",
+            "material-is-beeing-generated": "Please wait. Material is beeing generated just know.",
             "": ""
         },
         "validation": {
