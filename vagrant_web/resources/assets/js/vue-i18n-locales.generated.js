@@ -73,7 +73,12 @@ export default {
             "large": "groß",
             "preview-size": "Vorschau",
             "create-new-resource": "Neue Resource erstellen",
-            "drop-file-to-upload-resource": "Datei hier hineinziehen um neue Resource zu erstellen"
+            "drop-file-to-upload-resource": "Datei hier fallen lassen um neue Resource zu erstellen",
+            "auto-create-material": "Erstelle Material automatisch",
+            "create-and-assign-material": "Erstelle zugehöriges Material",
+            "assign-material": "Material zuordnen",
+            "try-again": "nochmal versuchen",
+            "Http-status-code": "HTTP Status Code"
         }
     },
     "en": {
@@ -174,7 +179,13 @@ export default {
             "large": "large",
             "preview-size": "Preview Size",
             "create-new-resource": "Create New Resource",
-            "drop-file-to-upload-resource": "Drop file to upload resource"
+            "drop-file-to-upload-resource": "Drop file to upload resource",
+            "auto-create-material": "Automatically create material",
+            "create-and-assign-material": "Create and assign material",
+            "assign-material": "Assign material",
+            "try-again": "try again",
+            "Http-status-code": "HTTP Status Code",
+            "": ""
         },
         "validation": {
             "accepted": "The {attribute} must be accepted.",

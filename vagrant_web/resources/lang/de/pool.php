@@ -76,5 +76,9 @@ return [
 	'preview-size'                        => 'Vorschau',
 	'create-new-resource'                 => 'Neue Resource erstellen',
 	'drop-file-to-upload-resource'        => 'Datei hier fallen lassen um neue Resource zu erstellen',
-
+	'auto-create-material'                => 'Erstelle Material automatisch',
+	'create-and-assign-material'          => 'Erstelle zugehöriges Material',
+	'assign-material'                     => 'Material zuordnen',
+	'try-again'                           => 'nochmal versuchen',
+	'Http-status-code'                    => 'HTTP Status Code',
 ];

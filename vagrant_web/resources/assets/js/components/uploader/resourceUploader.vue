@@ -8,6 +8,7 @@
                       @processing="onProcessing"
                       @timeout="onError"
                       @error="onError"
+                      v-if="!showError"
         >
             <div class="d-flex align-items-center justify-content-center w-100"
                  style="border-radius: 1rem;"
@@ -31,12 +32,21 @@
 
         </vue-transmit>
 
+        <b-alert variant="danger" :show="showError">
+            <div v-if="fileStatus" class="errorStatusCode">{{$t('pool.Http-status-code')}}: {{fileStatus}}</div>
+            <div v-if="errorMessage" class="errorMessage">{{errorMessage}}</div>
+            <b-button variant="primary" @click.stop="btnClearErrorAndTryAgain">{{$t('pool.try-again')}}</b-button>
+        </b-alert>
+
     </div>
 </template>
 
 <script>
     import {VueTransmit} from "vue-transmit";
     import {api_v1_resources_store} from "../serverRoutes";
+    import bAlert from 'bootstrap-vue/src/components/alert/alert';
+    import bButton from 'bootstrap-vue/src/components/button/button';
+
 
     export default {
         name: "resourceUploader",
@@ -65,10 +75,19 @@
                             'X-Requested-With': 'XMLHttpRequest'
                         },
                         responseType: 'json',
+                        responseParseFunc: this.responseParse,
                     },
                 },
 
-                uploadRunning: false
+                uploadRunning: false,
+                errorMessage: null,
+                fileStatus: null
+            }
+        },
+
+        computed: {
+            showError() {
+                return this.errorMessage !== null || this.fileStatus !== null;
             }
         },
 
@@ -93,9 +112,39 @@
                 this.uploadRunning = false;
             },
 
-            onError(file, errorMsg) {
-                console.error(errorMsg, file);
+            onError(file, errorMsg, other) {
+                // console.error(errorMsg, file, other);
+
+                if (errorMsg === undefined) {
+
+                    if (other && other.response) {
+                        if (other.response.error) {
+                            this.errorMessage = this.$t('pool.server-error-response') + ': ' + other.response.error;
+                        } else {
+                            this.errorMessage = other.response;
+                        }
+
+                    } else {
+                        this.errorMessage = 'Unknown error while uploading "' + file.name + '"';
+                    }
+
+                } else {
+                    this.errorMessage = errorMsg;
+                }
+
+                if (other && other.status) {
+                    this.fileStatus = other.status + ' (' + other.statusText + ')';
+                }
+
+                this.uploadRunning = false;
             },
+
+            btnClearErrorAndTryAgain() {
+                this.errorMessage  = null;
+                this.fileStatus    = null;
+                this.uploadRunning = false;
+
+            }
         },
 
         filters: {
@@ -105,7 +154,9 @@
         },
 
         components: {
-            VueTransmit
+            VueTransmit,
+            bAlert,
+            bButton
         }
     }
 </script>
@@ -139,4 +190,10 @@
         );
         background-size: 40px 40px;
     }
+
+    .errorStatusCode {
+        font-weight: bold;
+    }
+
+
 </style>

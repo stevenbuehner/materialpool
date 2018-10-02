@@ -85,4 +85,13 @@ return [
 	'preview-size'                        => 'Preview Size',
 	'create-new-resource'                 => 'Create New Resource',
 	'drop-file-to-upload-resource'        => 'Drop file to upload resource',
+	'auto-create-material'                => 'Automatically create material',
+	'create-and-assign-material'          => 'Create and assign material',
+	'assign-material'                     => 'Assign material',
+	'try-again'                           => 'try again',
+	'Http-status-code'                    => 'HTTP Status Code',
+	''                                    => '',
+	''                                    => '',
+	''                                    => '',
+	''                                    => '',
 ];
