@@ -18,7 +18,7 @@
                     <router-link v-if="showOpen" :to="{name:'resource-detail', params: {id: resource.id}}"
                                  class="btn btn-outline-primary mb-1">{{$t('pool.open')}}
                     </router-link>
-                    <router-link v-if="resource.type=='pdf'" :to="{name:'resource-assign', params: {id: resource.id}}"
+                    <router-link v-if="resource.type==='pdf'" :to="routerEditLimitationObject(resource)"
                                  class="btn btn-outline-primary mb-1">{{$t('pool.resource-assignments')}}
                     </router-link>
                 </slot>

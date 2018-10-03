@@ -228,6 +228,8 @@
 
                 // toggle selection
                 // this.selectedPages[pageIndex] = !this.selectedPages[pageIndex];
+                console.log('Set index: ', pageIndex, !this.selectedPages[pageIndex]);
+
                 this.$set(this.selectedPages, pageIndex, !this.selectedPages[pageIndex]);
 
             },
@@ -236,6 +238,12 @@
             selectAllPages() {
                 for (let i in this.selectedPages) {
                     this.selectedPages[i] = true;
+                }
+            },
+
+            clearAllPages() {
+                for (let i in this.selectedPages) {
+                    this.selectedPages[i] = false;
                 }
             },
 

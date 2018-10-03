@@ -30,8 +30,9 @@
                             </div>
 
                             <span class="materialNavi">
-                                <button v-if="material.pivot.limitation && isLimitable"
-                                        class="btn btn-warning btn-sm mb-1 mr-1">Limitierung bearbeiten</button>
+                                <router-link v-if="material.pivot.limitation && isLimitable"
+                                             class="btn btn-warning btn-sm mb-1 mr-1"
+                                             :to="routerEditLimitationObject(resource, material.pivot)">Limitierung bearbeiten</router-link>
                                 <button v-if="!material.pivot.limitation && isLimitable"
                                         class="btn btn-success btn-sm mb-1 mr-1">Limitierung erstellen</button>
                                 <button @click="btnDetachMaterialFromResource(material)"

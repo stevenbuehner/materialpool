@@ -39,7 +39,15 @@ export const routes = [
         }
     },
     {
-        path: '/resource/:id/assign', component: AssignApp, name: 'resource-assign', props: (route) => {
+        path: '/resource/:id/assign',
+        component: AssignApp,
+        name: 'resource-assign',
+        props: (route) => {
+            return {id: parseInt(route.params.id)};
+        }
+    },
+    {
+        path: '/resource/:id/pdf-assign', name: 'resource-pdf-assign', component: AssignApp, props: (route) => {
             return {id: parseInt(route.params.id)};
         }
     },

@@ -19,6 +19,30 @@ export default {
 
         },
 
+        routerEditLimitationObject(resource, pivot) {
+
+            switch (resource.type) {
+                case 'pdf':
+
+                    let query = {};
+
+                    if (pivot && pivot.limitation && Array.isArray(pivot.limitation.pages)) {
+                        query.selection = pivot.limitation.pages.join(',');
+                    }
+
+                    return {
+                        name: 'resource-' + resource.type + '-assign',
+                        params: {
+                            id: resource.id,
+                        },
+                        query: query
+                    };
+                default:
+                    return {};
+            }
+
+        },
+
         hasLimitation(resource) {
             return resource.pivot && resource.pivot.limitation;
         }

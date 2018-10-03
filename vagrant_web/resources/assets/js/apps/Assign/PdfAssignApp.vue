@@ -200,13 +200,13 @@
                 this.loadingMsg  = this.$t('pool.Loading-resource');
                 this.loadingType = 'info';
 
-                this.$store.dispatch('resources/getResource', id)
+                return this.$store.dispatch('resources/getResource', id)
                     .then((resource) => {
                         this.resource = resource;
                     }).catch(() => {
-                    this.loadingMsg  = this.$t('pool.Resource-loading-failed');
-                    this.loadingType = 'danger';
-                });
+                        this.loadingMsg  = this.$t('pool.Resource-loading-failed');
+                        this.loadingType = 'danger';
+                    });
 
             },
 
@@ -320,7 +320,26 @@
         },
 
         created() {
-            this.updateResource(this.id);
+            this.updateResource(this.id)
+                .then(() => {
+                    // Preselection of pages
+
+                    const preselection = this.$route.query.selection || '';
+
+                    const pages = preselection.split(',');
+
+                    if (pages.length > 0) {
+                        this.$refs.pagelist.clearAllPages();
+
+                        pages.forEach((pageNo) => {
+                            this.$refs.pagelist.addPageSelection(pageNo);
+                        });
+
+                    }
+
+                });
+
+
         },
 
 
