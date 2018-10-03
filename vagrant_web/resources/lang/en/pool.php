@@ -105,6 +105,6 @@ return [
 	'Creator'                             => 'Creator',
 	'Insert-search-phrase'                => 'Insert a searchphrase please',
 	'Insert-search-phrase-here'           => 'Insert a searchphrase here',
-	''                                    => '',
+	'Display'                                    => 'Display',
 	''                                    => '',
 ];

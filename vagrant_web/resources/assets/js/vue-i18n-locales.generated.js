@@ -93,7 +93,8 @@ export default {
             "Resource-ID": "Resourcen-ID",
             "Creator": "Ersteller",
             "Insert-search-phrase": "Gib einen Suchbegriff ein",
-            "Insert-search-phrase-here": "Suchbegriff hier eingeben"
+            "Insert-search-phrase-here": "Suchbegriff hier eingeben",
+            "Display": "Ansicht"
         }
     },
     "en": {
@@ -215,6 +216,7 @@ export default {
             "Creator": "Creator",
             "Insert-search-phrase": "Insert a searchphrase please",
             "Insert-search-phrase-here": "Insert a searchphrase here",
+            "Display": "Display",
             "": ""
         },
         "validation": {

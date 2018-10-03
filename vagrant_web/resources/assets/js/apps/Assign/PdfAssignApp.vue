@@ -3,6 +3,8 @@
 
         <b-navbar toggleable="sm" type="dark" variant="info" v-if="resource" fixed="top" class="sub-menu">
 
+            <b-navbar-brand :to="{name: 'resource-detail', params: {id: id}}">MatPool</b-navbar-brand>
+
             <b-navbar-nav>
                 <b-button size="sm"
                           class="my-1 my-md-0 mx-1"
@@ -16,7 +18,6 @@
                           :disabled="selectedPages.length === 0"
                           @click="btnAddPageSelectionToMaterial">{{$t('pool.add')}}
                 </b-button>
-                <b-nav-item href="#">Link</b-nav-item>
 
                 <b-nav-item-dropdown :text="$tc('pool.material-selected', selectionMaterials.length, {COUNT :
                     selectionMaterials.length})" left>
@@ -39,7 +40,7 @@
             </b-navbar-nav>
 
             <b-navbar-nav class="ml-auto">
-                <b-nav-item-dropdown :text="$t('pool.preview-size')" left>
+                <b-nav-item-dropdown :text="$t('pool.Display')" left>
                     <b-dropdown-item @click="previewSize='lg'" :disabled="previewSize ==='lg'">
                         {{$t('pool.large')}}
                     </b-dropdown-item>
@@ -105,6 +106,7 @@
     import PageList from './../../components/assignment/pdfpages/pageList.vue'
     import bAlert from 'bootstrap-vue/src/components/alert/alert';
     import bNavbar from 'bootstrap-vue/src/components/navbar/navbar';
+    import bNavbarBrand from 'bootstrap-vue/src/components/navbar/navbar-brand';
     import bNavbarNav from 'bootstrap-vue/src/components/navbar/navbar-nav';
     import bNavItem from 'bootstrap-vue/src/components/nav/nav-item';
     import bNavItemDropdown from 'bootstrap-vue/src/components/nav/nav-item-dropdown';
@@ -326,6 +328,7 @@
             PageList,
             bAlert,
             bNavbar,
+            bNavbarBrand,
             bNavbarNav,
             bNavItem,
             bNavItemDropdown,

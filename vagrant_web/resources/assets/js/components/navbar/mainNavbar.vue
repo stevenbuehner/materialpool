@@ -11,8 +11,15 @@
 
                 <b-navbar-nav>
 
+                    <b-nav-item :to="{name: 'resource-create'}">
+                        Neu
+                    </b-nav-item>
+
+
                     <b-nav-item-dropdown text="Neu" left>
-                        <b-dropdown-item :to="{name: 'resource-create'}" class="dropdown-hover">{{$t('pool.Resource')}}</b-dropdown-item>
+                        <b-dropdown-item :to="{name: 'resource-create'}" class="dropdown-hover">
+                            {{$t('pool.Resource')}}
+                        </b-dropdown-item>
                         <b-dropdown-item href="/pool/resource/create" class="dropdown-hover">{{$t('pool.Material')}}
                         </b-dropdown-item>
                         <b-dropdown-divider></b-dropdown-divider>
