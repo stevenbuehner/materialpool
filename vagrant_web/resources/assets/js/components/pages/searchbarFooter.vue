@@ -7,7 +7,6 @@
                 use-router
                 :link-gen="linkGeneration"
                 align="center">
-
         </b-pagination-nav>
     </div>
 </template>

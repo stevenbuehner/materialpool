@@ -1,14 +1,21 @@
 <template>
     <div class="row">
-        <div v-for="image in previewImages"
+        <div v-for="(image, index) in previewImages"
              class="col-lg-3 col-md-4 col-sm-6 col-12 imageContainer img-thumbnail"
-             @click="showModalImage(image)">
+             @click="showModalImage(image)"
+             :key="image.src">
             <b-image-lazy
+                    v-if="index > 12"
                     :src="image.src"
                     :alt="image.title"
-                    :key="image.src"
                     fluid
             ></b-image-lazy>
+            <b-image
+                    v-if="index <= 12"
+                    :src="image.src"
+                    :alt="image.title"
+                    fluid
+            ></b-image>
 
             <div class="title text-center">{{image.title}}</div>
         </div>
