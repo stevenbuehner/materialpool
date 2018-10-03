@@ -26,31 +26,40 @@
                     <button class="btn btn-outline-secondary"
                             type="button"
                             :class="{'disabled' : keywordInput.length < 3}"
+                            v-if="!stillLoading"
                             @click="requestCreateNewKeyword"
                     >{{$t('pool.new')}}
+                    </button>
+
+                    <button v-if="stillLoading"
+                            class="btn btn-outline-secondary spinnerBlock"
+                            type="button">
+                        <hollow-dots-spinner :dot-size="10"
+                                             :dots-num="3"
+                                             :animation-duration="1500"
+                                             color="grey"></hollow-dots-spinner>
                     </button>
                 </div>
             </div>
 
         </div>
 
-        <div class="card-footer" v-if="displayableSuggestedKeywords.length > 0 && !disabled">
-            <hollow-dots-spinner v-if="stillLoading"
-                                 :dot-size="10"
-                                 :dots-num="3"
-                                 :animation-duration="1500"
-                                 color="grey"></hollow-dots-spinner>
+        <div class="card-footer" v-if="(displayableSuggestedKeywords.length > 0 || stillLoading) && !disabled">
+
             <span v-if="stillLoading">{{$t('pool.Looking-for-suggestions')}}</span>
 
-            <h4 v-if="!stillLoading && suggestedKeywords.length > 0" class="suggestions">{{$t('pool.Found-suggestions')}}:</h4>
-            <button type="button"
-                    class="btn btn-outline-secondary btn-sm mr-1 mb-1"
-                    v-if="!stillLoading"
-                    v-for="kw in displayableSuggestedKeywords"
-                    :key="'s' + kw.id"
-                    @click="requestAddKeyword(kw)"
-            >{{kw.title}}
-            </button>
+            <h4 v-if="!stillLoading && suggestedKeywords.length > 0">
+                {{$t('pool.Suggestions')}}:</h4>
+            <transition-group name="fade">
+                <button type="button"
+                        class="btn btn-outline-secondary btn-sm mr-1 mb-1"
+                        v-if="!stillLoading"
+                        v-for="kw in displayableSuggestedKeywords"
+                        :key="'s' + kw.id"
+                        @click="requestAddKeyword(kw)"
+                >{{kw.title}}
+                </button>
+            </transition-group>
         </div>
 
     </div>
@@ -300,6 +309,9 @@
 
 
 <style scoped>
+    .spinnerBlock {
+        width: 6em;
+    }
 
     .icon {
         position: relative;
@@ -313,9 +325,12 @@
         margin-left: 0;
     }
 
-    .suggestions {
-        font-size: 1em;
-        font-weight: bold;
+    .fade-enter-active, .fade-leave-active {
+        transition: opacity .5s;
+    }
 
+    .fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */
+    {
+        opacity: 0;
     }
 </style>

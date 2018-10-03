@@ -14,19 +14,6 @@
                         @saved="bibleverseUpdated(bv, index)"
             ></bibleverse>
 
-            <transition name="fade">
-                <button type="button"
-                        v-if="!stillLoading"
-                        class="btn btn-outline-secondary btn-sm"
-                        v-for="bv in displayableSuggestedBibleverses"
-                        :key="'s' + getBibleverseKey(bv)"
-                        @click="addBibleverseClick(bv)"
-                >
-                    <span class="icon" :style="{backgroundImage: 'url('+ bv.icon+')'}"></span>
-                    {{bv.label}}
-                </button>
-            </transition>
-
         </div>
 
         <div class="card-body" v-if="!disabled">
@@ -35,13 +22,13 @@
                 <input class="form-control"
                        type="text"
                        :placeholder="$t('pool.Insert-bibleverse-here')"
+                       @keyup.enter="requestAddBibleverseAfterPromise"
                        v-model="searchInput">
 
                 <div class="input-group-append" v-if="stillLoading">
                     <button
                             class="btn btn-outline-secondary spinnerBlock"
-                            type="button"
-                    >
+                            type="button">
                         <hollow-dots-spinner :dot-size="10"
                                              :dots-num="3"
                                              :animation-duration="1500"
@@ -54,9 +41,23 @@
 
         </div>
 
-        <div class="card-footer" v-if="displayableSuggestedBibleverses.length > 0 && !disabled">
+        <div class="card-footer" v-if="(displayableSuggestedBibleverses.length > 0 || stillLoading) && !disabled">
             <span v-if="stillLoading">{{$t('pool.Looking-for-suggestions')}}</span>
-            <h4 v-if="displayableSuggestedBibleverses.length > 0" class="suggestions">{{$t('pool.Bibleversesuggestions')}}</h4>
+            <h4 v-if="displayableSuggestedBibleverses.length > 0" class="suggestions">
+                {{$t('pool.Bibleversesuggestions')}}:</h4>
+
+            <transition-group name="fade">
+                <button type="button"
+                        v-if="!stillLoading"
+                        class="btn btn-outline-secondary btn-sm"
+                        v-for="bv in displayableSuggestedBibleverses"
+                        :key="'s' + getBibleverseKey(bv)"
+                        @click="addBibleverseClick(bv)"
+                >
+                    <span class="icon" :style="{backgroundImage: 'url('+ bv.icon+')'}"></span>
+                    {{bv.label}}
+                </button>
+            </transition-group>
         </div>
 
     </div>
@@ -113,6 +114,12 @@
 
             displayableSuggestedBibleverses() {
                 return this.suggestedBibleverses.filter((el) => {
+                    for (let i in this.myBibleverses) {
+                        if (el.from === this.myBibleverses[i].from && el.to === this.myBibleverses[i].to) {
+                            return false;
+                        }
+                    }
+
                     return true;
                 });
             }
@@ -202,6 +209,15 @@
                     this.emitUpdate();
 
                 })
+
+            },
+
+            requestAddBibleverseAfterPromise() {
+
+                this.suggestedBibleverses.forEach((bibleverse) => {
+                    this.addBibleverseToMaterial(bibleverse);
+                });
+                this.suggestedBibleverses = [];
 
             },
 

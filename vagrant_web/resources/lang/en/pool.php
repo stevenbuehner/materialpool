@@ -65,7 +65,7 @@ return [
 	'open'                                => 'open',
 	'Insert-keywordtext-here'             => 'Insert Keywordtext here',
 	'Looking-for-suggestions'             => 'Looking for suggestions ...',
-	'Found-suggestions'                   => 'Found suggestions',
+	'Suggestions'                         => 'Suggestions',
 	'Insert-bibleverse-here'              => 'Insert bibleverse here',
 	'Bibleversesuggestions'               => 'Bibleverse Suggestions',
 	'Upload-resource-and-add-to-material' => 'Upload resource and to add it to this material',
