@@ -94,7 +94,13 @@ export default {
             "Creator": "Ersteller",
             "Insert-search-phrase": "Gib einen Suchbegriff ein",
             "Insert-search-phrase-here": "Suchbegriff hier eingeben",
-            "Display": "Ansicht"
+            "Display": "Ansicht",
+            "New": "Neu",
+            "Searchmask": "Suchmaske",
+            "Speedsearch": "Schnellsuche",
+            "Search": "Suche",
+            "Settings": "Einstellungen",
+            "Logout": "Abmelden"
         }
     },
     "en": {
@@ -217,6 +223,12 @@ export default {
             "Insert-search-phrase": "Insert a searchphrase please",
             "Insert-search-phrase-here": "Insert a searchphrase here",
             "Display": "Display",
+            "New": "New",
+            "Searchmask": "Searchmask",
+            "Speedsearch": "Speedsearch",
+            "Search": "Search",
+            "Settings": "Settings",
+            "Logout": "Logout",
             "": ""
         },
         "validation": {

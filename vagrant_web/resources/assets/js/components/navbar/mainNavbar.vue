@@ -11,36 +11,22 @@
 
                 <b-navbar-nav>
 
-                    <b-nav-item :to="{name: 'resource-create'}">
-                        Neu
-                    </b-nav-item>
-
-
-                    <b-nav-item-dropdown text="Neu" left>
-                        <b-dropdown-item :to="{name: 'resource-create'}" class="dropdown-hover">
-                            {{$t('pool.Resource')}}
-                        </b-dropdown-item>
-                        <b-dropdown-item href="/pool/resource/create" class="dropdown-hover">{{$t('pool.Material')}}
-                        </b-dropdown-item>
-                        <b-dropdown-divider></b-dropdown-divider>
-                        <b-dropdown-item href="#" class="dropdown-hover">Zuordnung</b-dropdown-item>
-                    </b-nav-item-dropdown>
-
-                    <b-nav-item :to="{name: 'search'}">Suchmaske</b-nav-item>
+                    <b-nav-item :to="{name: 'resource-create'}">{{$t('pool.New')}}</b-nav-item>
+                    <b-nav-item :to="{name: 'search'}">{{$t('pool.Searchmask')}}</b-nav-item>
                 </b-navbar-nav>
 
                 <!-- Right aligned nav items -->
                 <b-navbar-nav class="ml-auto">
 
                     <b-nav-form @submit="goForSearch">
-                        <b-form-input size="sm" class="mr-sm-2" type="text" placeholder="Schnellsuche" required
+                        <b-form-input size="sm" class="mr-sm-2" type="text" :placeholder="$t('pool.Speedsearch')" required
                                       v-model="schnellsuche"/>
-                        <b-button size="sm" class="my-sm-0 btn-outline-dark" type="submit">Suchen</b-button>
+                        <b-button size="sm" class="my-sm-0 btn-outline-dark" type="submit">{{$t('pool.Search')}}</b-button>
                     </b-nav-form>
 
                     <b-nav-item-dropdown right text="admin">
-                        <b-dropdown-item href="/logout" class="dropdown-hover">Logout</b-dropdown-item>
-                        <b-dropdown-item href="#" class="dropdown-hover">Settings</b-dropdown-item>
+                        <b-dropdown-item href="/logout" class="dropdown-hover">{{$t('pool.Logout')}}</b-dropdown-item>
+                        <b-dropdown-item href="#" class="dropdown-hover">{{$t('pool.Settings')}}</b-dropdown-item>
                     </b-nav-item-dropdown>
                 </b-navbar-nav>
 

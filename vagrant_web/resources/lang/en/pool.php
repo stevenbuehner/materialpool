@@ -105,6 +105,12 @@ return [
 	'Creator'                             => 'Creator',
 	'Insert-search-phrase'                => 'Insert a searchphrase please',
 	'Insert-search-phrase-here'           => 'Insert a searchphrase here',
-	'Display'                                    => 'Display',
+	'Display'                             => 'Display',
+	'New'                                 => 'New',
+	'Searchmask'                          => 'Searchmask',
+	'Speedsearch'                         => 'Speedsearch',
+	'Search'                              => 'Search',
+	'Settings'                            => 'Settings',
+	'Logout'                              => 'Logout',
 	''                                    => '',
 ];

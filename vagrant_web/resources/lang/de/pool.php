@@ -97,5 +97,10 @@ return [
 	'Insert-search-phrase'                => 'Gib einen Suchbegriff ein',
 	'Insert-search-phrase-here'           => 'Suchbegriff hier eingeben',
 	'Display'                             => 'Ansicht',
-
+	'New'                                 => 'Neu',
+	'Searchmask'                          => 'Suchmaske',
+	'Speedsearch'                         => 'Schnellsuche',
+	'Search'                              => 'Suche',
+	'Settings'                            => 'Einstellungen',
+	'Logout'                              => 'Abmelden',
 ];
