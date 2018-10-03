@@ -129,7 +129,7 @@
         display: block;
         float: left;
         min-width: 10rem;
-        padding: .5rem 0;
+        padding: .25em 0;
         margin: .125rem 0 0;
         font-size: 1rem;
         color: #212529;

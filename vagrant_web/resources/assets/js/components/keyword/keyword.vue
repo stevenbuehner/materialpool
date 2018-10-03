@@ -3,13 +3,14 @@
         <div class="btn btn-sm btn-secondary sb-keyword"
              :class="{'tag-readonly' : !editable, 'tag-editable' : editable}"
              @mousedown.left.prevent="startDrag"
-             @click.right.prevent="openRightClickMenu"
+             @click.right="openRightClickMenu"
              @dblclick.prevent="openKeywordEditModal"
              role="button"
              :style="{color: theme.colors.color, backgroundColor: theme.colors.background}">
             <div class="sb-progress-bar" :style="styleObject"></div>
             <span class="icon" :style="{backgroundImage : 'url(' + myKeyword.icon + ')'}"></span>
             <span class="text">{{ myKeyword.title }}</span>
+            <span class="delete" v-if="removeable" @mousedown.left.stop @click.prevent.stop="removeKeyword">x</span>
         </div>
 
         <b-modal ref="editKeyword" lazy title="Edit Keyword" @ok="storeModalChanges">
@@ -64,7 +65,6 @@
             <context-menu-item v-if="searchable" @click="goToKeywordSearch">nach '{{myKeyword.title}}' suchen
             </context-menu-item>
             <context-menu-item v-if="editable" @click="openKeywordEditModal">bearbeiten</context-menu-item>
-            <context-menu-item v-if="removeable" @click="removeKeyword">entfernen</context-menu-item>
         </context-menu>
 
     </div>
@@ -373,6 +373,18 @@
         background-image: url(/img/icons/tag.svg);
         margin-right: 0.1rem;
         margin-left: 0;
+    }
+
+    .delete {
+        position: relative;
+        color: whitesmoke;
+        padding-left: 0.25em;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+    .delete:hover {
+        color: black;
     }
 
     .mini {

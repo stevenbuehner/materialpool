@@ -38,6 +38,7 @@
         border-bottom: 1px solid #E0E0E0;
         margin: 0;
         padding: 0.5em;
+        line-height: 1em;
     }
 
     .with-icon {

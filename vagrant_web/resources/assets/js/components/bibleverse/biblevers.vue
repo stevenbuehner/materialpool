@@ -3,19 +3,19 @@
         <div class="btn btn-sm btn-secondary sb-bibleverse"
              :class="{'tag-readonly' : !editable, 'tag-editable' : editable}"
              @mousedown.left.prevent="startDrag"
-             @click.right.prevent="openRightClickMenu"
+             @click.right="openRightClickMenu"
              role="button"
              :style="{color: theme.colors.color, backgroundColor: theme.colors.background}">
             <div class="sb-progress-bar" :style="styleObject"></div>
             <span class="icon" :style="{backgroundImage: 'url('+ myBibleverse.icon+')'}"></span>
             <span class="text">{{ myBibleverse.label }}</span>
+            <span class="delete" v-if="removeable" @mousedown.left.stop @click.prevent.stop="removeBibleverse">x</span>
         </div>
 
         <context-menu ref="menu">
             <context-menu-item v-if="searchable" @click.prevent="searchForBibleverse">
                 Suche nach '{{myBibleverse.label}}'
             </context-menu-item>
-            <context-menu-item v-if="removeable" @click.prevent="removeBibleverse">entfernen</context-menu-item>
         </context-menu>
     </div>
 </template>
@@ -196,9 +196,9 @@
                 }
             },
 
-            openRightClickMenu() {
+            openRightClickMenu(event) {
                 if (this.searchable || this.editable || this.removeable) {
-                    this.$refs.menu.openMenu()
+                    this.$refs.menu.openMenu(event)
                 }
             },
 

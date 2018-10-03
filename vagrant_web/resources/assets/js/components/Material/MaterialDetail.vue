@@ -62,11 +62,11 @@
                              v-model="material.keywords[key]"
                              :material-id="material.id"
                              :editable="editable"
+                             :removeable="false"
                              @saving="flashStartSaving('Keyword')"
                              @savingPivot="flashStartSaving('Keyword Piot')"
                              @savingError="flashUpdateTagError"
                              @savingPivotError="flashUpdateTagError"
-                             :removeable="true"
                              @removed="removeKeyword(key)"
                     ></keyword>
 
@@ -74,11 +74,11 @@
                                 v-model="material.bibleverses[key]"
                                 :material-id="material.id"
                                 :editable="editable"
+                                :removeable="false"
                                 @saving="flashStartSaving('Bibleverse')"
                                 @savingPivot="flashStartSaving('Bibleverse Piot')"
                                 @savingError="flashUpdateTagError"
                                 @savingPivotError="flashUpdateTagError"
-                                :removeable="true"
                                 @removed="removeBibleverse(key)"
                     ></bibleverse>
 
