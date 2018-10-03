@@ -54,7 +54,7 @@ export default {
             "open": "öffnen",
             "Insert-keywordtext-here": "Keywordtext hier eingeben",
             "Looking-for-suggestions": "Vorschläge werden gesucht ...",
-            "uggestions": "Vorschläge",
+            "Suggestions": "Vorschläge",
             "Insert-bibleverse-here": "Bibelvers hier eingeben",
             "Bibleversesuggestions": "Bibelversvorschläge",
             "Upload-resource-and-add-to-material": "Resource hochladen um sie diesem Material hinzuzufügen",

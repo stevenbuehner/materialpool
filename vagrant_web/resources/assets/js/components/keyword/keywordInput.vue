@@ -21,7 +21,8 @@
                 <input class="form-control"
                        type="text"
                        :placeholder="$t('pool.Insert-keywordtext-here')"
-                       v-model="keywordInput">
+                       v-model="keywordInput"
+                       @keyup.enter="requestCreateNewKeyword">
                 <div class="input-group-append">
                     <button class="btn btn-outline-secondary"
                             type="button"
@@ -199,6 +200,11 @@
 
 
             requestCreateNewKeyword() {
+
+                if (this.keywordInput.length < 3) {
+                    return;
+                }
+
                 this.createNewKeyword(this.keywordInput);
                 this.keywordInput = '';
             },
