@@ -202,7 +202,7 @@
 
                 return this.$store.dispatch('resources/getResource', id)
                     .then((resource) => {
-                        this.resource = resource;
+                        return this.resource = resource;
                     }).catch(() => {
                         this.loadingMsg  = this.$t('pool.Resource-loading-failed');
                         this.loadingType = 'danger';
@@ -321,8 +321,11 @@
 
         created() {
             this.updateResource(this.id)
-                .then(() => {
+                .then((resource) => {
                     // Preselection of pages
+
+                    if (!resource)
+                        return;
 
                     const preselection = this.$route.query.selection || '';
 
