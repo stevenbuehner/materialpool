@@ -73,6 +73,7 @@
 
                             <b>{{index}}:</b>
                             <user v-if="index ==='creator'" :user="value"></user>
+                            <span v-else-if="index ==='created_at' || index === 'updated_at'">{{value | moment('calendar')}}</span>
                             <span v-else>{{value}}</span>
                         </b-list-group-item>
                     </b-list-group>
