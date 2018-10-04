@@ -30,6 +30,7 @@ class MaterialController extends BaseController {
 				$q->orderBy('bibleverse_material.relevance', 'desc');
 			},
 			'resources',
+			'creator',
 			'author'];
 
 		$this->middleware(['auth:api']);
@@ -138,6 +139,6 @@ class MaterialController extends BaseController {
 		$material->keywords()->detach();
 		$material->delete();
 
-		return ['success' => true];
+		return ['success' => TRUE];
 	}
 }

@@ -23,7 +23,7 @@
 
             <div class="meta row">
                 <div class="col-lg-12">
-                    <star-rating
+                    <material-rating
                             :increment="1"
                             :max-rating="20"
                             inactive-color="lightgray"
@@ -31,21 +31,11 @@
                             :star-size="15"
                             :inline="true"
                             @rating-selected="submitRating"
-                            text-class="starRatingText"
-                            :rating="material.rating">
-                    </star-rating>
-
-                    (
-                    <span v-if="material.resources !== undefined">
-                    {{$tc('pool.resource-count', material.resources.length, {name : material.resources.length}) }},
-                </span>
-                    {{$t('pool.eddited')}} {{material.updated_at}},
-                    <span v-if="material.creator !== undefined && material.creator.name !== undefined">
-                    {{$t('pool.by')}} {{material.creator.name}}
-                </span>
-
-                    <span v-if="material.author">{{$t('pool.resource-author-is', {name: material.author.title} )}}</span>
-                    )
+                            @current-rating="currentRatingChanged"
+                            :show-rating="true"
+                            v-model="material.rating"
+                            ref="rating">
+                    </material-rating>
 
                 </div>
 
@@ -123,6 +113,22 @@
                 </div>
             </div>
 
+            <div class="row">
+                <div class="col">
+                    <span v-if="material.resources !== undefined">
+                        {{$tc('pool.resource-count', material.resources.length, {name : material.resources.length}) }},
+                    </span>
+
+                    {{$t('pool.edited')}} {{material.updated_at | moment("calendar")}},
+
+                    <span v-if="material.creator !== undefined && material.creator.name !== undefined">
+                        {{$t('pool.by')}} {{material.creator.name}}
+                    </span>
+
+                    <span v-if="material.author">{{$t('pool.resource-author-is', {name: material.author.title} )}}</span>
+                </div>
+            </div>
+
             <div class="row" v-if="material.resources !== undefined && material.resources.length > 1">
                 <div class="col-xl-3 col-lg-4 col-md-4 col-sm-6 col-xs-12" v-for="resource in material.resources">
                     <resource-preview :resource="resource">
@@ -177,15 +183,16 @@
     import bibleverseInput from './../bibleverse/bibleverseInput.vue';
     import resourcePreview from './../resource/show/resource-preview.vue';
     import resourceDetail from './../resource/show/resource-detail.vue';
-    import edditableText from './../edditable.vue';
+    import editableText from './../edditable.vue';
     import fromBot from './../fromBot.vue';
-    import starRating from 'vue-star-rating';
+    import starRating from 'vue-star-rating/src/star-rating';
     import flashMessage from 'vue-flash-message';
     import Vue from 'vue';
     import AsyncComputed from 'vue-async-computed';
     import ResourceUploader from "../uploader/resourceUploader";
     import {resourceDownloadLink} from "../serverRoutes";
     import customDialog from './../modals/dialogs/customDialog';
+    import MaterialRating from "./MaterialRating";
 
     Vue.use(flashMessage);
     Vue.use(AsyncComputed);
@@ -213,6 +220,8 @@
                 material: null,
                 editTagsModeEnabled: false,
                 errorOnLoadingMessage: null,
+
+                currentRating: null,
             };
         },
 
@@ -270,7 +279,12 @@
             },
 
             submitRating(newRating) {
+                this.currentRatingChanged(newRating);
                 this.submitMaterialUpdate({rating: newRating}, 'Rating');
+            },
+
+            currentRatingChanged(value) {
+                this.currentRating = value;
             },
 
             submitDescription(newDescription) {
@@ -391,7 +405,6 @@
             },
 
             removeBibleverse(index) {
-                console.log("Removing Keyword with index: ", index);
                 this.material.bibleverses.splice(index, 1);
                 this.materialWasModified();
             },
@@ -430,14 +443,14 @@
             },
 
             flashSaved(propertyName) {
-                console.debug('saved Flash: ', propertyName);
+                // console.debug('saved Flash: ', propertyName);
                 return this.flash(propertyName[0].toUpperCase() + propertyName.substring(1).toLowerCase() + ' saved', 'success', {
                     timeout: 2000,
                     important: false
                 })
             },
             flashError(propertyName) {
-                console.debug('Error Flash: ', propertyName);
+                //  console.debug('Error Flash: ', propertyName);
                 return this.flash('An error accured while while saving ' + propertyName.toLowerCase(), 'error', {
                     important: true
                 });
@@ -451,6 +464,7 @@
 
 
         components: {
+            MaterialRating,
             ResourceUploader,
             keyword,
             keywordInput,
@@ -458,7 +472,7 @@
             bibleverseInput,
             resourcePreview,
             resourceDetail,
-            edditableText,
+            edditableText: editableText,
             starRating,
             fromBot,
             customDialog,
@@ -502,7 +516,4 @@
 </style>
 
 <style>
-    .starRatingText {
-        font-size: smaller;
-    }
 </style>

@@ -1,6 +1,5 @@
 import Vue from 'vue';
 import '@babel/polyfill';
-import VueI18n from 'vue-i18n';
 import axios from 'axios';
 import VueRouter from 'vue-router';
 import {store} from './../store/index'; // Before routes to use in BeforeRouting-Functions
@@ -8,15 +7,13 @@ import {routes} from './routes';
 import mainApp from './App.vue';
 // Styling
 import './../../../sass/app.scss';
+// Localisation
 import {i18n} from "../../localisation";
 
 
-
 require('lodash');
-
 require('vue-flash-message/dist/vue-flash-message.min.css');
 
-Vue.use(VueI18n);
 Vue.use(VueRouter);
 
 axios.defaults.headers.common = {
