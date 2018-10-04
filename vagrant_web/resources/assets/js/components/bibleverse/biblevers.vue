@@ -240,6 +240,18 @@
         border-radius: .2rem;
     }
 
+    .delete {
+        position: relative;
+        color: whitesmoke;
+        padding-left: 0.25em;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+    .delete:hover {
+        color: black;
+    }
+
     .icon {
         position: relative;
         display: inline-block;
