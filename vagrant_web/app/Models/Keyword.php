@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use App\Models\Exceptions\InvalidKeywordTypeException;
-use Backpack\CRUD\CrudTrait;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
@@ -24,7 +23,6 @@ use Nanigans\SingleTableInheritance\SingleTableInheritanceTrait;
 class Keyword extends Model {
 	use NodeTrait;
 	use SingleTableInheritanceTrait;
-	use CrudTrait;
 
 	/*
 	|--------------------------------------------------------------------------

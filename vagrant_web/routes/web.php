@@ -102,20 +102,6 @@ Route::get('/bibleverse/{from}-{to}', 'Api\BibleverseController@show')
 	 ->where('to', '[0-9]+');
 
 
-// Admin Interface Routes
-/*
-Route::group(['prefix'     => config('backpack.base.route_prefix', 'admin'),
-			  'middleware' => ['admin'],
-			  'namespace'  => 'Admin'], function () {
-
-	// Backpack\CRUD: Define the resources for the entities you want to CRUD.
-	CRUD::resource('keyword', 'KeywordCrudController');
-	CRUD::resource('material', 'MaterialCrudController');
-
-	// [...] other routes
-});
-*/
-
 Auth::routes();
 
 Route::get('/home', 'HomeController@index');

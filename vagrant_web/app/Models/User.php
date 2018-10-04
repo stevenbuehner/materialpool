@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use Backpack\Base\app\Notifications\ResetPasswordNotification as ResetPasswordNotification;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -49,16 +48,6 @@ class User extends Authenticatable {
 	protected $casts = [
 		'is_admin' => 'boolean'
 	];
-
-	/**
-	 * Send the password reset notification.
-	 *
-	 * @param  string $token
-	 * @return void
-	 */
-	public function sendPasswordResetNotification($token) {
-		$this->notify(new ResetPasswordNotification($token));
-	}
 
 	public function foreignMaterialIds() {
 		return $this->hasMany(ForeignMaterialId::class);

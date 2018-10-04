@@ -188,18 +188,6 @@ return [
 		Laravel\Passport\PassportServiceProvider::class,
 
 
-		/*
-		 * Laravel-Modules
-		 */
-		Nwidart\Modules\LaravelModulesServiceProvider::class,
-
-		/*
-		* Backpack Service Providers...
-		*/
-		//Backpack\Base\BaseServiceProvider::class,
-		// Backpack\CRUD\CrudServiceProvider::class,
-
-
 		// Insert JavaScript via blade Helper --> auto discovered
 		// \Laracasts\Utilities\JavaScript\JavaScriptServiceProvider::class,
 
