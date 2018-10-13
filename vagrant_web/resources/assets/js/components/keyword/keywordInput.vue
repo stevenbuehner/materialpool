@@ -307,7 +307,7 @@
                 // Confirm first
                 const count = this.myKeywords.length;
 
-                if (count > 3) {
+                if (count > 3 && this.materialId) {
                     if (confirm(this.$t('pool.Really-delete-count-keywords', {COUNT: count})) === false) {
                         return;
                     }

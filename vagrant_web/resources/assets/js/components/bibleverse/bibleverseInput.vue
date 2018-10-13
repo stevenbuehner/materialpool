@@ -127,13 +127,7 @@
 
             displayableSuggestedBibleverses() {
                 return this.suggestedBibleverses.filter((el) => {
-                    for (let i in this.myBibleverses) {
-                        if (el.from === this.myBibleverses[i].from && el.to === this.myBibleverses[i].to) {
-                            return false;
-                        }
-                    }
-
-                    return true;
+                    return !this.isBibleverseAlreadyInSelection(el);
                 });
             }
 
@@ -156,6 +150,17 @@
 
 
         methods: {
+
+            isBibleverseAlreadyInSelection(bv) {
+                for (let i in this.myBibleverses) {
+                    if (bv.from === this.myBibleverses[i].from && bv.to === this.myBibleverses[i].to) {
+                        return true;
+                    }
+                }
+
+                return false;
+            },
+
             getBibleverseKey(bv) {
 
                 let k = bv.label;
@@ -227,10 +232,11 @@
 
             requestAddBibleverseAfterPromise() {
 
-
                 if (this.suggestedBibleverses.length > 0) {
                     this.suggestedBibleverses.forEach((bibleverse) => {
-                        this.addBibleverseToMaterial(bibleverse);
+                        if (!this.isBibleverseAlreadyInSelection(bibleverse)) {
+                            this.addBibleverseToMaterial(bibleverse);
+                        }
                     });
                     this.suggestedBibleverses = [];
                     this.searchInput          = '';
@@ -266,7 +272,7 @@
 
                 const count = this.myBibleverses.length;
 
-                if (count > 3) {
+                if (count > 3 && this.materialId) {
                     if (confirm(this.$t('pool.Really-delete-count-bibleverses', {COUNT: count})) === false) {
                         return;
                     }
