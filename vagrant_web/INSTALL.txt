@@ -135,10 +135,20 @@ sudo rm /etc/php/7.0/apache2/conf.d/20-xdebug.ini
 sudo service apache2 restart
 sudo apt-get install composer
 
+# Image Magic Security Checks für PDFs deaktivieren
+# see: https://stackoverflow.com/questions/42928765/convertnot-authorized-aaaa-error-constitute-c-readimage-453?rq=1
+# in File: /etc/ImageMagick-6/policy.xml
+# Change: <policy domain="coder" rights="none" pattern="PDF" />
+# To<policy domain="coder" rights="read" pattern="PDF" />
+# Then restart apache
+sudo service apache2 restart
+
+
 
 # Aller Code läuft als "steven" aller Storage als "www-data"
 sudo chown -R steven.steven /var/www/wissensbase/
 sudo chown -R www-data.www-data /var/www/wissensbase/storage/
+
 
 
 # Dateien kopieren
@@ -166,11 +176,7 @@ php artisan key:generate
 ## UPDATEs ###
 
 #Local: (ACHTUNG: Storage darf nicht mitkopiert werden!)
-cd Sites/material_pool/vagrant_web/; npm run prod
-rsync -av --exclude=".git*" --exclude=".idea*" --exclude="*.DS_Store" --exclude="node_modules/*" --exclude=".env" --exclude="vendor/*" --exclude=".env.example" --exclude="storage/*" --exclude="bootstrap/*" --exclude="resources/assets/*" ~/Sites/material_pool/vagrant_web/ steven@192.168.3.108:/var/www/wissensbase
-rm public/js/*.js; rm public/js/*.map; rm public/css/*ccss;  rm public/css/*.map
+cd ~/Sites/material_pool/vagrant_web/; npm run prod
+rsync -av --exclude=".git*" --exclude=".idea*" --exclude="*.DS_Store" --exclude="node_modules/*" --exclude=".env" --exclude="vendor/*" --exclude=".env.example" --exclude="storage/*"  --exclude="update.sh" --exclude="INSTALL.txt" --exclude="bootstrap/*" --exclude="_ide_helper*" --exclude="resources/assets/*" ~/Sites/material_pool/vagrant_web/ steven@192.168.3.108:/var/www/wissensbase
+rm public/js/*.js; rm public/js/*.map; rm public/css/*css;  rm public/css/*.map
 ssh steven@192.168.3.108 -t 'cd /var/www/wissensbase; composer install --no-dev'
-
-
-
-
