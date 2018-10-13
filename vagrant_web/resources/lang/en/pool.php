@@ -133,6 +133,11 @@ return [
 	'rating-18'                           => 'muss jeder haben!',
 	'rating-19'                           => 'gigantisch',
 	'rating-20'                           => 'gigantisch!',
+	'Bibleverses'                         => 'Bibleverses',
+	'Keywords'                            => 'Keywords',
+	'remove-all'                          => 'remove all',
+	'Really-delete-count-bibleverses'     => 'Do you really want to remove :COUNT bibleverses at once?',
+	'Really-delete-count-keywords'     => 'Do you really want to remove :COUNT keywords at once?',
 
 
 ];

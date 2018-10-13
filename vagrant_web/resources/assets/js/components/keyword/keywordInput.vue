@@ -1,7 +1,20 @@
 <template>
     <div class="card">
 
-        <div class="card-header">
+        <div class="card-header d-flex flex-row justify-content-between">
+            <span class="mt-auto">
+                {{$t('pool.Keywords')}}
+            </span>
+
+            <button class="btn btn-sm btn-danger"
+                    :title="$t('pool.remove-all')"
+                    v-if="myKeywords.length > 0"
+                    @click="btnRemoveAllKeywords">
+                <erase-svg class="icon-erase"/>
+            </button>
+        </div>
+
+        <div class="card-body">
             <keyword v-for="(kw, index) in myKeywords"
                      :key="getKeywordkey(kw)"
                      v-model="myKeywords[index]"
@@ -70,6 +83,7 @@
     import keyword from './../keyword/keyword.vue';
     import {HollowDotsSpinner} from 'epic-spinners'
     import _ from 'lodash';
+    import eraseSvg from 'svg-icon/dist/svg/zero/clear.svg';
 
 
     export default {
@@ -287,6 +301,47 @@
                 this.emitUpdate();
             },
 
+            btnRemoveAllKeywords() {
+
+                // Confirm first
+                const count = this.myKeywords.length;
+
+                if (count > 3) {
+                    if (confirm(this.$t('pool.Really-delete-count-keywords', {COUNT: count})) === false) {
+                        return;
+                    }
+                }
+
+
+                // Do DB stug
+                const prom = new Promise((resolve, reject) => {
+
+                    if (this.materialId) {
+                        return this.$store.dispatch('keywords/deleteMultipleAssignemts',
+                            {
+                                keywordIds: this.myKeywords.map(bv => bv.id),
+                                materialId: this.materialId
+                            })
+                            .then((response) => {
+                                resolve(response);
+                            })
+                            .catch((response) => {
+                                reject(response);
+                            })
+                    } else {
+                        resolve('');
+                    }
+
+                });
+
+                // Do local and updates
+                prom.then(() => {
+                    this.myKeywords.splice(0, this.myKeywords.length);
+                    this.emitUpdate();
+                });
+
+            },
+
             emitUpdate() {
                 this.$emit('updated', this.myKeywords);
             },
@@ -308,7 +363,8 @@
 
         components: {
             keyword,
-            HollowDotsSpinner
+            HollowDotsSpinner,
+            eraseSvg
         }
     }
 </script>
@@ -319,16 +375,12 @@
         width: 6em;
     }
 
-    .icon {
-        position: relative;
-        display: inline-block;
-        background-size: contain;
-        background-position: 0 0;
-        height: 1rem;
-        background-repeat: no-repeat;
-        width: 1rem;
-        margin-right: 0.25rem;
-        margin-left: 0;
+    .icon-erase {
+        height: 1.5em;
+    }
+
+    .icon-erase >>> path {
+        fill: white;
     }
 
     .fade-enter-active, .fade-leave-active {

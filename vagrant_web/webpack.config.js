@@ -24,23 +24,60 @@ module.exports = {
     module: {
         rules: [
             {
-                test: /\.vue$/,
-                loader: 'vue-loader',
-                options: {
-                    loaders: {}
-                    // other vue-loader options go here
-                }
-            },
-            {
                 test: /\.js$/,
                 loader: 'babel-loader',
                 exclude: /node_modules/
             },
             {
-                test: /\.(png|jpg|gif|svg)$/,
+                test: /\.(png|jpg|jpeg|gif)$/,
                 loader: 'file-loader',
                 options: {
                     name: '[name].[ext]?[hash]'
+                }
+            },
+            {
+                test: /\.svg$/,
+                loader: 'vue-svg-loader', // `vue-svg` for webpack 1.x
+                options: {
+                    // optional [svgo](https://github.com/svg/svgo) options
+                    svgo: {
+                        plugins: [{cleanupAttrs: false},
+                            {removeDoctype: true},
+                            {removeXMLProcInst: true},
+                            {removeComments: true},
+                            {removeMetadata: true},
+                            {removeTitle: true},
+                            {removeDesc: true},
+                            {removeUselessDefs: true},
+                            {removeEditorsNSData: true},
+                            {removeEmptyAttrs: true},
+                            {removeHiddenElems: true},
+                            {removeEmptyText: true},
+                            {removeEmptyContainers: true},
+                            {removeViewBox: false},
+                            {cleanupEnableBackground: true},
+                            {convertStyleToAttrs: false},
+                            {convertColors: false},
+                            {convertPathData: false},
+                            {convertTransform: false},
+                            {removeUnknownsAndDefaults: false}, // Don't change! Removes viewBox
+                            {removeNonInheritableGroupAttrs: true},
+                            {removeUselessStrokeAndFill: true},
+                            {removeUnusedNS: true},
+                            {cleanupIDs: false},
+                            {cleanupNumericValues: false},
+                            {moveElemsAttrsToGroup: false},
+                            {moveGroupAttrsToElems: false},
+                            {collapseGroups: true},
+                            {removeRasterImages: false},
+                            {mergePaths: false},
+                            {convertShapeToPath: false},
+                            {sortAttrs: true},
+                            {removeDimensions: true},
+                            {
+                                removeAttrs: {attrs: '(stroke|fill)'},
+                            }]
+                    }
                 }
             },
             {
@@ -57,7 +94,15 @@ module.exports = {
                     /* 'postcss-loader', */
                     'sass-loader',
                 ],
-            }
+            },
+            {
+                test: /\.vue$/,
+                loader: 'vue-loader',
+                options: {
+                    loaders: {},
+                    // other vue-loader options go here
+                }
+            },
         ]
     },
     plugins: [

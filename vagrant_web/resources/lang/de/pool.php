@@ -124,4 +124,10 @@ return [
 	'rating-18'                           => 'muss jeder haben!',
 	'rating-19'                           => 'gigantisch',
 	'rating-20'                           => 'gigantisch!',
+	'Bibleverses'                         => 'Bibelverse',
+	'Keywords'                            => 'Tags',
+	'remove-all'                          => 'alle entfernen',
+	'Really-delete-count-bibleverses'     => 'Willst du wirklich :COUNT Bibelverse auf einmal entfernen?',
+	'Really-delete-count-keywords'        => 'Willst du wirklich :COUNT Tags auf einmal entfernen?',
+
 ];

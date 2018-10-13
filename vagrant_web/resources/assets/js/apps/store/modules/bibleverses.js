@@ -127,6 +127,20 @@ const actions = {
             );
     },
 
+    deleteMultipleAssignemts: async ({dispatch}, {bibleverseIds, materialId}) => {
+
+        const queue = new TaskQueue(Promise, MAX_SIMULTANEOUS_DOWNLOADS);
+
+        return await Promise.all(
+            bibleverseIds.map(
+                queue.wrap(
+                    async id => await dispatch('deleteAssignment', {materialId, bibleverseId: id})
+                )
+            )
+        );
+
+    },
+
     search: ({commit, getters, dispatch}, searchText) => {
 
         const data = {q: searchText};

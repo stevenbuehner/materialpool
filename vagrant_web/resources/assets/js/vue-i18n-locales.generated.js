@@ -121,7 +121,12 @@ export default {
             "rating-17": "muss jeder haben",
             "rating-18": "muss jeder haben!",
             "rating-19": "gigantisch",
-            "rating-20": "gigantisch!"
+            "rating-20": "gigantisch!",
+            "Bibleverses": "Bibelverse",
+            "Keywords": "Tags",
+            "remove-all": "alle entfernen",
+            "Really-delete-count-bibleverses": "Willst du wirklich {COUNT} Bibelverse auf einmal entfernen?",
+            "Really-delete-count-keywords": "Willst du wirklich {COUNT} Tags auf einmal entfernen?"
         }
     },
     "en": {
@@ -270,7 +275,12 @@ export default {
             "rating-17": "muss jeder haben",
             "rating-18": "muss jeder haben!",
             "rating-19": "gigantisch",
-            "rating-20": "gigantisch!"
+            "rating-20": "gigantisch!",
+            "Bibleverses": "Bibleverses",
+            "Keywords": "Keywords",
+            "remove-all": "remove all",
+            "Really-delete-count-bibleverses": "Do you really want to remove {COUNT} bibleverses at once?",
+            "Really-delete-count-keywords": "Do you really want to remove {COUNT} keywords at once?"
         },
         "validation": {
             "accepted": "The {attribute} must be accepted.",

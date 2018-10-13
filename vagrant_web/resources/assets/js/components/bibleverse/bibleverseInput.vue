@@ -1,7 +1,20 @@
 <template>
     <div class="card">
 
-        <div class="card-header">
+        <div class="card-header d-flex flex-row justify-content-between">
+            <span class="mt-auto">
+                {{$t('pool.Bibleverses')}}
+            </span>
+
+            <button class="btn btn-sm btn-danger"
+                    :title="$t('pool.remove-all')"
+                    v-if="myBibleverses.length > 0"
+                    @click="btnRemoveAllBibleverses">
+                <erase-svg class="icon-erase"/>
+            </button>
+        </div>
+
+        <div class="card-body">
             <bibleverse v-for="(bv, index) in myBibleverses"
                         :key="getBibleverseKey(bv)"
                         v-model="myBibleverses[index]"
@@ -13,7 +26,6 @@
                         @removed="bibleverseRemoved"
                         @saved="bibleverseUpdated(bv, index)"
             ></bibleverse>
-
         </div>
 
         <div class="card-body" v-if="!disabled">
@@ -67,7 +79,7 @@
 
     import bibleverse from './biblevers.vue'
     import {HollowDotsSpinner} from 'epic-spinners'
-
+    import eraseSvg from 'svg-icon/dist/svg/zero/clear.svg';
 
     export default {
 
@@ -214,10 +226,14 @@
 
             requestAddBibleverseAfterPromise() {
 
-                this.suggestedBibleverses.forEach((bibleverse) => {
-                    this.addBibleverseToMaterial(bibleverse);
-                });
-                this.suggestedBibleverses = [];
+
+                if (this.suggestedBibleverses.length > 0) {
+                    this.suggestedBibleverses.forEach((bibleverse) => {
+                        this.addBibleverseToMaterial(bibleverse);
+                    });
+                    this.suggestedBibleverses = [];
+                    this.searchInput          = '';
+                }
 
             },
 
@@ -245,6 +261,46 @@
                 this.emitUpdate();
             },
 
+            btnRemoveAllBibleverses() {
+
+                const count = this.myBibleverses.length;
+
+                if (count > 3) {
+                    if (confirm(this.$t('pool.Really-delete-count-bibleverses', {COUNT: count})) === false) {
+                        return;
+                    }
+                }
+
+
+                // Do DB stug
+                const prom = new Promise((resolve, reject) => {
+
+                    if (this.materialId) {
+                        return this.$store.dispatch('bibleverses/deleteMultipleAssignemts',
+                            {
+                                bibleverseIds: this.myBibleverses.map(bv => bv.id),
+                                materialId: this.materialId
+                            })
+                            .then((response) => {
+                                resolve(response);
+                            })
+                            .catch((response) => {
+                                reject(response);
+                            })
+                    } else {
+                        resolve('');
+                    }
+
+                });
+
+                // Do local and updates
+                prom.then(() => {
+                    this.myBibleverses.splice(0, this.myBibleverses.length);
+                    this.emitUpdate();
+                });
+
+            },
+
             emitUpdate() {
                 this.$emit('updated', this.myBibleverses);
             },
@@ -265,7 +321,8 @@
 
         components: {
             bibleverse,
-            HollowDotsSpinner
+            HollowDotsSpinner,
+            eraseSvg,
         }
 
     }
@@ -287,6 +344,14 @@
         width: 1rem;
         margin-right: 0.1rem;
         margin-left: 0;
+    }
+
+    .icon-erase {
+        height: 1.5em;
+    }
+
+    .icon-erase >>> path {
+        fill: white;
     }
 
     .fade-enter-active, .fade-leave-active {

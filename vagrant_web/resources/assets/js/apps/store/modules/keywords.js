@@ -190,6 +190,20 @@ const actions = {
 
     },
 
+    deleteMultipleAssignemts: async ({dispatch}, {keywordIds, materialId}) => {
+
+        const queue = new TaskQueue(Promise, MAX_SIMULTANEOUS_DOWNLOADS);
+
+        return await Promise.all(
+            keywordIds.map(
+                queue.wrap(
+                    async id => await dispatch('deleteAssignment', {materialId, keywordId: id})
+                )
+            )
+        );
+
+    },
+
     addKeywordsFromMaterial: ({commit, getters, dispatch}, {materialId, keywords}) => {
 
         for (let kwIndex in keywords) {
