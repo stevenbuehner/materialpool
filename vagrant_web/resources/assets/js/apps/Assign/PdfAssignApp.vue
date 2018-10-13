@@ -10,7 +10,9 @@
                           class="my-1 my-md-0 mx-1"
                           :title="selectedPages.length > 0 ? $t('pool.create-material-selected-pages') : $t('pool.select-pages-first')"
                           :disabled="selectedPages.length === 0"
-                          @click="btnCreateNewMaterialFromSelection">{{$t('pool.new')}}
+                          @click="btnCreateNewMaterialFromSelection"
+                          v-shortkey="['ctrl', 'n']" @shortkey="btnCreateNewMaterialFromSelection"
+                >{{$t('pool.new')}}
                 </b-button>
                 <b-button size="sm"
                           class="my-1 my-md-0 mx-1"
@@ -268,6 +270,11 @@
             },
 
             btnCreateNewMaterialFromSelection() {
+
+                if (this.selectedPages.length <= 0) {
+                    return;
+                }
+
                 this.$refs.materialCreator
                     .showPromise()
                     .then((material) => {

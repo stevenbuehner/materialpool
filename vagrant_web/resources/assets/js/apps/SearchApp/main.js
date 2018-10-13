@@ -9,11 +9,13 @@ import mainApp from './App.vue';
 import './../../../sass/app.scss';
 // Localisation
 import {i18n} from "../../localisation";
+import ShortKey from 'vue-shortkey'
 
 
 require('lodash');
 require('vue-flash-message/dist/vue-flash-message.min.css');
 
+Vue.use(ShortKey);
 Vue.use(VueRouter);
 
 axios.defaults.headers.common = {
