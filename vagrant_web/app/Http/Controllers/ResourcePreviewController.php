@@ -7,6 +7,7 @@ use App\Models\PdfFile;
 use App\Models\Resource;
 use App\Services\PreviewGeneration\ResourcePreviewService;
 use App\Services\ResourceHandling\FileHandlingService;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Response;
 
 class ResourcePreviewController extends Controller {
@@ -41,6 +42,12 @@ class ResourcePreviewController extends Controller {
 			$im->mergeImageLayers(\Imagick::LAYERMETHOD_FLATTEN);
 			$im->setFormat(config('app.preview.outputFormat', 'png'));
 		} catch (\ImagickException $e) {
+
+			Log::error('Imagick-Error!', [
+				'error' => $e->getMessage(),
+				'trace' => $e->getTrace(),
+			]);
+
 			return response('Imagick Error', 500);
 		}
 
