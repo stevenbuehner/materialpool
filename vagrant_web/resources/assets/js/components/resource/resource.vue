@@ -198,7 +198,7 @@
                     if (material.resources && material.resources.length === 0) {
                         this.$refs.myDialog.show({
                             title: 'Rückfrage',
-                            content: 'Diesem Material ist jetzt keine Ressource mehr zugeordet<br/>Soll ' + (material.title ? '"' + material.title + '"' : 'es') + ' <b>jetzt komplett</b> gelöscht werden?',
+                            content: 'Das eben entfernte Material ist jetzt keiner weiteren Ressource mehr zugeordet<br/>Soll ' + (material.title ? '"' + material.title + '"' : 'es') + ' <b>jetzt komplett</b> gelöscht werden?',
                             yesText: 'Ja, löschen',
                             yesVariant: 'success',
                             noText: 'Nein, so lassen',
