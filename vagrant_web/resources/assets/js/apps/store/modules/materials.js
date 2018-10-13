@@ -267,13 +267,17 @@ const actions = {
 
         // Update material-Cache
         result.then(({material}) => {
-            commit('clearMaterial', material.id);
-            commit('setMaterial', material);
+            if (material) {
+                commit('clearMaterial', material.id);
+                commit('setMaterial', material);
+            }
         });
 
         // Update resource-cache
         result.then(({resource}) => {
-            dispatch('resources/setResource', resource, {root: true});
+            if (resource) {
+                dispatch('resources/setResource', resource, {root: true});
+            }
         });
 
         return result;
@@ -293,15 +297,20 @@ const actions = {
                 }
             });
 
-        // Update material-Cache
+        // ALWAYS (!): Update material-Cache
         result.then(({material}) => {
-            commit('clearMaterial', material.id);
-            commit('setMaterial', material);
+
+            if (material) {
+                commit('clearMaterial', material.id);
+                commit('setMaterial', material);
+            }
         });
 
-        // Update resource-cache
+        // ALWAYS (!): Update resource-cache
         result.then(({resource}) => {
-            dispatch('resources/setResource', resource, {root: true});
+            if (resource) {
+                dispatch('resources/setResource', resource, {root: true});
+            }
         });
 
         return result;
