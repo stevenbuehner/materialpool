@@ -9,6 +9,7 @@
             <button class="btn btn-sm btn-danger"
                     :title="$t('pool.remove-all')"
                     v-if="myBibleverses.length > 0"
+                    type="button"
                     @click="btnRemoveAllBibleverses">
                 <erase-svg class="icon-erase"/>
             </button>
