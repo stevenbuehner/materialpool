@@ -328,8 +328,7 @@
                         return;
 
                     const preselection = this.$route.query.selection || '';
-
-                    const pages = preselection.split(',');
+                    const pages        = (preselection !== '') ? preselection.split(',') : [];
 
                     if (pages.length > 0) {
                         this.$refs.pagelist.clearAllPages();
