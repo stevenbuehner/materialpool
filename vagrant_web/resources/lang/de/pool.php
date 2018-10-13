@@ -129,5 +129,6 @@ return [
 	'remove-all'                          => 'alle entfernen',
 	'Really-delete-count-bibleverses'     => 'Willst du wirklich :COUNT Bibelverse auf einmal entfernen?',
 	'Really-delete-count-keywords'        => 'Willst du wirklich :COUNT Tags auf einmal entfernen?',
+	'use-this-as-template'                 => 'als Vorlage verwenden',
 
 ];

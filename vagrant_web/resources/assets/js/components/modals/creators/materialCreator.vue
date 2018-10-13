@@ -6,15 +6,25 @@
              @hide="cancelPromise"
     >
         <template slot="modal-footer">
-            <button type="button" class="btn btn-danger btn-sm" @click="hide" :disabled="buttonsDisabled">
-                {{$t('pool.Cancel')}}
-            </button>
-            <button type="button" class="btn btn-primary btn-sm" @click="onReset" :disabled="buttonsDisabled">
-                {{$t('pool.Reset')}}
-            </button>
-            <button type="button" class="btn btn-success btn-sm" @click="onSubmit" :disabled="buttonsDisabled">
-                {{$t('pool.Save')}}
-            </button>
+
+            <slot name="all-buttons">
+                <slot name="extra-buttons"></slot>
+                <button type="button" class="btn btn-primary btn-sm"
+                        @click="useCurrentSelectionAsDefault"
+                        :disabled="buttonsDisabled">
+                    {{$t('pool.use-this-as-template')}}
+                </button>
+                <button type="button" class="btn btn-secondary btn-sm" @click="hide" :disabled="buttonsDisabled">
+                    {{$t('pool.Cancel')}}
+                </button>
+                <button type="button" class="btn btn-secondary btn-sm" @click="onReset" :disabled="buttonsDisabled">
+                    {{$t('pool.Reset')}}
+                </button>
+                <button type="button" class="btn btn-success btn-sm" @click="onSubmit" :disabled="buttonsDisabled">
+                    {{$t('pool.Save')}}
+                </button>
+            </slot>
+
         </template>
 
         <b-form @submit.prevent="onSubmit" @reset="onReset">
@@ -128,6 +138,17 @@
     import starRating from 'vue-star-rating';
     import KeywordInput from "../../keyword/keywordInput.vue";
     import BibleverseInput from "../../bibleverse/bibleverseInput";
+
+
+    let defaultForm = {
+        title: '',
+        description: '',
+        rating: null,
+        from_bot: false,
+        author: '',
+        keywords: [],
+        bibleverses: [],
+    };
 
     export default {
         name: "materialCreator",
@@ -341,25 +362,31 @@
             onReset() {
                 this.formErrors = [];
 
-                this.form.title       = this.title;
-                this.form.description = this.description;
-                this.form.rating      = this.rating;
+                this.form.title       = defaultForm.title || this.title;
+                this.form.description = defaultForm.description || this.description;
+                this.form.rating      = defaultForm.rating || this.rating;
                 this.form.from_bot    = false;
-                this.form.author      = this.author;
+                this.form.author      = defaultForm.author || this.author;
                 this.form.keywords    = [];
                 this.form.bibleverses = [];
 
-                this.$store.dispatch('keywords/getMultiple', this.keywordIds)
+                const kw = (defaultForm.bibleverses.length > 0) ? defaultForm.keywords.map(kw => kw.id) : this.keywordIds;
+                this.$store.dispatch('keywords/getMultiple', kw)
                     .then((keywords) => {
                         this.keywordInput = keywords;
                         this.updateKeywordForm(keywords);
                     });
 
-                this.$store.dispatch('bibleverses/getMultiple', this.bibleverseIds)
+                const bv = (defaultForm.bibleverses.length > 0) ? defaultForm.bibleverses.map(bv => bv.id) : this.bibleverseIds;
+                this.$store.dispatch('bibleverses/getMultiple', bv)
                     .then((bibleverses) => {
                         this.bibleverseInput = bibleverses;
                         this.updateBibleverseForm(bibleverses);
                     });
+            },
+
+            useCurrentSelectionAsDefault() {
+                defaultForm = JSON.parse(JSON.stringify(this.form));
             },
 
         },

@@ -126,7 +126,8 @@ export default {
             "Keywords": "Tags",
             "remove-all": "alle entfernen",
             "Really-delete-count-bibleverses": "Willst du wirklich {COUNT} Bibelverse auf einmal entfernen?",
-            "Really-delete-count-keywords": "Willst du wirklich {COUNT} Tags auf einmal entfernen?"
+            "Really-delete-count-keywords": "Willst du wirklich {COUNT} Tags auf einmal entfernen?",
+            "use-this-as-template": "als Vorlage verwenden"
         }
     },
     "en": {
@@ -280,7 +281,8 @@ export default {
             "Keywords": "Keywords",
             "remove-all": "remove all",
             "Really-delete-count-bibleverses": "Do you really want to remove {COUNT} bibleverses at once?",
-            "Really-delete-count-keywords": "Do you really want to remove {COUNT} keywords at once?"
+            "Really-delete-count-keywords": "Do you really want to remove {COUNT} keywords at once?",
+            "use-this-as-template": "use as template"
         },
         "validation": {
             "accepted": "The {attribute} must be accepted.",

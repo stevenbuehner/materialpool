@@ -137,7 +137,7 @@ return [
 	'Keywords'                            => 'Keywords',
 	'remove-all'                          => 'remove all',
 	'Really-delete-count-bibleverses'     => 'Do you really want to remove :COUNT bibleverses at once?',
-	'Really-delete-count-keywords'     => 'Do you really want to remove :COUNT keywords at once?',
-
+	'Really-delete-count-keywords'        => 'Do you really want to remove :COUNT keywords at once?',
+	'use-this-as-template'                 => 'use as template',
 
 ];
