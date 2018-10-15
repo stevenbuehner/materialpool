@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller as BaseController;
 use App\Http\Requests\KeywordRequest;
+use App\Jobs\CheckLonelyKeyword;
 use App\Models\Exceptions\InvalidKeywordTypeException;
 use App\Models\Keyword;
 use App\Models\Material;
@@ -162,7 +163,11 @@ class KeywordController extends BaseController {
 		$material->from_bot = FALSE;
 		$material->save();
 
-		return $material->keywords()->detach($keyword);
+		$result =  $material->keywords()->detach($keyword);
+
+		CheckLonelyKeyword::dispatch($keyword);
+
+		return $result;
 
 	}
 

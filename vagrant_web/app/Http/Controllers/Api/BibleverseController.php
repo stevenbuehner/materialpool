@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller as BaseController;
+use App\Jobs\CheckLonelyBibleverse;
 use App\Models\Bibleverse;
 use App\Models\Material;
 use App\Services\TagExtraction\Interfaces\RelevanceInterface;
@@ -131,10 +132,14 @@ class BibleverseController extends BaseController {
 	}
 
 	public function deleteAssignment(Material $material, Bibleverse $bibleverse) {
-		
+
 		$material->from_bot = FALSE;
 		$material->save();
 
-		return $material->bibleverses()->detach($bibleverse);
+		$result = $material->bibleverses()->detach($bibleverse);
+
+		CheckLonelyBibleverse::dispatch($bibleverse);
+
+		return $result;
 	}
 }
