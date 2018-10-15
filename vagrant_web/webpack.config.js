@@ -9,16 +9,14 @@ const devMode              = process.env.NODE_ENV !== 'production';
 
 module.exports = {
     entry: {
-        app: './resources/assets/js/app.js',
-        dependencies: [
-            './resources/assets/js/dependencies.js',
-        ],
-        materialApp: './resources/assets/js/apps/MaterialEdit/main.js',
-        searchApp: './resources/assets/js/apps/SearchApp/main.js'
+        main: './resources/assets/js/apps/main/main.js',
+        //      dependencies: [
+        //          './resources/assets/js/dependencies.js',
+        //      ],
     },
     output: {
         path: path.resolve(__dirname, './public/'),
-        publicPath: 'http://localhost:8080/', /* In DEV Mode This is the VIRTUAL Path where the files will be server from memory. But also where the hot-reload stuff comes from. */
+        publicPath: 'http://localhost:8080/', /* In DEV Mode This is the VIRTUAL Path where the files will be served from memory. But also where the hot-reload stuff comes from. */
         filename: 'js/[name]_build.js'
     },
     module: {

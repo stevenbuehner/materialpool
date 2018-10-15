@@ -32,7 +32,7 @@
 <script>
     import Keyword from './../keyword/keyword.vue'
     import Biblevers from "../bibleverse/biblevers.vue";
-    import materialDetail from './MaterialDetail.vue';
+    import materialDetail from '../../apps/main/pages/MaterialDetail.vue';
     import {api_v1_materials_update} from './../serverRoutes';
     import materialStoreMixin from './materialStore.mixin';
 
