@@ -2,12 +2,15 @@ import axios from 'axios'
 import {
     api_v1_keywords_create,
     api_v1_keywords_deleteassignment,
+    api_v1_keywords_index,
     api_v1_keywords_show,
     api_v1_keywords_update,
     api_v1_keywords_updateassignment,
     searchGuessKeywords
 } from '../../../../components/serverRoutes'
 import {TaskQueue} from 'cwait';
+
+import PQueue from 'p-queue';
 
 const MAX_SIMULTANEOUS_DOWNLOADS = 6;
 
@@ -96,6 +99,65 @@ const actions = {
                 )
             )
         );
+    },
+
+    getAll: async ({dispatch}) => {
+
+        const queue = new PQueue({
+            concurrency: MAX_SIMULTANEOUS_DOWNLOADS
+        });
+
+        const getPage = async (pageNo) => {
+
+            console.log('Start RUNNING (AXIOS) for page ' + pageNo);
+
+            return axios.get(api_v1_keywords_index,
+                {
+                    params: {page: pageNo}
+                })
+                .then(({data}) => {
+                    return data
+                })
+                .catch((response) => {
+                    console.error(response);
+                });
+        };
+
+
+        return getPage(1)
+            .then(data => {
+                const last_page    = data.last_page;
+                const current_page = data.current_page;
+
+                if (last_page !== current_page) {
+
+                    let allPromises     = [];
+
+                    allPromises.push(
+                        queue.add(
+                            () => {
+                                return data.data;
+                            }
+                        ));
+
+                    for (let i = 2; i <= last_page; i++) {
+                        allPromises.push(
+                            queue.add(
+                                () => {
+                                    return getPage(i).then(({data}) => data);
+                                }
+                            )
+                        );
+                    }
+
+                    return Promise.all(allPromises).then((results) => {
+                        return [].concat(...results);
+                    });
+                } else {
+                    return data.data;
+                }
+            });
+
     },
 
     create: ({commit, getters, dispatch}, {title, type}) => {
