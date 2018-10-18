@@ -267,6 +267,29 @@ class Keyword extends Model {
 			$this->attributes[$attribute_name] = $destination_path . '/' . $filename;
 		}
 
+	}
 
+	/**
+	 * Set the value of model's parent id key.
+	 *
+	 * Behind the scenes node is appended to found parent node.
+	 *
+	 *
+	 * OVERRIDE Default Function in NodeTrait (because of complications in usage with SingleTableInheritanceTrait)
+	 * @param int $value
+	 *
+	 * @throws Exception If parent node doesn't exists
+	 */
+	public function setParentIdAttribute($value) {
+		if ($this->getParentId() == $value) {
+			return;
+		}
+
+		if ($value) {
+			$model = (new Keyword())->findOrFail($value);
+			$this->appendToNode($model);
+		} else {
+			$this->makeRoot();
+		}
 	}
 }

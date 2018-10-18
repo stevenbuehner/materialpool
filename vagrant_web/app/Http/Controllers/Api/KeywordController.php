@@ -37,8 +37,9 @@ class KeywordController extends BaseController {
 			$query->where('type', '=', $search_type);
 		}
 
+		$query->orderBy('_lft');
 
-		return $query->paginate(20);
+		return $query->paginate(250);
 	}
 
 	public function show(Keyword $keyword) {
@@ -50,7 +51,6 @@ class KeywordController extends BaseController {
 		/** @var Keyword $keyword */
 		$type    = $keywordRequest->get('type', FALSE);
 		$keyword = NULL;
-
 
 		if ($type !== FALSE) {
 			// Request does use type attribute -> take type for granted
@@ -86,8 +86,9 @@ class KeywordController extends BaseController {
 		return $keyword;
 	}
 
-	public function update(KeywordRequest $keywordRequest, Keyword $keyword) {
+	public function update(Request $keywordRequest, Keyword $keyword) {
 
+		// Update title
 		if ($keywordRequest->has('title')) {
 			$newTitle = trim($keywordRequest->get('title'));
 
@@ -109,13 +110,22 @@ class KeywordController extends BaseController {
 			} else {
 				$keyword->title = $newTitle;
 			}
-
-			if ($keyword->isDirty()) {
-				$keyword->save();
-			}
 		}
 
 
+		// Update parent
+		if ($keywordRequest->has('parent_id')) {
+			$parentId           = $keywordRequest->get('parent_id', NULL);
+			$keyword->parent_id = $parentId;
+		}
+
+
+		if ($keyword->isDirty()) {
+			$keyword->save();
+		}
+
+
+		// Update type
 		if ($keywordRequest->has('type')) {
 			$type    = $keywordRequest->get('type');
 			$handler = resolve(KeywordHandlingService::class);
@@ -128,7 +138,6 @@ class KeywordController extends BaseController {
 
 			// Reload with new type
 			$keyword = Keyword::find($keyword->id);
-
 		}
 
 
@@ -163,7 +172,7 @@ class KeywordController extends BaseController {
 		$material->from_bot = FALSE;
 		$material->save();
 
-		$result =  $material->keywords()->detach($keyword);
+		$result = $material->keywords()->detach($keyword);
 
 		CheckLonelyKeyword::dispatch($keyword);
 

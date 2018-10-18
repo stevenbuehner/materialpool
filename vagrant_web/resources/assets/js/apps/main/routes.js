@@ -3,10 +3,11 @@ import MaterialDetail from './pages/MaterialDetail.vue';
 import SearchPage from './pages/search/searchPage.vue';
 import ResourceDetail from './pages/Resource.vue';
 import AssignApp from './pages/PdfAssignApp.vue';
-import PassportClient from '../../components/passport/Clients.vue';
-import PassportAuthorizedClient from '../../components/passport/AuthorizedClients.vue';
-import PassportPersonalAccessTokens from '../../components/passport/PersonalAccessTokens.vue';
+// import PassportClient from '../../components/passport/Clients.vue';
+// import PassportAuthorizedClient from '../../components/passport/AuthorizedClients.vue';
+// import PassportPersonalAccessTokens from '../../components/passport/PersonalAccessTokens.vue';
 import ResourceCreate from './pages/ResourceCreate.vue'
+import KeywordList from './pages/KeywordList.vue'
 
 export const routes = [
 
@@ -51,6 +52,11 @@ export const routes = [
             return {id: parseInt(route.params.id)};
         }
     },
+
+    {
+        path: '/keywords/', name: 'keyword-list', component: KeywordList
+    },
+    /*
     {
         path: '/passport/client', component: PassportClient, name: 'passport-client'
     },
@@ -62,6 +68,7 @@ export const routes = [
         component: PassportPersonalAccessTokens,
         name: 'passport-personalaccesstokens'
     },
+    */
     {path: '*', redirect: '/search'}
 
 ];

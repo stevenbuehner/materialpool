@@ -8,27 +8,14 @@ import {
     api_v1_keywords_updateassignment,
     searchGuessKeywords
 } from '../../../../components/serverRoutes'
-import {TaskQueue} from 'cwait';
 
-import PQueue from 'p-queue';
-
-const MAX_SIMULTANEOUS_DOWNLOADS = 6;
-
+import {queue} from "../networkQueue";
 
 const state = {
-    keywordMaterialIds: {},
     keywords: {},
 };
 
 const getters = {
-
-    getMaterialIdsOfCachedKeywords: (state) => (keywordId) => {
-        if (state.keywordMaterialIds[keywordId]) {
-            return state.keywordMaterialIds[keywordId]
-        } else {
-            return {};
-        }
-    },
 
     getKeyword: (state) => (keywordId) => {
         if (state.keywords[keywordId]) {
@@ -40,28 +27,6 @@ const getters = {
 };
 
 const mutations = {
-
-
-    addKeywordMaterial(state, {materialId, keyword}) {
-        let pool = state.keywordMaterialIds[keyword.id] || {};
-
-        pool[materialId]                     = keyword.pivot || true;
-        state.keywordMaterialIds[keyword.id] = pool;
-    },
-
-    removeKeywordMaterial(state, {materialId, keywordId}) {
-        let pool = state.keywordMaterialIds[keywordId] || {};
-
-        if (pool[materialId]) {
-            delete pool[materialId];
-        }
-
-        state.keywordMaterialIds[keywordId] = pool;
-    },
-
-    clearKeywordMaterial(state, {keywordId}) {
-        state.keywordMaterialIds[keywordId] = {};
-    },
 
     setKeyword(state, keyword) {
         state.keywords[keyword.id] = keyword;
@@ -88,24 +53,22 @@ const actions = {
             });
     },
 
+
     getMultiple: async ({dispatch}, keywordIds) => {
+        // Not tested after changing - hopefully it works :-)
 
-        const queue = new TaskQueue(Promise, MAX_SIMULTANEOUS_DOWNLOADS);
-
-        return await Promise.all(
+        return Promise.all(
             keywordIds.map(
-                queue.wrap(
-                    async id => await dispatch('get', id)
+                id => queue.add(
+                    () => dispatch('get', id)
                 )
             )
         );
+
     },
 
     getAll: async ({dispatch}) => {
 
-        const queue = new PQueue({
-            concurrency: MAX_SIMULTANEOUS_DOWNLOADS
-        });
 
         const getPage = async (pageNo) => {
 
@@ -131,7 +94,7 @@ const actions = {
 
                 if (last_page !== current_page) {
 
-                    let allPromises     = [];
+                    let allPromises = [];
 
                     allPromises.push(
                         queue.add(
@@ -194,7 +157,7 @@ const actions = {
         return axios.post(api_v1_keywords_update(id), data)
             .then((response) => {
 
-                dispatch('updateMaterialsWithKeywordProperties', response.data);
+               // dispatch('updateMaterialsWithKeywordProperties', response.data);
 
                 return response.data;
 
@@ -240,7 +203,6 @@ const actions = {
 
         return axios.post(api_v1_keywords_deleteassignment(materialId, keywordId), params)
             .then((response) => {
-                    commit('removeKeywordMaterial', {materialId, keywordId});
                     dispatch('materials/removeKeywordFromMaterial', {materialId, keywordId}, {root: true});
 
                     return response.data;
@@ -254,13 +216,13 @@ const actions = {
 
     deleteMultipleAssignemts: async ({dispatch}, {keywordIds, materialId}) => {
 
-        const queue = new TaskQueue(Promise, MAX_SIMULTANEOUS_DOWNLOADS);
-
-        return await Promise.all(
+        return Promise.all(
             keywordIds.map(
-                queue.wrap(
-                    async id => await dispatch('deleteAssignment', {materialId, keywordId: id})
-                )
+                id => {
+                    return queue.add(
+                        () => dispatch('deleteAssignment', {materialId, keywordId: id})
+                    )
+                }
             )
         );
 
@@ -274,16 +236,6 @@ const actions = {
 
     },
 
-    removeAllKeywordsFromMaterial: ({commit, getters, dispatch}, {materialId, keywords}) => {
-        for (let kwIndex in keywords) {
-            commit('removeKeywordMaterial', {materialId, keywordId: keywords[kwIndex].id});
-        }
-    },
-
-    setKeywordFromMaterial: ({commit, getters, dispatch}, {materialId, keyword}) => {
-        // Reihenfolge ist wichtig, um Pivot-Daten nicht zu verlieren (!)
-        commit('addKeywordMaterial', {materialId: materialId, keyword: keyword});
-    },
 
     updateMaterialsWithKeywordProperties: ({commit, getters, dispatch}, keyword) => {
         let materialIds = getters.getMaterialIdsOfCachedKeywords(keyword.id);

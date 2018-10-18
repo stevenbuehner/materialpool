@@ -88,6 +88,7 @@ export const api_v2_materials_delete = (materialId) => {
 };
 
 // API - Keywords
+export const api_v1_keywords_index = '/api/v1/keywords/';
 export function api_v1_keywords_show(keywordId) {
     return '/api/v1/keywords/' + keywordId;
 }

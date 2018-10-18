@@ -6,10 +6,8 @@ import {
     api_v1_bibleverses_show,
     searchGuessBibleverses
 } from '../../../../components/serverRoutes'
-import {TaskQueue} from 'cwait';
 
-const MAX_SIMULTANEOUS_DOWNLOADS = 6;
-
+import {queue} from "../networkQueue";
 
 const state = {
     bibleverses: {},
@@ -59,16 +57,16 @@ const actions = {
     },
 
     getMultiple: async ({dispatch}, bibleverseIds) => {
+        // Not tested after changing - hopefully it works :-)
 
-        const queue = new TaskQueue(Promise, MAX_SIMULTANEOUS_DOWNLOADS);
-
-        return await Promise.all(
+        return Promise.all(
             bibleverseIds.map(
-                queue.wrap(
-                    async id => await dispatch('get', id)
+                id => queue.add(
+                    () => dispatch('get', id)
                 )
             )
         );
+
     },
 
     create: ({commit, getters, dispatch}, {from, to}) => {
@@ -129,12 +127,10 @@ const actions = {
 
     deleteMultipleAssignemts: async ({dispatch}, {bibleverseIds, materialId}) => {
 
-        const queue = new TaskQueue(Promise, MAX_SIMULTANEOUS_DOWNLOADS);
-
-        return await Promise.all(
+        return Promise.all(
             bibleverseIds.map(
-                queue.wrap(
-                    async id => await dispatch('deleteAssignment', {materialId, bibleverseId: id})
+                id => queue.add(
+                    () => dispatch('deleteAssignment', {materialId, bibleverseId: id})
                 )
             )
         );
