@@ -2,9 +2,19 @@
 
     <div class="container-fluid">
 
-        <div class="waitmessage" v-if="treeStillLoading">Keywords are beeing loaded. Please wait.</div>
+        <div class="waitmessage" v-if="treeStillLoading">Keywords are beeing refreshed from the server. Please wait.
+        </div>
 
-        <div class="treeWrapper" style="display: inline-block; min-width: 50%">
+        <hollow-dots-spinner
+                v-if="treeStillLoading"
+                :dot-size="10"
+                :dots-num="3"
+                :animation-duration="1500"
+                color="grey"
+        ></hollow-dots-spinner>
+
+
+        <div class="treeWrapper" style="display: inline-block; min-width: 50%" v-if="!treeStillLoading">
             <tree-view
                     :model="treeModel"
                     category="children"
@@ -34,17 +44,7 @@
 
     import {TreeView} from '@bosket/vue';
     import {dragndrop} from "@bosket/core"
-
-    function _toConsumableArray(arr) {
-        if (Array.isArray(arr)) {
-            for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) {
-                arr2[i] = arr[i];
-            }
-            return arr2;
-        } else {
-            return Array.from(arr);
-        }
-    }
+    import {HollowDotsSpinner} from 'epic-spinners'
 
     export default {
         name: "KeywordList",
@@ -242,7 +242,8 @@
         },
 
         components: {
-            TreeView
+            TreeView,
+            HollowDotsSpinner
         }
     }
 </script>
@@ -395,7 +396,7 @@
 </style>
 
 <style>
-    .keywordlisticon{
+    .keywordlisticon {
         position: relative;
         display: inline-block;
         background-size: contain;

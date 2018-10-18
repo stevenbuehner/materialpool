@@ -12,6 +12,12 @@
                 <b-navbar-nav>
 
                     <b-nav-item :to="{name: 'resource-create'}">{{$t('pool.New')}}</b-nav-item>
+
+                    <b-nav-item-dropdown right :text="$t('pool.Edit')">
+                        <b-dropdown-item :to="{name: 'keyword-list'}" class="dropdown-hover">{{$t('pool.Keywords')}}
+                        </b-dropdown-item>
+                    </b-nav-item-dropdown>
+
                     <b-nav-item :to="{name: 'search'}">{{$t('pool.Searchmask')}}</b-nav-item>
                 </b-navbar-nav>
 
@@ -19,9 +25,11 @@
                 <b-navbar-nav class="ml-auto">
 
                     <b-nav-form @submit="goForSearch">
-                        <b-form-input size="sm" class="mr-sm-2" type="text" :placeholder="$t('pool.Speedsearch')" required
+                        <b-form-input size="sm" class="mr-sm-2" type="text" :placeholder="$t('pool.Speedsearch')"
+                                      required
                                       v-model="schnellsuche"/>
-                        <b-button size="sm" class="my-sm-0 btn-outline-dark" type="submit">{{$t('pool.Search')}}</b-button>
+                        <b-button size="sm" class="my-sm-0 btn-outline-dark" type="submit">{{$t('pool.Search')}}
+                        </b-button>
                     </b-nav-form>
 
                     <b-nav-item-dropdown right text="admin">
