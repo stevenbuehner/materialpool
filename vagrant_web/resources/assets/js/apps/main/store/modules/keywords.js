@@ -105,11 +105,16 @@ const actions = {
 
     },
 
-    getAll: async ({dispatch, getters, commit}) => {
+    getAll: ({dispatch, getters, commit}, forceReload) => {
 
-        // Load from cache
-        if (getters.allKeywordsLoaded()) {
+        if (forceReload === true) {
 
+            // Force reload
+            commit('allKeywordsLoaded', false);
+
+        } else if (getters.allKeywordsLoaded()) {
+
+            // Load from cache
             return new Promise((resolve, reject) => {
                 resolve(getters.getAllKeywords());
             });

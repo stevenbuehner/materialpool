@@ -10,31 +10,42 @@
                                      :animation-duration="1500"
                                      color="grey"
                                      class="align-self-center"></hollow-dots-spinner>
-            Keywords are beeing refreshed from the server. Please wait.
+                <span>Keywords are beeing refreshed from the server. Please wait.</span>
             </span>
 
         </div>
 
-        <div class="treeWrapper" style="display: inline-block; min-width: 50%" v-if="!treeStillLoading">
-            <tree-view
-                    :model="treeModel"
-                    category="children"
-                    :selection="treeSelection"
-                    :onSelect="onTreeSelection"
-                    :display="display"
-                    :dragndrop="dragndrop"
-                    :transition="transition"
-                    :css="css"
-                    :strategies="strategies"
-                    :search="search"
-                    :labels="{
+        <div class="row" v-if="!treeStillLoading">
+            <div class="col-6">
+                <div style="display: inline-block; width: 100%">
+                    <tree-view
+                            :model="treeModel"
+                            category="children"
+                            :selection="treeSelection"
+                            :onSelect="onTreeSelection"
+                            :display="display"
+                            :dragndrop="dragndrop"
+                            :transition="transition"
+                            :css="css"
+                            :strategies="strategies"
+                            :search="search"
+                            :labels="{
                         'search.placeholder' : $t('pool.Filter-keywords')
                        }"
-                    :openerOpts="{
+                            :openerOpts="{
                         position : 'left'
                     }"
-            >
-            </tree-view>
+                    >
+                    </tree-view>
+                </div>
+
+            </div>
+
+            <div class="col-6">
+                <button class="btn btn-primary" @click="btnRefreshTree">
+                    <refresh-icon class="refreshIcon"></refresh-icon>
+                </button>
+            </div>
         </div>
 
     </div>
@@ -47,6 +58,7 @@
     import {dragndrop} from "@bosket/core"
     import {HollowDotsSpinner} from 'epic-spinners'
     import editIcon from 'svg-icon/dist/svg/ionic/edit.svg';
+    import refreshIcon from 'svg-icon/dist/svg/awesome/refresh.svg';
 
     export default {
         name: "KeywordList",
@@ -125,13 +137,7 @@
         computed: {},
 
         created() {
-
-            this.$store.dispatch('keywords/getAll')
-                .then((allKeywords) => {
-                    this.createModelFromKeywords(allKeywords);
-                    this.treeStillLoading = false;
-                });
-
+            this.getAllKeywords();
         },
 
         methods: {
@@ -253,6 +259,24 @@
 
                 this.treeModelIds[keyword.id] = keyword;
 
+            },
+
+            getAllKeywords(forceReload) {
+
+                this.treeStillLoading = true;
+
+                this.$store.dispatch('keywords/getAll', forceReload)
+                    .then((allKeywords) => {
+                        this.createModelFromKeywords(allKeywords);
+                        this.treeStillLoading = false;
+                    })
+                    .catch(() => {
+                        this.treeStillLoading = false;
+                    });
+            },
+
+            btnRefreshTree() {
+                this.getAllKeywords(true);
             }
 
         },
@@ -260,7 +284,8 @@
         components: {
             TreeView,
             HollowDotsSpinner,
-            editIcon
+            editIcon,
+            refreshIcon
         }
     }
 </script>
@@ -437,5 +462,13 @@
 <style scoped>
     .waitmessage {
         min-height: 50vh;
+    }
+
+    .refreshIcon {
+        width: 1.5rem;
+    }
+
+    .refreshIcon >>> path {
+        fill: white;
     }
 </style>
