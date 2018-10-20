@@ -8,8 +8,8 @@
              role="button"
              :style="{color: theme.colors.color, backgroundColor: theme.colors.background}">
             <div class="sb-progress-bar" :style="styleObject"></div>
-            <span class="icon" :style="{backgroundImage : 'url(' + myKeyword.icon + ')'}"></span>
-            <span class="text">{{ myKeyword.title }}</span>
+            <component :is="iconName" class="icon"></component>
+            <span class="text" :style="{color: theme.colors.font}">{{ myKeyword.title }}</span>
             <span class="delete" v-if="removeable" @mousedown.left.stop @click.prevent.stop="removeKeyword">x</span>
         </div>
 
@@ -79,6 +79,7 @@
     import contextMenuItem from "../context-menu/context-menu-item.vue";
     import {tagging} from './../theme';
     import {keywordSearchLink} from './../serverRoutes';
+    import {ayceIcon, keyIcon, langIcon, personIcon, placeIcon} from './keywordDefaultIcons';
 
     import {draggingSupport} from "./dragging.mixin";
 
@@ -166,6 +167,20 @@
                 return {
                     width: this.relevance / 300 * 100 + '%',
                     backgroundColor: this.dragging.ongoing === true ? this.theme.colors.progressbar.dragging : this.theme.colors.progressbar.default,
+                }
+            },
+
+            iconName() {
+                let type = this.myKeyword.type || 'unknown';
+
+                switch (type) {
+                    case 'lang':
+                    case 'place':
+                    case 'person':
+                    case 'key':
+                        return type + '-icon';
+                    default:
+                        return 'ayce-con';
                 }
             },
 
@@ -328,7 +343,12 @@
             bModal,
             bFormInput,
             bFormSelect,
-            contextMenu
+            contextMenu,
+            keyIcon,
+            placeIcon,
+            personIcon,
+            langIcon: langIcon,
+            ayceIcon,
         }
 
     }
@@ -363,16 +383,14 @@
 
     .icon {
         position: relative;
-        display: inline-block;
-        background-size: contain;
-        background-position: 0 0;
-        height: 0.9rem;
-        background-repeat: no-repeat;
-        top: 0.1rem;
-        width: 1rem;
-        background-image: url(/img/icons/tag.svg);
+        height: 1rem;
         margin-right: 0.1rem;
-        margin-left: 0;
+        top: -.1rem;
+    }
+
+    .icon >>> path {
+        fill: black;
+        stroke: black;
     }
 
     .delete {

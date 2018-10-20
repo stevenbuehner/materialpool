@@ -7,8 +7,8 @@
              role="button"
              :style="{color: theme.colors.color, backgroundColor: theme.colors.background}">
             <div class="sb-progress-bar" :style="styleObject"></div>
-            <span class="icon" :style="{backgroundImage: 'url('+ myBibleverse.icon+')'}"></span>
-            <span class="text">{{ myBibleverse.label }}</span>
+            <bible-icon class="icon"></bible-icon>
+            <span class="text" :style="{color: theme.colors.font}">{{ myBibleverse.label }}</span>
             <span class="delete" v-if="removeable" @mousedown.left.stop @click.prevent.stop="removeBibleverse">x</span>
         </div>
 
@@ -28,6 +28,7 @@
     import contextMenu from './../context-menu/context-menu.vue';
     import contextMenuItem from "../context-menu/context-menu-item.vue";
     import {bibleverseSearchLink} from './../serverRoutes';
+    import {bibleIcon} from './../keyword/keywordDefaultIcons';
 
     export default {
 
@@ -206,7 +207,8 @@
 
         components: {
             contextMenu,
-            contextMenuItem
+            contextMenuItem,
+            bibleIcon
         }
 
     }
@@ -226,6 +228,7 @@
 
     .sb-bibleverse {
         border: 0;
+        background-color: #74787E;
     }
 
     .text {
@@ -254,15 +257,13 @@
 
     .icon {
         position: relative;
-        display: inline-block;
-        background-size: contain;
-        background-position: 0 0;
-        height: 0.9rem;
-        background-repeat: no-repeat;
-        top: 0.1rem;
-        width: 1rem;
+        height: 1rem;
         margin-right: 0.1rem;
-        margin-left: 0;
+        top: -.1rem;
+    }
+
+    .icon >>> path {
+        fill: black;
     }
 
     .mini {
