@@ -41,6 +41,10 @@ const mutations = {
         state.keywords[keyword.id] = keyword;
     },
 
+    removeKeyword(state, id) {
+        delete state.keywords[id];
+    },
+
     /**
      *
      * @param state
@@ -84,13 +88,20 @@ const actions = {
     getMultiple: async ({dispatch}, keywordIds) => {
         // Not tested after changing - hopefully it works :-)
 
-        return Promise.all(
+        const response = Promise.all(
             keywordIds.map(
                 id => queue.add(
                     () => dispatch('get', id)
                 )
             )
         );
+
+
+        response.then((keywords) => {
+            commit('setMultipleKeywords', keywords);
+        });
+
+        return response;
 
     },
 
@@ -177,6 +188,7 @@ const actions = {
             .then(({data}) => {
 
                 console.info('created Keyword', data);
+                commit('setKeyword', data);
 
                 return data;
             })
@@ -197,16 +209,29 @@ const actions = {
 
         data._method = 'PUT';
 
-        return axios.post(api_v1_keywords_update(id), data)
+        const result = axios.post(api_v1_keywords_update(id), data)
             .then((response) => {
-
-                // dispatch('updateMaterialsWithKeywordProperties', response.data);
-
                 return response.data;
-
             }).catch((response) => {
                 return response;
             });
+
+        result.then((keyword) => {
+
+            // dispatch('updateMaterialsWithKeywordProperties', response.data);
+            commit('setKeyword', keyword);
+
+            if (keyword.id !== id) {
+                // The ID of the keyword was changed (weil der Tag mit einem anderen identischen Tag übereinstimmte und gemerged wurde)
+                // => Der geladene Tag-Baum ist nicht mehr gültig => Reload
+
+                commit('removeKeyword', id);
+                commit('allKeywordsLoaded', false);
+            }
+
+        });
+
+        return result;
     },
 
     updateRelevance: ({commit, getters, dispatch}, {materialId, keywordId, relevance}) => {

@@ -131,13 +131,10 @@ class KeywordController extends BaseController {
 			$handler = resolve(KeywordHandlingService::class);
 
 			try {
-				$handler->changeKeywordType($keyword, $type);
+				$keyword = $handler->changeKeywordType($keyword, $type);
 			} catch (InvalidKeywordTypeException $e) {
 				throw $e;
 			}
-
-			// Reload with new type
-			$keyword = Keyword::find($keyword->id);
 		}
 
 

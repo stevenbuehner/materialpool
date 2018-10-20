@@ -276,6 +276,7 @@ class Keyword extends Model {
 	 *
 	 *
 	 * OVERRIDE Default Function in NodeTrait (because of complications in usage with SingleTableInheritanceTrait)
+	 *
 	 * @param int $value
 	 *
 	 * @throws Exception If parent node doesn't exists
@@ -291,5 +292,16 @@ class Keyword extends Model {
 		} else {
 			$this->makeRoot();
 		}
+	}
+
+	/**
+	 * Relation to children.
+	 *
+	 * OVERRIDE Default Function in NodeTrait (because of complications in usage with SingleTableInheritanceTrait)
+	 *
+	 * @return HasMany
+	 */
+	public function children() {
+		return $this->hasMany(Keyword::class, $this->getParentIdName());
 	}
 }
