@@ -8,6 +8,7 @@ import AssignApp from './pages/PdfAssignApp.vue';
 // import PassportPersonalAccessTokens from '../../components/passport/PersonalAccessTokens.vue';
 import ResourceCreate from './pages/ResourceCreate.vue'
 import KeywordList from './pages/KeywordList.vue'
+import KeywordDetail from './pages/KeywordDetail.vue'
 
 export const routes = [
 
@@ -54,7 +55,12 @@ export const routes = [
     },
 
     {
-        path: '/keywords/', name: 'keyword-list', component: KeywordList
+        path: '/keyword', name: 'keyword-list', component: KeywordList
+    },
+    {
+        path: '/keyword/:id', name: 'keyword-detail', component: KeywordDetail, props: (route) => {
+            return {id: parseInt(route.params.id)};
+        }
     },
     /*
     {

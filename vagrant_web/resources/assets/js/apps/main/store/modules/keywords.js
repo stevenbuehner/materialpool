@@ -13,6 +13,7 @@ import {queue} from "../networkQueue";
 
 const state = {
     keywords: {},
+    allKeywordsLoaded: false,
 };
 
 const getters = {
@@ -23,6 +24,14 @@ const getters = {
         } else {
             return false;
         }
+    },
+
+    allKeywordsLoaded: (state) => () => {
+        return state.allKeywordsLoaded;
+    },
+
+    getAllKeywords: (state) => () => {
+        return Object.values(state.keywords);
     }
 };
 
@@ -30,6 +39,24 @@ const mutations = {
 
     setKeyword(state, keyword) {
         state.keywords[keyword.id] = keyword;
+    },
+
+    /**
+     *
+     * @param state
+     * @param Array allKeywords
+     */
+    setMultipleKeywords(state, allKeywords) {
+
+        for (let i in allKeywords) {
+            state.keywords[allKeywords[i].id] = allKeywords[i];
+        }
+    },
+
+    allKeywordsLoaded(state, loaded) {
+        loaded = !!loaded;
+
+        state.allKeywordsLoaded = loaded;
     }
 
 };
@@ -67,8 +94,16 @@ const actions = {
 
     },
 
-    getAll: async ({dispatch}) => {
+    getAll: async ({dispatch, getters, commit}) => {
 
+        // Load from cache
+        if (getters.allKeywordsLoaded()) {
+
+            return new Promise((resolve, reject) => {
+                resolve(getters.getAllKeywords());
+            });
+
+        }
 
         const getPage = async (pageNo) => {
 
@@ -87,7 +122,7 @@ const actions = {
         };
 
 
-        return getPage(1)
+        const resultPromise = getPage(1)
             .then(data => {
                 const last_page    = data.last_page;
                 const current_page = data.current_page;
@@ -114,12 +149,20 @@ const actions = {
                     }
 
                     return Promise.all(allPromises).then((results) => {
+
                         return [].concat(...results);
                     });
                 } else {
                     return data.data;
                 }
             });
+
+        resultPromise.then((allKeywords) => {
+            commit('setMultipleKeywords', allKeywords);
+            commit('allKeywordsLoaded', true);
+        });
+
+        return resultPromise;
 
     },
 
@@ -157,7 +200,7 @@ const actions = {
         return axios.post(api_v1_keywords_update(id), data)
             .then((response) => {
 
-               // dispatch('updateMaterialsWithKeywordProperties', response.data);
+                // dispatch('updateMaterialsWithKeywordProperties', response.data);
 
                 return response.data;
 

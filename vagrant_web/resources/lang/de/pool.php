@@ -14,6 +14,7 @@ return [
 	'download'                            => 'herunterladen',
 	'download-all'                        => 'alles herunterladen',
 	'edit'                                => 'bearbeiten',
+	'Edit'                                => 'Bearbeiten',
 	'delete'                              => 'löschen',
 	'download-whole-pdf'                  => 'ganzes PDF herunterladen',
 	'edit-material'                       => 'Material bearbeiten',
@@ -50,6 +51,7 @@ return [
 	'Create-a-material'                   => 'Material erstellen',
 	'Reset'                               => 'Zurücksetzen',
 	'Save'                                => 'Speichern',
+	'save'                                => 'speichern',
 	'min-3-keywords'                      => 'Mindestens 3 Keywörter eingeben',
 	'min-length'                          => 'Das Feld :FIELD ist nicht ausgefüllt|:FIELD muss mindestens :REQUIRED Zeichen lang sein|:FIELD muss mindestens :REQUIRED Zeichen lang sein',
 	'Rating'                              => 'Bewertung',
@@ -129,6 +131,10 @@ return [
 	'remove-all'                          => 'alle entfernen',
 	'Really-delete-count-bibleverses'     => 'Willst du wirklich :COUNT Bibelverse auf einmal entfernen?',
 	'Really-delete-count-keywords'        => 'Willst du wirklich :COUNT Tags auf einmal entfernen?',
-	'use-this-as-template'                 => 'als Vorlage verwenden',
-
+	'use-this-as-template'                => 'als Vorlage verwenden',
+	'Filter-keywords'                     => 'Filtere Tags ...',
+	'Keyword-is-beeing-loaded'            => 'Tag wid geladen ...',
+	'Select-Icon'                         => 'Icon auswählen',
+	'Select-Type'                         => 'Typ auswählen',
+	'Parent-Keyword'                      => 'Parent Keyword',
 ];

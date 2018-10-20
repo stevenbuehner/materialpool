@@ -2,17 +2,18 @@
 
     <div class="container-fluid">
 
-        <div class="waitmessage" v-if="treeStillLoading">Keywords are beeing refreshed from the server. Please wait.
+
+        <div class="waitmessage d-flex flex-column justify-content-around " v-if="treeStillLoading">
+            <span class="align-self-center d-flex flex-column justify-content-center">
+                <hollow-dots-spinner :dot-size="10"
+                                     :dots-num="3"
+                                     :animation-duration="1500"
+                                     color="grey"
+                                     class="align-self-center"></hollow-dots-spinner>
+            Keywords are beeing refreshed from the server. Please wait.
+            </span>
+
         </div>
-
-        <hollow-dots-spinner
-                v-if="treeStillLoading"
-                :dot-size="10"
-                :dots-num="3"
-                :animation-duration="1500"
-                color="grey"
-        ></hollow-dots-spinner>
-
 
         <div class="treeWrapper" style="display: inline-block; min-width: 50%" v-if="!treeStillLoading">
             <tree-view
@@ -27,7 +28,7 @@
                     :strategies="strategies"
                     :search="search"
                     :labels="{
-                        'search.placeholder' : 'Suche ...'
+                        'search.placeholder' : $t('pool.Filter-keywords')
                        }"
                     :openerOpts="{
                         position : 'left'
@@ -45,6 +46,7 @@
     import {TreeView} from '@bosket/vue';
     import {dragndrop} from "@bosket/core"
     import {HollowDotsSpinner} from 'epic-spinners'
+    import editIcon from 'svg-icon/dist/svg/ionic/edit.svg';
 
     export default {
         name: "KeywordList",
@@ -52,19 +54,7 @@
         data() {
             return {
                 treeModel: [
-                    {
-                        title: 'root', draggable: false, children: [
-                            {
-                                title: 'First', children: []
-                            },
-                            {
-                                title: 'First test', children: [
-                                    {title: 'Second', children: []},
-                                    {title: 'Third'},
-                                ]
-                            }
-                        ]
-                    }
+                    {title: 'first Node', draggable: false, children: []}
                 ],
                 treeModelIds: {},
                 treeStillLoading: true,
@@ -122,7 +112,10 @@
                 strategies: {
                     click: ["toggle-fold"],
                     selection: ["modifiers"],
-                    fold: ['opener-control']
+                    fold: [(item) => {
+                        // Always keep root unfolded
+                        return !item.keepUnfolded
+                    }, 'opener-control']
                 },
 
 
@@ -167,14 +160,31 @@
                     }));
                 }
 
-                return h('a', {class: classes, attrs: {href: '#'}}, children);
+                let result = [h('a', {class: classes, attrs: {href: '#'}}, children)];
+
+                if (item.type) {
+                    result.push(h('router-link', {
+                        attrs: {
+                            'to': {
+                                name: 'keyword-detail',
+                                params: {id: item.id}
+                            }
+                        }
+                    }, [h(editIcon, {
+                        class: 'editIcon',
+                        attrs: {href: this.$router}
+                    })]));
+                }
+
+                return result;
             },
 
             createModelFromKeywords(keywords) {
 
-                let ids   = {};
-                let model = [];
-                let root  = {'title': 'root', draggable: false, children: [], id: null};
+                let ids      = {};
+                let model    = [];
+                let root     = {'title': 'root', draggable: false, keepUnfolded: true, children: [], id: null};
+                let laterRun = [];
 
                 model.push(root);
 
@@ -187,14 +197,20 @@
                     if (k.parent_id) {
 
                         if (!ids[k.parent_id]) {
-                            console.error('Missing Parrent ID for', k)
+                            console.info('Missing Parrent ID for. Add later on', k)
+                            laterRun.push((k));
+                        } else {
+                            ids[k.parent_id].children.push(k);
                         }
-
-                        ids[k.parent_id].children.push(k);
 
                     } else {
                         root.children.push(k);
                     }
+                }
+
+                for (let i in laterRun) {
+                    let k = laterRun[i];
+                    ids[k.parent_id].children.push(k);
                 }
 
                 this.treeModel    = model;
@@ -243,7 +259,8 @@
 
         components: {
             TreeView,
-            HollowDotsSpinner
+            HollowDotsSpinner,
+            editIcon
         }
     }
 </script>
@@ -287,7 +304,7 @@
         transition: all 0.25s;
     }
 
-    .TreeViewDemo ul li:not(.disabled) {
+    .TreeViewDemo ul li:not(.disabled) .item > a {
         cursor: pointer;
     }
 
@@ -408,5 +425,17 @@
         background-image: url(/img/icons/tag.svg);
         margin-right: 0.5rem;
         margin-left: 0;
+    }
+
+    .editIcon {
+        height: 1rem;
+        margin-left: 1rem;
+    }
+
+</style>
+
+<style scoped>
+    .waitmessage {
+        min-height: 50vh;
     }
 </style>

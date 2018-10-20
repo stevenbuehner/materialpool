@@ -1,0 +1,254 @@
+<template>
+    <div class="container-fluid border rounded p-3">
+
+        <div class="beforeLoaded d-flex flex-column justify-content-around " v-if="!keyword">
+            <span class="align-self-center d-flex flex-column justify-content-center">
+                <hollow-dots-spinner :dot-size="10"
+                                     :dots-num="3"
+                                     :animation-duration="1500"
+                                     color="grey"
+                                     class="align-self-center"></hollow-dots-spinner>
+            {{$t('pool.Keyword-is-beeing-loaded')}}
+            </span>
+
+        </div>
+
+        <div class="form" v-if="keyword">
+            <div class="row">
+                <div class="col-sm-3">
+                    <label>{{$t('pool.Title')}}:</label>
+                </div>
+                <div class="col-sm-9">
+                    <b-form-input
+                            name="keywordText"
+                            id="keywordText"
+                            type="text"
+                            v-model="keyword.title"
+                            autofocus
+                    ></b-form-input>
+                    <div class="meta_data">ID: {{keyword.id}}, Key: {{keyword.lc_title}}</div>
+                </div>
+            </div>
+
+            <div class="row mt-2">
+                <div class="col-sm-3">
+                    <label>{{$t('pool.Select-Type')}}:</label>
+                </div>
+                <div class="col-sm-9">
+                    <b-form-select
+                            name="keywordType"
+                            id="keywordType"
+                            type="text"
+                            v-model="keyword.type"
+                    >
+                        <option value="key">Keyword</option>
+                        <option value="person">Person</option>
+                        <option value="place">Place</option>
+                        <option value="lang">Language</option>
+                    </b-form-select>
+                </div>
+            </div>
+
+            <div class="row mt-2">
+                <div class="col-sm-3">
+                    <label>{{$t('pool.Select-Icon')}}:</label>
+                </div>
+                <div class="col-sm-9">
+                    Coming soon
+                </div>
+            </div>
+
+            <div class="row mt-2">
+                <div class="col-sm-3">
+                    <label>{{$t('pool.Parent-Keyword')}}:</label>
+                </div>
+                <div class="col-sm-9" v-if="!parent">
+                    none
+                </div>
+                <div class="col-sm-9" v-if="parent">
+                    <router-link
+                            :to="{name:'keyword-detail', params:{id: parent.id}}">
+                        <keyword
+                                :keyword="parent"
+                                :editable="false"
+                                :removeable="false"
+                        ></keyword>
+                    </router-link>
+                </div>
+            </div>
+
+            <div class="row mt-2">
+                <slot name="menu">
+                    <div class="col-sm-3">
+                    </div>
+                    <div class="col-sm-9 menu">
+                        <b-button variant="primary"
+                                  :disabled="!keywordWasModified"
+                                  @click.prevent="btnSave">{{$t('pool.save')}}
+                        </b-button>
+                        <b-button :variant="keywordWasModified ? 'danger' : 'primary'"
+                                  @click="$router.back()">{{$t('pool.go-back')}}
+                        </b-button>
+                    </div>
+                </slot>
+            </div>
+        </div>
+    </div>
+</template>
+
+<script>
+    import bFormInput from 'bootstrap-vue/src/components/form-input/form-input';
+    import bFormSelect from 'bootstrap-vue/src/components/form-select/form-select';
+    import bButton from 'bootstrap-vue/src/components/button/button';
+    import {HollowDotsSpinner} from 'epic-spinners'
+    import Vue from 'vue';
+    import AsyncComputed from 'vue-async-computed';
+    import Keyword from "./../keyword/keyword.vue";
+
+    Vue.use(AsyncComputed);
+
+    export default {
+
+        name: "keywordEdit",
+
+        props: {
+            id: {
+                type: Number,
+                required: true
+            }
+        },
+
+        data() {
+            return {
+                keyword: null,
+
+                backupJsonKeyword: null,
+                errorOnLoadingMessage: null,
+                keywordWasModified: false,
+            };
+        },
+
+
+        asyncComputed: {
+            parent: {
+                get() {
+                    if (this.keyword && this.keyword.parent_id) {
+                        return this.$store.dispatch('keywords/get', this.keyword.parent_id);
+                    } else {
+                        return null;
+                    }
+                },
+                default: null,
+                /* watch() {
+                    this.forceReload
+                }*/
+            }
+        },
+
+        watch: {
+            id(newValue) {
+                this.keyword = null;
+                this.getKeyword();
+            },
+            keyword: {
+                handler: function (newVal, oldVal) {
+                    this.updateKeywordModified();
+                },
+                deep: true
+            }
+        },
+
+        created() {
+            this.getKeyword();
+        },
+
+
+        methods: {
+
+            getKeyword() {
+                this.errorOnLoadingMessage = null;
+
+                this.$store.dispatch('keywords/get', this.id).then((keyword) => {
+                    this.keyword               = keyword;
+                    this.backupJsonKeyword     = JSON.stringify(keyword);
+                    this.errorOnLoadingMessage = null;
+                }).catch((response) => {
+                    this.errorOnLoadingMessage = response;
+                });
+            },
+
+            updateKeywordModified() {
+                this.keywordWasModified = JSON.stringify(this.keyword) !== this.backupJsonKeyword;
+            },
+
+
+            btnSave() {
+
+                // Ignore if nothing was changed
+                if (this.keywordWasModified === false) {
+                    return;
+                }
+
+                const originalK  = JSON.parse(this.backupJsonKeyword);
+                let modifiedData = {};
+
+                const mod = ['title', 'type', 'custom_icon'].filter((p) => {
+                    return originalK[p] !== this.keyword[p]
+                }).forEach((p) => {
+                    modifiedData[p] = this.keyword[p];
+                });
+
+                this.updateKeywordData({
+                    modifiedData
+                });
+            },
+
+
+            updateKeywordData(properties) {
+
+                this.$emit('saving', properties);
+
+                const promise = this.$store.dispatch('keywords/update', {id: this.keyword.id, data: properties});
+
+                promise.then((keyword) => {
+
+                    for (let prop in keyword) {
+                        // This is actually only neccessary, if the parent does not update the keyword anyway
+                        this.myKeyword[prop] = keyword[prop];
+                    }
+
+                    this.emitSaved(this.myKeyword);
+                }).catch((response) => {
+
+                    // on failure
+                    this.$emit('savingError', {
+                        tag: this.keyword, // "Tag" is used for bibleverses and keywords
+                        msg: this.parseResponseErrors(response.response)
+                    });
+                });
+
+            },
+        },
+
+        components: {
+            Keyword,
+            bFormInput,
+            bFormSelect,
+            HollowDotsSpinner,
+            bButton
+        }
+    }
+</script>
+
+<style scoped>
+    .beforeLoaded {
+        min-height: 50vh;
+    }
+
+    .meta_data {
+        font-size: smaller;
+        color: #CCC;
+        margin-left: 1em;
+        margin-top: .25em;
+    }
+</style>

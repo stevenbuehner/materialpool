@@ -13,6 +13,7 @@ export default {
             "download": "herunterladen",
             "download-all": "alles herunterladen",
             "edit": "bearbeiten",
+            "Edit": "Bearbeiten",
             "delete": "löschen",
             "download-whole-pdf": "ganzes PDF herunterladen",
             "edit-material": "Material bearbeiten",
@@ -48,6 +49,7 @@ export default {
             "Create-a-material": "Material erstellen",
             "Reset": "Zurücksetzen",
             "Save": "Speichern",
+            "save": "speichern",
             "min-3-keywords": "Mindestens 3 Keywörter eingeben",
             "min-length": "Das Feld {FIELD} ist nicht ausgefüllt|{FIELD} muss mindestens {REQUIRED} Zeichen lang sein|{FIELD} muss mindestens {REQUIRED} Zeichen lang sein",
             "Rating": "Bewertung",
@@ -127,7 +129,12 @@ export default {
             "remove-all": "alle entfernen",
             "Really-delete-count-bibleverses": "Willst du wirklich {COUNT} Bibelverse auf einmal entfernen?",
             "Really-delete-count-keywords": "Willst du wirklich {COUNT} Tags auf einmal entfernen?",
-            "use-this-as-template": "als Vorlage verwenden"
+            "use-this-as-template": "als Vorlage verwenden",
+            "Filter-keywords": "Filtere Tags ...",
+            "Keyword-is-beeing-loaded": "Tag wid geladen ...",
+            "Select-Icon": "Icon auswählen",
+            "Select-Type": "Typ auswählen",
+            "Parent-Keyword": "Parent Keyword"
         }
     },
     "en": {
@@ -166,6 +173,7 @@ export default {
             "download": "download",
             "download-all": "download all",
             "edit": "edit",
+            "Edit": "Edit",
             "delete": "delete",
             "download-whole-pdf": "download whole PDF",
             "edit-material": "edit material",
@@ -203,6 +211,7 @@ export default {
             "Create-a-material": "Create a material",
             "Reset": "Reset",
             "Save": "Save",
+            "save": "save",
             "min-3-keywords": "You need to add at least 3 keywords",
             "min-length": "Missing value for {FIELD}|{FIELD} needs to be at least {REQUIRED} long|{FIELD} needs to be at least {REQUIRED} long",
             "Rating": "Rating",
@@ -282,7 +291,12 @@ export default {
             "remove-all": "remove all",
             "Really-delete-count-bibleverses": "Do you really want to remove {COUNT} bibleverses at once?",
             "Really-delete-count-keywords": "Do you really want to remove {COUNT} keywords at once?",
-            "use-this-as-template": "use as template"
+            "use-this-as-template": "use as template",
+            "Filter-keywords": "Filter keywords ...",
+            "Keyword-is-beeing-loaded": "Keyword is beeing loaded...",
+            "Select-Icon": "Select Icon",
+            "Select-Type": "Select Type",
+            "Parent-Keyword": "Eltern Tag"
         },
         "validation": {
             "accepted": "The {attribute} must be accepted.",

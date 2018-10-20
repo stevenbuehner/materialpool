@@ -21,6 +21,7 @@ return [
 	'download'                            => 'download',
 	'download-all'                        => 'download all',
 	'edit'                                => 'edit',
+	'Edit'                                => 'Edit',
 	'delete'                              => 'delete',
 	'download-whole-pdf'                  => 'download whole PDF',
 	'edit-material'                       => 'edit material',
@@ -59,6 +60,7 @@ return [
 	'Create-a-material'                   => 'Create a material',
 	'Reset'                               => 'Reset',
 	'Save'                                => 'Save',
+	'save'                                => 'save',
 	'min-3-keywords'                      => 'You need to add at least 3 keywords',
 	'min-length'                          => 'Missing value for :FIELD|:FIELD needs to be at least :REQUIRED long|:FIELD needs to be at least :REQUIRED long',
 	'Rating'                              => 'Rating',
@@ -138,6 +140,11 @@ return [
 	'remove-all'                          => 'remove all',
 	'Really-delete-count-bibleverses'     => 'Do you really want to remove :COUNT bibleverses at once?',
 	'Really-delete-count-keywords'        => 'Do you really want to remove :COUNT keywords at once?',
-	'use-this-as-template'                 => 'use as template',
+	'use-this-as-template'                => 'use as template',
+	'Filter-keywords'                     => 'Filter keywords ...',
+	'Keyword-is-beeing-loaded'            => 'Keyword is beeing loaded...',
+	'Select-Icon'                         => 'Select Icon',
+	'Select-Type'                         => 'Select Type',
+	'Parent-Keyword'                      => 'Eltern Tag',
 
 ];
