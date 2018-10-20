@@ -24,6 +24,7 @@
                             id="keywordText"
                             type="text"
                             v-model="keyword.title"
+                            :disabled="disableForm"
                             autofocus
                     ></b-form-input>
                     <div class="meta_data">ID: {{keyword.id}}, Key: {{keyword.lc_title}}</div>
@@ -38,8 +39,8 @@
                     <b-form-select
                             name="keywordType"
                             id="keywordType"
-                            type="text"
                             v-model="keyword.type"
+                            :disabled="disableForm"
                     >
                         <option value="key">Keyword</option>
                         <option value="person">Person</option>
@@ -83,7 +84,7 @@
                     </div>
                     <div class="col-sm-9 menu">
                         <b-button variant="primary"
-                                  :disabled="!keywordWasModified"
+                                  :disabled="!keywordWasModified || disableForm"
                                   @click.prevent="btnSave">{{$t('pool.save')}}
                         </b-button>
                         <b-button :variant="keywordWasModified ? 'danger' : 'primary'"
@@ -125,6 +126,8 @@
                 backupJsonKeyword: null,
                 errorOnLoadingMessage: null,
                 keywordWasModified: false,
+
+                disableForm: false,
             };
         },
 
@@ -169,12 +172,16 @@
                 this.errorOnLoadingMessage = null;
 
                 this.$store.dispatch('keywords/get', this.id).then((keyword) => {
-                    this.keyword               = keyword;
-                    this.backupJsonKeyword     = JSON.stringify(keyword);
+                    this.setKeyword(keyword);
                     this.errorOnLoadingMessage = null;
                 }).catch((response) => {
                     this.errorOnLoadingMessage = response;
                 });
+            },
+
+            setKeyword(keyword) {
+                this.keyword           = keyword;
+                this.backupJsonKeyword = JSON.stringify(keyword);
             },
 
             updateKeywordModified() {
@@ -189,6 +196,7 @@
                     return;
                 }
 
+                this.disableForm = true;
                 const originalK  = JSON.parse(this.backupJsonKeyword);
                 let modifiedData = {};
 
@@ -198,9 +206,11 @@
                     modifiedData[p] = this.keyword[p];
                 });
 
-                this.updateKeywordData({
-                    modifiedData
-                });
+                this.updateKeywordData(modifiedData)
+                    .then(() => {
+                        // Always
+                        this.disableForm = false;
+                    });
             },
 
 
@@ -212,12 +222,9 @@
 
                 promise.then((keyword) => {
 
-                    for (let prop in keyword) {
-                        // This is actually only neccessary, if the parent does not update the keyword anyway
-                        this.myKeyword[prop] = keyword[prop];
-                    }
+                    this.setKeyword(keyword);
+                    this.$emit('saved', keyword);
 
-                    this.emitSaved(this.myKeyword);
                 }).catch((response) => {
 
                     // on failure
@@ -226,6 +233,8 @@
                         msg: this.parseResponseErrors(response.response)
                     });
                 });
+
+                return promise;
 
             },
         },
