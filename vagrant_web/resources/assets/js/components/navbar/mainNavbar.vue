@@ -16,6 +16,8 @@
                     <b-nav-item-dropdown right :text="$t('pool.Edit')">
                         <b-dropdown-item :to="{name: 'keyword-list'}" class="dropdown-hover">{{$t('pool.Keywords')}}
                         </b-dropdown-item>
+                        <b-dropdown-item :to="{name: 'bundle-list'}" class="dropdown-hover">{{$t('pool.Bundle')}}
+                        </b-dropdown-item>
                     </b-nav-item-dropdown>
 
                     <b-nav-item :to="{name: 'search'}">{{$t('pool.Searchmask')}}</b-nav-item>

@@ -73,15 +73,6 @@ Route::group(['prefix' => 'pool', 'as' => 'pool.'], function () {
 	Route::post('search/get', 'SearchController@get')
 		 ->name('searchbar.get');
 
-	// Bundle import and update
-	Route::get('bundles', 'BundleImportController@index')->name('bundles.index');
-	Route::get('bundles/{bundle}/init-update', 'BundleImportController@initUpdate')
-		 ->name('bundles.update.init')
-		 ->where('bundle', '[0-9]+');
-	Route::get('bundles/{bundle}/run-update', 'BundleImportController@runJobs')
-		 ->name('bundles.update.run')
-		 ->where('bundle', '[0-9]+');
-
 });
 
 Route::get('/resource/image/{resource}/{width?}/{height?}', 'ResourcePreviewController@getImage')
