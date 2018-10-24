@@ -47,9 +47,10 @@ class CheckLonelyKeyword implements ShouldQueue {
 		$keywordInAuthor = Material::has('author')
 								   ->where('author_id', '=', $this->keywordToCheck->id)
 								   ->take(1)
-								   ->get();
+								   ->get()
+								   ->count();
 
-		if ($keywordInAuthor === FALSE) {
+		if ($keywordInAuthor === 0) {
 			Log::info('Deleting Keyword "' . $this->keywordToCheck->title . '" because it was lonely');
 			$this->keywordToCheck->delete();
 		}
