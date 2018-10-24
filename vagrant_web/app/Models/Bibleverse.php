@@ -15,6 +15,7 @@ use StevenBuehner\BibleVerseBundle\Service\BibleVerseService;
  * Class Bibleverse
  *
  * @package App\Modules
+ * @property int      $id
  * @property int      $from
  * @property int      $to
  * @property int|null $bible_id

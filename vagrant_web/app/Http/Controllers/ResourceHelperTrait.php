@@ -10,7 +10,7 @@ use App\Models\Text;
 use App\Services\ResourceRecognition\ResourceRecognitionService;
 use App\Services\TagExtraction\MaterialExtractionService;
 use App\Services\TagExtraction\ResourceHandles\TextContentInterface;
-use Illuminate\Foundation\Bus\DispatchesJobs;
+use Illuminate\Contracts\Bus\Dispatcher;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -18,7 +18,6 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 
 trait ResourceHelperTrait {
-	use DispatchesJobs;
 
 	protected $bibleVerseService;
 
@@ -55,7 +54,7 @@ trait ResourceHelperTrait {
 					'trace'   => $e->getTrace()
 				]);
 
-				if($resources[$key] instanceof File){
+				if ($resources[$key] instanceof File) {
 
 				}
 
@@ -144,7 +143,9 @@ trait ResourceHelperTrait {
 
 		foreach ($jobs as $job) {
 			try {
-				$this->dispatch($job);
+
+				// Use this in favour of the trait DispatchesJobs. Because the function dispatch conflicts with the trait Dispatchable
+				app(Dispatcher::class)->dispatch($job);
 			} catch (\Exception $e) {
 				Log::Error("Error on Job-Execution for ({$resource->id})!", [
 					'resource' => $resource->toArray(),

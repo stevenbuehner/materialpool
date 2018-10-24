@@ -2,7 +2,7 @@ export default {
     "de": {
         "pool": {
             "material": "Material|Materialien",
-            "resource-count": "keine Ressourcen|1 Resource|COUNT Resourcen",
+            "resource-count": "keine Ressourcen|1 Resource|{COUNT} Resourcen",
             "material-count": "keine Materialien|1 Material|{COUNT} Materialien",
             "material-other-count": "kein anderes Material|1 anderes Material|{COUNT} andere Materialien",
             "material-other-assigned-material-pl": "kein anderes Material ist dieser Ressource zugewiesen|1 anderes Material ist dieser Ressource zugewiesen|{COUNT} andere Materialien sind dieser Ressource zugewiesen",
@@ -134,7 +134,18 @@ export default {
             "Keyword-is-beeing-loaded": "Tag wid geladen ...",
             "Select-Icon": "Icon auswählen",
             "Select-Type": "Typ auswählen",
-            "Parent-Keyword": "Parent Keyword"
+            "Parent-Keyword": "Parent Keyword",
+            "install": "installieren",
+            "bundle": "bundle",
+            "Bundle": "Bundle",
+            "export-date": "export Datum",
+            "not-installed": "nicht installiert",
+            "please-run-update-for": "bitte update durchführen",
+            "update-available": "update durchführen",
+            "uninstall": "deinstallieren",
+            "update-is-initializing": "Update wird initialisiert",
+            "cancel": "abbrechen",
+            "canceling-update": "update wird abgebrochen ..."
         }
     },
     "en": {
@@ -296,7 +307,19 @@ export default {
             "Keyword-is-beeing-loaded": "Keyword is beeing loaded...",
             "Select-Icon": "Select Icon",
             "Select-Type": "Select Type",
-            "Parent-Keyword": "Eltern Tag"
+            "Parent-Keyword": "Eltern Tag",
+            "install": "install",
+            "bundle": "bundle",
+            "Bundle": "Bundle",
+            "export-date": "export date",
+            "not-installed": "not installed",
+            "please-run-update-for": "please run update for",
+            "update-available": "update available",
+            "uninstall": "uninstall",
+            "update-is-initializing": "update is initializing",
+            "cancel": "cancel",
+            "canceling-update": "canceling update ...",
+            "": ""
         },
         "validation": {
             "accepted": "The {attribute} must be accepted.",

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Concerns\HasTimestamps;
 
 /**
  * Class Bundle
@@ -22,6 +23,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property bool      $update_available
  */
 class Bundle extends Model {
+	use HasTimestamps;
 
 
 	protected $fillable = [

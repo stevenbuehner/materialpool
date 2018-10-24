@@ -8,6 +8,7 @@ import search from './modules/search';
 import tagsearch from './modules/tagsearch';
 import materialapp from './modules/materialapp';
 import recentmaterials from './modules/recentmaterials';
+import bundles from './modules/bundles';
 
 Vue.use(VueX);
 
@@ -22,6 +23,7 @@ export const store = new VueX.Store({
         bibleverses,
         search,
         tagsearch,
-        recentmaterials
+        recentmaterials,
+        bundles
     }
 });

@@ -3,7 +3,7 @@
 return [
 
 	'material'                            => 'Material|Materialien',
-	'resource-count'                      => 'keine Ressourcen|1 Resource|COUNT Resourcen',
+	'resource-count'                      => 'keine Ressourcen|1 Resource|:COUNT Resourcen',
 	'material-count'                      => 'keine Materialien|1 Material|:COUNT Materialien',
 	'material-other-count'                => 'kein anderes Material|1 anderes Material|:COUNT andere Materialien',
 	'material-other-assigned-material-pl' => 'kein anderes Material ist dieser Ressource zugewiesen|1 anderes Material ist dieser Ressource zugewiesen|:COUNT andere Materialien sind dieser Ressource zugewiesen',
@@ -137,4 +137,15 @@ return [
 	'Select-Icon'                         => 'Icon auswählen',
 	'Select-Type'                         => 'Typ auswählen',
 	'Parent-Keyword'                      => 'Parent Keyword',
+	'install'                             => 'installieren',
+	'bundle'                              => 'bundle',
+	'Bundle'                              => 'Bundle',
+	'export-date'                         => 'export Datum',
+	'not-installed'                       => 'nicht installiert',
+	'please-run-update-for'               => 'bitte update durchführen',
+	'update-available'                    => 'update durchführen',
+	'uninstall'                           => 'deinstallieren',
+	'update-is-initializing'              => 'Update wird initialisiert',
+	'cancel'                              => 'abbrechen',
+	'canceling-update'                    => 'update wird abgebrochen ...',
 ];

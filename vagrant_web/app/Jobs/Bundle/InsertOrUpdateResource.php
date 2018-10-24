@@ -2,7 +2,7 @@
 
 namespace App\Jobs\Bundle;
 
-use App\Jobs\UpdateResourceHashes;
+use App\Http\Controllers\ResourceHelperTrait;
 use App\Models\Bundle;
 use App\Models\File;
 use App\Models\ForeignResourceId;
@@ -16,14 +16,15 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\DB;
 
-class InsertOrUpdateResource implements ShouldQueue {
-	use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+class InsertOrUpdateResource implements ShouldQueue, VersionInterface {
+	use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, ResourceHelperTrait;
 
 
 	/** @var  Bundle $bundle */
 	protected $bundle;
 
 	protected $localFileInfo;
+	protected $version;
 
 	/**
 	 * InsertOrUpdateResource constructor.
@@ -31,9 +32,11 @@ class InsertOrUpdateResource implements ShouldQueue {
 	 * @param Bundle $bundle
 	 * @param        $localFileInfo
 	 */
-	public function __construct(Bundle $bundle, $localFileInfo) {
+	public function __construct(Bundle $bundle, $localFileInfo, $version) {
 		$this->bundle        = $bundle;
 		$this->localFileInfo = $localFileInfo;
+		$this->version       = $version;
+
 	}
 
 	/**
@@ -62,6 +65,8 @@ class InsertOrUpdateResource implements ShouldQueue {
 
 					$this->updateResource($bundlesService, $resource);
 
+					$this->queuePostCreationJobs($resource);
+
 					$foreignRes->setCreatedAt($this->localFileInfo->file_created);
 					$foreignRes->setUpdatedAt($this->localFileInfo->file_modified);
 
@@ -80,6 +85,8 @@ class InsertOrUpdateResource implements ShouldQueue {
 
 				// Insert
 				$resource = $this->createResource($bundlesService);
+
+				$this->queuePostCreationJobs($resource);
 
 				$foreignResource = new ForeignResourceId(
 					[
@@ -136,10 +143,9 @@ class InsertOrUpdateResource implements ShouldQueue {
 			$resource->setLocalStorageAndPath($bundlesService->getBundleDiskName(), $this->getLocalFilePath());
 		}
 
+		// Saving needed for PostQueueJobs
 		if ($resource->isDirty()) {
 			$resource->saveOrFail();
-
-			UpdateResourceHashes::dispatch($resource)->onQueue($this->queue)->onConnection($this->connection);
 		}
 
 		return $resource;
@@ -168,5 +174,8 @@ class InsertOrUpdateResource implements ShouldQueue {
 		return $resource;
 	}
 
+	public function getVersion() {
+		return $this->version;
+	}
 
 }

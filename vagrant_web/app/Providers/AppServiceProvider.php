@@ -3,11 +3,22 @@
 namespace App\Providers;
 
 use App\ResourceLimitations\ResourceLimitationService;
+use App\Services\Bundles\BundleQueueService;
+use App\Services\Bundles\BundlesService;
+use App\Services\KeywordHandling\KeywordHandlingService;
+use App\Services\MaterialHandling\MaterialDuplicationHandlingService;
+use App\Services\MaterialHandling\MaterialHandlingService;
 use App\Services\PreviewGeneration\Generators\ImagePreviewGenerator;
 use App\Services\PreviewGeneration\Generators\NoPreviewGenerator;
+use App\Services\PreviewGeneration\Generators\PdfPreviewGenerator;
 use App\Services\PreviewGeneration\Generators\TextLargePreviewGenerator;
 use App\Services\PreviewGeneration\Generators\TextThumbPreviewGenerator;
 use App\Services\PreviewGeneration\Generators\VideoPreviewGenerator;
+use App\Services\PreviewGeneration\ResourcePreviewService;
+use App\Services\ResourceHandling\FileHandlingService;
+use App\Services\ResourceHandling\PdfHandlingService;
+use App\Services\ResourceHandling\ResourceCleanupService;
+use App\Services\ResourceHandling\ResourceDuplicationHandlingService;
 use App\Services\ResourceRecognition\ResourceRecognitionService;
 use App\Services\TagExtraction\MaterialExtractionService;
 use App\Services\TagExtraction\ResourceHandles\FileNameHandler;
@@ -66,13 +77,28 @@ class AppServiceProvider extends ServiceProvider {
 			}
 		);
 
-		$this->app->singleton(FileNameHandler::class);
-		$this->app->singleton(MaterialExtractionService::class);
+		$this->app->singleton(FileHandlingService::class);
+		$this->app->singleton(PdfHandlingService::class);
+		$this->app->singleton(ResourceCleanupService::class);
+		$this->app->singleton(ResourceDuplicationHandlingService::class);
 		$this->app->singleton(ResourceLimitationService::class);
 
+		$this->app->singleton(FileNameHandler::class);
+		$this->app->singleton(KeywordHandlingService::class);
+
+		$this->app->singleton(MaterialExtractionService::class);
+		$this->app->singleton(MaterialHandlingService::class);
+		$this->app->singleton(MaterialDuplicationHandlingService::class);
+
+		$this->app->singleton(BundlesService::class);
+		$this->app->singleton(BundleQueueService::class);
+
+
 		// ResourcePreview Generators as Singletons
-		$this->app->singleton(NoPreviewGenerator::class);
+		$this->app->singleton(ResourcePreviewService::class);
 		$this->app->singleton(ImagePreviewGenerator::class);
+		$this->app->singleton(NoPreviewGenerator::class);
+		$this->app->singleton(PdfPreviewGenerator::class);
 		$this->app->singleton(TextLargePreviewGenerator::class);
 		$this->app->singleton(TextThumbPreviewGenerator::class);
 		$this->app->singleton(VideoPreviewGenerator::class);

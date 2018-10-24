@@ -146,5 +146,18 @@ return [
 	'Select-Icon'                         => 'Select Icon',
 	'Select-Type'                         => 'Select Type',
 	'Parent-Keyword'                      => 'Eltern Tag',
+	'install'                             => 'install',
+	'bundle'                              => 'bundle',
+	'Bundle'                              => 'Bundle',
+	'export-date'                         => 'export date',
+	'not-installed'                       => 'not installed',
+	'please-run-update-for'               => 'please run update for',
+	'update-available'                    => 'update available',
+	'uninstall'                           => 'uninstall',
+	'update-is-initializing'              => 'update is initializing',
+	'cancel'                                    => 'cancel',
+	'canceling-update'                                    => 'canceling update ...',
+	''                                    => '',
+	''                                    => '',
 
 ];

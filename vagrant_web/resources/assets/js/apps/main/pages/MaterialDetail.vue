@@ -9,9 +9,6 @@
 
         <div v-if="material">
 
-            <flash-message class="flashMessageHolder col-md-4 col-sm-6 col-lg-3 col-xs-12">This is some test
-            </flash-message>
-
             <edditable-text
                     type="h1"
                     :value="material.title"
@@ -186,7 +183,6 @@
     import editableText from '../../../components/edditable.vue';
     import fromBot from '../../../components/fromBot.vue';
     import starRating from 'vue-star-rating/src/star-rating';
-    import flashMessage from 'vue-flash-message';
     import Vue from 'vue';
     import AsyncComputed from 'vue-async-computed';
     import ResourceUploader from "../../../components/uploader/resourceUploader";
@@ -194,7 +190,6 @@
     import customDialog from '../../../components/modals/dialogs/customDialog';
     import MaterialRating from "../../../components/Material/MaterialRating";
 
-    Vue.use(flashMessage);
     Vue.use(AsyncComputed);
 
     // https://github.com/craigh411/vue-star-rating/#props
@@ -504,14 +499,6 @@
     .doneIcon {
         background-image: url("/img/icons/entypo-plus/lock-open.svg");
     }
-
-    .flashMessageHolder {
-        position: fixed;
-        top: 1em;
-        right: 1em;
-        z-index: 99999;
-    }
-
 
 </style>
 

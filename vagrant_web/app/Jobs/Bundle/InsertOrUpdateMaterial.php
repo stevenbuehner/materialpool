@@ -2,8 +2,9 @@
 
 namespace App\Jobs\Bundle;
 
-use App\Exceptions\InvalidResourceTypeException;
+use App\Models\Bibleverse;
 use App\Models\Bundle;
+use App\Models\Exceptions\InvalidKeywordTypeException;
 use App\Models\ForeignMaterialId;
 use App\Models\ForeignResourceId;
 use App\Models\Keyword;
@@ -17,8 +18,9 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
-class InsertOrUpdateMaterial implements ShouldQueue {
+class InsertOrUpdateMaterial implements ShouldQueue, VersionInterface {
 	use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
 
@@ -26,6 +28,7 @@ class InsertOrUpdateMaterial implements ShouldQueue {
 	protected $bundle;
 
 	protected $localMatInfo;
+	protected $version;
 
 	/**
 	 * InsertOrUpdateResource constructor.
@@ -33,9 +36,11 @@ class InsertOrUpdateMaterial implements ShouldQueue {
 	 * @param Bundle $bundle
 	 * @param        $localFileInfo
 	 */
-	public function __construct(Bundle $bundle, $localMaterialInfo) {
+	public function __construct(Bundle $bundle, $localMaterialInfo, $version) {
 		$this->bundle       = $bundle;
 		$this->localMatInfo = $localMaterialInfo;
+		$this->version      = $version;
+
 	}
 
 	/**
@@ -152,39 +157,91 @@ class InsertOrUpdateMaterial implements ShouldQueue {
 		$allMetaData = $bundlesService->getMaterialMetaData($this->bundle, $this->localMatInfo->id);
 
 		/** @var Collection $allExistingKW */
+		/** @var Collection $allExistingBV */
 		$allExistingKW = $material->keywords;
+		$allExistingBV = $material->bibleverses;
 
 		// Check Missing
 		foreach ($allMetaData as $metaData) {
-			try {
-				$testKW = Keyword::make($metaData->value, $metaData->type);
 
-				if ($allExistingKW->contains($testKW)) {
-					$found = $allExistingKW->find($testKW);
+			switch ($metaData->type) {
+				case 'key':
+				case 'person':
+				case 'place':
+				case 'lang':
+					try {
+						$testKW = Keyword::make($metaData->value, $metaData->type);
 
-					if ($testKW->custom_icon != $metaData->custom_icon_path) {
-						// TODO Not working yet
+						if ($allExistingKW->contains($testKW)) {
+							$found = $allExistingKW->find($testKW);
+
+							if ($testKW->custom_icon != $metaData->custom_icon_path) {
+								// TODO Not working yet
+							}
+
+							if ($found->pivot->relevance != $metaData->relevance) {
+								$this->syncMaterialKeyword($material, $testKW, $metaData->relevance);
+							}
+
+							// Remove $testKW from list of existing
+							$allExistingKW = $allExistingKW->filter(function ($value) use ($testKW) {
+								return !($value->id == $testKW->id);
+							});
+						} else {
+							if ($testKW->isDirty()) {
+								$testKW->saveOrFail();
+							}
+
+							$this->syncMaterialKeyword($material, $testKW, $metaData->relevance);
+						}
+
+					} catch (InvalidKeywordTypeException $e) {
+
+					}
+					break;
+
+				case 'bibleverse':
+
+					if (preg_match('~^(\d+)\-(\d+)$~', $metaData->value, $match) === 1) {
+						$from = $match[1];
+						$to   = $match[2];
+
+						$bv = Bibleverse::firstOrNew([
+														 'from' => $from,
+														 'to'   => $to
+													 ]);
+
+						if ($allExistingBV->contains($bv)) {
+							$found = $allExistingBV->find($bv);
+
+							if ($found->pivot->relevance != $metaData->relevance) {
+								$this->syncMaterialBibleverse($material, $bv, $metaData->relevance);
+							}
+
+							// Remove $testBV from list of existing
+							$allExistingBV = $allExistingBV->filter(function ($value) use ($bv) {
+								return !($value->id == $bv->id);
+							});
+						} else {
+							if ($bv->isDirty()) {
+								$bv->saveOrFail();
+							}
+
+							$this->syncMaterialBibleverse($material, $bv, $metaData->relevance);
+						}
+
+
+					} else {
+						Log::error('Meta-Data Bibleverse not recognized: ', [$metaData->value]);
 					}
 
-					if ($found->pivot->relevance != $metaData->relevance) {
-						$this->syncMaterialKeyword($material, $testKW, $metaData->relevance);
-					}
+					break;
 
-					// Remove $testKW from list of existing
-					$allExistingKW = $allExistingKW->filter(function ($value) use ($testKW) {
-						return !($value->id == $testKW->id);
-					});
-				} else {
-					if ($testKW->isDirty()) {
-						$testKW->saveOrFail();
-					}
-
-					$this->syncMaterialKeyword($material, $testKW, $metaData->relevance);
-				}
-
-			} catch (InvalidResourceTypeException $e) {
-
+				default:
+					Log::error('Meta-Data-Type not recognized: ', [$metaData]);
 			}
+
+
 		}
 
 		// Remove the rest
@@ -197,6 +254,10 @@ class InsertOrUpdateMaterial implements ShouldQueue {
 	protected function syncMaterialKeyword(Material $material, Keyword $keyword, $relevance) {
 		$material->keywords()->syncWithoutDetaching([$keyword->id => ['relevance' => $relevance]]);
 
+	}
+
+	protected function syncMaterialBibleverse(Material $material, Bibleverse $bv, $relevance) {
+		$material->bibleverses()->syncWithoutDetaching([$bv->id => ['relevance' => $relevance]]);
 	}
 
 	protected function compareFileAssociations(BundlesService $bundlesService, Material $material) {
@@ -224,5 +285,9 @@ class InsertOrUpdateMaterial implements ShouldQueue {
 		// $mat->save(); // is done in updateMaterial
 
 		return $mat;
+	}
+
+	public function getVersion() {
+		return $this->version;
 	}
 }

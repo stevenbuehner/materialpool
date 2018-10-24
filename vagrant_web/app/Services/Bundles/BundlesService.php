@@ -16,12 +16,19 @@ class BundlesService {
 
 	const LOCAL_DB_FILENAME = 'database.sqlite';
 	const BUNDLE_FILES_DIR  = 'files';
-	protected $existingBundleInfo = NULL;
+	protected $cachedContainerBundleInfos = NULL;
+
+
+	public function __construct() {
+		$this->cachedContainerBundleInfos = collect();
+	}
 
 	public function updateInstalledBundleInfos() {
+		$dbBundles = [];
+
 		foreach ($this->getAllBundles() as $bundleInfo) {
 
-			$bundle = Bundle::firstOrCreate(
+			$dbBundles[] = Bundle::firstOrCreate(
 				[
 					'uuid' => $bundleInfo["uuid"]
 				],
@@ -35,13 +42,15 @@ class BundlesService {
 				]
 			);
 		}
+
+		return $dbBundles;
 	}
 
 	public function getAllBundles() {
 
 		$bundleDisk = $this->getBundleDisk();
 
-		$dirs    = $bundleDisk->allDirectories();
+		$dirs    = $bundleDisk->directories();
 		$bundles = collect();
 
 		foreach ($dirs as $bundleDir) {
@@ -52,7 +61,7 @@ class BundlesService {
 				continue;
 			}
 
-			$bundles = $bundles->merge($this->loadBundleInfo($bundleDisk, $dbPath));
+			$bundles = $bundles->merge($this->loadContainerBundleInfos($bundleDisk, $dbPath));
 
 		}
 
@@ -72,50 +81,58 @@ class BundlesService {
 		return config('app.disks.bundles');
 	}
 
-	protected function loadBundleInfo(FilesystemAdapter $bundleDisk, $dbPath) {
+	protected function loadContainerBundleInfos(FilesystemAdapter $bundleDisk, $dbPath) {
 
-		if ($this->existingBundleInfo === NULL) {
-			$bundleInfos   = collect();
-			$containerName = $this->getContainerNameFromDbPath($dbPath);
+		$containerName = $this->getContainerNameFromDbPath($dbPath);
 
-			if (!Config::has("database.connections.$containerName")) {
-				/** @var Filesystem $driver */
-				$driver = $bundleDisk->getDriver();
+		// Load from cache
+		if ($this->cachedContainerBundleInfos->has($containerName)) {
+			$containerBundles = $this->cachedContainerBundleInfos->get($containerName);
 
-				/** @var Local $adapter */
-				$adapter = $driver->getAdapter();
-
-				$localPrefix = $adapter->getPathPrefix();
-
-
-				$dbConfig = [
-					'driver'   => 'sqlite',
-					'database' => $localPrefix . $dbPath,
-					'prefix'   => '',
-				];
-
-				// Set the temporary configuration
-				Config::set("database.connections.$containerName", $dbConfig);
-			}
-
-			$dbConnection = DB::connection($containerName);
-
-			$bundles = $dbConnection->select('SELECT * FROM bundle');
-			foreach ($bundles as $bundleInfo) {
-				$myBundle                    = (array) $bundleInfo;
-				$myBundle['container_root']  = dirname($dbPath);
-				$myBundle['disk_files']      = dirname(($dbPath)) . '/files';
-				$myBundle['connection']      = $containerName;
-				$myBundle['count_materials'] = (int) $dbConnection->selectOne('SELECT COUNT(*) as Anzahl FROM material WHERE bundle_id=' . $bundleInfo->id)->Anzahl;
-				$myBundle['count_files']     = (int) $dbConnection->selectOne('SELECT COUNT(mf.file_id) as Anzahl FROM material m INNER JOIN material_files mf ON (m.id = mf.material_id) WHERE m.bundle_id=' . $bundleInfo->id)->Anzahl;
-
-				$bundleInfos->put($bundleInfo->uuid, $myBundle);
-			}
-
-			$this->existingBundleInfo = $bundleInfos;
+			return $containerBundles;
 		}
 
-		return $this->existingBundleInfo;
+		$containerBundles = collect();
+
+		// Load from DB
+		if (!Config::has("database.connections.$containerName")) {
+			/** @var Filesystem $driver */
+			$driver = $bundleDisk->getDriver();
+
+			/** @var Local $adapter */
+			$adapter = $driver->getAdapter();
+
+			$localPrefix = $adapter->getPathPrefix();
+
+
+			$dbConfig = [
+				'driver'   => 'sqlite',
+				'database' => $localPrefix . $dbPath,
+				'prefix'   => '',
+			];
+
+			// Set the temporary configuration
+			Config::set("database.connections.$containerName", $dbConfig);
+		}
+
+		$dbConnection = DB::connection($containerName);
+
+		$bundles = $dbConnection->select('SELECT * FROM bundle');
+		foreach ($bundles as $bundleInfo) {
+			$myBundle                    = (array) $bundleInfo;
+			$myBundle["id"]              = (int) $myBundle["id"]; // Parse to int
+			$myBundle['container_root']  = dirname($dbPath);
+			$myBundle['disk_files']      = dirname(($dbPath)) . '/files';
+			$myBundle['connection']      = $containerName;
+			$myBundle['count_materials'] = (int) $dbConnection->selectOne('SELECT COUNT(*) as Anzahl FROM material WHERE bundle_id=' . $bundleInfo->id)->Anzahl;
+			$myBundle['count_files']     = (int) $dbConnection->selectOne('SELECT COUNT(mf.file_id) as Anzahl FROM material m INNER JOIN material_files mf ON (m.id = mf.material_id) WHERE m.bundle_id=' . $bundleInfo->id)->Anzahl;
+
+			$containerBundles->put($bundleInfo->uuid, $myBundle);
+		}
+
+		$this->cachedContainerBundleInfos->put($containerName, $containerBundles);
+
+		return $containerBundles;
 	}
 
 	protected function getContainerNameFromDbPath($dbPath) {
@@ -124,9 +141,9 @@ class BundlesService {
 		return $containerName;
 	}
 
-	public function getBundleFiles(Bundle $bundle, $page = 1, $resourcesPerPage = 100) {
+	public function getBundleFiles($bundleInfo, $page = 1, $resourcesPerPage = 100) {
 
-		$connection = $this->getLocalBundleConnection($bundle);
+		$connection = $this->getBundleConnection($bundleInfo['connection']);
 
 		$query = 'SELECT DISTINCT files.* FROM material INNER JOIN material_files ON (material.id = material_files.material_id) INNER JOIN files ON (files.id=material_files.file_id) WHERE material.bundle_id=:BUNDLE_ID ';
 
@@ -136,7 +153,21 @@ class BundlesService {
 		$start            = $start = ($page - 1) * $resourcesPerPage;
 		$limit            = " LIMIT " . $start . "," . $resourcesPerPage;
 
-		$data = $connection->select($query . $limit, ['BUNDLE_ID' => $bundle->id]);
+		$data = $connection->select($query . $limit, ['BUNDLE_ID' => $bundleInfo["id"]]);
+
+
+		return $data;
+	}
+
+	protected function getBundleConnection($connectionName) {
+		return DB::connection($connectionName);
+	}
+
+	public function getMaterialMetaData(Bundle $bundle, $materialId) {
+
+		$connection = $this->getLocalBundleConnection($bundle);
+		$query      = 'SELECT type, value, relevance, custom_icon_path FROM meta_data WHERE material_id=:MATERIAL';
+		$data       = $connection->select($query, ['MATERIAL' => $materialId]);
 
 
 		return $data;
@@ -145,7 +176,7 @@ class BundlesService {
 	protected function getLocalBundleConnection(Bundle $bundle) {
 		$info = $this->getLocalBundleData($bundle);
 
-		$dbConnection = DB::connection($info['connection']);
+		return $this->getBundleConnection($info['connection']);
 
 		return $dbConnection;
 	}
@@ -178,7 +209,7 @@ class BundlesService {
 			throw new FileNotFoundException($dbPath);
 		}
 
-		$multipleBundleInfos = $this->loadBundleInfo($this->getBundleDisk(), $dbPath);
+		$multipleBundleInfos = $this->loadContainerBundleInfos($this->getBundleDisk(), $dbPath);
 
 
 		if (!$filterUuid !== NULL) {
@@ -189,16 +220,6 @@ class BundlesService {
 
 		return $multipleBundleInfos;
 
-	}
-
-	public function getMaterialMetaData(Bundle $bundle, $materialId) {
-
-		$connection = $this->getLocalBundleConnection($bundle);
-		$query      = 'SELECT type, value, relevance, custom_icon_path FROM meta_data WHERE material_id=:MATERIAL';
-		$data       = $connection->select($query, ['MATERIAL' => $materialId]);
-
-
-		return $data;
 	}
 
 	public function getMaterialAssignedFileUUIDs(Bundle $bundle, $materialId) {
@@ -214,8 +235,8 @@ class BundlesService {
 		//	return $bundle->container_root . DIRECTORY_SEPARATOR . self::BUNDLE_FILES_DIR . DIRECTORY_SEPARATOR . $fileInfo->filePath;
 	}
 
-	public function getBundleMaterials($bundle, $page = 1, $perPage = 100) {
-		$connection = $this->getLocalBundleConnection($bundle);
+	public function getBundleMaterials($bundleInfo, $page = 1, $perPage = 100) {
+		$connection = $this->getBundleConnection($bundleInfo['connection']);
 
 		$query = 'SELECT DISTINCT material.* FROM material WHERE bundle_id=:BUNDLE_ID ';
 
@@ -225,7 +246,7 @@ class BundlesService {
 		$start   = $start = ($page - 1) * $perPage;
 		$limit   = " LIMIT " . $start . "," . $perPage;
 
-		$data = $connection->select($query . $limit, ['BUNDLE_ID' => $bundle->id]);
+		$data = $connection->select($query . $limit, ['BUNDLE_ID' => $bundleInfo['id']]);
 
 		return $data;
 	}

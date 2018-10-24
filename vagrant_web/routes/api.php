@@ -11,6 +11,8 @@
 |
 */
 
+use Illuminate\Support\Facades\Route;
+
 Route::group([
 				 'middleware' => 'auth:api',
 				 'prefix'     => 'v2',
@@ -207,4 +209,15 @@ Route::group([
 		 ->where('foreignMaterialId', '[0-9a-zA-Z_-]+')
 		 ->middleware('can:update,foreignMaterialId')
 		 ->name('api.v1.materialresource.sync');
+
+
+	// Bundle import and update
+	Route::get('bundles', 'BundleImportController@index')
+		 ->name('bundles.index');
+	Route::post('bundles/{bundle}/init-update', 'BundleImportController@initUpdate')
+		 ->name('bundles.update.init')
+		 ->where('bundle', '[0-9]+');
+	Route::post('bundles/{bundle}/run-update', 'BundleImportController@runJobs')
+		 ->name('bundles.update.run')
+		 ->where('bundle', '[0-9]+');
 });

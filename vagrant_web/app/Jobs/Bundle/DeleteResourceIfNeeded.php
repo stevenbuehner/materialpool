@@ -12,13 +12,14 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 
-class DeleteResourceIfNeeded implements ShouldQueue {
+class DeleteResourceIfNeeded implements ShouldQueue, VersionInterface {
 	use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
 
 	/** @var  Bundle $bundle */
 	protected $bundle;
 	protected $foreignResourceId;
+	protected $version;
 
 	protected $localResourceId;
 
@@ -28,9 +29,10 @@ class DeleteResourceIfNeeded implements ShouldQueue {
 	 * @param $resourceToCheck Resource
 	 *
 	 */
-	public function __construct(Bundle $bundle, ForeignResourceId $foreignResourceId) {
+	public function __construct(Bundle $bundle, ForeignResourceId $foreignResourceId, $version) {
 		$this->bundle            = $bundle;
 		$this->foreignResourceId = $foreignResourceId;
+		$this->version           = $version;
 	}
 
 	/**
@@ -46,17 +48,23 @@ class DeleteResourceIfNeeded implements ShouldQueue {
 			/** @var File $resource */
 			$resource = $this->foreignResourceId->resource;
 
-			if ($resource->materials()->count() == 0) {
+			if ($resource && $resource->materials->count() == 0) {
 
 				$resource->deleteLocalFile();
 				$resource->delete();
 
 			}
 
+			$this->foreignResourceId->delete();
+
 		} else {
-			// Material still exists => Nothing to do
+			// Resource still exists => Nothing to do
 		}
 
 
+	}
+
+	public function getVersion() {
+		return $this->version;
 	}
 }

@@ -89,6 +89,7 @@ export const api_v2_materials_delete = (materialId) => {
 
 // API - Keywords
 export const api_v1_keywords_index = '/api/v1/keywords/';
+
 export function api_v1_keywords_show(keywordId) {
     return '/api/v1/keywords/' + keywordId;
 }
@@ -117,4 +118,15 @@ export function api_v1_bibleverse_updateassignment(materialId, bibleverseId) {
 
 export function api_v1_bibleverse_deleteassignment(materialID, bibleverseId) {
     return '/api/v1/material/' + materialID + '/bibleverse/' + bibleverseId;
+}
+
+// API - Bundles
+export const api_v1_bundles_index = '/api/v1/bundles';
+
+export function api_v1_bundles_update_init(bundleId) {
+    return '/api/v1/bundles/' + bundleId + '/init-update';
+}
+
+export function api_v1_bundles_update_run(bundleId) {
+    return '/api/v1/bundles/' + bundleId + '/run-update';
 }
