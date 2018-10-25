@@ -231,7 +231,7 @@
 
                 return this.$store.dispatch('bundles/runJobs', this.bundle.id)
                     .then(({done, open}) => {
-                        this.max     = this.current + open + done;
+                        this.max     = Math.max(this.current + open + done, this.max);
                         this.current = this.max - open;
 
                         if (this.current >= this.max) {
