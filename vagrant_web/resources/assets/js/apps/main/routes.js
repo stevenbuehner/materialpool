@@ -68,7 +68,7 @@ export const routes = [
            }
            ,
            {
-               path: '/bundle', name: 'bundle-list', component: BundleList, alias: 'bundles'
+               path: '/bundle', name: 'bundle-list', component: BundleList, alias: '/bundles'
            }
            ,
            /*
