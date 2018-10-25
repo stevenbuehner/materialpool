@@ -16,27 +16,16 @@
         </div>
 
         <div class="row" v-if="!treeStillLoading">
+
+
             <div class="col-6">
+                <div class="mb-4">
+                    <b-input v-model="treeSearch" :placeholder="$t('pool.Search')"/>
+                </div>
                 <div style="display: inline-block; width: 100%">
-                    <tree-view
-                            :model="treeModel"
-                            category="children"
-                            :selection="treeSelection"
-                            :onSelect="onTreeSelection"
-                            :display="display"
-                            :dragndrop="dragndrop"
-                            :transition="transition"
-                            :css="css"
-                            :strategies="strategies"
-                            :search="search"
-                            :labels="{
-                        'search.placeholder' : $t('pool.Filter-keywords')
-                       }"
-                            :openerOpts="{
-                        position : 'left'
-                    }"
-                    >
-                    </tree-view>
+                    <Tree :tree="this.treeModel"
+                          :move="moveKeyword"
+                          :search-phrase="treeSearch"></Tree>
                 </div>
 
             </div>
@@ -54,11 +43,11 @@
 
 <script>
 
-    import {TreeView} from '@bosket/vue';
-    import {dragndrop} from "@bosket/core"
     import {HollowDotsSpinner} from 'epic-spinners'
     import editIcon from 'svg-icon/dist/svg/ionic/edit.svg';
     import refreshIcon from 'svg-icon/dist/svg/awesome/refresh.svg';
+    import Tree from "../../../components/keyword/tree/Tree";
+    import bInput from 'bootstrap-vue/src/components/form-input/form-input';
 
     export default {
         name: "KeywordList",
@@ -71,65 +60,7 @@
                 treeModelIds: {},
                 treeStillLoading: true,
 
-
-                treeSelection: [],
-                dragndrop: {
-
-                    ...dragndrop.selection(
-                        () => this.treeModel,
-                        m => {
-                            // this.$store.dispatch('keywords/update', {})
-                            this.treeModel = m
-                        }
-                    ),
-
-                    drop: (target, event, inputs) => {
-
-                        const src     = this.treeSelection.pop();
-                        src.draggable = false;
-
-                        this.$store.dispatch('keywords/update', {
-                            id: src.id,
-                            data: {
-                                parent_id: target.id
-                            }
-                        }).then((keyword) => {
-                            console.log(keyword);
-                            this.moveKeyword(keyword, keyword.parent_id);
-                        }).catch((response) => {
-                            alert('Error while moving keyword!');
-                        });
-
-                    },
-
-                    draggable: (_) => {
-                        if (_.draggable === false) {
-                            return false;
-                        } else {
-                            return true;
-                        }
-                    },
-                    droppable: true,
-
-
-                },
-
-                transition: {
-                    attrs: {appear: true},
-                    props: {name: "TreeViewDemoTransition"}
-                },
-
-                css: {TreeView: "TreeViewDemo"},
-
-                strategies: {
-                    click: ["toggle-fold"],
-                    selection: ["modifiers"],
-                    fold: [(item) => {
-                        // Always keep root unfolded
-                        return !item.keepUnfolded
-                    }, 'opener-control']
-                },
-
+                treeSearch: '',
 
             };
         },
@@ -145,51 +76,11 @@
                 this.treeSelection = newSelection;
             },
 
-            search: input => item => item.title.match(new RegExp(`.*${ input }.*`, "gi")),
-
-            display: function (item, test) {
-
-                const h = this.$createElement;
-
-                let classes = ['btn', 'btn-sm'];
-                if (item.draggable === false) {
-                    classes.push('btn-secondary')
-                } else {
-                    classes.push('btn-outline-secondary')
-                }
-
-                let children = [item.title];
-                if (item.icon) {
-                    children.unshift(h('span', {
-                        class: ['keywordlisticon'],
-                        style: {backgroundImage: 'url(' + item.icon + ')'}
-                    }));
-                }
-
-                let result = [h('a', {class: classes, attrs: {href: '#'}}, children)];
-
-                if (item.type) {
-                    result.push(h('router-link', {
-                        attrs: {
-                            'to': {
-                                name: 'keyword-detail',
-                                params: {id: item.id}
-                            }
-                        }
-                    }, [h(editIcon, {
-                        class: 'editIcon',
-                        attrs: {href: this.$router}
-                    })]));
-                }
-
-                return result;
-            },
-
             createModelFromKeywords(keywords) {
 
                 let ids      = {};
                 let model    = [];
-                let root     = {'title': 'root', draggable: false, keepUnfolded: true, children: [], id: null};
+                let root     = {'title': 'root', draggable: false, isOpen: true, children: [], id: null};
                 let laterRun = [];
 
                 model.push(root);
@@ -224,40 +115,68 @@
 
             },
 
-            moveKeyword(keyword, targetId) {
+
+            moveKeyword({sourceId, targetId}) {
+
                 // Detach from tree first
-                this.detachKeyword(keyword);
-                this.attachKeyword(keyword, targetId);
+                const backKW       = this.getKeyword(sourceId);
+                const backParentId = backKW.parent_id;
+
+                this.detachKeyword(sourceId);
+
+                this.$store.dispatch('keywords/update', {
+                    id: sourceId,
+                    data: {
+                        parent_id: targetId
+                    }
+                }).then((keyword) => {
+
+                    this.attachKeyword(keyword, keyword.parent_id);
+
+                    this.flashSuccess(this.$t('pool.Keyword-saved'), {timeout: 3000});
+
+                }).catch((response) => {
+                    // Reattach keyword at the end
+                    this.attachKeyword(backKW, backParentId);
+                    this.flashError(this.$t('pool.Error-while-moving-keyword'));
+                });
             },
 
-            detachKeyword(keyword) {
-                const oldModel = this.treeModelIds[keyword.id];
+            getKeyword(keywordId) {
+                if (!keywordId) {
+                    // Return root
+                    return this.treeModel[0];
+                } else {
+                    return this.treeModelIds[keywordId];
+                }
+            },
+
+            detachKeyword(keywordId) {
+
+                keywordId      = parseInt(keywordId);
+                const oldModel = this.treeModelIds[keywordId];
 
                 // Remove from Array
-                const parent    = (oldModel.parent_id) ? this.treeModelIds[oldModel.parent_id] : this.treeModel[0];
-                parent.children = parent.children.filter(kw => kw.id !== keyword.id);
+                const parent    = this.getKeyword(oldModel.parent_id);
+                parent.children = parent.children.filter(kw => kw.id !== keywordId);
                 // parent.children.splice(parent.indexOf(oldModel), 1);
 
                 // Remove from Index-Object
-                delete this.treeModelIds[keyword.id];
+                delete this.treeModelIds[keywordId];
 
-                console.log(this.treeModel, this.treeModelIds);
             },
 
-            attachKeyword(keyword, targetId) {
+            attachKeyword(sourceKeyword, targetId) {
 
-                if (!keyword.children || !Array.isArray(keyword.children)) {
-                    keyword.children = [];
+                const targetKeyword = this.getKeyword(targetId);
+
+                if (!targetKeyword.children || !Array.isArray(targetKeyword.children)) {
+                    targetKeyword.children = [];
                 }
 
-                if (targetId) {
-                    this.treeModelIds[targetId].children.push(keyword);
-                } else {
-                    const root = this.treeModel[0];
-                    root.children.push(keyword);
-                }
+                targetKeyword.children.push(sourceKeyword);
 
-                this.treeModelIds[keyword.id] = keyword;
+                this.treeModelIds[sourceKeyword.id] = sourceKeyword;
 
             },
 
@@ -282,160 +201,14 @@
         },
 
         components: {
-            TreeView,
+            Tree,
             HollowDotsSpinner,
             editIcon,
-            refreshIcon
+            refreshIcon,
+            bInput
         }
     }
 </script>
-
-<style>
-    /* Search bar */
-
-    .TreeViewDemo > input[type="search"] {
-        width: 100%;
-        height: 3em;
-        transition: border 0.5s;
-        border-radius: 0.2rem;
-        text-indent: 0.5rem;
-        border: 1px solid #6c757d;
-        color: #6c757d;
-    }
-
-    /* Elements */
-
-    .TreeViewDemo {
-        white-space: nowrap;
-    }
-
-    .TreeViewDemo ul {
-        list-style: none;
-        padding-left: 2em;
-    }
-
-    .TreeViewDemo li {
-        min-width: 100px;
-        transition: all 0.25s ease-in-out;
-    }
-
-    .TreeViewDemo ul li > .item {
-        position: relative;
-        margin-left: 1.5em;
-    }
-
-    .TreeViewDemo ul li > .item > a {
-        vertical-align: middle;
-        transition: all 0.25s;
-    }
-
-    .TreeViewDemo ul li:not(.disabled) .item > a {
-        cursor: pointer;
-    }
-
-    .TreeViewDemo li {
-        margin: .25em 0 0 0;
-    }
-
-    /* Root elements */
-
-    .TreeViewDemo ul.depth-0 {
-        padding: 20px;
-        margin: 0;
-        background-color: rgba(255, 255, 255, 0.4);
-        user-select: none;
-        transition: all 0.25s;
-    }
-
-    /* Categories : Nodes with children */
-
-    .TreeViewDemo li.category > .item {
-        transition: all 0.25s ease-in-out;
-    }
-
-    .TreeViewDemo li.category:not(.folded) > .item {
-    }
-
-    /* Category opener */
-
-    .TreeViewDemo .opener {
-        display: block;
-        vertical-align: middle;
-        font-size: 20px;
-        cursor: pointer;
-        position: absolute;
-    }
-
-    .TreeViewDemo .opener::after {
-        content: '+';
-        display: inline-block;
-        transition: all 0.25s;
-        font-family: monospace;
-    }
-
-    .TreeViewDemo li.category.async > .item > .opener::after {
-        content: '!';
-    }
-
-    .TreeViewDemo .opener:hover {
-        color: #007bff;
-    }
-
-    .TreeViewDemo li.category:not(.folded) > .item > .opener::after {
-        color: #007bff;
-        transform: rotate(45deg);
-    }
-
-    @keyframes spin {
-        from {
-            transform: rotate(0deg)
-        }
-        to {
-            transform: rotate(360deg)
-        }
-    }
-
-    .TreeViewDemo li.category.loading > .item > .opener::after {
-        animation: spin 1s infinite;
-    }
-
-    /* Animations on fold / unfold */
-
-    .TreeViewDemoTransition-enter, .TreeViewDemoTransition-leave-to {
-        opacity: 0;
-        transform: translateX(-50px);
-    }
-
-    .TreeViewDemoTransition-enter-active, .TreeViewDemoTransition-leave-active {
-        transition: all .3s ease-in-out;
-    }
-
-    /* Drag'n'drop */
-
-    .TreeViewDemo li.dragover, .TreeViewDemo ul.dragover {
-        box-shadow: 0px 0px 5px #2ecc3b
-    }
-
-    .TreeViewDemo ul.dragover {
-        background-color: rgba(102, 204, 120, 0.15);
-    }
-
-    .TreeViewDemo li.dragover {
-        background-color: rgba(102, 204, 120, 0.15);
-        padding: 0px 5px;
-    }
-
-    .TreeViewDemo li.dragover > span.item {
-        border-color: transparent;
-    }
-
-    .TreeViewDemo li.nodrop {
-        box-shadow: 0px 0px 5px crimson;
-        background-color: rgba(255, 20, 60, 0.1);
-        padding: 0px 5px;
-    }
-
-</style>
 
 <style>
     .keywordlisticon {
@@ -450,11 +223,6 @@
         background-image: url(/img/icons/tag.svg);
         margin-right: 0.5rem;
         margin-left: 0;
-    }
-
-    .editIcon {
-        height: 1rem;
-        margin-left: 1rem;
     }
 
 </style>

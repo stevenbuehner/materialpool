@@ -217,24 +217,26 @@ const actions = {
         const result = axios.post(api_v1_keywords_update(id), data)
             .then((response) => {
                 return response.data;
-            }).catch((response) => {
-                return response;
             });
 
-        result.then((keyword) => {
+        result
+            .then((keyword) => {
 
-            // dispatch('updateMaterialsWithKeywordProperties', response.data);
-            commit('setKeyword', keyword);
+                // dispatch('updateMaterialsWithKeywordProperties', response.data);
+                commit('setKeyword', keyword);
 
-            if (keyword.id !== id) {
-                // The ID of the keyword was changed (weil der Tag mit einem anderen identischen Tag übereinstimmte und gemerged wurde)
-                // => Der geladene Tag-Baum ist nicht mehr gültig => Reload
+                if (keyword.id !== id) {
+                    // The ID of the keyword was changed (weil der Tag mit einem anderen identischen Tag übereinstimmte und gemerged wurde)
+                    // => Der geladene Tag-Baum ist nicht mehr gültig => Reload
 
-                commit('removeKeyword', id);
-                commit('allKeywordsLoaded', false);
-            }
+                    commit('removeKeyword', id);
+                    commit('allKeywordsLoaded', false);
+                }
 
-        });
+            })
+            .catch((response) => {
+                console.error(response);
+            });
 
         return result;
     },

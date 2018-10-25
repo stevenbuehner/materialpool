@@ -155,8 +155,10 @@ return [
 	'update-available'                    => 'update available',
 	'uninstall'                           => 'uninstall',
 	'update-is-initializing'              => 'update is initializing',
-	'cancel'                                    => 'cancel',
-	'canceling-update'                                    => 'canceling update ...',
+	'cancel'                              => 'cancel',
+	'canceling-update'                    => 'canceling update ...',
+	'Keyword-saved'                       => 'Keyword saved',
+	'Error-while-moving-keyword'          => 'Error while moving keyword',
 	''                                    => '',
 	''                                    => '',
 

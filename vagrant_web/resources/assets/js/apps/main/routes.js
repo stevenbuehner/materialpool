@@ -13,72 +13,81 @@ import BundleList from './pages/BundleList.vue';
 
 export const routes = [
 
-    {
-        path: '/search/:page?', component: SearchPage, name: 'search', props: (route) => {
+           {
+               path: '/search/:page?', component: SearchPage, name: 'search', props: (route) => {
 
-            let params = {};
+                   let params = {};
 
-            if (route.params.page) {
-                params.page = parseInt(route.params.page);
-            }
+                   if (route.params.page) {
+                       params.page = parseInt(route.params.page);
+                   }
 
-            return params;
-        }
-    },
-    {
-        path: '/material', component: MaterialApp, name: 'material'
-    },
-    {
-        path: '/material/:id', component: MaterialDetail, name: 'material-detail', props: (route) => {
-            return {id: parseInt(route.params.id)};
-        }
-    },
-    {
-        path: '/resource/create', component: ResourceCreate, name: 'resource-create', props: false
-    },
-    {
-        path: '/resource/:id', component: ResourceDetail, name: 'resource-detail', props: (route) => {
-            return {id: parseInt(route.params.id)};
-        }
-    },
-    {
-        path: '/resource/:id/assign',
-        component: AssignApp,
-        name: 'resource-assign',
-        props: (route) => {
-            return {id: parseInt(route.params.id)};
-        }
-    },
-    {
-        path: '/resource/:id/pdf-assign', name: 'resource-pdf-assign', component: AssignApp, props: (route) => {
-            return {id: parseInt(route.params.id)};
-        }
-    },
+                   return params;
+               }
+           },
+           {
+               path: '/material', component: MaterialApp, name: 'material', alias: '/materials'
+           },
+           {
+               path: '/material/:id', component: MaterialDetail, name: 'material-detail', props: (route) => {
+                   return {id: parseInt(route.params.id)};
+               }
+           },
+           {
+               path: '/resource/create', component: ResourceCreate, name: 'resource-create', props: false
+           },
+           {
+               path: '/resource/:id', component: ResourceDetail, name: 'resource-detail', props: (route) => {
+                   return {id: parseInt(route.params.id)};
+               }
+           },
+           {
+               path: '/resource/:id/assign',
+               component: AssignApp,
+               name: 'resource-assign',
+               props: (route) => {
+                   return {id: parseInt(route.params.id)};
+               }
+           },
+           {
+               path: '/resource/:id/pdf-assign', name: 'resource-pdf-assign', component: AssignApp, props: (route) => {
+                   return {id: parseInt(route.params.id)};
+               }
+           },
 
-    {
-        path: '/keyword', name: 'keyword-list', component: KeywordList
-    },
-    {
-        path: '/keyword/:id', name: 'keyword-detail', component: KeywordDetail, props: (route) => {
-            return {id: parseInt(route.params.id)};
-        }
-    },
-    {
-        path: '/bundle', name: 'bundle-list', component: BundleList
-    },
-    /*
-    {
-        path: '/passport/client', component: PassportClient, name: 'passport-client'
-    },
-    {
-        path: '/passport/authorizedclient', component: PassportAuthorizedClient, name: 'passport-authorizedclient'
-    },
-    {
-        path: '/passport/personalaccesstokens',
-        component: PassportPersonalAccessTokens,
-        name: 'passport-personalaccesstokens'
-    },
-    */
-    {path: '*', redirect: '/search'}
+           {
+               path: '/keyword', name: 'keyword-list', component: KeywordList, alias: '/keywords'
+           },
+           {
+               path: '/keyword/:id', name:
+                   'keyword-detail', component:
+               KeywordDetail, props:
+                   (route) => {
+                       return {id: parseInt(route.params.id)};
+                   }
+           }
+           ,
+           {
+               path: '/bundle', name: 'bundle-list', component: BundleList, alias: 'bundles'
+           }
+           ,
+           /*
+           {
+               path: '/passport/client', component: PassportClient, name: 'passport-client'
+           },
+           {
+               path: '/passport/authorizedclient', component: PassportAuthorizedClient, name: 'passport-authorizedclient'
+           },
+           {
+               path: '/passport/personalaccesstokens',
+               component: PassportPersonalAccessTokens,
+               name: 'passport-personalaccesstokens'
+           },
+           */
+           {
+               path: '*', redirect:
+                   '/search'
+           }
 
-];
+       ]
+;

@@ -10,8 +10,6 @@ import bibleIcon from './../../../icons/bibleverse/bible.svg';
 import ayceIcon from './../../../icons/keyword/ayce.svg';
 
 
-
-
 export {
     keyIcon,
     personIcon,
@@ -22,4 +20,19 @@ export {
     bibleIcon,
     ayceIcon,
     langIcon
+};
+
+export function iconName(keyword) {
+    let type = keyword.type || 'unknown';
+
+    switch (type) {
+        case 'lang':
+        case 'place':
+        case 'person':
+        case 'key':
+            return type + '-icon';
+        default:
+            console.error('Could not find an icon for type: ' + type, keyword);
+            return 'ayce-icon';
+    }
 }

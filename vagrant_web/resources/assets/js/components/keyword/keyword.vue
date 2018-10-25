@@ -79,7 +79,7 @@
     import contextMenuItem from "../context-menu/context-menu-item.vue";
     import {tagging} from './../theme';
     import {keywordSearchLink} from './../serverRoutes';
-    import {ayceIcon, keyIcon, langIcon, personIcon, placeIcon} from './keywordDefaultIcons';
+    import {ayceIcon, iconName, keyIcon, langIcon, personIcon, placeIcon} from './keywordDefaultIcons';
 
     import {draggingSupport} from "./dragging.mixin";
 
@@ -171,17 +171,7 @@
             },
 
             iconName() {
-                let type = this.myKeyword.type || 'unknown';
-
-                switch (type) {
-                    case 'lang':
-                    case 'place':
-                    case 'person':
-                    case 'key':
-                        return type + '-icon';
-                    default:
-                        return 'ayce-con';
-                }
+                return iconName(this.myKeyword);
             },
 
         },

@@ -145,7 +145,9 @@ export default {
             "uninstall": "deinstallieren",
             "update-is-initializing": "Update wird initialisiert",
             "cancel": "abbrechen",
-            "canceling-update": "update wird abgebrochen ..."
+            "canceling-update": "update wird abgebrochen ...",
+            "Keyword-saved": "Tag gespeichert",
+            "Error-while-moving-keyword": "Es ist ein Fehler beim Bewegen des Tags aufgetreten"
         }
     },
     "en": {
@@ -319,6 +321,8 @@ export default {
             "update-is-initializing": "update is initializing",
             "cancel": "cancel",
             "canceling-update": "canceling update ...",
+            "Keyword-saved": "Keyword saved",
+            "Error-while-moving-keyword": "Error while moving keyword",
             "": ""
         },
         "validation": {

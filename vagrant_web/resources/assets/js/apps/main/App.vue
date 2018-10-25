@@ -14,9 +14,7 @@
     import flashMessage from 'vue-flash-message';
     import Vue from 'vue';
 
-    Vue.use(flashMessage, {
-        createShortcuts: false
-    });
+    Vue.use(flashMessage);
 
     export default {
         name: 'AppWrapper',

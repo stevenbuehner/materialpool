@@ -148,4 +148,6 @@ return [
 	'update-is-initializing'              => 'Update wird initialisiert',
 	'cancel'                              => 'abbrechen',
 	'canceling-update'                    => 'update wird abgebrochen ...',
+	'Keyword-saved'                       => 'Tag gespeichert',
+	'Error-while-moving-keyword'          => 'Es ist ein Fehler beim Bewegen des Tags aufgetreten',
 ];
