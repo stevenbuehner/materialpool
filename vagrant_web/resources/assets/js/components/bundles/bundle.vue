@@ -212,6 +212,7 @@
                         )
                         .catch((e) => {
                             this.isRunning = false;
+                            this.flashError('Error whilte initializing Jobs!');
                         });
                 }
 

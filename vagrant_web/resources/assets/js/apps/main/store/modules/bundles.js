@@ -134,9 +134,6 @@ const actions = {
 
         return axios.post(api_v1_bundles_update_init(id))
             .then(({data}) => data)
-            .catch((response) => {
-                console.error(response);
-            });
 
     },
 
