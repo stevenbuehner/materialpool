@@ -212,7 +212,7 @@
                         )
                         .catch((e) => {
                             this.isRunning = false;
-                            this.flashError('Error whilte initializing Jobs!');
+                            this.flashError('Error while initializing Jobs!');
                         });
                 }
 
@@ -243,6 +243,7 @@
 
                     }).catch(() => {
                         this.isRunning = false;
+                        this.flashError('Error in job!');
                     });
 
             },

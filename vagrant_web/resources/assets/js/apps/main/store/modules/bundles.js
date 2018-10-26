@@ -141,11 +141,7 @@ const actions = {
 
 
         const response = axios.post(api_v1_bundles_update_run(bundleId))
-            .then(({data}) => data)
-            .catch((response) => {
-                console.error(response);
-                return response;
-            });
+            .then(({data}) => data);
 
         response.then(({bundle}) => {
             if (bundle) {
