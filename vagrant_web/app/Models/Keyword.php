@@ -82,7 +82,7 @@ class Keyword extends Model {
 	 * @throws InvalidKeywordTypeException
 	 */
 	public static function create(string $value, string $type = 'key', $otherAttributes = []) {
-		$instance = self::make($value, $type, $otherAttributes);
+		$instance = self::make(trim($value), $type, $otherAttributes);
 
 		if ($instance->exists === FALSE) {
 			$instance->save();
@@ -108,7 +108,7 @@ class Keyword extends Model {
 		$class                   = $map[$type];
 		$otherAttributes['type'] = $type;
 
-		return $class::firstOrNew(array_merge($otherAttributes, ['title' => $value]));
+		return $class::firstOrNew(array_merge($otherAttributes, ['title' => trim($value)]));
 	}
 
 	public static function getSingleTableType() {
