@@ -70,11 +70,12 @@
                 const regExp = new RegExp(`.*${ this.searchPhrase }.*`, "gi");
 
                 const filterList = (node) => {
-                    if (node.children && node.children instanceof Array && node.children.length > 0) {
+                    const lengthy = node.children && node.children instanceof Array && node.children.length > 0;
+                    if (lengthy) {
                         node.children = node.children.filter(filterList);
                     }
 
-                    return node.children.length > 0 || node.title.match(regExp);
+                    return lengthy || node.title.match(regExp);
                 };
 
                 return copy.filter(filterList);
