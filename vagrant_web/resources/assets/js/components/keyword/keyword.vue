@@ -5,11 +5,10 @@
              @mousedown.left.prevent="startDrag"
              @click.right="openRightClickMenu"
              @dblclick.prevent="openKeywordEditModal"
-             role="button"
-             :style="{color: theme.colors.color, backgroundColor: theme.colors.background}">
-            <div class="sb-progress-bar" :style="styleObject"></div>
+             role="button">
+            <div class="sb-progress-bar" :class="{isDragging : dragging.ongoing}" :style="styleObject"></div>
             <component :is="iconName" class="icon"></component>
-            <span class="text" :style="{color: theme.colors.font}">{{ myKeyword.title }}</span>
+            <span class="text">{{ myKeyword.title }}</span>
             <span class="delete" v-if="removeable" @mousedown.left.stop @click.prevent.stop="removeKeyword">x</span>
         </div>
 
@@ -77,7 +76,6 @@
     import bFormSelect from 'bootstrap-vue/es/components/form-select/form-select';
     import contextMenu from './../context-menu/context-menu.vue';
     import contextMenuItem from "../context-menu/context-menu-item.vue";
-    import {tagging} from './../theme';
     import {keywordSearchLink} from './../serverRoutes';
     import {ayceIcon, iconName, keyIcon, langIcon, personIcon, placeIcon} from './keywordDefaultIcons';
 
@@ -145,10 +143,6 @@
 
         computed: {
 
-            theme() {
-                return tagging;
-            },
-
             searchLink() {
                 return keywordSearchLink(this.myKeyword);
             },
@@ -166,7 +160,6 @@
             styleObject: function () {
                 return {
                     width: this.relevance / 300 * 100 + '%',
-                    backgroundColor: this.dragging.ongoing === true ? this.theme.colors.progressbar.dragging : this.theme.colors.progressbar.default,
                 }
             },
 
@@ -346,17 +339,22 @@
 
 </script>
 
-<style scoped>
+<style scoped type="scss">
+
+    @import "resources/assets/sass/theme.scss";
+
     .kw-wrapper {
         display: inline-block;
         position: relative;
         margin-bottom: 0.5rem;
         margin-right: 0.25rem;
         line-height: 1em;
+        color: $tag-font-colour;
     }
 
     .sb-keyword {
         border: 0;
+        background-color:  $tag-background-colour;
     }
 
     .text {
@@ -369,6 +367,11 @@
         top: 0;
         height: 100%;
         border-radius: .2rem;
+        background-color: $tag-progressbar-default-colour;
+    }
+
+    .sb-progress-bar.isDragging{
+        background-color: $tag-progressbar-dragging-colour;
     }
 
     .icon {

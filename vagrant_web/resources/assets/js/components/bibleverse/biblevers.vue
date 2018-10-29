@@ -4,11 +4,10 @@
              :class="{'tag-readonly' : !editable, 'tag-editable' : editable}"
              @mousedown.left.prevent="startDrag"
              @click.right="openRightClickMenu"
-             role="button"
-             :style="{color: theme.colors.color, backgroundColor: theme.colors.background}">
-            <div class="sb-progress-bar" :style="styleObject"></div>
+             role="button">
+            <div class="sb-progress-bar" :class="{isDragging : dragging.ongoing}" :style="styleObject"></div>
             <bible-icon class="icon"></bible-icon>
-            <span class="text" :style="{color: theme.colors.font}">{{ myBibleverse.label }}</span>
+            <span class="text">{{ myBibleverse.label }}</span>
             <span class="delete" v-if="removeable" @mousedown.left.stop @click.prevent.stop="removeBibleverse">x</span>
         </div>
 
@@ -24,7 +23,6 @@
 <script>
 
     import {draggingSupport} from "../keyword/dragging.mixin";
-    import {tagging} from './../theme';
     import contextMenu from './../context-menu/context-menu.vue';
     import contextMenuItem from "../context-menu/context-menu-item.vue";
     import {bibleverseSearchLink} from './../serverRoutes';
@@ -86,10 +84,6 @@
 
         computed: {
 
-            theme() {
-                return tagging;
-            },
-
             relevance() {
                 if (this.dragging.ongoing === true) {
                     return this.dragDifference;
@@ -102,7 +96,6 @@
             styleObject: function () {
                 return {
                     width: this.relevance / 300 * 100 + '%',
-                    backgroundColor: this.dragging.ongoing === true ? this.theme.colors.progressbar.dragging : this.theme.colors.progressbar.default,
                 }
             }
         },
@@ -216,7 +209,10 @@
 
 </script>
 
-<style scoped>
+<style scoped type="scss">
+
+    @import "resources/assets/sass/theme.scss";
+
 
     .bibleverse-wrapper {
         display: inline-block;
@@ -224,11 +220,12 @@
         margin-bottom: 0.5rem;
         margin-right: 0.25rem;
         line-height: 1em;
+        color: $tag-font-colour;
     }
 
     .sb-bibleverse {
         border: 0;
-        background-color: #74787E;
+        background-color:  $tag-background-colour;
     }
 
     .text {
@@ -241,6 +238,11 @@
         top: 0;
         height: 100%;
         border-radius: .2rem;
+        background-color: $tag-progressbar-default-colour;
+    }
+
+    .sb-progress-bar.isDragging{
+        background-color: $tag-progressbar-dragging-colour;
     }
 
     .delete {

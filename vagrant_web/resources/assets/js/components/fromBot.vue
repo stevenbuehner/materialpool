@@ -1,7 +1,6 @@
 <template>
     <div class="from-bot-wrapper" @click="toggleRequest">
-        <div class="btn btn-sm from-bot" :class="{'btn-secondary' : fromBot, 'btn-success' : !fromBot}"
-             :style="{color: theme.colors.color, backgroundColor: fromBot ? theme.colors.background : theme.colors.progressbar.default}">
+        <div class="btn btn-sm from-bot" :class="{'isBot' : fromBot, 'notBot' : !fromBot}">
             <span class="icon"
                   :style="{backgroundImage : fromBot ? 'url(/img/icons/entypo-plus/laptop.svg)' : 'url(/img/icons/entypo-plus/fingerprint.svg)', }"></span>
             <span class="text">{{ label }}</span>
@@ -10,8 +9,6 @@
 </template>
 
 <script>
-
-    import {tagging} from './theme';
 
     export default {
         name: "from-bot",
@@ -23,10 +20,6 @@
         },
 
         computed: {
-
-            theme() {
-                return tagging;
-            },
 
             label() {
                 return this.fromBot ? 'from bot' : 'by user';
@@ -41,7 +34,10 @@
     }
 </script>
 
-<style scoped>
+<style scoped type="scss">
+
+    @import "resources/assets/sass/theme.scss";
+
     .from-bot-wrapper {
         float: left;
         position: relative;
@@ -50,7 +46,20 @@
     }
 
     .from-bot {
-        border: 0;
+        color: $tag-font-colour;
+        background-color: $tag-background-colour;
+        border: 1px solid $tag-background-colour;
+    }
+
+    .notBot {
+        background-color: $my-green;
+        border-color:  $my-green;
+        transition: background-color .5s, border-color .5s;
+    }
+
+    .notBot:hover{
+        background-color: $my-green-hover;
+        border-color:  $my-green-hover;
     }
 
     .icon {
