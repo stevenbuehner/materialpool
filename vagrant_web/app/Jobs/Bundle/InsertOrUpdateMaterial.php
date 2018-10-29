@@ -2,6 +2,8 @@
 
 namespace App\Jobs\Bundle;
 
+use App\Jobs\CheckLonelyBibleverse;
+use App\Jobs\CheckLonelyKeyword;
 use App\Models\Bibleverse;
 use App\Models\Bundle;
 use App\Models\Exceptions\InvalidKeywordTypeException;
@@ -202,14 +204,25 @@ class InsertOrUpdateMaterial implements ShouldQueue, VersionInterface {
 
 				case 'bibleverse':
 
-					if (preg_match('~^(\d+)\-(\d+)$~', $metaData->value, $match) === 1) {
-						$from = $match[1];
-						$to   = $match[2];
+					if (preg_match('~^(\d+):(\d+):(\d+)\-(\d+):(\d+):(\d+)$~', $metaData->value, $match) === 1) {
+						$from_book    = $match[1];
+						$from_chapter = $match[2];
+						$from_verse   = $match[3];
+						$to_book      = $match[4];
+						$to_chapter   = $match[5];
+						$to_verse     = $match[6];
 
-						$bv = Bibleverse::firstOrNew([
-														 'from' => $from,
-														 'to'   => $to
-													 ]);
+
+						$bv = new Bibleverse([
+												 'from_book_id' => $from_book,
+												 'from_chapter' => $from_chapter,
+												 'from_verse'   => $from_verse,
+												 'to_book_id'   => $to_book,
+												 'to_chapter'   => $to_chapter,
+												 'to_verse'     => $to_verse,
+											 ]);
+						$bv = Bibleverse::findOrCreateFromBibleverseInterface($bv);
+
 
 						if ($allExistingBV->contains($bv)) {
 							$found = $allExistingBV->find($bv);
@@ -247,6 +260,17 @@ class InsertOrUpdateMaterial implements ShouldQueue, VersionInterface {
 		// Remove the rest
 		if ($allExistingKW->count() > 0) {
 			$material->keywords()->detach($allExistingKW->pluck('id'));
+			$allExistingKW->each(function ($kw) {
+				CheckLonelyKeyword::dispatch($kw)->onConnection($this->connection);;
+			});
+		}
+
+		// Remove the rest
+		if ($allExistingBV->count() > 0) {
+			$material->bibleverses()->detach($allExistingBV->pluck('id'));
+			$allExistingBV->each(function ($bv) {
+				CheckLonelyBibleverse::dispatch($bv)->onConnection($this->connection);;
+			});
 		}
 
 	}
