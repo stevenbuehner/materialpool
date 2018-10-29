@@ -11,16 +11,14 @@
                 <div class="d-flex justify-content-between bundleProgressFront">
                     <div>
                         <h4 class="card-title">{{bundle.name}}</h4>
-                        <h6 class="card-subtitle text-muted">{{installedVersion}}
-                            <span v-if="updateAvailable">{{$t('pool.please-run-update-for')}} V{{info.version}}</span>
-                        </h6>
+                        <h6 class="card-subtitle text-muted">{{installedVersion}}</h6>
                     </div>
 
                     <div class="bundleTodoMenu">
                         <b-button variant="warning"
                                   v-if="updateAvailable && isRunning === false"
                                   @click="btnStartUpdate">
-                            {{$t('pool.update-available')}}
+                            {{$t('pool.please-run-update-for', {VERSION : info.version})}}
                         </b-button>
                         <b-button variant="warning"
                                   v-if="installAvailable && isRunning === false"
@@ -172,8 +170,6 @@
                             });
                     }
 
-                    console.log('loading bundle from store');
-
                     return this.$store.dispatch('bundles/getBundle', this.uuid);
                 },
                 default: null,
@@ -183,7 +179,6 @@
             },
             info: {
                 get() {
-                    console.log('reloading info');
                     return this.$store.dispatch('bundles/getBundleInfo', this.uuid);
                 },
                 default: null,
@@ -203,9 +198,10 @@
                     this.isInitializing = true;
 
                     this.$store.dispatch('bundles/initUpdateJobs', this.bundle.id)
-                        .then(({deleteJobs, updateJobs, deletedJobs}) => {
+                        .then(({deleteJobs, updateJobs, deletedJobs, openJobs, continueUpdate, updateAvailable}) => {
                                 this.isInitializing = false;
-                                this.max            = (deleteJobs || 0) + (updateJobs || 0);
+                                this.max            = openJobs;
+                                // this.max            = (deleteJobs || 0) + (updateJobs || 0);
                                 this.current        = 0;
                                 this.runNextJobs();
                             }

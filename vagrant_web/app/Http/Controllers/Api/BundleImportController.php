@@ -64,10 +64,11 @@ class BundleImportController extends BaseController {
 	public function initUpdate(Bundle $bundle) {
 
 		// Init output
-		$updateInProgress = FALSE;
-		$countDeletedJobs = 0;
-		$deleteJobs       = 0;
-		$updateJobs       = 0;
+		$updateInProgress    = FALSE;
+		$countDeletedJobs    = 0;
+		$deleteJobs          = 0;
+		$updateJobs          = 0;
+		$alreadyExistingJobs = 0;
 		// $updateAvailable  = FALSE;
 
 		try {
@@ -83,9 +84,9 @@ class BundleImportController extends BaseController {
 		if ($updateAvailable === TRUE) {
 
 			// 1) Check if update is already in progress => continue
-			$queueName = $this->bundleQueueService->getQueueName($bundle);
-			$jobs      = $this->bundleQueueService->countJobsInQueue($queueName);
-			if ($jobs > 0) {
+			$queueName           = $this->bundleQueueService->getQueueName($bundle);
+			$alreadyExistingJobs = $this->bundleQueueService->countJobsInQueue($queueName);
+			if ($alreadyExistingJobs > 0) {
 				$jobVersion = $this->bundleQueueService->getFirstJobVersion($queueName);
 
 				// Todo: Also check if the jobs are complete (by searching for the last job, that should be an instance of FinishImportAfterUpdate
@@ -123,6 +124,7 @@ class BundleImportController extends BaseController {
 			'deletedJobs'     => $countDeletedJobs,
 			'deleteJobs'      => $deleteJobs,
 			'updateJobs'      => $updateJobs,
+			'openJobs'        => $alreadyExistingJobs + $deleteJobs + $updateJobs
 			// 'info'        => $info
 		];
 
