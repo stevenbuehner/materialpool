@@ -3,6 +3,7 @@ const webpack = require('webpack');
 
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const devMode              = process.env.NODE_ENV !== 'production';
+const VueLoaderPlugin      = require('vue-loader/lib/plugin');
 
 // const MergeIntoSingleFilePlugin = require('webpack-merge-and-include-globally');
 
@@ -95,39 +96,26 @@ module.exports = {
             },
             {
                 test: /\.vue$/,
-                loader: 'vue-loader',
-                options: {
-                    loaders: {},
-                    // other vue-loader options go here
-                }
+                use: 'vue-loader',
             },
         ]
     },
     plugins: [
-        /*new MergeIntoSingleFilePlugin({
+        new VueLoaderPlugin(),
 
-            "bundle.js": [
-                path.resolve(__dirname, 'src/util.js'),
-                path.resolve(__dirname, 'src/index.js')
-            ],
-
-            "dependencies.css": [
-                path.resolve(__dirname, 'src/css/main.css'),
-                path.resolve(__dirname, 'src/css/local.css')
-            ]
-        })
-*/
         new MiniCssExtractPlugin({
             // Options similar to the same options in webpackOptions.output
             // both options are optional
             filename: "css/[name].css",
             chunkFilename: "css/[id].css"
         }),
-        new webpack.LoaderOptionsPlugin({
-            options: {
-                context: process.cwd() // or the same value as `context`
+
+
+        new webpack.DefinePlugin({
+            'process.env': {
+                NODE_ENV: devMode ? '"development"' : '"production"'
             }
-        })
+        }),
     ],
     resolve: {
         extensions: ['*', '.js', '.vue', '.json'],//in webpack 2.2 default resolve .js .json
@@ -158,22 +146,7 @@ module.exports = {
 if (process.env.NODE_ENV === 'production') {
     module.exports.devtool = '#source-map'
     // http://vue-loader.vuejs.org/en/workflow/production.html
-    module.exports.plugins = (module.exports.plugins || []).concat([
-        new webpack.DefinePlugin({
-            'process.env': {
-                NODE_ENV: '"production"'
-            }
-        }),
-        /*
-        new webpack.optimize.UglifyJsPlugin({
-            sourceMap: true,
-            compress: {
-                warnings: false
-            }
-        }),
-        */
-        new webpack.LoaderOptionsPlugin({
-            minimize: true
-        })
-    ])
+    module.exports.plugins = (module.exports.plugins || []).concat([]);
+
+
 }
