@@ -209,10 +209,9 @@
 
 </script>
 
-<style scoped type="scss">
+<style type="scss">
 
     @import "resources/assets/sass/theme.scss";
-
 
     .bibleverse-wrapper {
         display: inline-block;
@@ -225,27 +224,46 @@
 
     .sb-bibleverse {
         border: 0;
-        background-color:  $tag-background-colour;
+        background-color: $tag-background-colour;
+
+        &:hover {
+            background-color: $tag-background-colour-hover;
+
+            .sb-progress-bar {
+                background-color: $tag-progressbar-colour-hover;
+            }
+        }
     }
 
-    .text {
+    .sb-bibleverse .text {
         position: relative;
     }
 
-    .sb-progress-bar {
+    .sb-bibleverse .sb-progress-bar {
         position: absolute;
         left: 0;
         top: 0;
         height: 100%;
         border-radius: .2rem;
-        background-color: $tag-progressbar-default-colour;
+        background-color: $tag-progressbar-colour;
     }
 
-    .sb-progress-bar.isDragging{
+    .sb-progress-bar.isDragging {
         background-color: $tag-progressbar-dragging-colour;
     }
 
-    .delete {
+    .sb-bibleverse .icon {
+        position: relative;
+        height: 1rem;
+        margin-right: 0.1rem;
+        top: -.1rem;
+    }
+
+    .sb-bibleverse .icon > > > path {
+        fill: black;
+    }
+
+    .sb-bibleverse .delete {
         position: relative;
         color: whitesmoke;
         padding-left: 0.25em;
@@ -253,38 +271,26 @@
         cursor: pointer;
     }
 
-    .delete:hover {
+    .sb-bibleverse .delete:hover {
         color: black;
     }
 
-    .icon {
-        position: relative;
-        height: 1rem;
-        margin-right: 0.1rem;
-        top: -.1rem;
-    }
-
-    .icon >>> path {
-        fill: black;
-    }
-
-    .mini {
+    .sb-bibleverse.mini {
         margin-bottom: .125rem;
         margin-top: .125rem;
         margin-left: 0;
         margin-right: .125em;
     }
 
-    .mini .icon {
+    .sb-bibleverse.mini .icon {
         height: 0.7rem;
         width: 0.7rem;
         margin-right: .05rem;
     }
 
-    .mini .sb-bibleverse {
+    .sb-bibleverse.mini .sb-bibleverse {
         font-size: 0.7em;
         padding: .125rem .25rem;
     }
-
 
 </style>

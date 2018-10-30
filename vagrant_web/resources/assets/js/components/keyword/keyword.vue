@@ -339,7 +339,7 @@
 
 </script>
 
-<style scoped type="scss">
+<style type="scss">
 
     @import "resources/assets/sass/theme.scss";
 
@@ -354,10 +354,18 @@
 
     .sb-keyword {
         border: 0;
-        background-color:  $tag-background-colour;
+        background-color: $tag-background-colour;
+
+        &:hover {
+            background-color: $tag-background-colour-hover;
+
+            .sb-progress-bar {
+                background-color: $tag-progressbar-colour-hover;
+            }
+        }
     }
 
-    .text {
+    .sb-keyword .text {
         position: relative;
     }
 
@@ -367,26 +375,26 @@
         top: 0;
         height: 100%;
         border-radius: .2rem;
-        background-color: $tag-progressbar-default-colour;
+        background-color: $tag-progressbar-colour;
     }
 
-    .sb-progress-bar.isDragging{
+    .sb-progress-bar.isDragging {
         background-color: $tag-progressbar-dragging-colour;
     }
 
-    .icon {
+    .sb-keyword .icon {
         position: relative;
         height: 1rem;
         margin-right: 0.1rem;
         top: -.1rem;
     }
 
-    .icon >>> path {
+    .sb-keyword .icon > > > path {
         fill: black;
         stroke: black;
     }
 
-    .delete {
+    .sb-keyword .delete {
         position: relative;
         color: whitesmoke;
         padding-left: 0.25em;
@@ -394,24 +402,24 @@
         cursor: pointer;
     }
 
-    .delete:hover {
+    .sb-keyword .delete:hover {
         color: black;
     }
 
-    .mini {
+    .kw-wrapper.mini {
         margin-bottom: .125rem;
         margin-top: .125rem;
         margin-left: 0;
         margin-right: .125em;
     }
 
-    .mini .icon {
+    .kw-wrapper.mini .icon {
         height: 0.7rem;
         width: 0.7rem;
         margin-right: .05rem;
     }
 
-    .mini .sb-keyword {
+    .kw-wrapper.mini .sb-keyword {
         font-size: 0.7em;
         padding: .125rem .25rem;
     }

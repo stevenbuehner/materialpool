@@ -47,19 +47,24 @@
 
     .from-bot {
         color: $tag-font-colour;
-        background-color: $tag-background-colour;
-        border: 1px solid $tag-background-colour;
+        background-color: $red;
+        border: 1px solid $red;
+    }
+
+    .from-bot:hover{
+        background-color: $red-hover;
+        border-color: $red-hover;
     }
 
     .notBot {
-        background-color: $my-green;
-        border-color:  $my-green;
+        background-color: $tag-progressbar-colour;
+        border-color:  $tag-progressbar-colour;
         transition: background-color .5s, border-color .5s;
     }
 
     .notBot:hover{
-        background-color: $my-green-hover;
-        border-color:  $my-green-hover;
+        background-color: $tag-progressbar-colour-hover;
+        border-color:  $tag-progressbar-colour-hover;
     }
 
     .icon {

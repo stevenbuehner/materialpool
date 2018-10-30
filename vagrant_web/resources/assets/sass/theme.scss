@@ -1,16 +1,21 @@
-$my-green: #3bc048;
-$my-green-hover: #31963e;
+@import "node_modules/bootstrap/scss/functions";
+@import "node_modules/bootstrap/scss/variables";
+@import "node_modules/bootstrap/scss/mixins";
 
+// Hover Colors
+$green-hover: darken($green, 5%);
+$red-hover: darken($red, 5%);
+$blue-hover: darken($blue, 5%);
+$yellow-hover: darken($yellow, 5%);
+$purple-hover: darken($purple, 5%);
+$orange-hover: darken($orange, 5%);
+$cyan-hover: darken($cyan, 5%);
+$dark-hover: darken($dark, 5%);
 
 // Tagging
-$tag-background-colour: #5f5e60;
-$tag-progressbar-default-colour: $my-green;
-$tag-progressbar-dragging-colour: #3bbec0;
-$tag-background-colour: #5f5e60;
+$tag-background-colour: $gray-700;
+$tag-background-colour-hover: darken($tag-background-colour, 5%);
+$tag-progressbar-colour: $green;
+$tag-progressbar-colour-hover: $green-hover;
+$tag-progressbar-dragging-colour: $orange;
 $tag-font-colour: white;
-
-// Flag-Colours
-$flag-all-background-color: white;
-$flag-all-hover-color: $tag-background-colour;
-$flag-green-colour: $tag-progressbar-default-colour;
-$flag-green-colour: $tag-progressbar-default-colour;
