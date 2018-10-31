@@ -1,8 +1,8 @@
 <template>
     <div v-if="!editNow" @dblclick.prevent="startEdditing" class="displayArea">
         <component :is="type" :class="classes">
-            {{text}}
-            <div v-if="text === ''" class="missingTextPlaceholder">{{placeholder}}</div>
+            {{text || ''}}
+            <div v-if="(text || '').length === 0" class="missingTextPlaceholder">{{placeholder}}</div>
         </component>
     </div>
 
@@ -38,7 +38,6 @@
                 default: 'h1'
             },
             value: {
-                type: String,
                 required: true
             },
             classes: {
