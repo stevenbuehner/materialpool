@@ -1,13 +1,14 @@
 <template>
     <div class="sbTree">
         <ul>
-            <TreeNode v-for="c in filteredTreeNodes" :node="c" :key="c.id" @move="onMove"></TreeNode>
+            <TreeNode v-for="c in displayedTree" :node="c" :key="c.id" @move="onMove"></TreeNode>
         </ul>
     </div>
 </template>
 
 <script>
     import TreeNode from './TreeNode.vue'
+    import _ from 'lodash';
 
     export default {
         name: "Tree",
@@ -46,28 +47,59 @@
         },
 
         data() {
+            return {
+                displayedTree: []
+            };
         },
 
         computed: {
 
-            useSearchPhrase() {
-                return this.searchPhrase.length > 0;
+            searchRegexp() {
+
+                if (this.searchPhrase.length > 0) {
+                    const parts = this.searchPhrase.split(' ').filter(el => el.length > 0);
+
+                    return parts.join('|');
+                }
+
+                return '';
+
             },
 
-            filteredTreeNodes() {
-                // SearchFilter
-                const tree = this.useSearchPhrase ? this.filter(this.tree) : this.tree;
+        },
 
-                // Limit + Paging (nur auf Root-Ebene)
-                return tree.slice(this.page - 1, this.limit);
-            }
+        watch: {
+            searchPhrase: {
+                handler: function (newValue) {
+
+                    this.page = 1;
+                    this.updateKeywordTree();
+
+                },
+                imediately: true
+            },
 
         },
 
         methods: {
+
+            updateKeywordTree() {
+
+                console.log('updateKeywordTree');
+
+                if (this.searchPhrase.length === 0) {
+                    this.displayedTree = this.tree;
+                } else {
+                    _.debounce((self) => {
+                        self.displayedTree = self.filter(self.tree);
+                    }, 50)(this);
+                }
+            },
+
             filter: function filter(tree) {
                 const copy   = JSON.parse(JSON.stringify(tree));
-                const regExp = new RegExp(`.*${ this.searchPhrase }.*`, "gi");
+                const regExp = new RegExp(`.*(${ this.searchRegexp }).*`, "gi");
+                console.log(regExp);
 
                 const filterList = (node) => {
                     const lengthy = node.children && node.children instanceof Array && node.children.length > 0;
@@ -75,17 +107,24 @@
                         node.children = node.children.filter(filterList);
                     }
 
-                    return lengthy || node.title.match(regExp);
+                    return (node.children instanceof Array && node.children.length > 0) || node.title.match(regExp);
                 };
 
                 return copy.filter(filterList);
             },
 
-            onMove(srcId, targetId) {
-                this.move(srcId, targetId);
+            onMove({sourceId, targetId}) {
+                const callback = this.afterMove;
+                this.move(parseInt(sourceId), targetId, callback);
+            },
+
+            afterMove() {
+                this.updateKeywordTree();
             }
+        },
 
-
+        created() {
+            this.updateKeywordTree();
         },
 
         components: {

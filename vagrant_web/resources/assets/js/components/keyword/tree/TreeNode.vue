@@ -1,5 +1,5 @@
 <template>
-    <li class="sbTreeNode" :class="{hasChildren, isOpen, isClosed: !isOpen, isDragged, isDragover}">
+    <li class="sbTreeNode" :class="{hasChildren, isOpen, isClosed: !isOpen, isDragged, isDragover, isTemp: node.temp}">
         <span class="carret">
             <single-down class="single" v-once/>
             <double-down class="double" v-once/>
@@ -66,10 +66,9 @@
             hasChildren() {
                 return this.node.children && this.node.children instanceof Array && this.node.children.length > 0;
             },
-
             iconName() {
                 return iconName(this.node);
-            }
+            },
         },
 
         methods: {
@@ -78,7 +77,7 @@
             },
 
             open() {
-                this.isOpen = true && this.hasChildren;
+                this.isOpen = true; //  && this.hasChildren;
             },
 
             close() {
@@ -153,65 +152,83 @@
     }
 </script>
 
-<style>
-    .sbTreeNode{
+<style type="scss">
+    @import "resources/assets/sass/theme.scss";
+
+    .sbTreeNode {
         display: block;
         margin-top: .2rem;
+
+        &.isTemp .label {
+            background-color: $warning;
+        }
+
+        .label {
+            border: .05rem solid grey;
+            padding: .1rem .5rem .2rem .5rem;
+            border-radius: .25rem;
+
+            &:hover {
+                background-color: $blue;
+                color: white;
+
+                svg path {
+                    fill: white;
+                }
+            }
+
+            .keywordIcon {
+                height: 1em;
+            }
+        }
+
+        &.isDragged > .label {
+            border: .05rem dotted grey;
+            background-color: $blue-hover;
+
+        }
+
+        &.isDragover {
+            box-shadow: 0 0 5px #2ecc3b;
+            background-color: rgba(102, 204, 120, 0.15);
+            padding: 0 5px;
+        }
+
+        &.hasChildren {
+            .label {
+                cursor: pointer;
+            }
+
+            .carret > .single {
+                display: none;
+            }
+        }
+
+        &:not(.hasChildren) {
+            .carret > .double {
+                display: none;
+            }
+        }
+
+        .sbTreeEditIcon {
+            height: .8rem;
+            margin-left: 1rem;
+            cursor: pointer;
+        }
+
+        .carret > svg {
+            height: .8rem;
+            width: .8rem;
+            padding: .1rem 0 .1rem 0;
+            transform: rotate(-90deg);
+            transition: all ease-in-out .2s;
+        }
+
+        &.isOpen > .carret > svg {
+            transform: rotate(0deg);
+        }
+
     }
 
 
-
-    .sbTreeNode > .label {
-        border: .05rem solid grey;
-        padding: .1rem .5rem .2rem .5rem;
-        border-radius: .25rem;
-    }
-
-    .sbTreeNode.isDragged > .label {
-        border: .05rem dotted grey;
-    }
-
-    .sbTreeNode.isDragover {
-        box-shadow: 0px 0px 5px #2ecc3b;
-        background-color: rgba(102, 204, 120, 0.15);
-        padding: 0px 5px;
-    }
-
-    .sbTreeNode.hasChildren > .label {
-        cursor: pointer;
-    }
-
-    .sbTreeNode > .label:hover {
-        background-color: #eeeeee;
-    }
-
-    .sbTreeNode > .label > .keywordIcon{
-        height: 1em;
-    }
-
-    .sbTreeEditIcon {
-        height: .8rem;
-        margin-left: 1rem;
-        cursor: pointer;
-    }
-
-    .sbTreeNode.hasChildren > .carret > .single {
-        display: none;
-    }
-
-    .sbTreeNode:not(.hasChildren) > .carret > .double {
-        display: none;
-    }
-
-    .sbTreeNode > .carret > svg {
-        height: .8rem;
-        width: .8rem;
-        padding: .1rem 0 .1rem 0;
-        transform: rotate(-90deg);
-        transition: all ease-in-out .2s;
-    }
-
-    .sbTreeNode.isOpen > .carret > svg {
-        transform: rotate(0deg);
-    }
 </style>

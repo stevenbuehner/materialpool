@@ -39,7 +39,7 @@ class KeywordController extends BaseController {
 
 		$query->orderBy('_lft');
 
-		return $query->paginate(250);
+		return $query->paginate(500);
 	}
 
 	public function show(Keyword $keyword) {

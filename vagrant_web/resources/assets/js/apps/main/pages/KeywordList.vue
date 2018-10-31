@@ -25,7 +25,8 @@
                 <div style="display: inline-block; width: 100%">
                     <Tree :tree="this.treeModel"
                           :move="moveKeyword"
-                          :search-phrase="treeSearch"></Tree>
+                          :search-phrase="treeSearch"
+                          ref="myTree"></Tree>
                 </div>
 
             </div>
@@ -116,13 +117,16 @@
             },
 
 
-            moveKeyword({sourceId, targetId}) {
+            moveKeyword(sourceId, targetId, callback) {
 
                 // Detach from tree first
                 const backKW       = this.getKeyword(sourceId);
                 const backParentId = backKW.parent_id;
 
                 this.detachKeyword(sourceId);
+
+                backKW.temp = true;
+                this.attachKeyword(backKW, targetId);
 
                 this.$store.dispatch('keywords/update', {
                     id: sourceId,
@@ -131,14 +135,21 @@
                     }
                 }).then((keyword) => {
 
+                    // Attach Keyword in the DOM
+                    this.detachKeyword(keyword.id);
                     this.attachKeyword(keyword, keyword.parent_id);
-
                     this.flashSuccess(this.$t('pool.Keyword-saved'), {timeout: 3000});
 
                 }).catch((response) => {
-                    // Reattach keyword at the end
+                    // Reattach keyword at the end of the DOM
+                    delete backKw.temp;
+
+                    this.detachKeyword(backKw.id);
                     this.attachKeyword(backKW, backParentId);
                     this.flashError(this.$t('pool.Error-while-moving-keyword'));
+
+                }).then(() => {
+                    callback();
                 });
             },
 
@@ -158,7 +169,11 @@
 
                 // Remove from Array
                 const parent    = this.getKeyword(oldModel.parent_id);
-                parent.children = parent.children.filter(kw => kw.id !== keywordId);
+                parent.children = parent.children.filter(kw => {
+                    return kw.id !== keywordId;
+                });
+
+                oldModel.parent_id = null;
                 // parent.children.splice(parent.indexOf(oldModel), 1);
 
                 // Remove from Index-Object
@@ -176,6 +191,7 @@
 
                 targetKeyword.children.push(sourceKeyword);
 
+                sourceKeyword.parent_id = targetId;
                 this.treeModelIds[sourceKeyword.id] = sourceKeyword;
 
             },
