@@ -237,6 +237,7 @@
 
     .sb-bibleverse .text {
         position: relative;
+        text-shadow: .05em .05em .2em $tag-background-colour-hover;
     }
 
     .sb-bibleverse .sb-progress-bar {

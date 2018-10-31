@@ -51,20 +51,24 @@
         border: 1px solid $red;
     }
 
-    .from-bot:hover{
+    .from-bot:hover {
         background-color: $red-hover;
         border-color: $red-hover;
     }
 
     .notBot {
         background-color: $tag-progressbar-colour;
-        border-color:  $tag-progressbar-colour;
+        border-color: $tag-progressbar-colour;
         transition: background-color .5s, border-color .5s;
     }
 
-    .notBot:hover{
+    .notBot:hover {
         background-color: $tag-progressbar-colour-hover;
-        border-color:  $tag-progressbar-colour-hover;
+        border-color: $tag-progressbar-colour-hover;
+    }
+
+    .from-bot .text {
+        text-shadow: .05em .05em .2em $tag-background-colour-hover;
     }
 
     .icon {
