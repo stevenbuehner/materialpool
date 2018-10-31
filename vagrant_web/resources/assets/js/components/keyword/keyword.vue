@@ -367,6 +367,7 @@
 
     .sb-keyword .text {
         position: relative;
+        text-shadow: .05em .05em .2em $tag-background-colour-hover;
     }
 
     .sb-progress-bar {

@@ -9,13 +9,17 @@
 
         <div v-if="material">
 
-            <edditable-text
-                    type="h1"
-                    :value="material.title"
-                    @value-changed="submitTitle"
-                    classes="materialTitle"
-                    placeholder="Please enter a title here ...">
-            </edditable-text>
+
+            <div class="d-flex justify-content-start align-items-center pb-2">
+                <flag class="pl-1 pr-1 mr-2" :flagKey="material.flag" @flag-updated="submitFlag"></flag>
+                <edditable-text
+                        type="h1"
+                        :value="material.title"
+                        @value-changed="submitTitle"
+                        classes="m-0 p-0"
+                        placeholder="Please enter a title here ...">
+                </edditable-text>
+            </div>
 
 
             <div class="meta row">
@@ -189,12 +193,16 @@
     import {resourceDownloadLink} from "../../../components/serverRoutes";
     import customDialog from '../../../components/modals/dialogs/customDialog';
     import MaterialRating from "../../../components/Material/MaterialRating";
+    import Flag from "../../../components/flags/Flag";
+    import {flagColors} from "../../../components/flags/flagOptions";
 
     Vue.use(AsyncComputed);
 
     // https://github.com/craigh411/vue-star-rating/#props
 
     export default {
+
+        name: 'MaterialDetail',
 
         props: {
             id: {
@@ -240,6 +248,15 @@
                 */
             },
 
+            flagColor() {
+
+                if (this.material.flag && this.material.flag <= flagColors.length) {
+                    return flagColors[this.material.flag - 1];
+                }
+
+                return false;
+            }
+
         },
 
         asyncComputed: {},
@@ -267,6 +284,10 @@
                 }).catch((response) => {
                     this.errorOnLoadingMessage = response;
                 });
+            },
+
+            submitFlag(newFlag) {
+                this.submitMaterialUpdate({flag: newFlag, from_bot: false}, 'Flag');
             },
 
             submitTitle(newTitle) {
@@ -459,6 +480,7 @@
 
 
         components: {
+            Flag,
             MaterialRating,
             ResourceUploader,
             keyword,
@@ -499,6 +521,7 @@
     .doneIcon {
         background-image: url("/img/icons/entypo-plus/lock-open.svg");
     }
+
 
 </style>
 

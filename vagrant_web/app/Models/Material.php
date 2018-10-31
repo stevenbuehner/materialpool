@@ -19,6 +19,7 @@ use Illuminate\Support\Facades\DB;
  * @property int        $created_by
  * @property int        $modified_by
  * @property int        $author_id
+ * @property int        $flag;
  * @property Person     $author
  * @property Collection $resources;
  * @property Collection $keywords;
@@ -40,6 +41,7 @@ class Material extends Model {
 	protected $casts = [
 		'from_bot'    => 'boolean',
 		'description' => 'string',
+		'flag'        => 'integer',
 	];
 
 	protected $attributes = [
@@ -49,7 +51,7 @@ class Material extends Model {
 	];
 
 	protected $fillable = [
-		'title', 'description', 'rating', 'from_bot'
+		'title', 'description', 'rating', 'from_bot', 'flag'
 	];
 
 	protected $guarded = [

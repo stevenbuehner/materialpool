@@ -2,7 +2,7 @@
     <div>
         <main-navbar></main-navbar>
 
-        <flash-message class="flashMessageHolder col-md-4 col-sm-6 col-lg-3 col-xs-12">
+        <flash-message class="col-md-4 col-sm-6 col-lg-3 col-xs-12 flashMessageHolder">
         </flash-message>
 
         <router-view class="main-area"></router-view>
@@ -24,10 +24,6 @@
         }
     }
 </script>
-
-<style scoped>
-
-</style>
 
 <style>
     .main-area {
