@@ -256,12 +256,14 @@ const actions = {
         return axios.post(api_v1_keywords_updateassignment(materialId, keywordId), data)
             .then((response) => {
 
+                /*
                 commit('addKeywordMaterial', {
                     materialId: materialId,
                     keyword: response.data
                 });
 
                 dispatch('updateMaterialsWithKeywordProperties', response.data);
+                */
 
                 return response.data;
 
@@ -278,7 +280,7 @@ const actions = {
 
         return axios.post(api_v1_keywords_deleteassignment(materialId, keywordId), params)
             .then((response) => {
-                    dispatch('materials/removeKeywordFromMaterial', {materialId, keywordId}, {root: true});
+                    //dispatch('materials/removeKeywordFromMaterial', {materialId, keywordId}, {root: true});
 
                     return response.data;
                 }
