@@ -2,7 +2,7 @@
     <div>
         <main-navbar></main-navbar>
 
-        <flash-message class="col-md-4 col-sm-6 col-lg-3 col-xs-12 flashMessageHolder">
+        <flash-message class="flashMessageHolder">
         </flash-message>
 
         <router-view class="main-area"></router-view>
