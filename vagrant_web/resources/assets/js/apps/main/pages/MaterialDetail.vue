@@ -74,7 +74,8 @@
                     ></bibleverse>
 
 
-                    <div class="btn btn-sm btn-primary" v-if="keywordsAndBibleveres.length === 0 && editable === true">
+                    <div class="btn btn-sm btn-primary" v-if="keywordsAndBibleveres.length === 0 && editable === true"
+                         @click="editTagsModeEnabled=true">
                         {{$t('pool.Add-tags')}}
                     </div>
 
