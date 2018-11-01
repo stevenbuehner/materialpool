@@ -159,7 +159,7 @@
         display: block;
         margin-top: .2rem;
 
-        &.isTemp .label {
+        &.isTemp > .label {
             background-color: $warning;
         }
 
@@ -195,17 +195,17 @@
         }
 
         &.hasChildren {
-            .label {
+            > .label {
                 cursor: pointer;
             }
 
-            .carret > .single {
+            > .carret > .single {
                 display: none;
             }
         }
 
         &:not(.hasChildren) {
-            .carret > .double {
+            > .carret > .double {
                 display: none;
             }
         }
