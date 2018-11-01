@@ -119,6 +119,11 @@
 
             moveKeyword(sourceId, targetId, callback) {
 
+                if (sourceId == targetId) {
+                    console.info('Dropped keyword on itself => do nothing');
+                    return;
+                }
+
                 // Detach from tree first
                 const backKW       = this.getKeyword(sourceId);
                 const backParentId = backKW.parent_id;
@@ -187,6 +192,10 @@
             attachKeyword(sourceKeyword, targetId) {
 
                 const targetKeyword = this.getKeyword(targetId);
+
+                if (!targetKeyword) {
+                    console.error('Keyword was not found by getKeyword. ID: ', targetId);
+                }
 
                 if (!targetKeyword.children || !Array.isArray(targetKeyword.children)) {
                     targetKeyword.children = [];
