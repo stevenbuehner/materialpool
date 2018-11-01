@@ -14,7 +14,10 @@ class AddDefaultTags extends Migration {
 	public function up() {
 
 		foreach (self::LANGS as $lang) {
-			(new \App\Models\Language(['title' => $lang]))->save();
+
+			\App\Models\Language::firstOrCreate(
+				['title' => $lang]
+			);
 		}
 
 	}
