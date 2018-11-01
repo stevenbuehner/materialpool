@@ -135,6 +135,9 @@
                     }
                 }).then((keyword) => {
 
+                    // Add children to the keyword again
+                    keyword.children = backKW.children || [];
+
                     // Attach Keyword in the DOM
                     this.detachKeyword(keyword.id);
                     this.attachKeyword(keyword, keyword.parent_id);
@@ -191,7 +194,7 @@
 
                 targetKeyword.children.push(sourceKeyword);
 
-                sourceKeyword.parent_id = targetId;
+                sourceKeyword.parent_id             = targetId;
                 this.treeModelIds[sourceKeyword.id] = sourceKeyword;
 
             },
