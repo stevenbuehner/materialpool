@@ -220,6 +220,25 @@
         margin-right: 0.25rem;
         line-height: 1em;
         color: $tag-font-colour;
+
+        &.mini {
+            margin-bottom: .125rem;
+            margin-top: .125rem;
+            margin-left: 0;
+            margin-right: .125em;
+
+            .icon {
+                height: 0.7rem;
+                width: 0.7rem;
+                margin-right: .05rem;
+            }
+
+            .sb-bibleverse {
+                font-size: 0.7em;
+                padding: .125rem .25rem;
+            }
+        }
+
     }
 
     .sb-bibleverse {
@@ -276,22 +295,5 @@
         color: black;
     }
 
-    .sb-bibleverse.mini {
-        margin-bottom: .125rem;
-        margin-top: .125rem;
-        margin-left: 0;
-        margin-right: .125em;
-    }
-
-    .sb-bibleverse.mini .icon {
-        height: 0.7rem;
-        width: 0.7rem;
-        margin-right: .05rem;
-    }
-
-    .sb-bibleverse.mini .sb-bibleverse {
-        font-size: 0.7em;
-        padding: .125rem .25rem;
-    }
 
 </style>
