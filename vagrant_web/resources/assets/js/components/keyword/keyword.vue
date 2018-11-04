@@ -13,7 +13,7 @@
         </div>
 
         <b-modal ref="editKeyword" lazy title="Edit Keyword" @ok="storeModalChanges">
-            <div class="container-fluid">
+            <div class="container-fluid sb-kw-edit-wrapper">
                 <div class="row">
                     <div class="col-sm-3">
                         <label for="keywordText">Label:</label>
@@ -423,6 +423,10 @@
     .kw-wrapper.mini .sb-keyword {
         font-size: 0.7em;
         padding: .125rem .25rem;
+    }
+
+    .sb-kw-edit-wrapper {
+        color: black;
     }
 
 </style>
