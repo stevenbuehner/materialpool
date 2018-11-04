@@ -16,6 +16,7 @@
                         type="h1"
                         :value="material.title"
                         @value-changed="submitTitle"
+                        class="flex-grow-1"
                         classes="m-0 p-0"
                         placeholder="Please enter a title here ...">
                 </edditable-text>
