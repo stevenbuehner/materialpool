@@ -1,6 +1,7 @@
 <template>
     <div class="card">
 
+        <!-- HEADLINE AND GENERAL BUTTONS-->
         <div class="card-header d-flex flex-row justify-content-between">
             <span class="mt-auto">
                 {{$t('pool.Bibleverses')}}
@@ -15,6 +16,8 @@
             </button>
         </div>
 
+
+        <!-- ALREADY EXISTING BIBLEVERSES-->
         <div class="card-body">
             <bibleverse v-for="(bv, index) in myBibleverses"
                         :key="getBibleverseKey(bv)"
@@ -29,6 +32,8 @@
             ></bibleverse>
         </div>
 
+
+        <!-- SEARCH INPUT -->
         <div class="card-body" v-if="!disabled">
 
             <div class="input-group">
@@ -54,6 +59,8 @@
 
         </div>
 
+
+        <!-- SEARCH SUGGESTIONS -->
         <div class="card-footer" v-if="(displayableSuggestedBibleverses.length > 0 || stillLoading) && !disabled">
             <span v-if="stillLoading">{{$t('pool.Looking-for-suggestions')}}</span>
             <h4 v-if="displayableSuggestedBibleverses.length > 0" class="suggestions">
@@ -198,7 +205,13 @@
 
 
             addBibleverseClick(bv) {
-                this.searchInput = '';
+
+                // Lösche das Input-Feld (und damit auch alle restlichen Vorschläge) nur dann, wenn nach diesem Bibelvers keine
+                // weiteren existieren
+                if (this.displayableSuggestedBibleverses.length <= 1) {
+                    this.searchInput = '';
+                }
+
                 this.addBibleverseToMaterial(bv);
             },
 

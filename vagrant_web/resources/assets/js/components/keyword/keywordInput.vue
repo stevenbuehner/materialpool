@@ -1,6 +1,7 @@
 <template>
     <div class="card">
 
+        <!-- HEADLINE AND GENERAL BUTTONS-->
         <div class="card-header d-flex flex-row justify-content-between">
             <span class="mt-auto">
                 {{$t('pool.Keywords')}}
@@ -15,6 +16,8 @@
             </button>
         </div>
 
+
+        <!-- ALREADY EXISTING BIBLEVERSES-->
         <div class="card-body">
             <keyword v-for="(kw, index) in myKeywords"
                      :key="getKeywordkey(kw)"
@@ -29,6 +32,8 @@
             ></keyword>
         </div>
 
+
+        <!-- SEARCH INPUT -->
         <div class="card-body" v-if="!disabled">
 
             <div class="input-group">
@@ -59,8 +64,9 @@
 
         </div>
 
-        <div class="card-footer" v-if="(displayableSuggestedKeywords.length > 0 || stillLoading) && !disabled">
 
+        <!-- SEARCH SUGGESTIONS -->
+        <div class="card-footer" v-if="(displayableSuggestedKeywords.length > 0 || stillLoading) && !disabled">
             <span v-if="stillLoading">{{$t('pool.Looking-for-suggestions')}}</span>
 
             <h4 v-if="!stillLoading && suggestedKeywords.length > 0">
