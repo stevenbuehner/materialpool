@@ -219,7 +219,6 @@
         margin-bottom: 0.5rem;
         margin-right: 0.25rem;
         line-height: 1em;
-        color: $tag-font-colour;
 
         &.mini {
             margin-bottom: .125rem;
@@ -245,6 +244,19 @@
         border: 0;
         background-color: $tag-background-colour;
 
+        .sb-progress-bar {
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            border-radius: .2rem;
+            background-color: $tag-progressbar-colour;
+
+            &.isDragging {
+                background-color: $tag-progressbar-dragging-colour;
+            }
+        }
+
         &:hover {
             background-color: $tag-background-colour-hover;
 
@@ -252,47 +264,35 @@
                 background-color: $tag-progressbar-colour-hover;
             }
         }
-    }
 
-    .sb-bibleverse .text {
-        position: relative;
-        text-shadow: .05em .05em .2em $tag-background-colour-hover;
-    }
+        .text {
+            color: $tag-font-colour;
+            position: relative;
+            text-shadow: .05em .05em .2em $tag-background-colour-hover;
+        }
 
-    .sb-bibleverse .sb-progress-bar {
-        position: absolute;
-        left: 0;
-        top: 0;
-        height: 100%;
-        border-radius: .2rem;
-        background-color: $tag-progressbar-colour;
-    }
+        .icon {
+            position: relative;
+            height: 1rem;
+            margin-right: 0.1rem;
+            top: -.1rem;
 
-    .sb-progress-bar.isDragging {
-        background-color: $tag-progressbar-dragging-colour;
-    }
+            path {
+                fill: black;
+            }
+        }
 
-    .sb-bibleverse .icon {
-        position: relative;
-        height: 1rem;
-        margin-right: 0.1rem;
-        top: -.1rem;
-    }
+        .delete {
+            position: relative;
+            color: whitesmoke;
+            padding-left: 0.25em;
+            font-weight: bold;
+            cursor: pointer;
 
-    .sb-bibleverse .icon > > > path {
-        fill: black;
-    }
-
-    .sb-bibleverse .delete {
-        position: relative;
-        color: whitesmoke;
-        padding-left: 0.25em;
-        font-weight: bold;
-        cursor: pointer;
-    }
-
-    .sb-bibleverse .delete:hover {
-        color: black;
+            &:hover {
+                color: black;
+            }
+        }
     }
 
 
