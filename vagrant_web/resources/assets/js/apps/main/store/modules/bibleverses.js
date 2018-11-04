@@ -85,7 +85,7 @@ const actions = {
 
     createAndAssign: async ({commit, getters, dispatch}, {from, to, materialId, relevance}) => {
         const bibleverse          = await dispatch('create', {from, to});
-        const bibleverseRelevance = await  dispatch('updateRelevance', {
+        const bibleverseRelevance = await dispatch('updateRelevance', {
             materialId,
             bibleverseId: bibleverse.id,
             relevance
@@ -141,9 +141,11 @@ const actions = {
 
         const data = {q: searchText};
 
-        return axios.get(searchGuessBibleverses, {params: data})
+        return axios.post(searchGuessBibleverses, data)
             .then(({data}) => {
                 return data;
+            }).catch((response) => {
+                throw response.data;
             });
 
     }

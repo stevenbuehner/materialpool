@@ -196,10 +196,14 @@
                 vm.$store.dispatch('bibleverses/search', search)
                     .then((bibleverses) => {
                         vm.suggestedBibleverses = bibleverses;
-                    }).then(() => {
-                    // Always
-                    loading(false);
-                });
+                    })
+                    .catch((data) => {
+                        alert(data);
+                    })
+                    .then(() => {
+                        // Always
+                        loading(false);
+                    });
 
             }, 250),
 
