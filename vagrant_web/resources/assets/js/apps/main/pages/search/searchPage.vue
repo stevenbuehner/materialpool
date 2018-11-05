@@ -2,7 +2,8 @@
     <div class="container">
 
         <searchbar-header
-                @searchUpdated="updateMaterialList"
+                @searchUpdated="searchInputChanged"
+                :searchObjects="searchObjects"
         ></searchbar-header>
 
         <hr>
@@ -24,9 +25,14 @@
 
         <hr>
 
-        <searchbar-footer
-                :paging="paging"
-        ></searchbar-footer>
+        <b-pagination-nav
+                v-model="paging.current_page"
+                :limit="10"
+                :number-of-pages="paging.last_page"
+                use-router
+                :link-gen="linkGeneration"
+                align="center">
+        </b-pagination-nav>
 
     </div>
 </template>
@@ -34,12 +40,23 @@
 <script>
     import searchbarHeader from './searchbarHeader.vue';
     import searchbarOutcome from './searchbarOutcome.vue';
-    import searchbarFooter from './searchbarFooter.vue';
+    import bPaginationNav from 'bootstrap-vue/src/components/pagination-nav/pagination-nav';
+
     import {HollowDotsSpinner} from 'epic-spinners'
+    import {
+        searchArrayItemsToSearchQuery,
+        searchQueryStringToSearchQueryArray,
+        searchQueryToSearchArrayObjects
+    } from "../../../../components/search/searchHelper";
 
     export default {
 
         props: {
+            query: {
+                type: String,
+                default: ''
+            },
+
             page: {
                 required: false,
                 default: 1,
@@ -66,32 +83,55 @@
                     to: 3,
                     total: 3,
                 },
-                lastSearchData: [],
                 isLoading: false,
+
+                searchObjects: {},
             };
         },
 
-        computed: {},
+        computed: {
+            queryAndPage() {
+                return this.query + 'p' + this.page;
+            }
+        },
 
         watch: {
-            page() {
-                this.updateMaterialList();
+            queryAndPage: {
+                handler() {
+                    this.updateMaterialList();
+                    searchQueryToSearchArrayObjects(this.query).then((searchObjects) => {
+                            this.searchObjects = searchObjects;
+                        }
+                    );
+                },
+                immediate: true
             }
         },
 
         methods: {
 
-            updateMaterialList: function (searchData, page) {
+            searchInputChanged(searchLineItems) {
+                const query = searchArrayItemsToSearchQuery(searchLineItems);
 
-                page       = page || this.page;
-                searchData = searchData || this.lastSearchData;
+                if (query !== this.query) {
+                    this.$router.push({
+                        name: 'search',
+                        params: {
+                            search: query
+                        }
+                    });
+                }
 
-                this.lastSearchData = searchData;
-                this.isLoading      = true;
+            },
+
+            updateMaterialList() {
+
+                const searchData = searchQueryStringToSearchQueryArray(this.query);
+                this.isLoading   = true;
 
                 this.$store.dispatch('search/materials', {
                     query: searchData,
-                    page: page
+                    page: this.page
                 }).then(({materials, paging}) => {
                     this.paging      = paging;
                     this.materialIds = materials.map(m => m.id);
@@ -101,13 +141,25 @@
 
             },
 
+            linkGeneration(pageNum) {
+                return {
+                    name: 'search',
+                    params: {
+                        search: this.query,
+                    },
+                    query: {
+                        page: pageNum,
+                    }
+                }
+            }
+
         },
 
         components: {
             searchbarHeader,
             searchbarOutcome,
-            searchbarFooter,
-            HollowDotsSpinner
+            HollowDotsSpinner,
+            bPaginationNav
         }
     }
 </script>

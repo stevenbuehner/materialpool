@@ -2,7 +2,7 @@
     <div>
         <div class="row" v-for="(sp, key, index) in searchParams" :key="sp.id">
             <div class="col-lg-11 col-lg-11 col-sm-11">
-                <search-input v-model="sp.values" @updated="emitSearchUpdated"></search-input>
+                <search-input v-model="sp.values" @updated="emitSearchUpdated($event ,sp.id)"></search-input>
             </div>
             <div class="col-lg-1 col-lg-1 col-sm-1">
                 <div class="btn-group">
@@ -22,9 +22,27 @@
 <script>
 
     import searchInput from '../../../../components/search/searchInput.vue';
-    import {searchQueryToSearchArrayObjects} from "../../../../components/search/searchHelper";
+
+
+    function getNewSearchParam(id, values) {
+        return {
+            id,
+            values: values || []
+        }
+    }
 
     export default {
+
+        props: {
+            searchObjects: {
+                type: Object,
+                default() {
+                    return {
+                        1: getNewSearchParam(1)
+                    };
+                }
+            }
+        },
 
         data() {
             return {};
@@ -32,32 +50,21 @@
 
         computed: {
 
-            searchParams: {
-                get() {
-                    return this.$store.state.search.selectedSearchValues;
-                },
-                set(value) {
-                    this.$store.commit('search/setSelectedSearchValues', value);
-                }
-            },
+            searchParams() {
 
-            selfComputedSearchValues() {
+                let searchParams = {};
 
-                let result = [];
-
-                for (let i in this.searchParams) {
-                    const searchKeys = this.searchParams[i].values.map((key) => {
-                        return key.item;
-                    });
-
-                    // Nur Zeilen für die Suche verwenden, die nicht leer sind
-                    if (searchKeys.length > 0) {
-                        result.push(searchKeys);
+                if (this.searchObjects.length === 0) {
+                    searchParams[1] = getNewSearchParam(1);
+                } else {
+                    for (let i in this.searchObjects) {
+                        searchParams[i] = getNewSearchParam(i, this.searchObjects[i]);
                     }
                 }
 
-                return result;
-            }
+
+                return searchParams;
+            },
 
         },
 
@@ -92,15 +99,21 @@
 
                 nextCounter++;
 
-                return {
-                    id: nextCounter,
-                    values: []
-                }
+                return getNewSearchParam(nextCounter);
             },
 
-            emitSearchUpdated() {
+            emitSearchUpdated(data, id) {
 
-                this.$emit('searchUpdated', this.selfComputedSearchValues);
+                let searchLineItems = [];
+
+                Object.keys(this.searchParams).forEach((key) => {
+                    searchLineItems.push(
+                        this.searchParams[key].values.map((v) => v.item)
+                    );
+                });
+
+                this.$emit('searchUpdated', searchLineItems);
+
             }
 
 
@@ -108,11 +121,10 @@
 
         created() {
 
-            // Add one initial Searchbar
+            // Add one initial searchbar
             if (Object.keys(this.searchParams).length === 0) {
                 this.requestAdditionalSearchInputAfter(0);
             }
-
 
         },
 

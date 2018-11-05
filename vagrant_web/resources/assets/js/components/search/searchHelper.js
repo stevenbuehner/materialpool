@@ -115,15 +115,16 @@ function bibleverseToSearchItem(bibleverse) {
 
 const QUERY_SEPARATOR = ',';
 
-export function searchArrayObjectsToSearchQuery(searchObjects) {
 
-    const search = searchArrayObjectsToSearchArrayItems(searchObjects);
-    const query  = search.map((lineObj) => {
+export function searchArrayItemsToSearchQuery(searchObjects) {
 
-        const id     = lineObj.id || 1;
-        const values = lineObj.values || [];
+    let lineCounter = 1;
 
-        return values.map(({item}) => {
+    const query = searchObjects.map((lineObj) => {
+
+        const id = lineCounter++;
+
+        return lineObj.map((item) => {
 
             switch (item.type) {
                 case 'k':
@@ -140,26 +141,106 @@ export function searchArrayObjectsToSearchQuery(searchObjects) {
 
         }).join(QUERY_SEPARATOR);
 
-    });
+    }).join(QUERY_SEPARATOR);
 
     return query;
-
 }
 
-export function keywordIdsToSimpleQuery(keywordIds) {
+export function searchQueryStringToSearchQueryArray(query) {
 
+    query            = query || '';
+    const queryItems = query.split(QUERY_SEPARATOR);
+    let tempQuery    = [];
+    const regExp     = /([0-9]+)([kb\*])(.*)/i;
 
-    return searchArrayObjectsToSearchQuery([
-        keywordIds.map(id => {
-            return {
-                type: 'k',
-                id,
-                lc_title: true
+    queryItems.forEach((objStr) => {
+        const found = objStr.match(regExp);
+
+        if (found) {
+            const lineId = parseInt(found[1]);
+            const type   = found[2];
+            const search = found[3];
+
+            switch (type) {
+                case 'k':
+                    tempQuery.push(
+                        {
+                            line: lineId,
+                            value: {
+                                type,
+                                id: parseInt(search)
+                            }
+                        });
+                    break;
+
+                case 'b':
+                    const fromTo = search.match(/(\d+)-(\d+)/);
+
+                    if (fromTo) {
+                        tempQuery.push({
+                            line: lineId,
+                            value: {
+                                type,
+                                from: fromTo[1],
+                                to: fromTo[2]
+                            }
+                        })
+                    }
+                    break;
+
+                case '*':
+                    tempQuery.push({
+                        line: lineId,
+                        value: {
+                            type,
+                            text: search
+                        }
+                    });
+                    break;
+
+                default:
+                    console.error('Unknown searchQueryString', objStr);
             }
-        })
-    ]).pop();
+        }
+    });
+
+    return resolvedSearchParamsToValueObject(tempQuery);
 
 }
+
+/**
+ * i.e. [{line: 1, value: {} }, ...] => { 1: [value, ...] }
+ * @param tempSearchParams
+ */
+function resolvedSearchParamsToValueObject(tempSearchParams) {
+
+    let searchParams = {};
+
+    tempSearchParams.forEach((qObj) => {
+        const line  = qObj.line;
+        const value = qObj.value;
+
+        if (searchParams[line] === undefined) {
+            searchParams[line] = [];
+        }
+
+        searchParams[line].push(value);
+    });
+
+    return searchParams;
+
+}
+
+
+export function searchArrayObjectsToSearchQuery(searchObjects) {
+
+    const items = searchArrayObjectsToSearchArrayItems(searchObjects).map(line => {
+        return line.values.map(lineItem => lineItem.item);
+    });
+
+    return searchArrayItemsToSearchQuery(items);
+}
+
 
 import {store} from './../../apps/main/store/index.js';
 import BibleVerse from './../../../../../vendor/stevenbuehner/bible-verse-bundle/js/in/BibleVerse.js';
@@ -232,25 +313,7 @@ export function searchQueryToSearchArrayObjects(query) {
 
     return Promise.all(searchPromises)
         .then((results) => {
-
-            let searchParams = {};
-
-            results.forEach((qObj) => {
-                const line  = qObj.line;
-                const value = qObj.value;
-
-                if (searchParams[line] === undefined) {
-                    searchParams[line] = {
-                        id: line,
-                        values: []
-                    }
-                }
-
-                searchParams[line].values.push(value);
-            });
-
-            return searchParams;
-
+            return resolvedSearchParamsToValueObject(results);
         });
 
 }

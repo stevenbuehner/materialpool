@@ -10,7 +10,7 @@ import ResourceCreate from './pages/ResourceCreate.vue'
 import KeywordList from './pages/KeywordList.vue'
 import KeywordDetail from './pages/KeywordDetail.vue'
 import BundleList from './pages/BundleList.vue';
-import {keywordIdsToSimpleQuery, searchQueryToSearchArrayObjects} from "../../components/search/searchHelper";
+import {searchQueryToSearchArrayObjects} from "../../components/search/searchHelper";
 import {store} from "./store";
 
 
@@ -35,33 +35,30 @@ const useAndRedirectOnSearchQuery = function (to, from, next) {
 export const routes = [
 
            {
-               path: '/search/:page?', component: SearchPage, name: 'search', props: (route) => {
-
-                   let params = {};
-
-                   if (route.params.page) {
-                       params.page = parseInt(route.params.page);
-                   }
-
-                   return params;
-               },
-
-               beforeEnter: useAndRedirectOnSearchQuery,
-               beforeRouteUpdate: useAndRedirectOnSearchQuery
-           },
-
-           {
-               path: '/search/keyword/:id', name: 'search-keyword', redirect: to => {
+               path: '/search/:search?', component: SearchPage, name: 'search', props: (route) => {
 
                    return {
-                       name: 'search',
-                       query: {
-                           q: keywordIdsToSimpleQuery([to.params.id])
-                       }
-                   }
+                       query: route.params.search || '',
+                       page: route.query.page || 1
+                   };
 
                },
+
            },
+           /*
+                      {
+                          path: '/search/keyword/:id', name: 'search-keyword', redirect: to => {
+
+                              return {
+                                  name: 'search',
+                                  query: {
+                                      q: keywordIdsToSimpleQuery([to.params.id])
+                                  }
+                              }
+
+                          },
+                      },
+                      */
 
            {
                path: '/material', component: MaterialApp, name: 'material', alias: '/materials'

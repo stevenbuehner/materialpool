@@ -78,6 +78,7 @@
     import contextMenuItem from "../context-menu/context-menu-item.vue";
     import {keywordSearchLink} from './../serverRoutes';
     import {ayceIcon, iconName, keyIcon, langIcon, personIcon, placeIcon} from './keywordDefaultIcons';
+    import {searchArrayObjectsToSearchQuery} from "../search/searchHelper";
 
     import {draggingSupport} from "./dragging.mixin";
 
@@ -311,8 +312,10 @@
 
             goToKeywordSearch() {
                 this.$router.push({
-                    name: 'search-keyword',
-                    params: {id: this.keyword.id}
+                    name: 'search',
+                    params: {
+                        search: searchArrayObjectsToSearchQuery([[this.keyword]])
+                    }
                 })
             },
 

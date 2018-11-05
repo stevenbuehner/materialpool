@@ -8,7 +8,7 @@
                 multiple
                 :placeholder="$t('pool.Insert-search-phrase-here')"
                 v-model="lineValues"
-                @input="$emit('updated', lineValues)">
+                @input="onInput">
 
         <template slot="no-options">
             {{$t('pool.Insert-search-phrase')}}
@@ -38,6 +38,7 @@
 
         props: {
             lineValues: {
+                type: Array,
                 required: true,
             }
         },
@@ -45,6 +46,7 @@
         data() {
             return {
                 options: [],
+                firstAlreadyIgnored: false
             };
         },
 
@@ -79,6 +81,16 @@
                     });
 
             }, 250),
+
+            onInput(props) {
+                // Wird gefeuert bei jeder Änderung durch den Nutzer oder durch des :value Properties (zweiteres ist nervig)
+
+                if (this.firstAlreadyIgnored === true) {
+                    this.$emit('updated', props);
+                } else {
+                    this.firstAlreadyIgnored = true;
+                }
+            },
 
 
         },
