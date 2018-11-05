@@ -85,7 +85,7 @@ const actions = {
     },
 
 
-    getMultiple: async ({dispatch}, keywordIds) => {
+    getMultiple: async ({dispatch, commit}, keywordIds) => {
         // Not tested after changing - hopefully it works :-)
 
         const response = Promise.all(
@@ -205,7 +205,7 @@ const actions = {
 
     createAndAssign: async ({commit, getters, dispatch}, {title, type, materialId, relevance}) => {
         const keyword          = await dispatch('create', {title, type});
-        const keywordRelevance = await  dispatch('updateRelevance', {materialId, keywordId: keyword.id, relevance});
+        const keywordRelevance = await dispatch('updateRelevance', {materialId, keywordId: keyword.id, relevance});
 
         return keywordRelevance;
     },
@@ -222,7 +222,6 @@ const actions = {
         result
             .then((keyword) => {
 
-                // dispatch('updateMaterialsWithKeywordProperties', response.data);
                 commit('setKeyword', keyword);
 
                 if (keyword.id !== id) {
@@ -255,18 +254,7 @@ const actions = {
 
         return axios.post(api_v1_keywords_updateassignment(materialId, keywordId), data)
             .then((response) => {
-
-                /*
-                commit('addKeywordMaterial', {
-                    materialId: materialId,
-                    keyword: response.data
-                });
-
-                dispatch('updateMaterialsWithKeywordProperties', response.data);
-                */
-
                 return response.data;
-
             }).catch((response) => {
                 return response;
             });
@@ -280,8 +268,6 @@ const actions = {
 
         return axios.post(api_v1_keywords_deleteassignment(materialId, keywordId), params)
             .then((response) => {
-                    //dispatch('materials/removeKeywordFromMaterial', {materialId, keywordId}, {root: true});
-
                     return response.data;
                 }
             ).catch((response) => {
@@ -305,32 +291,6 @@ const actions = {
 
     },
 
-    addKeywordsFromMaterial: ({commit, getters, dispatch}, {materialId, keywords}) => {
-
-        for (let kwIndex in keywords) {
-            dispatch('setKeywordFromMaterial', {materialId, keyword: keywords[kwIndex]});
-        }
-
-    },
-
-
-    updateMaterialsWithKeywordProperties: ({commit, getters, dispatch}, keyword) => {
-        let materialIds = getters.getMaterialIdsOfCachedKeywords(keyword.id);
-        let keywordCopy = JSON.parse(JSON.stringify(keyword));
-
-        if (keywordCopy.pivot) {
-            delete keywordCopy.pivot;
-        }
-
-        Object.keys(materialIds).forEach((key, index) => {
-            dispatch('materials/updateMaterialKeywords', {
-                materialId: key,
-                keyword: keywordCopy,
-                pivot: materialIds[key]
-            }, {root: true});
-        });
-
-    },
 
     search: ({commit, getters, dispatch}, searchText) => {
 

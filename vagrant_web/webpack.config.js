@@ -17,7 +17,7 @@ module.exports = {
     },
     output: {
         path: path.resolve(__dirname, './public/'),
-        publicPath: 'http://localhost:8081/', /* In DEV Mode This is the VIRTUAL Path where the files will be served from memory. But also where the hot-reload stuff comes from. */
+        publicPath: 'http://localhost:8080/', /* In DEV Mode This is the VIRTUAL Path where the files will be served from memory. But also where the hot-reload stuff comes from. */
         filename: 'js/[name]_build.js'
     },
     module: {

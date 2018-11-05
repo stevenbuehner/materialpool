@@ -39,7 +39,7 @@
     <script src="/js/main_build.js"></script>
     <link rel="stylesheet" type="text/css" href="/css/main.css">
 @else
-    <script src="http://localhost:8081/js/main_build.js"></script>
+    <script src="http://localhost:8080/js/main_build.js"></script>
 @endif
 
 </body>

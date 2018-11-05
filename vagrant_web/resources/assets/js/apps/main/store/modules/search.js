@@ -72,6 +72,10 @@ const mutations = {
         state.searchCache[jsonQuery] = promise;
         state.searchCacheHistory.push(jsonQuery);
 
+    },
+
+    setSelectedSearchValues(state, value) {
+        state.selectedSearchValues = value;
     }
 };
 

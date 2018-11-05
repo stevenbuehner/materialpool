@@ -61,7 +61,7 @@
 
 
         <context-menu ref="menu">
-            <context-menu-item v-if="searchable" @click="goToKeywordSearch">nach '{{myKeyword.title}}' suchen
+            <context-menu-item v-if="searchable" @click.stop="goToKeywordSearch">nach '{{myKeyword.title}}' suchen
             </context-menu-item>
             <context-menu-item v-if="editable" @click="openKeywordEditModal">bearbeiten</context-menu-item>
         </context-menu>
@@ -310,7 +310,10 @@
             },
 
             goToKeywordSearch() {
-                window.location.href = this.searchLink;
+                this.$router.push({
+                    name: 'search-keyword',
+                    params: {id: this.keyword.id}
+                })
             },
 
             openRightClickMenu(event) {

@@ -15,7 +15,6 @@
 
     export default {
         mounted() {
-            console.log('Material-Listing component mounted.')
         },
 
         props: ['materialIds'],

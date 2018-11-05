@@ -22,7 +22,7 @@
     "php-ffmpeg/php-ffmpeg": "~0.9.3",
     "setasign/fpdi-fpdf": "^2.0",
     "spatie/laravel-responsecache": "~4.1.0",
-    "stevenbuehner/bible-verse-bundle": "~2.0"
+    "stevenbuehner/bible-verse-bundle": "^2.3"
   },
   "require-dev": {
     "barryvdh/laravel-debugbar": "^3.2",

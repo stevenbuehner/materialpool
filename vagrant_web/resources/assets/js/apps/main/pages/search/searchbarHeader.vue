@@ -22,12 +22,12 @@
 <script>
 
     import searchInput from '../../../../components/search/searchInput.vue';
+    import {searchQueryToSearchArrayObjects} from "../../../../components/search/searchHelper";
 
     export default {
 
         data() {
-            return {
-            };
+            return {};
         },
 
         computed: {
@@ -37,7 +37,7 @@
                     return this.$store.state.search.selectedSearchValues;
                 },
                 set(value) {
-                    this.$store.commit('search/setSearchValues', value);
+                    this.$store.commit('search/setSelectedSearchValues', value);
                 }
             },
 
@@ -112,6 +112,7 @@
             if (Object.keys(this.searchParams).length === 0) {
                 this.requestAdditionalSearchInputAfter(0);
             }
+
 
         },
 
