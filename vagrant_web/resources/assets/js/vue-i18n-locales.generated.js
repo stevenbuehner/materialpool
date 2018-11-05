@@ -148,7 +148,8 @@ export default {
             "cancel": "abbrechen",
             "canceling-update": "update wird abgebrochen ...",
             "Keyword-saved": "Tag gespeichert",
-            "Error-while-moving-keyword": "Es ist ein Fehler beim Bewegen des Tags aufgetreten"
+            "Error-while-moving-keyword": "Es ist ein Fehler beim Bewegen des Tags aufgetreten",
+            "select-a-flag": "Wähle eine Flagge aus"
         }
     },
     "en": {
@@ -325,6 +326,7 @@ export default {
             "canceling-update": "canceling update ...",
             "Keyword-saved": "Keyword saved",
             "Error-while-moving-keyword": "Error while moving keyword",
+            "select-a-flag": "Select a flag",
             "": ""
         },
         "validation": {

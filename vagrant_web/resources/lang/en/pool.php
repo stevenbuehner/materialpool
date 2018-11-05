@@ -160,7 +160,7 @@ return [
 	'canceling-update'                    => 'canceling update ...',
 	'Keyword-saved'                       => 'Keyword saved',
 	'Error-while-moving-keyword'          => 'Error while moving keyword',
-	''                                    => '',
+	'select-a-flag'                       => 'Select a flag',
 	''                                    => '',
 
 ];

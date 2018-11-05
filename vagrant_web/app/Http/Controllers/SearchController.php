@@ -93,12 +93,13 @@ class SearchController extends Controller {
 				$query->each(function (Keyword $keyword) use ($result) {
 					$result->push(
 						[
-							'text' => $keyword->title,
-							'icon' => $keyword->icon,
-							'item' => [
+							'text'    => $keyword->title,
+							'icon'    => $keyword->icon,
+							'item'    => [
 								'type' => 'k',
 								'id'   => $keyword->id
-							]
+							],
+							'keyword' => $keyword->toArray()
 						]
 					);
 				});

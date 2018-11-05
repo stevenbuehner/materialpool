@@ -151,4 +151,5 @@ return [
 	'canceling-update'                    => 'update wird abgebrochen ...',
 	'Keyword-saved'                       => 'Tag gespeichert',
 	'Error-while-moving-keyword'          => 'Es ist ein Fehler beim Bewegen des Tags aufgetreten',
+	'select-a-flag'                       => 'Wähle eine Flagge aus',
 ];

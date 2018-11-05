@@ -297,7 +297,14 @@ const actions = {
         const data = {q: searchText};
 
         return axios.get(searchGuessKeywords, {params: data})
-            .then(({data}) => data);
+            .then(({data}) => {
+
+                if (data.keyword) {
+                    commit('setKeyword', data.keyword);
+                }
+
+                return data;
+            });
 
     }
 
