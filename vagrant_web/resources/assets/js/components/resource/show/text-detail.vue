@@ -2,15 +2,15 @@
 
     <div class="row" v-if="!editModeEnabled" @click="editModeEnabled=true">
         <div class="col-12">
-            <div v-html="compiledMarkdown"/>
+            <div class="sbMarkedStyle" v-html="compiledMarkdown"/>
         </div>
     </div>
     <div class="row" v-else>
-        <div class="col-6 p-3 liveEditorWrapper">
+        <div class="col-6 p-3 liveEditorWrapper ">
             <textarea class="liveEditor" v-model="myTextContent"></textarea>
         </div>
         <div class="col-6 p-3 livePreviewWrapper">
-            <div class="livePreview" v-html="compiledMarkdown"/>
+            <div class="livePreview sbMarkedStyle" v-html="compiledMarkdown"/>
         </div>
         <div class="col-12">
             <button class="btn btn-success float-right m-1" @click="btnSave">{{$t('pool.Save')}}</button>
@@ -45,7 +45,7 @@
 
         computed: {
             compiledMarkdown() {
-                return marked(this.myTextContent, {sanitize: true})
+                return marked(this.myTextContent, {sanitize: true, gfm: false, smartLists: true, smartypants: true})
             },
         },
 
@@ -87,7 +87,7 @@
     }
 </script>
 
-<style scoped>
+<style type="scss">
 
     .liveEditor, .livePreview {
         display: inline-block;
@@ -116,7 +116,33 @@
     .livePreviewWrapper {
     }
 
-    code {
-        color: #f66;
+    .sbMarkedStyle {
+
+        a {
+            color: #4183c4;
+            text-decoration: none;
+        }
+
+        code {
+            display: block;
+            overflow: auto;
+            margin: 15px 0;
+            padding: 1em 1em;
+            background-color: #f8f8f8;
+            font-size: 1em;
+            line-height: 1.25em;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            color: inherit;
+            font-family: monospace;
+        }
+
+        blockquote {
+            border-left: 4px solid #DDD;
+            padding: 0 15px;
+            color: #777;
+        }
     }
+
+
 </style>
