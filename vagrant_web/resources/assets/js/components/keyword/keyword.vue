@@ -63,7 +63,7 @@
         <context-menu ref="menu">
             <context-menu-item v-if="searchable" @click.stop="goToKeywordSearch">nach '{{myKeyword.title}}' suchen
             </context-menu-item>
-            <context-menu-item v-if="editable" @click="openKeywordEditModal">bearbeiten</context-menu-item>
+            <context-menu-item v-if="editable" @click.stop="openKeywordEditModal">bearbeiten</context-menu-item>
         </context-menu>
 
     </div>
@@ -316,7 +316,7 @@
                     params: {
                         search: searchArrayObjectsToSearchQuery([[this.keyword]])
                     }
-                })
+                });
             },
 
             openRightClickMenu(event) {
