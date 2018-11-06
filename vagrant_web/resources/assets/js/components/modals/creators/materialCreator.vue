@@ -233,7 +233,7 @@
 
         created() {
 
-            this.onReset();
+            this._onReset();
 
         },
 
@@ -251,7 +251,7 @@
 
             },
 
-            cancelPromise() {
+            _cancelPromise() {
 
                 if (typeof this.reject === 'function') {
                     this.reject('closed early');
@@ -326,7 +326,7 @@
                 this.$refs.myModal.hide();
             },
 
-            onSubmit() {
+            _onSubmit() {
 
                 this.checkRequirements();
 
@@ -359,7 +359,7 @@
 
             },
 
-            onReset() {
+            _onReset() {
                 this.formErrors = [];
 
                 this.form.title       = defaultForm.title || this.title;

@@ -92,7 +92,7 @@
                 resource = resource || this.resource;
 
                 if (resource.materials === undefined) {
-                    this.$store.dispatch('resources/getResource', this.resource.id)
+                    this.$store.dispatch('resources/get', this.resource.id)
                         .then((resource) => {
                             this.btnDeleteResource(resource);
                         });

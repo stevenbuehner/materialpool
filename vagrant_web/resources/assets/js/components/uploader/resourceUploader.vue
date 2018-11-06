@@ -1,5 +1,5 @@
 <template>
-    <div class="mb-4 mt-4">
+    <div class="">
         <vue-transmit tag="section"
                       v-bind="options"
                       upload-area-classes="bg-faded"
@@ -11,7 +11,6 @@
                       v-if="!showError"
         >
             <div class="d-flex align-items-center justify-content-center w-100"
-                 style="border-radius: 1rem;"
                  :style="styleObject">
                 <button class="btn btn-secondary" @click="triggerBrowse" v-if="!uploadRunning">
                     <slot> {{$t('pool.Upload-resource-and-add-to-material')}}</slot>

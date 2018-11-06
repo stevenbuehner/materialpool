@@ -1,5 +1,5 @@
 <template>
-    <div class="card material"
+    <div class="card resource"
          @click.prevent="goToMaterial"
          @dblclick.prevent="goToMaterial">
         <div class="head">
@@ -66,7 +66,7 @@
 </script>
 
 <style scoped>
-    .material {
+    .resource {
         border-bottom: 0.1rem solid gray;
         padding: 0.5rem;
         cursor: pointer;

@@ -131,7 +131,7 @@
             onHide(event) {
                 this.opt.busy = true;
                 this.$emit('onHide');
-                this.cancelPromise('closed early');
+                this._cancelPromise('closed early');
             },
 
             onCancel(event) {
@@ -161,7 +161,7 @@
             show(options) {
 
                 if (this.promise !== null) {
-                    this.cancelPromise("next modal wan't to be opened");
+                    this._cancelPromise("next modal wan't to be opened");
                 }
 
                 this.initWithOptions(options);
@@ -201,12 +201,12 @@
 
             hideWithCancel(data) {
 
-                this.cancelPromise(data);
+                this._cancelPromise(data);
                 this.$refs.myModal.hide();
 
             },
 
-            cancelPromise(data) {
+            _cancelPromise(data) {
 
                 if (typeof this.reject === 'function') {
                     this.reject(data);

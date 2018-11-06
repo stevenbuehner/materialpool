@@ -112,7 +112,7 @@
                                     classes="card card-body"
                                     :value="material.description"
                                     @value-changed="submitDescription"
-                                    :placeholder="$t('pool.Click-here-to-insert-description')"></edditable-text>
+                                    :placeholder="$t('pool.Click-here-to-insert-description')"/>
                 </div>
             </div>
 
@@ -172,10 +172,20 @@
 
         </div>
 
-        <resource-uploader v-if="material"
-                           @resource-created="addResourceToThisMaterial"></resource-uploader>
+        <div class="row mb-4" v-if="material">
+            <resource-uploader class="col-6"
+                               @resource-created="uploadResourceToThisMaterial"></resource-uploader>
+            <div class="col-6">
+                <div class="d-flex align-items-center justify-content-center w-100 sbAssignResource">
+                    <button class="btn btn-secondary"
+                            @click="assignResourceToThisMaterial">{{$t('pool.Assign-resource')}}
+                    </button>
+                </div>
+            </div>
+        </div>
 
-        <custom-dialog ref="myDialog"></custom-dialog>
+        <custom-dialog ref="customDialog"/>
+        <resource-selector ref="resourceSelector"/>
     </div>
 </template>
 
@@ -197,6 +207,7 @@
     import MaterialRating from "../../../components/Material/MaterialRating";
     import Flag from "../../../components/flags/Flag";
     import {flagColors} from "../../../components/flags/flagOptions";
+    import ResourceSelector from "../../../components/modals/selectors/resourceSelector";
 
     Vue.use(AsyncComputed);
 
@@ -341,7 +352,7 @@
                 return result;
             },
 
-            addResourceToThisMaterial(resource) {
+            uploadResourceToThisMaterial(resource) {
                 this.$store.dispatch('materials/attachResource',
                     {materialId: this.id, resourceId: resource.id}
                 ).then(({material}) => {
@@ -358,7 +369,7 @@
                     this.material = material;
 
                     if (resource.material && resource.material.length === 0) {
-                        this.$refs.myDialog.show({
+                        this.$refs.customDialog.show({
                             title: 'Rückfrage',
                             content: 'Diese Ressource ist jetzt keinem Material mehr zugeordnet.<br/>Soll ' + (resource.original_filename ? '"' + resource.original_filename + '"' : 'sie') + ' <b>jetzt komplett</b> gelöscht werden?',
                             yesText: 'Ja, löschen',
@@ -369,7 +380,7 @@
                         }).then((answerPositive) => {
 
                             if (answerPositive === true) {
-                                this.$refs.myDialog.show({
+                                this.$refs.customDialog.show({
                                     title: 'Lösche Resource',
                                     content: 'Lösche ' + (resource.original_filename ? '"' + resource.original_filename + '"' : 'Ressource') + '...',
                                     yesEnabled: false,
@@ -380,7 +391,7 @@
 
                                 this.$store.dispatch('resources/deleteResource', resource.id)
                                     .then(() => {
-                                        this.$refs.myDialog.show({
+                                        this.$refs.customDialog.show({
                                             title: 'Resource gelöscht',
                                             content: 'Resource erfolgreich gelöscht!',
                                             yesText: 'ok',
@@ -393,7 +404,7 @@
                             }
 
                         }).catch(({message}) => {
-                            this.$refs.myDialog.show({
+                            this.$refs.customDialog.show({
                                 title: 'Warnung',
                                 content: message,
                                 yesText: 'ok',
@@ -406,6 +417,23 @@
                     }
 
                 });
+            },
+
+            assignResourceToThisMaterial() {
+                this.$refs.resourceSelector.showPromise()
+                    .then((resource) => {
+
+                        if (this.material.resources.find(mr => mr.id == resource.id)) {
+                            alert('This resource exists already in this material');
+                        } else {
+                            this.$store.dispatch('materials/attachResource', {
+                                materialId: this.id,
+                                resourceId: resource.id
+                            }).then(({material}) => {
+                                this.material = material;
+                            })
+                        }
+                    })
             },
 
             btnDeleteMaterial() {
@@ -482,6 +510,7 @@
 
 
         components: {
+            ResourceSelector,
             Flag,
             MaterialRating,
             ResourceUploader,
@@ -522,6 +551,15 @@
 
     .doneIcon {
         background-image: url("/img/icons/entypo-plus/lock-open.svg");
+    }
+
+    .sbAssignResource {
+        width: 100%;
+        border-radius: 0.3rem;
+        border: 1px dashed #bdbdbd;
+        background-color: #e9ecef;
+        min-height: 5rem;
+        display: flex;
     }
 
 

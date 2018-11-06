@@ -202,7 +202,7 @@
                 this.loadingMsg  = this.$t('pool.Loading-resource');
                 this.loadingType = 'info';
 
-                return this.$store.dispatch('resources/getResource', id)
+                return this.$store.dispatch('resources/get', id)
                     .then((resource) => {
                         return this.resource = resource;
                     }).catch(() => {

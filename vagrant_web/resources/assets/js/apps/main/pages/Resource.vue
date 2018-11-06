@@ -161,7 +161,7 @@
         asyncComputed: {
             resource: {
                 get() {
-                    return this.$store.dispatch('resources/getResource', this.id);
+                    return this.$store.dispatch('resources/get', this.id);
                 },
                 default: null,
                 watch() {

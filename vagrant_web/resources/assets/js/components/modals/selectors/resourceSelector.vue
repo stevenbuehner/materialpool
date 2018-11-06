@@ -1,38 +1,26 @@
 <template>
     <b-modal size="lg"
-             :title="$t('pool.Select-a-material')"
+             :title="$t('pool.Select-a-resource')"
              lazy
              ref="myModal"
-             @hide="cancelPromise"
+             @hide="_cancelPromise"
     >
         <template slot="modal-footer">
             <button type="button" class="btn btn-danger btn-sm" @click="hide">{{$t('pool.Cancel')}}</button>
         </template>
 
-        <b-form @submit.stop.prevent="onSubmit" @reset="onReset">
-            <b-form-group horizontal
-                          breakpoint="md"
-                          :label="$t('pool.Title')"
-                          label-for="materialtitle"
-            >
-                <b-form-input id="materialtitle"
-                              type="text"
-                              v-model="form.title"
-                              required
-                              :placeholder="$t('pool.Material-title')">
-                </b-form-input>
-            </b-form-group>
+        <b-form @submit.stop.prevent="_onSubmit" @reset="_onReset">
 
             <b-form-group horizontal
                           breakpoint="md"
                           :label="$t('pool.ID')"
-                          label-for="materialid"
+                          label-for="resourceid"
             >
-                <b-form-input id="materialid"
+                <b-form-input id="resourceid"
                               type="text"
                               v-model="form.id"
                               required
-                              :placeholder="$t('pool.Material-ID')">
+                              :placeholder="$t('pool.Resource-ID')">
                 </b-form-input>
             </b-form-group>
 
@@ -42,10 +30,10 @@
             <hr>
 
             <ul v-if="!searchOngoing">
-                <li v-for="mat in materialSuggestions"
+                <li v-for="res in resourceSuggestions"
                     class="resource"
-                    @click="selectAndReturnMaterial(mat)">
-                    ({{$t('pool.ID')}}: {{mat.id}}) {{mat.title}}
+                    @click="_selectAndReturnResource(res)">
+                    ({{$t('pool.ID')}}: {{res.id}}) {{res.notes}}
                 </li>
             </ul>
             <hollow-dots-spinner v-if="searchOngoing"
@@ -60,18 +48,6 @@
                 {{searchErrorMessage}}
             </b-alert>
 
-            <hr v-if="lastMaterials.length > 0 && materialSuggestions.length > 0">
-
-            <div class="lastMaterials" v-if="lastMaterials.length > 0">
-                <span class="labelLastMaterials">{{$t('pool.last-used-materials')}}:</span>
-                <ul>
-                    <li v-for="mat in lastMaterials"
-                        class="resource"
-                        @click="selectAndReturnMaterial(mat)">
-                        ({{$t('pool.ID')}}: {{mat.id}}) {{mat.title}}
-                    </li>
-                </ul>
-            </div>
         </div>
 
     </b-modal>
@@ -89,12 +65,11 @@
     import _ from 'lodash';
 
     export default {
-        name: "materialSelector",
+        name: "resourceSelector",
 
         data() {
             return {
                 form: {
-                    title: '',
                     id: '',
                 },
                 reject: null,
@@ -106,20 +81,9 @@
             };
         },
 
-        props: {
-            lastMaterials: {
-                type: Array,
-                required: false,
-                default() {
-                    return [];
-                }
-            }
-        },
+        props: {},
 
         watch: {
-            'form.title': function (newVal, oldVal) {
-                this.debounceUpdateMaterialSuggestions();
-            },
             'form.id': function () {
                 this.debounceUpdateMaterialSuggestions();
             }
@@ -134,7 +98,6 @@
                     this.reject  = reject;
 
                     this.$refs.myModal.show();
-
                 });
 
             },
@@ -160,45 +123,33 @@
 
                 if (this.form.id) {
                     this.searchOngoing = true;
-                    this.$store.dispatch('materials/getMaterial', this.form.id)
-                        .then((mat) => {
-                            return [mat];
+                    this.$store.dispatch('resources/get', this.form.id)
+                        .then((res) => {
+                            return [res];
                         })
                         .then(this._resourceSearchPositive)
                         .catch(this._resourceSearchNegative);
-                } else if (this.form.title) {
-                    this.searchOngoing = true;
-                    this.$store.dispatch('search/materialsWithParams', {
-                        material: {
-                            title: this.form.title
-                        }
-                    })
-                        .then((result) => result.materials)
-                        .then(this._resourceSearchPositive)
-                        .catch(this._resourceSearchNegative);
-
                 }
             },
 
-            _resourceSearchPositive(materials) {
+            _resourceSearchPositive(resources) {
                 this.searchOngoing       = false;
                 this.searchErrorMessage  = '';
-                this.materialSuggestions = materials;
+                this.resourceSuggestions = resources;
             },
 
             _resourceSearchNegative(errorMessage) {
                 this.searchOngoing       = false;
                 this.searchErrorMessage  = errorMessage;
-                this.materialSuggestions = [];
+                this.resourceSuggestions = [];
             },
 
-            _selectAndReturnResource(material) {
+            _selectAndReturnResource(resource) {
                 if (typeof this.resolve === 'function') {
-                    this.resolve(material);
+                    this.resolve(resource);
                     this.$refs.myModal.hide();
                     // this.resolve = null; // already done during hide()
                     // this.reject  = null; // already done during hide()
-                    this.$store.commit('recentmaterials/addRecentMaterialId', material.id);
                 }
             },
 
@@ -228,11 +179,7 @@
     }
 </script>
 
-<style scoped>
-    .labelLastMaterials {
-        font-weight: bold;
-    }
-
+<style scoped type="scss">
     ul {
         padding-left: 0;
     }
@@ -243,11 +190,9 @@
         list-style: none;
         cursor: pointer;
 
-    }
-
-    .resource:hover {
-        border: 1px solid grey;
-        background-color: lightgrey;
-
+        &:hover {
+            border: 1px solid grey;
+            background-color: lightgrey;
+        }
     }
 </style>

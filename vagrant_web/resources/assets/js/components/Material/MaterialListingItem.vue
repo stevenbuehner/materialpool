@@ -1,5 +1,5 @@
 <template>
-    <div class="material"
+    <div class="resource"
          v-if="material"
          @click.prevent="goToMaterial(material.id)">
         <div class="head">
@@ -70,7 +70,7 @@
 </script>
 
 <style scoped>
-    .material {
+    .resource {
         border-bottom: 0.1rem solid gray;
         padding: 0.5rem;
         cursor: pointer;

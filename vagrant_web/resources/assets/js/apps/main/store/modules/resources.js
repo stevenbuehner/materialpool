@@ -48,7 +48,7 @@ const mutations = {
 };
 
 const actions = {
-    getResource: ({getters, commit, dispatch, state}, id) => {
+    get: ({getters, commit, dispatch, state}, id) => {
 
         let loadingPromise = getters.getResourceLoadingPromise(id);
 

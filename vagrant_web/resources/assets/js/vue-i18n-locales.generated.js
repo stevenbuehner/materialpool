@@ -149,7 +149,9 @@ export default {
             "canceling-update": "update wird abgebrochen ...",
             "Keyword-saved": "Tag gespeichert",
             "Error-while-moving-keyword": "Es ist ein Fehler beim Bewegen des Tags aufgetreten",
-            "select-a-flag": "Wähle eine Flagge aus"
+            "select-a-flag": "Wähle eine Flagge aus",
+            "Select-a-resource": "Wähle eine Resource",
+            "Assign-resource": "Resource zuordnen"
         }
     },
     "en": {
@@ -327,6 +329,8 @@ export default {
             "Keyword-saved": "Keyword saved",
             "Error-while-moving-keyword": "Error while moving keyword",
             "select-a-flag": "Select a flag",
+            "Select-a-resource": "Select a resource",
+            "Assign-resource": "Assign resource",
             "": ""
         },
         "validation": {

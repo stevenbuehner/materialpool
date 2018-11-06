@@ -161,6 +161,8 @@ return [
 	'Keyword-saved'                       => 'Keyword saved',
 	'Error-while-moving-keyword'          => 'Error while moving keyword',
 	'select-a-flag'                       => 'Select a flag',
+	'Select-a-resource'                   => 'Select a resource',
+	'Assign-resource'                     => 'Assign resource',
 	''                                    => '',
 
 ];
