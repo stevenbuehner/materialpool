@@ -54,7 +54,7 @@
 
                 let searchParams = {};
 
-                if (this.searchObjects.length === 0) {
+                if (Object.keys(this.searchObjects).length === 0) {
                     searchParams[1] = getNewSearchParam(1);
                 } else {
                     for (let i in this.searchObjects) {
