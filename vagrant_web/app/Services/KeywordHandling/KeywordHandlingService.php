@@ -20,31 +20,29 @@ class KeywordHandlingService {
 	 * @param Keyword $keyword
 	 * @param         $targetType
 	 * @throws InvalidKeywordTypeException
+	 * @return Keyword|null
 	 */
 	public function changeKeywordType(Keyword $keyword, $targetType) {
 
-		$map = Keyword::getSingleTableTypeMap();
-
-		if (!isset($map[$targetType])) {
-			throw new InvalidKeywordTypeException();
-		}
+		$test        = new Keyword();
+		$test->type  = $targetType;
+		$test->title = $keyword->title;
 
 		// Check existance first
 		$existsAlready = Keyword::where([
-											['type', '=', $targetType],
-											['title', '=', $keyword->title]
+											['type', '=', $test->type],
+											['title', '=', $test->title]
 										])->first();
 
 		if ($existsAlready) {
 			$keyword = $this->mergeKeywords($existsAlready, $keyword);
 		} else {
 
-			$type     = $targetType;
-			$lc_title = $map[$targetType]::unifyTitleToLowerCase($keyword->title);
+			$lc_title = $test->lc_title;
 
 			DB::table($keyword->getTable())
 			  ->where($keyword->getKeyName(), $keyword->getKey())
-			  ->update(['type' => $type, 'lc_title' => $lc_title]);
+			  ->update(['type' => $test->type, 'lc_title' => $test->lc_title]);
 
 			$keyword = $keyword->fresh();
 		}

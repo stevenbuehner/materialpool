@@ -2,14 +2,222 @@
 
 namespace App\Services\TagExtraction\TagRecognition;
 
-use App\Models\Language as LanguageModel;
 use App\Services\TagExtraction\AbstractTagRecognition;
 use App\Services\TagExtraction\Properties\KeywordProperty;
 
 class Language extends AbstractTagRecognition {
 
-
 	const LANG_NO_LANG = NULL;
+	protected static $languageCodes = [
+		'deutsch'                            => 'DE',
+		'de'                                 => 'DE',
+		'deu'                                => 'DE',
+		'english'                            => 'EN',
+		'englisch'                           => 'EN',
+		'en'                                 => 'EN',
+		'eng'                                => 'EN',
+		'french'                             => 'FR',
+		'fr'                                 => 'FR',
+		'französisch'                        => 'FR',
+		'franz'                              => 'FR',
+		'français'                           => 'FR',
+		'francais'                           => 'FR',
+		"Abkhazian"                          => "AB",
+		"Afar"                               => "AA",
+		"Afrikaans"                          => "AF",
+		"Akan"                               => "AK",
+		"Albanian"                           => "SQ",
+		"Amharic"                            => "AM",
+		"Arabic"                             => "AR",
+		"Aragonese"                          => "AN",
+		"Armenian"                           => "HY",
+		"Assamese"                           => "AS",
+		"Avaric"                             => "AV",
+		"Avestan"                            => "AE",
+		"Aymara"                             => "AY",
+		"Azerbaijani"                        => "AZ",
+		"Bambara"                            => "BM",
+		"Bashkir"                            => "BA",
+		"Basque"                             => "EU",
+		"Belarusian"                         => "BE",
+		"Bengali"                            => "BN",
+		"Bangla"                             => "BN",
+		"Bihari"                             => "BH",
+		"Bislama"                            => "BI",
+		"Bosnian"                            => "BS",
+		"Breton"                             => "BR",
+		"Bulgarian"                          => "BG",
+		"Burmese"                            => "MY",
+		"Catalan"                            => "CA",
+		"Chamorro"                           => "CH",
+		"Chechen"                            => "CE",
+		"Chichewa, Chewa, Nyanja"            => "NY",
+		"Chinese"                            => "ZH",
+		"Chinese (Simplified)"               => "ZH-HANS",
+		"Chinese (Traditional)"              => "ZH-HANT",
+		"Chuvash"                            => "CV",
+		"Cornish"                            => "KW",
+		"Corsican"                           => "CO",
+		"Cree"                               => "CR",
+		"Croatian"                           => "HR",
+		"Czech"                              => "CS",
+		"Danish"                             => "DA",
+		"Divehi, Dhivehi, Maldivian"         => "DV",
+		"Dutch"                              => "NL",
+		"Dzongkha"                           => "DZ",
+		"English"                            => "EN",
+		"Esperanto"                          => "EO",
+		"Estonian"                           => "ET",
+		"Ewe"                                => "EE",
+		"Faroese"                            => "FO",
+		"Fijian"                             => "FJ",
+		"Finnish"                            => "FI",
+		"French"                             => "FR",
+		"Fula, Fulah, Pulaar, Pular"         => "FF",
+		"Galician"                           => "GL",
+		"Gaelic (Scottish)"                  => "GD",
+		"Gaelic (Manx)"                      => "GV",
+		"Georgian"                           => "KA",
+		"German"                             => "DE",
+		"Greek"                              => "EL",
+		"Greenlandic"                        => "KL",
+		"Guarani"                            => "GN",
+		"Gujarati"                           => "GU",
+		"Haitian Creole"                     => "HT",
+		"Hausa"                              => "HA",
+		"Hebrew"                             => "HE",
+		"Herero"                             => "HZ",
+		"Hindi"                              => "HI",
+		"Hiri Motu"                          => "HO",
+		"Hungarian"                          => "HU",
+		"Icelandic"                          => "IS",
+		"Ido"                                => "IO",
+		"Igbo"                               => "IG",
+		"Indonesian"                         => "ID, IN",
+		"Interlingua"                        => "IA",
+		"Interlingue"                        => "IE",
+		"Inuktitut"                          => "IU",
+		"Inupiak"                            => "IK",
+		"Irish"                              => "GA",
+		"Italian"                            => "IT",
+		"Japanese"                           => "JA",
+		"Javanese"                           => "JV",
+		"Kalaallisut, Greenlandic"           => "KL",
+		"Kannada"                            => "KN",
+		"Kanuri"                             => "KR",
+		"Kashmiri"                           => "KS",
+		"Kazakh"                             => "KK",
+		"Khmer"                              => "KM",
+		"Kikuyu"                             => "KI",
+		"Kinyarwanda (Rwanda)"               => "RW",
+		"Kirundi"                            => "RN",
+		"Kyrgyz"                             => "KY",
+		"Komi"                               => "KV",
+		"Kongo"                              => "KG",
+		"Korean"                             => "KO",
+		"Kurdish"                            => "KU",
+		"Kwanyama"                           => "KJ",
+		"Lao"                                => "LO",
+		"Latin"                              => "LA",
+		"Latvian"                            => "LV",
+		"Lettish"                            => "LV",
+		"Limburgish"                         => "LI",
+		"Limburger"                          => "LI",
+		"Lingala"                            => "LN",
+		"Lithuanian"                         => "LT",
+		"Luga-Katanga"                       => "LU",
+		"Luganda, Ganda"                     => "LG",
+		"Luxembourgish"                      => "LB",
+		"Manx"                               => "GV",
+		"Macedonian"                         => "MK",
+		"Malagasy"                           => "MG",
+		"Malay"                              => "MS",
+		"Malayalam"                          => "ML",
+		"Maltese"                            => "MT",
+		"Maori"                              => "MI",
+		"Marathi"                            => "MR",
+		"Marshallese"                        => "MH",
+		"Moldavian"                          => "MO",
+		"Mongolian"                          => "MN",
+		"Nauru"                              => "NA",
+		"Navajo"                             => "NV",
+		"Ndonga"                             => "NG",
+		"Northern Ndebele"                   => "ND",
+		"Nepali"                             => "NE",
+		"Norwegian"                          => "NO",
+		"Norwegian bokm]l"                   => "NB",
+		"Norwegian nynorsk"                  => "NN",
+		"Nuosu"                              => "II",
+		"Occitan"                            => "OC",
+		"Ojibwe"                             => "OJ",
+		"Old Church Slavonic, Old Bulgarian" => "CU",
+		"Oriya"                              => "OR",
+		"Oromo (Afaan Oromo)"                => "OM",
+		"Ossetian"                           => "OS",
+		"Pli"                                => "PI",
+		"Pashto, Pushto"                     => "PS",
+		"Persian (Farsi)"                    => "FA",
+		"Polish"                             => "PL",
+		"Portuguese"                         => "PT",
+		"Punjabi (Eastern)"                  => "PA",
+		"Quechua"                            => "QU",
+		"Romansh"                            => "RM",
+		"Romanian"                           => "RO",
+		"Russian"                            => "RU",
+		"Sami"                               => "SE",
+		"Samoan"                             => "SM",
+		"Sango"                              => "SG",
+		"Sanskrit"                           => "SA",
+		"Serbian"                            => "SR",
+		"Serbo-Croatian"                     => "SH",
+		"Sesotho"                            => "ST",
+		"Setswana"                           => "TN",
+		"Shona"                              => "SN",
+		"Sichuan Yi"                         => "II",
+		"Sindhi"                             => "SD",
+		"Sinhalese"                          => "SI",
+		"Siswati"                            => "SS",
+		"Slovak"                             => "SK",
+		"Slovenian"                          => "SL",
+		"Somali"                             => "SO",
+		"Southern Ndebele"                   => "NR",
+		"Spanish"                            => "ES",
+		"Sundanese"                          => "SU",
+		"Kiswahili"                          => "SW",
+		"Swahili"                            => "SW",
+		"Swati"                              => "SS",
+		"Swedish"                            => "SV",
+		"Tagalog"                            => "TL",
+		"Tahitian"                           => "TY",
+		"Tajik"                              => "TG",
+		"Tamil"                              => "TA",
+		"Tatar"                              => "TT",
+		"Telugu"                             => "TE",
+		"Thai"                               => "TH",
+		"Tibetan"                            => "BO",
+		"Tigrinya"                           => "TI",
+		"Tonga"                              => "TO",
+		"Tsonga"                             => "TS",
+		"Turkish"                            => "TR",
+		"Turkmen"                            => "TK",
+		"Twi"                                => "TW",
+		"Uyghur"                             => "UG",
+		"Ukrainian"                          => "UK",
+		"Urdu"                               => "UR",
+		"Uzbek"                              => "UZ",
+		"Venda"                              => "VE",
+		"Vietnamese"                         => "VI",
+		"Volapk"                             => "VO",
+		"Wallon"                             => "WA",
+		"Welsh"                              => "CY",
+		"Wolof"                              => "WO",
+		"Western Frisian"                    => "FY",
+		"Xhosa"                              => "XH",
+		"Yiddish"                            => "YI, JI",
+		"Yoruba"                             => "YO",
+		"Zhuang, Chuang"                     => "ZA",
+		"Zulu"                               => "ZU",
+	];
 
 	public function __construct() {
 		$this->setPriority(40);
@@ -17,7 +225,7 @@ class Language extends AbstractTagRecognition {
 
 	/**
 	 * @param String $stringValue
-	 * @return LanguageModel[]
+	 * @return KeywordProperty[]
 	 */
 	public function extractSpecializedTag($stringValue) {
 		$tagValue = $this->hasPrefix([
@@ -25,8 +233,7 @@ class Language extends AbstractTagRecognition {
 										 'lang',
 										 'sprache'
 									 ], $stringValue);
-
-		$result = [];
+		$result   = [];
 
 
 		if (FALSE !== $tagValue) {
@@ -35,7 +242,7 @@ class Language extends AbstractTagRecognition {
 
 			if ($langCode !== self::LANG_NO_LANG) {
 				$result[] = new KeywordProperty($langCode,
-												LanguageModel::class); // Don't set a priority, because we don't know the source of our guessed information
+												'lang'); // Don't set a priority, because we don't know the source of our guessed information
 			}
 
 		} else {
@@ -44,7 +251,7 @@ class Language extends AbstractTagRecognition {
 			$found = $this->getLanguageCodeFromString($stringValue);
 			if ($found !== self::LANG_NO_LANG) {
 				$result[] = new KeywordProperty($stringValue,
-												LanguageModel::class); // Don't set a priority, because we don't know the source of our guessed information
+												'lang'); // Don't set a priority, because we don't know the source of our guessed information
 			}
 
 		}
@@ -57,7 +264,7 @@ class Language extends AbstractTagRecognition {
 	 * @return null|string
 	 */
 	protected function getLanguageCodeFromString($value) {
-		$result = LanguageModel::getLanguageCodeForWritten($value);
+		$result = self::getLanguageCodeForWritten($value);
 
 		if ($result === NULL) {
 			$result = self::LANG_NO_LANG;
@@ -66,10 +273,22 @@ class Language extends AbstractTagRecognition {
 		return $result;
 	}
 
+	/**
+	 * @param string $written
+	 * @return string|null
+	 */
+	public static function getLanguageCodeForWritten(string $written) {
+		$written = strtolower($written);
+
+		if (isset(self::$languageCodes[$written])) {
+			return self::$languageCodes[$written];
+		} else {
+			return NULL;
+		}
+	}
+
 	public function allowOtherRecognitionsOnSuccess() {
 		return FALSE;
 	}
 
 }
-
-?>

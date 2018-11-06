@@ -34,7 +34,7 @@ class Tag extends AbstractTagRecognition {
 		$stringToProcess = $this->cleanUpString($stringToProcess);
 
 		// Add $stringToProcess to result
-		$result[] = new KeywordProperty($stringToProcess, Keyword::class);
+		$result[] = new KeywordProperty($stringToProcess, 'key');
 
 		return $result;
 	}
@@ -51,5 +51,3 @@ class Tag extends AbstractTagRecognition {
 	}
 
 }
-
-?>

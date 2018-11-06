@@ -6,9 +6,9 @@ use App\Http\Requests\KeywordRequest;
 use App\Jobs\CheckLonelyBibleverse;
 use App\Jobs\CheckLonelyKeyword;
 use App\Models\Bibleverse;
+use App\Models\Exceptions\InvalidKeywordTypeException;
 use App\Models\Keyword;
 use App\Models\Material;
-use App\Models\Person;
 use App\Services\TagExtraction\Interfaces\RelevanceInterface;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -20,14 +20,14 @@ trait MaterialHelperTrait {
 	/**
 	 * @param          $authorName
 	 * @param Material $material
-	 * @return Person|null
+	 * @return Keyword|null
 	 */
 	protected function fillAuthor($authorName, Material $material) {
 
 		$authorName = trim($authorName);
 
 		if (!empty($authorName)) {
-			$author = Person::firstOrCreate(['title' => $authorName]);
+			$author = Keyword::firstOrCreatePerson($authorName);
 			$material->author()->associate($author);
 
 			return $author;
@@ -57,15 +57,17 @@ trait MaterialHelperTrait {
 
 					if ($validator->valid()) {
 						$data  = $validator->getData();
-						$type  = isset($data['type']) ? $data['type'] : NULL;
-						$class = Keyword::getSingleTableClass($type);
+						$type  = isset($data['type']) ? $data['type'] : 'key';
+						$title = isset($data['title']) ? $data['title'] : NULL;
 
-						if ($class !== NULL) {
+						try {
 							/** @var Keyword $kw */
-							$kw                  = $class::firstOrCreate(['title' => $data['title']]);
+							$kw                  = Keyword::firstOrCreate(['title' => $title, 'type' => $type]);
 							$relevance           = isset($keyword['relevance']) ? $keyword['relevance'] : RelevanceInterface::RELEVANCE_EXIF_MAX;
 							$keywordIds[$kw->id] = ['relevance' => $relevance];
+						} catch (InvalidKeywordTypeException $e) {
 						}
+
 					}
 				}
 			}

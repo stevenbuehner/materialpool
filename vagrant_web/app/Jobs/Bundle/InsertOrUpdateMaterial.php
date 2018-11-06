@@ -11,7 +11,6 @@ use App\Models\ForeignMaterialId;
 use App\Models\ForeignResourceId;
 use App\Models\Keyword;
 use App\Models\Material;
-use App\Models\Person;
 use App\Services\Bundles\BundlesService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -139,7 +138,7 @@ class InsertOrUpdateMaterial implements ShouldQueue, VersionInterface {
 		} else if (empty($this->localMatInfo->author_name)) {
 			$material->author_id = NULL;
 		} else {
-			$author = Person::firstOrCreate(['title' => trim($this->localMatInfo->author_name)]);
+			$author = Keyword::firstOrCreatePerson(trim($this->localMatInfo->author_name));
 
 			if ($author->id != $material->author_id) {
 				$material->author_id = $author->id;

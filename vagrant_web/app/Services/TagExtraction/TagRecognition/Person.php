@@ -2,7 +2,6 @@
 
 namespace App\Services\TagExtraction\TagRecognition;
 
-use App\Models\Person as PersonModel;
 use App\Services\TagExtraction\AbstractTagRecognition;
 use App\Services\TagExtraction\Properties\KeywordProperty;
 
@@ -14,7 +13,7 @@ class Person extends AbstractTagRecognition {
 
 	/**
 	 * @param String $stringValue
-	 * @return PersonModel[]
+	 * @return KeywordProperty[]
 	 */
 	public function extractSpecializedTag($stringValue) {
 		$tagValue = $this->hasPrefix([
@@ -24,7 +23,7 @@ class Person extends AbstractTagRecognition {
 		$result = [];
 
 		if (FALSE !== $tagValue) {
-			$result[] = new KeywordProperty($tagValue, PersonModel::class);
+			$result[] = new KeywordProperty($tagValue, 'person');
 		}
 
 		return $result;
@@ -35,5 +34,3 @@ class Person extends AbstractTagRecognition {
 	}
 
 }
-
-?>

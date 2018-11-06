@@ -3,7 +3,6 @@
 namespace App\Services\TagExtraction\ResourceHandles;
 
 use App\Models\File;
-use App\Models\Person;
 use App\Models\Resource;
 use App\Services\TagExtraction\Interfaces\PropertyInterface;
 use App\Services\TagExtraction\Interfaces\RelevanceInterface;
@@ -238,7 +237,7 @@ class FileExifHandler implements HandlerInterface {
 			// Only add high quality names
 			if (!$this->doesTagMatchIgnorePattern($authorName, config('tagging.exif.author.ignore.patterns', []))) {
 				$result->push(new AuthorProperty($authorName, RelevanceInterface::RELEVANCE_EXIF_MAX));
-				$result->push(new KeywordProperty($authorName, Person::class, RelevanceInterface::RELEVANCE_EXIF_MAX));
+				$result->push(new KeywordProperty($authorName, 'person', RelevanceInterface::RELEVANCE_EXIF_MAX));
 			}
 		}
 

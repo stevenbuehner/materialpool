@@ -7,7 +7,6 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Kalnoy\Nestedset\NodeTrait;
-use Nanigans\SingleTableInheritance\SingleTableInheritanceTrait;
 
 /**
  * Class Keyword
@@ -22,23 +21,33 @@ use Nanigans\SingleTableInheritance\SingleTableInheritanceTrait;
  */
 class Keyword extends Model {
 	use NodeTrait;
-	use SingleTableInheritanceTrait;
+
+	const AVAILABLE_TYPES = [
+		'key'    => [
+			'defaultIcon' => '/img/icons/tag.svg'
+		],
+		'place'  => [
+			'defaultIcon' => '/img/icons/place.svg'
+		],
+		'person' => [
+			'defaultIcon' => '/img/icons/person.svg'
+		],
+		'lang'   => [
+			'defaultIcon' => '/img/icons/tag.svg'
+		]
+	];
 
 	/*
 	|--------------------------------------------------------------------------
 	| GLOBAL VARIABLES
 	|--------------------------------------------------------------------------
 	*/
-	public static    $defaultRelevance      = 100;
-	protected static $singleTableTypeField  = 'type';
-	protected static $singleTableType       = 'key';
-	protected static $defaultIcon           = '/img/icons/tag.svg';
-	protected static $singleTableSubclasses = [Person::class, Place::class, Language::class];
-	public           $timestamps            = TRUE;
-	protected        $table                 = 'keywords';
-	protected        $fillable              = ['title'];
-	protected        $guarded               = ['type', 'lc_title'];
-	protected        $hidden                = [
+	public static $defaultRelevance = 100;
+	public        $timestamps       = TRUE;
+	protected     $table            = 'keywords';
+	protected     $fillable         = ['title', 'type'];
+	protected     $guarded          = ['lc_title'];
+	protected     $hidden           = [
 		'_lft', '_rgt', 'updated_at', 'created_at'
 	];
 
@@ -48,14 +57,10 @@ class Keyword extends Model {
 
 	public function __construct(array $attributes = []) {
 		// Default values
-		$attributes['type'] = $this::$singleTableType;
+		if (!isset($attributes['type'])) {
+			$attributes['type'] = 'key';
+		}
 		parent::__construct($attributes);
-	}
-
-	public static function getSingleTableClass($key) {
-		$map = self::getSingleTableTypeMap();
-
-		return isset($map[$key]) ? $map[$key] : NULL;
 	}
 
 	/*
@@ -64,15 +69,24 @@ class Keyword extends Model {
 	|--------------------------------------------------------------------------
 	*/
 
-	public static function boot() {
-		parent::boot();
-
-		static::deleting(function ($obj) {
-			if ($obj->custom_image) {
-				\Storage::disk('public')->delete($obj->custom_image);
-			}
-		});
+	public static function firstOrCreatePerson($name) {
+		return self::firstOrCreate(
+			['title' => $name, 'type' => 'person']
+		);
 	}
+
+	public static function firstOrCreatePlace($name) {
+		return self::firstOrCreate(
+			['title' => $name, 'type' => 'place']
+		);
+	}
+
+	public static function firstOrCreateLang($name) {
+		return self::firstOrCreate(
+			['title' => $name, 'type' => 'lang']
+		);
+	}
+
 
 	/**
 	 * @param string $value
@@ -99,28 +113,30 @@ class Keyword extends Model {
 	 * @throws InvalidKeywordTypeException
 	 */
 	public static function make(string $value, string $type = 'key', $otherAttributes = []) {
-		$map = self::getSingleTableTypeMap();
 
-		if (!in_array($type, array_keys(self::getSingleTableTypeMap()))) {
+		if (!in_array($type, array_keys(self::AVAILABLE_TYPES))) {
 			throw new InvalidKeywordTypeException();
+		} else {
+			$otherAttributes['type'] = $type;
 		}
 
-		$class                   = $map[$type];
-		$otherAttributes['type'] = $type;
-
-		return $class::firstOrNew(array_merge($otherAttributes, ['title' => trim($value)]));
-	}
-
-	public static function getSingleTableType() {
-		return static::$singleTableType;
+		return self::firstOrNew(array_merge($otherAttributes, ['title' => trim($value)]));
 	}
 
 	public static function searchQuery($text) {
-		$builder = (new static())->newQueryWithoutScopes();
+		//		$builder = (new static())->newQueryWithoutScopes();
+		$builder = (new self)->newQuery();
 
 		/** @var Builder $builder */
 		return $builder->where('title', 'like', '%' . $text . '%');
 	}
+
+
+	/*
+	|--------------------------------------------------------------------------
+	| RELATIONS
+	|--------------------------------------------------------------------------
+	*/
 
 	public function toArray() {
 		$attributes = $this->attributesToArray();
@@ -137,27 +153,17 @@ class Keyword extends Model {
 		return $attributes;
 	}
 
-	/**
-	 * Get the node siblings and the node itself.
-	 *
-	 * @return \Kalnoy\Nestedset\QueryBuilder
-	 */
-	public function childrenAndSelf() {
-		return $this->newScopedQuery()
-					->where($this->getParentIdName(), '=', $this->getParentId());
-	}
-
-	/*
-	|--------------------------------------------------------------------------
-	| RELATIONS
-	|--------------------------------------------------------------------------
-	*/
-
 	public function materials() {
 		return $this->belongsToMany(Material::class, 'keyword_material', 'keyword_id', 'material_id')
 					->withPivot('relevance')
 					->using(MaterialKeyword::class);
 	}
+
+	/*
+	|--------------------------------------------------------------------------
+	| ACCESORS
+	|--------------------------------------------------------------------------
+	*/
 
 	/**
 	 * @return \Illuminate\Database\Eloquent\Builder
@@ -167,51 +173,17 @@ class Keyword extends Model {
 		$query = Material::query();
 		$query->select('materials.*')->distinct()->from($this->getTable())
 			  ->whereBetween(self::getLftName(), [$this->getLft(), $this->getRgt()])
-			  ->whereIn('keywords.type', $this->getSingleTableTypes())
 			  ->join('keyword_material', 'keyword_material.keyword_id', '=', $this->getTable() . '.id')
 			  ->join('materials', 'keyword_material.material_id', '=', 'materials.id');
 
 		return $query;
 	}
 
-	/**
-	 * Override this model to make shure, that GLOBAL-Scopes are not applied
-	 * (=> SingleTableInheritance would kick in and make separate trees for each type)
-	 * Get a new base query that includes deleted nodes.
-	 *
-	 * @since 1.1
-	 *
-	 * @return QueryBuilder
-	 */
-	public function newNestedSetQuery($table = NULL) {
-		$builder = $this->usesSoftDelete()
-			? $this->withTrashed()
-			: $this->newQueryWithoutScopes();
-
-		return $this->applyNestedSetScope($builder, $table);
-	}
-
-	/*
-	|--------------------------------------------------------------------------
-	| SCOPES
-	|--------------------------------------------------------------------------
-	*/
-
-	/*
-	|--------------------------------------------------------------------------
-	| ACCESORS
-	|--------------------------------------------------------------------------
-	*/
-
-	public function getTypeAttribute() {
-		return $this::$singleTableType;
-	}
-
 	public function getIconAttribute() {
 		$icon = $this->getAttribute('custom_icon');
 
 		if (empty($icon)) {
-			$icon = static::$defaultIcon;
+			$icon = self::AVAILABLE_TYPES[$this->type]['defaultIcon'];
 		}
 
 		return $icon;
@@ -221,23 +193,37 @@ class Keyword extends Model {
 		$this->setAttribute('custom_icon', $value);
 	}
 
-	/**
-	 * @param string $value
-	 */
-	public function setTitleAttribute(string $value) {
-		$value                        = trim($value);
-		$this->attributes['title']    = $value;
-		$this->attributes['lc_title'] = self::unifyTitleToLowerCase($value);
-	}
-
 	/*
 	|--------------------------------------------------------------------------
 	| MUTATORS
 	|--------------------------------------------------------------------------
 	*/
 
-	public static function unifyTitleToLowerCase(string $title) {
-		return static::$singleTableType . '_' . str_replace(' ', '_', trim(strtolower($title)));
+	/**
+	 * @param string $value
+	 */
+	public function setTitleAttribute(string $value) {
+		$value                     = trim($value);
+		$this->attributes['title'] = $value;
+		$this->updateLcTitle();
+	}
+
+	protected function updateLcTitle() {
+		$this->attributes['lc_title'] = $this->type . '_' . str_replace(' ', '_', trim(strtolower($this->title)));
+	}
+
+	/**
+	 * @param string $type
+	 * @throws InvalidKeywordTypeException
+	 */
+	public function setTypeAttribute(string $type) {
+
+		if (!in_array($type, array_keys(self::AVAILABLE_TYPES))) {
+			throw new InvalidKeywordTypeException();
+		} else {
+			$this->attributes['type'] = $type;
+			$this->updateLcTitle();
+		}
 	}
 
 	public function setCustomIconAttribute($value) {
@@ -269,39 +255,4 @@ class Keyword extends Model {
 
 	}
 
-	/**
-	 * Set the value of model's parent id key.
-	 *
-	 * Behind the scenes node is appended to found parent node.
-	 *
-	 *
-	 * OVERRIDE Default Function in NodeTrait (because of complications in usage with SingleTableInheritanceTrait)
-	 *
-	 * @param int $value
-	 *
-	 * @throws Exception If parent node doesn't exists
-	 */
-	public function setParentIdAttribute($value) {
-		if ($this->getParentId() == $value) {
-			return;
-		}
-
-		if ($value) {
-			$model = (new Keyword())->findOrFail($value);
-			$this->appendToNode($model);
-		} else {
-			$this->makeRoot();
-		}
-	}
-
-	/**
-	 * Relation to children.
-	 *
-	 * OVERRIDE Default Function in NodeTrait (because of complications in usage with SingleTableInheritanceTrait)
-	 *
-	 * @return HasMany
-	 */
-	public function children() {
-		return $this->hasMany(Keyword::class, $this->getParentIdName());
-	}
 }

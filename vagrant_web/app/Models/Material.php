@@ -20,7 +20,7 @@ use Illuminate\Support\Facades\DB;
  * @property int        $modified_by
  * @property int        $author_id
  * @property int        $flag;
- * @property Person     $author
+ * @property Keyword    $author
  * @property Collection $resources;
  * @property Collection $keywords;
  * @property Collection $foreignIds;
@@ -94,29 +94,30 @@ class Material extends Model {
 	}
 
 	public function persons() {
-		return $this->keyWordClassAndChildren(Person::class);
+		return $this->keyWordClassAndChildren('person');
 	}
 
 	/**
 	 * @param $class
 	 * @return BelongsToMany
 	 */
-	protected function keyWordClassAndChildren($class) {
-		return $this->belongsToMany($class, 'keyword_material', 'material_id', 'keyword_id')
+	protected function keyWordClassAndChildren($type) {
+		return $this->belongsToMany(Keyword::class, 'keyword_material', 'material_id', 'keyword_id')
+					->where('type', '=', $type)
 					->withPivot('relevance')
 					->using(MaterialKeyword::class);
 	}
 
 	public function languages() {
-		return $this->keyWordClassAndChildren(Language::class);
+		return $this->keyWordClassAndChildren('lang');
 	}
 
 	public function tags() {
-		return $this->keyWordClassAndChildren(Tag::class);
+		return $this->keyWordClassAndChildren('key');
 	}
 
 	public function places() {
-		return $this->keyWordClassAndChildren(Place::class);
+		return $this->keyWordClassAndChildren('place');
 	}
 
 	public function creator() {
@@ -128,7 +129,7 @@ class Material extends Model {
 	}
 
 	public function author() {
-		return $this->belongsTo(Person::class, 'author_id');
+		return $this->belongsTo(Keyword::class, 'author_id');
 	}
 
 	public function setRatingAttribute($value) {
@@ -153,7 +154,9 @@ class Material extends Model {
 	}
 
 	public function keywords() {
-		return $this->keyWordClassAndChildren(Keyword::class);
+		return $this->belongsToMany(Keyword::class, 'keyword_material', 'material_id', 'keyword_id')
+					->withPivot('relevance')
+					->using(MaterialKeyword::class);
 	}
 
 	/**

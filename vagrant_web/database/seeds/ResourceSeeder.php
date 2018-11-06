@@ -36,10 +36,7 @@ class ResourceSeeder extends Seeder {
 										 'remember_token' => 'i6VuECaXTUHgjHwvdVemEtyu6nPxx90y3Qva9eFNhMgDk5PSKMLrCuCBck4s'
 									 ]);
 
-		factory(Keyword::class, 5)->create();
-		factory(Person::class, 5)->create();
-		factory(Language::class, 5)->create();
-		factory(Place::class, 5)->create();
+		factory(Keyword::class, 20)->create();
 		factory(User::class, 5)->create();
 
 		factory(Resource::class, 2)

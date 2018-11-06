@@ -12,8 +12,8 @@ use App\Models\Material;
 
 class KeywordProperty extends Property {
 
-	public function __construct($title, $class, $relevance = 0) {
-		parent::__construct([$class, $title], $relevance);
+	public function __construct($title, $type, $relevance = 0) {
+		parent::__construct([$type, $title], $relevance);
 	}
 
 	/**
@@ -46,24 +46,21 @@ class KeywordProperty extends Property {
 	}
 
 	public function getKeywordValue() {
-		list($class, $title) = parent::getValue();
-		$newKeyword = $class::firstOrNew([
-											 'title' => $title
-										 ]);
+		list($type, $title) = parent::getValue();
+		$newKeyword = Keyword::firstOrNew([
+											  'title' => $title,
+											  'type'  => $type
+										  ]);
 
 		return $newKeyword;
 	}
 
 	public function getValue() {
-		list($class, $title) = parent::getValue();
+		list($type, $title) = parent::getValue();
 
 		return $title;
 	}
 
-	public function setKeywordValue($title, $class = Keyword::class) {
-		$keyword = $this->getKeywordFromValue($title, $class);
-		$this->setValue($keyword);
-	}
 
 	public function __toString() {
 		return 'r=' . $this->getRelevance() . ',v=' . json_encode(parent::getValue());

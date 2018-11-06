@@ -11,7 +11,6 @@ use App\Models\ForeignMaterialId;
 use App\Models\ForeignResourceId;
 use App\Models\Keyword;
 use App\Models\Material;
-use App\Models\Person;
 use App\Models\Resource;
 use App\Services\TagExtraction\Interfaces\RelevanceInterface;
 use App\Services\TagExtraction\MaterialExtractionService;
@@ -366,7 +365,7 @@ class ForeignMaterialController extends BaseController {
 			$resources   = $material->resources;
 
 
-			if ($author instanceof Person) {
+			if ($author instanceof Keyword) {
 				$material->author()->dissociate();
 				CheckLonelyKeyword::dispatch($author);
 			}

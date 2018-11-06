@@ -17,11 +17,8 @@ use App\Models\ForeignMaterialId;
 use App\Models\ForeignResourceId;
 use App\Models\ImageFile;
 use App\Models\Keyword;
-use App\Models\Language;
 use App\Models\Material;
 use App\Models\PdfFile;
-use App\Models\Person;
-use App\Models\Place;
 use App\Models\Resource;
 use App\Models\Text;
 use App\Models\User;
@@ -158,21 +155,21 @@ $factory->define(Keyword::class, function (Faker\Generator $faker) {
 	];
 });
 
-$factory->define(Person::class, function (Faker\Generator $faker) {
+$factory->define(Keyword::class, function (Faker\Generator $faker) {
 	return [
 		'title' => $faker->unique()->name,
 		'type'  => 'person'
 	];
 });
 
-$factory->define(Language::class, function (Faker\Generator $faker) {
+$factory->define(Keyword::class, function (Faker\Generator $faker) {
 	return [
 		'title' => $faker->unique()->languageCode,
 		'type'  => 'lang'
 	];
 });
 
-$factory->define(Place::class, function (Faker\Generator $faker) {
+$factory->define(Keyword::class, function (Faker\Generator $faker) {
 	return [
 		'title' => $faker->unique()->city,
 		'type'  => 'place'

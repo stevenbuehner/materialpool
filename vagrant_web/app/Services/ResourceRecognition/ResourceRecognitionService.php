@@ -6,7 +6,6 @@ use App\Models\AudioFile;
 use App\Models\DocumentFile;
 use App\Models\File;
 use App\Models\ImageFile;
-use App\Models\Keyword;
 use App\Models\PdfFile;
 use App\Models\Resource;
 use App\Models\Text;
@@ -16,10 +15,8 @@ use Illuminate\Http\UploadedFile;
 
 class ResourceRecognitionService {
 
-	protected $classMap;
 
 	public function __construct() {
-		$this->classMap = Keyword::getSingleTableTypeMap();
 	}
 
 	public function guessResourceFile(UploadedFile $requestFile) {

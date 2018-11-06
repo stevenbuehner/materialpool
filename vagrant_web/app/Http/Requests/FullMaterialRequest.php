@@ -41,7 +41,7 @@ class FullMaterialRequest extends FormRequest {
 	}
 
 	protected function getKeywordTypes() {
-		return join(',', array_keys(Keyword::getSingleTableTypeMap()));
+		return join(',', array_keys(Keyword::AVAILABLE_TYPES));
 	}
 
 }

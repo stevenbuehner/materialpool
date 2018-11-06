@@ -23,7 +23,7 @@ class KeywordRequest extends FormRequest {
 	public function rules() {
 		return [
 			'title' => 'bail|required|string|min:3|max:255',
-			'type'  => 'bail|nullable|string|in:' . join(',', array_keys(Keyword::getSingleTableTypeMap())),
+			'type'  => 'bail|nullable|string|in:' . join(',', array_keys(Keyword::AVAILABLE_TYPES)),
 		];
 	}
 

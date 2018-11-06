@@ -7,8 +7,8 @@
 
 namespace App\Services\TagExtraction\Properties;
 
+use App\Models\Keyword;
 use App\Models\Material;
-use App\Models\Person;
 
 class AuthorProperty extends Property {
 
@@ -21,7 +21,7 @@ class AuthorProperty extends Property {
 	 * @param Material $material
 	 */
 	function insertYourselfToItem(Material $material) {
-		$author = Person::firstOrCreate(['title' => $this->getValue()]);
+		$author = Keyword::firstOrCreatePerson(['title' => $this->getValue()]);
 		$material->author()->associate($author);
 	}
 }
