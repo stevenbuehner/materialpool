@@ -28,19 +28,27 @@ class BundlesService {
 
 		foreach ($this->getAllBundles() as $bundleInfo) {
 
-			$dbBundles[] = Bundle::firstOrCreate(
+			/** @var Bundle $bundleEntity */
+			$bundleEntity = Bundle::firstOrNew(
 				[
 					'uuid' => $bundleInfo["uuid"]
-				],
-				[
-					'name'             => $bundleInfo["name"],
-					'description'      => $bundleInfo["description"],
-					'author'           => $bundleInfo["author"],
-					'container_root'   => $bundleInfo["container_root"],
-					'is_installed'     => FALSE,
-					'update_available' => TRUE
 				]
 			);
+
+			if ($bundleEntity->exists === FALSE) {
+				$bundleEntity->is_installed     = FALSE;
+				$bundleEntity->update_available = TRUE;
+			}
+
+			// Update path and Name etc.
+			$bundleEntity->name           = $bundleInfo["name"];
+			$bundleEntity->description    = $bundleInfo["description"];
+			$bundleEntity->author         = $bundleInfo["author"];
+			$bundleEntity->container_root = $bundleInfo["container_root"];
+
+			$bundleEntity->save();
+
+			$dbBundles[] = $bundleEntity;
 		}
 
 		return $dbBundles;
