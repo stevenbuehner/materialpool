@@ -14,7 +14,13 @@
     import flashMessage from 'vue-flash-message';
     import Vue from 'vue';
 
-    Vue.use(flashMessage);
+    Vue.use(flashMessage, {
+        messageOptions: {
+            timeout: 3000,
+            important: false,
+            pauseOnInteract: true
+        }
+    });
 
     export default {
         name: 'AppWrapper',
@@ -25,7 +31,9 @@
     }
 </script>
 
-<style>
+<style type="scss">
+    @import "~vue-flash-message/dist/vue-flash-message.min.css";
+
     .main-area {
         padding-top: 4.5rem;
     }

@@ -13,7 +13,6 @@ import ShortKey from 'vue-shortkey'
 
 
 require('lodash');
-require('vue-flash-message/dist/vue-flash-message.min.css');
 
 Vue.use(ShortKey);
 Vue.use(VueRouter);
