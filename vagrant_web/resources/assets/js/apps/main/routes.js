@@ -10,55 +10,17 @@ import ResourceCreate from './pages/ResourceCreate.vue'
 import KeywordList from './pages/KeywordList.vue'
 import KeywordDetail from './pages/KeywordDetail.vue'
 import BundleList from './pages/BundleList.vue';
-import {searchQueryToSearchArrayObjects} from "../../components/search/searchHelper";
-import {store} from "./store";
-
-
-const useAndRedirectOnSearchQuery = function (to, from, next) {
-
-    if (to.query.q) {
-        searchQueryToSearchArrayObjects(to.query.q)
-            .then((query) => {
-                store.commit('search/setSelectedSearchValues', query);
-                next({
-                    name: to.name,
-                    params: to.params
-                });
-            });
-    } else {
-        next(true);
-    }
-
-};
-
 
 export const routes = [
 
            {
                path: '/search/:search?', component: SearchPage, name: 'search', props: (route) => {
-
                    return {
                        query: route.params.search || '',
                        page: route.query.page || 1
                    };
-
                },
-
            },
-           /*
-                      {
-                          path: '/search/keyword/:id', name: 'search-keyword', redirect: to => {
-
-                              return {
-                                  name: 'search',
-                                  query: {
-                                      q: keywordIdsToSimpleQuery([to.params.id])
-                                  }
-                              }
-
-                          },
-                      },
-                      */
 
            {
                path: '/material', component: MaterialApp, name: 'material', alias: '/materials'
