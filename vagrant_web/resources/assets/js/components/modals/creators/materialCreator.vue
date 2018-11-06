@@ -3,7 +3,7 @@
              :title="headline || $t('pool.Create-a-material')"
              lazy
              ref="myModal"
-             @hide="cancelPromise"
+             @hide="_cancelPromise"
     >
         <template slot="modal-footer">
 
@@ -17,17 +17,17 @@
                 <button type="button" class="btn btn-secondary btn-sm" @click="hide" :disabled="buttonsDisabled">
                     {{$t('pool.Cancel')}}
                 </button>
-                <button type="button" class="btn btn-secondary btn-sm" @click="onReset" :disabled="buttonsDisabled">
+                <button type="button" class="btn btn-secondary btn-sm" @click="_onReset" :disabled="buttonsDisabled">
                     {{$t('pool.Reset')}}
                 </button>
-                <button type="button" class="btn btn-success btn-sm" @click="onSubmit" :disabled="buttonsDisabled">
+                <button type="button" class="btn btn-success btn-sm" @click="_onSubmit" :disabled="buttonsDisabled">
                     {{$t('pool.Save')}}
                 </button>
             </slot>
 
         </template>
 
-        <b-form @submit.prevent="onSubmit" @reset="onReset">
+        <b-form @submit.prevent="onSubmit" @reset="_onReset">
             <b-form-group horizontal
                           breakpoint="md"
                           :label="$t('pool.Title')"

@@ -3,13 +3,13 @@
              :title="$t('pool.Select-a-material')"
              lazy
              ref="myModal"
-             @hide="cancelPromise"
+             @hide="_cancelPromise"
     >
         <template slot="modal-footer">
             <button type="button" class="btn btn-danger btn-sm" @click="hide">{{$t('pool.Cancel')}}</button>
         </template>
 
-        <b-form @submit.stop.prevent="onSubmit" @reset="onReset">
+        <b-form @submit.stop.prevent="onSubmit" @reset="_onReset">
             <b-form-group horizontal
                           breakpoint="md"
                           :label="$t('pool.Title')"
@@ -43,8 +43,8 @@
 
             <ul v-if="!searchOngoing">
                 <li v-for="mat in materialSuggestions"
-                    class="resource"
-                    @click="selectAndReturnMaterial(mat)">
+                    class="material"
+                    @click="_selectAndReturnMaterial(mat)">
                     ({{$t('pool.ID')}}: {{mat.id}}) {{mat.title}}
                 </li>
             </ul>
@@ -66,8 +66,8 @@
                 <span class="labelLastMaterials">{{$t('pool.last-used-materials')}}:</span>
                 <ul>
                     <li v-for="mat in lastMaterials"
-                        class="resource"
-                        @click="selectAndReturnMaterial(mat)">
+                        class="material"
+                        @click="_selectAndReturnMaterial(mat)">
                         ({{$t('pool.ID')}}: {{mat.id}}) {{mat.title}}
                     </li>
                 </ul>
@@ -100,7 +100,7 @@
                 reject: null,
                 resolve: null,
 
-                resourceSuggestions: [],
+                materialSuggestions: [],
                 searchErrorMessage: '',
                 searchOngoing: false,
             };
@@ -151,10 +151,10 @@
             },
 
             debounceUpdateMaterialSuggestions: _.debounce(function () {
-                this._updateResourceSuggestions();
+                this._updateMaterialSuggestions();
             }, 300),
 
-            _updateResourceSuggestions() {
+            _updateMaterialSuggestions() {
 
                 this.searchErrorMessage = '';
 
@@ -164,8 +164,8 @@
                         .then((mat) => {
                             return [mat];
                         })
-                        .then(this._resourceSearchPositive)
-                        .catch(this._resourceSearchNegative);
+                        .then(this._materialSearchPositive)
+                        .catch(this._materialearchNegative);
                 } else if (this.form.title) {
                     this.searchOngoing = true;
                     this.$store.dispatch('search/materialsWithParams', {
@@ -174,25 +174,25 @@
                         }
                     })
                         .then((result) => result.materials)
-                        .then(this._resourceSearchPositive)
-                        .catch(this._resourceSearchNegative);
+                        .then(this._materialSearchPositive)
+                        .catch(this._materialearchNegative);
 
                 }
             },
 
-            _resourceSearchPositive(materials) {
+            _materialSearchPositive(materials) {
                 this.searchOngoing       = false;
                 this.searchErrorMessage  = '';
                 this.materialSuggestions = materials;
             },
 
-            _resourceSearchNegative(errorMessage) {
+            _materialearchNegative(errorMessage) {
                 this.searchOngoing       = false;
                 this.searchErrorMessage  = errorMessage;
                 this.materialSuggestions = [];
             },
 
-            _selectAndReturnResource(material) {
+            _selectAndReturnMaterial(material) {
                 if (typeof this.resolve === 'function') {
                     this.resolve(material);
                     this.$refs.myModal.hide();
@@ -228,7 +228,7 @@
     }
 </script>
 
-<style scoped>
+<style scoped type="scss">
     .labelLastMaterials {
         font-weight: bold;
     }
@@ -237,17 +237,16 @@
         padding-left: 0;
     }
 
-    .resource {
+    .material {
         padding: 0.5em;
         border: 1px solid white;
         list-style: none;
         cursor: pointer;
 
+        &:hover {
+            border: 1px solid grey;
+            background-color: lightgrey;
+        }
     }
 
-    .resource:hover {
-        border: 1px solid grey;
-        background-color: lightgrey;
-
-    }
 </style>
