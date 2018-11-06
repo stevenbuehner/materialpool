@@ -45,30 +45,39 @@
         },
 
         data() {
-            return {};
+
+            // Init search Params
+            return {
+                searchParams: this.fromPropsToData(this.searchObjects)
+            };
         },
 
-        computed: {
+        computed: {},
 
-            searchParams() {
-
-                let searchParams = {};
-
-                if (Object.keys(this.searchObjects).length === 0) {
-                    searchParams[1] = getNewSearchParam(1);
-                } else {
-                    for (let i in this.searchObjects) {
-                        searchParams[i] = getNewSearchParam(i, this.searchObjects[i]);
-                    }
-                }
-
-
-                return searchParams;
-            },
-
+        watch: {
+            searchObjects: {
+                handler(newValue, oldValue) {
+                    this.searchParams = this.fromPropsToData(newValue);
+                },
+                deep: true
+            }
         },
 
         methods: {
+
+            fromPropsToData(searchObjects) {
+                let searchParams = {};
+
+                if (Object.keys(searchObjects).length === 0) {
+                    searchParams[1] = getNewSearchParam(1);
+                } else {
+                    for (let i in searchObjects) {
+                        searchParams[i] = getNewSearchParam(i, searchObjects[i]);
+                    }
+                }
+
+                return searchParams;
+            },
 
             requestRemovingSarchInput(idParam) {
 
@@ -77,29 +86,28 @@
                     return false;
                 }
 
-                this.$delete(this.searchParams, idParam);
-                //delete this.searchParams[idParam];
+                const needsUpdateMaterials = this.searchParams[idParam] && this.searchParams[idParam].values && this.searchParams[idParam].values.length > 0;
 
-                this.$emit('requestRemovingSarchInput', idParam);
-                this.emitSearchUpdated();
+                this.$delete(this.searchParams, idParam);
+
+                if (needsUpdateMaterials) {
+                    this.emitSearchUpdated();
+                }
 
             },
 
             requestAdditionalSearchInputAfter(idParam) {
-                const newSearchP = this.getNewSearchParam();
-                this.$set(this.searchParams, newSearchP.id, newSearchP);
-            },
 
-            getNewSearchParam() {
                 let nextCounter = 0;
-
                 Object.keys(this.searchParams).forEach((key) => {
                     nextCounter = Math.max(key, nextCounter);
                 });
-
                 nextCounter++;
 
-                return getNewSearchParam(nextCounter);
+                this.$set(this.searchParams, nextCounter, getNewSearchParam(nextCounter));
+
+                // Don't emit. Because then the unneccessary lines will be removed again
+                // this.emitSearchUpdated(undefined, nextCounter);
             },
 
             emitSearchUpdated(data, id) {
@@ -115,7 +123,6 @@
                 this.$emit('searchUpdated', searchLineItems);
 
             }
-
 
         },
 
