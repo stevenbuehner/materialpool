@@ -62,6 +62,10 @@ export function api_v1_resources_show(resourceId) {
     return '/api/v1/resources/' + resourceId;
 }
 
+export function api_v1_resources_update(resourceId) {
+    return '/api/v1/resources/' + resourceId;
+}
+
 export function api_v1_resources_delete(resourceId) {
     return '/api/v1/resources/' + resourceId;
 }

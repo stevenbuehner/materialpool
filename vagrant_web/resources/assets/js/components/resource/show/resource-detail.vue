@@ -1,6 +1,7 @@
 <template>
     <div class="resourceDetail jumbotron">
-        <component :is="detailComponent" :resource="resource" class="lead"></component>
+        <component :is="detailComponent" :resource="resource" class="lead"
+                   @resource-updated="$emit('resource-updated', $event)"></component>
 
         <hr>
 
@@ -48,6 +49,7 @@
     import videoDetail from './video-preview.vue'
     import docDetail from './doc-preview.vue'
     import resDetail from './res-preview.vue'
+    import fileDetail from './file-detail.vue'
     import resourceLinks from './../resource-links.mixin';
 
 
@@ -117,7 +119,8 @@
             audioDetail,
             videoDetail,
             docDetail,
-            resDetail
+            resDetail,
+            fileDetail,
         }
     }
 </script>

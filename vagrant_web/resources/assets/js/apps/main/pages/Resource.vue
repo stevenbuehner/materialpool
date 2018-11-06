@@ -9,7 +9,8 @@
 
             <b-tabs card>
                 <b-tab title="Vorschau">
-                    <resource-detail :resource="resource" v-if="resource" :showOpen="false"></resource-detail>
+                    <resource-detail :resource="resource" v-if="resource" :showOpen="false"
+                                     @resource-updated="onResourceUpdated"></resource-detail>
                 </b-tab>
 
                 <b-tab title="Materialien" v-if="resource">
@@ -272,7 +273,13 @@
                     .then(({material, resource}) => {
                         this.forceReload++;
                     });
+            },
+
+            onResourceUpdated(resource) {
+                this.forceReload++;
             }
+
+
         },
 
         filters: {

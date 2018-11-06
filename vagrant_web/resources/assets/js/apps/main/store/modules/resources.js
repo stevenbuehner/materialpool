@@ -1,7 +1,8 @@
 import {
     api_v1_resources_create_material,
     api_v1_resources_delete,
-    api_v1_resources_show
+    api_v1_resources_show,
+    api_v1_resources_update
 } from '../../../../components/serverRoutes'
 import axios from 'axios'
 
@@ -100,8 +101,12 @@ const actions = {
         commit('setResource', resource);
     },
 
-    updateResource: ({commit}, {id, data}) => {
-
+    update: ({commit, dispatch}, {id, data}) => {
+        return axios.put(api_v1_resources_update(id), data)
+            .then((response) => response.data)
+            .then((resource) => {
+                dispatch('setResource', resource);
+            });
     },
 
     clearResource: ({commit}, id) => {

@@ -36,6 +36,7 @@
     import audioPreview from './audio-preview.vue'
     import videoPreview from './video-preview.vue'
     import docPreview from './doc-preview.vue'
+    import filePreview from './file-preview.vue'
     import resPreview from './res-preview.vue'
     import resourceLinks from './../resource-links.mixin';
     import UserName from "../../user/user-name";
@@ -81,7 +82,8 @@
             audioPreview,
             videoPreview,
             docPreview,
-            resPreview
+            resPreview,
+            filePreview,
         }
     }
 </script>

@@ -1,12 +1,11 @@
 <template>
     <div>
-        <my-text-block :text="resource.content"></my-text-block>
+        <span v-if="resource.original_filename"><i>{{resource.original_filename}}</i></span>
+        <span v-else>No file preview available</span>
     </div>
 </template>
 
 <script>
-
-    import myTextBlock from './../../my-text-block.vue';
 
 
     export default {
@@ -19,9 +18,7 @@
             }
         },
 
-        components: {
-            myTextBlock
-        }
+        components: {}
 
     }
 </script>

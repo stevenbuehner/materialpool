@@ -1,6 +1,7 @@
 <template>
     <div class="card-header">
-        No document preview available <span v-if="resource.original_filename">for <i>{{resource.original_filename}}</i></span>
+        <span v-if="resource.original_filename"><i>{{resource.original_filename}}</i></span>
+        <span v-else>No document preview available</span>
     </div>
 </template>
 
