@@ -38,11 +38,12 @@ class TextContentHandler implements HandlerInterface {
 
 		// Eine Property ist auf jeden Fall OCR
 		// Also mindestens drei Tags werden gefordert
-		if ($firstLineResults->count() > 4) {
+		$firstLineIsRemoved = $firstLineResults->count() > 4;
+		if ($firstLineIsRemoved) {
 			$this->removeFirstLine($resource);
 		}
 
-		$result = $result->merge($this->searchInEveryLine($resource));
+		$result = $result->merge($this->searchInEveryLine($resource, !$firstLineIsRemoved));
 		$unique = $result->unique();
 
 		return $unique;
@@ -109,7 +110,7 @@ class TextContentHandler implements HandlerInterface {
 
 			// Delete the first line in the $content
 			$firstLine        = strtok($content, "\n");
-			$withoutFirstLine = preg_replace('/^.+\n/', '', $content);
+			$withoutFirstLine = $this->removeFirstLineFromString($content);
 
 			$resource->setFirstLine($firstLine);
 			$resource->setContent($withoutFirstLine);
@@ -121,13 +122,22 @@ class TextContentHandler implements HandlerInterface {
 		}
 	}
 
-	protected function searchInEveryLine(Resource $resource) {
+	protected function removeFirstLineFromString($string) {
+		// Delete the first line in the $content
+		return preg_replace('/^.+\n/', '', $string);
+	}
+
+	protected function searchInEveryLine(Resource $resource, $ignoreFirstLine = FALSE) {
 		$result = new Collection();
 
 		if ($resource instanceof TextContentInterface) {
 
 			// get Content
 			$content = $resource->getContent();
+
+			if ($ignoreFirstLine === TRUE) {
+				$content = $this->removeFirstLineFromString($content);
+			}
 
 			// Extract bibleverses
 			$foundBibleVerses = $this->bibleVerseService->stringToBibleVerse($content);
