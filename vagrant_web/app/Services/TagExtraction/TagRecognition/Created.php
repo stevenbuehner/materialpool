@@ -9,8 +9,8 @@ use App\Services\TagExtraction\Properties\Property;
 
 class Created extends AbstractTagRecognition implements PreRecognitionProcessInterface {
 
-	const GERMAN_DATE_REGEX   = '(31|30|[012]\d|\d)\.(0\d|1[012]|\d)\.(\d{4})';
-	const ENG_GERM_DATE_REGEX = '(\d{4})-(0\d|1[012]|\d)-(31|30|[012]\d|\d)';
+	const GERMAN_DATE_REGEX   = '(31|30|[012]\d|[1-9])\.(0\d|1[012]|[1-9])\.(\d{4})';
+	const ENG_GERM_DATE_REGEX = '(\d{4})-(0\d|1[012]|[1-9])-(31|30|[012]\d|[1-9])';
 	const POSSIBLE_PREFIX     = ['erstellt',
 								 'spoken',
 								 'created',
