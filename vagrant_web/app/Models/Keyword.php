@@ -219,7 +219,7 @@ class Keyword extends Model {
 	public function setTypeAttribute(string $type) {
 
 		if (!in_array($type, array_keys(self::AVAILABLE_TYPES))) {
-			throw new InvalidKeywordTypeException();
+			throw new InvalidKeywordTypeException('Type ' . $type . ' does not exist');
 		} else {
 			$this->attributes['type'] = $type;
 			$this->updateLcTitle();

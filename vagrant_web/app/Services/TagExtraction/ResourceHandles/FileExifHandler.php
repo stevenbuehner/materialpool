@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\Storage;
 use PHPExiftool\Driver\Metadata\Metadata;
 use PHPExiftool\Driver\Metadata\MetadataBag;
 use PHPExiftool\Driver\Value\ValueInterface;
+use PHPExiftool\Exception\RuntimeException;
 use PHPExiftool\Reader;
 
 class FileExifHandler implements HandlerInterface {
@@ -56,33 +57,36 @@ class FileExifHandler implements HandlerInterface {
 		$localAbsolutePath = $localPathPrefix . $localRelativePath;
 
 
-		$fileEntity = $this->exifReader->reset()->files($localAbsolutePath)->first();
-		/** @var MetadataBag $metaData */
-		$metaData = $fileEntity->getMetadatas();
+		try {
+			$fileEntity = $this->exifReader->reset()->files($localAbsolutePath)->first();
+			/** @var MetadataBag $metaData */
+			$metaData = $fileEntity->getMetadatas();
 
-		$allResultProperties = $this->getTagsFromExifTitle($metaData);
-		$result              = $result->merge($allResultProperties);
+			$allResultProperties = $this->getTagsFromExifTitle($metaData);
+			$result              = $result->merge($allResultProperties);
 
-		// Search in comments
-		$allResultProperties = $this->getTagsFromExifComment($metaData);
-		$result              = $result->merge($allResultProperties);
+			// Search in comments
+			$allResultProperties = $this->getTagsFromExifComment($metaData);
+			$result              = $result->merge($allResultProperties);
 
-		// Search for keywords
-		$allResultProperties = $this->getTagsFromExifKeywords($metaData);
-		$result              = $result->merge($allResultProperties);
+			// Search for keywords
+			$allResultProperties = $this->getTagsFromExifKeywords($metaData);
+			$result              = $result->merge($allResultProperties);
 
-		// Author
-		$allResultProperties = $this->getTagsFromExifAuthor($metaData);
-		$result              = $result->merge($allResultProperties);
+			// Author
+			$allResultProperties = $this->getTagsFromExifAuthor($metaData);
+			$result              = $result->merge($allResultProperties);
 
-		// CreateDate
-		$allResultProperties = $this->getTagsFromExifCreateDate($metaData);
-		$result              = $result->merge($allResultProperties);
+			// CreateDate
+			$allResultProperties = $this->getTagsFromExifCreateDate($metaData);
+			$result              = $result->merge($allResultProperties);
 
-		$result->unique();
+			$result->unique();
 
-		$result = $this->filterIgnorePatterns($result);
-
+			$result = $this->filterIgnorePatterns($result);
+		} catch (RuntimeException $e) {
+			Log::error($e->getMessage());
+		}
 
 		return $result;
 	}

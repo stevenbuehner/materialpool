@@ -2,7 +2,6 @@
 
 namespace App\Services\TagExtraction\TagRecognition;
 
-use App\Models\Keyword;
 use App\Services\TagExtraction\AbstractTagRecognition;
 use App\Services\TagExtraction\Properties\KeywordProperty;
 
@@ -25,7 +24,7 @@ class Beispiel extends AbstractTagRecognition {
 
 		if (FALSE !== $tagValue) {
 			$result[] = new KeywordProperty($tagValue, 'key');
-			$result[] = new KeywordProperty('Beispiel', Keyword::class);
+			$result[] = new KeywordProperty('Beispiel', 'key');
 		}
 
 		return $result;
