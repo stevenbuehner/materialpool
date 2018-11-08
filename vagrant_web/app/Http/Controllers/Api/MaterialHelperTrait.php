@@ -18,22 +18,35 @@ trait MaterialHelperTrait {
 	protected $bibleVerseService;
 
 	/**
-	 * @param          $authorName
-	 * @param Material $material
+	 * @param null|string|array $authorName
+	 * @param Material          $material
 	 * @return Keyword|null
+	 * @throws InvalidKeywordTypeException
 	 */
-	protected function fillAuthor($authorName, Material $material) {
+	protected function fillAuthor($author, Material $material) {
 
-		$authorName = trim($authorName);
+		if (is_array($author) && isset($author['id'])) {
+			$author = Keyword::find($author['id']);
 
-		if (!empty($authorName)) {
+			if ($author->type !== 'person') {
+				throw new InvalidKeywordTypeException('Expected Keyword with type person here');
+			}
+
+		} else if (!empty($authorName)) {
 			$author = Keyword::firstOrCreatePerson($authorName);
-			$material->author()->associate($author);
 
-			return $author;
+		} else {
+			$author = NULL;
 		}
 
-		return NULL;
+		if ($author === NULL) {
+			$material->author()->dissociate();
+		} else {
+			$material->author()->associate($author);
+		}
+
+
+		return $author;
 	}
 
 	/**

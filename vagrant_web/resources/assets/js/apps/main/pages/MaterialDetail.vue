@@ -124,11 +124,16 @@
 
                     {{$t('pool.edited')}} {{material.updated_at | moment("calendar")}},
 
-                    <span v-if="material.creator !== undefined && material.creator.name !== undefined">
-                        {{$t('pool.by')}} {{material.creator.name}}
+                    <span v-if="material.creator !== undefined && material.creator.name !== undefined"
+                          class="mr-0 pr-0">
+                        {{$t('pool.by')}} {{material.creator.name}},
                     </span>
 
-                    <span v-if="material.author">{{$t('pool.resource-author-is', {name: material.author.title} )}}</span>
+                    {{$t('pool.author-is')}}
+                    <keyword-toggle-text-select
+                            :keyword="material.author"
+                            @newKeywordSelection="submitAuthor"
+                            :emptyPlaceholder="$t('pool.unknown')"/>
                 </div>
             </div>
 
@@ -208,6 +213,7 @@
     import Flag from "../../../components/flags/Flag";
     import {flagColors} from "../../../components/flags/flagOptions";
     import ResourceSelector from "../../../components/modals/selectors/resourceSelector";
+    import KeywordToggleTextSelect from "../../../components/keyword/keywordToggleTextSelect";
 
     Vue.use(AsyncComputed);
 
@@ -322,6 +328,10 @@
 
             submitFromBot(newValue) {
                 this.submitMaterialUpdate({'from_bot': newValue}, 'From bot');
+            },
+
+            submitAuthor(newKeyword) {
+                this.submitMaterialUpdate({'author': newKeyword}, 'Authors');
             },
 
             submitMaterialUpdate(data, propertyName) {
@@ -510,6 +520,7 @@
 
 
         components: {
+            KeywordToggleTextSelect,
             ResourceSelector,
             Flag,
             MaterialRating,

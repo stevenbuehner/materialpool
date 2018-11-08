@@ -204,7 +204,7 @@
             // _.throttle), visit: https://lodash.com/docs#debounce
             search: _.debounce((loading, search, vm) => {
 
-                vm.$store.dispatch('keywords/search', search)
+                vm.$store.dispatch('keywords/search', {searchText: search})
                     .then((keywords) => {
                         console.log(keywords);
                         vm.suggestedKeywords = keywords;

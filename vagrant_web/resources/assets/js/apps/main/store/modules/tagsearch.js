@@ -22,7 +22,8 @@ const actions = {
                 console.error(response);
                 return response;
             });
-    }
+    },
+
 };
 
 export default {

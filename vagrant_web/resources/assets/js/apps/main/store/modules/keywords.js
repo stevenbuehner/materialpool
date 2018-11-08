@@ -292,21 +292,35 @@ const actions = {
     },
 
 
-    search: ({commit, getters, dispatch}, searchText) => {
+    search: ({commit, getters, dispatch}, {searchText, type, page}) => {
 
-        const data = {q: searchText};
+        type = type || false;
+        page = page || 1;
+
+        let data = {
+            q: searchText
+        };
+
+        if (type) {
+            // String or Array allowed here
+            data.t = type;
+        }
+
+        if (page) {
+            data.page = page;
+        }
+
 
         return axios.get(searchGuessKeywords, {params: data})
             .then(({data}) => {
 
-                if (data.keyword) {
-                    commit('setKeyword', data.keyword);
+                if (data instanceof Array && data.length > 0) {
+                    commit('setMultipleKeywords', data);
                 }
 
                 return data;
             });
-
-    }
+    },
 
 
 };

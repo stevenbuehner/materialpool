@@ -151,7 +151,10 @@ export default {
             "Error-while-moving-keyword": "Es ist ein Fehler beim Bewegen des Tags aufgetreten",
             "select-a-flag": "Wähle eine Flagge aus",
             "Select-a-resource": "Wähle eine Resource",
-            "Assign-resource": "Resource zuordnen"
+            "Assign-resource": "Resource zuordnen",
+            "Nothing-found": "Nichts gefunden",
+            "author-is": "Author ist",
+            "unknown": "unbekannt"
         }
     },
     "en": {
@@ -331,7 +334,9 @@ export default {
             "select-a-flag": "Select a flag",
             "Select-a-resource": "Select a resource",
             "Assign-resource": "Assign resource",
-            "": ""
+            "Nothing-found": "Nothing found",
+            "author-is": "author is",
+            "unknown": "unknown"
         },
         "validation": {
             "accepted": "The {attribute} must be accepted.",

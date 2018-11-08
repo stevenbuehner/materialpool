@@ -214,13 +214,16 @@ class SearchController extends Controller {
 
 		$queryString    = $request->get('q', '');
 		$queryString    = str_replace('%', '*', $queryString);
+		$queryType      = $request->get('t', FALSE);
 		$queryPage      = $request->get('page', 1);
 		$paginationSize = 15;
 
-		$queryString = str_replace('%', '*', $queryString);
+		if ($queryType && !in_array($queryType, array_keys(Keyword::AVAILABLE_TYPES))) {
+			$queryType = FALSE;
+		}
 
 		// Search for Keywords
-		$keywords = Keyword::searchQuery($queryString)
+		$keywords = Keyword::searchQuery($queryString, $queryType)
 						   ->offset(($paginationSize) * ($queryPage - 1))
 						   ->limit($paginationSize)
 						   ->get();

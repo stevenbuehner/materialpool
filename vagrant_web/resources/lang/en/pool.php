@@ -163,6 +163,8 @@ return [
 	'select-a-flag'                       => 'Select a flag',
 	'Select-a-resource'                   => 'Select a resource',
 	'Assign-resource'                     => 'Assign resource',
-	''                                    => '',
+	'Nothing-found'                       => 'Nothing found',
+	'author-is'                           => 'author is',
+	'unknown'                             => 'unknown',
 
 ];

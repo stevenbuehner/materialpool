@@ -123,12 +123,27 @@ class Keyword extends Model {
 		return self::firstOrNew(array_merge($otherAttributes, ['title' => trim($value)]));
 	}
 
-	public static function searchQuery($text) {
+	/**
+	 * @param string            $text
+	 * @param bool|string|array $type
+	 * @return Builder
+	 */
+	public static function searchQuery($text, $type = FALSE) {
 		//		$builder = (new static())->newQueryWithoutScopes();
 		$builder = (new self)->newQuery();
 
 		/** @var Builder $builder */
-		return $builder->where('title', 'like', '%' . $text . '%');
+		$query = $builder->where('title', 'like', '%' . $text . '%');
+
+		if ($type !== FALSE) {
+			if (is_array($type)) {
+				$query = $query->whereIn('type', $type);
+			} else {
+				$query = $query->where('type', '=', $type);
+			}
+		}
+
+		return $query;
 	}
 
 
