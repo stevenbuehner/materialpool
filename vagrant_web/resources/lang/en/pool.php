@@ -166,5 +166,16 @@ return [
 	'Nothing-found'                       => 'Nothing found',
 	'author-is'                           => 'author is',
 	'unknown'                             => 'unknown',
+	'Web-URL'                             => 'Web URL',
+	'Content-Hash'                        => 'Content Hash',
+	'Publicity'                           => 'Publicity',
+	'Resource-is-private'                 => 'Resource is private',
+	'Resource-is-public'                  => 'Resource is public',
+	'Original-Filename'                   => 'Original Filename',
+	'Created-at'                          => 'Created at',
+	'Updated-at'                          => 'Updated at',
+	'Page-Count'                          => 'Page Count',
+	'missing'                             => 'missing',
+
 
 ];

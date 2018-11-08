@@ -67,16 +67,43 @@
 
                 <b-tab title="MetaInfo" v-if="resource">
                     <b-list-group>
-                        <b-list-group-item
-                                v-for="(value, index) in metaInfo"
-                                :key="index"
-                                v-if="index != 'materials'">
-
-                            <b>{{index}}:</b>
-                            <user v-if="index ==='creator'" :user="value"></user>
-                            <span v-else-if="index ==='created_at' || index === 'updated_at'">{{value | moment('calendar')}}</span>
-                            <span v-else>{{value}}</span>
+                        <b-list-group-item>
+                            <b>ID:</b> {{resource.id}}
                         </b-list-group-item>
+                        <b-list-group-item>
+                            <b>{{$t('pool.Web-URL')}}:</b> {{resource.remote_path || $t('pool.missing')}}
+                        </b-list-group-item>
+                        <b-list-group-item>
+                            <b>{{$t('pool.Content-Hash')}}:</b> {{resource.content_hash || $t('pool.missing')}}
+                        </b-list-group-item>
+                        <b-list-group-item>
+                            <b>{{$t('pool.Publicity')}}:</b>
+                            <toggle :value="resource.is_public" id="is_public" type="light"
+                                    style="font-size: .6em; position: relative; top: .4em;"
+                                    @isToggled="updateIsPublic"/>
+                            {{resource.is_public ? $t('pool.Resource-is-public') : $t('pool.Resource-is-private')}}
+                        </b-list-group-item>
+
+                        <b-list-group-item>
+                            <b>{{$t('pool.Created-at')}}:</b> {{resource.created_at | moment('calendar')}}
+                        </b-list-group-item>
+                        <b-list-group-item>
+                            <b>{{$t('pool.Updated-at')}}:</b> {{resource.updated_at | moment('calendar')}}
+                        </b-list-group-item>
+
+                        <b-list-group-item v-if="resource.original_filename">
+                            <b>{{$t('pool.Original-Filename')}}:</b> {{resource.original_filename}}
+                        </b-list-group-item>
+                        <b-list-group-item v-if="resource.page_count">
+                            <b>{{$t('pool.Page-Count')}}:</b> {{resource.page_count}}
+                        </b-list-group-item>
+
+                        <b-list-group-item>
+                            <b>{{$t('pool.Creator')}}:</b>
+                            <user v-if="resource.creator" :user="resource.creator"/>
+                            <span v-else>{{$t('pool.unknown')}}</span>
+                        </b-list-group-item>
+
                     </b-list-group>
                 </b-tab>
             </b-tabs>
@@ -112,6 +139,7 @@
     import MaterialSelector from "../../../components/modals/selectors/materialSelector";
     import CustomDialog from "../../../components/modals/dialogs/customDialog";
     import MaterialCreator from "../../../components/modals/creators/materialCreator";
+    import Toggle from "../../../components/general/toggle";
 
     Vue.use(AsyncComputed);
 
@@ -275,6 +303,29 @@
                     });
             },
 
+            updateIsPublic(value) {
+                this._updateResource({
+                    is_public: value
+                }, this.$t('pool.Publicity'));
+            },
+
+            _updateResource(data, flashLabel) {
+
+                this.flashInfo('Upading ' + flashLabel);
+
+                this.$store.dispatch('resources/update', {id: this.resource.id, data})
+                    .then((resource) => {
+                        this.forceReload++;
+                        this.flashSuccess(flashLabel + ' updated successful');
+                    })
+                    .catch((response) => {
+                        console.error(response);
+                        this.flash('Error while updating ' + flashLabel);
+                        this.forceReload++;
+                    });
+
+            },
+
             onResourceUpdated(resource) {
                 this.forceReload++;
             }
@@ -289,6 +340,7 @@
         },
 
         components: {
+            Toggle,
             MaterialCreator,
             CustomDialog,
             MaterialSelector,

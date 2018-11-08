@@ -154,7 +154,17 @@ export default {
             "Assign-resource": "Resource zuordnen",
             "Nothing-found": "Nichts gefunden",
             "author-is": "Author ist",
-            "unknown": "unbekannt"
+            "unknown": "unbekannt",
+            "Web-URL": "Inernet URL",
+            "Content-Hash": "Resource Hash",
+            "Publicity": "Öffentlichkeit",
+            "Resource-is-private": "Resource ist privat",
+            "Resource-is-public": "Resource ist öffentlich",
+            "Original-Filename": "Ursprünglicher Dateiname",
+            "Created-at": "Erstellt",
+            "Updated-at": "Bearbeitet",
+            "Page-Count": "Anzahl Seiten",
+            "missing": "fehlt"
         }
     },
     "en": {
@@ -336,7 +346,17 @@ export default {
             "Assign-resource": "Assign resource",
             "Nothing-found": "Nothing found",
             "author-is": "author is",
-            "unknown": "unknown"
+            "unknown": "unknown",
+            "Web-URL": "Web URL",
+            "Content-Hash": "Content Hash",
+            "Publicity": "Publicity",
+            "Resource-is-private": "Resource is private",
+            "Resource-is-public": "Resource is public",
+            "Original-Filename": "Original Filename",
+            "Created-at": "Created at",
+            "Updated-at": "Updated at",
+            "Page-Count": "Page Count",
+            "missing": "missing"
         },
         "validation": {
             "accepted": "The {attribute} must be accepted.",

@@ -147,7 +147,7 @@ class ResourceController extends BaseController {
 		$material = $this->createMaterialFromResources($resource);
 
 		return [
-			'resource'  => $resource->fresh(self::DEFAULT_RELATIONS),
+			'resource' => $resource->fresh(self::DEFAULT_RELATIONS),
 			'material' => $material->fresh(\App\Http\Controllers\MaterialController::withAttributes())
 		];
 
@@ -160,21 +160,32 @@ class ResourceController extends BaseController {
 	 */
 	public function update(Request $request, Resource $resource) {
 
+		$lastUpdated = $resource->updated_at;
+
 		$this->validateResourceRequest($request, get_class($resource), $allowPartialUpdate = TRUE);
 
-		try {
-			if ($request->hasFile('file')) {
-				$resource = $this->handleSingleResourceFileData($request, $resource);
-			} else {
-				$resource = $this->handleContentResourceUpload($request, $resource);
-			}
 
+		try {
+			if ($request->hasFile('file') && $resource instanceof File) {
+				$resource = $this->handleSingleResourceFileData($request, $resource);
+			} else if ($request->has('content')) {
+				$resource = $this->handleContentResourceUpload($request, $resource);
+			} else {
+				$resource = $this->handleGerneralResourceAttributes($resource, $request);
+			}
 
 		} catch (\Exception $e) {
 			return response(['message' => $e->getMessage()])->setStatusCode(500);
 		}
 
-		return $resource->fresh(self::DEFAULT_RELATIONS);
+		$resource = $resource->fresh(self::DEFAULT_RELATIONS);
+
+		// Update Hashes, Page_Counts, etc
+		if ($resource->updated_at !== $lastUpdated) {
+			$this->queuePostCreationJobs($resource);
+		}
+
+		return $resource;
 	}
 
 	/**

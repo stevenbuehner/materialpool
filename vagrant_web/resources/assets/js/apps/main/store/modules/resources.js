@@ -106,6 +106,7 @@ const actions = {
             .then((response) => response.data)
             .then((resource) => {
                 dispatch('setResource', resource);
+                return resource;
             });
     },
 

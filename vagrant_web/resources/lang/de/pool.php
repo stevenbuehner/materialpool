@@ -157,5 +157,15 @@ return [
 	'Nothing-found'                       => 'Nichts gefunden',
 	'author-is'                           => 'Author ist',
 	'unknown'                             => 'unbekannt',
+	'Web-URL'                             => 'Inernet URL',
+	'Content-Hash'                        => 'Resource Hash',
+	'Publicity'                           => 'Öffentlichkeit',
+	'Resource-is-private'                 => 'Resource ist privat',
+	'Resource-is-public'                  => 'Resource ist öffentlich',
+	'Original-Filename'                   => 'Ursprünglicher Dateiname',
+	'Created-at'                          => 'Erstellt',
+	'Updated-at'                          => 'Bearbeitet',
+	'Page-Count'                          => 'Anzahl Seiten',
+	'missing'                             => 'fehlt',
 
 ];

@@ -33,13 +33,17 @@ class PdfFile extends File {
 	}
 
 	public function setLocalPathAttribute($path) {
-		parent::setLocalPathAttribute($path);
-		$this->removeOption(self::PAGE_COUNT_KEY);
+		if ($path !== $this->local_path) {
+			parent::setLocalPathAttribute($path);
+			$this->removeOption(self::PAGE_COUNT_KEY);
+		}
 	}
 
 	public function setRemotePathAttribute($path) {
-		parent::setRemotePathAttribute($path);
-		$this->removeOption(self::PAGE_COUNT_KEY);
+		if ($path !== $this->remote_path) {
+			parent::setRemotePathAttribute($path);
+			$this->removeOption(self::PAGE_COUNT_KEY);
+		}
 	}
 
 
