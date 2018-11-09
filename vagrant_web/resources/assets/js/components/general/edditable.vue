@@ -3,6 +3,7 @@
         <component :is="type" :class="classes">
             {{text || ''}}
             <div v-if="(text || '').length === 0" class="missingTextPlaceholder">{{placeholder}}</div>
+            <a v-if="isLink" :href="text" class="btn btn-sm btn-primary">{{$t('pool.open')}}</a>
         </component>
     </div>
 
@@ -27,6 +28,8 @@
 </template>
 
 <script>
+
+    import isUrl from 'is-url';
 
     export default {
         name: "edditable",
@@ -62,6 +65,10 @@
         computed: {
             enableSave() {
                 return this.text !== this.editText;
+            },
+
+            isLink() {
+                return this.type === 'a' && isUrl(this.text);
             }
         },
 

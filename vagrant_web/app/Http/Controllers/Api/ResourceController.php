@@ -15,7 +15,7 @@ class ResourceController extends BaseController {
 
 	use ResourceHelperTrait;
 
-	const DEFAULT_RELATIONS = ['materials', 'materials.keywords', 'materials.bibleverses'];
+	const DEFAULT_RELATIONS = ['materials', 'materials.keywords', 'materials.bibleverses', 'creator'];
 	protected $allowedAssociations = ['materials', 'materials.keywords', 'materials.bibleverses', 'creator'];
 
 	public function __construct() {

@@ -167,6 +167,7 @@ return [
 	'author-is'                           => 'author is',
 	'unknown'                             => 'unknown',
 	'Web-URL'                             => 'Web URL',
+	'Click-to-insert-an-URL'              => 'Click here to insert a web source',
 	'Content-Hash'                        => 'Content Hash',
 	'Publicity'                           => 'Publicity',
 	'Resource-is-private'                 => 'Resource is private',

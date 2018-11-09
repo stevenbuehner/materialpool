@@ -70,8 +70,13 @@
                         <b-list-group-item>
                             <b>ID:</b> {{resource.id}}
                         </b-list-group-item>
-                        <b-list-group-item>
-                            <b>{{$t('pool.Web-URL')}}:</b> {{resource.remote_path || $t('pool.missing')}}
+                        <b-list-group-item class="d-flex">
+                            <b>{{$t('pool.Web-URL')}}: </b>
+                            <edditable type="a"
+                                       :value="resource.remote_path"
+                                       @value-changed="updateRemotePath"
+                                       :placeholder="$t('pool.Click-to-insert-an-URL')"
+                                       class="flex-grow-1 ml-1"/>
                         </b-list-group-item>
                         <b-list-group-item>
                             <b>{{$t('pool.Content-Hash')}}:</b> {{resource.content_hash || $t('pool.missing')}}
@@ -140,6 +145,7 @@
     import CustomDialog from "../../../components/modals/dialogs/customDialog";
     import MaterialCreator from "../../../components/modals/creators/materialCreator";
     import Toggle from "../../../components/general/toggle";
+    import Edditable from "../../../components/general/edditable";
 
     Vue.use(AsyncComputed);
 
@@ -303,6 +309,12 @@
                     });
             },
 
+            updateRemotePath(value) {
+                this._updateResource({
+                    remote_path: value
+                }, this.$t('pool.Web-URL'));
+            },
+
             updateIsPublic(value) {
                 this._updateResource({
                     is_public: value
@@ -318,10 +330,9 @@
                         this.forceReload++;
                         this.flashSuccess(flashLabel + ' updated successful');
                     })
-                    .catch((response) => {
-                        console.error(response);
-                        this.flash('Error while updating ' + flashLabel);
+                    .catch((data) => {
                         this.forceReload++;
+                        this.flash('Error while updating ' + flashLabel + "\n" + (data.message || ''));
                     });
 
             },
@@ -340,6 +351,7 @@
         },
 
         components: {
+            Edditable,
             Toggle,
             MaterialCreator,
             CustomDialog,

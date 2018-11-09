@@ -107,6 +107,12 @@ const actions = {
             .then((resource) => {
                 dispatch('setResource', resource);
                 return resource;
+            })
+            .catch(({response}) => {
+                throw {
+                    errors: response.data.errors,
+                    message: response.data.message
+                };
             });
     },
 
