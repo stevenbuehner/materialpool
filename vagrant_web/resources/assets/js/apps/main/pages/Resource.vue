@@ -70,23 +70,11 @@
                         <b-list-group-item>
                             <b>ID:</b> {{resource.id}}
                         </b-list-group-item>
-                        <b-list-group-item class="d-flex">
-                            <b>{{$t('pool.Web-URL')}}: </b>
-                            <edditable type="a"
-                                       :value="resource.remote_path"
-                                       @value-changed="updateRemotePath"
-                                       :placeholder="$t('pool.Click-to-insert-an-URL')"
-                                       class="flex-grow-1 ml-1"/>
-                        </b-list-group-item>
+
                         <b-list-group-item>
-                            <b>{{$t('pool.Content-Hash')}}:</b> {{resource.content_hash || $t('pool.missing')}}
-                        </b-list-group-item>
-                        <b-list-group-item>
-                            <b>{{$t('pool.Publicity')}}:</b>
-                            <toggle :value="resource.is_public" id="is_public" type="light"
-                                    style="font-size: .6em; position: relative; top: .4em;"
-                                    @isToggled="updateIsPublic"/>
-                            {{resource.is_public ? $t('pool.Resource-is-public') : $t('pool.Resource-is-private')}}
+                            <b>{{$t('pool.Creator')}}:</b>
+                            <user v-if="resource.creator" :user="resource.creator"/>
+                            <span v-else>{{$t('pool.unknown')}}</span>
                         </b-list-group-item>
 
                         <b-list-group-item>
@@ -96,17 +84,31 @@
                             <b>{{$t('pool.Updated-at')}}:</b> {{resource.updated_at | moment('calendar')}}
                         </b-list-group-item>
 
+                        <b-list-group-item>
+                            <b>{{$t('pool.Content-Hash')}}:</b> {{resource.content_hash || $t('pool.missing')}}
+                        </b-list-group-item>
+
+                        <b-list-group-item class="d-flex">
+                            <b>{{$t('pool.Web-URL')}}: </b>
+                            <edditable type="a"
+                                       :value="resource.remote_path"
+                                       @value-changed="updateRemotePath"
+                                       :placeholder="$t('pool.Click-to-insert-an-URL')"
+                                       class="flex-grow-1 ml-1"/>
+                        </b-list-group-item>
+                        <b-list-group-item>
+                            <b>{{$t('pool.Publicity')}}:</b>
+                            <toggle :value="resource.is_public" id="is_public" type="light"
+                                    style="font-size: .6em; position: relative; top: .4em;"
+                                    @isToggled="updateIsPublic"/>
+                            {{resource.is_public ? $t('pool.Resource-is-public') : $t('pool.Resource-is-private')}}
+                        </b-list-group-item>
+
                         <b-list-group-item v-if="resource.original_filename">
                             <b>{{$t('pool.Original-Filename')}}:</b> {{resource.original_filename}}
                         </b-list-group-item>
                         <b-list-group-item v-if="resource.page_count">
                             <b>{{$t('pool.Page-Count')}}:</b> {{resource.page_count}}
-                        </b-list-group-item>
-
-                        <b-list-group-item>
-                            <b>{{$t('pool.Creator')}}:</b>
-                            <user v-if="resource.creator" :user="resource.creator"/>
-                            <span v-else>{{$t('pool.unknown')}}</span>
                         </b-list-group-item>
 
                     </b-list-group>
