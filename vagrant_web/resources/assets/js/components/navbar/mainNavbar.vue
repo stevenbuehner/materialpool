@@ -27,7 +27,10 @@
                 <b-navbar-nav class="ml-auto">
 
                     <b-nav-form @submit="goForSearch">
-                        <b-form-input size="sm" class="mr-sm-2" type="text" :placeholder="$t('pool.Speedsearch')"
+                        <b-form-input size="sm" c
+                                      lass="mr-sm-2"
+                                      type="text"
+                                      :placeholder="$t('pool.Speedsearch')"
                                       required
                                       v-model="schnellsuche"/>
                         <b-button size="sm" class="my-sm-0 btn-outline-dark" type="submit">{{$t('pool.Search')}}
@@ -36,7 +39,8 @@
 
                     <b-nav-item-dropdown right text="admin">
                         <b-dropdown-item href="/logout" class="dropdown-hover">{{$t('pool.Logout')}}</b-dropdown-item>
-                        <b-dropdown-item href="#" class="dropdown-hover">{{$t('pool.Settings')}}</b-dropdown-item>
+                        <b-dropdown-item disabled href="#" class="dropdown-hover">{{$t('pool.Settings')}}
+                        </b-dropdown-item>
                     </b-nav-item-dropdown>
                 </b-navbar-nav>
 
@@ -59,6 +63,7 @@
     import bCollapse from 'bootstrap-vue/src/components/collapse/collapse';
     import bFormInput from 'bootstrap-vue/src/components/form-input/form-input';
     import bButton from 'bootstrap-vue/src/components/button/button';
+    import {searchArrayObjectsToSearchQuery} from "../search/searchHelper";
 
     export default {
         name: "mainNavbar",
@@ -71,8 +76,12 @@
 
         methods: {
             goForSearch() {
-                alert('not working yet ... please try again ...');
-                this.$router.push({name: 'search'});
+                this.$router.push({
+                    name: 'search',
+                    params: {
+                        search: searchArrayObjectsToSearchQuery([[this.schnellsuche]])
+                    }
+                });
             }
         },
 

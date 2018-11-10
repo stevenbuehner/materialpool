@@ -102,7 +102,7 @@ return [
 	'New'                                 => 'Neu',
 	'Searchmask'                          => 'Suchmaske',
 	'Speedsearch'                         => 'Schnellsuche',
-	'Search'                              => 'Suche',
+	'Search'                              => 'Suchen',
 	'Settings'                            => 'Einstellungen',
 	'Logout'                              => 'Abmelden',
 	'rating-0'                            => 'ohne Wertung',

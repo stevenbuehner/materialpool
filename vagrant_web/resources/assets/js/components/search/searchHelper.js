@@ -59,7 +59,7 @@ function objectArrayToSearchItems(searchObjects) {
 
 function objectToSearchItem(obj) {
 
-    if (obj instanceof String) {
+    if (typeof obj === 'string') {
         // Is freetext
         return freeTextToSearchItem(obj);
     }
