@@ -147,6 +147,7 @@
                     this.errorMessage = message;
                     this.materialIds  = [];
                 }).then(() => {
+                    // Always
                     this.isLoading = false;
                 });
 
