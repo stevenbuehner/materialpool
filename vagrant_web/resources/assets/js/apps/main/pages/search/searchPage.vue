@@ -23,6 +23,8 @@
             ></hollow-dots-spinner>
         </div>
 
+        <b-alert variant="danger" :show="hasError">Error: {{errorMessage}}</b-alert>
+
         <hr>
 
         <b-pagination-nav
@@ -41,6 +43,7 @@
     import searchbarHeader from './searchbarHeader.vue';
     import searchbarOutcome from './searchbarOutcome.vue';
     import bPaginationNav from 'bootstrap-vue/src/components/pagination-nav/pagination-nav';
+    import bAlert from 'bootstrap-vue/src/components/alert/alert'
 
     import {HollowDotsSpinner} from 'epic-spinners'
     import {
@@ -86,6 +89,9 @@
                 isLoading: false,
 
                 searchObjects: {},
+
+                hasError: false,
+                errorMessage: '',
             };
         },
 
@@ -128,6 +134,7 @@
 
                 const searchData = searchQueryStringToSearchQueryArray(this.query);
                 this.isLoading   = true;
+                this.hasError    = false;
 
                 this.$store.dispatch('search/materials', {
                     query: searchData,
@@ -135,6 +142,10 @@
                 }).then(({materials, paging}) => {
                     this.paging      = paging;
                     this.materialIds = materials.map(m => m.id);
+                }).catch((message) => {
+                    this.hasError     = true;
+                    this.errorMessage = message;
+                    this.materialIds  = [];
                 }).then(() => {
                     this.isLoading = false;
                 });
@@ -159,7 +170,8 @@
             searchbarHeader,
             searchbarOutcome,
             HollowDotsSpinner,
-            bPaginationNav
+            bPaginationNav,
+            bAlert
         }
     }
 </script>

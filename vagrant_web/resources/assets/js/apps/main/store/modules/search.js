@@ -126,6 +126,9 @@ const actions = {
 
                     return {materials, paging};
 
+                })
+                .catch(({response}) => {
+                    throw response.message;
                 });
 
         }
