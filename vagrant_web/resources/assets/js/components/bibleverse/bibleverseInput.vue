@@ -235,7 +235,7 @@
                     if (this.materialId) {
                         return this.appendBibleverseToMaterial(bibleverse.id, this.materialId);
                     } else {
-                        console.info('Can not append bibleverse to material when materialId is missing!');
+                        // console.info('Can not append bibleverse to material when materialId is missing!');
                         return bibleverse
                     }
 

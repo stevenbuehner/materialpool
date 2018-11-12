@@ -77,10 +77,7 @@ const actions = {
         };
 
         return axios.post(api_v1_bibleverses_create, params)
-            .then(({data}) => {
-                console.log('Bibleverse created', data);
-                return data;
-            });
+            .then(({data}) => data);
     },
 
     createAndAssign: async ({commit, getters, dispatch}, {from, to, materialId, relevance}) => {
