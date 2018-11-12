@@ -91,6 +91,7 @@
     import {HollowDotsSpinner} from 'epic-spinners'
     import _ from 'lodash';
     import eraseSvg from 'svg-icon/dist/svg/zero/clear.svg';
+    import {RELEVANCE_USER_MAX} from "../../apps/config";
 
 
     export default {
@@ -238,13 +239,21 @@
                     promise = this.$store.dispatch('keywords/createAndAssign', {
                         title,
                         type: 'key',
-                        materialId: this.materialId
+                        materialId: this.materialId,
+                        relevance: RELEVANCE_USER_MAX,
                     });
                 } else {
                     console.info('Missing Material ID: Association is not stored remotely!');
                     promise = this.$store.dispatch('keywords/create', {
                         title,
                         type: 'key',
+                    }).then((kw) => {
+                        if (kw && (!kw.pivot || !kw.pivot.relevance)) {
+                            kw.pivot = {
+                                relevance: RELEVANCE_USER_MAX,
+                            }
+                        }
+                        return kw;
                     });
                 }
 
@@ -259,6 +268,12 @@
                 if (this.myKeywords.find((el) => {
                     return el.id === kw.id;
                 }) === undefined) {
+
+                    if (kw && (!kw.pivot || !kw.pivot.relevance)) {
+                        kw.pivot = {
+                            relevance: RELEVANCE_USER_MAX,
+                        }
+                    }
 
                     if (this.materialId) {
                         this.$store.dispatch('keywords/updateRelevance', {

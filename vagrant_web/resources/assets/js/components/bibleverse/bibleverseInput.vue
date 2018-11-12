@@ -88,6 +88,7 @@
     import bibleverse from './biblevers.vue'
     import {HollowDotsSpinner} from 'epic-spinners'
     import eraseSvg from 'svg-icon/dist/svg/zero/clear.svg';
+    import {RELEVANCE_USER_MAX} from "../../apps/config";
 
     export default {
 
@@ -240,6 +241,12 @@
 
                 }).then((bibleverse) => {
 
+                    if (!bibleverse.pivot || !bibleverse.pivot.relevance) {
+                        bibleverse.pivot = {
+                            relevance: RELEVANCE_USER_MAX,
+                        }
+                    }
+
                     this.myBibleverses.push(bibleverse);
                     this.emitUpdate();
 
@@ -266,7 +273,11 @@
             },
 
             appendBibleverseToMaterial(bvId, materialId) {
-                return this.$store.dispatch('bibleverses/updateRelevance', {bibleverseId: bvId, materialId})
+                return this.$store.dispatch('bibleverses/updateRelevance', {
+                    bibleverseId: bvId,
+                    materialId,
+                    relevance: RELEVANCE_USER_MAX,
+                })
             },
 
             bibleverseRemoved(bv) {
