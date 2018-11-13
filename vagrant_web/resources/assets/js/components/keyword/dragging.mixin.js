@@ -25,7 +25,7 @@ export const draggingSupport = {
 
     computed: {
         dragPercentage() {
-            return Math.min(Math.max(this.dragging.xEnd - this.dragging.xStart, 0), elementWidth) / elementWidth;
+            return Math.min(Math.max(this.dragging.xEnd, 0), elementWidth) / elementWidth;
         }
     },
 
@@ -40,8 +40,7 @@ export const draggingSupport = {
             elementWidth = this.$el.offsetWidth;
 
             this.dragging.ongoing = true;
-            this.dragging.xStart  = 0;
-            this.dragging.xEnd    = getRelativeClickCoordinates(event, this.$el).x || 0;
+            this.dragging.xEnd    = this.dragging.xStart = getRelativeClickCoordinates(event, this.$el).x || 0;
 
             window.addEventListener('mouseup', this.stopDrag);
             window.addEventListener('mousemove', this.doDrag);
