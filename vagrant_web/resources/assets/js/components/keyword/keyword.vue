@@ -79,8 +79,8 @@
     import {keywordSearchLink} from './../serverRoutes';
     import {ayceIcon, iconName, keyIcon, langIcon, personIcon, placeIcon} from './keywordDefaultIcons';
     import {searchArrayObjectsToSearchQuery} from "../search/searchHelper";
-
     import {draggingSupport} from "./dragging.mixin";
+    import {RELEVANCE_USER_MAX} from "../../apps/config";
 
     export default {
 
@@ -150,7 +150,7 @@
 
             relevance() {
                 if (this.dragging.ongoing === true) {
-                    return this.dragDifference;
+                    return this.dragPercentage * RELEVANCE_USER_MAX;
                 } else if (this.myKeyword.pivot) {
                     return this.myKeyword.pivot.relevance;
                 } else {
@@ -174,6 +174,10 @@
 
             // Needs to be copied. Because any changes in properties are not recognized in computed properties
             this.myKeyword = JSON.parse(JSON.stringify(this.keyword));
+
+            this.$on('dragging-done', (dragPercentage) => {
+                this.updateRelevance(dragPercentage * RELEVANCE_USER_MAX);
+            });
 
         },
 
@@ -379,6 +383,14 @@
         border: 0;
         background-color: $tag-background-colour;
 
+        &:hover {
+            background-color: $tag-background-colour-hover;
+
+            .sb-progress-bar {
+                background-color: $tag-progressbar-colour-hover;
+            }
+        }
+
         .sb-progress-bar {
             position: absolute;
             left: 0;
@@ -392,13 +404,6 @@
             }
         }
 
-        &:hover {
-            background-color: $tag-background-colour-hover;
-
-            .sb-progress-bar {
-                background-color: $tag-progressbar-colour-hover;
-            }
-        }
 
         .text {
             color: $tag-font-colour;

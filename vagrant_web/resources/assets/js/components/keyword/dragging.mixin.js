@@ -1,3 +1,7 @@
+import {getRelativeClickCoordinates} from "../general/relativeElementPositions";
+
+let elementWidth = 0;
+
 export const draggingSupport = {
 
     props: {
@@ -20,8 +24,8 @@ export const draggingSupport = {
     },
 
     computed: {
-        dragDifference() {
-            return Math.min(Math.max(this.dragging.xEnd - this.dragging.xStart, 0), 300);
+        dragPercentage() {
+            return Math.min(Math.max(this.dragging.xEnd - this.dragging.xStart, 0), elementWidth) / elementWidth;
         }
     },
 
@@ -32,8 +36,12 @@ export const draggingSupport = {
                 return;
             }
 
+            // update element width
+            elementWidth = this.$el.offsetWidth;
+
             this.dragging.ongoing = true;
-            this.dragging.xStart  = this.dragging.xEnd = event.clientX;
+            this.dragging.xStart  = 0;
+            this.dragging.xEnd    = getRelativeClickCoordinates(event, this.$el).x || 0;
 
             window.addEventListener('mouseup', this.stopDrag);
             window.addEventListener('mousemove', this.doDrag);
@@ -41,7 +49,7 @@ export const draggingSupport = {
 
         },
         doDrag(event) {
-            this.dragging.xEnd = event.clientX;
+            this.dragging.xEnd = getRelativeClickCoordinates(event, this.$el).x;
         },
         stopDrag(event) {
 
@@ -62,7 +70,7 @@ export const draggingSupport = {
                     // Don't call an Pivot update - this was only a missdirected single click
                     // To set the relevance = 0 we can use negative direction
                 } else {
-                    this.updateRelevance(this.dragDifference);
+                    this.$emit('dragging-done', this.dragPercentage);
                 }
 
             }

@@ -21,12 +21,12 @@
 
 
 <script>
-
-    import {draggingSupport} from "../keyword/dragging.mixin";
     import contextMenu from './../context-menu/context-menu.vue';
     import contextMenuItem from "../context-menu/context-menu-item.vue";
     import {bibleIcon} from './../keyword/keywordDefaultIcons';
     import {searchArrayObjectsToSearchQuery} from "../search/searchHelper";
+    import {draggingSupport} from "../keyword/dragging.mixin";
+    import {RELEVANCE_USER_MAX} from "../../apps/config";
 
     export default {
 
@@ -86,7 +86,7 @@
 
             relevance() {
                 if (this.dragging.ongoing === true) {
-                    return this.dragDifference;
+                    return this.dragPercentage * RELEVANCE_USER_MAX;
                 } else if (this.myBibleverse.pivot) {
                     return this.myBibleverse.pivot.relevance;
                 } else {
@@ -104,6 +104,11 @@
 
             // Needs to be copied. Because any changes in properties are not recognized in computed properties
             this.myBibleverse = JSON.parse(JSON.stringify(this.bibleverse));
+
+            this.$on('dragging-done', (dragPercentage) => {
+                this.updateRelevance(dragPercentage * RELEVANCE_USER_MAX);
+            });
+
         },
 
         methods: {
@@ -249,6 +254,14 @@
         border: 0;
         background-color: $tag-background-colour;
 
+        &:hover {
+            background-color: $tag-background-colour-hover;
+
+            .sb-progress-bar {
+                background-color: $tag-progressbar-colour-hover;
+            }
+        }
+
         .sb-progress-bar {
             position: absolute;
             left: 0;
@@ -259,14 +272,6 @@
 
             &.isDragging {
                 background-color: $tag-progressbar-dragging-colour;
-            }
-        }
-
-        &:hover {
-            background-color: $tag-background-colour-hover;
-
-            .sb-progress-bar {
-                background-color: $tag-progressbar-colour-hover;
             }
         }
 
