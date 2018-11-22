@@ -7,8 +7,8 @@ return [
 			'ignore' => [
 				'patterns' => [
 					'~.*http://.*~i',
-					'~^PDFCreator.*$~i',
-					'~^[\(\)\[\]\.\-\+\*\#\:\;\,]+$~',
+					'~^PDF.+$~i',
+					'~^[ \(\)\[\]\.\-\+\*\#\:\;\,]+$~',
 				],
 				'values'   => []
 			],
@@ -18,9 +18,10 @@ return [
 				'patterns' => [
 					'~.*http://.*~i',
 					'~unknown|nobody|niemand~i',
-					'~^[ ]*Adobe .*CS.*$~i'
+					'~^[ ]*Adobe .*CS.*$~i',
+					'~^PDF.+$~i',
 				],
-				'values'   => []
+				'values'   => ['user', 'unknown', 'Safari']
 			],
 		]
 	]

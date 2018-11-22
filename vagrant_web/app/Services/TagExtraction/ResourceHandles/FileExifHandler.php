@@ -236,10 +236,16 @@ class FileExifHandler implements HandlerInterface {
 		$allMatches = $this->allMatchesValuesForKeys($metaDataBag, ['Author', 'Creator', 'By-line']);
 		$allNames   = $this->getCombinedSplitValues($allMatches);
 
+		$pattern = config('tagging.exif.author.ignore.patterns', []);
+		$values  = config('tagging.exif.author.ignore.values', []);
+
 		foreach ($allNames as $authorName) {
 
 			// Only add high quality names
-			if (!$this->doesTagMatchIgnorePattern($authorName, config('tagging.exif.author.ignore.patterns', []))) {
+			if (
+				!$this->doesTagMatchIgnorePattern($authorName, $pattern) &&
+				!($this->doesTagMatchIgnoreValue($authorName, $values))
+			) {
 				$result->push(new AuthorProperty($authorName, RelevanceInterface::RELEVANCE_EXIF_MAX));
 				$result->push(new KeywordProperty($authorName, 'person', RelevanceInterface::RELEVANCE_EXIF_MAX));
 			}
@@ -286,6 +292,10 @@ class FileExifHandler implements HandlerInterface {
 		return FALSE;
 	}
 
+	protected function doesTagMatchIgnoreValue($tagText, &$allBlacklistValues) {
+		return in_array($tagText, $allBlacklistValues);
+	}
+
 	/**
 	 * @param MetadataBag $metaDataBag
 	 * @return Collection
@@ -315,8 +325,10 @@ class FileExifHandler implements HandlerInterface {
 			if ($property instanceof KeywordProperty) {
 				$value    = $property->getValue();
 				$patterns = config('tagging.exif.keywords.ignore.patterns', []);
+				$values   = config('tagging.exif.keywords.ignore.values', []);
 
-				return $this->doesTagMatchIgnorePattern($value, $patterns);
+				return $this->doesTagMatchIgnorePattern($value, $patterns) || $this->doesTagMatchIgnoreValue($value,
+																											 $values);
 
 			} else if ($property instanceof AuthorProperty) {
 				return TRUE;
@@ -325,8 +337,10 @@ class FileExifHandler implements HandlerInterface {
 
 				$value    = $property->getValue();
 				$patterns = config('tagging.exif.author.ignore.patterns', []);
+				$values   = config('tagging.exif.author.ignore.values', []);
 
-				return $this->doesTagMatchIgnorePattern($value, $patterns);
+				return $this->doesTagMatchIgnorePattern($value, $patterns) || $this->doesTagMatchIgnoreValue($value,
+																											 $values);
 			}
 
 
