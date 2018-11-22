@@ -26,7 +26,7 @@
 
 <script>
 
-    import {pdfPreviewImageFirstPage} from './../../serverRoutes';
+    import {pdfPreviewImageForPage} from './../../serverRoutes';
     import bImage from 'bootstrap-vue/src/components/image/img';
     import pdfMixin from './../pdf-mixin';
 
@@ -83,7 +83,7 @@
                 for (let i in this.previewPageNumbers) {
                     if (i < this.maxPreviewPages) {
                         urls.push({
-                            src: pdfPreviewImageFirstPage(this.resource),
+                            src: pdfPreviewImageForPage(this.resource, this.previewPageNumbers[i]),
                             title: this.$t('pool.Page') + ' ' + this.previewPageNumbers[i],
                             page_no: this.previewPageNumbers[i]
                         });

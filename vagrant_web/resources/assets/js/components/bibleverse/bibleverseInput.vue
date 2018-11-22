@@ -307,7 +307,6 @@
                     }
                 }
 
-
                 // Do DB stuff
                 const prom = new Promise((resolve, reject) => {
 
