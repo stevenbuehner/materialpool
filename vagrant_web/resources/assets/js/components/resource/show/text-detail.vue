@@ -3,18 +3,21 @@
     <div class="row" v-if="!editModeEnabled" @click="editModeEnabled=true">
         <div class="col-12">
             <div class="sbMarkedStyle" v-html="compiledMarkdown"/>
+            <button class="btn btn-sm btn-primary" @click.stop="editModeEnabled=true" v-if="almostNoContentToEditVisible">
+                {{$t('pool.Edit')}}
+            </button>
         </div>
     </div>
     <div class="row" v-else>
-        <div class="col-6 p-3 liveEditorWrapper ">
+        <div class="col-6 p-3 liveEditorWrapper" :class="{savingNeccessary}">
             <textarea class="liveEditor" v-model="myTextContent"></textarea>
         </div>
         <div class="col-6 p-3 livePreviewWrapper">
             <div class="livePreview sbMarkedStyle" v-html="compiledMarkdown"/>
         </div>
         <div class="col-12">
-            <button class="btn btn-success float-right m-1" @click="btnSave">{{$t('pool.Save')}}</button>
-            <button class="btn btn-danger float-right m-1" @click="btnCancel">{{$t('pool.Cancel')}}</button>
+            <button class="btn btn-sm btn-success float-right m-1" @click="btnSave" v-show="savingNeccessary">{{$t('pool.Save')}}</button>
+            <button class="btn btn-sm btn-danger float-right m-1" @click="btnCancel">{{$t('pool.Cancel')}}</button>
         </div>
     </div>
 </template>
@@ -46,6 +49,14 @@
         computed: {
             compiledMarkdown() {
                 return marked(this.myTextContent, {sanitize: true, gfm: false, smartLists: true, smartypants: true})
+            },
+
+            almostNoContentToEditVisible() {
+                return this.myTextContent.length <= 5;
+            },
+
+            savingNeccessary() {
+                return this.myTextContent !== this.resource.content;
             },
         },
 
@@ -89,6 +100,8 @@
 
 <style type="scss">
 
+    @import "resources/assets/sass/theme.scss";
+
     .liveEditor, .livePreview {
         display: inline-block;
         vertical-align: top;
@@ -98,19 +111,25 @@
         min-height: 80vh;
     }
 
-    .liveEditor {
-        border: none;
-        resize: none;
-        outline: none;
-        font-size: 14px;
-        font-family: 'Monaco', courier, monospace;
-        padding: 0;
-        background-color: transparent;
-    }
-
     .liveEditorWrapper {
         background-color: #f6f6f6;
+        border: 1px solid #f6f6f6;
         border-right: 1px solid #ccc;
+
+        .liveEditor {
+            border: none;
+            resize: none;
+            outline: none;
+            font-size: 14px;
+            font-family: 'Monaco', courier, monospace;
+            padding: 0;
+            background-color: transparent;
+        }
+
+        &.savingNeccessary {
+            border-color: $red;
+        }
+
     }
 
     .livePreviewWrapper {
