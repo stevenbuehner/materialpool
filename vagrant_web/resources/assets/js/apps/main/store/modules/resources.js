@@ -122,7 +122,9 @@ const actions = {
 
     autoCreateMaterial: ({commit, dispatch}, resourceId) => {
 
-        const promise = axios.post(api_v1_resources_create_material(resourceId))
+        const promise = axios.post(api_v1_resources_create_material(resourceId), {
+            from_bot: false
+        })
             .then(({data}) => {
                 return {
                     material: data.material,

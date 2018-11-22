@@ -142,9 +142,14 @@ class ResourceController extends BaseController {
 
 	}
 
-	public function createMaterialFromResource(Resource $resource) {
+	public function createMaterialFromResource(Resource $resource, Request $request) {
 
 		$material = $this->createMaterialFromResources($resource);
+
+		if ($request->has('from_bot')) {
+			$material->from_bot = $request->get('from_bot'); // Is casted in $material
+			$material->save();
+		}
 
 		return [
 			'resource' => $resource->fresh(self::DEFAULT_RELATIONS),
