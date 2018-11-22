@@ -39,6 +39,7 @@
             <div class="input-group">
                 <input class="form-control"
                        type="text"
+                       ref="myInput"
                        :placeholder="$t('pool.Insert-keywordtext-here')"
                        v-model="keywordInput"
                        @keyup.enter="requestCreateNewKeyword">
@@ -334,8 +335,7 @@
                     }
                 }
 
-
-                // Do DB stug
+                // Do DB stuff
                 const prom = new Promise((resolve, reject) => {
 
                     if (this.materialId) {
@@ -361,6 +361,9 @@
                     this.myKeywords.splice(0, this.myKeywords.length);
                     this.emitUpdate();
                 });
+
+                // Focus Input-Element
+                this.$refs.myInput.focus();
 
             },
 

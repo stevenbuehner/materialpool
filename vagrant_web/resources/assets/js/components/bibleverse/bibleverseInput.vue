@@ -39,6 +39,7 @@
             <div class="input-group">
                 <input class="form-control"
                        type="text"
+                       ref="myInput"
                        :placeholder="$t('pool.Insert-bibleverse-here')"
                        @keyup.enter="requestAddBibleverseAfterPromise"
                        v-model="searchInput">
@@ -307,7 +308,7 @@
                 }
 
 
-                // Do DB stug
+                // Do DB stuff
                 const prom = new Promise((resolve, reject) => {
 
                     if (this.materialId) {
@@ -333,6 +334,9 @@
                     this.myBibleverses.splice(0, this.myBibleverses.length);
                     this.emitUpdate();
                 });
+
+                // Focus Input-Element
+                this.$refs.myInput.focus();
 
             },
 
