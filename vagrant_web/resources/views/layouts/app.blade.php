@@ -23,13 +23,10 @@
 
 
     @if (env('APP_ENV') =='production')
-        <script src="/js/dependencies_build.js"></script>
-        <script src="/js/app_build.js"></script>
-        <link rel="stylesheet" href="/css/app.css">
-        <link rel="stylesheet" href="/css/searchApp.css">
+        <script src="/js/main_build.js"></script>
+        <link rel="stylesheet" href="/css/main.css">
     @else
-        <script src="http://localhost:8080/js/dependencies_build.js"></script>
-        <script src="http://localhost:8080/js/app_build.js"></script>
+        <script src="http://localhost:8080/js/main_build.js"></script>
     @endif
 
 
