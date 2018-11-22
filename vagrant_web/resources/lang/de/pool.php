@@ -90,7 +90,7 @@ return [
 	'Detach-resource'                     => 'Resource vom Material lösen',
 	'Material-without-resources'          => 'Material ohne Resourcen',
 	'Click-here-to-insert-description'    => 'Hier klicken um eine Materialbeschreibung einzufügen ...',
-	'Add-tags'                            => 'Tags hinzufügen',
+	'Add-tags'                            => 'Tags hinzufügen|mehr Tags hinzufügen',
 	'Filename'                            => 'Dateiname',
 	'Limitation'                          => 'Limitierung',
 	'Creator-ID'                          => 'Ersteller-ID',
