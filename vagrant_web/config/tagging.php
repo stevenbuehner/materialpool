@@ -7,7 +7,7 @@ return [
 			'ignore' => [
 				'patterns' => [
 					'~.*http://.*~i',
-					'~^PDF.+$~i',
+					'~^(PDF|CorelDRAW).+$~i',
 					'~^[ \(\)\[\]\.\-\+\*\#\:\;\,]+$~',
 				],
 				'values'   => []
