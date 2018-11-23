@@ -1,26 +1,28 @@
 <template>
     <div>
-        <div class="previewContainer">
+        <div class="previewContainer" @click="$refs.imageZoom.show(currentlyDisplayedPageIndex)">
             <b-image :src="currentlyDisplayedImage.src"
                      :alt="currentlyDisplayedImage.title"
                      :key="currentlyDisplayedImage.src"
                      class="card-img-top"></b-image>
 
             <span class="previous"
-                  @click.prevent="previousPreviewImage"
-                  v-if="previewImages.length > 1"><</span>
+                  @click.stop="previousPreviewImage"
+                  v-if="previewLimitedImages.length > 1"><</span>
             <span class="next"
-                  @click.prevent="nextPreviewImage"
-                  v-if="previewImages.length > 1">></span>
+                  @click.stop="nextPreviewImage"
+                  v-if="previewLimitedImages.length > 1">></span>
             <div class="label">
                 {{currentlyDisplayedImage.title}}
-                <div v-if="previewImages.length < pageCount"
+                <div v-if="previewLimitedImages.length < pageCount"
                      class="limitedPreview"
                 >({{previewPhrase}})
                 </div>
             </div>
         </div>
         <span v-if="pageCount === 0">Seitenangabe fehlt</span>
+
+        <image-zoom :data="previewLimitedImages" ref="imageZoom"></image-zoom>
     </div>
 </template>
 
@@ -29,6 +31,7 @@
     import {pdfPreviewImageForPage} from './../../serverRoutes';
     import bImage from 'bootstrap-vue/src/components/image/img';
     import pdfMixin from './../pdf-mixin';
+    import ImageZoom from "../../modals/imageZoom";
 
     export default {
         mixins: [pdfMixin],
@@ -53,7 +56,7 @@
         computed: {
 
             currentlyDisplayedImage() {
-                return this.previewImages[this.currentlyDisplayedPageIndex];
+                return this.previewLimitedImages[this.currentlyDisplayedPageIndex];
             },
 
             previewPageNumbers() {
@@ -76,17 +79,13 @@
 
             },
 
-            previewImages() {
+            previewLimitedImages() {
 
                 let urls = [];
 
                 for (let i in this.previewPageNumbers) {
                     if (i < this.maxPreviewPages) {
-                        urls.push({
-                            src: pdfPreviewImageForPage(this.resource, this.previewPageNumbers[i]),
-                            title: this.$t('pool.Page') + ' ' + this.previewPageNumbers[i],
-                            page_no: this.previewPageNumbers[i]
-                        });
+                        urls.push(this.getPreviewImage(this.previewPageNumbers[i]));
                     } else {
                         break;
                     }
@@ -100,32 +99,40 @@
 
                 if (this.previewPageNumbers.length > this.maxPreviewPages) {
                     return this.$t('pool.only-limited-pages', {
-                        COUNT: this.previewImages.length,
+                        COUNT: this.previewLimitedImages.length,
                         SUM: this.previewPageNumbers.length
                     })
                 } else {
                     return this.$t('pool.limited-pages', {
-                        COUNT: this.previewImages.length,
+                        COUNT: this.previewLimitedImages.length,
                         SUM: this.previewPageNumbers.length
                     })
                 }
 
-                // (Preview nur {{previewImages.length}}/{{previewPageNumbers.length}} Seiten)
+                // (Preview nur {{previewLimitedImages.length}}/{{previewPageNumbers.length}} Seiten)
             }
         },
 
         methods: {
 
+            getPreviewImage(pageNo) {
+                return {
+                    src: pdfPreviewImageForPage(this.resource, pageNo),
+                    title: this.$t('pool.Page') + ' ' + pageNo,
+                    page_no: pageNo
+                }
+            },
+
             previousPreviewImage() {
                 if (this.currentlyDisplayedPageIndex === 0) {
-                    this.currentlyDisplayedPageIndex = this.previewImages.length - 1;
+                    this.currentlyDisplayedPageIndex = this.previewLimitedImages.length - 1;
                 } else {
                     this.currentlyDisplayedPageIndex--;
                 }
             },
 
             nextPreviewImage() {
-                if (this.previewImages.length <= this.currentlyDisplayedPageIndex + 1) {
+                if (this.previewLimitedImages.length <= this.currentlyDisplayedPageIndex + 1) {
                     this.currentlyDisplayedPageIndex = 0;
                 } else {
                     this.currentlyDisplayedPageIndex++;
@@ -134,6 +141,7 @@
         },
 
         components: {
+            ImageZoom,
             bImage
         }
 
@@ -145,6 +153,7 @@
     .previewContainer {
         position: relative;
         overflow: hidden;
+        cursor: pointer;
     }
 
     .previous, .next {
