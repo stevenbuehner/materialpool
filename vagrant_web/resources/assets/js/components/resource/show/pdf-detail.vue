@@ -1,8 +1,8 @@
 <template>
     <div class="row">
         <div v-for="(image, index) in previewImages"
-             class="col-lg-3 col-md-4 col-sm-6 col-12 imageContainer img-thumbnail"
-             @click="showModalImage(image)"
+             class="col-lg-3 col-md-4 col-sm-6 col-12 imageContainer pdfDetail img-thumbnail"
+             @click="$refs.imageZoom.show(index)"
              :key="image.src">
             <b-image-lazy
                     v-if="index > 12"
@@ -20,17 +20,7 @@
             <div class="title text-center">{{image.title}}</div>
         </div>
 
-        <b-modal ref="imageZoomModal"
-                 centered
-                 hide-footer
-                 lazy
-                 :title="detailImage.title"
-                 size="lg">
-            <b-image :src="detailImage.src"
-                     fluid
-                     @click="$refs.imageZoomModal.hide()"></b-image>
-        </b-modal>
-
+        <image-zoom :data="previewImages" ref="imageZoom"></image-zoom>
     </div>
 </template>
 
@@ -40,7 +30,7 @@
     import bImage from 'bootstrap-vue/src/components/image/img';
     import bImageLazy from 'bootstrap-vue/src/components/image/img-lazy';
     import pdfMixin from './../pdf-mixin';
-    import bModal from 'bootstrap-vue/src/components/modal/modal';
+    import ImageZoom from "../../modals/imageZoom";
 
     export default {
         mixins: [pdfMixin],
@@ -53,9 +43,7 @@
         },
 
         data() {
-            return {
-                detailImage: pdfPreviewImageFirstPage(this.resource, 1)
-            };
+            return {};
         },
         computed: {
 
@@ -84,27 +72,27 @@
             }
         },
 
-        methods: {
-
-            showModalImage(image) {
-                this.detailImage = image;
-                this.$refs.imageZoomModal.show();
-            }
-        },
+        methods: {},
 
         components: {
+            ImageZoom,
             bImage,
-            bImageLazy,
-            bModal
+            bImageLazy
         }
 
     }
 </script>
 
-<style scoped>
+<style type="scss">
 
-    .title {
-        font-size: 0.75em;
+    .pdfDetail.imageContainer {
+
+        cursor: pointer;
+
+        .title {
+            font-size: 0.75em;
+        }
     }
+
 
 </style>

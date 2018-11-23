@@ -156,6 +156,10 @@
             background-image: linear-gradient(to left, rgb(184, 184, 184), rgba(210, 210, 210, 0.05));
         }
 
+        .modal-header {
+            justify-content: center;
+        }
+
     }
 
 </style>
