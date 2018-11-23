@@ -39,7 +39,12 @@ class ResourcePreviewController extends Controller {
 			$im = new \Imagick();
 			$im->setResolution(config('app.preview.resolution'), config('app.preview.resolution'));
 			$im->readImage(sprintf('%s[%s]', $localPdfPath, $page - 1));
+
+			// Hintergrund im bei transparenten Geschichten (z.B. in PDFs) weiß nehmen und AlphaChannel entfernen
+			$im->setBackgroundColor('white');
+			$im->setImageAlphaChannel(\Imagick::ALPHACHANNEL_REMOVE);
 			$im->mergeImageLayers(\Imagick::LAYERMETHOD_FLATTEN);
+
 			$im->setFormat(config('app.preview.outputFormat', 'png'));
 		} catch (\ImagickException $e) {
 
