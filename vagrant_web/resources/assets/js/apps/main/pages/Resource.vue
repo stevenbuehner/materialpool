@@ -77,6 +77,15 @@
                             <span v-else>{{$t('pool.unknown')}}</span>
                         </b-list-group-item>
 
+                        <b-list-group-item class="d-flex">
+                            <b>{{$t('pool.Notes')}}: </b>
+                            <edditable type="span"
+                                       :value="resource.notes"
+                                       @value-changed="updateNotes"
+                                       :placeholder="$t('pool.Click-to-insert-a-note')"
+                                       class="flex-grow-1 ml-1"/>
+                        </b-list-group-item>
+
                         <b-list-group-item>
                             <b>{{$t('pool.Created-at')}}:</b> {{resource.created_at | moment('calendar')}}
                         </b-list-group-item>
@@ -315,6 +324,12 @@
                 this._updateResource({
                     remote_path: value
                 }, this.$t('pool.Web-URL'));
+            },
+
+            updateNotes(value) {
+                this._updateResource({
+                    notes: value
+                }, this.$t('pool.Notes'));
             },
 
             updateIsPublic(value) {

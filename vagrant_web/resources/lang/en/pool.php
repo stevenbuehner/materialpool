@@ -194,7 +194,7 @@ return [
 	'Please-wait'                              => 'Please wait',
 	'Ok'                                       => 'Ok',
 	'At-least-one-comma-or-semikolon-required' => 'At least one comma (,) or semikolon (;) are required to recognize the metadata correctly',
-	''                                         => '',
-	''                                         => '',
+	'Notes'                                    => 'Notes',
+	'Click-to-insert-a-note'                   => 'Click here to insert a note',
 
 ];

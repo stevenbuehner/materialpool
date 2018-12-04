@@ -184,4 +184,7 @@ return [
 	'Please-wait'                              => 'Bitte warten',
 	'Ok'                                       => 'Ok',
 	'At-least-one-comma-or-semikolon-required' => 'Mindestens ein Komma (,) oder ein Semikolon (;) werden benötigt, um die Metadaten richtig zu erkennen',
+	'Notes'                                    => 'Notizen',
+	'Click-to-insert-a-note'                   => 'Hier klicken um Notizen hinzuzufügen',
+
 ];

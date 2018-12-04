@@ -182,7 +182,9 @@ export default {
             "Error-while-creating-material": "Fehler beim Erstellen des Materials",
             "Please-wait": "Bitte warten",
             "Ok": "Ok",
-            "At-least-one-comma-or-semikolon-required": "Mindestens ein Komma (,) oder ein Semikolon (;) werden benötigt, um die Metadaten richtig zu erkennen"
+            "At-least-one-comma-or-semikolon-required": "Mindestens ein Komma (,) oder ein Semikolon (;) werden benötigt, um die Metadaten richtig zu erkennen",
+            "Notes": "Notizen",
+            "Click-to-insert-a-note": "Hier klicken um Notizen hinzuzufügen"
         }
     },
     "en": {
@@ -393,7 +395,8 @@ export default {
             "Please-wait": "Please wait",
             "Ok": "Ok",
             "At-least-one-comma-or-semikolon-required": "At least one comma (,) or semikolon (;) are required to recognize the metadata correctly",
-            "": ""
+            "Notes": "Notes",
+            "Click-to-insert-a-note": "Click here to insert a note"
         },
         "validation": {
             "accepted": "The {attribute} must be accepted.",
