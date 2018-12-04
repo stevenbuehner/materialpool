@@ -50,7 +50,7 @@ class ResourcePreviewController extends Controller {
 
 			Log::error('Imagick-Error!', [
 				'error' => $e->getMessage(),
-				'trace' => $e->getTrace(),
+				'trace' => $e->getTraceAsString(),
 			]);
 
 			return response('Imagick Error', 500);
