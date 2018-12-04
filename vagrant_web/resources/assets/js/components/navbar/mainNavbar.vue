@@ -11,7 +11,9 @@
 
                 <b-navbar-nav>
 
-                    <b-nav-item :to="{name: 'resource-create'}">{{$t('pool.New')}}</b-nav-item>
+                    <b-nav-item :to="{name: 'resource-create'}">{{$t('pool.Upload')}}</b-nav-item>
+
+                    <b-nav-item :to="{name: 'resource-text-create'}">{{$t('pool.New')}}</b-nav-item>
 
                     <b-nav-item-dropdown right :text="$t('pool.Edit')">
                         <b-dropdown-item :to="{name: 'keyword-list'}" class="dropdown-hover">{{$t('pool.Keywords')}}

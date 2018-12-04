@@ -7,7 +7,7 @@
 
         <div>
             <div class="meta mb-2">
-                <div class="notes" v-if="resource.notes.length > 0">Notiz: {{resource.notes}}</div>
+                <div class="notes" v-if="resource.notes && resource.notes.length > 0">Notiz: {{resource.notes}}</div>
                 <div class="originalFilename" v-if="resource.original_filename !== undefined">
                     {{$t('pool.Filename')}}: {{resource.original_filename}}
                 </div>

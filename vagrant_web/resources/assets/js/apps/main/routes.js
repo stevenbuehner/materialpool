@@ -10,6 +10,7 @@ import ResourceCreate from './pages/ResourceCreate.vue'
 import KeywordList from './pages/KeywordList.vue'
 import KeywordDetail from './pages/KeywordDetail.vue'
 import BundleList from './pages/BundleList.vue';
+import ResourceTextCreate from './pages/ResourceTextCreateWithMaterial.vue';
 
 export const routes = [
 
@@ -34,15 +35,15 @@ export const routes = [
                path: '/resource/create', component: ResourceCreate, name: 'resource-create', props: false
            },
            {
+               path: '/resource/text/create', component: ResourceTextCreate, name: 'resource-text-create', props: false
+           },
+           {
                path: '/resource/:id', component: ResourceDetail, name: 'resource-detail', props: (route) => {
                    return {id: parseInt(route.params.id)};
                }
            },
            {
-               path: '/resource/:id/assign',
-               component: AssignApp,
-               name: 'resource-assign',
-               props: (route) => {
+               path: '/resource/:id/assign', component: AssignApp, name: 'resource-assign', props: (route) => {
                    return {id: parseInt(route.params.id)};
                }
            },

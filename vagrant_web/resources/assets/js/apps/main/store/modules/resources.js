@@ -2,6 +2,7 @@ import {
     api_v1_resources_create_material,
     api_v1_resources_delete,
     api_v1_resources_show,
+    api_v1_resources_store,
     api_v1_resources_update
 } from '../../../../components/serverRoutes'
 import axios from 'axios'
@@ -84,6 +85,29 @@ const actions = {
 
     },
 
+    createTextResource: ({commit}, {text, notes, is_public}) => {
+
+        notes     = notes || '';
+        is_public = is_public || false;
+
+        return axios
+            .post(api_v1_resources_store, {
+                content: text,
+                notes,
+                is_public
+            })
+            .then(({data}) => {
+
+                if (data.id) {
+                    // commit('clearResource', id); // Resource should not exist yet
+                    commit('setResource', data);
+                }
+
+                return data;
+            });
+
+    },
+
     deleteResource: ({commit}, id) => {
 
         return axios.delete(api_v1_resources_delete(id)).then(({data}) => {
@@ -120,10 +144,14 @@ const actions = {
         commit('clearResource', id);
     },
 
-    autoCreateMaterial: ({commit, dispatch}, resourceId) => {
+    autoCreateMaterial: ({commit, dispatch}, {resourceId, meta, from_bot}) => {
+
+        meta     = meta || '';
+        from_bot = from_bot || false;
 
         const promise = axios.post(api_v1_resources_create_material(resourceId), {
-            from_bot: false
+            from_bot,
+            meta
         })
             .then(({data}) => {
                 return {

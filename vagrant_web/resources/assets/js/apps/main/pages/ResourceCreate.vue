@@ -42,7 +42,7 @@
 
                     this.materialCreationRunning = true;
 
-                    this.$store.dispatch('resources/autoCreateMaterial', resource.id)
+                    this.$store.dispatch('resources/autoCreateMaterial', {resourceId: resource.id})
                         .then(({material}) => {
 
                             this.$router.push({

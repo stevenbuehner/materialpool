@@ -123,7 +123,7 @@
 
         <material-creator ref="materialCreator"></material-creator>
 
-        <custom-dialog ref="myDialog"></custom-dialog>
+        <custom-dialog ref="myDialog"/>
 
     </div>
 </template>
@@ -285,7 +285,7 @@
 
             btnCreateAutoMaterialFromResource() {
 
-                this.$store.dispatch('resources/autoCreateMaterial', this.id)
+                this.$store.dispatch('resources/autoCreateMaterial', {resourceId: this.id})
                     .then(({material}) => {
 
                         this.$router.push({

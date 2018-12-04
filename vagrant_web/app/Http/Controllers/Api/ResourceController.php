@@ -144,7 +144,9 @@ class ResourceController extends BaseController {
 
 	public function createMaterialFromResource(Resource $resource, Request $request) {
 
-		$material = $this->createMaterialFromResources($resource);
+		$meta = $request->get('meta', '');
+
+		$material = $this->createMaterialFromResources($resource, $meta);
 
 		if ($request->has('from_bot')) {
 			$material->from_bot = $request->get('from_bot'); // Is casted in $material
