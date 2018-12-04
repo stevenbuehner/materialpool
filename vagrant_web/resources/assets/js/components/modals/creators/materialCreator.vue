@@ -36,7 +36,7 @@
             >
                 <b-form-input id="materialtitle"
                               type="text"
-                              v-model.lazy.trim="form.title"
+                              v-model.lazy="form.title"
                               required
                               :placeholder="$t('pool.Material-title')"
                               :disabled="formDisabled">
@@ -52,7 +52,7 @@
             >
                 <b-form-input id="materialdescription"
                               type="text"
-                              v-model.lazy.trim="form.description"
+                              v-model.lazy="form.description"
                               required
                               :placeholder="$t('pool.Add-description-here')"
                               :disabled="formDisabled">
@@ -68,7 +68,7 @@
             >
                 <b-form-input id="materialauthor"
                               type="text"
-                              v-model.lazy.trim="form.author"
+                              v-model.lazy="form.author"
                               required
                               :placeholder="$t('pool.Name-of-material-author')"
                               :disabled="formDisabled">
@@ -341,9 +341,9 @@
                 this.formErrors = [];
 
                 // Check title
-                if (!this.form.title || this.form.title.length < 3) {
-                    this.formErrors.push(this.$tc('pool.min-length', this.form.title.length, {
-                        COUNT: this.form.title.length,
+                if (!this.form.title || this.form.title.trim().length < 3) {
+                    this.formErrors.push(this.$tc('pool.min-length', this.form.title.trim().length, {
+                        COUNT: this.form.title.trim().length,
                         REQUIRED: 3,
                         FIELD: this.$t('pool.Title')
                     }));
