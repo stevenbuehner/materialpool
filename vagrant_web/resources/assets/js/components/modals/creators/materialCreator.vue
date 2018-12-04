@@ -4,6 +4,7 @@
              lazy
              ref="myModal"
              @hide="_cancelPromise"
+             @shown="_selectFocus"
     >
         <template slot="modal-footer">
 
@@ -27,7 +28,9 @@
 
         </template>
 
-        <b-form @submit.prevent="onSubmit" @reset="_onReset">
+        <b-form
+                @submit.prevent="onSubmit"
+                @reset="_onReset">
             <b-form-group horizontal
                           breakpoint="md"
                           :label="$t('pool.Title')"
@@ -39,7 +42,8 @@
                               v-model.lazy="form.title"
                               required
                               :placeholder="$t('pool.Material-title')"
-                              :disabled="formDisabled">
+                              :disabled="formDisabled"
+                              ref="titleInput">
                 </b-form-input>
             </b-form-group>
 
@@ -246,7 +250,6 @@
                     this.reject  = reject;
 
                     this.$refs.myModal.show();
-
                 });
 
             },
@@ -383,6 +386,24 @@
                         this.bibleverseInput = bibleverses;
                         this.updateBibleverseForm(bibleverses);
                     });
+            },
+
+            _selectFocus() {
+
+                const el = this.$refs.titleInput.$el;
+
+                el.focus();
+
+                // Move cursor to selection end
+                // see: https://css-tricks.com/snippets/javascript/move-cursor-to-end-of-input/
+                if (typeof el.selectionStart == "number") {
+                    el.selectionStart = el.selectionEnd = el.value.length;
+                } else if (typeof el.createTextRange != "undefined") {
+                    const range = el.createTextRange();
+                    range.collapse(false);
+                    range.select();
+                }
+
             },
 
             useCurrentSelectionAsDefault() {
