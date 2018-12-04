@@ -244,6 +244,17 @@ trait ResourceHelperTrait {
 
 		$resource->save();
 
+		try {
+			$this->queuePostCreationJobs($resource);
+		} catch (\Exception $e) {
+			//Todo: Cleanup again
+			Log::error('Error during Post-CreationJobs', [
+				'message' => $e->getMessage(),
+				'trace'   => $e->getTrace()
+			]);
+
+		}
+
 		// UpdateResourceHashes::dispatch($resource);
 
 		// Hash will be updated ...
