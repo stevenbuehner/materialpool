@@ -186,5 +186,9 @@ return [
 	'At-least-one-comma-or-semikolon-required' => 'Mindestens ein Komma (,) oder ein Semikolon (;) werden benötigt, um die Metadaten richtig zu erkennen',
 	'Notes'                                    => 'Notizen',
 	'Click-to-insert-a-note'                   => 'Hier klicken um Notizen hinzuzufügen',
-
+	'Saving-content-changes'                   => 'Inhalte werden gespeichert',
+	'Content-saved'                            => 'Inhalte erfolgreich gespeichert',
+	'Content-not-saved'                        => 'Inhalte wurden nicht gespeichert',
+	''                                         => '',
+	''                                         => '',
 ];

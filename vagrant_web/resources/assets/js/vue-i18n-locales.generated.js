@@ -184,7 +184,11 @@ export default {
             "Ok": "Ok",
             "At-least-one-comma-or-semikolon-required": "Mindestens ein Komma (,) oder ein Semikolon (;) werden benötigt, um die Metadaten richtig zu erkennen",
             "Notes": "Notizen",
-            "Click-to-insert-a-note": "Hier klicken um Notizen hinzuzufügen"
+            "Click-to-insert-a-note": "Hier klicken um Notizen hinzuzufügen",
+            "Saving-content-changes": "Inhalte werden gespeichert",
+            "Content-saved": "Inhalte erfolgreich gespeichert",
+            "Content-not-saved": "Inhalte wurden nicht gespeichert",
+            "": ""
         }
     },
     "en": {
@@ -396,7 +400,10 @@ export default {
             "Ok": "Ok",
             "At-least-one-comma-or-semikolon-required": "At least one comma (,) or semikolon (;) are required to recognize the metadata correctly",
             "Notes": "Notes",
-            "Click-to-insert-a-note": "Click here to insert a note"
+            "Click-to-insert-a-note": "Click here to insert a note",
+            "Saving-content-changes": "Saving content changes",
+            "Content-saved": "Content saved",
+            "Content-not-saved": "Content not saved"
         },
         "validation": {
             "accepted": "The {attribute} must be accepted.",

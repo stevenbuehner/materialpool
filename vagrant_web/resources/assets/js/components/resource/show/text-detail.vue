@@ -72,7 +72,7 @@
                 this.editModeEnabled = false;
                 this.isSaving        = true;
 
-                this.flashInfo(this.$t('pool.Saving-changes'));
+                this.flashInfo(this.$t('pool.Saving-content-changes'));
 
                 this.$store.dispatch('resources/update', {
                     id: this.resource.id,
@@ -82,10 +82,10 @@
                 }).then((resource) => {
                     this.$emit('resource-updated', resource);
                 }).catch(() => {
-                    this.flash(this.$t('pool.Changes-not-saved'), 'error', {timeout: 0});
+                    this.flash(this.$t('pool.Content-not-saved'), 'error', {timeout: 0});
                 }).then(() => {
                     this.isSaving = false;
-                    this.flashSuccess(this.$t('pool.Changes-saved'));
+                    this.flashSuccess(this.$t('pool.Content-saved'));
                 });
             }
         },

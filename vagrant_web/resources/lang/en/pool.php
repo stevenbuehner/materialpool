@@ -196,5 +196,7 @@ return [
 	'At-least-one-comma-or-semikolon-required' => 'At least one comma (,) or semikolon (;) are required to recognize the metadata correctly',
 	'Notes'                                    => 'Notes',
 	'Click-to-insert-a-note'                   => 'Click here to insert a note',
-
+	'Saving-content-changes'                   => 'Saving content changes',
+	'Content-saved'                            => 'Content saved',
+	'Content-not-saved'                        => 'Content not saved'
 ];
