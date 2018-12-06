@@ -3,21 +3,37 @@
     <div class="row" v-if="!editModeEnabled" @click="editModeEnabled=true">
         <div class="col-12">
             <div class="sbMarkedStyle" v-html="compiledMarkdown"/>
-            <button class="btn btn-sm btn-primary" @click.stop="editModeEnabled=true" v-if="almostNoContentToEditVisible">
+            <button class="btn btn-sm btn-primary" @click.stop="editModeEnabled=true"
+                    v-if="almostNoContentToEditVisible">
                 {{$t('pool.Edit')}}
             </button>
         </div>
     </div>
     <div class="row" v-else>
         <div class="col-6 p-3 liveEditorWrapper" :class="{savingNeccessary}">
-            <textarea class="liveEditor" v-model="myTextContent"></textarea>
+            <textarea
+                    class="liveEditor"
+                    v-model="myTextContent"
+                    @keydown.meta.enter.exact="btnSave"
+                    @keyup.esc.exact="btnCancelIfNothingChanged"></textarea>
         </div>
         <div class="col-6 p-3 livePreviewWrapper">
             <div class="livePreview sbMarkedStyle" v-html="compiledMarkdown"/>
         </div>
         <div class="col-12">
-            <button class="btn btn-sm btn-success float-right m-1" @click="btnSave" v-show="savingNeccessary">{{$t('pool.Save')}}</button>
-            <button class="btn btn-sm btn-danger float-right m-1" @click="btnCancel">{{$t('pool.Cancel')}}</button>
+            <button
+                    class="btn btn-sm btn-success float-right m-1"
+                    @click="btnSave"
+                    v-show="savingNeccessary"
+                    title="CMD + ENTER"
+            >{{$t('pool.Save')}}
+            </button>
+            <button
+                    class="btn btn-sm btn-danger float-right m-1"
+                    @click="btnCancel"
+                    title="ESC"
+            >{{$t('pool.Cancel')}}
+            </button>
         </div>
     </div>
 </template>
@@ -65,6 +81,12 @@
                 this.editModeEnabled = false;
                 this.myTextContent   = this.resource.content;
                 this.flashInfo(this.$t('pool.Undo-changes'));
+            },
+
+            btnCancelIfNothingChanged() {
+                if (!this.savingNeccessary) {
+                    this.btnCancel();
+                }
             },
 
             btnSave() {
