@@ -45,6 +45,7 @@ class ResourceRecognitionService {
 			case 'image/jpeg':
 			case 'image/png':
 			case 'image/gif':
+			case 'image/tiff':
 
 				$class = ImageFile::class;
 				break;

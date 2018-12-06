@@ -11,20 +11,14 @@ namespace App\Services\PreviewGeneration\Generators;
 use App\Models\Resource as ResourceEntity;
 use App\Models\Text;
 use App\ResourceLimitations\ResourceLimitationInterface;
-use App\Services\PreviewGeneration\Exceptions\NotPreviewAbleException;
 use Illuminate\Support\Facades\View;
 use Intervention\Image\ImageManager;
-use Intervention\Image\Size;
 
 class TextThumbPreviewGenerator extends TextLargePreviewGenerator {
 
 
 	public function __construct(ImageManager $imageManager) {
 		parent::__construct($imageManager);
-	}
-
-	public function getImagePreview(ResourceEntity $resource, Size $size) {
-		throw new NotPreviewAbleException();
 	}
 
 	/**

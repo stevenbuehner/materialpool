@@ -13,8 +13,9 @@ use App\Models\Text;
 use App\ResourceLimitations\ResourceLimitationInterface;
 use App\Services\PreviewGeneration\Exceptions\NotPreviewAbleException;
 use App\Services\PreviewGeneration\Interfaces\PreviewGeneratorInterface;
+use App\Services\TagExtraction\ResourceHandles\TextContentInterface;
 use Illuminate\Support\Facades\View;
-use Intervention\Image\Image;
+use Intervention\Image\AbstractFont;
 use Intervention\Image\ImageManager;
 use Intervention\Image\Size;
 
@@ -27,20 +28,119 @@ class TextLargePreviewGenerator implements PreviewGeneratorInterface {
 	}
 
 	/**
-	 * @param  Resource $resource
-	 * @param  int      $maxWidth
-	 * @param  int      $maxHeight
+	 * @param ResourceEntity $resource
+	 * @param Size           $size
+	 * @param null           $page
+	 * @return \Intervention\Image\Image
 	 * @throws NotPreviewAbleException
-	 * @return Image
 	 */
-	public function getImagePreview(ResourceEntity $resource, Size $size) {
+	public function getImagePreview(ResourceEntity $resource, Size $size, $page = NULL) {
 
-		/** @var $resource Text */
+		if (!$resource instanceof TextContentInterface) {
+			throw new NotPreviewAbleException('Resource apparently has no content to preview');
+		}
 
-		$image = $this->imageManager->canvas($size->getWidth(), $size->getHeight(), '#000000')
-									->text(str_limit($resource->content, 500));
+		$text  = trim(str_limit($resource->getContent(), 500));
+		$image = $this->imageManager
+			->canvas($size->getWidth(), $size->getHeight(), '#fff')
+			->text(wordwrap($text, round($size->width / 10)), 5, 5, function ($font) {
+				/** @var $font AbstractFont */
+				$font->valign('top');
+				$font->size(14);
+				$font->file(resource_path('assets/fonts/Courier New.ttf'));
+				// $font->align('left');
+				// $font->valign('center');
+			});
+
+		/* Error in INtervention Image for Imagic\Font
+
+					case 'top':
+					$posY = $posY + $dimensions['textHeight'] * 0.65;
+					break;
+
+		Needs to be changed to:
+		        case 'top':
+                $posy = $posy + $dimensions['characterHeight'];
+                break;
+		 */
+
 
 		return $image;
+
+		/*
+
+		$text      = str_limit($resource->content, 500);
+		$hAlgin    = 'center';
+		$vAlign    = 'middle';
+		$fontSize  = 12;
+		$textColor = '#fff';
+		$angle     = 0.0;
+		$posY      = 0;
+		$posX      = 0;
+
+
+		// The draw settings
+		// see: http://php.net/manual/en/imagick.annotateimage.php
+		$draw = new \ImagickDraw();
+		$draw->setStrokeAntialias(TRUE);
+		$draw->setTextAntialias(TRUE);
+
+		// set font file
+		if ($this->hasApplicableFontFile()) {
+			$draw->setFont($this->file);
+		} else {
+			throw new \Intervention\Image\Exception\RuntimeException(
+				"Font file must be provided to apply text to image."
+			);
+		}
+
+		$draw->setFontSize($fontSize);
+
+		// see: http://php.net/manual/en/imagickpixel.construct.php
+		$draw->setFillColor(new \ImagickPixel($textColor));
+
+		// align horizontal
+		switch (strtolower($hAlgin)) {
+			case 'center':
+				$align = \Imagick::ALIGN_CENTER;
+				break;
+
+			case 'right':
+				$align = \Imagick::ALIGN_RIGHT;
+				break;
+
+			default:
+				$align = \Imagick::ALIGN_LEFT;
+				break;
+		}
+		$draw->setTextAlignment($align);
+
+		// align vertical
+		if (strtolower($vAlign) != 'bottom') {
+
+			// calculate box size
+			$dimensions = $image->getCore()->queryFontMetrics($draw, $text);
+
+			// corrections on y-position
+			switch (strtolower($vAlign)) {
+				case 'center':
+				case 'middle':
+					$posY = $posY + $dimensions['textHeight'] * 0.65 / 2;
+					break;
+
+				case 'top':
+					$posY = $posY + $dimensions['textHeight'] * 0.65;
+					break;
+			}
+		}
+
+		// apply to image
+		$image->getCore()->annotateImage($draw, $posX, $posY, $angle * (-1), $text);
+
+
+		return $image;
+
+		*/
 	}
 
 	/**

@@ -6,12 +6,12 @@ use App\Models\Resource;
 use App\Models\Resource as ResourceEntity;
 use App\ResourceLimitations\ResourceLimitationInterface;
 use App\Services\PreviewGeneration\Exceptions\NotPreviewAbleException;
+use App\Services\PreviewGeneration\Generators\NoPreviewGenerator;
 use App\Services\PreviewGeneration\Interfaces\PreviewGeneratorInterface;
 use Illuminate\Support\Facades\Cache;
-use Intervention\Image\Gd\Font;
+use Intervention\Image\AbstractFont;
 use Intervention\Image\Image;
 use Intervention\Image\ImageManager;
-use Intervention\Image\ImageManagerStatic;
 use Intervention\Image\Size;
 use League\Flysystem\FileNotFoundException;
 
@@ -20,10 +20,13 @@ class ResourcePreviewService {
 	// Not implemented yet
 	protected $usePreviewImageCache   = NULL;
 	protected $cacheLifeTimeInMinutes = NULL;
+	protected $imageManager;
 
-	public function __construct() {
+
+	public function __construct(ImageManager $imageManager) {
 		$this->usePreviewImageCache   = config('app.resource.preview.useCache');
 		$this->cacheLifeTimeInMinutes = config('app.resource.preview.cacheTime');
+		$this->imageManager           = $imageManager;
 	}
 
 	public function hasPreview(ResourceEntity $resource) {
@@ -39,7 +42,7 @@ class ResourcePreviewService {
 	 * @param ResourceEntity $resource
 	 * @param null           $width
 	 * @param null           $height
-	 * @return mixed
+	 * @return Image
 	 */
 	public function getImagePreviewByWidthAndHeight(ResourceEntity $resource, $width = NULL, $height = NULL) {
 
@@ -62,51 +65,29 @@ class ResourcePreviewService {
 	 *
 	 * @param ResourceEntity $resource
 	 * @param Size           $size
+	 * @param null|int       $pageOrSeconds Page counting from 1 or seconds offset of Video/Audio
 	 * @return Image
 	 */
-	public function getImagePreview(ResourceEntity $resource, Size $size) {
+	public function getImagePreview(ResourceEntity $resource, Size $size, $pageOrSeconds = NULL) {
 
-		$cache     = Cache::getStore();
-		$cacheName = $this->getPreviewPath($resource, $size->getWidth(), $size->getHeight());
+		try {
+			/** @var PreviewGeneratorInterface $generator */
+			$generator = $resource->getPreviewGenerator();
+			$image     = $generator->getImagePreview($resource, $size, $pageOrSeconds);
 
-		// Load the preview
-		if ($this->usePreviewImageCache === TRUE && NULL !== $encoded = $cache->get($cacheName)) {
+		} catch (NotPreviewAbleException $e) {
 
-			$manager = new ImageManager();
-			$image   = $manager->make($encoded);
-		} else {
+			$generator = resolve(NoPreviewGenerator::class);
+			$image     = $generator->getImagePreview($resource, $size);
 
-			try {
-				/** @var PreviewGeneratorInterface $generator */
-				$generator = $resource->getPreviewGenerator();
-				$image     = $generator->getImagePreview($resource, $size);
-			} catch (NotPreviewAbleException $e) {
-				$image = $this->getImageWithText('No Preview', $size->getWidth(), $size->getHeight());
-			} catch (FileNotFoundException $e) {
-				$image = $this->getImageWithText('Resource missing', $size->getWidth(), $size->getHeight());
-			}
+		} catch (FileNotFoundException $e) {
 
-			// Store the preview
-			if ($this->usePreviewImageCache === TRUE) {
-				$encoded = $image->encoded ? $image->encoded : (string) $image->encode();
-				$cache->put($cacheName, $encoded, $this->cacheLifeTimeInMinutes);
-			}
+			$image = $this->getImageWithText('Resource missing', $size->getWidth(), $size->getHeight());
 		}
 
-		return $image->response();
 
-	}
+		return $image;
 
-	protected function getPreviewPath(ResourceEntity $resource, $width = NULL, $height = NULL) {
-		return $this->getPreviewDir($resource) . DIRECTORY_SEPARATOR . $this->getPreviewName($width, $height);
-	}
-
-	protected function getPreviewDir(ResourceEntity $resource) {
-		return sprintf('res_%d', $resource->id);
-	}
-
-	protected function getPreviewName($width = NULL, $height = NULL) {
-		return sprintf('thumb_%dx%d.jpg', $width, $height);
 	}
 
 	/**
@@ -118,12 +99,57 @@ class ResourcePreviewService {
 	protected function getImageWithText($text, $width = 200, $height = 200) {
 		$useWidth  = max($width, 200);
 		$useHeight = max($height, 200);
-		$image     = ImageManagerStatic::canvas($useWidth, $useHeight, '#33ffff');
-		$image->text($text, 50, 50, function (Font $font) {
+		$image     = $this->imageManager->canvas($useWidth, $useHeight, '#ffff');
+		$image->text($text, 50, 50, function ($font) {
+			/** @var $font AbstractFont */
 			$font->valign('top');
+			$font->size(14);
+			$font->file(resource_path('assets/fonts/Courier New.ttf'));
 		});
 
 		return $image;
+	}
+
+	public function getCachedImage(ResourceEntity $resource, Size $size, $pageOrSeconds = NULL, $format = 'jpg', $quality = 75) {
+
+		$cache     = Cache::getStore();
+		$format    = strtolower($format);
+		$cacheName = $this->getPreviewPath($resource, $format, $size->getWidth(), $size->getHeight(), $quality,
+										   $pageOrSeconds);
+
+		// Load the preview
+		if ($this->usePreviewImageCache === TRUE && NULL !== $encodedImage = $cache->get($cacheName)) {
+
+		} else {
+
+			$rawImage = $this->getImagePreview($resource, $size, $pageOrSeconds);
+
+			// Store the preview
+			if ($this->usePreviewImageCache === TRUE) {
+
+				// Es macht nichts aus, dass nur JPG den Quality-Parameter versteht
+				$encodedImage = $rawImage->encode('jpg', $quality);
+
+				$cache->put($cacheName, $encodedImage, $this->cacheLifeTimeInMinutes);
+			}
+		}
+
+		return $encodedImage;
+
+	}
+
+	protected function getPreviewPath(ResourceEntity $resource, $fileType, $width = NULL, $height = NULL, $quality = 75, $limitation = NULL) {
+		return $this->getPreviewDir($resource)
+			. DIRECTORY_SEPARATOR
+			. $this->getPreviewName($fileType, $width, $height, $quality, $limitation);
+	}
+
+	protected function getPreviewDir(ResourceEntity $resource) {
+		return sprintf('res_%d', $resource->id);
+	}
+
+	protected function getPreviewName($fileType, $width = NULL, $height = NULL, $quality = 75, $limitation = NULL) {
+		return sprintf('thumb_%dx%d_%d_%d.%s', $width, $height, $limitation, $quality, strtolower($fileType));
 	}
 
 	/**

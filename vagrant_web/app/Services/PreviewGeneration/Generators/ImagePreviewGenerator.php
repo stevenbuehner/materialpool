@@ -16,7 +16,6 @@ use App\Services\PreviewGeneration\Exceptions\NotPreviewAbleException;
 use App\Services\PreviewGeneration\Interfaces\PreviewGeneratorInterface;
 use Illuminate\Support\Facades\View;
 use Intervention\Image\Constraint;
-use Intervention\Image\Image;
 use Intervention\Image\ImageManager;
 use Intervention\Image\Size;
 
@@ -29,13 +28,13 @@ class ImagePreviewGenerator implements PreviewGeneratorInterface {
 	}
 
 	/**
-	 * @param  Resource $resource
-	 * @param  int      $maxWidth
-	 * @param  int      $maxHeight
+	 * @param ResourceEntity $resource
+	 * @param Size           $size
+	 * @param null           $page
+	 * @return \Imagick
 	 * @throws NotPreviewAbleException
-	 * @return Image
 	 */
-	public function getImagePreview(ResourceEntity $resource, Size $size) {
+	public function getImagePreview(ResourceEntity $resource, Size $size, $page = NULL) {
 		/** @var $resource File */
 
 		if ($resource->hasLocalFile()) {
@@ -45,14 +44,33 @@ class ImagePreviewGenerator implements PreviewGeneratorInterface {
 				$localFile = $resource->getLocalFile();
 				$image     = $this->imageManager->make($localFile);
 
+
+				// Todo: Noch besser wäre direkt via convert -verbose -density 144 /home/vagrant/web/storage/app/resources/1/doc/DaZzBkRHHMdBr7IU4JC5sCz5EG5Ppbh0Ko6HFYrs.pdf[1] -quality 90 -flatten -trim test.png
+
+				// $image = new \Imagick();
+				// $image->setResolution(config('app.preview.resolution'), config('app.preview.resolution'));
+				// $image->readImage($localFile);
+
+				// Hintergrund im bei transparenten Geschichten (z.B. in PDFs) weiß nehmen und AlphaChannel entfernen
+				// $im->setBackgroundColor('white');
+				// $im->setImageAlphaChannel(\Imagick::ALPHACHANNEL_REMOVE);
+				// $im->mergeImageLayers(\Imagick::LAYERMETHOD_FLATTEN);
+
+				// $im->setFormat(config('app.preview.outputFormat', 'png'));
+
+
+				// $image = $this->imageManager->make($localFile);
+
 			} catch (\Exception $e) {
 				throw new NotPreviewAbleException("Error while creating preview image", 0, $e);
 			}
 
 		} else if ($resource->hasRemoteFile()) {
+
 			$image = $this->imageManager->make($resource->remote_path);
+
 		} else {
-			throw new NotPreviewAbleException();
+			throw new NotPreviewAbleException('Neither local nor remote file exist to generate preview from');
 		}
 
 		return $image->resize($size->getWidth(), $size->getHeight(), function (Constraint $constraint) {
@@ -92,18 +110,18 @@ class ImagePreviewGenerator implements PreviewGeneratorInterface {
 	}
 
 	/**
-	 * @param Resource $resource
-	 * @return bool
-	 */
-	public function imagePreviewAble(ResourceEntity $resource) {
-		return ($resource instanceof ImageFile && $resource->hasLocalFile() && $resource->localFileExists());
-	}
-
-	/**
-	 * @param Resource $resource
-	 * @return bool
+	 * @param ResourceEntity $resource
+	 * @return bool|mixed
 	 */
 	public function htmlPreviewAble(ResourceEntity $resource) {
 		return $this->imagePreviewAble($resource);
+	}
+
+	/**
+	 * @param ResourceEntity $resource
+	 * @return bool|mixed
+	 */
+	public function imagePreviewAble(ResourceEntity $resource) {
+		return ($resource instanceof ImageFile && $resource->hasLocalFile() && $resource->localFileExists());
 	}
 }

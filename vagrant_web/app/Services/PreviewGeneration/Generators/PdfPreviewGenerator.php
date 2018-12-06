@@ -8,6 +8,7 @@
 namespace App\Services\PreviewGeneration\Generators;
 
 use App\Jobs\CalculatePdfPageSize;
+use App\Models\File;
 use App\Models\PdfFile;
 use App\Models\Resource as ResourceEntity;
 use App\ResourceLimitations\ResourceLimitationInterface;
@@ -17,7 +18,6 @@ use App\Services\ResourceHandling\Exceptions\LocalFileDoesNotExistException;
 use App\Services\ResourceHandling\Exceptions\RemoteFileDoesNotExistException;
 use App\Services\ResourceHandling\FileHandlingService;
 use Illuminate\Support\Facades\View;
-use Intervention\Image\Image;
 use Intervention\Image\ImageManager;
 use Intervention\Image\Size;
 
@@ -31,45 +31,53 @@ class PdfPreviewGenerator implements PreviewGeneratorInterface {
 		$this->resourceFileService = $fhs;
 	}
 
+
 	/**
-	 * @param  Resource $resource
-	 * @param  int      $maxWidth
-	 * @param  int      $maxHeight
+	 * @param ResourceEntity $resource
+	 * @param Size           $size
+	 * @param int            $page
+	 * @return \Imagick|\Symfony\Component\HttpFoundation\Response
 	 * @throws NotPreviewAbleException
-	 * @return Image
 	 */
-	public function getImagePreview(ResourceEntity $resource, Size $size) {
+	public function getImagePreview(ResourceEntity $resource, Size $size, $page = 1) {
 
 		try {
+
+			if (!$resource instanceof File) {
+				throw new NotPreviewAbleException('Resource is not of type file');
+			}
+
 			$localPdfPath = $this->resourceFileService->getLocalFilePath($resource);
 
 		} catch (LocalFileDoesNotExistException $e) {
-			throw new NotPreviewAbleException("No Preview can be created from this", 0, $e);
+			throw new NotPreviewAbleException("No Preview can be created from the local path", 0, $e);
 		} catch (RemoteFileDoesNotExistException $e) {
-			throw new NotPreviewAbleException("No Preview can be created from this", 0, $e);
+			throw new NotPreviewAbleException("No Preview can be created from the remote path", 0, $e);
 		}
 
-
 		try {
+
 			// Todo: Noch besser wäre direkt via convert -verbose -density 144 /home/vagrant/web/storage/app/resources/1/doc/DaZzBkRHHMdBr7IU4JC5sCz5EG5Ppbh0Ko6HFYrs.pdf[1] -quality 90 -flatten -trim test.png
 
 			$im = new \Imagick();
-			$im->setResolution(config('app.preview.resolution'), config('app.preview.resolution'));
-			$im->readImage(sprintf('%s[%s]', $localPdfPath, 0));
+			$im->setResolution($size->getWidth(), $size->getHeight());
+			$im->readImage(sprintf('%s[%s]', $localPdfPath, max(0, $page - 1)));
 
 			// Hintergrund im bei transparenten Geschichten (z.B. in PDFs) weiß nehmen und AlphaChannel entfernen
 			$im->setBackgroundColor('white');
 			$im->setImageAlphaChannel(\Imagick::ALPHACHANNEL_REMOVE);
 			$im->mergeImageLayers(\Imagick::LAYERMETHOD_FLATTEN);
 
-			$im->setFormat(config('app.preview.outputFormat', 'png'));
+			$image = $this->imageManager->make($im);
+
 		} catch (\ImagickException $e) {
-			return response('Imagick Error', 500);
+			throw new NotPreviewAbleException('Imagick Error', 0, $e);
+		} catch (\Exception $e) {
+			throw new NotPreviewAbleException('Error when creating Preview', 0, $e);
 		}
 
-		$image = \Intervention\Image\Facades\Image::make($im->getImagesBlob());
-
 		return $image;
+
 	}
 
 	/**

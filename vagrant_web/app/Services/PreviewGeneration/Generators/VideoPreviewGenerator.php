@@ -33,13 +33,14 @@ class VideoPreviewGenerator implements PreviewGeneratorInterface {
 	}
 
 	/**
-	 * @param  Resource $resource
-	 * @param  int      $maxWidth
-	 * @param  int      $maxHeight
-	 * @throws NotPreviewAbleException
+	 * @param ResourceEntity $resource
+	 * @param Size           $size
+	 * @param null           $seconds
 	 * @return Image
+	 * @throws NotPreviewAbleException
+	 * @throws \League\Flysystem\FileExistsException
 	 */
-	public function getImagePreview(ResourceEntity $resource, Size $size) {
+	public function getImagePreview(ResourceEntity $resource, Size $size, $seconds = NULL) {
 
 		$image  = NULL;
 		$ffmpeg = FFMpeg::create([
@@ -68,9 +69,14 @@ class VideoPreviewGenerator implements PreviewGeneratorInterface {
 			$video            = $ffmpeg->open($localPath);
 			$firstVideoStream = $video->getStreams()->videos()->first();
 			$duration         = (float) $firstVideoStream->get('duration');
-			$tenPercent       = round($duration * 0.15, 2);
 
-			$frame     = $video->frame(TimeCode::fromSeconds($tenPercent));
+			if ($seconds === NULL || $seconds < 0 || $seconds > $duration) {
+				$offset = TimeCode::fromSeconds(round($duration * 0.15, 2));
+			} else {
+				$offset = TimeCode::fromSeconds($seconds);
+			}
+
+			$frame     = $video->frame($offset);
 			$framePath = $localPath . '.jpg';
 			$frame->save($framePath);
 
@@ -89,9 +95,7 @@ class VideoPreviewGenerator implements PreviewGeneratorInterface {
 
 		// Backup
 		if ($image === NULL) {
-			/** @var $resource VideoFile */
-			$image = $this->imageManager->canvas($size->getWidth(), $size->getHeight(), '#000000')
-										->text(str_limit('no Preview available', 500));
+			throw new NotPreviewAbleException('no Preview available');
 		}
 
 		return $image;

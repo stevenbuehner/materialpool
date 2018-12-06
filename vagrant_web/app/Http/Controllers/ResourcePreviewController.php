@@ -9,6 +9,7 @@ use App\Services\PreviewGeneration\ResourcePreviewService;
 use App\Services\ResourceHandling\FileHandlingService;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Response;
+use Intervention\Image\Size;
 
 class ResourcePreviewController extends Controller {
 
@@ -20,9 +21,27 @@ class ResourcePreviewController extends Controller {
 		$this->fileHandlingService = $fhs;
 	}
 
+	/**
+	 * @param Resource $resource
+	 * @param null     $width
+	 * @param null     $height
+	 * @return \Illuminate\Http\Response
+	 */
 	public function getImage(Resource $resource, $width = NULL, $height = NULL) {
 
-		return $this->previewService->getImagePreviewByWidthAndHeight($resource, $width, $height);
+		// Get Image (with GD or Imagick Library)
+		// $image = $this->previewService->getImagePreviewByWidthAndHeight($resource, $width, $height);
+
+		$encodedImage = $this->previewService->getCachedImage($resource, new Size($width, $height));
+
+		// create response and add encoded image data
+		$response = Response::make($encodedImage->getEncoded());
+
+		// set content type
+		$response->header('Content-Type', $encodedImage->mime());
+
+		return $response;
+
 	}
 
 	public function getPageImage(Resource $resource, $page, $width = 100) {
