@@ -2,9 +2,9 @@
     <div class="kw-wrapper" :class="[size]">
         <div class="btn btn-sm btn-secondary sb-keyword"
              :class="{'tag-readonly' : !editable, 'tag-editable' : editable}"
-             @mousedown.left.prevent="startDrag"
-             @click.right="openRightClickMenu"
-             @dblclick.prevent="openKeywordEditModal"
+             @mousedown.left="keydownStartDrag"
+             @click.right.stop="openRightClickMenu"
+             @dblclick.stop="openKeywordEditModal"
              role="button">
             <div class="sb-progress-bar" :class="{isDragging : dragging.ongoing}" :style="styleObject"></div>
             <component :is="iconName" class="icon"></component>
@@ -182,6 +182,13 @@
         },
 
         methods: {
+
+            keydownStartDrag(event) {
+                if (this.editable) {
+                    event.stopPropagation();
+                    this.startDrag(event);
+                }
+            },
 
             storeModalChanges() {
 

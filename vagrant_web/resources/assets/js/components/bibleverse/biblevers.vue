@@ -2,8 +2,8 @@
     <div class="bibleverse-wrapper" :class="[size]">
         <div class="btn btn-sm btn-secondary sb-bibleverse"
              :class="{'tag-readonly' : !editable, 'tag-editable' : editable}"
-             @mousedown.left.prevent="startDrag"
-             @click.right="openRightClickMenu"
+             @mousedown.left="keydownStartDrag"
+             @click.right.stop="openRightClickMenu"
              role="button">
             <div class="sb-progress-bar" :class="{isDragging : dragging.ongoing}" :style="styleObject"></div>
             <bible-icon class="icon"></bible-icon>
@@ -112,6 +112,13 @@
         },
 
         methods: {
+
+            keydownStartDrag(event) {
+                if (this.editable) {
+                    event.stopPropagation();
+                    this.startDrag(event);
+                }
+            },
 
             /* used by mixin */
             updateRelevance(relevance) {
