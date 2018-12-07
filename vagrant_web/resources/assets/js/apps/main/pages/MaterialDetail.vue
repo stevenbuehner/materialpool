@@ -153,7 +153,7 @@
 
             <div class="row" v-if="material.resources !== undefined && material.resources.length === 1">
                 <div class="col-xl-12 col-12">
-                    <resource-detail :resource="material.resources[0]">
+                    <resource-detail :resource="material.resources[0]" :showDelete="false">
                         <template slot="additional-buttons">
                             <button class="btn btn-outline-danger mb-1"
                                     @click.prevent="btnDetachResource(material.resources[0])"
@@ -378,7 +378,7 @@
                 ).then(({material, resource}) => {
                     this.material = material;
 
-                    if (resource.material && resource.material.length === 0) {
+                    if (resource.materials && resource.materials.length === 0) {
                         this.$refs.customDialog.show({
                             title: 'Rückfrage',
                             content: 'Diese Ressource ist jetzt keinem Material mehr zugeordnet.<br/>Soll ' + (resource.original_filename ? '"' + resource.original_filename + '"' : 'sie') + ' <b>jetzt komplett</b> gelöscht werden?',
