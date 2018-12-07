@@ -79,12 +79,51 @@
 
             createModelFromKeywords(keywords) {
 
-                let ids      = {};
-                let model    = [];
-                let root     = {'title': 'root', draggable: false, isOpen: true, children: [], id: null};
+                let ids   = {};
+                let model = [];
+
+                const roots = {
+                    key: {
+                        title: this.$t('pool.Keywords'),
+                        type: 'key',
+                        draggable: false,
+                        isOpen: true,
+                        children: [],
+                        id: 'key'
+                    },
+                    person: {
+                        title: this.$t('pool.Persons'),
+                        type: 'person',
+                        draggable: false,
+                        isOpen: false,
+                        children: [],
+                        id: 'person'
+                    },
+                    place: {
+                        title: this.$t('pool.Places'),
+                        type: 'place',
+                        draggable: false,
+                        isOpen: false,
+                        children: [],
+                        id: 'place'
+                    },
+                    lang: {
+                        title: this.$t('pool.Languages'),
+                        type: 'lang',
+                        draggable: false,
+                        isOpen: false,
+                        children: [],
+                        id: 'lang'
+                    },
+                };
+
+                for (let i in roots) {
+                    model.push(roots[i]);
+                    ids[roots[i].id] = roots[i];
+                }
+
                 let laterRun = [];
 
-                model.push(root);
 
                 for (let i in keywords) {
 
@@ -98,11 +137,12 @@
                             console.info('Missing Parrent ID for. Add later on', k)
                             laterRun.push((k));
                         } else {
+
                             ids[k.parent_id].children.push(k);
                         }
 
                     } else {
-                        root.children.push(k);
+                        roots[k.type].children.push(k);
                     }
                 }
 
@@ -136,7 +176,7 @@
                 this.$store.dispatch('keywords/update', {
                     id: sourceId,
                     data: {
-                        parent_id: targetId
+                        parent_id: Number.isInteger(targetId) ? targetId : null
                     }
                 }).then((keyword) => {
 
@@ -159,12 +199,14 @@
                 }).then(() => {
                     callback();
                 });
+
+
             },
 
-            getKeyword(keywordId) {
+            getKeyword(keywordId, backupType) {
                 if (!keywordId) {
                     // Return root
-                    return this.treeModel[0];
+                    return this.treeModelIds[backupType];
                 } else {
                     return this.treeModelIds[keywordId];
                 }
@@ -172,16 +214,16 @@
 
             detachKeyword(keywordId) {
 
-                keywordId      = parseInt(keywordId);
-                const oldModel = this.treeModelIds[keywordId];
+                keywordId           = parseInt(keywordId);
+                const sourceKeyword = this.getKeyword(keywordId);
 
                 // Remove from Array
-                const parent    = this.getKeyword(oldModel.parent_id);
+                const parent    = this.getKeyword(sourceKeyword.parent_id, sourceKeyword.type);
                 parent.children = parent.children.filter(kw => {
                     return kw.id !== keywordId;
                 });
 
-                oldModel.parent_id = null;
+                sourceKeyword.parent_id = null;
                 // parent.children.splice(parent.indexOf(oldModel), 1);
 
                 // Remove from Index-Object
@@ -191,7 +233,7 @@
 
             attachKeyword(sourceKeyword, targetId) {
 
-                const targetKeyword = this.getKeyword(targetId);
+                const targetKeyword = this.getKeyword(targetId, sourceKeyword.type);
 
                 if (!targetKeyword) {
                     console.error('Keyword was not found by getKeyword. ID: ', targetId);

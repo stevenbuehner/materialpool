@@ -188,6 +188,9 @@ export default {
             "Saving-content-changes": "Inhalte werden gespeichert",
             "Content-saved": "Inhalte erfolgreich gespeichert",
             "Content-not-saved": "Inhalte wurden nicht gespeichert",
+            "Languages": "Sprachen",
+            "Places": "Orte",
+            "Persons": "Personen",
             "": ""
         }
     },
@@ -403,7 +406,11 @@ export default {
             "Click-to-insert-a-note": "Click here to insert a note",
             "Saving-content-changes": "Saving content changes",
             "Content-saved": "Content saved",
-            "Content-not-saved": "Content not saved"
+            "Content-not-saved": "Content not saved",
+            "Languages": "Languages",
+            "Places": "Places",
+            "Persons": "Persons",
+            "": ""
         },
         "validation": {
             "accepted": "The {attribute} must be accepted.",

@@ -198,5 +198,9 @@ return [
 	'Click-to-insert-a-note'                   => 'Click here to insert a note',
 	'Saving-content-changes'                   => 'Saving content changes',
 	'Content-saved'                            => 'Content saved',
-	'Content-not-saved'                        => 'Content not saved'
+	'Content-not-saved'                        => 'Content not saved',
+	'Languages'                                => 'Languages',
+	'Places'                                   => 'Places',
+	'Persons'                                  => 'Persons',
+	''                                         => '',
 ];

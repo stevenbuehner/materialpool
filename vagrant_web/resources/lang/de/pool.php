@@ -189,6 +189,8 @@ return [
 	'Saving-content-changes'                   => 'Inhalte werden gespeichert',
 	'Content-saved'                            => 'Inhalte erfolgreich gespeichert',
 	'Content-not-saved'                        => 'Inhalte wurden nicht gespeichert',
-	''                                         => '',
+	'Languages'                                => 'Sprachen',
+	'Places'                                   => 'Orte',
+	'Persons'                                  => 'Personen',
 	''                                         => '',
 ];
