@@ -144,6 +144,7 @@
     import bListGroup from 'bootstrap-vue/src/components/list-group/list-group';
     import bListGroupItem from 'bootstrap-vue/src/components/list-group/list-group-item';
     import pdfLimitation from '../../../components/resource/limitation/pdfLimitation.vue';
+    import audioLimitation from '../../../components/resource/limitation/audioLimitation.vue';
     import {isResourceTypeLimitable} from "../../../components/resource/limitation/limitable";
     import resourceDetail from '../../../components/resource/show/resource-detail'
 
@@ -379,6 +380,7 @@
             bListGroup,
             bListGroupItem,
             pdfLimitation,
+            audioLimitation,
             user
         }
     }
