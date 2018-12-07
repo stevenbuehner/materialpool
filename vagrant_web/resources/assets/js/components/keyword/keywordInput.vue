@@ -17,7 +17,7 @@
         </div>
 
 
-        <!-- ALREADY EXISTING BIBLEVERSES-->
+        <!-- ALREADY EXISTING KEYWORDS-->
         <div class="card-body">
             <keyword v-for="(kw, index) in myKeywords"
                      :key="getKeywordkey(kw)"
@@ -274,6 +274,11 @@
                         kw.pivot = {
                             relevance: RELEVANCE_USER_MAX,
                         }
+                    }
+
+                    // Reset KeywordInput if after adding THIS keyword nothing is suggested anymore
+                    if (this.displayableSuggestedKeywords.length <= 1) {
+                        this.keywordInput = '';
                     }
 
                     if (this.materialId) {
