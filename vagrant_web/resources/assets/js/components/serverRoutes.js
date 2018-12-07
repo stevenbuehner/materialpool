@@ -3,52 +3,60 @@ export const searchGuessRoute2 = '/pool/search/guess2';
 
 
 // Keyword
-export const keywordSearchLink = (keyword) => {
+export function keywordSearchLink(keyword) {
     return '/pool/keyword/' + keyword.lc_title;
 };
 
 // Bibleverse
-export const bibleverseUpdatePivotRoute    = (materialId, bibleverseId) => {
+export function bibleverseUpdatePivotRoute(materialId, bibleverseId) {
     return '/api/v1/material/' + materialId + '/bibleverse/' + bibleverseId;
-};
-export const materialRemoveBibleverseRoute = (materialID, bibleverseId) => {
+}
+
+export function materialRemoveBibleverseRoute(materialID, bibleverseId) {
     return '/api/v1/material/' + materialID + '/bibleverse/' + bibleverseId;
-};
-export const bibleverseSearchLink          = (bibleverse) => {
+}
+
+export function bibleverseSearchLink(bibleverse) {
     return '/pool/bibleverse/' + bibleverse.from + '-' + bibleverse.to;
-};
+}
 
 //Resources
-export const resourceEditLink           = (resource) => {
+export function resourceEditLink(resource) {
     return '/pool/resource/' + resource.id;
 };
-export const resourceDownloadLink       = (resource) => {
+
+export function resourceDownloadLink(resource) {
     return '/pool/resource/' + resource.id + '/download';
-};
-export const pdfPreviewImageFirstPage   = (resource, width, height) => {
+}
+
+export function previewImageFirstPage(resource, width, height) {
     width  = width || 1024;
     height = height || 1024;
-
     return '/resource/image/' + resource.id + '/' + width + '/' + height;
-};
-export const pdfPreviewImageForPage     = (resource, page) => {
-    page = page || 1;
+}
 
+export function pdfPreviewImageForPage(resource, page) {
+    page = page || 1;
     return '/pdfpreview/res-' + resource.id + '/page-' + page;
-};
-export const resourceLimitedpdfDownload = (resourceId, materialId) => {
+}
+
+export function resourceLimitedPdfDownload(resourceId, materialId) {
     return '/pool/resource/' + resourceId + '/material/' + materialId + '/pdfdownload';
-};
+}
+
+export function poolResourceVideostream(resource) {
+    return '/pool/resource/' + resource.id + '/videostream';
+}
 
 
 // Resource-Material Assignment
-export const api_v2_materialresource_attach = (materialId, resourceId) => {
+export function api_v2_materialresource_attach(materialId, resourceId) {
     return '/api/v2/material/' + materialId + '/resource/' + resourceId + '/attach';
-};
+}
 
-export const api_v2_materialresource_detach = (materialId, resourceId) => {
+export function api_v2_materialresource_detach(materialId, resourceId) {
     return '/api/v2/material/' + materialId + '/resource/' + resourceId + '/detach';
-};
+}
 
 
 // Search
@@ -78,18 +86,20 @@ export function api_v1_resources_create_material(resourceId) {
 
 
 // API - Materials
-export const api_v1_materials_show  = (materialsId) => {
+export function api_v1_materials_show(materialsId) {
     return '/api/v1/materials/' + materialsId;
-};
+}
+
 export const api_v1_materials_store = '/api/v1/materials';
 export const api_v1_materials_index = '/api/v1/materials';
 
-export const api_v1_materials_update = (materialId) => {
+export function api_v1_materials_update(materialId) {
     return '/api/v1/materials/' + materialId;
-};
-export const api_v2_materials_delete = (materialId) => {
+}
+
+export function api_v2_materials_delete(materialId) {
     return '/api/v2/materials/' + materialId;
-};
+}
 
 // API - Keywords
 export const api_v1_keywords_index = '/api/v1/keywords/';
@@ -98,16 +108,19 @@ export function api_v1_keywords_show(keywordId) {
     return '/api/v1/keywords/' + keywordId;
 }
 
-export const api_v1_keywords_create           = '/api/v1/keywords';
-export const api_v1_keywords_update           = (keywordId) => {
+export const api_v1_keywords_create = '/api/v1/keywords';
+
+export function api_v1_keywords_update(keywordId) {
     return '/api/v1/keywords/' + keywordId;
-};
-export const api_v1_keywords_updateassignment = (materialId, keywordId) => {
+}
+
+export function api_v1_keywords_updateassignment(materialId, keywordId) {
     return '/api/v1/material/' + materialId + '/keyword/' + keywordId;
-};
-export const api_v1_keywords_deleteassignment = (materialID, keywordId) => {
+}
+
+export function api_v1_keywords_deleteassignment(materialID, keywordId) {
     return '/api/v1/material/' + materialID + '/keyword/' + keywordId;
-};
+}
 
 // API - Bibleverses
 export function api_v1_bibleverses_show(bibleverseId) {

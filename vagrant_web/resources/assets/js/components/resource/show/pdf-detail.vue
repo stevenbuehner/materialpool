@@ -26,7 +26,7 @@
 
 <script>
 
-    import {pdfPreviewImageFirstPage} from './../../serverRoutes';
+    import {previewImageFirstPage} from './../../serverRoutes';
     import bImage from 'bootstrap-vue/src/components/image/img';
     import bImageLazy from 'bootstrap-vue/src/components/image/img-lazy';
     import pdfMixin from './../pdf-mixin';
@@ -57,7 +57,7 @@
 
                 if (this.pageCount === 0) {
                     urls.push({
-                        src: pdfPreviewImageFirstPage(this.resource),
+                        src: previewImageFirstPage(this.resource),
                         title: 'Startseite',
                         page_no: 1
                     });

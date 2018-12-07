@@ -14,7 +14,7 @@
     import bImageLazy from 'bootstrap-vue/src/components/image/img-lazy';
     import bCard from 'bootstrap-vue/es/components/card/card'
     import bButton from 'bootstrap-vue/es/components/button/button'
-    import {pdfPreviewImageFirstPage} from './../../serverRoutes';
+    import {previewImageFirstPage} from './../../serverRoutes';
     import resourceLinks from './../resource-links.mixin';
 
     export default {
@@ -50,7 +50,7 @@
             },
 
             resourceImagePreviewUrl() {
-                return pdfPreviewImageFirstPage(this.resource, this.width, this.height);
+                return previewImageFirstPage(this.resource, this.width, this.height);
             },
 
         },

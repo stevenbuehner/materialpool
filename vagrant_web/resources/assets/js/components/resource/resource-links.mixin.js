@@ -1,4 +1,4 @@
-import {resourceDownloadLink, resourceLimitedpdfDownload} from './../serverRoutes'
+import {resourceDownloadLink, resourceLimitedPdfDownload} from './../serverRoutes'
 
 export default {
     methods: {
@@ -12,7 +12,7 @@ export default {
 
             switch (resource.type) {
                 case 'pdf':
-                    return resourceLimitedpdfDownload(resource.pivot.resource_id, resource.pivot.material_id)
+                    return resourceLimitedPdfDownload(resource.pivot.resource_id, resource.pivot.material_id)
                 default:
                     return resourceDownloadLink(resource);
             }
