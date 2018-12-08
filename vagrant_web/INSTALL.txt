@@ -126,6 +126,11 @@ php artisan vue-i18n:generate
 
 
 #Installieren auf meinem Mini-Server
+
+# Für pdftotext
+apt-get install poppler-utils
+which pdftotext
+
 sudo apt-get install -y php-imagick
 sudo sed -i "s@upload_max_filesize = 2M@upload_max_filesize = 200M@" /etc/php/7.2/apache2/php.ini
 sudo sed -i "s@max_file_uploads = 20@max_file_uploads = 100@" /etc/php/7.2/apache2/php.ini

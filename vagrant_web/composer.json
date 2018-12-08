@@ -10,6 +10,7 @@
   "require": {
     "php": ">=7.1",
     "ext-imagick": "*",
+    "ext-simplexml": "*",
     "ext-json": "*",
     "alchemy/phpexiftool": "^0.6.0",
     "intervention/image": "^2.3",
