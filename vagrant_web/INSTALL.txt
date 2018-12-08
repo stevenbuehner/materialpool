@@ -150,7 +150,6 @@ sudo apt-get install composer
 sudo service apache2 restart
 
 
-
 # Aller Code läuft als "steven" aller Storage als "www-data"
 sudo chown -R steven.steven /var/www/wissensbase/
 sudo chown -R www-data.www-data /var/www/wissensbase/storage/
@@ -177,6 +176,12 @@ php artisan key:generate
 # Die PHP-Bibliothek zLib wird für die PDF-Generierung gebraucht
 # https://manuals.setasign.com/fpdi-manual/v2/installation/#index-1
 
+
+# Bibeln importieren
+php artisan import:zefaniabible /home/vagrant/web/resources/importbibles/Schlachter1951.xml
+php artisan import:zefaniabible /home/vagrant/web/resources/importbibles/Leonberger.xml
+php artisan import:zefaniabible /home/vagrant/web/resources/importbibles/Volxbibel.xml
+## Anschließend ggf. die Priorität in der Bibel-Verwendung in der DB von Hand anpassen
 
 
 ## UPDATEs ###
