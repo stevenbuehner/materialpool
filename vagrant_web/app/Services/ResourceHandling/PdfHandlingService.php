@@ -6,12 +6,16 @@ use App\Models\PdfFile;
 use App\Services\ResourceHandling\Exceptions\InvalidPageNoException;
 use App\Services\ResourceHandling\Exceptions\LocalFileDoesNotExistException;
 use App\Services\ResourceHandling\Exceptions\RemoteFileDoesNotExistException;
+use Illuminate\Support\Facades\Log;
 use setasign\Fpdi\Fpdi;
+use Spatie\PdfToText\Exceptions\PdfNotFound;
+use Spatie\PdfToText\Pdf;
 
 class PdfHandlingService {
 
 
 	protected $fileHandlingService;
+
 
 	public function __construct(FileHandlingService $fileHandlingService) {
 		$this->fileHandlingService = $fileHandlingService;
@@ -94,5 +98,44 @@ class PdfHandlingService {
 
 		return $pdf;
 	}
+
+	public function pdfToText(PdfFile $resource, $fromPage = NULL, $toPage = NULL) {
+
+		try {
+			$pdfSrcFilePath = $this->fileHandlingService->getLocalFilePath($resource);
+		} catch (LocalFileDoesNotExistException $e) {
+			Log::error('Local File does not exist', $e->getTraceAsString());
+
+			return '';
+		} catch (RemoteFileDoesNotExistException $e) {
+			Log::error('Remote File does not exist', $e->getTraceAsString());
+
+			return '';
+		}
+
+		try {
+			$pdfObject = resolve(Pdf::class)->setPdf($pdfSrcFilePath);
+		} catch (PdfNotFound $e) {
+			Log::error('PDF-File not found!', $e->getTraceAsString());
+
+			return '';
+		}
+
+		$options = [];
+
+		if ($fromPage !== NULL) {
+			$options[] = "-f {$fromPage}";
+
+			if ($toPage !== NULL) {
+				$options[] = "-l {$toPage}";
+			} else {
+				$options[] = "-l {$fromPage}";
+			}
+		}
+
+		return $pdfObject->setOptions($options)->text();
+
+	}
+
 
 }

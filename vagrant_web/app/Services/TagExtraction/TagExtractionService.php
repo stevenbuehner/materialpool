@@ -28,9 +28,10 @@ class TagExtractionService {
 	/**
 	 *
 	 * @param string|array<string> $strings
-	 * @param int   $numRequiredCommasForResult (Default = 2)
-	 * @param array $context (Data, that may be passed to the tagRecognition etc.)
+	 * @param int                  $numRequiredCommasForResult (Default = 2)
+	 * @param array                $context (Data, that may be passed to the tagRecognition etc.)
 	 * @return Collection
+	 * @throws \StevenBuehner\BibleVerseBundle\Exceptions\InvalidBookIdException
 	 */
 	public function extractPartsFromStrings($strings, $numRequiredCommasForResult = 2, $context = []) {
 		if (!is_array($strings)) {

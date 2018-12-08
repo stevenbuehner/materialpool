@@ -191,7 +191,7 @@ export default {
             "Languages": "Sprachen",
             "Places": "Orte",
             "Persons": "Personen",
-            "": ""
+            "System-Suggestions": "Systemvorschläge"
         }
     },
     "en": {
@@ -410,7 +410,7 @@ export default {
             "Languages": "Languages",
             "Places": "Places",
             "Persons": "Persons",
-            "": ""
+            "System-Suggestions": "System Suggestions"
         },
         "validation": {
             "accepted": "The {attribute} must be accepted.",

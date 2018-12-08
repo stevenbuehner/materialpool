@@ -99,7 +99,10 @@
 
         <material-creator
                 ref="materialCreator"
+                :external-bibleverse-suggestions="materialCreationBibleverseSuggestions"
         ></material-creator>
+
+        <button class="btn btn-danger btn-lg" @click="guessBibleversesFromSelection">test</button>
     </div>
 </template>
 
@@ -119,6 +122,8 @@
     import materialCreator from '../../../components/modals/creators/materialCreator.vue';
     import truncate from '../../../filters/truncate-filter.mixin'
     import {uniqueArray} from "../../../helper/ArrayHelper";
+    import {api_v1_resource_pdf_tags} from "../../../components/serverRoutes";
+    import axios from 'axios';
 
     export default {
 
@@ -146,6 +151,7 @@
 
                 showMaterialSelector: false,
                 previewSize: 'sm',
+                materialCreationBibleverseSuggestions: []
             }
         },
 
@@ -275,6 +281,8 @@
                     return;
                 }
 
+                this.guessBibleversesFromSelection();
+
                 this.$refs.materialCreator
                     .showPromise()
                     .then((material) => {
@@ -282,6 +290,20 @@
                     }).catch((err) => {
                     console.info('Closed Material-Creation with reason:', err);
                 })
+            },
+
+            guessBibleversesFromSelection() {
+
+                this.materialCreationBibleverseSuggestions = [];
+
+                axios.post(api_v1_resource_pdf_tags(this.id), {
+                    pages: this.selectedPages
+                }).then(({data}) => {
+                    this.materialCreationBibleverseSuggestions = data;
+                }).catch((response) => {
+                    console.error(response);
+                })
+
             },
 
             btnSelectAllPages() {

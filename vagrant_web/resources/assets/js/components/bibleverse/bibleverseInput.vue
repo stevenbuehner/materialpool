@@ -64,7 +64,7 @@
         <!-- SEARCH SUGGESTIONS -->
         <div class="card-footer" v-if="(displayableSuggestedBibleverses.length > 0 || stillLoading) && !disabled">
             <span v-if="stillLoading">{{$t('pool.Looking-for-suggestions')}}</span>
-            <h4 v-if="displayableSuggestedBibleverses.length > 0" class="suggestions">
+            <h4 v-if="displayableSuggestedBibleverses.length > 0">
                 {{$t('pool.Bibleversesuggestions')}}:</h4>
 
             <transition-group name="fade">
@@ -73,6 +73,23 @@
                         class="btn btn-outline-secondary btn-sm mr-1 mb-1"
                         v-for="bv in displayableSuggestedBibleverses"
                         :key="'s' + getBibleverseKey(bv)"
+                        @click="addBibleverseClick(bv)"
+                >
+                    <span class="icon" :style="{backgroundImage: 'url('+ bv.icon+')'}"></span>
+                    {{bv.label}}
+                </button>
+            </transition-group>
+        </div>
+
+        <!-- EXTERNAL SUGGESTIONS -->
+        <div class="card-footer" v-if="(displayableExternalSuggestions.length > 0) && !disabled">
+            <h4>{{$t('pool.System-Suggestions')}}:</h4>
+
+            <transition-group name="fade">
+                <button type="button"
+                        class="btn btn-outline-secondary btn-sm mr-1 mb-1"
+                        v-for="bv in displayableExternalSuggestions"
+                        :key="'es' + getBibleverseKey(bv)"
                         @click="addBibleverseClick(bv)"
                 >
                     <span class="icon" :style="{backgroundImage: 'url('+ bv.icon+')'}"></span>
@@ -113,6 +130,14 @@
                 default: false
             },
 
+            externalSuggestions: {
+                type: Array,
+                required: false,
+                default() {
+                    return [];
+                }
+            }
+
         },
 
         model: {
@@ -128,6 +153,7 @@
 
                 stillLoading: false,
                 suggestedBibleverses: [],
+                showExternalSuggestions: true
             }
         },
 
@@ -138,7 +164,14 @@
                 return this.suggestedBibleverses.filter((el) => {
                     return !this.isBibleverseAlreadyInSelection(el);
                 });
+            },
+
+            displayableExternalSuggestions() {
+                return this.externalSuggestions.filter((el) => {
+                    return !this.isBibleverseAlreadyInSelection(el);
+                });
             }
+
 
         },
 
@@ -214,7 +247,7 @@
 
                 // Lösche das Input-Feld (und damit auch alle restlichen Vorschläge) nur dann, wenn nach diesem Bibelvers keine
                 // weiteren existieren
-                if (this.displayableSuggestedBibleverses.length <= 1) {
+                if (this.displayableSuggestedBibleverses.length == 1 && this.displayableSuggestedBibleverses[0] === bv) {
                     this.searchInput = '';
                 }
 
@@ -393,11 +426,16 @@
     }
 
     .fade-enter-active, .fade-leave-active {
-        transition: opacity .5s;
+        transition: all 1s, opacity .5s;
     }
 
     .fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */
     {
         opacity: 0;
+        transform: translateY(30px);
+    }
+
+    .fade-leave-active{
+        position: absolute;
     }
 </style>

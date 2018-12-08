@@ -84,6 +84,10 @@ export function api_v1_resources_create_material(resourceId) {
     return '/api/v1/resources/' + resourceId + '/create-material';
 }
 
+export function api_v1_resource_pdf_tags(resourceId) {
+    return '/api/v1/resources/' + resourceId + '/pdf-tags';
+}
+
 
 // API - Materials
 export function api_v1_materials_show(materialsId) {

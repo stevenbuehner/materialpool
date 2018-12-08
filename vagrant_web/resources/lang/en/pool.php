@@ -202,5 +202,5 @@ return [
 	'Languages'                                => 'Languages',
 	'Places'                                   => 'Places',
 	'Persons'                                  => 'Persons',
-	''                                         => '',
+	'System-Suggestions'                       => 'System Suggestions',
 ];

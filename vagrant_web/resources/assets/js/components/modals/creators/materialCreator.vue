@@ -43,8 +43,7 @@
                               required
                               :placeholder="$t('pool.Material-title')"
                               :disabled="formDisabled"
-                              ref="titleInput">
-                </b-form-input>
+                              ref="titleInput"/>
             </b-form-group>
 
 
@@ -59,8 +58,7 @@
                               v-model.lazy="form.description"
                               required
                               :placeholder="$t('pool.Add-description-here')"
-                              :disabled="formDisabled">
-                </b-form-input>
+                              :disabled="formDisabled"/>
             </b-form-group>
 
 
@@ -75,8 +73,7 @@
                               v-model.lazy="form.author"
                               required
                               :placeholder="$t('pool.Name-of-material-author')"
-                              :disabled="formDisabled">
-                </b-form-input>
+                              :disabled="formDisabled"/>
             </b-form-group>
 
 
@@ -94,8 +91,7 @@
                         :inline="true"
                         text-class="starRatingText"
                         :rating="form.rating"
-                        :read-only="formDisabled">
-                </star-rating>
+                        :read-only="formDisabled"/>
             </b-form-group>
 
 
@@ -104,13 +100,14 @@
                     <keyword-input
                             v-model="keywordInput"
                             @updated="updateKeywordForm"
-                            :disabled="formDisabled"></keyword-input>
+                            :disabled="formDisabled"/>
                 </div>
                 <div class="col-6">
                     <bibleverse-input
                             v-model="bibleverseInput"
                             @updated="updateBibleverseForm"
-                            :disabled="formDisabled"></bibleverse-input>
+                            :disabled="formDisabled"
+                            :external-suggestions="externalBibleverseSuggestions"/>
                 </div>
             </div>
 
@@ -216,6 +213,14 @@
                 }
             },
             bibleverseIds: {
+                type: Array,
+                required: false,
+                default() {
+                    return [];
+                }
+            },
+
+            externalBibleverseSuggestions: {
                 type: Array,
                 required: false,
                 default() {

@@ -12,13 +12,21 @@ import KeywordDetail from './pages/KeywordDetail.vue'
 import BundleList from './pages/BundleList.vue';
 import ResourceTextCreate from './pages/ResourceTextCreateWithMaterial.vue';
 
+
 export const routes = [
 
            {
                path: '/search/:search?', component: SearchPage, name: 'search', props: (route) => {
+
+                   let page = 1;
+
+                   if (route.query.page) {
+                       page = parseInt(route.query.page);
+                   }
+
                    return {
                        query: route.params.search || '',
-                       page: route.query.page || 1
+                       page: page
                    };
                },
            },

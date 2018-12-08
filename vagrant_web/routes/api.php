@@ -170,6 +170,11 @@ Route::group([
 		 ->middleware('can:view,resource')
 		 ->name('api.v1.resources.create-material');
 
+	Route::post('resources/{resource}/pdf-tags', 'PdfTagExtractionController@extractTags')
+		 ->where('resource', '[0-9]+')
+		 ->middleware('can:view,resource')
+		 ->name('api.v1.resources.pdf-tags');
+
 
 	Route::put('resources/{resource}', 'ResourceController@update')
 		 ->where('resource', '[0-9]+')
