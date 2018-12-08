@@ -23,6 +23,8 @@ class ZefaniaImportService {
 
 	public function import($xmlFilePath) {
 
+		// see: http://www.bgfdb.de/zefaniaxml/bml/namespaces/global_namespace/namespace-overview.html
+		
 		/** @var \SimpleXMLElement $xml */
 		$xml          = simplexml_load_file($xmlFilePath);
 		$title        = trim((string) $xml->INFORMATION->title);
