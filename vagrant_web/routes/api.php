@@ -225,4 +225,13 @@ Route::group([
 	Route::post('bundles/{bundle}/run-update', 'BundleImportController@runJobs')
 		 ->name('bundles.update.run')
 		 ->where('bundle', '[0-9]+');
+
+
+	Route::get('biblecontents/{from}-{to}/{bibleId?}', 'BibleContentController@getBibleverse')
+		 ->where('from', '[0-9]{6,9}')
+		 ->where('to', '[0-9]{6,9}')
+		 ->where('bibleId', '[0-9]+')
+		 ->name('biblecontents.get');
+	// Todo: Create middleware can:....
+
 });

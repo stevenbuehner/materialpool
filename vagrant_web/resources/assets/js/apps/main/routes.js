@@ -11,6 +11,7 @@ import KeywordList from './pages/KeywordList.vue'
 import KeywordDetail from './pages/KeywordDetail.vue'
 import BundleList from './pages/BundleList.vue';
 import ResourceTextCreate from './pages/ResourceTextCreateWithMaterial.vue';
+import ReadBible from "./pages/ReadBible";
 
 
 export const routes = [
@@ -75,8 +76,21 @@ export const routes = [
            ,
            {
                path: '/bundle', name: 'bundle-list', component: BundleList, alias: '/bundles'
-           }
-           ,
+           },
+           {
+               path: '/readbible/:from/:to/:bibleId?', component: ReadBible, name: 'readbible', props: (route) => {
+                   const result = {
+                       from: parseInt(route.params.from),
+                       to: parseInt(route.params.to),
+                   };
+
+                   if (route.params.bibleId) {
+                       result.bibleId = parseInt(route.params.bibleId)
+                   }
+
+                   return result;
+               }
+           },
            /*
            {
                path: '/passport/client', component: PassportClient, name: 'passport-client'

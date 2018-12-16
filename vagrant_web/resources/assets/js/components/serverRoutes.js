@@ -151,3 +151,15 @@ export function api_v1_bundles_update_init(bundleId) {
 export function api_v1_bundles_update_run(bundleId) {
     return '/api/v1/bundles/' + bundleId + '/run-update';
 }
+
+// API - BibleContentVerse
+export function api_v1_biblecontents_get(from, to, bibleId) {
+
+    let route = '/api/v1/biblecontents/' + from + '-' + to;
+
+    if (bibleId) {
+        route += '/' + bibleId;
+    }
+
+    return route;
+}
