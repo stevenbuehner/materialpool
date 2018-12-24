@@ -68,7 +68,7 @@ function objectToSearchItem(obj) {
         // Is Keyword
         return keywordToSearchItem(obj);
 
-    } else if (obj.id && obj.from && obj.to) {
+    } else if (obj.from && obj.to) {
         // Is Bibleverse
         return bibleverseToSearchItem(obj);
     }

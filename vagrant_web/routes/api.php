@@ -231,7 +231,7 @@ Route::group([
 		 ->where('from', '[0-9]{6,9}')
 		 ->where('to', '[0-9]{6,9}')
 		 ->where('bibleId', '[0-9]+')
-		 ->name('biblecontents.get');
+		 ->name('api.v1.biblecontents.get');
 	// Todo: Create middleware can:....
 
 });

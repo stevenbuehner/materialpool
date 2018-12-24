@@ -1,6 +1,6 @@
 <template>
     <div class="container">
-        <bible-content-chapter v-for="verses in chapter" :verses="verses"/>
+        <bible-content-chapter v-for="verses in chapter" :verses="verses" :key="'c' + verses[0].verse"/>
     </div>
 </template>
 
@@ -10,6 +10,7 @@
     import AsyncComputed from 'vue-async-computed';
     import BibleContentVerse from "../../../components/biblecontents/bibleContentVerse";
     import BibleContentChapter from "../../../components/biblecontents/bibleContentChapter";
+    import {searchArrayObjectsToSearchArrayItems} from "../../../components/search/searchHelper";
 
     Vue.use(AsyncComputed);
 
@@ -68,6 +69,21 @@
                     this.from;
                     this.to;
                     this.bibleId;
+                }
+            },
+
+            materials: {
+                get() {
+
+                    const searchData = searchArrayObjectsToSearchArrayItems([[{from: this.from, to: this.to}]]);
+                    console.log(searchData);
+
+                    return this.$store.dispatch('search/materials', {query: searchData});
+                },
+                default: null,
+                watch() {
+                    this.from;
+                    this.to;
                 }
             }
         },

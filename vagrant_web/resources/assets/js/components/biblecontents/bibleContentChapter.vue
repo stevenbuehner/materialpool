@@ -1,7 +1,7 @@
 <template>
     <div class="chapter">
         <h1 class="chapterTitle">{{chapterTitle}}</h1>
-        <bible-content-verse v-for="v in verses" :verse="v"/>
+        <bible-content-verse v-for="v in verses" :verse="v" :key="'v' + v.verse"/>
     </div>
 </template>
 
