@@ -133,6 +133,10 @@ class InsertOrUpdateMaterial implements ShouldQueue, VersionInterface {
 			$material->from_bot = (bool) $this->localMatInfo->from_bot;
 		}
 
+		if ($material->icon_of_bundle !== $this->bundle->icon) {
+			$material->icon_of_bundle = $this->bundle->id;
+		}
+
 		if (empty($material->author_id) && empty($this->localMatInfo->author_name)) {
 			// Both empty
 		} else if (empty($this->localMatInfo->author_name)) {

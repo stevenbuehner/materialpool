@@ -20,6 +20,7 @@ use Illuminate\Support\Facades\DB;
  * @property int        $modified_by
  * @property int        $author_id
  * @property int        $flag;
+ * @property int|null   $icon_of_bundle
  * @property Keyword    $author
  * @property Collection $resources;
  * @property Collection $keywords;
@@ -39,9 +40,10 @@ class Material extends Model {
 	const MAX_RATING = 20;
 
 	protected $casts = [
-		'from_bot'    => 'boolean',
-		'description' => 'string',
-		'flag'        => 'integer',
+		'from_bot'       => 'boolean',
+		'description'    => 'string',
+		'flag'           => 'integer',
+		'icon_of_bundle' => 'integer',
 	];
 
 	protected $attributes = [
@@ -51,7 +53,7 @@ class Material extends Model {
 	];
 
 	protected $fillable = [
-		'title', 'description', 'rating', 'from_bot', 'flag'
+		'title', 'description', 'rating', 'from_bot', 'flag', 'icon_of_bundle'
 	];
 
 	protected $guarded = [

@@ -225,7 +225,9 @@ Route::group([
 	Route::post('bundles/{bundle}/run-update', 'BundleImportController@runJobs')
 		 ->name('bundles.update.run')
 		 ->where('bundle', '[0-9]+');
-
+	Route::get('bundles/{bundle}/icon', 'BundleImportController@getBundleIcon')
+		 ->where('bundle', '[0-9]+')
+		 ->name('bundles.geticon');
 
 	Route::get('biblecontents/{from}-{to}/{bibleId?}', 'BibleContentController@getBibleverse')
 		 ->where('from', '[0-9]{6,9}')

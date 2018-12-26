@@ -74,8 +74,8 @@ class ResourceDuplicationHandlingService {
 			  ->where('resource_id', '=', $slaveResource->id)
 			  ->update(['resource_id' => $masterResource->id]);
 		} catch (QueryException $e) {
-			if ($e->getPrevious() instanceof PDOException && strpos($e->getPrevious()->getMessage(),
-																	'Duplicate entry') !== FALSE) {
+			if ($e->getPrevious() instanceof \PDOException &&
+				strpos($e->getPrevious()->getMessage(), 'Duplicate entry') !== FALSE) {
 				// the Entry exists already --> ignore the exception
 				DB::table('material_resource')
 				  ->where('resource_id', '=', $slaveResource->id)

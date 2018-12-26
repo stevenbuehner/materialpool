@@ -1,4 +1,5 @@
 import {
+    api_v1_bundles_get_icon,
     api_v1_bundles_index,
     api_v1_bundles_update_init,
     api_v1_bundles_update_run
@@ -9,6 +10,7 @@ import axios from 'axios';
 const state = {
     bundles: null,
     bundleInfos: null,
+    bundleIcons: {}
 };
 
 const getters = {
@@ -152,6 +154,20 @@ const actions = {
         return response;
 
     },
+
+    getBundleIcon: ({state}, bundleId) => {
+
+        state.bundleIcons[bundleId] = state.bundleIcons[bundleId] || false;
+
+        if (state.bundleIcons[bundleId]) {
+            return state.bundleIcons[bundleId];
+        }
+
+        state.bundleIcons[bundleId] = axios.get(api_v1_bundles_get_icon(bundleId))
+            .then(({data}) => data);
+
+        return state.bundleIcons[bundleId];
+    }
 
 };
 

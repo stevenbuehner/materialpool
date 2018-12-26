@@ -46,6 +46,13 @@ class BundlesService {
 			$bundleEntity->author         = $bundleInfo["author"];
 			$bundleEntity->container_root = $bundleInfo["container_root"];
 
+			if (count($bundleInfo['icons']) > 0) {
+				$bundleEntity->icon = array_shift($bundleInfo['icons']);
+			} else {
+				$bundleEntity->icon = NULL;
+			}
+
+
 			$bundleEntity->save();
 
 			$dbBundles[] = $bundleEntity;
@@ -78,7 +85,7 @@ class BundlesService {
 	}
 
 
-	protected function getBundleDisk() {
+	public function getBundleDisk() {
 		$diskName = $this->getBundleDiskName();
 		$disk     = Storage::disk($diskName);
 
@@ -134,6 +141,7 @@ class BundlesService {
 			$myBundle['connection']      = $containerName;
 			$myBundle['count_materials'] = (int) $dbConnection->selectOne('SELECT COUNT(*) as Anzahl FROM material WHERE bundle_id=' . $bundleInfo->id)->Anzahl;
 			$myBundle['count_files']     = (int) $dbConnection->selectOne('SELECT COUNT(mf.file_id) as Anzahl FROM material m INNER JOIN material_files mf ON (m.id = mf.material_id) WHERE m.bundle_id=' . $bundleInfo->id)->Anzahl;
+			$myBundle['icons']           = isset($bundleInfo->icons) ? json_decode($bundleInfo->icons) : [];
 
 			$containerBundles->put($bundleInfo->uuid, $myBundle);
 		}

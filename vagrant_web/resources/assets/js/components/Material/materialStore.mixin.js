@@ -15,8 +15,9 @@ export default {
         updateMaterialData(id) {
             this.material = null;
 
-            this.getMaterialPromise(id).then((material) => {
+            return this.getMaterialPromise(id).then((material) => {
                 this.material = material;
+                return material;
             });
         },
 

@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Concerns\HasTimestamps;
+use Illuminate\Database\Eloquent\Model;
 
 /**
  * Class Bundle
@@ -21,13 +21,14 @@ use Illuminate\Database\Eloquent\Concerns\HasTimestamps;
  * @property string    $description
  * @property bool      $is_installed
  * @property bool      $update_available
+ * @property string    $icon
  */
 class Bundle extends Model {
 	use HasTimestamps;
 
 
 	protected $fillable = [
-		'name', 'description', 'installed_version', 'last_update', 'author', 'uuid', 'container_root', 'is_installed', 'update_available'
+		'name', 'description', 'installed_version', 'last_update', 'author', 'uuid', 'container_root', 'is_installed', 'update_available', 'icon',
 	];
 
 	protected $attributes = [
@@ -40,6 +41,7 @@ class Bundle extends Model {
 		'last_update'      => 'datetime',
 		'is_installed'     => 'boolean',
 		'update_available' => 'boolean',
+		'icon'             => 'string',
 	];
 
 	public function foreignResourceIds() {

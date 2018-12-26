@@ -61,6 +61,21 @@ class BundleImportController extends BaseController {
 
 	}
 
+	public function getBundleIcon(Bundle $bundle) {
+
+		if ($bundle->icon !== NULL) {
+
+			$disk = $this->bundlesService->getBundleDisk();
+			$path = $bundle->container_root . '/' . $bundle->icon;
+
+			if ($disk->exists($path)) {
+				return $disk->response($path);
+			}
+		}
+
+
+	}
+
 	public function initUpdate(Bundle $bundle) {
 
 		// Init output
