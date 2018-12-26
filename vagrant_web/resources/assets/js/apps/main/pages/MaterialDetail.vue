@@ -138,10 +138,10 @@
             </div>
 
             <div class="row" v-if="material.resources !== undefined && material.resources.length > 1">
-                <div class="col-xl-3 col-lg-4 col-md-4 col-sm-6 col-xs-12" v-for="resource in material.resources">
+                <div class="col-xl-3 col-lg-4 col-md-4 col-sm-6 col-xs-12 " v-for="resource in material.resources">
                     <resource-preview :resource="resource">
                         <template slot="additional-buttons">
-                            <button class="btn btn-outline-danger mb-1"
+                            <button class="btn btn-sm btn-outline-danger mb-1"
                                     @click.prevent="btnDetachResource(resource)"
                                     :title="$t('pool.Detach-resource')">
                                 {{$t('pool.detach')}}

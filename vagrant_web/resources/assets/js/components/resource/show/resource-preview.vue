@@ -1,30 +1,34 @@
 <template>
-    <div class="resource card">
+    <div class="resourcePreview card mb-4" @mouseover="hovered = true" @mouseleave="hovered = false">
         <component :is="previewComponent" :resource="resource"></component>
 
-        <div class="card-body">
-            <div class="meta">
-                <div v-if="resource.creator">
-                    {{$t('pool.Creator')}}:
-                    <user-name :user="resource.creator"></user-name>
+        <transition name="fade">
+
+            <div class="card-body resPrevMenu pt-0" v-if="hovered">
+                <div class="meta">
+                    <div v-if="resource.creator">
+                        {{$t('pool.Creator')}}:
+                        <user-name :user="resource.creator"></user-name>
+                    </div>
                 </div>
+
+                <slot name="buttons">
+                    <slot name="default-buttons">
+                        <a v-if="showDownload"
+                           class="btn btn-sm btn-outline-primary mb-1"
+                           :href="downloadResourceLink(resource)">{{$t('pool.download')}}</a>
+                        <router-link v-if="showOpen" :to="{name:'resource-detail', params: {id: resource.id}}"
+                                     class="btn btn-sm btn-outline-primary mb-1">{{$t('pool.open')}}
+                        </router-link>
+                        <router-link v-if="resource.type==='pdf'" :to="routerEditLimitationObject(resource)"
+                                     class="btn btn-sm btn-outline-primary mb-1">{{$t('pool.resource-assignments')}}
+                        </router-link>
+                    </slot>
+                    <slot name="additional-buttons"></slot>
+                </slot>
             </div>
 
-            <slot name="buttons">
-                <slot name="default-buttons">
-                    <a v-if="showDownload"
-                       class="btn btn-outline-primary mb-1"
-                       :href="downloadResourceLink(resource)">{{$t('pool.download')}}</a>
-                    <router-link v-if="showOpen" :to="{name:'resource-detail', params: {id: resource.id}}"
-                                 class="btn btn-outline-primary mb-1">{{$t('pool.open')}}
-                    </router-link>
-                    <router-link v-if="resource.type==='pdf'" :to="routerEditLimitationObject(resource)"
-                                 class="btn btn-outline-primary mb-1">{{$t('pool.resource-assignments')}}
-                    </router-link>
-                </slot>
-                <slot name="additional-buttons"></slot>
-            </slot>
-        </div>
+        </transition>
 
     </div>
 </template>
@@ -65,6 +69,12 @@
             },
         },
 
+        data() {
+            return {
+                hovered: false
+            }
+        },
+
         computed: {
             previewComponent() {
                 return this.resource.type + '-preview';
@@ -88,9 +98,18 @@
     }
 </script>
 
-<style scoped>
+<style type="scss">
 
-    .resource {
+    .resourcePreview {
+        .fade-enter-active, .fade-leave-active {
+            transition: opacity .5s;
+        }
+
+        .fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */
+        {
+            opacity: 0;
+        }
     }
+
 
 </style>

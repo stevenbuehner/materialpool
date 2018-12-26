@@ -1,19 +1,20 @@
 <template>
-    <b-card :title="title"
-            :img-src="resourceImagePreviewUrl"
-            img-alt="Preview Image"
-            img-top
-            tag="article"
-            class="mb-2 myCard"
-            @click="goToResource">
+    <div class="mb-2 myCard" :title="title"
+         :img-src="resourceImagePreviewUrl"
+         @click="goToResource">
 
-        <p class="card-text">
+        <img class="card-img-top" :src="resourceImagePreviewUrl" img-alt="Preview Image"/>
+
+        <div class="card-body">
+
+            <h4 class="card-title" v-if="resource.notes && resource.notes.length <= 3">{{title}}</h4>
+
             {{resource.notes}}
-        </p>
 
-        <b-button :href="downloadResourceLink(resource)" variant="primary">{{$t('pool.download-file')}}</b-button>
+        </div>
 
-    </b-card>
+
+    </div>
 
 </template>
 
@@ -46,7 +47,7 @@
         computed: {
 
             title() {
-                var title = 'Resource';
+                let title = 'Resource';
 
                 if (this.resource.original_filename) {
                     title = this.resource.original_filename;
@@ -63,7 +64,10 @@
 
         methods: {
             goToResource() {
-                window.location.href = this.resourceUrl;
+                this.$router.push({
+                    name: 'resource-detail',
+                    params: {id: this.resource.id}
+                });
             }
         },
         components: {
