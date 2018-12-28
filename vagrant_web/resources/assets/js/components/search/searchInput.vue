@@ -8,6 +8,7 @@
                 multiple
                 :placeholder="$t('pool.Insert-search-phrase-here')"
                 v-model="lineValues"
+                :filterable="false"
                 @input="onInput">
 
         <template slot="no-options">
