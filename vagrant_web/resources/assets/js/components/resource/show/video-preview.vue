@@ -1,9 +1,10 @@
 <template>
     <div class="card-header">
-        <video id="video_file" class="video-js vjs-default-skin vjs-big-play-centered"
-               controls preload="auto"
-               data-setup='{"fluid": true}'
-               :poster="posterRoute">
+        <video
+                class="sbVideo "
+                controls preload="auto"
+                data-setup='{"fluid": true}'
+                :poster="posterRoute">
 
             <source :src="videoRoute" :type="videoMimeType"/>
         </video>
@@ -39,9 +40,12 @@
             }
         }
 
+
     }
 </script>
 
 <style scoped>
-
+    .sbVideo {
+        max-width: 100%;
+    }
 </style>
