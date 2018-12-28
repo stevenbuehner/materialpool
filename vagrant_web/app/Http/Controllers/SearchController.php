@@ -26,7 +26,7 @@ class SearchController extends Controller {
 		$queryString          = $request->get('q', '');
 		$queryString          = str_replace('%', '*', $queryString);
 		$queryPage            = $request->get('page', 1);
-		$paginationSize       = 15;
+		$paginationSize       = 30;
 		$bibleVerseExtraction = resolve('BibleVerseService');
 		$result               = collect();
 
@@ -64,14 +64,16 @@ class SearchController extends Controller {
 		}
 
 
-		$restString = $bibleVerseExtraction->getLastRestString();
+		$restString = trim($bibleVerseExtraction->getLastRestString());
 
 		$resultTotalCount = $result->count();
 
 		if ($resultTotalCount > ($paginationSize * $queryPage)) {
 			// Dony Query but limit the $result
 			$result = $result->splice(($paginationSize) * ($queryPage - 1), $paginationSize);
-		} else {
+
+			// Eine Suche mit dem Reststring macht nur dann Sinn, wenn es da noch sinnvolle Ergebnisse gibt und der String nicht leer ist
+		} else if (strlen($restString) >= 2) {
 			$takeFromResult = max(0, $resultTotalCount - $paginationSize * ($queryPage - 1));
 			$takeFromQuery  = $paginationSize - $takeFromResult;
 
