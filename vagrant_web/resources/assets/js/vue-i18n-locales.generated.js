@@ -200,7 +200,10 @@ export default {
             "Are-you-shure-about-deleting-this-keyword-from-existance": "Willst du diesen Tag wirklich von jeglicher Existenz befreien?",
             "Enter-name-please": "Bitte Namen eingeben",
             "Click-here-to-edit": "Um zu Bearbeiten hier klicken",
-            "No-author-given": "Kein Author angegeben"
+            "No-author-given": "Kein Author angegeben",
+            "assign-pages": "Seiten zuordnen",
+            "Without-limitation": "Ohne Limitierung",
+            "": ""
         }
     },
     "en": {
@@ -429,6 +432,8 @@ export default {
             "Enter-name-please": "Enter name please",
             "Click-here-to-edit": "Click here to edit",
             "No-author-given": "No author given",
+            "assign-pages": "assign pages",
+            "Without-limitation": "Without limitation",
             "": ""
         },
         "validation": {

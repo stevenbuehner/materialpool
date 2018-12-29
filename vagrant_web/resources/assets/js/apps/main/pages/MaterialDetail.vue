@@ -139,6 +139,7 @@
                 </div>
             </div>
 
+            <!-- Auflistung bei mehr als einer Ressource -->
             <div class="row" v-if="material.resources !== undefined && material.resources.length > 1">
                 <div class="col-xl-3 col-lg-4 col-md-4 col-sm-6 col-xs-12 " v-for="resource in material.resources">
                     <resource-preview :resource="resource">
@@ -153,6 +154,7 @@
                 </div>
             </div>
 
+            <!-- Detailierter bei nur einer Ressource -->
             <div class="row" v-if="material.resources !== undefined && material.resources.length === 1">
                 <div class="col-xl-12 col-12">
                     <resource-detail :resource="material.resources[0]" :showDelete="false">
@@ -167,6 +169,7 @@
                 </div>
             </div>
 
+            <!-- Ohne eine Resource -->
             <div class="row" v-if="material.resources !== undefined && material.resources.length === 0">
                 <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                     {{$t('pool.Material-without-resources')}}

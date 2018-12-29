@@ -212,5 +212,6 @@ return [
 	'Enter-name-please'                                        => 'Enter name please',
 	'Click-here-to-edit'                                       => 'Click here to edit',
 	'No-author-given'                                          => 'No author given',
+	'assign-pages'                                             => 'assign pages',
 	''                                                         => '',
 ];

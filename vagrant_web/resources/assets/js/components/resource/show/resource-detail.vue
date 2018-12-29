@@ -11,8 +11,8 @@
                 <div class="originalFilename" v-if="resource.original_filename !== undefined">
                     {{$t('pool.Filename')}}: {{resource.original_filename}}
                 </div>
-                <div class="limitation" v-if="resource.pivot && resource.pivot.limitation">
-                    {{$t('pool.Limitation')}}: {{resource.pivot.limitation}}
+                <div class="limitation" v-if="resource.pivot">
+                    {{$t('pool.Limitation')}}: {{resource.pivot.limitation || $t('pool.none')}}
                 </div>
                 <div class="creator">{{$t('pool.Creator-ID')}}: {{resource.created_by}}</div>
                 <div class="resource-id">{{$t('pool.Resource-ID')}}: {{resource.id}}</div>
@@ -26,7 +26,7 @@
                                  class="btn btn-outline-primary mb-1">{{$t('pool.open')}}
                     </router-link>
                     <router-link v-if="resource.type==='pdf'" :to="routerEditLimitationObject(resource)"
-                                 class="btn btn-outline-primary  mb-1">{{$t('pool.resource-assignments')}}
+                                 class="btn btn-outline-primary  mb-1">{{$t('pool.assign-pages')}}
                     </router-link>
                     <button v-if="showDelete"
                             class="btn btn-outline-danger mb-1"
