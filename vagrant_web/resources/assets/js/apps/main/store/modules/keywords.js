@@ -323,7 +323,40 @@ const actions = {
             });
     },
 
+    /**
+     * Führe mehrere Keywordsuchen zeitgleich durch, merge die Ergebnisse, entferne Dublikate und gib das Ergebnis zurück
+     * @param commit
+     * @param dispatch
+     * @param searchArray
+     * @return {Promise<any[] | never>}
+     */
+    searchMultiple: ({commit, dispatch}, searchArray) => {
 
+        if (!Array.isArray(searchArray)) {
+            console.error('Parameter searchArray is not of type Array');
+        }
+
+        return Promise
+            .all(
+                searchArray.map(({searchText, type}) => {
+                        return queue.add(() => {
+                            return dispatch('search', {searchText, type});
+                        })
+                    }
+                )
+            )
+            .then((multiKeywords) => {
+
+                // reduce array structure by one
+                const keywords = multiKeywords.flat(1);
+
+                // remove duplicates in arrays
+                return keywords.filter((element, index, collection) =>
+                    index === collection.findIndex((t) => t.id === element.id)
+                );
+
+            });
+    }
 };
 
 export default {

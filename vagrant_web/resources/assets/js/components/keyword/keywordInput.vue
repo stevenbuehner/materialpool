@@ -206,7 +206,13 @@
             // _.throttle), visit: https://lodash.com/docs#debounce
             search: _.debounce((loading, search, vm) => {
 
-                vm.$store.dispatch('keywords/search', {searchText: search})
+                // Split search into multiple keyword-searches by COMMA and SEMICOLON
+                const multiKeywordParts = search.split( /\s*[,;]\s*/);
+
+                vm.$store.dispatch('keywords/searchMultiple',
+                    multiKeywordParts.map((searchText) => {
+                        return {searchText};
+                    }))
                     .then((keywords) => {
                         console.log(keywords);
                         vm.suggestedKeywords = keywords;
