@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "e2cfb1b25fa9dc32bb9cd59e5c43add6",
+    "content-hash": "e1f4691271de8eb7fcc7ab0b63ce1ca0",
     "packages": [
         {
             "name": "alchemy/binary-driver",
@@ -1743,16 +1743,16 @@
         },
         {
             "name": "martinlindhe/laravel-vue-i18n-generator",
-            "version": "0.1.31",
+            "version": "0.1.35",
             "source": {
                 "type": "git",
                 "url": "https://github.com/martinlindhe/laravel-vue-i18n-generator.git",
-                "reference": "c1f86924c4cdd48d71f172fb749eeaec5c77cda5"
+                "reference": "55c2d33c0bd3c681f38dc683b6f4ac600b1da557"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/martinlindhe/laravel-vue-i18n-generator/zipball/c1f86924c4cdd48d71f172fb749eeaec5c77cda5",
-                "reference": "c1f86924c4cdd48d71f172fb749eeaec5c77cda5",
+                "url": "https://api.github.com/repos/martinlindhe/laravel-vue-i18n-generator/zipball/55c2d33c0bd3c681f38dc683b6f4ac600b1da557",
+                "reference": "55c2d33c0bd3c681f38dc683b6f4ac600b1da557",
                 "shasum": ""
             },
             "require": {
@@ -1792,7 +1792,7 @@
                 "laravel",
                 "vue-i18n"
             ],
-            "time": "2018-10-19T19:14:51+00:00"
+            "time": "2018-12-07T16:53:14+00:00"
         },
         {
             "name": "monolog/monolog",

@@ -21,7 +21,7 @@
     "laravel/passport": "~4.0",
     "laravel/tinker": "~1.0",
     "laravelcollective/html": "~5.4",
-    "martinlindhe/laravel-vue-i18n-generator": "^0.1.28",
+    "martinlindhe/laravel-vue-i18n-generator": "^0.1.35",
     "nanigans/single-table-inheritance": "~0.8",
     "php-ffmpeg/php-ffmpeg": "~0.9.3",
     "setasign/fpdi-fpdf": "^2.0",
