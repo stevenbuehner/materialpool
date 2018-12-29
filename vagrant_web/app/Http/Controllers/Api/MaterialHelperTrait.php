@@ -18,7 +18,7 @@ trait MaterialHelperTrait {
 	protected $bibleVerseService;
 
 	/**
-	 * @param null|string|array $authorName
+	 * @param null|string|array $author
 	 * @param Material          $material
 	 * @return Keyword|null
 	 * @throws InvalidKeywordTypeException
@@ -32,8 +32,8 @@ trait MaterialHelperTrait {
 				throw new InvalidKeywordTypeException('Expected Keyword with type person here');
 			}
 
-		} else if (!empty($authorName)) {
-			$author = Keyword::firstOrCreatePerson($authorName);
+		} else if (!empty($author)) {
+			$author = Keyword::firstOrCreatePerson($author);
 
 		} else {
 			$author = NULL;
