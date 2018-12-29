@@ -209,7 +209,8 @@ return [
 	'none'                                                     => 'none',
 	'Loading-parent-keyword'                                   => 'Loading parent keyword ...',
 	'Are-you-shure-about-deleting-this-keyword-from-existance' => 'Are you shure about deleting this keyword from existance?',
-	''                                                         => '',
-	''                                                         => '',
+	'Enter-name-please'                                        => 'Enter name please',
+	'Click-here-to-edit'                                       => 'Click here to edit',
+	'No-author-given'                                          => 'No author given',
 	''                                                         => '',
 ];

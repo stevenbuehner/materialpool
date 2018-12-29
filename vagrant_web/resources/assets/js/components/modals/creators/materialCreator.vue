@@ -68,12 +68,13 @@
                           label-for="materialauthor"
                           :label-cols="labelCols"
             >
-                <b-form-input id="materialauthor"
-                              type="text"
-                              v-model.lazy="form.author"
-                              required
-                              :placeholder="$t('pool.Name-of-material-author')"
-                              :disabled="formDisabled"/>
+
+                <keyword-toggle-text-select
+                        :keyword="form.author"
+                        @newKeywordSelection="form.author = $event"
+                        :disabled="formDisabled"
+                        :emptyPlaceholder="$t('pool.Name-of-material-author')"/>
+
             </b-form-group>
 
 
@@ -139,6 +140,8 @@
     import starRating from 'vue-star-rating';
     import KeywordInput from "../../keyword/keywordInput.vue";
     import BibleverseInput from "../../bibleverse/bibleverseInput";
+    import _ from 'lodash';
+    import KeywordToggleTextSelect from "../../keyword/keywordToggleTextSelect";
 
 
     let defaultForm = {
@@ -238,6 +241,12 @@
             buttonsDisabled() {
                 return this.materialCreationRunning;
             }
+        },
+
+        watch: {
+            authorSearch: _.debounce(function (searchValue) {
+                this._getAuthorSuggestion(searchValue)
+            }, 300)
         },
 
         created() {
@@ -418,6 +427,7 @@
         },
 
         components: {
+            KeywordToggleTextSelect,
             BibleverseInput,
             KeywordInput,
             bForm,
@@ -437,4 +447,5 @@
     .starRatingText {
         font-size: smaller;
     }
+
 </style>

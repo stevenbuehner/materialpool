@@ -5,42 +5,42 @@
 
         <span v-if="!editModeActive && keyword" class="readMode" :title="title">{{keyword.title}}</span>
 
-        <span v-if="!editModeActive && !keyword" class="readMode emptyTexts" :title="title">{{emptyPlaceholder}}</span>
+        <span v-else-if="!editModeActive && !keyword" class="readMode emptyTexts"
+              :title="title">{{emptyPlaceholder}}</span>
 
-        <span v-if="editModeActive" class="writeMode d-flex">
-            <vue-select class="searchInput"
-                        :options="options"
-                        @search="onSearch"
-                        language="de-DE"
-                        label="title"
-                        :placeholder="searchPlaceholder"
-                        v-model="selection"
-                        @input="onChange"
-            >
+        <vue-select
+                v-else
+                ref="mySelect"
+                class="searchInput"
+                :options="options"
+                @search="onSearch"
+                language="de-DE"
+                label="title"
+                :placeholder="searchPlaceholder"
+                v-model="selection"
+                @input="onChange"
+                @search:blur="onBlur"
+        >
 
-                <template slot="no-options">
-                    {{$t('pool.Nothing-found')}}
-                </template>
+            <template slot="no-options">
+                {{$t('pool.Nothing-found')}}
+            </template>
 
-                <template slot="option" slot-scope="option">
-                    <div class="d-center">
-                        <span class="icon" :style="{backgroundImage: 'url(' + option.icon + ')'}"></span>
-                        {{ option.title }}
-                        <span v-if="option.new" class="badge badge-secondary">{{$t('pool.new')}}</span>
-                    </div>
-                </template>
+            <template slot="option" slot-scope="option">
+                <div class="d-center">
+                    <span class="icon" :style="{backgroundImage: 'url(' + option.icon + ')'}"></span>
+                    {{ option.title }}
+                    <span v-if="option.new" class="badge badge-secondary">{{$t('pool.new')}}</span>
+                </div>
+            </template>
 
-                <template slot="selected-option" slot-scope="option">
-                    <div class="selected d-center">
-                        <span class="icon" :style="{backgroundImage: 'url(' + option.icon + ')'}"></span>
-                        {{ option.title }}
-                    </div>
-                </template>
-            </vue-select>
-            <button class="btn"
-                    v-once
-                    @click.stop="editModeActive=false"><cancel-icon class="cancel-icon"/></button>
-        </span>
+            <template slot="selected-option" slot-scope="option">
+                <div class="selected d-center">
+                    <span class="icon" :style="{backgroundImage: 'url(' + option.icon + ')'}"></span>
+                    {{ option.title }}
+                </div>
+            </template>
+        </vue-select>
     </div>
 </template>
 
@@ -48,7 +48,6 @@
 
     import VueSelect from 'vue-select';
     import _ from 'lodash';
-    import cancelIcon from 'svg-icon/dist/svg/icomoon/cancel-circle.svg'
 
     export default {
 
@@ -74,17 +73,23 @@
 
             searchPlaceholder: {
                 type: String,
-                default: 'Enter name please',
+                default() {
+                    return this.$t('pool.Enter-name-please');
+                },
             },
 
             emptyPlaceholder: {
                 type: String,
-                default: 'no author given'
+                default() {
+                    return this.$t('pool.No-author-given')
+                }
             },
 
             title: {
                 type: String,
-                default: 'click here to edit'
+                default() {
+                    return this.$t('pool.Click-here-to-edit')
+                }
             }
         },
 
@@ -101,6 +106,13 @@
             toggleEditModeClick() {
                 if (this.editModeActive === false) {
                     this.editModeActive = true;
+
+                    this.$nextTick((test) => {
+                        try {
+                            this.$refs.mySelect.$refs.search.focus();
+                        } catch (e) {
+                        }
+                    })
                 }
             },
 
@@ -125,6 +137,13 @@
                     });
 
             }, 250),
+
+            onBlur() {
+                // Warten bis input => onChange gefeuert wurde ...
+                this.$nextTick(() => {
+                    this.editModeActive = false;
+                })
+            },
 
             onChange(input) {
 
@@ -156,7 +175,6 @@
 
         components: {
             VueSelect,
-            cancelIcon
         }
 
 
@@ -165,6 +183,7 @@
 
 <style type="scss">
     @import "resources/assets/sass/theme.scss";
+
 
     .sbKeywordToggleTextSelect {
         display: inline-block;
@@ -193,20 +212,13 @@
         .searchInput {
             flex-grow: 1;
         }
+    }
 
-        .cancel-icon {
-            height: 1em;
-
-            path {
-                fill: rgba(60, 60, 60, .5);
-            }
-
-            &:hover {
-                path {
-                    fill: rgba(60, 60, 60, 1);
-                }
+    .form-group {
+        .sbKeywordToggleTextSelect {
+            &.editModeActive {
+                width: 100%;
             }
         }
-
     }
 </style>

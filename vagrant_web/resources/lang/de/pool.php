@@ -199,5 +199,7 @@ return [
 	'none'                                                     => 'keine',
 	'Loading-parent-keyword'                                   => 'Eltern Tag wird geladen ...',
 	'Are-you-shure-about-deleting-this-keyword-from-existance' => 'Willst du diesen Tag wirklich von jeglicher Existenz befreien?',
-
+	'Enter-name-please'                                        => 'Bitte Namen eingeben',
+	'Click-here-to-edit'                                       => 'Um zu Bearbeiten hier klicken',
+	'No-author-given'                                          => 'Kein Author angegeben',
 ];

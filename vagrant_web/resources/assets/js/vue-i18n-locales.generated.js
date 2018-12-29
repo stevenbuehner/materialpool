@@ -197,7 +197,10 @@ export default {
             "Edit-Keyword": "Tag bearbeiten",
             "none": "keine",
             "Loading-parent-keyword": "Eltern Tag wird geladen ...",
-            "Are-you-shure-about-deleting-this-keyword-from-existance": "Willst du diesen Tag wirklich von jeglicher Existenz befreien?"
+            "Are-you-shure-about-deleting-this-keyword-from-existance": "Willst du diesen Tag wirklich von jeglicher Existenz befreien?",
+            "Enter-name-please": "Bitte Namen eingeben",
+            "Click-here-to-edit": "Um zu Bearbeiten hier klicken",
+            "No-author-given": "Kein Author angegeben"
         }
     },
     "en": {
@@ -423,6 +426,9 @@ export default {
             "none": "none",
             "Loading-parent-keyword": "Loading parent keyword ...",
             "Are-you-shure-about-deleting-this-keyword-from-existance": "Are you shure about deleting this keyword from existance?",
+            "Enter-name-please": "Enter name please",
+            "Click-here-to-edit": "Click here to edit",
+            "No-author-given": "No author given",
             "": ""
         },
         "validation": {
