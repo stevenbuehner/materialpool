@@ -213,5 +213,7 @@ return [
 	'Click-here-to-edit'                                       => 'Click here to edit',
 	'No-author-given'                                          => 'No author given',
 	'assign-pages'                                             => 'assign pages',
+	'Edit-Limitation'                                          => 'Edit Limitation',
+	'Create-Limitation'                                        => 'Create Limitation',
 	''                                                         => '',
 ];

@@ -33,9 +33,11 @@
                             <span class="materialNavi">
                                 <router-link v-if="material.pivot.limitation && isLimitable"
                                              class="btn btn-warning btn-sm mb-1 mr-1"
-                                             :to="routerEditLimitationObject(resource, material.pivot)">Limitierung bearbeiten</router-link>
-                                <button v-if="!material.pivot.limitation && isLimitable"
-                                        class="btn btn-success btn-sm mb-1 mr-1">Limitierung erstellen</button>
+                                             :to="routerEditLimitationObject(resource, material.pivot)">{{$t('pool.Edit-Limitation')}}</router-link>
+                                <router-link
+                                        v-if="!material.pivot.limitation && isLimitable"
+                                        class="btn btn-success btn-sm mb-1 mr-1"
+                                        :to="routerEditLimitationObject(resource, material.pivot)">{{$t('pool.Create-Limitation')}}</router-link>
                                 <button @click="btnDetachMaterialFromResource(material)"
                                         class="btn btn-outline-danger btn-sm mb-1 mr-1">{{$t('pool.remove')}}</button>
                                 <router-link :to="{name: 'material-detail', params: {id: material.id}}"

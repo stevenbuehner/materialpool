@@ -202,8 +202,8 @@ export default {
             "Click-here-to-edit": "Um zu Bearbeiten hier klicken",
             "No-author-given": "Kein Author angegeben",
             "assign-pages": "Seiten zuordnen",
-            "Without-limitation": "Ohne Limitierung",
-            "": ""
+            "Edit-Limitation": "Limitation bearbeiten",
+            "Create-Limitation": "Limitation erstellen"
         }
     },
     "en": {
@@ -433,7 +433,8 @@ export default {
             "Click-here-to-edit": "Click here to edit",
             "No-author-given": "No author given",
             "assign-pages": "assign pages",
-            "Without-limitation": "Without limitation",
+            "Edit-Limitation": "Edit Limitation",
+            "Create-Limitation": "Create Limitation",
             "": ""
         },
         "validation": {
