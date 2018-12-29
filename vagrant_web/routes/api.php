@@ -102,7 +102,9 @@ Route::group([
 	Route::put('keywords/{keyword}', 'KeywordController@update')
 		 ->where(['keyword' => '[0-9]+'])
 		 ->name('api.v1.keywords.update');
-
+	Route::delete('keywords/{keyword}', 'KeywordController@delete')
+		 ->where(['keyword' => '[0-9]+'])
+		 ->name('api.v1.keywords.delete');
 
 	// Material <- Keywords-Relevance
 	Route::put('material/{material}/keyword/{keyword?}', 'KeywordController@createOrUpdateAssignment')

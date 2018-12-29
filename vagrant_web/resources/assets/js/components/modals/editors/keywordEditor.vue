@@ -9,7 +9,8 @@
                 :id="id"
                 @saved="onSaved"
                 @saving="$emit('saving', $event)"
-                @savingError="$emit('savingError', $event)">
+                @savingError="$emit('savingError', $event)"
+                @deleted="$emit('deleted', $event)">
 
             <template slot="additional-buttons">
                 <b-button variant="secondary"

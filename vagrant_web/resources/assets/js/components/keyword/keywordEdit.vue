@@ -92,6 +92,10 @@
                                       @click.prevent="btnSave">{{$t('pool.save')}}
                             </b-button>
                             <slot name="additional-buttons"/>
+                            <b-button variant="danger"
+                                      :disabled="disableForm"
+                                      @click.prevent="btnDelete">{{$t('pool.delete')}}
+                            </b-button>
                         </slot>
                     </div>
                 </slot>
@@ -215,14 +219,33 @@
                         // Always
                         this.disableForm = false;
                     });
+
             },
 
+            btnDelete() {
+
+                const answer = confirm(this.$t('pool.Are-you-shure-about-deleting-this-keyword-from-existance'));
+
+                if (answer === true) {
+                    this.disableForm = true;
+
+                    this.$store.dispatch('keywords/delete', this.id)
+                        .then((deletionConfirmed) => {
+                            this.$emit('deleted');
+                        })
+                        .catch((errorMessage) => {
+                            alert(errorMessage);
+                            this.disableForm = false;
+                        });
+                }
+
+            },
 
             updateKeywordData(properties) {
 
                 this.$emit('saving', properties);
 
-                const promise = this.$store.dispatch('keywords/update', {id: this.keyword.id, data: properties});
+                const promise = this.$store.dispatch('keywords/update', {id: this.id, data: properties});
 
                 promise.then((keyword) => {
 

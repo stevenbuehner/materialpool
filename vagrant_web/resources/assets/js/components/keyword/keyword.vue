@@ -18,6 +18,7 @@
                 @saved="onKeywordPropertiesChanged"
                 @saving="$emit('saving', $event)"
                 @savingError="$emit('savingError', $event)"
+                @deleted="onDeleted"
         />
 
         <context-menu ref="menu">
@@ -218,6 +219,11 @@
                 }
 
                 this.emitSaved(newKeyword);
+            },
+
+            onDeleted() {
+                this.$emit('removed', this.keyword);
+                this.$emit('deleted', this.keyword);
             },
 
             emitSaved(newKeyword) {

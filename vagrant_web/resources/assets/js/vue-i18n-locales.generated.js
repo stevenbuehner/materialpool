@@ -196,7 +196,8 @@ export default {
             "Coming-soon": "Kommt bald ...",
             "Edit-Keyword": "Tag bearbeiten",
             "none": "keine",
-            "Loading-parent-keyword": "Eltern Tag wird geladen ..."
+            "Loading-parent-keyword": "Eltern Tag wird geladen ...",
+            "Are-you-shure-about-deleting-this-keyword-from-existance": "Willst du diesen Tag wirklich von jeglicher Existenz befreien?"
         }
     },
     "en": {
@@ -420,7 +421,9 @@ export default {
             "Coming-soon": "Coming soon ...",
             "Edit-Keyword": "Edit Keyword",
             "none": "none",
-            "Loading-parent-keyword": "Loading parent keyword ..."
+            "Loading-parent-keyword": "Loading parent keyword ...",
+            "Are-you-shure-about-deleting-this-keyword-from-existance": "Are you shure about deleting this keyword from existance?",
+            "": ""
         },
         "validation": {
             "accepted": "The {attribute} must be accepted.",

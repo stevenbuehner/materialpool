@@ -118,6 +118,10 @@ export function api_v1_keywords_update(keywordId) {
     return '/api/v1/keywords/' + keywordId;
 }
 
+export function api_v1_keywords_delete(keywordId) {
+    return '/api/v1/keywords/' + keywordId;
+}
+
 export function api_v1_keywords_updateassignment(materialId, keywordId) {
     return '/api/v1/material/' + materialId + '/keyword/' + keywordId;
 }

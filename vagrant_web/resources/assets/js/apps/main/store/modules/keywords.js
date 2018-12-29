@@ -1,6 +1,7 @@
 import axios from 'axios'
 import {
     api_v1_keywords_create,
+    api_v1_keywords_delete,
     api_v1_keywords_deleteassignment,
     api_v1_keywords_index,
     api_v1_keywords_show,
@@ -62,7 +63,8 @@ const mutations = {
         loaded = !!loaded;
 
         state.allKeywordsLoaded = loaded;
-    }
+    },
+
 
 };
 
@@ -289,6 +291,30 @@ const actions = {
                 }
             )
         );
+
+    },
+
+    delete: ({commit}, id) => {
+
+        return axios.delete(api_v1_keywords_delete(id))
+            .then(({data}) => {
+
+                if (data.success !== true) {
+                    throw 'Unknown error while deleting keyword with id ' + id;
+                }
+
+                commit('removeKeyword', id);
+
+                return data.deletedAssociations;
+            })
+            .catch(({response, message}) => {
+
+                if (response.data.message) {
+                    throw response.data.message;
+                }
+
+                throw message;
+            })
 
     },
 

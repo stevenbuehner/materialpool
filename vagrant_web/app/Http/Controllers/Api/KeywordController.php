@@ -11,9 +11,15 @@ use App\Services\KeywordHandling\KeywordHandlingService;
 use App\Services\TagExtraction\Interfaces\RelevanceInterface;
 use App\Services\TagExtraction\TagExtractionService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 
 class KeywordController extends BaseController {
+
+	public function __construct() {
+		$this->middleware('auth:api');
+	}
+
 	/**
 	 * Display a listing of the resource.
 	 *
@@ -144,6 +150,43 @@ class KeywordController extends BaseController {
 		CheckLonelyKeyword::dispatch($keyword);
 
 		return $result;
+
+	}
+
+	public function delete(Keyword $keyword) {
+
+		// 1) Prüfe ob das Keyword in Materialien vorkommt, worauf dieser Nutzer keine Rechte hat ==> Abbruch mit Fehlermeldung
+		$user              = Auth::user();
+		$materialsByOthers = $keyword->materials()->where('materials.created_by', '!=', $user->id)->count();
+
+		if ($materialsByOthers > 0) {
+			return response([
+								'success' => FALSE,
+								'message' => "Keyword could not be deleted. Materials of other owners still use this keyword."
+							], 424); // Status-Code: Failed Dependency
+		}
+
+		// 2 Nehme das Keyword aus allen Parent-Child Funktionen heraus
+		/** @var Keyword[] $allChildren */
+		$allChildren = $keyword->children;
+		foreach ($allChildren as $childKeyword) {
+			# Implicit save
+			$childKeyword->insertAfterNode($keyword);
+		}
+
+		// 3a) Lösche alle Keyword Assoziationen
+		$numDetached = $keyword->materials()->detach();
+
+		// 3b) ToDO: Lösche ggf. icons zu dem Keyword
+
+		// 3) Lösche das Keyword selbst
+		$keyword->delete();
+
+		// 4) Success flag setzen als return-Wert
+		return [
+			'success'             => TRUE,
+			'deletedAssociations' => $numDetached
+		];
 
 	}
 
