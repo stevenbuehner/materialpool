@@ -10,8 +10,9 @@
   "require": {
     "php": ">=7.1",
     "ext-imagick": "*",
-    "ext-simplexml": "*",
     "ext-json": "*",
+    "ext-pdo": "*",
+    "ext-simplexml": "*",
     "alchemy/phpexiftool": "^0.6.0",
     "intervention/image": "^2.3",
     "kalnoy/nestedset": "^4.2",
@@ -26,8 +27,7 @@
     "setasign/fpdi-fpdf": "^2.0",
     "spatie/laravel-responsecache": "~4.1.0",
     "spatie/pdf-to-text": "^1.1",
-    "stevenbuehner/bible-verse-bundle": "^2.3",
-    "ext-pdo": "*"
+    "stevenbuehner/bible-verse-bundle": "^2.4"
   },
   "require-dev": {
     "barryvdh/laravel-debugbar": "^3.2",

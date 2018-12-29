@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "50137baa0d1618d51c0da67ee1d4d71d",
+    "content-hash": "e2cfb1b25fa9dc32bb9cd59e5c43add6",
     "packages": [
         {
             "name": "alchemy/binary-driver",
@@ -2979,16 +2979,16 @@
         },
         {
             "name": "stevenbuehner/bible-verse-bundle",
-            "version": "2.3.6",
+            "version": "2.4.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/stevenbuehner/BibleVerseBundle.git",
-                "reference": "254329d113c06661c7447ff27eea028e5669b3fe"
+                "reference": "2952ec7ba5135cae099ab4635b7c078303e3ce9d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/stevenbuehner/BibleVerseBundle/zipball/254329d113c06661c7447ff27eea028e5669b3fe",
-                "reference": "254329d113c06661c7447ff27eea028e5669b3fe",
+                "url": "https://api.github.com/repos/stevenbuehner/BibleVerseBundle/zipball/2952ec7ba5135cae099ab4635b7c078303e3ce9d",
+                "reference": "2952ec7ba5135cae099ab4635b7c078303e3ce9d",
                 "shasum": ""
             },
             "require": {
@@ -3014,7 +3014,7 @@
                 }
             ],
             "description": "A (Symphony) bundle to identify, handle, store and work with bibleverses.",
-            "time": "2018-11-10T16:36:59+00:00"
+            "time": "2018-12-26T23:25:11+00:00"
         },
         {
             "name": "swiftmailer/swiftmailer",
@@ -6626,7 +6626,9 @@
     "platform": {
         "php": ">=7.1",
         "ext-imagick": "*",
-        "ext-json": "*"
+        "ext-json": "*",
+        "ext-pdo": "*",
+        "ext-simplexml": "*"
     },
     "platform-dev": []
 }
