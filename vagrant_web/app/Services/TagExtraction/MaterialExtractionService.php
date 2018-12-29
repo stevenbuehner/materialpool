@@ -5,6 +5,7 @@ namespace App\Services\TagExtraction;
 use App\Models\Material;
 use App\Models\Resource;
 use App\Services\TagExtraction\Interfaces\PropertyInterface;
+use App\Services\TagExtraction\Interfaces\RelevanceInterface;
 use App\Services\TagExtraction\Properties\BibleverseProperty;
 use App\Services\TagExtraction\Properties\KeywordProperty;
 use App\Services\TagExtraction\Properties\OcrTextProperty;
@@ -64,7 +65,15 @@ class MaterialExtractionService {
 
 		// Extract properties from additionalInformations metatext
 		foreach ($additionalInformation->get('metatext', []) as $keywordString) {
-			$foundTags  = $this->tagExtractionService->extractPartsFromStrings($keywordString);
+			$foundTags = $this->tagExtractionService->extractPartsFromStrings($keywordString);
+
+			// Über den 'metatext'-Kanal mitgelieferte Properties bekommen automatisch eine mittlere Relevanz
+			// Wird genutzt z.B. beim Erstellen von TextRessourcen direkt aus dem Frontend
+			$foundTags->each(function ($tag) {
+				/** @var Property $tag */
+				$tag->setRelevance(RelevanceInterface::RELEVANCE_USER_AVG);
+			});
+
 			$properties = $properties->merge($foundTags);
 		}
 
@@ -72,7 +81,7 @@ class MaterialExtractionService {
 		foreach ($additionalInformation->get('properties', []) as $property) {
 			if ($property instanceof PropertyInterface) {
 				$properties = $properties->push($property);
-			}else{
+			} else {
 				// Log error?
 			}
 		}

@@ -164,6 +164,7 @@ class ResourceController extends BaseController {
 	 * @param Request              $request
 	 * @param \App\Models\Resource $resource
 	 * @return Resource
+	 * @throws \Illuminate\Validation\ValidationException
 	 */
 	public function update(Request $request, Resource $resource) {
 
