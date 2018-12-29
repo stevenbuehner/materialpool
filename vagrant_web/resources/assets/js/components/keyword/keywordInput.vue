@@ -88,7 +88,7 @@
 </template>
 
 <script>
-    import keyword from './../keyword/keyword.vue';
+    import Keyword from './../keyword/keyword.vue';
     import {HollowDotsSpinner} from 'epic-spinners'
     import _ from 'lodash';
     import eraseSvg from 'svg-icon/dist/svg/zero/clear.svg';
@@ -398,7 +398,7 @@
         },
 
         components: {
-            keyword,
+            Keyword,
             HollowDotsSpinner,
             eraseSvg
         }

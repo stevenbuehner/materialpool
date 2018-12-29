@@ -145,7 +145,8 @@ return [
 	'Keyword-is-beeing-loaded'                 => 'Keyword is beeing loaded...',
 	'Select-Icon'                              => 'Select Icon',
 	'Select-Type'                              => 'Select Type',
-	'Parent-Keyword'                           => 'Eltern Tag',
+	'Parent-Keywords'                          => 'Parent Keywords',
+	'Direct-Parent'                            => 'Direct Parent',
 	'install'                                  => 'install',
 	'bundle'                                   => 'bundle',
 	'Bundle'                                   => 'Bundle',
@@ -203,4 +204,8 @@ return [
 	'Places'                                   => 'Places',
 	'Persons'                                  => 'Persons',
 	'System-Suggestions'                       => 'System Suggestions',
+	'Coming-soon'                              => 'Coming soon ...',
+	'Edit-Keyword'                             => 'Edit Keyword',
+	'none'                                     => 'none',
+	'Loading-parent-keyword'                   => 'Loading parent keyword ...',
 ];

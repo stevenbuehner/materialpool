@@ -56,6 +56,7 @@
                              :editable="true"
                              :removeable="false"
                              @saving="flashStartSaving('Keyword')"
+                             @saved="flashSaved('Keyword')"
                              @savingPivot="flashStartSaving('Keyword Piot')"
                              @savingError="flashUpdateTagError"
                              @savingPivotError="flashUpdateTagError"
@@ -68,6 +69,7 @@
                                 :editable="true"
                                 :removeable="false"
                                 @saving="flashStartSaving('Bibleverse')"
+                                @saved="flashSaved('Bibleverse')"
                                 @savingPivot="flashStartSaving('Bibleverse Piot')"
                                 @savingError="flashUpdateTagError"
                                 @savingPivotError="flashUpdateTagError"
@@ -195,7 +197,7 @@
 </template>
 
 <script>
-    import keyword from '../../../components/keyword/keyword.vue';
+    import Keyword from '../../../components/keyword/keyword.vue';
     import keywordInput from '../../../components/keyword/keywordInput.vue';
     import bibleverse from '../../../components/bibleverse/biblevers.vue';
     import bibleverseInput from '../../../components/bibleverse/bibleverseInput.vue';
@@ -525,7 +527,7 @@
             Flag,
             MaterialRating,
             ResourceUploader,
-            keyword,
+            Keyword,
             keywordInput,
             bibleverse,
             bibleverseInput,

@@ -67,8 +67,8 @@ export default {
             "detach": "lösen",
             "resource-assignments": "zuordnen",
             "select-all": "alles auswählen",
-            "only-limited-pages": "zeige nur {COUNT}\/{SUM} Seiten",
-            "limited-pages": "zeige {COUNT}\/{SUM} Seiten",
+            "only-limited-pages": "zeige nur {COUNT}/{SUM} Seiten",
+            "limited-pages": "zeige {COUNT}/{SUM} Seiten",
             "Page": "Seite",
             "small": "klein",
             "medium": "mittel",
@@ -134,7 +134,8 @@ export default {
             "Keyword-is-beeing-loaded": "Tag wid geladen ...",
             "Select-Icon": "Icon auswählen",
             "Select-Type": "Typ auswählen",
-            "Parent-Keyword": "Parent Keyword",
+            "Parent-Keywords": "Eltern Tags",
+            "Direct-Parent": "Direkter Vorfahre",
             "install": "installieren",
             "bundle": "bundle",
             "Bundle": "Bundle",
@@ -191,7 +192,11 @@ export default {
             "Languages": "Sprachen",
             "Places": "Orte",
             "Persons": "Personen",
-            "System-Suggestions": "Systemvorschläge"
+            "System-Suggestions": "Systemvorschläge",
+            "Coming-soon": "Kommt bald ...",
+            "Edit-Keyword": "Tag bearbeiten",
+            "none": "keine",
+            "Loading-parent-keyword": "Eltern Tag wird geladen ..."
         }
     },
     "en": {
@@ -286,8 +291,8 @@ export default {
             "detach": "detach",
             "resource-assignments": "assign",
             "select-all": "select all",
-            "only-limited-pages": "show only {COUNT}\/{SUM} pages",
-            "limited-pages": "show {COUNT}\/{SUM} pages",
+            "only-limited-pages": "show only {COUNT}/{SUM} pages",
+            "limited-pages": "show {COUNT}/{SUM} pages",
             "Page": "Page",
             "small": "small",
             "medium": "medium",
@@ -353,7 +358,8 @@ export default {
             "Keyword-is-beeing-loaded": "Keyword is beeing loaded...",
             "Select-Icon": "Select Icon",
             "Select-Type": "Select Type",
-            "Parent-Keyword": "Eltern Tag",
+            "Parent-Keywords": "Parent Keywords",
+            "Direct-Parent": "Direct Parent",
             "install": "install",
             "bundle": "bundle",
             "Bundle": "Bundle",
@@ -410,7 +416,11 @@ export default {
             "Languages": "Languages",
             "Places": "Places",
             "Persons": "Persons",
-            "System-Suggestions": "System Suggestions"
+            "System-Suggestions": "System Suggestions",
+            "Coming-soon": "Coming soon ...",
+            "Edit-Keyword": "Edit Keyword",
+            "none": "none",
+            "Loading-parent-keyword": "Loading parent keyword ..."
         },
         "validation": {
             "accepted": "The {attribute} must be accepted.",

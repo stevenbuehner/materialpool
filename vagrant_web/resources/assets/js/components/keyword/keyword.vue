@@ -12,53 +12,13 @@
             <span class="delete" v-if="removeable" @mousedown.left.stop @click.prevent.stop="removeKeyword">x</span>
         </div>
 
-        <b-modal ref="editKeyword" lazy title="Edit Keyword" @ok="storeModalChanges">
-            <div class="container-fluid sb-kw-edit-wrapper">
-                <div class="row">
-                    <div class="col-sm-3">
-                        <label for="keywordText">Label:</label>
-                    </div>
-                    <div class="col-sm-9">
-                        <b-form-input
-                                name="keywordText"
-                                id="keywordText"
-                                type="text"
-                                v-model="modifiedKeywordData.title"
-                                autofocus
-                        ></b-form-input>
-                    </div>
-                </div>
-
-                <div class="row mt-2">
-                    <div class="col-sm-3">
-                        <label for="selectType">Select Type:</label>
-                    </div>
-                    <div class="col-sm-9">
-                        <b-form-select
-                                name="keywordType"
-                                id="keywordType"
-                                type="text"
-                                v-model="modifiedKeywordData.type"
-                        >
-                            <option value="key">Keyword</option>
-                            <option value="person">Person</option>
-                            <option value="place">Place</option>
-                            <option value="lang">Language</option>
-                        </b-form-select>
-                    </div>
-                </div>
-
-                <div class="row mt-2">
-                    <div class="col-sm-3">
-                        <label for="selectIcon">Select Icon:</label>
-                    </div>
-                    <div class="col-sm-9">
-                        Coming soon
-                    </div>
-                </div>
-            </div>
-        </b-modal>
-
+        <keyword-editor
+                ref="keywordEditor"
+                :id="keyword.id"
+                @saved="onKeywordPropertiesChanged"
+                @saving="$emit('saving', $event)"
+                @savingError="$emit('savingError', $event)"
+        />
 
         <context-menu ref="menu">
             <context-menu-item v-if="searchable" @click.stop="goToKeywordSearch">nach '{{myKeyword.title}}' suchen
@@ -83,6 +43,8 @@
     import {RELEVANCE_USER_MAX} from "../../apps/config";
 
     export default {
+
+        name: 'Keyword',
 
         mixins: [
             draggingSupport
@@ -137,8 +99,7 @@
         data: function () {
             return {
                 menuIsOpen: false,
-                modifiedKeywordData: {},
-                myKeyword: {}
+                myKeyword: {},
             };
         },
 
@@ -190,44 +151,6 @@
                 }
             },
 
-            storeModalChanges() {
-
-                // Ignore if nothing was changed
-                if (this.myKeyword.title === this.modifiedKeywordData.title
-                    && this.myKeyword.type == this.modifiedKeywordData.type) {
-                    return;
-                }
-
-                this.updateKeywordData({
-                    title: this.modifiedKeywordData.title,
-                    type: this.modifiedKeywordData.type
-                });
-            },
-
-            updateKeywordData(properties) {
-
-                this.$emit('saving', properties);
-
-                const promise = this.$store.dispatch('keywords/update', {id: this.keyword.id, data: properties});
-
-                promise.then((keyword) => {
-
-                    for (let prop in keyword) {
-                        // This is actually only neccessary, if the parent does not update the keyword anyway
-                        this.myKeyword[prop] = keyword[prop];
-                    }
-
-                    this.emitSaved(this.myKeyword);
-                }).catch((response) => {
-
-                    // on failure
-                    this.$emit('savingError', {
-                        tag: this.keyword, // "Tag" is used for bibleverses and keywords
-                        msg: this.parseResponseErrors(response.response)
-                    });
-                });
-
-            },
 
             /* used by mixin */
             updateRelevance(relevance) {
@@ -269,7 +192,6 @@
 
                 }
 
-
             },
 
             removeKeyword() {
@@ -287,7 +209,15 @@
                     this.$emit('removed', this.myKeyword);
                 }
 
+            },
 
+            onKeywordPropertiesChanged(newKeyword) {
+
+                for (let i in newKeyword) {
+                    this.myKeyword[i] = newKeyword[i];
+                }
+
+                this.emitSaved(newKeyword);
             },
 
             emitSaved(newKeyword) {
@@ -306,19 +236,12 @@
                 return msg;
             },
 
-
             openKeywordEditModal() {
 
                 if (this.editable === true) {
-
-                    // Clone the parts that may be eddited
-                    this.modifiedKeywordData = {
-                        title: this.keyword.title,
-                        type: this.keyword.type,
-                    };
-
-                    this.$refs.editKeyword.show();
+                    this.$refs.keywordEditor.show();
                 }
+
             },
 
             goToKeywordSearch() {
@@ -339,6 +262,10 @@
         },
 
         components: {
+            // To avoid recursive imports of "keyword" Component
+            // see: https://vuejs.org/v2/guide/components-edge-cases.html#Recursive-Components
+            KeywordEditor: () => import("./../modals/editors/keywordEditor"),
+
             ContextMenuItem: contextMenuItem,
             bModal,
             bFormInput,

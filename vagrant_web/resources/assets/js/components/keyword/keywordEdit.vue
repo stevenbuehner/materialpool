@@ -55,26 +55,29 @@
                     <label>{{$t('pool.Select-Icon')}}:</label>
                 </div>
                 <div class="col-sm-9">
-                    Coming soon
+                    {{$t('pool.Coming-soon')}}
                 </div>
             </div>
 
             <div class="row mt-2">
                 <div class="col-sm-3">
-                    <label>{{$t('pool.Parent-Keyword')}}:</label>
+                    <label>{{$t('pool.Direct-Parent')}}:</label>
                 </div>
-                <div class="col-sm-9" v-if="!parent">
-                    none
+                <div class="col-sm-9" v-if="keyword && keyword.parent_id && !parent">
+                    {{$t('pool.Loading-parent-keyword')}}
                 </div>
-                <div class="col-sm-9" v-if="parent">
+                <div class="col-sm-9" v-else-if="parent">
                     <router-link
-                            :to="{name:'keyword-detail', params:{id: parent.id}}">
+                            :to="{name:'keyword-detail', params:{id: keyword.parent_id}}">
                         <keyword
                                 :keyword="parent"
                                 :editable="false"
                                 :removeable="false"
                         ></keyword>
                     </router-link>
+                </div>
+                <div class="col-sm-9" v-else>
+                    {{$t('pool.none')}}
                 </div>
             </div>
 
@@ -83,13 +86,13 @@
                     <div class="col-sm-3">
                     </div>
                     <div class="col-sm-9 menu">
-                        <b-button variant="primary"
-                                  :disabled="!keywordWasModified || disableForm"
-                                  @click.prevent="btnSave">{{$t('pool.save')}}
-                        </b-button>
-                        <b-button :variant="keywordWasModified ? 'danger' : 'primary'"
-                                  @click="$router.back()">{{$t('pool.go-back')}}
-                        </b-button>
+                        <slot name="all-buttons">
+                            <b-button variant="primary"
+                                      :disabled="!keywordWasModified || disableForm"
+                                      @click.prevent="btnSave">{{$t('pool.save')}}
+                            </b-button>
+                            <slot name="additional-buttons"/>
+                        </slot>
                     </div>
                 </slot>
             </div>
@@ -104,7 +107,8 @@
     import {HollowDotsSpinner} from 'epic-spinners'
     import Vue from 'vue';
     import AsyncComputed from 'vue-async-computed';
-    import Keyword from "./../keyword/keyword.vue";
+    import Keyword from "./keyword";
+
 
     Vue.use(AsyncComputed);
 
@@ -236,6 +240,18 @@
 
                 return promise;
 
+            },
+
+            parseResponseErrors(response) {
+                let msg = 'Error! ';
+
+                if (response.data && response.data.errors) {
+                    for (let i in response.data.errors) {
+                        msg += i + ': ' + response.data.errors[i] + '. ';
+                    }
+                }
+
+                return msg;
             },
         },
 
