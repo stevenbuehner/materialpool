@@ -40,6 +40,9 @@
                                         :to="routerEditLimitationObject(resource, material.pivot)">{{$t('pool.Create-Limitation')}}</router-link>
                                 <button @click="btnDetachMaterialFromResource(material)"
                                         class="btn btn-outline-danger btn-sm mb-1 mr-1">{{$t('pool.remove')}}</button>
+                                <button @click="btnCopyMaterial(material)"
+                                        :title="$t('pool.Copy-material')"
+                                        class="btn btn-outline-danger btn-sm mb-1 mr-1">{{$t('pool.copy')}}</button>
                                 <router-link :to="{name: 'material-detail', params: {id: material.id}}"
                                              class="btn btn-primary btn-sm mb-1 mr-1">{{$t('pool.open')}}</router-link>
                             </span>
@@ -298,7 +301,7 @@
             btnCreateAutoMaterialFromResource() {
 
                 this.$store.dispatch('resources/autoCreateMaterial', {resourceId: this.id})
-                    .then(({material}) => {
+                    .then((material) => {
 
                         this.$router.push({
                             name: 'material-detail',
@@ -320,6 +323,14 @@
                     })
                     .then(({material, resource}) => {
                         this.forceReload++;
+                    });
+            },
+
+            btnCopyMaterial(material) {
+                this.$store.dispatch('materials/copyMaterial', material.id)
+                    .then((material) => {
+                        this.forceReload++;
+                        console.log(this.forceReload);
                     });
             },
 

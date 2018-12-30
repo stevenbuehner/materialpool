@@ -205,4 +205,8 @@ return [
 	'assign-pages'                                             => 'Seiten zuordnen',
 	'Edit-Limitation'                                          => 'Limitation bearbeiten',
 	'Create-Limitation'                                        => 'Limitation erstellen',
+	'copy'                                                     => 'kopieren',
+	'Copy-material'                                            => 'Material kopieren',
+
+
 ];

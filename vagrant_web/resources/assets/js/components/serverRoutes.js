@@ -105,6 +105,10 @@ export function api_v2_materials_delete(materialId) {
     return '/api/v2/materials/' + materialId;
 }
 
+export function api_v1_materials_copy(materialsId) {
+    return '/api/v1/materials/' + materialsId + '/copy';
+}
+
 // API - Keywords
 export const api_v1_keywords_index = '/api/v1/keywords/';
 

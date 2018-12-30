@@ -35,5 +35,46 @@ class MaterialHandlingService {
 
 	}
 
+	/**
+	 * @param Material $material
+	 * @return Material
+	 */
+	public function copyMaterial(Material $material) {
+
+		/** @var Material $clone */
+		$clone = $material->replicate();
+		$clone->save();
+		// $clone->setRelations([]);
+
+		$relationsToSync = [
+			'keywords',
+			'bibleverses',
+			'resources'
+		];
+
+		$material->load($relationsToSync);
+
+		// Once the model has been saved with a new ID, we can get its children
+		foreach ($relationsToSync as $relationName) {
+			$attachKeys = [];
+
+			foreach ($material->getRelation($relationName) as $item) {
+				// Now we get the extra attributes from the pivot tables, but
+				// we intentionally leave out the foreignKey, as we already
+				// have it in the newModel
+				$extra_attributes                     = array_except($item->pivot->getAttributes(),
+																	 [$item->pivot->getForeignKey(), $item->pivot->getRelatedKey()]);
+				$attachKeys[$item->getKey()] = $extra_attributes;
+			}
+
+			$clone->{$relationName}()->sync($attachKeys);
+
+		}
+
+
+		return $clone->fresh($relationsToSync);
+
+	}
+
 
 }

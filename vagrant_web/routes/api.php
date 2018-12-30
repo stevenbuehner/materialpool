@@ -81,6 +81,9 @@ Route::group([
 	Route::put('materials/{material}/resources', 'MaterialController@associateResources')
 		 ->where(['material' => '[0-9]+'])
 		 ->name('api.v1.materials.associateResources');
+	Route::get('materials/{material}/copy', 'MaterialController@copy')
+		 ->where(['material' => '[0-9]+'])
+		 ->name('api.v1.materials.show');
 
 	// Bibleverses
 	Route::get('bibleverses', 'BibleverseController@index')

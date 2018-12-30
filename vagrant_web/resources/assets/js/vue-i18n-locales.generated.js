@@ -203,7 +203,9 @@ export default {
             "No-author-given": "Kein Author angegeben",
             "assign-pages": "Seiten zuordnen",
             "Edit-Limitation": "Limitation bearbeiten",
-            "Create-Limitation": "Limitation erstellen"
+            "Create-Limitation": "Limitation erstellen",
+            "copy": "kopieren",
+            "Copy-material": "Material kopieren"
         }
     },
     "en": {
@@ -435,6 +437,8 @@ export default {
             "assign-pages": "assign pages",
             "Edit-Limitation": "Edit Limitation",
             "Create-Limitation": "Create Limitation",
+            "copy": "copy",
+            "Copy-material": "Copy material",
             "": ""
         },
         "validation": {

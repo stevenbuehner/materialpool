@@ -1,4 +1,5 @@
 import {
+    api_v1_materials_copy,
     api_v1_materials_show,
     api_v1_materials_store,
     api_v1_materials_update,
@@ -326,6 +327,25 @@ const actions = {
 
         });
 
+    },
+
+    copyMaterial: ({commit, dispatch}, id) => {
+        return axios.get(api_v1_materials_copy(id))
+            .then(({data}) => {
+                const material = data;
+
+                commit('setMaterial', material);
+
+                if (material.resources && Array.isArray(material.resources)) {
+                    material.resources.forEach((el) => {
+                        dispatch('resources/clearResource', el.id, {root: true});
+                    });
+                }
+
+                return material;
+            }).catch(({message}) => {
+                throw message;
+            });
     }
 
 };

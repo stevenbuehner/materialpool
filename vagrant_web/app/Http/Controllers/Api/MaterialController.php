@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Requests\MaterialRequest;
 use App\Models\Material;
 use App\Models\Resource;
+use App\Services\MaterialHandling\MaterialHandlingService;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Support\Facades\Auth;
@@ -17,10 +18,12 @@ class MaterialController extends BaseController {
 
 	protected $withAttributes = [];
 	protected $bibleVerseService;
+	protected $materialHandlingService;
 
-	public function __construct(BibleVerseService $bibleVerseService) {
+	public function __construct(BibleVerseService $bibleVerseService, MaterialHandlingService $materialHandlingService) {
 
-		$this->bibleVerseService = $bibleVerseService;
+		$this->bibleVerseService       = $bibleVerseService;
+		$this->materialHandlingService = $materialHandlingService;
 
 		$this->withAttributes = [
 			'keywords'    => function ($q) {
@@ -140,5 +143,13 @@ class MaterialController extends BaseController {
 		$material->delete();
 
 		return ['success' => TRUE];
+	}
+
+	/**
+	 * @param Material $material
+	 * @return Material
+	 */
+	public function copy(Material $material) {
+		return $this->materialHandlingService->copyMaterial($material);
 	}
 }

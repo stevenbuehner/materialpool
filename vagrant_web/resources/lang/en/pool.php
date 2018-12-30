@@ -215,5 +215,7 @@ return [
 	'assign-pages'                                             => 'assign pages',
 	'Edit-Limitation'                                          => 'Edit Limitation',
 	'Create-Limitation'                                        => 'Create Limitation',
+	'copy'                                                     => 'copy',
+	'Copy-material'                                            => 'Copy material',
 	''                                                         => '',
 ];
