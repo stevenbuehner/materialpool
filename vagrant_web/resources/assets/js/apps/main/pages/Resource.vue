@@ -330,7 +330,6 @@
                 this.$store.dispatch('materials/copyMaterial', material.id)
                     .then((material) => {
                         this.forceReload++;
-                        console.log(this.forceReload);
                     });
             },
 

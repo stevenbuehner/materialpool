@@ -18,13 +18,13 @@
         <template slot="modal-title">{{opt.title}}</template>
 
         <template slot="modal-footer">
-            <b-button :variant="opt.yesVariant" v-if="opt.yesEnabled" @click="btnYes">
+            <b-button :variant="opt.yesVariant" v-if="opt.yesEnabled" @click="btnYes" ref="bYes">
                 <slot name="modal-yes">{{opt.yesText}}</slot>
             </b-button>
-            <b-button :variant="opt.noVariant" v-if="opt.noEnabled" @click="btnNo">
+            <b-button :variant="opt.noVariant" v-if="opt.noEnabled" @click="btnNo" ref="bNo">
                 <slot name="modal-no">{{opt.noText}}</slot>
             </b-button>
-            <b-button :variant="opt.cancelVariant" v-if="opt.cancelEnabled" @click="btnCancel">
+            <b-button :variant="opt.cancelVariant" v-if="opt.cancelEnabled" @click="btnCancel" ref="bCancel">
                 <slot name="modal-cancel">{{opt.cancelText}}</slot>
             </b-button>
             <div class="keep-empty-placeholder"></div>
@@ -71,6 +71,7 @@
                     cancelResult: null,
                     cancelEnabled: false,
                     allowBackdrop: true,
+                    focusOn: 'yes', // 'no', 'cancel', 'none'
                 },
 
                 // Will be overridden with defaultOptions (!)
@@ -92,6 +93,7 @@
                     cancelResult: null,
                     cancelEnabled: null,
                     allowBackdrop: null,
+                    focusOn: null
                 },
 
                 promise: null,
@@ -170,7 +172,40 @@
                     this.resolve = resolve;
                     this.reject  = reject;
                     this.$refs.myModal.show();
+
+                    if (this.$refs.myModal.is_visible) {
+                        this.$nextTick(() => {
+                            this._focusOnButton();
+                        });
+                    } else {
+                        this.$refs.myModal.$once('shown', this._focusOnButton)
+                    }
+
                 });
+
+            },
+
+            _focusOnButton() {
+
+                switch (this.opt.focusOn) {
+                    case 'yes':
+                        if (this.$refs.bYes) {
+                            this.$refs.bYes.focus();
+                        }
+                        break;
+                    case 'no':
+                        if (this.$refs.bNo) {
+                            this.$refs.bNo.focus();
+                        }
+                        break;
+                    case 'cancel':
+                        if (this.$refs.bCancel) {
+                            this.$refs.bCancel.focus();
+                        }
+                        break;
+                    case 'none':
+                    default:
+                }
 
             },
 
