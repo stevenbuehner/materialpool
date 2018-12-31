@@ -217,5 +217,4 @@ return [
 	'Create-Limitation'                                        => 'Create Limitation',
 	'copy'                                                     => 'copy',
 	'Copy-material'                                            => 'Copy material',
-	''                                                         => '',
-];
+	'Errormessage'                                             => 'Errormessage'];

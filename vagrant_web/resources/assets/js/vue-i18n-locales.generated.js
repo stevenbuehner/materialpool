@@ -205,7 +205,8 @@ export default {
             "Edit-Limitation": "Limitation bearbeiten",
             "Create-Limitation": "Limitation erstellen",
             "copy": "kopieren",
-            "Copy-material": "Material kopieren"
+            "Copy-material": "Material kopieren",
+            "Errormessage": "Fehlermeldung"
         }
     },
     "en": {
@@ -439,7 +440,7 @@ export default {
             "Create-Limitation": "Create Limitation",
             "copy": "copy",
             "Copy-material": "Copy material",
-            "": ""
+            "Errormessage": "Errormessage"
         },
         "validation": {
             "accepted": "The {attribute} must be accepted.",

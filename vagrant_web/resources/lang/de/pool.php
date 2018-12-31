@@ -207,6 +207,7 @@ return [
 	'Create-Limitation'                                        => 'Limitation erstellen',
 	'copy'                                                     => 'kopieren',
 	'Copy-material'                                            => 'Material kopieren',
+	'Errormessage'                                             => 'Fehlermeldung',
 
 
 ];

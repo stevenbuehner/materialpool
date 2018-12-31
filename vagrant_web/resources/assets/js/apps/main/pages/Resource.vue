@@ -1,7 +1,7 @@
 <template>
     <div class="resource container">
 
-        <div class="card">
+        <div class="card" v-if="resource">
 
             <div class="card-header">
                 <h1><span v-if="resource">{{resource.type | upper}}</span>-Resource</h1>
@@ -130,8 +130,9 @@
             </b-tabs>
         </div>
 
-        <span v-if="loading">Still loading</span>
-        {{errorMsg}}
+        <b-alert :show="isLoading" variant="info">{{$t('pool.Loading-resource')}}</b-alert>
+
+        <b-alert :show="!!errorMsg" variant="danger">{{$t('pool.Errormessage')}}: {{errorMsg}}</b-alert>
 
         <material-selector ref="materialSelector"></material-selector>
 
@@ -154,6 +155,7 @@
     import resourceDetail from '../../../components/resource/show/resource-detail'
 
     import user from '../../../components/user/user-name';
+    import bAlert from 'bootstrap-vue/src/components/alert/alert';
 
 
     import Vue from 'vue';
@@ -180,7 +182,7 @@
 
         data() {
             return {
-                loading: false,
+                isLoading: false,
                 errorMsg: null,
 
                 forceReload: 0,
@@ -213,7 +215,18 @@
         asyncComputed: {
             resource: {
                 get() {
-                    return this.$store.dispatch('resources/get', this.id);
+                    this.isLoading = true;
+
+                    return this.$store.dispatch('resources/get', this.id)
+                        .then((data) => {
+                            this.errorMsg  = null;
+                            this.isLoading = false;
+                            return data;
+                        })
+                        .catch((message) => {
+                            this.errorMsg  = message;
+                            this.isLoading = false;
+                        });
                 },
                 default: null,
                 watch() {
@@ -393,7 +406,8 @@
             bListGroupItem,
             pdfLimitation,
             audioLimitation,
-            user
+            user,
+            bAlert
         }
     }
 </script>
