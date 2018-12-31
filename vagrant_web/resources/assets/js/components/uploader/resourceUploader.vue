@@ -84,10 +84,19 @@
             }
         },
 
+
         computed: {
             showError() {
                 return this.errorMessage !== null || this.fileStatus !== null;
-            }
+            },
+        },
+
+        created() {
+            // Get maxUploadSize from the server
+            this.$store.dispatch('general/maxUploadSize')
+                .then((maxUploadSize) => {
+                    this.options.maxFileSize = Math.floor(maxUploadSize / 1024 / 1024);
+                });
         },
 
         methods: {

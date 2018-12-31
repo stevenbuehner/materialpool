@@ -48,6 +48,9 @@ export function poolResourceVideostream(resource) {
     return '/pool/resource/' + resource.id + '/videostream';
 }
 
+// GeneralOptions
+export const api_v1_general_options = '/api/v1/general/options';
+
 
 // Resource-Material Assignment
 export function api_v2_materialresource_attach(materialId, resourceId) {

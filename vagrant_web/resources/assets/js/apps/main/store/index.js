@@ -10,6 +10,7 @@ import materialapp from './modules/materialapp';
 import recentmaterials from './modules/recentmaterials';
 import bundles from './modules/bundles';
 import biblecontents from './modules/biblecontents';
+import general from './modules/general';
 
 Vue.use(VueX);
 
@@ -26,6 +27,7 @@ export const store = new VueX.Store({
         tagsearch,
         recentmaterials,
         bundles,
-        biblecontents
+        biblecontents,
+        general
     }
 });

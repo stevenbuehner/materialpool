@@ -62,6 +62,10 @@ Route::group([
 			 ], function () {
 
 
+	// General
+	Route::get('general/options', 'GeneralOptionsController@index')
+		 ->name('api.v1.general.options');
+
 	// Resources
 	Route::get('resources/find', 'ResourceController@find')
 		 ->name('api.v1.resources.find');
