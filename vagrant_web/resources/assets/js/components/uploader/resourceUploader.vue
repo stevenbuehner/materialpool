@@ -12,8 +12,9 @@
         >
             <div class="d-flex align-items-center justify-content-center w-100"
                  :style="styleObject">
-                <button class="btn btn-secondary" @click="triggerBrowse" v-if="!uploadRunning">
-                    <slot> {{$t('pool.Upload-resource-and-add-to-material')}}</slot>
+                <button class="btn btn-secondary" @click="triggerBrowse" v-if="!uploadRunning"
+                        :title="'Limited to ' + options.maxFileSize + 'MB'">
+                    <slot>{{$t('pool.Upload-resource-and-add-to-material')}}</slot>
                 </button>
                 <h4 v-if="uploadRunning">Upload is beeing processed</h4>
             </div>
@@ -95,7 +96,7 @@
             // Get maxUploadSize from the server
             this.$store.dispatch('general/maxUploadSize')
                 .then((maxUploadSize) => {
-                    this.options.maxFileSize = Math.floor(maxUploadSize / 1024 / 1024);
+                    this.$set(this.options, 'maxFileSize', Math.floor(maxUploadSize / 1024 / 1024));
                 });
         },
 
