@@ -10,12 +10,14 @@ import '../../../sass/main.scss';
 // Localisation
 import {i18n} from "./localisation";
 import ShortKey from 'vue-shortkey'
+import AsyncComputed from 'vue-async-computed';
 
 
 require('lodash');
 
 Vue.use(ShortKey);
 Vue.use(VueRouter);
+Vue.use(AsyncComputed);
 
 axios.defaults.headers.common = {
     'X-CSRF-TOKEN': window.Laravel.csrfToken,

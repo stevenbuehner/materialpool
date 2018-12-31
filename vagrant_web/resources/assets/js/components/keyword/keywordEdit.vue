@@ -109,12 +109,8 @@
     import bFormSelect from 'bootstrap-vue/src/components/form-select/form-select';
     import bButton from 'bootstrap-vue/src/components/button/button';
     import {HollowDotsSpinner} from 'epic-spinners'
-    import Vue from 'vue';
-    import AsyncComputed from 'vue-async-computed';
     import Keyword from "./keyword";
 
-
-    Vue.use(AsyncComputed);
 
     export default {
 

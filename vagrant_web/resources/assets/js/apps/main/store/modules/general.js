@@ -55,7 +55,14 @@ const actions = {
         return dispatch('options').then((allOptions) => {
             return allOptions.server.max_upload;
         });
+    },
+
+    currentUser: ({dispatch}) => {
+        return dispatch('options').then((allOptions) => {
+            return allOptions.user;
+        });
     }
+
 
 
 };

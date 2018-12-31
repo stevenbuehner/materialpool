@@ -209,8 +209,6 @@
     import editableText from '../../../components/general/edditable.vue';
     import fromBot from '../../../components/fromBot.vue';
     import starRating from 'vue-star-rating/src/star-rating';
-    import Vue from 'vue';
-    import AsyncComputed from 'vue-async-computed';
     import ResourceUploader from "../../../components/uploader/resourceUploader";
     import {resourceDownloadLink} from "../../../components/serverRoutes";
     import customDialog from '../../../components/modals/dialogs/customDialog';
@@ -220,10 +218,8 @@
     import ResourceSelector from "../../../components/modals/selectors/resourceSelector";
     import KeywordToggleTextSelect from "../../../components/keyword/keywordToggleTextSelect";
 
-    Vue.use(AsyncComputed);
 
     // https://github.com/craigh411/vue-star-rating/#props
-
     export default {
 
         name: 'MaterialDetail',

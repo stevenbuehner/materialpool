@@ -77,9 +77,6 @@
 </template>
 
 <script>
-
-    import Vue from 'vue';
-    import AsyncComputed from 'vue-async-computed';
     import bCard from 'bootstrap-vue/src/components/card/card'
     import bButton from 'bootstrap-vue/src/components/button/button';
     import bListGroup from 'bootstrap-vue/src/components/list-group/list-group'
@@ -87,7 +84,6 @@
     import bProgress from 'bootstrap-vue/src/components/progress/progress'
     import bProgressBar from 'bootstrap-vue/src/components/progress/progress-bar'
 
-    Vue.use(AsyncComputed);
 
     export default {
         name: "bundle",

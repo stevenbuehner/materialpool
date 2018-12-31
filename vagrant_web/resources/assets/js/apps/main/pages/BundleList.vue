@@ -7,13 +7,10 @@
 </template>
 
 <script>
-
-    import Vue from 'vue';
-    import AsyncComputed from 'vue-async-computed';
     import Bundle from "../../../components/bundles/bundle.vue";
     import bCardGroup from 'bootstrap-vue/src/components/card/card-group';
 
-    Vue.use(AsyncComputed);
+
     export default {
         name: "BundleOverview",
 

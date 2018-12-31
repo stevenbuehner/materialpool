@@ -5,14 +5,10 @@
 </template>
 
 <script>
-
-    import Vue from 'vue';
-    import AsyncComputed from 'vue-async-computed';
     import BibleContentVerse from "../../../components/biblecontents/bibleContentVerse";
     import BibleContentChapter from "../../../components/biblecontents/bibleContentChapter";
     import {searchArrayObjectsToSearchArrayItems} from "../../../components/search/searchHelper";
 
-    Vue.use(AsyncComputed);
 
     export default {
         name: "ReadBible",

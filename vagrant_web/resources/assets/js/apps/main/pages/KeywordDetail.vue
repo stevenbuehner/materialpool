@@ -11,11 +11,8 @@
 </template>
 
 <script>
-    import Vue from 'vue';
-    import AsyncComputed from 'vue-async-computed';
     import KeywordEdit from "../../../components/keyword/keywordEdit";
 
-    Vue.use(AsyncComputed);
 
     export default {
         name: "KeywordDetail",

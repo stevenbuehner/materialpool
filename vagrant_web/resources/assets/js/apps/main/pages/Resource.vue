@@ -156,17 +156,11 @@
 
     import user from '../../../components/user/user-name';
     import bAlert from 'bootstrap-vue/src/components/alert/alert';
-
-
-    import Vue from 'vue';
-    import AsyncComputed from 'vue-async-computed';
     import MaterialSelector from "../../../components/modals/selectors/materialSelector";
     import CustomDialog from "../../../components/modals/dialogs/customDialog";
     import MaterialCreator from "../../../components/modals/creators/materialCreator";
     import Toggle from "../../../components/general/toggle";
     import Edditable from "../../../components/general/edditable";
-
-    Vue.use(AsyncComputed);
 
 
     export default {
