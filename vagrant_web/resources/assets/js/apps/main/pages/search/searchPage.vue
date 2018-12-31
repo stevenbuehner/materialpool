@@ -11,6 +11,8 @@
         <searchbar-outcome
                 :materialIds="materialIds"
                 v-if="!isLoading"
+                :highlight-keywords="keywordIdToHighlight"
+                :highlight-bibleverses="bibleverseRangesToHighlight"
         ></searchbar-outcome>
 
         <div class="d-flex justify-content-between align-items-center">
@@ -98,6 +100,40 @@
         computed: {
             queryAndPage() {
                 return this.query + 'p' + this.page;
+            },
+
+            keywordIdToHighlight() {
+                const kws = [];
+
+                for (let i in this.searchObjects) {
+                    for (let j in this.searchObjects[i]) {
+                        if (this.searchObjects[i][j].item.type === "k") {
+                            kws.push(this.searchObjects[i][j].item.id,);
+                        }
+
+                    }
+                }
+
+                return kws;
+            },
+
+            bibleverseRangesToHighlight() {
+
+                const bvs = [];
+
+                for (let i in this.searchObjects) {
+                    for (let j in this.searchObjects[i]) {
+                        if (this.searchObjects[i][j].item.type === "b") {
+                            bvs.push({
+                                from: parseInt(this.searchObjects[i][j].item.from),
+                                to: parseInt(this.searchObjects[i][j].item.to)
+                            });
+                        }
+
+                    }
+                }
+
+                return bvs;
             }
         },
 

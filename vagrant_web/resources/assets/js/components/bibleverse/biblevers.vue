@@ -1,7 +1,7 @@
 <template>
     <div class="bibleverse-wrapper" :class="[size]">
         <div class="btn btn-sm btn-secondary sb-bibleverse"
-             :class="{'tag-readonly' : !editable, 'tag-editable' : editable}"
+             :class="{'tag-readonly' : !editable, 'tag-editable' : editable, highlighted : highlight}"
              @mousedown.left="keydownStartDrag"
              @click.right.stop="openRightClickMenu"
              role="button">
@@ -69,6 +69,13 @@
                 required: false,
                 default: false
             },
+
+            /* Whether this biblverse should be displayed in a highlighted colour*/
+            highlight: {
+                type: Boolean,
+                required: false,
+                default: false
+            }
         },
 
 
@@ -283,8 +290,15 @@
             border-radius: .2rem;
             background-color: $tag-progressbar-colour;
 
+
             &.isDragging {
                 background-color: $tag-progressbar-dragging-colour;
+            }
+        }
+
+        &.highlighted {
+            .sb-progress-bar {
+                background-color: $cyan;
             }
         }
 

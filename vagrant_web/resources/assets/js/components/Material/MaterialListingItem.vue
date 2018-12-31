@@ -22,6 +22,7 @@
                      :keyword="keyword"
                      :materialId="material.id"
                      :editable="false"
+                     :highlight="isKeywordHighlighted(keyword.id)"
                      size="mini"></keyword>
             <biblevers
                     v-for="bibleverse in material.bibleverses"
@@ -29,6 +30,7 @@
                     :bibleverse="bibleverse"
                     :materialId="material.id"
                     :editable="false"
+                    :highlight="isBibleverseHighlighted(bibleverse.from, bibleverse.to)"
                     size="mini"></biblevers>
         </div>
         <small class="description col-12">{{material.description}}</small>
@@ -54,7 +56,28 @@
             this.updateMaterial();
         },
 
-        props: ['id'],
+        props: {
+            id: {
+                type: Number,
+                required: true
+            },
+
+            highlightKeywords: {
+                type: Array,
+                required: false,
+                default() {
+                    return [];
+                }
+            },
+
+            highlightBibleverses: {
+                type: Array,
+                required: false,
+                default() {
+                    return [];
+                }
+            },
+        },
 
         data() {
             return {
@@ -87,6 +110,26 @@
 
                 return response;
 
+            },
+
+            isBibleverseHighlighted(from, to) {
+                return !!this.highlightBibleverses.find((el) => {
+
+                    if (from >= el.from && from <= el.to) {
+                        return true;
+                    } else if (to >= el.from && to <= el.to) {
+                        return true;
+                    } else {
+                        return false;
+                    }
+                });
+
+            },
+
+            isKeywordHighlighted(keywordId) {
+                return !!this.highlightKeywords.find((el) => {
+                    return el == keywordId;
+                });
             },
 
             updateBundleIcon() {

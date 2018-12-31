@@ -5,6 +5,8 @@
             <material v-for="id in materialIds"
                       :id="id"
                       :key="id"
+                      :highlight-keywords="highlightKeywords"
+                      :highlight-bibleverses="highlightBibleverses"
             ></material>
         </div>
     </div>
@@ -17,7 +19,28 @@
         mounted() {
         },
 
-        props: ['materialIds'],
+        props: {
+            materialIds: {
+                type: Array,
+                required: true,
+            },
+
+            highlightKeywords: {
+                type: Array,
+                required: false,
+                default() {
+                    return [];
+                }
+            },
+
+            highlightBibleverses: {
+                type: Array,
+                required: false,
+                default() {
+                    return [];
+                }
+            },
+        },
 
         components: {
             material: MaterialListingItem,

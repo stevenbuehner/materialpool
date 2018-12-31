@@ -1,7 +1,7 @@
 <template>
     <div class="kw-wrapper" :class="[size]">
         <div class="btn btn-sm btn-secondary sb-keyword"
-             :class="{'tag-readonly' : !editable, 'tag-editable' : editable}"
+             :class="{'tag-readonly' : !editable, 'tag-editable' : editable, highlighted : highlight}"
              @mousedown.left="keydownStartDrag"
              @click.right.stop="openRightClickMenu"
              @dblclick.stop="openKeywordEditModal"
@@ -89,6 +89,13 @@
                 required: false,
                 default: false
             },
+
+            /* Whether this biblverse should be displayed in a highlighted colour*/
+            highlight: {
+                type: Boolean,
+                required: false,
+                default: false
+            }
         },
 
         model: {
@@ -344,6 +351,11 @@
             }
         }
 
+        &.highlighted {
+            .sb-progress-bar {
+                background-color: $cyan;
+            }
+        }
 
         .text {
             color: $tag-font-colour;

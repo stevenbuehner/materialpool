@@ -32,7 +32,6 @@ const actions = {
             const promise = axios.get(api_v1_general_options)
                 .then(({data}) => {
 
-                    commit('setOptions', data);
                     return data;
 
                 })
