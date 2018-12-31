@@ -336,9 +336,9 @@ class SearchController extends Controller {
 					// Todo: Kann hier evt. eine der beiden left Joins ohne das index auskommen?
 					$matQuery->leftJoin("bibleverse_material as bibleverse_material{$index}", 'materials.id', '=',
 										"bibleverse_material{$index}.material_id");
-					$matQuery->leftJoin("bibleverses as bibleverses{$index}",
-										"bibleverse_material{$index}.bibleverse_id", '=',
-										"bibleverses{$index}.id");
+					$matQuery->join("bibleverses as bibleverses{$index}",
+									"bibleverse_material{$index}.bibleverse_id", '=',
+									"bibleverses{$index}.id");
 				}
 			}
 		}
