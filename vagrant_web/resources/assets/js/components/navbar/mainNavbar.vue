@@ -39,7 +39,7 @@
                         </b-button>
                     </b-nav-form>
 
-                    <b-nav-item-dropdown right text="admin">
+                    <b-nav-item-dropdown right :text="username">
                         <b-dropdown-item href="/logout" class="dropdown-hover">{{$t('pool.Logout')}}</b-dropdown-item>
                         <b-dropdown-item disabled href="#" class="dropdown-hover">{{$t('pool.Settings')}}
                         </b-dropdown-item>
@@ -67,13 +67,30 @@
     import bButton from 'bootstrap-vue/src/components/button/button';
     import {searchArrayObjectsToSearchQuery} from "../search/searchHelper";
 
+
     export default {
         name: "mainNavbar",
 
         data() {
             return {
                 schnellsuche: ''
+
             };
+        },
+
+        asyncComputed: {
+            username: {
+                get() {
+                    return this.$store.dispatch('general/currentUser')
+                        .then((user) => {
+                            return user.name;
+                        });
+                },
+                default: 'User',
+                /* watch() {
+                    this.forceReload
+                }*/
+            }
         },
 
         methods: {
