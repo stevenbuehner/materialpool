@@ -7,13 +7,13 @@
              role="button">
             <div class="sb-progress-bar" :class="{isDragging : dragging.ongoing}" :style="styleObject"></div>
             <bible-icon class="icon"></bible-icon>
-            <span class="text">{{ myBibleverse.label }}</span>
+            <span class="text">{{ optimizedLabel }}</span>
             <span class="delete" v-if="removeable" @mousedown.left.stop @click.prevent.stop="removeBibleverse">x</span>
         </div>
 
         <context-menu ref="menu">
             <context-menu-item v-if="searchable" @click.stop="goToBibleverseSearch">
-                Suche nach '{{myBibleverse.label}}'
+                Suche nach '{{ optimizedLabel }}'
             </context-menu-item>
         </context-menu>
     </div>
@@ -27,6 +27,8 @@
     import {searchArrayObjectsToSearchQuery} from "../search/searchHelper";
     import {draggingSupport} from "../keyword/dragging.mixin";
     import {RELEVANCE_USER_MAX} from "../../apps/config";
+    import BibleVerse from './../../../../../vendor/stevenbuehner/bible-verse-bundle/js/in/BibleVerse.js';
+    import {BibleVerseService} from './../../../../../vendor/stevenbuehner/bible-verse-bundle/js/out/BibleVerseService_de.js';
 
     export default {
 
@@ -97,6 +99,11 @@
                 return {
                     width: this.relevance / 300 * 100 + '%',
                 }
+            },
+
+            optimizedLabel() {
+                const bv = new BibleVerse(this.bibleverse.from, this.bibleverse.to);
+                return BibleVerseService.bibleVerseToString(bv);
             }
         },
 
@@ -140,8 +147,7 @@
                             msg: this.parseResponseErrors(response.response)
                         });
                     });
-                }
-                else {
+                } else {
 
                     console.info('Can not add bibleverse to material at the server because no materialId given', this.myBibleverse);
 
