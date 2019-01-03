@@ -18,7 +18,7 @@ return [
 				'patterns' => [
 					'~.*http://.*~i',
 					'~unknown|nobody|niemand~i',
-					'~^[ ]*Adobe .*CS.*$~i',
+					'~^\s*Adobe\s.*$~i',
 					'~^PDF.+$~i',
 				],
 				'values'   => ['user', 'unknown', 'Safari']
