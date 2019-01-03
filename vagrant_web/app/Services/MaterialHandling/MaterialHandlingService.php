@@ -8,29 +8,85 @@
 namespace App\Services\MaterialHandling;
 
 
+use App\Events\MaterialWasCreated;
+use App\Events\MaterialWasDeleted;
+use App\Events\ResourceWasDetached;
 use App\Jobs\CheckLonelyBibleverse;
 use App\Jobs\CheckLonelyKeyword;
+use App\Jobs\CheckLonelyResource;
+use App\Models\Keyword;
 use App\Models\Material;
 
 class MaterialHandlingService {
 
-
 	/**
-	 * @param \App\Models\Resource $resource
+	 * @param Material $material
+	 * @throws \Exception
 	 */
-	public function deleteMaterialAndAssociations(Material $material) {
+	public function deleteMaterialAndDetachAssociations(Material $material) {
 
-		$keywords    = $material->keywords;
-		$bibleverses = $material->bibleverses;
+		// Important for MaterialWasDeleted event (!)
+		$material->load(['resources', 'bibleverses', 'keywords', 'foreignIds']);
+
+		$this->detachAllResources($material);
+		$this->detachAllBibleverses($material);
+		$this->detachAllKeywords($material);
+		$this->detachAllForeignIds($material);
+		$this->detachAuthor($material);
 
 		$material->delete();
+		event(new MaterialWasDeleted($material));
 
-		foreach ($keywords as $kw) {
+	}
+
+	public function detachAllResources(Material $material) {
+
+		$material->resources;
+		$material->resources()->detach();
+
+		foreach ($material->resources as $resource) {
+			CheckLonelyResource::dispatch($resource);
+			event(new ResourceWasDetached($material, $resource));
+		}
+
+	}
+
+	public function detachAllBibleverses(Material $material) {
+
+		$material->bibleverses;
+		$material->bibleverses()->detach();
+
+		foreach ($material->bibleverses as $bv) {
+			CheckLonelyBibleverse::dispatch($bv);
+		}
+
+	}
+
+	public function detachAllKeywords(Material $material) {
+
+		$material->keywords;
+		$material->keywords()->detach();
+
+		foreach ($material->keywords as $kw) {
 			CheckLonelyKeyword::dispatch($kw);
 		}
 
-		foreach ($bibleverses as $bv) {
-			CheckLonelyBibleverse::dispatch($bv);
+	}
+
+	public function detachAllForeignIds(Material $material) {
+
+		$material->foreignIds;
+		$material->foreignIds()->delete();
+
+	}
+
+	public function detachAuthor(Material $material) {
+
+		$author = $material->author;
+
+		if ($author instanceof Keyword) {
+			$material->author()->dissociate();    // Keep this information for MaterialWasDeleted-Event
+			CheckLonelyKeyword::dispatch($author);
 		}
 
 	}
@@ -62,8 +118,8 @@ class MaterialHandlingService {
 				// Now we get the extra attributes from the pivot tables, but
 				// we intentionally leave out the foreignKey, as we already
 				// have it in the newModel
-				$extra_attributes                     = array_except($item->pivot->getAttributes(),
-																	 [$item->pivot->getForeignKey(), $item->pivot->getRelatedKey()]);
+				$extra_attributes            = array_except($item->pivot->getAttributes(),
+															[$item->pivot->getForeignKey(), $item->pivot->getRelatedKey()]);
 				$attachKeys[$item->getKey()] = $extra_attributes;
 			}
 
@@ -71,6 +127,7 @@ class MaterialHandlingService {
 
 		}
 
+		event(new MaterialWasCreated($clone));
 
 		return $clone->fresh($relationsToSync);
 

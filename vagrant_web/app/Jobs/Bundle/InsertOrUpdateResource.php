@@ -2,6 +2,8 @@
 
 namespace App\Jobs\Bundle;
 
+use App\Events\ResourceWasChanged;
+use App\Events\ResourceWasCreated;
 use App\Http\Controllers\ResourceHelperTrait;
 use App\Models\Bundle;
 use App\Models\File;
@@ -65,7 +67,7 @@ class InsertOrUpdateResource implements ShouldQueue, VersionInterface {
 
 					$this->updateResource($bundlesService, $resource);
 
-					$this->queuePostCreationJobs($resource);
+					event(new ResourceWasChanged($resource));
 
 					$foreignRes->setCreatedAt($this->localFileInfo->file_created);
 					$foreignRes->setUpdatedAt($this->localFileInfo->file_modified);
@@ -86,7 +88,7 @@ class InsertOrUpdateResource implements ShouldQueue, VersionInterface {
 				// Insert
 				$resource = $this->createResource($bundlesService);
 
-				$this->queuePostCreationJobs($resource);
+				event(new ResourceWasCreated($resource));
 
 				$foreignResource = new ForeignResourceId(
 					[

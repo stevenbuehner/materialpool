@@ -61,9 +61,4 @@ class PdfFile extends File {
 		$this->setOption(self::PAGE_COUNT_KEY, $pageCount);
 	}
 
-	public function getPostCreateJobs() {
-		return array_merge(parent::getPostCreateJobs(), [new CalculatePdfPageSize($this)]);
-	}
-
-
 }

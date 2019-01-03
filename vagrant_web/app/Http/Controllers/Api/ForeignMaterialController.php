@@ -2,16 +2,17 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Events\MaterialWasChanged;
+use App\Events\MaterialWasCreated;
+use App\Events\MaterialWasDeleted;
 use App\Http\Requests\FullMaterialRequest;
-use App\Jobs\CheckLonelyBibleverse;
-use App\Jobs\CheckLonelyKeyword;
-use App\Jobs\CheckLonelyResource;
 use App\Models\Bibleverse;
 use App\Models\ForeignMaterialId;
 use App\Models\ForeignResourceId;
 use App\Models\Keyword;
 use App\Models\Material;
 use App\Models\Resource;
+use App\Services\MaterialHandling\MaterialHandlingService;
 use App\Services\TagExtraction\Interfaces\RelevanceInterface;
 use App\Services\TagExtraction\MaterialExtractionService;
 use App\Services\TagExtraction\Properties\AuthorProperty;
@@ -32,10 +33,12 @@ class ForeignMaterialController extends BaseController {
 
 	protected $withAttributes = [];
 	protected $bibleVerseService;
+	protected $materialHandlingService;
 
-	public function __construct(BibleVerseService $bibleVerseService) {
+	public function __construct(BibleVerseService $bibleVerseService, MaterialHandlingService $materialHandlingService) {
 
-		$this->bibleVerseService = $bibleVerseService;
+		$this->bibleVerseService       = $bibleVerseService;
+		$this->materialHandlingService = $materialHandlingService;
 
 		$this->withAttributes = [
 			'material.keywords'    => function ($q) {
@@ -256,6 +259,8 @@ class ForeignMaterialController extends BaseController {
 	/**
 	 * @param FullMaterialRequest $request
 	 * @param                     $foreignMaterialId
+	 * @return array|\Illuminate\Contracts\Routing\ResponseFactory|\Symfony\Component\HttpFoundation\Response
+	 * @throws \App\Models\Exceptions\InvalidKeywordTypeException
 	 */
 	public function store(FullMaterialRequest $request, $foreignMaterialId) {
 
@@ -292,6 +297,7 @@ class ForeignMaterialController extends BaseController {
 		$this->syncKeywords($request, $mat);
 		$this->syncBibleverses($request, $mat);
 
+		event(new MaterialWasCreated($mat));
 
 		return $this->turnForeignMaterialIdIntoCustomFormat($fm);
 	}
@@ -335,6 +341,7 @@ class ForeignMaterialController extends BaseController {
 		$this->syncKeywords($request, $material);
 		$this->syncBibleverses($request, $material);
 
+		event(new MaterialWasChanged($material));
 
 		return $this->turnForeignMaterialIdIntoCustomFormat($foreignMaterialId);
 
@@ -357,46 +364,8 @@ class ForeignMaterialController extends BaseController {
 		then delete the material and oll the associations to it
 		*/
 		if ($material->foreign_ids_count == 1) {
-
-			// Store associations for afterward-jobs
-			$author      = $material->author;
-			$keywords    = $material->keywords;
-			$bibleverses = $material->bibleverses;
-			$resources   = $material->resources;
-
-
-			if ($author instanceof Keyword) {
-				$material->author()->dissociate();
-				CheckLonelyKeyword::dispatch($author);
-			}
-
-			if ($keywords->count() > 0) {
-				$material->keywords()->detach();
-
-				$keywords->each(function (Keyword $keyword) {
-					CheckLonelyKeyword::dispatch($keyword);
-				});
-			}
-
-			if ($bibleverses->count() > 0) {
-				$material->bibleverses()->detach();
-
-				$bibleverses->each(function (Bibleverse $bibleverse) {
-					CheckLonelyBibleverse::dispatch($bibleverse);
-				});
-			}
-
-			if ($resources->count() > 0) {
-				$material->resources()->detach();
-
-				$resources->each(function (Resource $resource) {
-					CheckLonelyResource::dispatch($resource);
-				});
-			}
-
-			$material->delete();
+			$this->materialHandlingService->deleteMaterialAndDetachAssociations($material);
 		}
-
 
 		$foreignMaterialId->delete();
 

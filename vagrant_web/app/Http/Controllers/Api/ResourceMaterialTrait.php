@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Events\ResourceWasAttached;
+use App\Events\ResourceWasDetached;
 use App\Http\Requests\MaterialResourceRequest;
 use App\Jobs\CheckLonelyMaterial;
 use App\Jobs\CheckLonelyResource;
@@ -40,6 +42,8 @@ trait ResourceMaterialTrait {
 			$material->resources()->syncWithoutDetaching([$resource->id => ['limitation' => NULL]]);
 		}
 
+		event(new ResourceWasAttached($material, $resource));
+
 		return $this->getFreshMatAndResource($material, $resource);
 	}
 
@@ -55,6 +59,8 @@ trait ResourceMaterialTrait {
 
 		CheckLonelyResource::dispatch($resource);
 		CheckLonelyMaterial::dispatch($material);
+
+		event(new ResourceWasDetached($material, $resource));
 
 		return $this->getFreshMatAndResource($material, $resource);
 	}
@@ -73,7 +79,20 @@ trait ResourceMaterialTrait {
 			}
 		}
 
-		$material->resources()->sync($resourceIds);
+		$changes = $material->resources()->sync($resourceIds);
+
+		foreach ($changes['attached'] as $resourceId) {
+			event(new ResourceWasAttached($material, new Resource(['id' => $resourceId]) ));
+		}
+
+		foreach ($changes['updated'] as $resourceId) {
+			event(new ResourceWasAttached($material, new Resource(['id' => $resourceId]) ));
+		}
+
+		foreach ($changes['detached'] as $resourceId) {
+			event(new ResourceWasDetached($material, new Resource(['id' => $resourceId]) ));
+		}
+
 
 		return $this->getFreshMatAndResource($material, $resource);
 

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Events\ResourceWasCreated;
 use App\Models\ForeignResourceId;
 use App\Models\Resource;
 use Illuminate\Http\Request;

@@ -2,6 +2,7 @@
 
 namespace App\Services\MaterialHandling;
 
+use App\Events\MaterialWasChanged;
 use App\Models\Bibleverse;
 use App\Models\ForeignMaterialId;
 use App\Models\Keyword;
@@ -12,6 +13,12 @@ use Illuminate\Support\Facades\DB;
 
 
 class MaterialDuplicationHandlingService {
+
+	protected $materialHandlingService;
+
+	public function __construct(MaterialHandlingService $materialHandlingService) {
+		$this->materialHandlingService = $materialHandlingService;
+	}
 
 	/**
 	 * @param \App\Models\Resource $resource
@@ -168,12 +175,11 @@ class MaterialDuplicationHandlingService {
 			$fid->saveOrFail();
 		}
 
-		$second->delete();
+		event(new MaterialWasChanged($main));
 
+		$this->materialHandlingService->deleteMaterialAndDetachAssociations($second);
 
 	}
-
-
 
 
 }

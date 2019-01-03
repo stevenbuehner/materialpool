@@ -2,10 +2,14 @@
 
 namespace App\Jobs\Bundle;
 
+use App\Events\ResourceWasDeleted;
 use App\Models\Bundle;
 use App\Models\File;
 use App\Models\ForeignResourceId;
+use App\Models\Resource;
 use App\Services\Bundles\BundlesService;
+use App\Services\ResourceHandling\FileHandlingService;
+use App\Services\ResourceHandling\ResourceHandlingService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -38,8 +42,11 @@ class DeleteResourceIfNeeded implements ShouldQueue, VersionInterface {
 	/**
 	 * Check if this resource does not exist anymore and needs to be deleted
 	 *
+	 * @param BundlesService          $bundlesService
+	 * @param ResourceHandlingService $resourceHandlingService
+	 * @throws \Exception
 	 */
-	public function handle(BundlesService $bundlesService) {
+	public function handle(BundlesService $bundlesService, FileHandlingService $fileHandlingService) {
 
 		$uuid = $this->foreignResourceId->foreign_id;
 
@@ -52,6 +59,7 @@ class DeleteResourceIfNeeded implements ShouldQueue, VersionInterface {
 
 				$resource->deleteLocalFile();
 				$resource->delete();
+				event(new ResourceWasDeleted($resource));
 
 			}
 

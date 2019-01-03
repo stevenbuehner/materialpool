@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\ResourceWasChanged;
+use App\Events\ResourceWasCreated;
 use App\Exceptions\InvalidResourceTypeException;
 use App\Models\File;
 use App\Models\Material;
@@ -46,7 +48,9 @@ trait ResourceHelperTrait {
 			try {
 				$resources[$key] = $this->handleResourceFileUpload($file);
 				$resources[$key] = $this->handleGerneralResourceAttributes($resources[$key], $request);
-				$resources[$key] = $this->queuePostCreationJobs($resources[$key]);
+
+				event(new ResourceWasCreated($resources[$key]));
+
 			} catch (\Exception $e) {
 				//Todo: Cleanup again
 				Log::error('Error during File-Upload', [
@@ -137,36 +141,6 @@ trait ResourceHelperTrait {
 		return $resource;
 	}
 
-	protected function queuePostCreationJobs(Resource $resource) {
-
-		$jobs = $resource->getPostCreateJobs();
-
-		foreach ($jobs as $job) {
-			try {
-
-				// Use this in favour of the trait DispatchesJobs. Because the function dispatch conflicts with the trait Dispatchable
-				app(Dispatcher::class)->dispatch($job);
-			} catch (\Exception $e) {
-				Log::Error("Error on Job-Execution for ({$resource->id})!", [
-					'resource' => $resource->toArray(),
-					'message'  => $e->getMessage(),
-					'trace'    => $e->getTrace()
-				]);
-			}
-		}
-
-		if (count($jobs) > 0) {
-			// Maybe something was changed during a job
-			$resource = $resource->fresh();
-
-			Log::info("Queue jobs for resource ({$resource->id})!", $jobs);
-
-		}
-
-		return $resource;
-
-	}
-
 	/**
 	 *
 	 * @param $request
@@ -177,12 +151,14 @@ trait ResourceHelperTrait {
 	 */
 	protected function handleSingleResourceFileData(Request $request, Resource $resource = NULL) {
 
+		$postEvent = $resource === NULL ? ResourceWasCreated::class : ResourceWasChanged::class;
+
 		try {
 			$uploadedFile = $request->file('file');
 			$resource     = $this->handleResourceFileUpload($uploadedFile, $resource);
 			$resource     = $this->handleGerneralResourceAttributes($resource, $request);
 
-			$this->queuePostCreationJobs($resource);
+			event(new $postEvent($resource));
 
 		} catch (\Exception $e) {
 			//Todo: Cleanup again
@@ -224,6 +200,8 @@ trait ResourceHelperTrait {
 		$content            = $request->get('content',
 											$resource instanceof TextContentInterface ? $resource->getContent() : '');
 		$resourceClass      = $recognitionService->guessResourceContent($content);
+		$postEvent          = $resource === NULL ? ResourceWasCreated::class : ResourceWasChanged::class;
+
 
 		if ($resource) {
 			if ($resource instanceof $resourceClass) {
@@ -245,7 +223,9 @@ trait ResourceHelperTrait {
 		$resource->save();
 
 		try {
-			$this->queuePostCreationJobs($resource);
+
+			event(new $postEvent($resource));
+
 		} catch (\Exception $e) {
 			//Todo: Cleanup again
 			Log::error('Error during Post-CreationJobs', [
@@ -254,8 +234,6 @@ trait ResourceHelperTrait {
 			]);
 
 		}
-
-		// UpdateResourceHashes::dispatch($resource);
 
 		// Hash will be updated ...
 		// $resource = $resource->fresh();

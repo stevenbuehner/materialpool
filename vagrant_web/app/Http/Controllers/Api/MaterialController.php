@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Events\MaterialWasChanged;
+use App\Events\MaterialWasCreated;
 use App\Http\Requests\MaterialRequest;
 use App\Models\Material;
-use App\Models\Resource;
 use App\Services\MaterialHandling\MaterialHandlingService;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller as BaseController;
@@ -14,7 +15,7 @@ use StevenBuehner\BibleVerseBundle\Service\BibleVerseService;
 
 class MaterialController extends BaseController {
 
-	use MaterialHelperTrait;
+	use MaterialHelperTrait, ResourceMaterialTrait;
 
 	protected $withAttributes = [];
 	protected $bibleVerseService;
@@ -77,31 +78,27 @@ class MaterialController extends BaseController {
 		// Reload from DB with Relations
 		$material = $material->fresh($this->withAttributes);
 
+		event(new MaterialWasCreated($material));
+
 		return $material;
 	}
 
+	/*
+		public function associateResources(Material $material, Request $request) {
 
-	public function associateResources(Material $material, Request $request) {
+			$resourceIds         = $request->get('resource_id', []);
+			$response            = $this->doSync($material, $resourceIds);
+			$response['success'] = TRUE;
 
-		$resourceIds = $request->get('resource_id', []);
-
-		// TODO: Check all Resources rights - is this neccessary? - FUnktioniert nicht ?!?
-		$allResources = Resource::whereIn('id', [$resourceIds])->get();
-		foreach ($allResources as $key => $resource) {
-			if ($resource->created_by != Auth::id()) {
-				return response('You do not own all of theese resources', 404);
-			}
+			return $response;
 		}
-
-		$material->resources()->sync($resourceIds);
-
-		return ['success' => TRUE];
-	}
+	*/
 
 	/**
 	 * Display the specified resource.
 	 *
 	 * @param  Material $material
+	 * @return Material
 	 */
 	public function show(Material $material) {
 
@@ -113,9 +110,10 @@ class MaterialController extends BaseController {
 	/**
 	 * Update the specified material in storage.
 	 *
-	 * @param  \Illuminate\Http\Request $request
-	 * @param  Material                 $material
-	 * @return \Illuminate\Http\Response
+	 * @param MaterialRequest $request
+	 * @param  Material       $material
+	 * @return Material|null
+	 * @throws \App\Models\Exceptions\InvalidKeywordTypeException
 	 */
 	public function update(MaterialRequest $request, Material $material) {
 
@@ -126,6 +124,7 @@ class MaterialController extends BaseController {
 		$this->syncKeywords($request, $material);
 		$this->syncBibleverses($request, $material);
 
+		event(new MaterialWasChanged($material));
 
 		return $material->fresh($this->withAttributes);
 	}
@@ -134,13 +133,12 @@ class MaterialController extends BaseController {
 	 * Remove the specified material from storage.
 	 *
 	 * @param  Material $material
+	 * @return array
+	 * @throws \Exception
 	 */
 	public function destroy(Material $material) {
 
-		$material->resources()->detach();
-		$material->bibleverses()->detach();
-		$material->keywords()->detach();
-		$material->delete();
+		$this->materialHandlingService->deleteMaterialAndDetachAssociations($material);
 
 		return ['success' => TRUE];
 	}

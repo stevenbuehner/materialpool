@@ -2,6 +2,8 @@
 
 namespace App\Services\TagExtraction;
 
+use App\Events\MaterialWasCreated;
+use App\Events\ResourceWasAttached;
 use App\Models\Material;
 use App\Models\Resource;
 use App\Services\TagExtraction\Interfaces\PropertyInterface;
@@ -96,6 +98,12 @@ class MaterialExtractionService {
 
 		$this->insertPropertiesIntoMaterial($material, $properties)
 			 ->save();
+
+		event(new MaterialWasCreated($material));
+
+		foreach ($material->resources as $resource) {
+			event(new ResourceWasAttached($material, $resource));
+		}
 
 		return $material;
 	}

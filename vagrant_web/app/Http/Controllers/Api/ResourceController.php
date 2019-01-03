@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Events\ResourceWasChanged;
 use App\Http\Controllers\ResourceHelperTrait;
 use App\Models\File;
 use App\Models\ForeignMaterialId;
 use App\Models\Resource;
+use App\Services\ResourceHandling\FileHandlingService;
 use App\Services\ResourceHandling\ResourceCleanupService;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller as BaseController;
@@ -17,9 +19,12 @@ class ResourceController extends BaseController {
 
 	const DEFAULT_RELATIONS = ['materials', 'materials.keywords', 'materials.bibleverses', 'creator'];
 	protected $allowedAssociations = ['materials', 'materials.keywords', 'materials.bibleverses', 'creator'];
+	protected $fileHandlingService;
 
-	public function __construct() {
+	public function __construct(FileHandlingService $fileHandlingService) {
 		$this->middleware(['auth:api']);
+
+		$this->fileHandlingService = $fileHandlingService;
 	}
 
 	/**
@@ -180,6 +185,8 @@ class ResourceController extends BaseController {
 				$resource = $this->handleContentResourceUpload($request, $resource);
 			} else {
 				$resource = $this->handleGerneralResourceAttributes($resource, $request);
+
+				event(new ResourceWasChanged($resource));
 			}
 
 		} catch (\Exception $e) {
@@ -188,16 +195,12 @@ class ResourceController extends BaseController {
 
 		$resource = $resource->fresh(self::DEFAULT_RELATIONS);
 
-		// Update Hashes, Page_Counts, etc
-		if ($resource->updated_at !== $lastUpdated) {
-			$this->queuePostCreationJobs($resource);
-		}
-
 		return $resource;
 	}
 
 	/**
 	 * @param Resource $resource
+	 * @return array|\Illuminate\Contracts\Routing\ResponseFactory|\Symfony\Component\HttpFoundation\Response
 	 */
 	public function destroy(Resource $resource) {
 
@@ -209,8 +212,7 @@ class ResourceController extends BaseController {
 
 		}
 
-		$cleanupService = resolve(ResourceCleanupService::class);
-		$cleanupService->cleanUp($resource);
+		$this->fileHandlingService->deleteResourceCompletely($resource);
 
 		return ['success' => TRUE];
 	}

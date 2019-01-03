@@ -121,6 +121,7 @@ class File extends Resource {
 		$this->setAttribute('local_path', NULL);
 		$this->setAttribute('original_filename', '');
 
+
 		return $result;
 	}
 

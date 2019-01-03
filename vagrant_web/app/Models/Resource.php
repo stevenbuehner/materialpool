@@ -26,6 +26,7 @@ use Nanigans\SingleTableInheritance\SingleTableInheritanceTrait;
  * @property int        $user_id
  * @property User       $creator
  * @property Collection $materials
+ * @property Collection $foreignIds
  */
 class Resource extends Model {
 	use SingleTableInheritanceTrait;
@@ -143,13 +144,6 @@ class Resource extends Model {
 		return $this->belongsToMany(Material::class, 'material_resource', 'resource_id', 'material_id')
 					->withPivot('limitation')
 					->using(MaterialResource::class);
-	}
-
-	/**
-	 * @return array of jobs that need to be run after creating this resource
-	 */
-	public function getPostCreateJobs() {
-		return [new UpdateResourceHashes($this)];
 	}
 
 	/**

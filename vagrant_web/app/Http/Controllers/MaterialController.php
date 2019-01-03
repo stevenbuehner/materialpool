@@ -269,7 +269,7 @@ class MaterialController extends Controller {
 
 
 		$materialService = resolve(MaterialHandlingService::class);
-		$materialService->deleteMaterialAndAssociations($material);
+		$materialService->deleteMaterialAndDetachAssociations($material);
 		$deletedMaterials++;
 
 		return view('materials.destroyConfirm',

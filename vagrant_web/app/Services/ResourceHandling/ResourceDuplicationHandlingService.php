@@ -58,7 +58,7 @@ class ResourceDuplicationHandlingService {
 		   ->chunk(30, function ($slaveResources) use ($resourceToCheck) {
 			   foreach ($slaveResources as $slave) {
 				   $this->migrateSlaveIntoMasterResource($slave, $resourceToCheck);
-				   CheckDuplicateMaterials::dispatch($resourceToCheck);
+				   // CheckDuplicateMaterials::dispatch($resourceToCheck);
 			   }
 		   });
 
@@ -66,6 +66,7 @@ class ResourceDuplicationHandlingService {
 
 	protected function migrateSlaveIntoMasterResource(Res $slaveResource, Res $masterResource) {
 
+		// FixMe: Überarbeiten! Werfe die richtigen Events (ResourceModified, Deleted, Attached, Detached, ...)
 		DB::beginTransaction();
 
 		// Update material_resource

@@ -8,22 +8,22 @@
 namespace App\Services\ResourceHandling;
 
 
+use App\Events\ResourceWasDeleted;
 use App\Models\File;
 use App\Models\Resource;
 use App\Services\ResourceHandling\Exceptions\LocalFileDoesNotExistException;
 use App\Services\ResourceHandling\Exceptions\RemoteFileDoesNotExistException;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
-class FileHandlingService {
+class FileHandlingService extends ResourceHandlingService {
 
 	public function copyRemoteFileToLocalStorage(File $resource) {
 		if (!$resource->hasRemoteFile()) {
 			throw new RemoteFileDoesNotExistException();
 		}
 
-		if ($resource->hasLocalFile()) {
-			$resource->deleteLocalFile();
-		}
+		$this->cleanUpFileResource($resource);
 
 		$stream = $resource->getRemoteFileStream();
 
@@ -42,18 +42,43 @@ class FileHandlingService {
 
 	}
 
+	public function cleanUpFileResource(File $resource) {
+
+		if ($resource->hasLocalFile()) {
+			try {
+				$resource->deleteLocalFile();
+
+				Log::info('Cleaned up local file of Resource (ID: ' . $resource->id . ')');
+
+			} catch (\Exception $e) {
+				Log::error('Error while cleanup / deleting local file', [
+					'message' => $e->getMessage(),
+					'trace'   => $e->getTrace()
+				]);
+			}
+		}
+
+	}
+
+
 	/**
 	 * @param \App\Models\Resource $resource
 	 */
 	public function deleteResourceCompletely(Resource $resource) {
 
+		$resource->load(['materials', 'foreignIds']);
+
+		$this->detachAllMaterials($resource);
+		$this->detachAllForeignIds($resource);
+
 		// Delete Files from Disk
 		if ($resource instanceof File) {
-			$resource->deleteLocalFile();
+			$this->cleanUpFileResource($resource);
 		}
 
 		// Delete in DB
 		$resource->delete();
+		event(new ResourceWasDeleted($resource));
 
 	}
 
