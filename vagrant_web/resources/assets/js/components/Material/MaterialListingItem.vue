@@ -1,5 +1,5 @@
 <template>
-    <div class="materialListingItem row"
+    <div class="materialListingItem row "
          v-if="material"
          @click.prevent="goToMaterial(material.id)">
 
@@ -8,15 +8,19 @@
                 <div v-html="bundleIcon" class="icon pl-3" v-if="bundleIcon">test</div>
                 <div :class="{'col-10' : bundleIcon, 'col-12' : !bundleIcon}">
                     <div class="title">{{material.title}}</div>
-                    <small class="meta-info">
+                    <small class="meta-info" v-once>
                         <div class="info" v-if="material.author">von {{material.author.title}} |</div>
-                        <div class="info" v-if="material.author">letztes Update am {{material.updated_at}}</div>
+                        <div class="info" v-if="material.author">letztes Update am {{material.updated_at}} |</div>
+                        <div class="info resourceType">
+                            {{fileTypeCounter}}
+                        </div>
+                        <span class="badge badge-pill badge-warning" v-if="material.resources.length === 0">{{$t('pool.no-resources-attached')}}</span>
                     </small>
                 </div>
 
             </div>
         </div>
-        <div class="tags col-12">
+        <div class="tags col-12" v-once>
             <keyword v-for="keyword in material.keywords"
                      :key="'k' + keyword.id"
                      :keyword="keyword"
@@ -89,6 +93,22 @@
             materialDetailLink() {
                 return api_v1_materials_update(this.id)
             },
+
+            fileTypeCounter() {
+                const types = {};
+
+                this.material.resources.forEach((resource) => {
+                    types[resource.type] = types[resource.type] || 0;
+                    types[resource.type]++;
+                });
+
+                let result = [];
+                for (let i in types) {
+                    result.push(types[i] + 'x ' + i);
+                }
+
+                return result.join(', ');
+            }
         },
 
         watch: {
@@ -183,6 +203,9 @@
             .info {
                 display: inline-block;
                 color: gray;
+            }
+
+            .resourceType {
             }
         }
 

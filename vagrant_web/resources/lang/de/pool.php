@@ -208,6 +208,6 @@ return [
 	'copy'                                                     => 'kopieren',
 	'Copy-material'                                            => 'Material kopieren',
 	'Errormessage'                                             => 'Fehlermeldung',
-
+	'no-resources-attached'                                    => 'Keine Resourcen zugeordnet',
 
 ];

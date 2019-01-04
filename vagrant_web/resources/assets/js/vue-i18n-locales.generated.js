@@ -206,7 +206,8 @@ export default {
             "Create-Limitation": "Limitation erstellen",
             "copy": "kopieren",
             "Copy-material": "Material kopieren",
-            "Errormessage": "Fehlermeldung"
+            "Errormessage": "Fehlermeldung",
+            "no-resources-attached": "Keine zugeordneten Resourcen"
         }
     },
     "en": {
@@ -440,7 +441,8 @@ export default {
             "Create-Limitation": "Create Limitation",
             "copy": "copy",
             "Copy-material": "Copy material",
-            "Errormessage": "Errormessage"
+            "Errormessage": "Errormessage",
+            "no-resources-attached": "No resources attached"
         },
         "validation": {
             "accepted": "The {attribute} must be accepted.",
