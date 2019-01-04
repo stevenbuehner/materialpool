@@ -4,6 +4,7 @@ namespace App\Services\PreviewGeneration\Interfaces;
 
 use App\Models\Resource as ResourceEntity;
 use App\ResourceLimitations\ResourceLimitationInterface;
+use App\Services\PreviewGeneration\Exceptions\NotPreviewAbleException;
 use Intervention\Image\Image;
 use Intervention\Image\Size;
 
@@ -20,6 +21,7 @@ interface PreviewGeneratorInterface {
 	 * @param Size           $size
 	 * @param null|int       $page (optional) Starting from 1 to ... x
 	 * @return Image
+	 * @throws NotPreviewAbleException
 	 */
 	public function getImagePreview(ResourceEntity $resource, Size $size, $page);
 

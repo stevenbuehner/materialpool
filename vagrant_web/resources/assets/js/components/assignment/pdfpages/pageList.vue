@@ -50,6 +50,7 @@
     import Page from './page.vue';
     import bModal from 'bootstrap-vue/src/components/modal/modal';
     import bImage from 'bootstrap-vue/src/components/image/img'
+    import {pdfPreviewImageForPage} from "../../serverRoutes";
 
     export default {
 
@@ -63,11 +64,6 @@
                 required: false,
                 default: 'md'
             },
-            previewLinkPattern: {
-                type: String,
-                required: false,
-                default: '/pdfpreview/res-{id}/page-{page}'
-            }
         },
 
         data: function () {
@@ -123,7 +119,7 @@
                                 return total + 1;
                             }
                         }, 0),
-                        image: this.previewLinkPattern.replace('{id}', this.fileId).replace('{page}', i)
+                        image: pdfPreviewImageForPage(this.resource, i)
                     })
                 }
 

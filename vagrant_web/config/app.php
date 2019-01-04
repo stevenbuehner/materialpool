@@ -199,10 +199,6 @@ return [
 		App\Providers\HtmlHelperProvider::class,
 
 
-		// Caching whole pages / responses
-		Spatie\ResponseCache\ResponseCacheServiceProvider::class,
-
-
 	],
 
 	/*
@@ -255,7 +251,6 @@ return [
 		'Html'            => Collective\Html\HtmlFacade::class,
 		'Image'           => Intervention\Image\Facades\Image::class,
 		'Module'          => Nwidart\Modules\Facades\Module::class,
-		'ResponseCache'   => Spatie\ResponseCache\ResponseCacheFacade::class,
 		'ResourcePreview' => App\Http\Facades\ResourcePreviewHelperFacade::class,
 	],
 
@@ -269,11 +264,11 @@ return [
 		'preview' => [
 			'maxWidth'  => 1024,
 			'maxHeight' => 1024,
-			'useCache'  => TRUE,
-			'cacheTime' => 60 * 24 * 1
+			'cacheTime' => 60 * 24 * 30 // in Minutes
 		]
 
 	],
+
 
 	'preview' => [
 		'resolution'   => 144,

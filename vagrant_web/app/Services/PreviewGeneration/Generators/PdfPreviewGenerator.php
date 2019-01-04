@@ -7,7 +7,6 @@
 
 namespace App\Services\PreviewGeneration\Generators;
 
-use App\Jobs\CalculatePdfPageSize;
 use App\Models\File;
 use App\Models\PdfFile;
 use App\Models\Resource as ResourceEntity;
@@ -60,13 +59,14 @@ class PdfPreviewGenerator implements PreviewGeneratorInterface {
 			// Todo: Noch besser wäre direkt via convert -verbose -density 144 /home/vagrant/web/storage/app/resources/1/doc/DaZzBkRHHMdBr7IU4JC5sCz5EG5Ppbh0Ko6HFYrs.pdf[1] -quality 90 -flatten -trim test.png
 
 			$im = new \Imagick();
-			$im->setResolution($size->getWidth(), $size->getHeight());
+			$im->setResolution(config('app.preview.resolution'), config('app.preview.resolution'));
 			$im->readImage(sprintf('%s[%s]', $localPdfPath, max(0, $page - 1)));
 
 			// Hintergrund im bei transparenten Geschichten (z.B. in PDFs) weiß nehmen und AlphaChannel entfernen
 			$im->setBackgroundColor('white');
 			$im->setImageAlphaChannel(\Imagick::ALPHACHANNEL_REMOVE);
 			$im->mergeImageLayers(\Imagick::LAYERMETHOD_FLATTEN);
+			$im->scaleImage($size->getWidth(), $size->getHeight(), TRUE);
 
 			$image = $this->imageManager->make($im);
 
@@ -90,12 +90,6 @@ class PdfPreviewGenerator implements PreviewGeneratorInterface {
 
 		/** @var $resource PdfFile */
 		$pageCount = $resource->page_count;
-
-		if ($pageCount === NULL) {
-			CalculatePdfPageSize::dispatch($resource);
-			$resource  = $resource->fresh();
-			$pageCount = $resource->page_count;
-		}
 
 		$view = View::make('resources.generators.pdf')
 					->with('resource', $resource)

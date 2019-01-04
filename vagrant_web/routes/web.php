@@ -75,22 +75,32 @@ Route::group(['prefix' => 'pool', 'as' => 'pool.'], function () {
 
 });
 
-Route::get('/resource/image/{resource}/{width?}/{height?}', 'ResourcePreviewController@getImage')
-	 ->name('resource.image.preview')
+Route::get('/resource/{resource}/image/{width?}/{height?}', 'ResourcePreviewController@getImage')
 	 ->where('width', '[0-9]+')
-	 ->where('height', '[0-9]+');
+	 ->where('height', '[0-9]+')
+	 ->middleware('auth')
+	 ->middleware(\App\Http\Middleware\CacheControlHeaders::class)// Tell browser to keep cache for one week
+	 ->name('resource.image.preview');
 
-Route::get('pdfpreview/res-{resource}/page-{page}', 'ResourcePreviewController@getPageImage')
+Route::get('/resource/{resource}/image/page-{page}', 'ResourcePreviewController@getPageImage')
 	 ->where('resource', '[0-9]+')
 	 ->where('page', '[0-9]+')
 	 ->name('PdfPreview/ImagePreview')
-	 ->middleware(\Spatie\ResponseCache\Middlewares\CacheResponse::class)
-	 ->middleware(\App\Http\Middleware\CacheControlHeaders::class);
+	 ->middleware('auth')
+	 ->middleware(\App\Http\Middleware\CacheControlHeaders::class); // Tell browser to keep cache for one week
+
+Route::get('material/{material}/preview', 'MaterialPreviewController@getMaterialPreview')
+	 ->where('material', '[0-9]+')
+	 ->middleware('auth')
+	 ->middleware(\App\Http\Middleware\CacheControlHeaders::class)// Tell browser to keep cache for one week
+	 ->name('material.preview');
+
 
 Route::get('/bibleverse/{from}-{to}', 'Api\BibleverseController@show')
-	 ->name('bibleverse')
 	 ->where('from', '[0-9]+')
-	 ->where('to', '[0-9]+');
+	 ->where('to', '[0-9]+')
+	 ->middleware('auth')
+	 ->name('bibleverse');
 
 
 Auth::routes();

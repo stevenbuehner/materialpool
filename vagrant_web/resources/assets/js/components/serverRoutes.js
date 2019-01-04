@@ -32,12 +32,12 @@ export function resourceDownloadLink(resource) {
 export function previewImageFirstPage(resource, width, height) {
     width  = width || 1024;
     height = height || 1024;
-    return '/resource/image/' + resource.id + '/' + width + '/' + height;
+    return '/resource/' + resource.id + '/image/' + width + '/' + height;
 }
 
 export function pdfPreviewImageForPage(resource, page) {
     page = page || 1;
-    return '/pdfpreview/res-' + resource.id + '/page-' + page;
+    return '/resource/' + resource.id + '/image/page-' + page;
 }
 
 export function resourceLimitedPdfDownload(resourceId, materialId) {

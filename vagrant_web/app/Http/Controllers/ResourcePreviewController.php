@@ -7,11 +7,9 @@ use App\Models\PdfFile;
 use App\Models\Resource;
 use App\Services\PreviewGeneration\ResourcePreviewService;
 use App\Services\ResourceHandling\FileHandlingService;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Response;
 use Intervention\Image\Size;
 
-class ResourcePreviewController extends Controller {
+class ResourcePreviewController {
 
 	protected $previewService;
 	protected $fileHandlingService;
@@ -23,67 +21,37 @@ class ResourcePreviewController extends Controller {
 
 	/**
 	 * @param Resource $resource
-	 * @param null     $width
-	 * @param null     $height
+	 * @param int      $width
+	 * @param int      $height
 	 * @return \Illuminate\Http\Response
 	 */
-	public function getImage(Resource $resource, $width = NULL, $height = NULL) {
+	public function getImage(Resource $resource, $width = 1024, $height = 1024) {
 
-		// Get Image (with GD or Imagick Library)
-		// $image = $this->previewService->getImagePreviewByWidthAndHeight($resource, $width, $height);
+		$size = new Size(
+			min($width, config('app.resource.preview.maxWidth')),
+			min($height, config('app.resource.preview.maxWidth'))
+		);
 
-		$encodedImage = $this->previewService->getCachedImage($resource, new Size($width, $height));
+		$image = $this->previewService->getCachedImage($resource, $size);
 
-		// create response and add encoded image data
-		$response = Response::make($encodedImage->getEncoded());
-
-		// set content type
-		$response->header('Content-Type', $encodedImage->mime());
-
-		return $response;
+		return $image->response(config('app.preview.outputFormat'));
 
 	}
 
-	public function getPageImage(Resource $resource, $page, $width = 100) {
+	public function getPageImage(Resource $resource, $page) {
 
 		if (!$resource instanceof PdfFile) {
 			throw new InvalidResourceTypeException('Only PdfResources can have page-preview images');
 		}
 
-		$localPdfPath = $this->fileHandlingService->getLocalFilePath($resource);
-
-		try {
-			// Todo: Noch besser wäre direkt via convert -verbose -density 144 /home/vagrant/web/storage/app/resources/1/doc/DaZzBkRHHMdBr7IU4JC5sCz5EG5Ppbh0Ko6HFYrs.pdf[1] -quality 90 -flatten -trim test.png
-
-			$im = new \Imagick();
-			$im->setResolution(config('app.preview.resolution'), config('app.preview.resolution'));
-			$im->readImage(sprintf('%s[%s]', $localPdfPath, $page - 1));
-
-			// Hintergrund im bei transparenten Geschichten (z.B. in PDFs) weiß nehmen und AlphaChannel entfernen
-			$im->setBackgroundColor('white');
-			$im->setImageAlphaChannel(\Imagick::ALPHACHANNEL_REMOVE);
-			$im->mergeImageLayers(\Imagick::LAYERMETHOD_FLATTEN);
-
-			$im->setFormat(config('app.preview.outputFormat', 'png'));
-		} catch (\ImagickException $e) {
-
-			Log::error('Imagick-Error!', [
-				'error' => $e->getMessage(),
-				'trace' => $e->getTraceAsString(),
-			]);
-
-			return response('Imagick Error', 500);
-		}
-
-		$response = Response::make(
-			$im, 200
+		$size = new Size(
+			config('app.resource.preview.maxWidth'),
+			config('app.resource.preview.maxWidth')
 		);
 
-		$response->header(
-			'content-type', config('app.preview.outputFormat')
-		);
+		$image = $this->previewService->getCachedImage($resource, $size, $page);
 
-		return $response;
+		return $image->response(config('app.preview.outputFormat'));
 
 	}
 }
