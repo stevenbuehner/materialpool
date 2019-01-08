@@ -259,7 +259,7 @@ const actions = {
             .then((response) => {
                 return response.data;
             }).catch((response) => {
-                return response;
+                throw response;
             });
     },
 

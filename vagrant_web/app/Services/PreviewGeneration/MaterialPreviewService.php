@@ -7,6 +7,7 @@ use App\Models\PdfFile;
 use App\Models\Resource;
 use App\ResourceLimitations\PageLimitation;
 use App\ResourceLimitations\TimeLimitation;
+use App\Services\PreviewGeneration\Exceptions\NotPreviewAbleException;
 use Intervention\Image\ImageManager;
 use Intervention\Image\Size;
 
@@ -19,6 +20,10 @@ class MaterialPreviewService extends AbstractPreviewService {
 		$this->resourcePreviewService = $resourcePreviewService;
 	}
 
+	/**
+	 * @param Material $material
+	 * @return bool
+	 */
 	public function hasPreview(Material $material) {
 
 		/** @var Resource $resource */
@@ -32,11 +37,14 @@ class MaterialPreviewService extends AbstractPreviewService {
 			return TRUE;
 		}
 
+		return FALSE;
+
 	}
 
 	/**
 	 * @param Material $material
 	 * @return \Intervention\Image\Image
+	 * @throws NotPreviewAbleException
 	 */
 	public function getCachedMaterialPreview(Material $material) {
 
@@ -55,6 +63,7 @@ class MaterialPreviewService extends AbstractPreviewService {
 	/**
 	 * @param Material $material
 	 * @return \Intervention\Image\Image
+	 * @throws NotPreviewAbleException
 	 */
 	public function getFreshMaterialPreview(Material $material) {
 
@@ -78,7 +87,7 @@ class MaterialPreviewService extends AbstractPreviewService {
 
 		}
 
-		return $this->resourcePreviewService->getImageWithText('no Preview', 100, 100);
+		throw new NotPreviewAbleException();
 
 	}
 
@@ -105,8 +114,14 @@ class MaterialPreviewService extends AbstractPreviewService {
 
 	}
 
+	/**
+	 * @param Material $material
+	 */
 	public function clearCachedMaterialPreview(Material $material) {
 
+		$cacheKey = $this->getCacheKey($material);
+
+		$this->clearCache($cacheKey);
 
 	}
 }

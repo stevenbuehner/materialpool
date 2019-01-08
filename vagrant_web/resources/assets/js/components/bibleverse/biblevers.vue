@@ -50,7 +50,7 @@
             size: {
                 type: String,
                 required: false,
-                default: 'small'
+                default: 'normal'
             },
 
             searchable: {
@@ -268,69 +268,70 @@
             }
         }
 
-    }
-
-    .sb-bibleverse {
-        border: 0;
-        background-color: $tag-background-colour;
-
-        &:hover {
-            background-color: $tag-background-colour-hover;
-
-            .sb-progress-bar {
-                background-color: $tag-progressbar-colour-hover;
-            }
-        }
-
-        .sb-progress-bar {
-            position: absolute;
-            left: 0;
-            top: 0;
-            height: 100%;
-            border-radius: .2rem;
-            background-color: $tag-progressbar-colour;
-
-
-            &.isDragging {
-                background-color: $tag-progressbar-dragging-colour;
-            }
-        }
-
-        &.highlighted {
-            .sb-progress-bar {
-                background-color: $cyan;
-            }
-        }
-
-        .text {
-            color: $tag-font-colour;
-            position: relative;
-            text-shadow: .05em .05em .2em $tag-background-colour-hover;
-        }
-
-        .icon {
-            position: relative;
-            height: 1rem;
-            margin-right: 0.1rem;
-            top: -.1rem;
-
-            path {
-                fill: black;
-            }
-        }
-
-        .delete {
-            position: relative;
-            color: whitesmoke;
-            padding-left: 0.25em;
-            font-weight: bold;
-            cursor: pointer;
+        .sb-bibleverse {
+            border: $tag-background-colour-hover solid 1px;
+            background-color: $tag-background-colour;
 
             &:hover {
-                color: black;
+                background-color: $tag-background-colour-hover;
+
+                .sb-progress-bar {
+                    background-color: $tag-progressbar-colour-hover;
+                }
+            }
+
+            .sb-progress-bar {
+                position: absolute;
+                left: 0;
+                top: 0;
+                height: 100%;
+                border-radius: .2rem;
+                background-color: $tag-progressbar-colour;
+
+                &.isDragging {
+                    background-color: $tag-progressbar-dragging-colour;
+                }
+            }
+
+            &.highlighted {
+                .sb-progress-bar {
+                    background-color: $cyan;
+                }
+            }
+
+            .text {
+                color: $tag-font-colour;
+                position: relative;
+                text-shadow: .05em .05em .2em $tag-background-colour-hover;
+            }
+
+            .icon {
+                position: relative;
+                height: 1rem;
+                margin-right: 0.1rem;
+                top: -.1rem;
+
+                path {
+                    fill: black;
+                }
+            }
+
+            .delete {
+                position: relative;
+                color: whitesmoke;
+                padding-left: 0.25em;
+                font-weight: bold;
+                cursor: pointer;
+
+                &:hover {
+                    color: black;
+                }
             }
         }
+
     }
+
+
 
 
 </style>

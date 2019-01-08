@@ -1,7 +1,7 @@
 <template>
     <div class="kw-wrapper" :class="[size]">
         <div class="btn btn-sm btn-secondary sb-keyword"
-             :class="{'tag-readonly' : !editable, 'tag-editable' : editable, highlighted : highlight}"
+             :class="{'tag-readonly' : !editable, 'tag-editable' : editable, 'tag-searchable' : searchable, highlighted : highlight}"
              @mousedown.left="keydownStartDrag"
              @click.right.stop="openRightClickMenu"
              @dblclick.stop="openKeywordEditModal"
@@ -324,69 +324,72 @@
                 padding: .125rem .25rem;
             }
         }
-    }
 
-    .sb-keyword {
-        border: 0;
-        background-color: $tag-background-colour;
 
-        &:hover {
-            background-color: $tag-background-colour-hover;
-
-            .sb-progress-bar {
-                background-color: $tag-progressbar-colour-hover;
-            }
-        }
-
-        .sb-progress-bar {
-            position: absolute;
-            left: 0;
-            top: 0;
-            height: 100%;
-            border-radius: .2rem;
-            background-color: $tag-progressbar-colour;
-
-            &.isDragging {
-                background-color: $tag-progressbar-dragging-colour;
-            }
-        }
-
-        &.highlighted {
-            .sb-progress-bar {
-                background-color: $cyan;
-            }
-        }
-
-        .text {
-            color: $tag-font-colour;
-            position: relative;
-            text-shadow: .05em .05em .2em $tag-background-colour-hover;
-        }
-
-        .icon {
-            position: relative;
-            height: 1rem;
-            margin-right: 0.1rem;
-            top: -.1rem;
-
-            path {
-                fill: black;
-                stroke: black;
-            }
-        }
-
-        .delete {
-            position: relative;
-            color: whitesmoke;
-            padding-left: 0.25em;
-            font-weight: bold;
-            cursor: pointer;
+        > .sb-keyword {
+            border: $tag-background-colour-hover solid 1px;
+            background-color: $tag-background-colour;
+            cursor: none;
 
             &:hover {
-                color: black;
-            }
-        }
+                background-color: $tag-background-colour-hover;
 
+                .sb-progress-bar {
+                    background-color: $tag-progressbar-colour-hover;
+                }
+            }
+
+            .sb-progress-bar {
+                position: absolute;
+                left: 0;
+                top: 0;
+                height: 100%;
+                border-radius: .2rem;
+                background-color: $tag-progressbar-colour;
+
+                &.isDragging {
+                    background-color: $tag-progressbar-dragging-colour;
+                }
+            }
+
+            &.highlighted {
+                .sb-progress-bar {
+                    background-color: $cyan;
+                }
+            }
+
+            .text {
+                color: $tag-font-colour;
+                position: relative;
+                text-shadow: .05em .05em .2em $tag-background-colour-hover;
+            }
+
+            .icon {
+                position: relative;
+                height: 1rem;
+                margin-right: 0.1rem;
+                top: -.1rem;
+
+                path {
+                    fill: black;
+                    stroke: black;
+                }
+            }
+
+            .delete {
+                position: relative;
+                color: whitesmoke;
+                padding-left: 0.25em;
+                font-weight: bold;
+                cursor: pointer;
+
+                &:hover {
+                    color: black;
+                }
+            }
+
+        }
     }
+
 
 </style>
