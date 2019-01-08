@@ -9,6 +9,9 @@ return [
 					'~.*http://.*~i',
 					'~^(PDF|CorelDRAW).+$~i',
 					'~^[ \(\)\[\]\.\-\+\*\#\:\;\,]+$~',
+					'~^\s*Adobe\s.*$~i',
+					'~^\s*Microsoft\s.*$~i',
+
 				],
 				'values'   => []
 			],
