@@ -14,6 +14,7 @@ use App\Models\Resource as ResourceEntity;
 use App\ResourceLimitations\ResourceLimitationInterface;
 use App\Services\PreviewGeneration\Exceptions\NotPreviewAbleException;
 use App\Services\PreviewGeneration\Interfaces\PreviewGeneratorInterface;
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Support\Facades\View;
 use Intervention\Image\Constraint;
 use Intervention\Image\ImageManager;
@@ -60,7 +61,8 @@ class ImagePreviewGenerator implements PreviewGeneratorInterface {
 
 
 				// $image = $this->imageManager->make($localFile);
-
+			} catch (FileNotFoundException $e) {
+				throw new NotPreviewAbleException("Original imagefile not found", 0, $e);
 			} catch (\Exception $e) {
 				throw new NotPreviewAbleException("Error while creating preview image", 0, $e);
 			}

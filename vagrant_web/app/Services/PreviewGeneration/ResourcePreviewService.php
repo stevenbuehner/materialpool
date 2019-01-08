@@ -8,12 +8,12 @@ use App\ResourceLimitations\ResourceLimitationInterface;
 use App\Services\PreviewGeneration\Exceptions\NotPreviewAbleException;
 use App\Services\PreviewGeneration\Generators\NoPreviewGenerator;
 use App\Services\PreviewGeneration\Interfaces\PreviewGeneratorInterface;
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Support\Facades\Log;
 use Intervention\Image\AbstractFont;
 use Intervention\Image\Image;
 use Intervention\Image\ImageManager;
 use Intervention\Image\Size;
-use League\Flysystem\FileNotFoundException;
 
 class ResourcePreviewService extends AbstractPreviewService {
 
@@ -70,6 +70,10 @@ class ResourcePreviewService extends AbstractPreviewService {
 
 		} catch (NotPreviewAbleException $e) {
 
+			if ($e->getPrevious() instanceof FileNotFoundException) {
+				return $this->getImageWithText('Resource missing', $size->getWidth(), $size->getHeight());
+			}
+
 			$generator = resolve(NoPreviewGenerator::class);
 
 			try {
@@ -78,9 +82,6 @@ class ResourcePreviewService extends AbstractPreviewService {
 				Log::error($e->getMessage(), $e->getTraceAsString());
 			}
 
-		} catch (FileNotFoundException $e) {
-
-			$image = $this->getImageWithText('Resource missing', $size->getWidth(), $size->getHeight());
 		}
 
 
@@ -142,7 +143,7 @@ class ResourcePreviewService extends AbstractPreviewService {
 	 * @param null                             $context
 	 * @return false|string
 	 */
-	public function renderHTMLPreview(ResourceEntity $resource, ResourceLimitationInterface $limitation = NULL, $context = NULL, $size) {
+	public function renderHTMLPreview(ResourceEntity $resource, ?ResourceLimitationInterface $limitation = NULL, $context = NULL, $size) {
 
 		$generator = $resource->getPreviewGenerator($size);
 		$result    = "";
