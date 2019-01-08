@@ -23,6 +23,7 @@
     import bCard from 'bootstrap-vue/es/components/card/card'
     import bButton from 'bootstrap-vue/es/components/button/button'
     import resourceLinks from './../resource-links.mixin';
+    import {previewImageFirstPage} from "../../serverRoutes";
 
     export default {
 
@@ -57,7 +58,7 @@
             },
 
             resourceImagePreviewUrl() {
-                return '/resource/image/' + this.resource.id + '/' + this.width + '/' + this.height
+                return previewImageFirstPage(this.resource, this.width, this.height);
             },
 
         },
