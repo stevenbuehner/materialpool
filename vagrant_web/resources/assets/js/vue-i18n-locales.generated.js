@@ -207,7 +207,7 @@ export default {
             "copy": "kopieren",
             "Copy-material": "Material kopieren",
             "Errormessage": "Fehlermeldung",
-            "no-resources-attached": "Keine zugeordneten Resourcen"
+            "no-resources-attached": "Keine Resourcen zugeordnet"
         }
     },
     "en": {
