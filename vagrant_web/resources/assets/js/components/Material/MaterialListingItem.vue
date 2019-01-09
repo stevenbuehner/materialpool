@@ -215,6 +215,7 @@
 
 
     .materialListingItem {
+        min-height: 8rem;
 
         .preview {
             min-height: 100%;
