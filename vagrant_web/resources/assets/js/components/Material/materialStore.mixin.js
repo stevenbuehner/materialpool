@@ -8,19 +8,6 @@ export default {
 
     methods: {
 
-        getMaterialPromise(id) {
-            return this.$store.dispatch('materials/getMaterial', id);
-        },
-
-        updateMaterialData(id) {
-            this.material = null;
-
-            return this.getMaterialPromise(id).then((material) => {
-                this.material = material;
-                return material;
-            });
-        },
-
         goToMaterial(id) {
             this.$router.push(
                 {

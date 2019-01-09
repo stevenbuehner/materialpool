@@ -159,6 +159,10 @@ export function api_v1_bibleverse_deleteassignment(materialID, bibleverseId) {
 // API - Bundles
 export const api_v1_bundles_index = '/api/v1/bundles';
 
+export function api_v1_bundles_update_show(bundleId) {
+    return '/api/v1/bundles/' + bundleId ;
+}
+
 export function api_v1_bundles_update_init(bundleId) {
     return '/api/v1/bundles/' + bundleId + '/init-update';
 }

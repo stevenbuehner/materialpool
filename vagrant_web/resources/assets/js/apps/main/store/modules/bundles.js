@@ -167,7 +167,18 @@ const actions = {
             .then(({data}) => data);
 
         return state.bundleIcons[bundleId];
+    },
+
+    getBundleById: ({dispatch}, bundleId) => {
+        return dispatch('allBundles').then((bundles) => {
+            return bundles.find(({id}) => id === bundleId);
+        })
+    },
+
+    getBundleNameById: ({dispatch}, bundleId) => {
+        return dispatch('getBundleById', bundleId).then(({name}) => name);
     }
+
 
 };
 

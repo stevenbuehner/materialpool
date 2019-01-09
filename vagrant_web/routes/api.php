@@ -227,7 +227,10 @@ Route::group([
 
 	// Bundle import and update
 	Route::get('bundles', 'BundleImportController@index')
-		 ->name('bundles.index');
+		 ->name('bundles.show');
+	Route::get('bundles/{bundle}', 'BundleImportController@show')
+		 ->where('bundle', '[0-9]+')
+		 ->name('bundles.show');
 	Route::post('bundles/{bundle}/init-update', 'BundleImportController@initUpdate')
 		 ->name('bundles.update.init')
 		 ->where('bundle', '[0-9]+');

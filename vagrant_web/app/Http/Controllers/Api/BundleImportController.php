@@ -73,7 +73,10 @@ class BundleImportController extends BaseController {
 			}
 		}
 
+	}
 
+	public function show(Bundle $bundle) {
+		return $bundle;
 	}
 
 	public function initUpdate(Bundle $bundle) {

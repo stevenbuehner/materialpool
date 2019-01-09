@@ -22,6 +22,7 @@
             <h5 class="card-title">{{material.title}}</h5>
             <h6 class="card-subtitle mb-2 text-muted">
                 <span class="info" v-if="material.author">Von {{material.author.title}}</span>
+                <span class="bundleName" v-if="bundleName">({{bundleName}})</span>
                 <span class="badge badge-pill badge-warning" v-if="material.resources.length === 0">{{$t('pool.no-resources-attached')}}</span>
             </h6>
 
@@ -67,7 +68,7 @@
     import Keyword from './../keyword/keyword.vue'
     import Biblevers from "../bibleverse/biblevers.vue";
     import materialDetail from '../../apps/main/pages/MaterialDetail.vue';
-    import {api_v1_materials_update, material_preview_image} from './../serverRoutes';
+    import {material_preview_image} from './../serverRoutes';
     import materialStoreMixin from './materialStore.mixin';
 
 
@@ -80,10 +81,6 @@
         mixins: [
             materialStoreMixin
         ],
-
-        created() {
-            this.updateMaterial();
-        },
 
         props: {
             id: {
@@ -134,10 +131,6 @@
                 return this.material.bibleverses.filter((b) => !this.isBibleverseHighlighted(b.from, b.to)).sort(sortByRelevance);
             },
 
-            materialDetailLink() {
-                return api_v1_materials_update(this.id)
-            },
-
             previewImageUrl() {
                 return material_preview_image(this.id);
             },
@@ -154,31 +147,37 @@
             }
         },
 
-        watch: {
-            id(newValue) {
-                this.updateMaterial();
+        asyncComputed: {
+
+            bundleName: {
+                get() {
+                    if (this.material && this.material.icon_of_bundle) {
+                        return this.$store.dispatch('bundles/getBundleNameById', this.material.icon_of_bundle)
+                    } else {
+                        return '';
+                    }
+                },
+                default: null,
+                watch() {
+                    this.material;
+                }
+            },
+
+            material: {
+                get() {
+                    return this.$store.dispatch('materials/getMaterial', this.id);
+                },
+                default: null,
+                watch() {
+                }
             }
+
         },
+
+        watch: {},
 
 
         methods: {
-
-            onPreviewLoaded(e) {
-                this.previewLoaded = true;
-                console.log(e);
-            },
-
-            updateMaterial() {
-
-                const response = this.updateMaterialData(this.id);
-
-                response.then((material) => {
-                    this.updateBundleIcon();
-                });
-
-                return response;
-
-            },
 
             isBibleverseHighlighted(from, to) {
                 return !!this.highlightBibleverses.find((el) => {
@@ -200,21 +199,6 @@
                 });
             },
 
-            updateBundleIcon() {
-
-                if (this.material && this.material.icon_of_bundle) {
-                    this.$store.dispatch('bundles/getBundleIcon', this.material.icon_of_bundle)
-                        .then(response => {
-                            this.bundleIcon = response;
-                        })
-                        .catch(() => {
-                            this.bundleIcon = null;
-                        })
-                } else {
-                    this.bundleIcon = null;
-                }
-
-            }
         },
 
         components: {
