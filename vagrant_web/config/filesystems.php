@@ -69,6 +69,11 @@ return [
 			'visibility' => 'private'
 		],
 
+		'backup' => [
+			'driver' => 'local',
+			'root'   => base_path('../backup'),
+		],
+
 		'testfiles' => [
 			'driver'     => 'local',
 			'root'       => base_path('tests/testFiles'),
