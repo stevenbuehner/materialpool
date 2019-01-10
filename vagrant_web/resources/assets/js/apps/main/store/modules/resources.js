@@ -144,29 +144,41 @@ const actions = {
         commit('clearResource', id);
     },
 
-    autoCreateMaterial: ({commit, dispatch}, {resourceId, meta, from_bot}) => {
+    /**
+     *
+     * @param commit
+     * @param dispatch
+     * @param resourceIds
+     * @param meta
+     * @param from_bot
+     * @return {Promise<material>}
+     */
+    autoCreateMaterial: ({commit, dispatch}, {resourceIds, meta, from_bot}) => {
 
         meta     = meta || '';
         from_bot = from_bot || false;
 
-        const promise = axios.post(api_v1_resources_create_material(resourceId), {
+        const promise = axios.post(api_v1_resources_create_material, {
+            resourceIds: resourceIds,
             from_bot,
             meta
         })
             .then(({data}) => {
-                return {
-                    material: data.material,
-                    resource: data.resource
-                };
+                return data;
             });
 
-        promise.then(({material, resource}) => {
-            dispatch('setResource', resource);
+        promise.then(({material}) => {
+
+            for (let i in material.resources) {
+                // Clear, because the now assigned material is missing in the resource data
+                dispatch('clearResource', material.resources[i]);
+            }
+
             dispatch('materials/setMaterial', material, {root: true});
         });
 
         return promise;
-    }
+    },
 
 };
 

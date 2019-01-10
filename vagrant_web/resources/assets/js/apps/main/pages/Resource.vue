@@ -307,7 +307,7 @@
 
             btnCreateAutoMaterialFromResource() {
 
-                this.$store.dispatch('resources/autoCreateMaterial', {resourceId: this.id})
+                this.$store.dispatch('resources/autoCreateMaterial', {resourceIds: [this.id]})
                     .then((material) => {
 
                         this.$router.push({
@@ -316,6 +316,7 @@
                                 id: material.id
                             }
                         });
+
                     });
 
             },

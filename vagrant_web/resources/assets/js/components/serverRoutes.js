@@ -83,9 +83,7 @@ export function api_v1_resources_delete(resourceId) {
 
 export const api_v1_resources_store = '/api/v1/resources';
 
-export function api_v1_resources_create_material(resourceId) {
-    return '/api/v1/resources/' + resourceId + '/create-material';
-}
+export const api_v1_resources_create_material = '/api/v1/resources/create-material';
 
 export function api_v1_resource_pdf_tags(resourceId) {
     return '/api/v1/resources/' + resourceId + '/pdf-tags';
@@ -160,7 +158,7 @@ export function api_v1_bibleverse_deleteassignment(materialID, bibleverseId) {
 export const api_v1_bundles_index = '/api/v1/bundles';
 
 export function api_v1_bundles_update_show(bundleId) {
-    return '/api/v1/bundles/' + bundleId ;
+    return '/api/v1/bundles/' + bundleId;
 }
 
 export function api_v1_bundles_update_init(bundleId) {

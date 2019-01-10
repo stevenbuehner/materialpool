@@ -218,4 +218,6 @@ return [
 	'Copy-material'                                            => 'Copy material',
 	'Errormessage'                                             => 'Errormessage',
 	'no-resources-attached'                                    => 'No resources attached',
+	'Additional-Options'                                       => 'Additional Options',
+	'Reload-page' => 'Reload page',
 ];

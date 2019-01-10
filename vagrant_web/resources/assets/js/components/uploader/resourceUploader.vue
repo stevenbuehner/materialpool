@@ -4,7 +4,8 @@
                       v-bind="options"
                       upload-area-classes="bg-faded"
                       ref="uploader"
-                      @success="onUploadSuccess"
+                      @success="onSingleFileSuccessfullyUploaded"
+                      @queue-complete="onQueueComplete"
                       @processing="onProcessing"
                       @timeout="onError"
                       @error="onError"
@@ -81,7 +82,10 @@
 
                 uploadRunning: false,
                 errorMessage: null,
-                fileStatus: null
+                fileStatus: null,
+
+                createdResources: [],
+
             }
         },
 
@@ -116,9 +120,15 @@
                 this.uploadRunning = true;
             },
 
-            onUploadSuccess(file, resource) {
+            onSingleFileSuccessfullyUploaded(file, resource) {
+                this.createdResources.push(resource);
                 this.$emit('resource-created', resource);
-                this.uploadRunning = false;
+            },
+
+            onQueueComplete(file, resource) {
+                this.$emit('multiple-resources-created', this.createdResources);
+                this.createdResources = [];
+                this.uploadRunning    = false;
             },
 
             onError(file, errorMsg, other) {

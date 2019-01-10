@@ -1,20 +1,26 @@
 <template>
-    <div class="container">
+    <div class="container resourceCreatePage">
         <h1>{{$t('pool.create-new-resource')}}</h1>
 
 
         <div v-if="!materialCreationRunning">
             <resource-uploader
-                    @resource-created="resourceCreated"
+                    @multiple-resources-created="onMultipleResourcesUploaded"
                     :styleObject="{minHeight: '50vh'}">
                 {{$t('pool.drop-file-to-upload-resource')}}
             </resource-uploader>
 
-            <div class="options">Zusatzoptionen:</div>
+            <div class="options">{{$t('pool.Additional-Options')}}:</div>
             <b-checkbox v-model="autocreateMaterial">{{$t('pool.auto-create-material')}}</b-checkbox>
         </div>
 
-        <b-alert variant="info" :show="materialCreationRunning">{{$t('pool.material-is-beeing-generated')}}</b-alert>
+        <b-alert variant="info" :show="materialCreationRunning && !error">{{$t('pool.material-is-beeing-generated')}}
+        </b-alert>
+
+        <b-alert variant="danger" :show="error">{{$t('pool.Errormessage')}}:
+            {{error}}
+            <button class="btn btn-danger btn-sm float-right" @click="$router.go()">{{$t('pool.Reload-page')}}</button>
+        </b-alert>
 
     </div>
 </template>
@@ -31,19 +37,21 @@
         data() {
             return {
                 autocreateMaterial: true,
-                materialCreationRunning: false
+                materialCreationRunning: false,
+                error: null
             };
         },
 
         methods: {
-            resourceCreated(resource) {
+
+            onMultipleResourcesUploaded(resources) {
 
                 if (this.autocreateMaterial === true) {
 
                     this.materialCreationRunning = true;
 
-                    this.$store.dispatch('resources/autoCreateMaterial', {resourceId: resource.id})
-                        .then(({material}) => {
+                    this.$store.dispatch('resources/autoCreateMaterial', {resourceIds: resources.map((r) => r.id)})
+                        .then((material) => {
 
                             this.$router.push({
                                 name: 'material-detail',
@@ -52,20 +60,12 @@
                                 }
                             });
 
+                        })
+                        .catch(({message}) => {
+                            this.error = message;
                         });
-
-                } else {
-
-                    this.$router.push({
-                        name: 'resource-detail',
-                        params: {
-                            id: resource.id
-                        }
-                    });
-
                 }
-
-            }
+            },
 
         },
         components: {
@@ -76,8 +76,12 @@
     }
 </script>
 
-<style scoped>
-    .options {
-        font-weight: bold;
+<style type="scss">
+
+    .resourceCreatePage {
+        .options {
+            font-weight: bold;
+        }
     }
+
 </style>

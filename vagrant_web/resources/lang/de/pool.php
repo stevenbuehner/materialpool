@@ -209,5 +209,7 @@ return [
 	'Copy-material'                                            => 'Material kopieren',
 	'Errormessage'                                             => 'Fehlermeldung',
 	'no-resources-attached'                                    => 'Keine Resourcen zugeordnet',
+	'Additional-Options'                                       => 'Zusatzoptionen',
+	'Reload-page'                                              => 'Seite neu laden',
 
 ];

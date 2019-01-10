@@ -173,10 +173,8 @@ Route::group([
 	Route::post('foreign-resources/', 'ForeignResourceController@storeForeign')
 		 ->middleware('can:create,App\Models\ForeignResourceId')
 		 ->name('api.v1.foreignResources.store');
-	Route::post('resources/{resource}/create-material', 'ResourceController@createMaterialFromResource')
-		 ->where('resource', '[0-9]+')
+	Route::post('resources/create-material', 'ResourceController@createMaterialFromResourceIds')
 		 ->middleware('can:create,App\Models\Material')
-		 ->middleware('can:view,resource')
 		 ->name('api.v1.resources.create-material');
 
 	Route::post('resources/{resource}/pdf-tags', 'PdfTagExtractionController@extractTags')

@@ -24,7 +24,7 @@ return [
 					'~^\s*Adobe\s.*$~i',
 					'~^PDF.+$~i',
 				],
-				'values'   => ['user', 'unknown', 'Safari']
+				'values'   => ['user', 'unknown', 'Safari', 'Serif Affinity']
 			],
 		]
 	]

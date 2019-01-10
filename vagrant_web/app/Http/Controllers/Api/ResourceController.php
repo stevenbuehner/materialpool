@@ -147,23 +147,30 @@ class ResourceController extends BaseController {
 
 	}
 
-	public function createMaterialFromResource(Resource $resource, Request $request) {
 
-		$meta = $request->get('meta', '');
+	public function createMaterialFromResourceIds(Request $request) {
 
-		$material = $this->createMaterialFromResources($resource, $meta);
+		$meta        = $request->get('meta', '');
+		$resourceIds = $request->get('resourceIds', []);
+		$resources   = Resource::findMany($resourceIds);
+
+		// ToDo: Prüfen, ob der Nutzer alle Ressourcen verwenden darf
+
+		$material = $this->createMaterialFromResources($resources->all(), $meta);
 
 		if ($request->has('from_bot')) {
 			$material->from_bot = $request->get('from_bot'); // Is casted in $material
-			$material->save();
 		}
 
-		return [
-			'resource' => $resource->fresh(self::DEFAULT_RELATIONS),
-			'material' => $material->fresh(\App\Http\Controllers\MaterialController::withAttributes())
-		];
+		$material->created_by  = Auth::id();
+		$material->modified_by = Auth::id();
+
+		$material->save();
+
+		return $material->fresh(\App\Http\Controllers\MaterialController::withAttributes());
 
 	}
+
 
 	/**
 	 * @param Request              $request

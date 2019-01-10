@@ -207,7 +207,9 @@ export default {
             "copy": "kopieren",
             "Copy-material": "Material kopieren",
             "Errormessage": "Fehlermeldung",
-            "no-resources-attached": "Keine Resourcen zugeordnet"
+            "no-resources-attached": "Keine Resourcen zugeordnet",
+            "Additional-Options": "Zusatzoptionen",
+            "Reload-page": "Seite neu laden"
         }
     },
     "en": {
@@ -442,7 +444,9 @@ export default {
             "copy": "copy",
             "Copy-material": "Copy material",
             "Errormessage": "Errormessage",
-            "no-resources-attached": "No resources attached"
+            "no-resources-attached": "No resources attached",
+            "Additional-Options": "Additional Options",
+            "Reload-page": "Reload page"
         },
         "validation": {
             "accepted": "The {attribute} must be accepted.",

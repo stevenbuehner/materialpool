@@ -164,17 +164,19 @@
                 });
 
                 this.$store.dispatch('resources/autoCreateMaterial', {
-                    resourceId: resource.id,
+                    resourceIds: [resource.id],
                     meta: this.metaData,
                     from_bot: false
                 })
-                    .then(({resource, material}) => {
+                    .then((material) => {
+
                         this.$router.push({
                             name: 'material-detail',
                             params: {
                                 id: material.id
                             }
                         });
+
                     })
                     .catch(() => {
                         this.$refs.myDialog.show({
