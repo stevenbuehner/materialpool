@@ -1,6 +1,6 @@
 <template>
 
-    <div class="row" v-if="!editModeEnabled" @click="editModeEnabled=true">
+    <div class="row" v-if="!editModeEnabled" @dblclick="editModeEnabled=true">
         <div class="col-12">
             <div class="sbMarkedStyle" v-html="compiledMarkdown"/>
             <button class="btn btn-sm btn-primary" @click.stop="editModeEnabled=true"
