@@ -4,6 +4,8 @@ const webpack = require('webpack');
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const devMode              = process.env.NODE_ENV !== 'production';
 const VueLoaderPlugin      = require('vue-loader/lib/plugin');
+const ASSET_PATH           = devMode ? 'http://localhost:8080/' /* In DEV Mode This is the VIRTUAL Path where the files will be served from memory. But also where the hot-reload stuff comes from. */ : '/';
+
 
 // const MergeIntoSingleFilePlugin = require('webpack-merge-and-include-globally');
 
@@ -17,8 +19,9 @@ module.exports = {
     },
     output: {
         path: path.resolve(__dirname, './public/'),
-        publicPath: 'http://localhost:8080/', /* In DEV Mode This is the VIRTUAL Path where the files will be served from memory. But also where the hot-reload stuff comes from. */
-        filename: 'js/[name]_build.js'
+        publicPath: ASSET_PATH, /* In DEV Mode This is the VIRTUAL Path where the files will be served from memory. But also where the hot-reload stuff comes from. */
+        filename: 'js/[name]_build.js',
+        chunkFilename: 'js/[name].bundle.js',
     },
     module: {
         rules: [
