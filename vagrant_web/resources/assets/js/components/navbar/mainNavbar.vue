@@ -29,14 +29,18 @@
                 <b-navbar-nav class="ml-auto">
 
                     <b-nav-form @submit="goForSearch">
-                        <b-form-input size="sm" c
-                                      lass="mr-sm-2"
-                                      type="text"
-                                      :placeholder="$t('pool.Speedsearch')"
-                                      required
-                                      v-model="schnellsuche"/>
-                        <b-button size="sm" class="my-sm-0 btn-outline-dark" type="submit">{{$t('pool.Search')}}
-                        </b-button>
+                        <b-input-group>
+                            <b-form-input size="sm" c
+                                          lass="mr-sm-2"
+                                          type="text"
+                                          :placeholder="$t('pool.Speedsearch')"
+                                          required
+                                          v-model="schnellsuche"/>
+
+                            <b-input-group-append>
+                                <b-button size="sm" variant="outline-secondary" class="" type="submit">{{$t('pool.Search')}}</b-button>
+                            </b-input-group-append>
+                        </b-input-group>
                     </b-nav-form>
 
                     <b-nav-item-dropdown right :text="username">
@@ -64,6 +68,8 @@
     import bNavForm from 'bootstrap-vue/src/components/nav/nav-form';
     import bCollapse from 'bootstrap-vue/src/components/collapse/collapse';
     import bFormInput from 'bootstrap-vue/src/components/form-input/form-input';
+    import bInputGroup from 'bootstrap-vue/src/components/input-group/input-group';
+    import bInputGroupAppend from 'bootstrap-vue/src/components/input-group/input-group-append';
     import bButton from 'bootstrap-vue/src/components/button/button';
     import {searchArrayObjectsToSearchQuery} from "../search/searchHelper";
 
@@ -117,6 +123,8 @@
             bCollapse,
             bFormInput,
             bButton,
+            bInputGroup,
+            bInputGroupAppend,
         }
     }
 </script>
