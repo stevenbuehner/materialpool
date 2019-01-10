@@ -66,8 +66,9 @@ class KeywordHandlingService {
 		/** @var Collection $sM */
 		$sM = $second->materials;
 
-		//Todo Do a single update to update all at once
-		// 	DB:: Delete dupliactes and then -> 	DB::update('')
+		// Todo Do a single update to update all at once
+		// DB:: Delete dupliactes and then -> 	DB::update('')
+
 
 		// Update each Material
 		$sM->each(function (Material $material) use ($main, $second) {
@@ -77,6 +78,12 @@ class KeywordHandlingService {
 			$material->keywords()->syncWithoutDetaching([$main->id => ['relevance' => $relevance]]);
 
 		});
+
+		// $materialWithAuthor = Material::where('author_id', '=', $second->id)->get();
+		$mm                 = new Material();
+		DB::table($mm->getTable())
+		  ->where('author_id', $second->id)
+		  ->update(['author_id' => $main->id]);
 
 
 		// Move all Child-Keywords to the $main as children - otherwise they will be deleted
