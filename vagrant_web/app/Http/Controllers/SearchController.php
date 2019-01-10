@@ -298,6 +298,7 @@ class SearchController extends Controller {
 				$matQuery->where(function ($q) use (&$keywordIds, &$bibleverseRanges, &$matchAllStrings, $index) {
 					if (count($keywordIds) > 0) {
 						$q->orWhereIn("keyword_material{$index}.keyword_id", $keywordIds);
+						$q->orWhereIn('materials.author_id', $keywordIds->all());
 					}
 
 					// Todo: Validate Bibleverses
