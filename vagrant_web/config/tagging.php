@@ -9,9 +9,7 @@ return [
 					'~.*http://.*~i',
 					'~^(PDF|CorelDRAW).+$~i',
 					'~^[ \(\)\[\]\.\-\+\*\#\:\;\,]+$~',
-					'~^\s*Adobe\s.*$~i',
-					'~^\s*Microsoft\s.*$~i',
-
+					'~^\s*(Adobe|Microsoft)\s.*$~i',
 				],
 				'values'   => []
 			],
@@ -21,7 +19,7 @@ return [
 				'patterns' => [
 					'~.*http://.*~i',
 					'~unknown|nobody|niemand~i',
-					'~^\s*Adobe\s.*$~i',
+					'~^\s*(Adobe|Microsoft)\s.*$~i',
 					'~^PDF.+$~i',
 				],
 				'values'   => ['user', 'unknown', 'Safari', 'Serif Affinity']
