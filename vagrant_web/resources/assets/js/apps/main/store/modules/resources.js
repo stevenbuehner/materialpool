@@ -167,7 +167,7 @@ const actions = {
                 return data;
             });
 
-        promise.then(({material}) => {
+        promise.then((material) => {
 
             for (let i in material.resources) {
                 // Clear, because the now assigned material is missing in the resource data
