@@ -105,7 +105,8 @@ class MaterialPreviewService extends AbstractPreviewService {
 				$result = 1;
 			}
 		} else if ($limitation instanceof PageLimitation) {
-			$result = array_shift($limitation->getPages());
+			$pages  = $limitation->getPages();
+			$result = array_shift($pages);
 		} else if ($limitation instanceof TimeLimitation) {
 			$result = $limitation->getStart();
 		}
