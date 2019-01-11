@@ -256,7 +256,17 @@ class SearchController extends Controller {
 	public function get(Request $request) {
 		$query = $this->turnRequestIntoQuery($request);
 
-		return $query->paginate(20);
+		/* Pagination funktioniert nur, wenn der Bugfix manuell eingespielt wird in der paginate() Funktion
+		$paginationColumns = $this->query->distinct ? $columns : ['*'];
+		$results = ($total = $this->toBase()->getCountForPagination($paginationColumns))
+			? $this->forPage($page, $perPage)->get($columns)
+			: $this->model->newCollection();
+
+		Das kommt hoffentlich in einem der nächsten Updates mit rein:
+		https://github.com/laravel/framework/pull/27107
+		*/
+
+		return $query->paginate(20, ['materials.id']);
 	}
 
 	protected function turnRequestIntoQuery(Request $request) {
