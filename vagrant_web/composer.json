@@ -7,22 +7,28 @@
   ],
   "license": "MIT",
   "type": "project",
+  "repositories": [
+    {
+      "type": "github",
+      "url": "https://github.com/stevenbuehner/PHPExiftool"
+    }
+  ],
   "require": {
     "php": ">=7.1",
     "ext-imagick": "*",
     "ext-json": "*",
     "ext-pdo": "*",
     "ext-simplexml": "*",
-    "alchemy/phpexiftool": "^0.6.0",
+    "alchemy/phpexiftool": "dev-develop",
     "intervention/image": "^2.3",
     "kalnoy/nestedset": "^4.2",
     "laracasts/utilities": "^3.0",
     "laravel/framework": "5.5.*",
-    "laravel/passport": "~4.0",
-    "laravel/tinker": "~1.0",
+    "laravel/passport": "^4.0",
+    "laravel/tinker": "1.0",
     "martinlindhe/laravel-vue-i18n-generator": "^0.1.35",
     "nanigans/single-table-inheritance": "~0.8",
-    "php-ffmpeg/php-ffmpeg": "~0.9.3",
+    "php-ffmpeg/php-ffmpeg": "^0.13",
     "setasign/fpdi-fpdf": "^2.0",
     "spatie/laravel-backup": "^5.0",
     "spatie/pdf-to-text": "^1.1",
