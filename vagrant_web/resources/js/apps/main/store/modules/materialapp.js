@@ -1,5 +1,5 @@
 import {api_v1_materials_index} from '../../../../components/serverRoutes'
-import Axios from 'axios'
+import axios from '../../axiosInstance';
 
 const state = {
     pageMaterial: {},
@@ -20,7 +20,7 @@ const actions = {
         if (state.pageMaterial.hasOwnProperty(pageNo)) {
             return state.pageMaterial[pageNo];
         } else {
-            const response = await Axios.get(api_v1_materials_index, {
+            const response = await axios.get(api_v1_materials_index, {
                 params: {page: pageNo}
             });
 

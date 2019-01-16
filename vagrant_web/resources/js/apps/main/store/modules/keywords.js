@@ -1,4 +1,4 @@
-import axios from 'axios'
+import axios from '../../axiosInstance';
 import {
     api_v1_keywords_create,
     api_v1_keywords_delete,
@@ -126,7 +126,7 @@ const actions = {
 
         const getPage = async (pageNo) => {
 
-            console.log('Start RUNNING (AXIOS) for page ' + pageNo);
+            // console.log('Start RUNNING (AXIOS) for page ' + pageNo);
 
             return axios.get(api_v1_keywords_index,
                 {
@@ -137,6 +137,7 @@ const actions = {
                 })
                 .catch((response) => {
                     console.error(response);
+                    return [];
                 });
         };
 

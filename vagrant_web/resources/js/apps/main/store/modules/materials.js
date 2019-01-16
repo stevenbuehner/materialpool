@@ -7,7 +7,7 @@ import {
     api_v2_materialresource_detach,
     api_v2_materials_delete
 } from '../../../../components/serverRoutes'
-import axios from 'axios'
+import axios from '../../axiosInstance';
 
 
 const state = {

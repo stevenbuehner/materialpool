@@ -1,5 +1,5 @@
 import {searchGuessRoute} from '../../../../components/serverRoutes';
-import axios from 'axios';
+import axios from '../../axiosInstance';
 
 
 const state = {};

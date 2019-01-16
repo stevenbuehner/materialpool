@@ -4,7 +4,7 @@ import {
     api_v1_bundles_update_init,
     api_v1_bundles_update_run
 } from '../../../../components/serverRoutes';
-import axios from 'axios';
+import axios from '../../axiosInstance';
 
 
 const state = {

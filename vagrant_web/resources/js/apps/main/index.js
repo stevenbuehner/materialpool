@@ -1,6 +1,5 @@
 import Vue from 'vue';
 import '@babel/polyfill';
-import axios from 'axios';
 import VueRouter from 'vue-router';
 import {store} from './store'; // Before routes to use in BeforeRouting-Functions
 import {routes} from './routes';
@@ -18,11 +17,6 @@ require('lodash');
 Vue.use(ShortKey);
 Vue.use(VueRouter);
 Vue.use(AsyncComputed);
-
-axios.defaults.headers.common = {
-    'X-CSRF-TOKEN': window.Laravel.csrfToken,
-    'X-Requested-With': 'XMLHttpRequest'
-};
 
 const router = new VueRouter({
     mode: 'history',

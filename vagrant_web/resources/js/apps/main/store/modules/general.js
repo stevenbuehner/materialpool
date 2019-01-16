@@ -1,5 +1,5 @@
 import {api_v1_general_options} from '../../../../components/serverRoutes';
-import axios from 'axios';
+import axios from '../../axiosInstance';
 
 
 const state = {

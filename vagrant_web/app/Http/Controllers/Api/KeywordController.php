@@ -23,6 +23,8 @@ class KeywordController extends BaseController {
 	/**
 	 * Display a listing of the resource.
 	 *
+	 * @param Request $request
+	 * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
 	 */
 	public function index(Request $request) {
 

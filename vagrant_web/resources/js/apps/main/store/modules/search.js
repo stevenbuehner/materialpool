@@ -1,5 +1,5 @@
 import {searchUrl} from '../../../../components/serverRoutes';
-import axios from 'axios';
+import axios from '../../axiosInstance';
 
 const MAX_CACHE_HISTORY = 20;
 

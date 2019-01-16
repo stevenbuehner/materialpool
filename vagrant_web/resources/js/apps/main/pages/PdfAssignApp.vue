@@ -123,7 +123,8 @@
     import truncate from '../../../filters/truncate-filter.mixin'
     import {uniqueArray} from "../../../helper/ArrayHelper";
     import {api_v1_resource_pdf_tags} from "../../../components/serverRoutes";
-    import axios from 'axios';
+    import axios from '../axiosInstance';
+
 
     export default {
 

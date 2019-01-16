@@ -5,7 +5,7 @@ import {
     api_v1_resources_store,
     api_v1_resources_update
 } from '../../../../components/serverRoutes'
-import axios from 'axios'
+import axios from '../../axiosInstance';
 
 
 const state = {

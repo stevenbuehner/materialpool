@@ -1,4 +1,4 @@
-import axios from 'axios'
+import axios from '../../axiosInstance';
 import {
     api_v1_bibleverse_deleteassignment,
     api_v1_bibleverse_updateassignment,

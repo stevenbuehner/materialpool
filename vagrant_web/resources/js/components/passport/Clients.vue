@@ -215,7 +215,7 @@
 </template>
 
 <script>
-    import axios from 'axios';
+    import axios from '../../apps/main/axiosInstance';
     import _ from 'lodash';
 
     export default {
