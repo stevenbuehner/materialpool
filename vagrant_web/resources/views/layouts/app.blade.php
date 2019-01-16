@@ -37,9 +37,6 @@
 <body>
 
 <div id="mainContainer">
-
-    @include('navbar.main.nav')
-
     <div class="container">
         @yield('content')
     </div>
