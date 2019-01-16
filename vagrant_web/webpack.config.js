@@ -12,9 +12,9 @@ const ASSET_PATH           = devMode ? 'http://localhost:8080/' /* In DEV Mode T
 
 module.exports = {
     entry: {
-        main: './resources/assets/js/apps/main/index.js',
+        main: './resources/js/apps/main/index.js',
         //      dependencies: [
-        //          './resources/assets/js/dependencies.js',
+        //          './resources/js/dependencies.js',
         //      ],
     },
     output: {

@@ -1,0 +1,22 @@
+@import "../../node_modules/bootstrap/scss/functions";
+@import "../../node_modules/bootstrap/scss/variables";
+@import "../../node_modules/bootstrap/scss/mixins";
+
+// Hover Colors
+$blue-hover: darken($blue, 5%);
+$indigo-hover: darken($indigo, 5%);
+$purple-hover: darken($purple, 5%);
+$red-hover: darken($red, 5%);
+$orange-hover: darken($orange, 5%);
+$yellow-hover: darken($yellow, 5%);
+$green-hover: darken($green, 5%);
+$cyan-hover: darken($cyan, 5%);
+$dark-hover: darken($dark, 5%);
+
+// Tagging
+$tag-background-colour: $gray-700;
+$tag-background-colour-hover: darken($tag-background-colour, 5%);
+$tag-progressbar-colour: $green;
+$tag-progressbar-colour-hover: $green-hover;
+$tag-progressbar-dragging-colour: $orange;
+$tag-font-colour: white;

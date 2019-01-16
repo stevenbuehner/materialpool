@@ -167,9 +167,10 @@ sudo -u www-data php artisan config:clear
 sudo -u www-data php artisan config:cache
 sudo -u www-data php artisan route:clear
 sudo -u www-data php artisan route:cache
-sudo -u www-data php artisan responsecache:flush
 sudo -u www-data php artisan optimize --force
 sudo -u www-data php artisan view:clear
+php artisan cache:clear
+php artisan cache:clear previewimages
 
 #Im www
 php artisan passport:keys --force
