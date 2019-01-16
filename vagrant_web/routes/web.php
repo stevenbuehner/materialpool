@@ -47,9 +47,6 @@ Route::group(['prefix' => 'pool', 'as' => 'pool.'], function () {
 		 ->where('to', '[0-9]+');
 
 	Route::resource('resource', 'ResourceController');
-	Route::get('resource/{resource}/assign/pdf', 'PdfMaterialAssignmentController@index')
-		 ->where('resource', '[0-9]+')
-		 ->name('resource.assign.pdf.material');
 	Route::get('resource/{resource}/download', 'ResourceController@download')
 		 ->name('resource.download');
 	Route::get('resource/{resource}/videostream', 'VideoStreamController@stream')
