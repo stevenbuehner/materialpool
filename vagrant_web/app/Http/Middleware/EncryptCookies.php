@@ -22,6 +22,6 @@ class EncryptCookies extends BaseEncrypter
 	 * Workaround until passport gets fixed: https://github.com/laravel/passport/issues/805
 	 * @var bool
 	 */
-	protected static $serialize = true;
+	// protected static $serialize = true;
 
 }

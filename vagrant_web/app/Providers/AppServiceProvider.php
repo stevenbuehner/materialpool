@@ -28,6 +28,7 @@ use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
+use Laravel\Passport\Passport;
 use PHPExiftool\Reader;
 use StevenBuehner\BibleVerseBundle\Service\BibleVerseService;
 
@@ -39,6 +40,9 @@ class AppServiceProvider extends ServiceProvider {
 	 */
 	public function boot() {
 		Schema::defaultStringLength(191);
+
+		// Workaround für Passport 6
+		Passport::withoutCookieSerialization();
 	}
 
 	/**
