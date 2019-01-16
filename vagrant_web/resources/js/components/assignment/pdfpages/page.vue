@@ -205,7 +205,7 @@
     }
 
     .menue-container .zoom {
-        background: url(/public/img/icons/entypo-plus/resize-full-screen.svg) no-repeat;
+        background: url(/img/icons/entypo-plus/resize-full-screen.svg) no-repeat;
         cursor: pointer;
     }
 
@@ -214,12 +214,12 @@
     }
 
     .menue-container .plus {
-        background: url(/public/img/icons/entypo-plus/plus.svg) no-repeat;
+        background: url(/img/icons/entypo-plus/plus.svg) no-repeat;
         cursor: pointer;
     }
 
     .menue-container .minus {
-        background: url(/public/img/icons/entypo-plus/minus.svg) no-repeat;
+        background: url(/img/icons/entypo-plus/minus.svg) no-repeat;
         cursor: pointer;
     }
 

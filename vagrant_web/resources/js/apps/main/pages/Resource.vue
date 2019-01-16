@@ -430,15 +430,15 @@
     }
 
     .autocreation {
-        background-image: url(/public/img/icons/entypo-plus/rocket.svg);
+        background-image: url(/img/icons/entypo-plus/rocket.svg);
     }
 
     .manualcreation {
-        background-image: url(/public/img/icons/entypo-plus/new-message.svg);
+        background-image: url(/img/icons/entypo-plus/new-message.svg);
     }
 
     .assign {
-        background-image: url(/public/img/icons/entypo-plus/flow-tree.svg);
+        background-image: url(/img/icons/entypo-plus/flow-tree.svg);
     }
 
 </style>

@@ -558,11 +558,11 @@
     }
 
     .editIcon {
-        background-image: url("/public/img/icons/entypo-plus/lock.svg");
+        background-image: url("/img/icons/entypo-plus/lock.svg");
     }
 
     .doneIcon {
-        background-image: url("/public/img/icons/entypo-plus/lock-open.svg");
+        background-image: url("/img/icons/entypo-plus/lock-open.svg");
     }
 
     .sbAssignResource {
