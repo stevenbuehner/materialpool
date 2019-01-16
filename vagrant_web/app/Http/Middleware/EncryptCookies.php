@@ -2,26 +2,15 @@
 
 namespace App\Http\Middleware;
 
-use Illuminate\Cookie\Middleware\EncryptCookies as BaseEncrypter;
-use Symfony\Component\HttpFoundation\Request;
+use Illuminate\Cookie\Middleware\EncryptCookies as Middleware;
 
-class EncryptCookies extends BaseEncrypter
-{
-    /**
-     * The names of the cookies that should not be encrypted.
-     *
-     * @var array
-     */
-    protected $except = [
-        //
-    ];
-
-
+class EncryptCookies extends Middleware {
 	/**
-	 * Indicates if the cookies should be serialized.
-	 * Workaround until passport gets fixed: https://github.com/laravel/passport/issues/805
-	 * @var bool
+	 * The names of the cookies that should not be encrypted.
+	 *
+	 * @var array
 	 */
-	// protected static $serialize = true;
-
+	protected $except = [
+		//
+	];
 }

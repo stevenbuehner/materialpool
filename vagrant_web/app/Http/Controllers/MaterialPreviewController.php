@@ -24,7 +24,7 @@ class MaterialPreviewController {
 		} catch (NotPreviewAbleException $e) {
 		}
 
-		return response()->json(['success' => false], 204); // 204 = Success but no content
+		return response()->json(['success' => FALSE], 204); // 204 = Success but no content
 
 	}
 
