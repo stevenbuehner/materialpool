@@ -8,7 +8,7 @@
 
 <script>
     import TreeNode from './TreeNode.vue'
-    import _ from 'lodash';
+    import _debounce from 'lodash/debounce';
 
     export default {
         name: "Tree",
@@ -90,7 +90,7 @@
                 if (this.searchPhrase.length === 0) {
                     this.displayedTree = this.tree;
                 } else {
-                    _.debounce((self) => {
+                    _debounce((self) => {
                         self.displayedTree = self.filter(self.tree);
                     }, 50)(this);
                 }

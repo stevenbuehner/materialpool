@@ -12,7 +12,6 @@ const axiosInstance = axios.create({
 
 if (is_safari) {
     // Beim Safari Browser, aufgrund eines Bugs, einen sich verändernden Hash-Wert setzen ... => Reload every time
-
     console.log("This is a Safari - I hate it ;-)");
 
     // Add a request interceptor
@@ -22,6 +21,5 @@ if (is_safari) {
         return config;
     });
 }
-
 
 export default axiosInstance;

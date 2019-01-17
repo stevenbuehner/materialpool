@@ -47,7 +47,7 @@
 <script>
 
     import VueSelect from 'vue-select';
-    import _ from 'lodash';
+    import _debounce from 'lodash/debounce';
 
     export default {
 
@@ -123,7 +123,7 @@
                 this.search(loading, search, type, this);
             },
 
-            search: _.debounce((loading, search, type, vm) => {
+            search: _debounce((loading, search, type, vm) => {
 
                 vm.$store.dispatch('keywords/search', {searchText: search, type})
                     .then((keywords) => {

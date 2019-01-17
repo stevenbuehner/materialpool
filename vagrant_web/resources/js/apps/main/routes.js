@@ -1,4 +1,3 @@
-import MaterialApp from './pages/MaterialList.vue'
 import MaterialDetail from './pages/MaterialDetail.vue';
 import SearchPage from './pages/search/searchPage.vue';
 import ResourceDetail from './pages/Resource.vue';
@@ -6,13 +5,15 @@ import AssignApp from './pages/PdfAssignApp.vue';
 // import PassportClient from '../../components/passport/Clients.vue';
 // import PassportAuthorizedClient from '../../components/passport/AuthorizedClients.vue';
 // import PassportPersonalAccessTokens from '../../components/passport/PersonalAccessTokens.vue';
-import ResourceCreate from './pages/ResourceCreate.vue'
-import KeywordList from './pages/KeywordList.vue'
+import ResourceCreate from './pages/ResourceCreate.vue';
 import KeywordDetail from './pages/KeywordDetail.vue'
-import BundleList from './pages/BundleList.vue';
 import ResourceTextCreate from './pages/ResourceTextCreateWithMaterial.vue';
-import ReadBible from "./pages/ReadBible";
 
+
+const KeywordList = () => import('./pages/KeywordList.vue');
+const ReadBible   = () => import('./pages/ReadBible');
+const BundleList  = () => import('./pages/BundleList.vue');
+const MaterialApp = () => import('./pages/MaterialList.vue');
 
 export const routes = [
 

@@ -107,6 +107,7 @@
     import {HollowDotsSpinner} from 'epic-spinners'
     import eraseSvg from 'svg-icon/dist/svg/zero/clear.svg';
     import {RELEVANCE_USER_MAX} from "../../apps/config";
+    import _debounce from 'lodash/debounce';
 
     export default {
 
@@ -226,7 +227,7 @@
             // To learn
             // more about the _.debounce function (and its cousin
             // _.throttle), visit: https://lodash.com/docs#debounce
-            search: _.debounce((loading, search, vm) => {
+            search: _debounce((loading, search, vm) => {
 
                 vm.$store.dispatch('bibleverses/search', search)
                     .then((bibleverses) => {

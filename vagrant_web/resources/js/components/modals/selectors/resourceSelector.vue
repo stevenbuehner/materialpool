@@ -62,7 +62,7 @@
     import bButton from 'bootstrap-vue/src/components/button/button';
     import {HollowDotsSpinner} from 'epic-spinners';
     import bAlert from 'bootstrap-vue/src/components/alert/alert';
-    import _ from 'lodash';
+    import _debounce from 'lodash/debounce';
 
     export default {
         name: "resourceSelector",
@@ -113,7 +113,7 @@
 
             },
 
-            debounceUpdateMaterialSuggestions: _.debounce(function () {
+            debounceUpdateMaterialSuggestions: _debounce(function () {
                 this._updateResourceSuggestions();
             }, 300),
 

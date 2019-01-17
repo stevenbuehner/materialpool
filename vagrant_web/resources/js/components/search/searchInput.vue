@@ -34,6 +34,7 @@
 
 <script>
     import vueSelect from 'vue-select';
+    import _debounce from 'lodash/debounce';
 
     export default {
 
@@ -73,7 +74,7 @@
             // To learn
             // more about the _.debounce function (and its cousin
             // _.throttle), visit: https://lodash.com/docs#debounce
-            search: _.debounce((loading, search, vm) => {
+            search: _debounce((loading, search, vm) => {
 
                 vm.$store.dispatch('tagsearch/searchTags', search)
                     .then((data) => {

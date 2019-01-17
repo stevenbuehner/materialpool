@@ -140,7 +140,7 @@
     import starRating from 'vue-star-rating';
     import KeywordInput from "../../keyword/keywordInput.vue";
     import BibleverseInput from "../../bibleverse/bibleverseInput";
-    import _ from 'lodash';
+    import _debounce from 'lodash/debounce';
     import KeywordToggleTextSelect from "../../keyword/keywordToggleTextSelect";
 
 
@@ -244,7 +244,7 @@
         },
 
         watch: {
-            authorSearch: _.debounce(function (searchValue) {
+            authorSearch: _debounce(function (searchValue) {
                 this._getAuthorSuggestion(searchValue)
             }, 300)
         },

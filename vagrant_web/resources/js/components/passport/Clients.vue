@@ -216,7 +216,8 @@
 
 <script>
     import axios from '../../apps/main/axiosInstance';
-    import _ from 'lodash';
+    import _flatten from 'lodash/flatten';
+    import _toArray from 'lodash/toArray';
 
     export default {
         /*
@@ -336,7 +337,7 @@
                     })
                     .catch(error => {
                         if (typeof error.response.data === 'object') {
-                            form.errors = _.flatten(_.toArray(error.response.data));
+                            form.errors = _flatten(_toArray(error.response.data));
                         } else {
                             form.errors = ['Something went wrong. Please try again.'];
                         }

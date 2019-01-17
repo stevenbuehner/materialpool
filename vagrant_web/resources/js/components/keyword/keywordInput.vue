@@ -90,7 +90,7 @@
 <script>
     import Keyword from './keyword.vue';
     import {HollowDotsSpinner} from 'epic-spinners'
-    import _ from 'lodash';
+    import _debounce from 'lodash/debounce';
     import eraseSvg from 'svg-icon/dist/svg/zero/clear.svg';
     import {RELEVANCE_USER_MAX} from "../../apps/config";
 
@@ -204,7 +204,7 @@
             // To learn
             // more about the _.debounce function (and its cousin
             // _.throttle), visit: https://lodash.com/docs#debounce
-            search: _.debounce((loading, search, vm) => {
+            search: _debounce((loading, search, vm) => {
 
                 // Split search into multiple keyword-searches by COMMA and SEMICOLON
                 const multiKeywordParts = search.split( /\s*[,;]\s*/);

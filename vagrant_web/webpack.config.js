@@ -6,7 +6,6 @@ const devMode              = process.env.NODE_ENV !== 'production';
 const VueLoaderPlugin      = require('vue-loader/lib/plugin');
 const ASSET_PATH           = devMode ? 'http://localhost:8080/' /* In DEV Mode This is the VIRTUAL Path where the files will be served from memory. But also where the hot-reload stuff comes from. */ : '/';
 
-
 // const MergeIntoSingleFilePlugin = require('webpack-merge-and-include-globally');
 
 
@@ -119,11 +118,23 @@ module.exports = {
                 NODE_ENV: devMode ? '"development"' : '"production"'
             }
         }),
+
+        /*
+        new webpack.optimize.AggressiveMergingPlugin({
+            moveToParents: true,
+        }),
+        */
+
+        new (require('webpack-bundle-analyzer').BundleAnalyzerPlugin)({
+            openAnalyzer: false
+        })
+
     ],
     resolve: {
         extensions: ['*', '.js', '.vue', '.json'],//in webpack 2.2 default resolve .js .json
         alias: {
-            'vue$': 'vue/dist/vue.esm.js'
+            'vue$': 'vue/dist/vue.esm.js' // Use the full build
+            // 'vue$': 'vue/dist/vue.esm.js' // Use the full build
         }
     },
     devServer: {
@@ -143,10 +154,22 @@ module.exports = {
     performance: {
         hints: false
     },
-    devtool: '#eval-source-map' // For Debugging while using sourcemaps: https://medium.com/@BjornKrols/a-basic-introduction-to-debugging-vue-applications-using-breakpoints-2ef76ce419f2
+    devtool: '#eval-source-map', // For Debugging while using sourcemaps: https://medium.com/@BjornKrols/a-basic-introduction-to-debugging-vue-applications-using-breakpoints-2ef76ce419f2
+    optimization: {
+        splitChunks: {
+            cacheGroups: {
+                commons: {
+                    test: /[\\/](node_modules|vendor)[\\/]/,
+                    name: "vendor",
+                    chunks: "initial",
+                },
+            },
+        },
+    },
 }
 
 if (process.env.NODE_ENV === 'production') {
+    // https://survivejs.com/webpack/building/source-maps/
     module.exports.devtool = '#source-map'
     // http://vue-loader.vuejs.org/en/workflow/production.html
     module.exports.plugins = (module.exports.plugins || []).concat([]);
