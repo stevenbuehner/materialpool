@@ -6,7 +6,7 @@ const axiosInstance = axios.create({
         'X-CSRF-TOKEN': window.Laravel.csrfToken,
         'X-Requested-With': 'XMLHttpRequest',
     },
-    timeout: 20000,
+    timeout: 200000,
     // xsrfCookieName: 'XSRF-TOKEN', // default
 });
 

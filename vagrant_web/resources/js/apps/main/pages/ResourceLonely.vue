@@ -67,6 +67,8 @@
                             this.total     = total;
                             this.isLoading = false;
                             return data;
+                        }).catch((message) => {
+                            alert(message);
                         });
                 }
             }
