@@ -21,7 +21,7 @@
                         <b-dropdown-item :to="{name: 'bundle-list'}" class="dropdown-hover">{{$t('pool.Bundle')}}
                         </b-dropdown-item>
                         <b-dropdown-item :to="{name: 'resource-lonely'}" class="dropdown-hover">
-                            {{$t('pool.Lonely-Ressources')}}
+                            {{$t('pool.Lonely-Resources')}}
                         </b-dropdown-item>
                     </b-nav-item-dropdown>
 
