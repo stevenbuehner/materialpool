@@ -17,7 +17,6 @@ use App\Services\PreviewGeneration\Generators\VideoPreviewGenerator;
 use App\Services\PreviewGeneration\ResourcePreviewService;
 use App\Services\ResourceHandling\FileHandlingService;
 use App\Services\ResourceHandling\PdfHandlingService;
-use App\Services\ResourceHandling\ResourceCleanupService;
 use App\Services\ResourceHandling\ResourceDuplicationHandlingService;
 use App\Services\ResourceRecognition\ResourceRecognitionService;
 use App\Services\TagExtraction\MaterialExtractionService;
@@ -25,11 +24,11 @@ use App\Services\TagExtraction\ResourceHandles\FileNameHandler;
 use App\Services\TagExtraction\TagExtractionService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\App;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Passport\Passport;
 use PHPExiftool\Reader;
+use Psr\Log\LoggerInterface;
 use StevenBuehner\BibleVerseBundle\Service\BibleVerseService;
 
 class AppServiceProvider extends ServiceProvider {
@@ -83,7 +82,6 @@ class AppServiceProvider extends ServiceProvider {
 
 		$this->app->singleton(FileHandlingService::class);
 		$this->app->singleton(PdfHandlingService::class);
-		$this->app->singleton(ResourceCleanupService::class);
 		$this->app->singleton(ResourceDuplicationHandlingService::class);
 		$this->app->singleton(ResourceLimitationService::class);
 
@@ -108,7 +106,9 @@ class AppServiceProvider extends ServiceProvider {
 		$this->app->singleton(VideoPreviewGenerator::class);
 
 		$this->app->singleton('PHPExiftool\Reader', function ($app) {
-			$logger = Log::getMonolog();
+			//$logger = Log::getMonolog();
+
+			$logger = resolve(LoggerInterface::class);
 			$reader = Reader::create($logger);
 
 			return $reader;
