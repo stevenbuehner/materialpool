@@ -184,3 +184,14 @@ export function api_v1_biblecontents_get(from, to, bibleId) {
 
     return route;
 }
+
+export function api_v1_biblecontents_search_and_get(searchText, bibleUuid) {
+
+    let route = '/api/v1/biblecontents/search';
+
+    if (bibleUuid) {
+        route += '/' + bibleUuid;
+    }
+
+    return route;
+}

@@ -163,6 +163,8 @@
                     }).then((keyword) => {
                         this.selection = keyword;
                         this.emitNewKeywordSelection(keyword);
+                    }).catch((errorMessage) => {
+                        alert(errorMessage);
                     });
                     this.editModeActive = false;
                 }

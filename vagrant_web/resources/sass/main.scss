@@ -1,6 +1,6 @@
-
 @import url(https://fonts.googleapis.com/css?family=Raleway:300,400,600);
-
+// My Bootstrap Overriding style stuff
+@import 'theme.scss';
 /* Bootstrap 4 */
 @import "~bootstrap/scss/bootstrap.scss";
 @import "~bootstrap-vue/dist/bootstrap-vue.min.css";
@@ -10,3 +10,20 @@
   white-space: pre-wrap;
 }
 
+
+// Popover (bibelstellen-Popup)
+@media screen and (max-width: breakpoint-max('sm')) {
+
+}
+
+@each $breakpoint in map-keys($grid-breakpoints) {
+  @if map_get($container-max-widths, $breakpoint) != null {
+    @include media-breakpoint-up($breakpoint) {
+      // $infix: breakpoint-infix($breakpoint, $grid-breakpoints);
+
+      .popover {
+        max-width: map_get($container-max-widths, $breakpoint)* 0.5;
+      }
+    }
+  }
+}

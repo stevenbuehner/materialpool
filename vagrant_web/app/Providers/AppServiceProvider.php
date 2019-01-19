@@ -106,8 +106,6 @@ class AppServiceProvider extends ServiceProvider {
 		$this->app->singleton(VideoPreviewGenerator::class);
 
 		$this->app->singleton('PHPExiftool\Reader', function ($app) {
-			//$logger = Log::getMonolog();
-
 			$logger = resolve(LoggerInterface::class);
 			$reader = Reader::create($logger);
 

@@ -211,5 +211,5 @@ return [
 	'no-resources-attached'                                    => 'Keine Resourcen zugeordnet',
 	'Additional-Options'                                       => 'Zusatzoptionen',
 	'Reload-page'                                              => 'Seite neu laden',
-
+	'close'                                                    => 'schließen',
 ];

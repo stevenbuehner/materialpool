@@ -209,7 +209,8 @@ export default {
             "Errormessage": "Fehlermeldung",
             "no-resources-attached": "Keine Resourcen zugeordnet",
             "Additional-Options": "Zusatzoptionen",
-            "Reload-page": "Seite neu laden"
+            "Reload-page": "Seite neu laden",
+            "close": "schließen"
         }
     },
     "en": {
@@ -446,7 +447,8 @@ export default {
             "Errormessage": "Errormessage",
             "no-resources-attached": "No resources attached",
             "Additional-Options": "Additional Options",
-            "Reload-page": "Reload page"
+            "Reload-page": "Reload page",
+            "close": "close"
         },
         "validation": {
             "accepted": "The {attribute} must be accepted.",
