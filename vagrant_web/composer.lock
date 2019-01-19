@@ -3480,16 +3480,16 @@
         },
         {
             "name": "stevenbuehner/bible-verse-bundle",
-            "version": "2.5.0",
+            "version": "2.5.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/stevenbuehner/BibleVerseBundle.git",
-                "reference": "e70427c849d7f01a703a652a90a07b1f9a27ed4c"
+                "reference": "8f4ac57e6fb066b436cbcafec4783147f62d2953"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/stevenbuehner/BibleVerseBundle/zipball/e70427c849d7f01a703a652a90a07b1f9a27ed4c",
-                "reference": "e70427c849d7f01a703a652a90a07b1f9a27ed4c",
+                "url": "https://api.github.com/repos/stevenbuehner/BibleVerseBundle/zipball/8f4ac57e6fb066b436cbcafec4783147f62d2953",
+                "reference": "8f4ac57e6fb066b436cbcafec4783147f62d2953",
                 "shasum": ""
             },
             "require": {
@@ -3515,7 +3515,7 @@
                 }
             ],
             "description": "A (Symphony) bundle to identify, handle, store and work with bibleverses.",
-            "time": "2019-01-15T19:49:39+00:00"
+            "time": "2019-01-19T21:34:58+00:00"
         },
         {
             "name": "swiftmailer/swiftmailer",
