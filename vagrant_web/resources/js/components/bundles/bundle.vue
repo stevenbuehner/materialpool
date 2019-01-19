@@ -11,7 +11,8 @@
                 <div class="d-flex justify-content-between bundleProgressFront">
                     <div>
                         <h4 class="card-title">{{bundle.name}}</h4>
-                        <h6 class="card-subtitle text-muted">{{installedVersion}}</h6>
+                        <h6 class="card-subtitle text-muted">{{installedVersion}}
+                            vom {{bundle.updated_at | moment("calendar")}}</h6>
                     </div>
 
                     <div class="bundleTodoMenu">
@@ -265,8 +266,5 @@
     }
 </script>
 
-<style scoped>
-    .bundleProgressFront {
-    }
-
+<style>
 </style>
