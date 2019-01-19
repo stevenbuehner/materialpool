@@ -33,7 +33,7 @@ class BundleQueueService {
 	public function countJobsInQueue($queueName) {
 
 		/** @var Worker $worker */
-		$connectionName = config('queue.default');
+		$connectionName = 'database';
 		$worker         = resolve('queue.worker');
 		$queue          = $worker->getManager()->connection($connectionName);
 

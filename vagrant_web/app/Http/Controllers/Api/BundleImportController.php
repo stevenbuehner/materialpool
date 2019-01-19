@@ -158,8 +158,9 @@ class BundleImportController extends BaseController {
 						 ->chunk(100, function (Collection $fmids) use ($bundle, $queueName, &$count, $version) {
 
 							 foreach ($fmids as $fmid) {
-								 $this->dispatch((new DeleteMaterialIfNeeded($bundle, $fmid,
-																			 $version))->onQueue($queueName));
+								 DeleteMaterialIfNeeded::dispatch($bundle, $fmid, $version)
+													   ->onQueue($queueName)
+													   ->onConnection('database');
 							 }
 
 							 $count += $fmids->count();
@@ -170,8 +171,9 @@ class BundleImportController extends BaseController {
 						 ->chunk(100, function (Collection $frids) use ($bundle, $queueName, &$count, $version) {
 
 							 foreach ($frids as $frid) {
-								 $this->dispatch((new DeleteResourceIfNeeded($bundle, $frid,
-																			 $version))->onQueue($queueName));
+								 DeleteResourceIfNeeded::dispatch($bundle, $frid, $version)
+													   ->onQueue($queueName)
+													   ->onConnection('database');
 							 }
 
 							 $count += $frids->count();
@@ -196,7 +198,9 @@ class BundleImportController extends BaseController {
 			$count += $files->count();
 
 			$files->each(function ($file) use ($bundle, $queueName, $version) {
-				$this->dispatch((new InsertOrUpdateResource($bundle, $file, $version))->onQueue($queueName));
+				InsertOrUpdateResource::dispatch($bundle, $file, $version)
+									  ->onQueue($queueName)
+									  ->onConnection('database');
 			});
 
 		}
@@ -208,7 +212,9 @@ class BundleImportController extends BaseController {
 			$count += $files->count();
 
 			$files->each(function ($material) use ($bundle, $queueName, $version) {
-				$this->dispatch((new InsertOrUpdateMaterial($bundle, $material, $version))->onQueue($queueName));
+				InsertOrUpdateMaterial::dispatch($bundle, $material, $version)
+									  ->onQueue($queueName)
+									  ->onConnection('database');
 			});
 
 		}
@@ -219,14 +225,15 @@ class BundleImportController extends BaseController {
 	protected function createFinishUpdateJob($bundle, $bundleInfo) {
 
 		$queueName = $this->bundleQueueService->getQueueName($bundle);
-		$this->dispatch((new FinishImportAfterUpdate($bundle, $bundleInfo['version']))->onQueue($queueName));
-
+		FinishImportAfterUpdate::dispatch($bundle, $bundleInfo['version'])
+							   ->onQueue($queueName)
+							   ->onConnection('database');
 	}
 
 	public function runJobs(Bundle $bundle, Request $request) {
 
 		$start          = microtime(TRUE);
-		$connectionName = config('queue.default');
+		$connectionName = 'database';
 		$queueName      = $this->bundleQueueService->getQueueName($bundle);
 		$options        = new WorkerOptions(2, 128, 30, 0, 15);
 
