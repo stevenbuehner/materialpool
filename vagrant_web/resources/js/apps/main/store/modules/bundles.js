@@ -134,7 +134,7 @@ const actions = {
 
     initUpdateJobs: ({commit, getters, dispatch}, id) => {
 
-        return axios.post(api_v1_bundles_update_init(id))
+        return axios.post(api_v1_bundles_update_init(id), {}, {timeout: 0})
             .then(({data}) => data)
 
     },
