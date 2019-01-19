@@ -19,6 +19,7 @@
     "ext-pdo": "*",
     "ext-simplexml": "*",
     "alchemy/phpexiftool": "dev-develop",
+    "doctrine/dbal": "^2.9",
     "intervention/image": "^2.3",
     "kalnoy/nestedset": "^4.3",
     "laracasts/utilities": "^3.0",
