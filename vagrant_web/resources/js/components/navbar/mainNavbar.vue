@@ -20,6 +20,9 @@
                         </b-dropdown-item>
                         <b-dropdown-item :to="{name: 'bundle-list'}" class="dropdown-hover">{{$t('pool.Bundle')}}
                         </b-dropdown-item>
+                        <b-dropdown-item :to="{name: 'resource-lonely'}" class="dropdown-hover">
+                            {{$t('pool.Lonely-Ressources')}}
+                        </b-dropdown-item>
                     </b-nav-item-dropdown>
 
                     <b-nav-item :to="{name: 'search'}">{{$t('pool.Searchmask')}}</b-nav-item>
@@ -38,7 +41,9 @@
                                           v-model="schnellsuche"/>
 
                             <b-input-group-append>
-                                <b-button size="sm" variant="outline-secondary" class="" type="submit">{{$t('pool.Search')}}</b-button>
+                                <b-button size="sm" variant="outline-secondary" class="" type="submit">
+                                    {{$t('pool.Search')}}
+                                </b-button>
                             </b-input-group-append>
                         </b-input-group>
                     </b-nav-form>

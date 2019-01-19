@@ -5,7 +5,7 @@ export const searchGuessRoute2 = '/pool/search/guess2';
 // Keyword
 export function keywordSearchLink(keyword) {
     return '/pool/keyword/' + keyword.lc_title;
-};
+}
 
 // Bibleverse
 export function bibleverseUpdatePivotRoute(materialId, bibleverseId) {
@@ -23,7 +23,7 @@ export function bibleverseSearchLink(bibleverse) {
 //Resources
 export function resourceEditLink(resource) {
     return '/pool/resource/' + resource.id;
-};
+}
 
 export function resourceDownloadLink(resource) {
     return '/pool/resource/' + resource.id + '/download';
@@ -47,6 +47,8 @@ export function resourceLimitedPdfDownload(resourceId, materialId) {
 export function poolResourceVideostream(resource) {
     return '/pool/resource/' + resource.id + '/videostream';
 }
+
+export const api_v1_resources_find = '/api/v1/resources/find';
 
 // GeneralOptions
 export const api_v1_general_options = '/api/v1/general/options';

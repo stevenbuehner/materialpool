@@ -221,4 +221,5 @@ return [
 	'Additional-Options'                                       => 'Additional Options',
 	'Reload-page'                                              => 'Reload page',
 	'close'                                                    => 'close',
+	'Lonely-Resources'                                         => 'Lonely Resources',
 ];

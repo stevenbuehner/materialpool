@@ -1,11 +1,13 @@
 import {
     api_v1_resources_create_material,
     api_v1_resources_delete,
+    api_v1_resources_find,
     api_v1_resources_show,
     api_v1_resources_store,
     api_v1_resources_update
 } from '../../../../components/serverRoutes'
 import axios from '../../axiosInstance';
+import {convertErrorResponseToMessage} from "./handleErrorsHelper";
 
 
 const state = {
@@ -179,6 +181,48 @@ const actions = {
 
         return promise;
     },
+
+    find: ({dispatch}, {remote_path, is_public, content_hash, missing_materials, page}) => {
+
+        let searchQuery = {};
+
+        if (remote_path) {
+            searchQuery.remote_path = remote_path;
+        }
+
+        if (is_public === true || is_public === false) {
+            searchQuery.is_public = is_public;
+        }
+
+        if (content_hash) {
+            searchQuery.content_hash = content_hash;
+        }
+
+        if (missing_materials === true) {
+            searchQuery.missing_materials = true;
+        }
+
+        if (page) {
+            searchQuery.page = page;
+        }
+
+        return axios
+            .get(api_v1_resources_find, {params: searchQuery})
+            .then(({data}) => {
+                for (let i in data.data) {
+                    dispatch('setResource', data.data[i]);
+                }
+                return data;
+            })
+            .catch((response) => {
+                throw convertErrorResponseToMessage(response);
+            });
+
+    },
+
+    lonely: ({dispatch}, {page}) => {
+        return dispatch('find', {missing_materials: true, page});
+    }
 
 };
 

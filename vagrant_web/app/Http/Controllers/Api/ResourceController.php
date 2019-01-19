@@ -9,6 +9,7 @@ use App\Models\ForeignMaterialId;
 use App\Models\Resource;
 use App\Services\ResourceHandling\FileHandlingService;
 use App\Services\ResourceHandling\ResourceCleanupService;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Support\Facades\Auth;
@@ -65,24 +66,29 @@ class ResourceController extends BaseController {
 			response('No user given', 404);
 		}
 
-		$resourceClass    = Resource::getSingleTableClass($request->get('type', 'res'));
-		$query            = $resourceClass::where('created_by', Auth::id());
-		$uniqueLimiterSet = FALSE;
+		$resourceClass = Resource::getSingleTableClass($request->get('type', 'res'));
+		/** @var Builder $builder */
+		$builder = $resourceClass::where('created_by', Auth::id());
 
 		if ($request->has('remote_path')) {
-			$query->where('remote_path', $request->get('remote_path', NULL));
+			$builder->where('remote_path', $request->get('remote_path', NULL));
 		}
 
 		if ($request->has('is_public')) {
-			$query->where('is_public', (bool) $request->get('is_public', FALSE));
+			$builder->where('is_public', (bool) $request->get('is_public', FALSE));
 		}
 
 		if ($request->has('content_hash')) {
-			$query->where('content_hash', $request->get('content_hash', NULL));
+			$builder->where('content_hash', $request->get('content_hash', NULL));
 		}
 
-		return $query->first();
+		if ($request->get('missing_materials', FALSE) !== FALSE) {
+			$builder->doesntHave('materials');
+		}
+
+		return $builder->with(self::DEFAULT_RELATIONS)->paginate(25);
 	}
+
 
 	public function store(Request $request) {
 

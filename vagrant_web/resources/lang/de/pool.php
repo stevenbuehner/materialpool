@@ -212,4 +212,6 @@ return [
 	'Additional-Options'                                       => 'Zusatzoptionen',
 	'Reload-page'                                              => 'Seite neu laden',
 	'close'                                                    => 'schließen',
+	'Lonely-Resources'                                         => 'Einsame Resourcen',
+
 ];

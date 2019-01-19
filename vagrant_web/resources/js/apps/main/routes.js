@@ -14,6 +14,7 @@ const KeywordList = () => import('./pages/KeywordList.vue');
 const ReadBible   = () => import('./pages/ReadBible');
 const BundleList  = () => import('./pages/BundleList.vue');
 const MaterialApp = () => import('./pages/MaterialList.vue');
+const ResourceLonely = () => import('./pages/ResourceLonely.vue');
 
 export const routes = [
 
@@ -46,6 +47,9 @@ export const routes = [
            },
            {
                path: '/resource/text/create', component: ResourceTextCreate, name: 'resource-text-create', props: false
+           },
+           {
+               path: '/resource/lonely', component: ResourceLonely, name: 'resource-lonely', props: false
            },
            {
                path: '/resource/:id', component: ResourceDetail, name: 'resource-detail', props: (route) => {
