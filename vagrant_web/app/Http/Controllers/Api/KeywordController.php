@@ -54,7 +54,7 @@ class KeywordController extends BaseController {
 	public function create(KeywordRequest $keywordRequest) {
 		/** @var TagExtractionService $tagExtractionService */
 		/** @var Keyword $keyword */
-		$keyword = Keyword::firstOrCreate($keywordRequest->all());
+		$keyword = Keyword::firstOrCreate($keywordRequest->validated());
 		$type    = $keywordRequest->get('type', FALSE);
 
 		if ($type !== FALSE) {
