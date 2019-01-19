@@ -134,7 +134,7 @@ module.exports = {
         extensions: ['*', '.js', '.vue', '.json'],//in webpack 2.2 default resolve .js .json
         alias: {
             'vue$': 'vue/dist/vue.esm.js' // Use the full build
-            // 'vue$': 'vue/dist/vue.esm.js' // Use the full build
+            // 'vue$': 'vue/dist/vue.runtime.esm.js' // Use runtime only
         }
     },
     devServer: {
