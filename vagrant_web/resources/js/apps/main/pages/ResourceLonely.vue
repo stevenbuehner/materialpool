@@ -1,6 +1,6 @@
 <template>
-    <div class="lonelyResources">
-        <ul class="sbResourceList card-columns">
+    <div class="container">
+        <div class="sbResourceList card-columns" v-if="resources">
             <div class="card lonelyResource" v-for="r in resources">
                 <img :src="previewImage(r)" class="card-img-top" alt="No Resource Preview available">
                 <div class="card-body">
@@ -16,9 +16,13 @@
                     </router-link>
                 </div>
             </div>
-        </ul>
+        </div>
+        <div class="alert alert-success" v-else>
+            {{$t('pool.Congratulations.No-lonely-Resources-found.')}}
+        </div>
 
         <b-pagination-nav
+                v-if="total > 0"
                 v-model="page"
                 :limit="10"
                 :number-of-pages="numPages"
@@ -40,6 +44,7 @@
             return {
                 page: 1,
                 numPages: 1,
+                total: 1
             }
         },
 
@@ -48,9 +53,10 @@
             resources: {
                 get() {
                     return this.$store.dispatch('resources/lonely', {page: this.page})
-                        .then(({data, current_page, last_page}) => {
+                        .then(({data, current_page, last_page, total}) => {
                             this.page     = current_page;
                             this.numPages = last_page;
+                            this.total    = total;
                             return data;
                         });
                 }

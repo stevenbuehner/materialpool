@@ -213,5 +213,6 @@ return [
 	'Reload-page'                                              => 'Seite neu laden',
 	'close'                                                    => 'schließen',
 	'Lonely-Resources'                                         => 'Einsame Resourcen',
+	'Congratulations.No-lonely-resources-found.'               => 'Herzlichen Glückwünsch! Keine einsamen Resourcen gefunden.',
 
 ];

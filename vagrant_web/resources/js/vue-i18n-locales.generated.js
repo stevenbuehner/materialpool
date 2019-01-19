@@ -211,7 +211,8 @@ export default {
             "Additional-Options": "Zusatzoptionen",
             "Reload-page": "Seite neu laden",
             "close": "schließen",
-            "Lonely-Resources": "Einsame Resourcen"
+            "Lonely-Resources": "Einsame Resourcen",
+            "Congratulations.No-lonely-resources-found.": "Herzlichen Glückwünsch! Keine einsamen Resourcen gefunden."
         }
     },
     "en": {
@@ -450,7 +451,8 @@ export default {
             "Additional-Options": "Additional Options",
             "Reload-page": "Reload page",
             "close": "close",
-            "Lonely-Resources": "Lonely Resources"
+            "Lonely-Resources": "Lonely Resources",
+            "Congratulations.No-lonely-resources-found.": "Congratulations! No lonely resources found."
         },
         "validation": {
             "accepted": "The {attribute} must be accepted.",
