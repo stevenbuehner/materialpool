@@ -17,9 +17,13 @@
                 </div>
             </div>
         </div>
-        <div class="alert alert-success" v-else>
-            {{$t('pool.Congratulations.No-lonely-Resources-found.')}}
+        <div class="alert alert-info" v-else-if="isLoading">
+            {{$t('pool.Loading-resource')}}
         </div>
+        <div class="alert alert-success" v-else>
+            {{$t('pool.Congratulations-No-lonely-Resources-found')}}
+        </div>
+
 
         <b-pagination-nav
                 v-if="total > 0"
@@ -44,7 +48,9 @@
             return {
                 page: 1,
                 numPages: 1,
-                total: 1
+                total: 1,
+
+                isLoading: true,
             }
         },
 
@@ -52,11 +58,14 @@
         asyncComputed: {
             resources: {
                 get() {
+                    this.isLoading = true;
+
                     return this.$store.dispatch('resources/lonely', {page: this.page})
                         .then(({data, current_page, last_page, total}) => {
-                            this.page     = current_page;
-                            this.numPages = last_page;
-                            this.total    = total;
+                            this.page      = current_page;
+                            this.numPages  = last_page;
+                            this.total     = total;
+                            this.isLoading = false;
                             return data;
                         });
                 }
