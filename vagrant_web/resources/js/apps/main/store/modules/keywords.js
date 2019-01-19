@@ -9,6 +9,7 @@ import {
     api_v1_keywords_updateassignment,
     searchGuessKeywords
 } from '../../../../components/serverRoutes'
+import {convertErrorResponseToMessage} from "./handleErrorsHelper";
 
 import {queue} from "../networkQueue";
 
@@ -202,7 +203,7 @@ const actions = {
                 return data;
             })
             .catch((response) => {
-                console.error(response);
+                throw convertErrorResponseToMessage(response);
             });
 
     },
@@ -260,7 +261,7 @@ const actions = {
             .then((response) => {
                 return response.data;
             }).catch((response) => {
-                throw response;
+                throw convertErrorResponseToMessage(response);
             });
     },
 
@@ -308,14 +309,9 @@ const actions = {
 
                 return data.deletedAssociations;
             })
-            .catch(({response, message}) => {
-
-                if (response.data.message) {
-                    throw response.data.message;
-                }
-
-                throw message;
-            })
+            .catch((response) => {
+                throw convertErrorResponseToMessage(response);
+            });
 
     },
 
