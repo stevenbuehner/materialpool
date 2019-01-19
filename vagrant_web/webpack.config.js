@@ -125,9 +125,6 @@ module.exports = {
         }),
         */
 
-        new (require('webpack-bundle-analyzer').BundleAnalyzerPlugin)({
-            openAnalyzer: false
-        })
 
     ],
     resolve: {
@@ -166,7 +163,15 @@ module.exports = {
             },
         },
     },
+};
+
+// Analyizer only in DEV-Mode
+if (devMode === true) {
+    module.exports.plugins.push(new (require('webpack-bundle-analyzer').BundleAnalyzerPlugin)({
+        openAnalyzer: false
+    }));
 }
+
 
 if (process.env.NODE_ENV === 'production') {
     // https://survivejs.com/webpack/building/source-maps/
