@@ -156,7 +156,7 @@ sudo service apache2 restart
 # Aller Code läuft als "steven" aller Storage als "www-data"
 sudo chown -R steven.steven /var/www/wissensbase/
 sudo chown -R www-data.www-data /var/www/wissensbase/storage/
-
+sudo chown -R www-data.www-data /var/www/wissensbase/bootstrap/cache
 
 
 # Dateien kopieren
