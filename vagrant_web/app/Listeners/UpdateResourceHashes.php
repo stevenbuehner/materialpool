@@ -34,8 +34,6 @@ class UpdateResourceHashes {
 		$resource    = $event->getResource();
 		$hashChanged = $this->hashProcessor->updateResourceHash($resource);
 
-		Log::info("Starting Job UpdateResourceHashes for resource ({$resource->id})");
-
 		if ($hashChanged) {
 			// CheckDuplicateResources::dispatch($resource)->onConnection($this->connection)->onQueue($this->queue);
 
