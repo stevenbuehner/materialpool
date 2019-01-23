@@ -34,11 +34,13 @@ class CalculatePdfPageSize {
 		$resource = $event->getResource();
 
 		if ($resource instanceof PdfFile) {
+
 			Log::info("Start job: " . self::class . " for Resource", $resource->toArray());
 
 			$resource = $this->processor->countPdfPages($resource);
 
 			Log::info("End job: " . self::class . " for Resource", $resource->toArray());
+
 		}
 
 	}

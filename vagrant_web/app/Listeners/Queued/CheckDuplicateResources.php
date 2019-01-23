@@ -4,13 +4,13 @@ namespace App\Listeners\Queued;
 
 use App\Events\ContainsOneResource;
 use App\Services\ResourceHandling\ResourceDuplicationHandlingService;
-use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\SerializesModels;
 
 class CheckDuplicateResources implements ShouldQueue {
-	use Queueable, SerializesModels;
+	use  SerializesModels;
 
+	public $connection = 'database';
 	protected $service;
 
 	/**
