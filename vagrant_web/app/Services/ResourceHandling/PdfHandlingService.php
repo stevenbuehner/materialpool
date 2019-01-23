@@ -6,6 +6,11 @@ use App\Models\PdfFile;
 use App\Services\ResourceHandling\Exceptions\InvalidPageNoException;
 use App\Services\ResourceHandling\Exceptions\LocalFileDoesNotExistException;
 use App\Services\ResourceHandling\Exceptions\RemoteFileDoesNotExistException;
+use Howtomakeaturn\PDFInfo\Exceptions\OpenOutputException;
+use Howtomakeaturn\PDFInfo\Exceptions\OpenPDFException;
+use Howtomakeaturn\PDFInfo\Exceptions\OtherException;
+use Howtomakeaturn\PDFInfo\Exceptions\PDFPermissionException;
+use Howtomakeaturn\PDFInfo\PDFInfo;
 use Illuminate\Support\Facades\Log;
 use setasign\Fpdi\Fpdi;
 use Spatie\PdfToText\Exceptions\PdfNotFound;
@@ -29,13 +34,22 @@ class PdfHandlingService {
 
 		if ($resource->hasLocalFile() && $localPdfPath = $resource->getAbsoluteLocalPath()) {
 
+
 			try {
-				$im = new \Imagick();
-				$im->pingImage($localPdfPath);
-				$pageCountCache       = (int) $im->getNumberImages();
-				$resource->page_count = $pageCountCache;
-			} catch (\ImagickException $e) {
+				$pdf                  = new PDFInfo($localPdfPath);
+				$resource->page_count = $pdf->pages;
+			} catch (OpenOutputException $e) {
 				$resource->page_count = FALSE;
+				Log::error('OpenOutputException', [$e->getTraceAsString(), 'resource' => $resource->toArray()]);
+			} catch (OpenPDFException $e) {
+				$resource->page_count = FALSE;
+				Log::error('OpenPDFException', [$e->getTraceAsString(), 'resource' => $resource->toArray()]);
+			} catch (PDFPermissionException $e) {
+				$resource->page_count = FALSE;
+				Log::error('PDFPermissionException', [$e->getTraceAsString(), 'resource' => $resource->toArray()]);
+			} catch (OtherException $e) {
+				$resource->page_count = FALSE;
+				Log::error('OtherException', [$e->getTraceAsString(), 'resource' => $resource->toArray()]);
 			}
 
 			$resource->save();

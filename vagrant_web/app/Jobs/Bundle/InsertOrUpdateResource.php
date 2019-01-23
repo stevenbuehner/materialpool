@@ -44,6 +44,8 @@ class InsertOrUpdateResource implements ShouldQueue, VersionInterface {
 	/**
 	 * Execute the job.
 	 *
+	 * @param BundlesService $bundlesService
+	 * @throws \Throwable
 	 */
 	public function handle(BundlesService $bundlesService) {
 

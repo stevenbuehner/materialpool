@@ -2,7 +2,7 @@
 
 namespace App\Events;
 
-use App\Models\Resource;
+use App\Models\Resource as ResourceEntity;
 use Illuminate\Queue\SerializesModels;
 
 class ResourceWasChanged implements ContainsOneResource {
@@ -13,16 +13,16 @@ class ResourceWasChanged implements ContainsOneResource {
 	/**
 	 * Create a new event instance.
 	 *
-	 * @param Resource $resource
+	 * @param ResourceEntity $resource
 	 */
-	public function __construct(Resource $resource) {
+	public function __construct(ResourceEntity $resource) {
 		$this->resource = $resource;
 	}
 
 	/**
-	 * @return Resource
+	 * @return ResourceEntity
 	 */
-	public function getResource(): Resource {
+	public function getResource(): ResourceEntity {
 		return $this->resource;
 	}
 }
