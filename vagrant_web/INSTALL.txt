@@ -194,3 +194,9 @@ php artisan import:zefaniabible /home/vagrant/web/resources/importbibles/Volxbib
 ## Backups mit
 sudo -u www-data php /var/www/wissensbase/artisan backup:run
 
+
+# Update von Bundles
+# - Immer in das Verzeichnis /home/steven/bundles (das ist am einfachsten)
+# - Anschließend immer die Gruppenrechte für www-data setzen:
+sudo chown -R steven.www-data /home/steven/bundles/
+
