@@ -69,6 +69,14 @@ class File extends Resource {
 	public function setLocalPathAttribute($path) {
 		// Possible to override and add extra actions
 		$this->attributes['local_path'] = $path;
+		$this->clearDataCache('storage');
+		$this->clearDataCache('path');
+	}
+
+	protected function clearDataCache($key) {
+		if (isset($this->cachedData[$key])) {
+			unset($this->cachedData[$key]);
+		}
 	}
 
 	public function setRemotePathAttribute($path) {
@@ -89,14 +97,18 @@ class File extends Resource {
 		if (!isset($this->cachedData['storage']) || !isset($this->cachedData['path'])) {
 			$local = $this->getAttribute('local_path');
 			list($storage, $path) = preg_split('~::~', $local, 2);
-			$this->cachedData['storage'] = $storage;
-			$this->cachedData['path']    = $path;
+			$this->setDataCache('storage', $storage);
+			$this->setDataCache('path', $path);
 		}
 
 		return [
 			$this->cachedData['storage'],
 			$this->cachedData['path']
 		];
+	}
+
+	protected function setDataCache($key, $value) {
+		$this->cachedData[$key] = $value;
 	}
 
 	public function getLocalFilePath() {
