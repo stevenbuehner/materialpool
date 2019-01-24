@@ -127,7 +127,7 @@ php artisan vue-i18n:generate
 
 #Installieren auf meinem Mini-Server
 
-# Für pdftotext
+# Für pdftotext und pdfinfo (=PageCount)
 apt-get install poppler-utils
 which pdftotext
 
