@@ -294,8 +294,17 @@ class InsertOrUpdateMaterial implements ShouldQueue, VersionInterface {
 
 		foreach ($allAssociatedUUIDs as $uuid) {
 			/** @var ForeignResourceId $frid */
-			$frid          = ForeignResourceId::where('foreign_id', $uuid->uuid)->first();
-			$resourceIDs[] = $frid->resource_id;
+			$frid = ForeignResourceId::where('foreign_id', $uuid->uuid)->first();
+
+			if ($frid) {
+				$resourceIDs[] = $frid->resource_id;
+			} else {
+				Log::error('It seems like there is a resource missing, which should have been synced',
+						   [
+							   'material'    => $material,
+							   'missingUUID' => $uuid
+						   ]);
+			}
 		}
 
 		$material->resources()->sync($resourceIDs);
