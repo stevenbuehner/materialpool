@@ -14,13 +14,20 @@ class ResourceHashProcessor {
 	 */
 	public function updateResourceHash(Resource $resource) {
 
-		if ($resource instanceof File) {
-			$sha1 = sha1($resource->getLocalFile());
-		} else if ($resource instanceof ContentHashProviderInterface) {
-			$sha1 = sha1(json_encode($resource->getContentsForHash()));
-		} else {
+		if (!$resource instanceof File && !$resource instanceof ContentHashProviderInterface) {
 			throw new ResourceNotHashable($resource);
 		}
+
+		try {
+			if ($resource instanceof File) {
+				$sha1 = sha1($resource->getLocalFile());
+			} else if ($resource instanceof ContentHashProviderInterface) {
+				$sha1 = sha1(json_encode($resource->getContentsForHash()));
+			}
+		} catch (\Exception $e) {
+			throw new ResourceNotHashable($resource, 0, $e);
+		}
+
 
 		if ($resource->content_hash != $sha1) {
 			$resource->content_hash = $sha1;
