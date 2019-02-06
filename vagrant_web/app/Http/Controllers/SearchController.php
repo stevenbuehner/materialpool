@@ -37,10 +37,10 @@ class SearchController extends Controller {
 			$result->push(
 				[
 					'text' => strtoupper($queryString) . '-Typ',
-					'icon' => '/img/icons/type_' . $queryString . '.svg',
+					'icon' => '/img/icons/type_' . strtolower($queryString) . '.svg',
 					'item' => [
 						'type' => 't',
-						'text' => $queryString
+						'text' => strtolower($queryString)
 					]
 				]
 			);

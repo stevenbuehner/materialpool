@@ -115,7 +115,7 @@ function bibleverseToSearchItem(bibleverse) {
 
 function typeToSearchItem(type) {
     return {
-        icon: '/img/icons/type_' + type + '.svg',
+        icon: '/img/icons/type_' + type.toLowerCase() + '.svg',
         text: type.toUpperCase(),
         item: {
             text: type.toLowerCase(),
