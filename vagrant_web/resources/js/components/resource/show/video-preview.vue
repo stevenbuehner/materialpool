@@ -36,7 +36,19 @@
             },
 
             videoMimeType() {
-                return this.resource.mime_type || 'video';
+
+                let type = 'video';
+                switch (this.resource.mime_type) {
+                    case 'video/quicktime':
+                        type = 'video/mp4';
+                        break;
+                    case undefined:
+                        break;
+                    default:
+                        type = this.resource.mime_type;
+                }
+
+                return type;
             }
         }
 
