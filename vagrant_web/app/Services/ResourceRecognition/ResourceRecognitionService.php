@@ -66,6 +66,7 @@ class ResourceRecognitionService {
 				break;
 
 			case 'video/mp4':
+			case 'video/quicktime':
 
 				$class = VideoFile::class;
 				break;
