@@ -101,7 +101,7 @@ trait ResourceHelperTrait {
 			$newTargetFolder      = DIRECTORY_SEPARATOR . intval($resource->id / 10000);
 			$newTargetFolder      .= DIRECTORY_SEPARATOR . intval($resource->id / 100);
 			$relativeFilePath     = $disk->putFile($newTargetFolder, $file);
-			$resource->local_path = config('app.disks.resources') . '::' . $relativeFilePath;
+			$resource->setLocalStorageAndPath(config('app.disks.resources'), $relativeFilePath);
 
 		} else if ($resource instanceof Text) {
 			$resource->content           = \File::get($file->getRealPath());
