@@ -113,6 +113,17 @@ function bibleverseToSearchItem(bibleverse) {
     }
 }
 
+function typeToSearchItem(type) {
+    return {
+        icon: '/img/icons/type_' + type + '.svg',
+        text: type.toUpperCase(),
+        item: {
+            text: type.toLowerCase(),
+            type: 't'
+        }
+    }
+}
+
 const QUERY_SEPARATOR = ',';
 
 
@@ -131,6 +142,7 @@ export function searchArrayItemsToSearchQuery(searchObjects) {
                     return id + item.type + item.id;
                 case 'b':
                     return id + item.type + item.from + '-' + item.to;
+                case 't':
                 case '*':
                     return id + item.type + item.text;
                 default:
@@ -151,7 +163,7 @@ export function searchQueryStringToSearchQueryArray(query) {
     query            = query || '';
     const queryItems = query.split(QUERY_SEPARATOR);
     let tempQuery    = [];
-    const regExp     = /([0-9]+)([kb\*])(.*)/i;
+    const regExp     = /([0-9]+)([kbt\*])(.*)/i;
 
     queryItems.forEach((objStr) => {
         const found = objStr.match(regExp);
@@ -188,6 +200,7 @@ export function searchQueryStringToSearchQueryArray(query) {
                     }
                     break;
 
+                case 't':
                 case '*':
                     tempQuery.push({
                         line: lineId,
@@ -251,7 +264,7 @@ export function searchQueryToSearchArrayObjects(query) {
     query              = query || '';
     const queryItems   = query.split(QUERY_SEPARATOR);
     let searchPromises = [];
-    const regExp       = /([0-9]+)([kb\*])(.*)/i;
+    const regExp       = /([0-9]+)([kbt\*])(.*)/i;
 
     queryItems.forEach((objStr) => {
         const found = objStr.match(regExp);
@@ -294,6 +307,13 @@ export function searchQueryToSearchArrayObjects(query) {
                             })
                         });
                     }
+                    break;
+
+                case 't':
+                    searchPromises.push({
+                        line: lineId,
+                        value: typeToSearchItem(search)
+                    });
                     break;
 
                 case '*':

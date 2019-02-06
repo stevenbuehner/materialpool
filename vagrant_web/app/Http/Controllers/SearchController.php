@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Bibleverse;
 use App\Models\Keyword;
 use App\Models\Material;
+use App\Models\Resource;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\Paginator;
@@ -29,6 +30,21 @@ class SearchController extends Controller {
 		$paginationSize       = 30;
 		$bibleVerseExtraction = resolve('BibleVerseService');
 		$result               = collect();
+
+
+		// Resource Type
+		if (in_array(strtolower($queryString), Resource::$allResourceTypeKeys)) {
+			$result->push(
+				[
+					'text' => strtoupper($queryString) . '-Typ',
+					'icon' => '/img/icons/type_' . $queryString . '.svg',
+					'item' => [
+						'type' => 't',
+						'text' => $queryString
+					]
+				]
+			);
+		}
 
 
 		// Wildcard Search
@@ -284,6 +300,7 @@ class SearchController extends Controller {
 				$barGroupColl         = collect($bar)->groupBy('type');
 				$keywordIds           = [];
 				$bibleverseRanges     = $barGroupColl->get('b', []);
+				$resourceTypes        = [];
 				$matchAllStrings      = [];
 				$keywordsAvailable    = FALSE;
 				$bibleversesAvailable = FALSE;
@@ -299,13 +316,24 @@ class SearchController extends Controller {
 					$bibleversesAvailable = TRUE;
 				}
 
+				if ($barGroupColl->has('t')) {
+					$resourceTypes = $barGroupColl->get('t')
+												  ->filter(function ($el, $key) {
+													  return isset($el['text']) && in_array(strtolower($el['text']),
+																							Resource::$allResourceTypeKeys);
+												  })
+												  ->map(function ($el) {
+													  return strtolower($el['text']);
+												  })
+												  ->all();
+				}
+
 				if ($barGroupColl->has('*')) {
 					$matchAllStrings = $barGroupColl->get('*')->pluck('text');
 				}
 
-
 				DB::enableQueryLog();
-				$matQuery->where(function ($q) use (&$keywordIds, &$bibleverseRanges, &$matchAllStrings, $index) {
+				$matQuery->where(function ($q) use (&$keywordIds, &$bibleverseRanges, &$resourceTypes, &$matchAllStrings, $index) {
 					if (count($keywordIds) > 0) {
 						$q->orWhereIn("keyword_material{$index}.keyword_id", $keywordIds);
 						$q->orWhereIn('materials.author_id', $keywordIds->all());
@@ -325,6 +353,12 @@ class SearchController extends Controller {
 								$q->where("bibleverses{$index}.to", '<', $to);
 							});
 						}
+					}
+
+
+					// Im Resource-Type suchen
+					if (count($resourceTypes) > 0) {
+						$q->orWhereIn("resources{$index}.type", $resourceTypes);
 					}
 
 					// Im Titel suchen
@@ -351,28 +385,19 @@ class SearchController extends Controller {
 									"bibleverse_material{$index}.bibleverse_id", '=',
 									"bibleverses{$index}.id");
 				}
+
+				if (count($resourceTypes) > 0) {
+					/** @var Builder $matQuery */
+					$matQuery->leftJoin("material_resource as material_resource{$index}", 'materials.id', '=',
+										"material_resource{$index}.material_id");
+					$matQuery->join("resources as resources{$index}",
+									"material_resource{$index}.resource_id", '=',
+									"resources{$index}.id");
+				}
 			}
 		}
 
 		return $matQuery;
-	}
-
-
-	protected function getOrWhereFromItem($query, $item) {
-		if (is_array($item) && isset($item['type'])) {
-			switch ($item['type']) {
-				case '*':
-					// Search in all (wildcard)
-					break;
-				case 'k':
-					// Keyword
-					break;
-				case 'b':
-					// Bibleverse
-					break;
-
-			}
-		}
 	}
 
 }

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Services\PreviewGeneration\Generators\VideoPreviewGenerator;
 use App\Services\PreviewGeneration\Interfaces\PreviewGeneratorInterface;
+use League\Flysystem\FileNotFoundException;
 
 class VideoFile extends File {
 
@@ -11,7 +12,7 @@ class VideoFile extends File {
 
 	public function __construct(array $attributes = []) {
 		parent::__construct($attributes);
-		$this->appends[]  = 'mime_type';
+		$this->appends[] = 'mime_type';
 	}
 
 	/**
@@ -23,6 +24,10 @@ class VideoFile extends File {
 	}
 
 	public function getMimeTypeAttribute() {
-		return $this->hasLocalFile() ? $this->getLocalMimeType() : '';
+		try {
+			return $this->hasLocalFile() ? $this->getLocalMimeType() : '';
+		} catch (FileNotFoundException $e) {
+			return '';
+		}
 	}
 }
