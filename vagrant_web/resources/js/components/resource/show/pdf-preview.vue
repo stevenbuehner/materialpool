@@ -4,7 +4,7 @@
             <b-image :src="currentlyDisplayedImage.src"
                      :alt="currentlyDisplayedImage.title"
                      :key="currentlyDisplayedImage.src"
-                     class="card-img-top"></b-image>
+                     class="card-img-top pdfPreviewImage"/>
 
             <span class="previous"
                   @click.stop="previousPreviewImage"
@@ -189,6 +189,11 @@
 
     .limitedPreview {
         font-size: smaller;
+    }
+
+    .pdfPreviewImage{
+        min-height: 5em;
+        min-width: 100%;
     }
 
 </style>
