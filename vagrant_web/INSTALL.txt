@@ -182,9 +182,9 @@ php artisan key:generate
 
 
 # Bibeln importieren
-php artisan import:zefaniabible /home/vagrant/web/resources/importbibles/Schlachter1951.xml
-php artisan import:zefaniabible /home/vagrant/web/resources/importbibles/Leonberger.xml
-php artisan import:zefaniabible /home/vagrant/web/resources/importbibles/Volxbibel.xml
+php artisan import:zefaniabible /var/www/wissensbase/resources/bibles/Schlachter1951.xml
+php artisan import:zefaniabible /var/www/wissensbase/resources/bibles/Leonberger.xml
+php artisan import:zefaniabible /var/www/wissensbase/resources/bibles/Volxbibel.xml
 ## Anschließend ggf. die Priorität in der Bibel-Verwendung in der DB von Hand anpassen
 
 
