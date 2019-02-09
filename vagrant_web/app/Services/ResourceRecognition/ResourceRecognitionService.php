@@ -74,6 +74,7 @@ class ResourceRecognitionService {
 
 			case 'audio':
 			case 'audio/mp3':
+			case 'audio/mpeg':
 
 				$class = AudioFile::class;
 				break;
