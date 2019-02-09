@@ -12,6 +12,7 @@ use App\Models\Text;
 use App\Models\Url;
 use App\Models\VideoFile;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Log;
 
 class ResourceRecognitionService {
 
@@ -82,6 +83,7 @@ class ResourceRecognitionService {
 
 			default:
 
+				Log::warning('Unbekannter MIME-Type: ' . $mimeType);
 				$class = File::class;
 				break;
 		}
