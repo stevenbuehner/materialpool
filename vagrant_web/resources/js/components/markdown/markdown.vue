@@ -30,8 +30,10 @@
                 renderer.text = function (text) {
                     // console.log(text);
 
+
+                    // match.trim() ... um zu verhindern dass Zeilenumbrüche am Ende in den Quelltext kommen => Darstellungsfehler
                     return text.replace(regexp, function (match) {
-                        return `<bible-popover :text="'${match}'" :load-contents="${loadBVs}"/>`;
+                        return `<bible-popover :text="'${match.trim()}'" :load-contents="${loadBVs}"/>`;
                     });
                 };
 
