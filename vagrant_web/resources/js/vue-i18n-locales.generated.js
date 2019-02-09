@@ -212,7 +212,8 @@ export default {
             "Reload-page": "Seite neu laden",
             "close": "schließen",
             "Lonely-Resources": "Einsame Resourcen",
-            "Congratulations-No-lonely-Resources-found": "Herzlichen Glückwünsch! Keine einsamen Resourcen gefunden."
+            "Congratulations-No-lonely-Resources-found": "Herzlichen Glückwünsch! Keine einsamen Resourcen gefunden.",
+            "Loading-from-bible": "Lade aus der Bibel ..."
         }
     },
     "en": {
@@ -452,7 +453,8 @@ export default {
             "Reload-page": "Reload page",
             "close": "close",
             "Lonely-Resources": "Lonely Resources",
-            "Congratulations-No-lonely-Resources-found": "Congratulations! No lonely resources found."
+            "Congratulations-No-lonely-Resources-found": "Congratulations! No lonely resources found.",
+            "Loading-from-bible": "Loading from bible ..."
         },
         "validation": {
             "accepted": "The {attribute} must be accepted.",

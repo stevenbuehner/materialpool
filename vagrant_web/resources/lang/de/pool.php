@@ -213,6 +213,6 @@ return [
 	'Reload-page'                                              => 'Seite neu laden',
 	'close'                                                    => 'schließen',
 	'Lonely-Resources'                                         => 'Einsame Resourcen',
-	'Congratulations-No-lonely-Resources-found'               => 'Herzlichen Glückwünsch! Keine einsamen Resourcen gefunden.',
-
+	'Congratulations-No-lonely-Resources-found'                => 'Herzlichen Glückwünsch! Keine einsamen Resourcen gefunden.',
+	'Loading-from-bible'                                       => 'Lade aus der Bibel ...'
 ];

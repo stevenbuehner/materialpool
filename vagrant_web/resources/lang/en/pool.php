@@ -222,6 +222,6 @@ return [
 	'Reload-page'                                              => 'Reload page',
 	'close'                                                    => 'close',
 	'Lonely-Resources'                                         => 'Lonely Resources',
-	'Congratulations-No-lonely-Resources-found'               => 'Congratulations! No lonely resources found.',
-
+	'Congratulations-No-lonely-Resources-found'                => 'Congratulations! No lonely resources found.',
+	'Loading-from-bible'                                       => 'Loading from bible ...'
 ];

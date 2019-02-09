@@ -12,10 +12,6 @@
 
 
 // Popover (bibelstellen-Popup)
-@media screen and (max-width: breakpoint-max('sm')) {
-
-}
-
 @each $breakpoint in map-keys($grid-breakpoints) {
   @if map_get($container-max-widths, $breakpoint) != null {
     @include media-breakpoint-up($breakpoint) {
