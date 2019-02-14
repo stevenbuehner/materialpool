@@ -4,6 +4,9 @@ namespace App\Console;
 
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
+use Illuminate\Queue\Console\WorkCommand;
+use Spatie\Backup\Commands\BackupCommand;
+use Spatie\Backup\Commands\CleanupCommand;
 
 class Kernel extends ConsoleKernel {
 	/**
@@ -22,8 +25,18 @@ class Kernel extends ConsoleKernel {
 	 * @return void
 	 */
 	protected function schedule(Schedule $schedule) {
-		// $schedule->command('inspire')
-		//          ->hourly();
+
+		// Backups erstellen
+		$schedule->command(BackupCommand::class, [])
+				 ->daily()
+				 ->runInBackground();
+		$schedule->command(CleanupCommand::class)
+				 ->daily();
+
+		$schedule->command(WorkCommand::class,
+						   ['database', '--queue=default', '--stop-when-empty', '--tries=50', '--timeout=120', '--no-interaction'])
+				 ->everyFiveMinutes();
+
 	}
 
 	/**
