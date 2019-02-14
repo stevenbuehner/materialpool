@@ -71,7 +71,7 @@ return [
 
 		'backup' => [
 			'driver' => 'local',
-			'root'   => base_path('../backup'),
+			'root'   => env('BACKUP_PATH', base_path('../backups')) ,
 		],
 
 		'testfiles' => [
