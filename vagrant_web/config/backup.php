@@ -148,7 +148,7 @@ return [
 			'disks'         => ['backup'],
 			'health_checks' => [
 				\Spatie\Backup\Tasks\Monitor\HealthChecks\MaximumAgeInDays::class          => 7,
-				\Spatie\Backup\Tasks\Monitor\HealthChecks\MaximumStorageInMegabytes::class => 5000,
+				\Spatie\Backup\Tasks\Monitor\HealthChecks\MaximumStorageInMegabytes::class => 1024*300,
 			],
 		],
 
@@ -181,12 +181,12 @@ return [
 			/*
 			 * The number of days for which backups must be kept.
 			 */
-			'keep_all_backups_for_days'                            => 7,
+			'keep_all_backups_for_days'                            => 14,
 
 			/*
 			 * The number of days for which daily backups must be kept.
 			 */
-			'keep_daily_backups_for_days'                          => 16,
+			'keep_daily_backups_for_days'                          => 7,
 
 			/*
 			 * The number of weeks for which one weekly backup must be kept.
@@ -196,7 +196,7 @@ return [
 			/*
 			 * The number of months for which one monthly backup must be kept.
 			 */
-			'keep_monthly_backups_for_months'                      => 4,
+			'keep_monthly_backups_for_months'                      => 6,
 
 			/*
 			 * The number of years for which one yearly backup must be kept.
@@ -207,7 +207,7 @@ return [
 			 * After cleaning up the backups remove the oldest backup until
 			 * this amount of megabytes has been reached.
 			 */
-			'delete_oldest_backups_when_using_more_megabytes_than' => 30000,
+			'delete_oldest_backups_when_using_more_megabytes_than' => 1024*300,
 		],
 	],
 ];
