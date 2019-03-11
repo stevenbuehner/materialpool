@@ -224,7 +224,15 @@ class Keyword extends Model {
 	}
 
 	protected function updateLcTitle() {
-		$this->attributes['lc_title'] = $this->type . '_' . str_replace(' ', '_', trim(strtolower($this->title)));
+
+		$search  = ["Ä", "Ö", "Ü", "ä", "ö", "ü", "ß"];
+		$replace = ["Ae", "Oe", "Ue", "ae", "oe", "ue", "ss"];
+		$str     = str_replace($search, $replace, $this->title);
+
+		$str = trim(strtolower($str));
+		$str = preg_replace('~[^a-z_-]+~i', '_', $str);
+
+		$this->attributes['lc_title'] = $this->type . '_' . $str;
 	}
 
 	/**
