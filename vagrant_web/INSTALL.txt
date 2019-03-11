@@ -188,6 +188,11 @@ php artisan import:zefaniabible /var/www/wissensbase/resources/bibles/Volxbibel.
 ## Anschließend ggf. die Priorität in der Bibel-Verwendung in der DB von Hand anpassen
 
 
+## Cronjob einrichten
+sudo crontab -u www-data -e
+# Einfügen in die Datei:
+* * * * * cd /var/www/wissensbase; php artisan schedule:run >> /dev/null 2>&1
+
 ## UPDATEs ###
 # siehe update.sh
 
