@@ -52,6 +52,7 @@ class ResourceRecognitionService {
 				break;
 
 			case 'text/plain':
+			case 'text/markdown':
 				// Check for first line (if it has keywords etc. than use it as so
 				break;
 
@@ -62,12 +63,22 @@ class ResourceRecognitionService {
 
 			case'application/msword':
 			case'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
+			case 'application/vnd.oasis.opendocument.presentation':
+			case 'application/vnd.oasis.opendocument.spreadsheet':
+			case 'application/vnd.oasis.opendocument.text':
+			case 'application/vnd.ms-powerpoint':
+			case 'application/vnd.openxmlformats-officedocument.presentationml.presentation':
+			case 'application/vnd.ms-excel':
+			case 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet':
 
 				$class = DocumentFile::class;
 				break;
 
 			case 'video/mp4':
+			case 'video/mpeg':
 			case 'video/quicktime':
+			case 'video/ogg':
+			case 'video/3gpp':
 
 				$class = VideoFile::class;
 				break;
@@ -75,6 +86,9 @@ class ResourceRecognitionService {
 			case 'audio':
 			case 'audio/mp3':
 			case 'audio/mpeg':
+			case 'audio/aac':
+			case 'audio/ogg':
+			case 'audio/3gpp':
 
 				$class = AudioFile::class;
 				break;
