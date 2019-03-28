@@ -25,12 +25,14 @@ class ResourceRecognitionService {
 		$mimeType  = $requestFile->getClientMimeType();
 		$mimeParts = preg_split('~\/~', $mimeType);
 
+		$class = $this->guessResourceFileFromMimeType($mimeType);
+
 		// Check for length (too big files are stored as file and not in DB)
-		if ($mimeType == 'text/plain' && $requestFile->getSize() < 1024 * 512 /* 0,5 MB */) {
-			return Text::class;
+		if ($class == Text::class && $requestFile->getSize() > 1024 * 1024 /* 1 MB */) {
+			$class = Resource::class;
 		}
 
-		return $this->guessResourceFileFromMimeType($mimeType);
+		return $class;
 	}
 
 	/**
@@ -53,7 +55,8 @@ class ResourceRecognitionService {
 
 			case 'text/plain':
 			case 'text/markdown':
-				// Check for first line (if it has keywords etc. than use it as so
+
+				$class = Text::class;
 				break;
 
 			case'application/pdf':
