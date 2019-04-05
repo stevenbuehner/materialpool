@@ -20,7 +20,24 @@ class ResourceHashProcessor {
 
 		try {
 			if ($resource instanceof File) {
-				$sha1 = sha1($resource->getLocalFile());
+
+				if ($resource->hasLocalFile()) {
+					$stream = $resource->getLocalFileStream();
+				} else if ($resource->hasRemoteFile()) {
+					$stream = $resource->getRemoteFileStream();
+				}
+
+				if ($stream === FALSE) {
+					throw new ResourceNotHashable($resource);
+				}
+
+				$algo = 'sha1';
+				$hc   = hash_init($algo); // hash_algos()
+
+				hash_update_stream($hc, $stream);
+
+				$sha1 = hash_final($hc);
+
 			} else if ($resource instanceof ContentHashProviderInterface) {
 				$sha1 = sha1(json_encode($resource->getContentsForHash()));
 			}
