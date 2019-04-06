@@ -20,6 +20,7 @@
                 v-model="selection"
                 @input="onChange"
                 @search:blur="onBlur"
+                @search:focus="onFocus"
         >
 
             <template slot="no-options">
@@ -48,6 +49,8 @@
 
     import VueSelect from 'vue-select';
     import _debounce from 'lodash/debounce';
+
+    let myTimeout = null;
 
     export default {
 
@@ -138,11 +141,21 @@
 
             }, 250),
 
+            onFocus() {
+                clearTimeout(myTimeout);
+            },
+
             onBlur() {
-                // Warten bis input => onChange gefeuert wurde ...
-                this.$nextTick(() => {
+
+                // Verstecke die Select-Box nach 4 Sekunden automatisch wieder.
+                // Bzw. lass sie noch 4 Sekunden sichtbar, so dass der Author auch "entfernt" / "x" werden kann
+                myTimeout = setTimeout(() => {
+                    // Warten bis input => onChange gefeuert wurde ...
+                    // this.$nextTick(() => {
                     this.editModeActive = false;
-                })
+                    // })
+                }, 4000);
+
             },
 
             onChange(input) {
@@ -177,6 +190,10 @@
 
         components: {
             VueSelect,
+        },
+
+        beforeDestroy() {
+            clearTimeout(myTimeout);
         }
 
 
