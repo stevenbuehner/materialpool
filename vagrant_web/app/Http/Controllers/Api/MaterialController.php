@@ -118,7 +118,11 @@ class MaterialController extends BaseController {
 	public function update(MaterialRequest $request, Material $material) {
 
 		$material->fill($request->all());
-		$this->fillAuthor($request->get('author'), $material);
+
+		if ($request->has('author')) {
+			$this->fillAuthor($request->get('author'), $material);
+		}
+
 		$material->save();
 
 		$this->syncKeywords($request, $material);
