@@ -39,9 +39,11 @@
 
                 return marked(this.text, {
                     sanitize: true,
-                    gfm: false,
+                    gfm: true,
                     smartLists: true,
                     smartypants: true,
+                    tables: true,
+                    breaks: true,
                     renderer
                 });
             }
