@@ -91,7 +91,7 @@
                         :star-size="15"
                         :inline="true"
                         text-class="starRatingText"
-                        :rating="form.rating"
+                        v-model="form.rating"
                         :read-only="formDisabled"/>
             </b-form-group>
 
@@ -142,17 +142,7 @@
     import BibleverseInput from "../../bibleverse/bibleverseInput";
     import _debounce from 'lodash/debounce';
     import KeywordToggleTextSelect from "../../keyword/keywordToggleTextSelect";
-
-
-    let defaultForm = {
-        title: '',
-        description: '',
-        rating: null,
-        from_bot: false,
-        author: '',
-        keywords: [],
-        bibleverses: [],
-    };
+    import {RELEVANCE_USER_AVG} from "../../../apps/config";
 
     export default {
         name: "materialCreator",
@@ -206,7 +196,7 @@
             rating: {
                 type: Number,
                 required: false,
-                default: 10
+                default: -1
             },
             keywordIds: {
                 type: Array,
@@ -379,27 +369,61 @@
             _onReset() {
                 this.formErrors = [];
 
-                this.form.title       = defaultForm.title || this.title;
-                this.form.description = defaultForm.description || this.description;
-                this.form.rating      = defaultForm.rating || this.rating;
-                this.form.from_bot    = false;
-                this.form.author      = defaultForm.author || this.author;
+                this.form.title       = (this.title !== '') ? this.title : this.$store.getters['materialcreator/getTitle'];
+                this.form.description = (this.description !== '') ? this.description : this.$store.getters['materialcreator/getDescription'];
+                this.form.rating      = (this.rating !== -1) ? this.rating : this.$store.getters['materialcreator/getRating'];
+                this.form.from_bot    = (this.from_bot === false) ? false : this.$store.getters['materialcreator/getFromBot'];
+                this.form.author      = (this.author !== '') ? this.author : this.$store.getters['materialcreator/getAuthor'];
                 this.form.keywords    = [];
                 this.form.bibleverses = [];
 
-                const kw = (defaultForm.bibleverses.length > 0) ? defaultForm.keywords.map(kw => kw.id) : this.keywordIds;
-                this.$store.dispatch('keywords/getMultiple', kw)
-                    .then((keywords) => {
-                        this.keywordInput = keywords;
-                        this.updateKeywordForm(keywords);
-                    });
 
-                const bv = (defaultForm.bibleverses.length > 0) ? defaultForm.bibleverses.map(bv => bv.id) : this.bibleverseIds;
-                this.$store.dispatch('bibleverses/getMultiple', bv)
-                    .then((bibleverses) => {
-                        this.bibleverseInput = bibleverses;
-                        this.updateBibleverseForm(bibleverses);
-                    });
+                // Wenn nur die IDs gegeben sind, dann nimm die Standard-Relevanz
+                const kwIdsAndRelevance = this.keywordIds.length > 0 ? this.keywordIds.map((kw) => {
+                    return {id: kw.id, relevance: RELEVANCE_USER_AVG}
+                }) : this.$store.getters['materialcreator/getKeywordIds'];
+
+                // Wenn nur die IDs gegeben sind, dann nimm die Standard-Relevanz
+                const bvIdsAndRelevance = (this.bibleverseIds.length > 0) ? this.bibleverseIds.map((bv) => {
+                    return {id: bv.id, relevance: RELEVANCE_USER_AVG}
+                }) : this.$store.getters['materialcreator/getBibleverseIds'];
+
+
+                // Lade den Author anhand der zwischengespeicherten ID nach
+                if (this.form.author) {
+                    this.$store.dispatch('keywords/get', this.form.author)
+                        .then((author) => {
+                            this.form.author = author;
+                        });
+                }
+
+                // Lade die Keywords anhand der zwischengespeicherten IDs nach und füge die Relevanz hinzu
+                if (kwIdsAndRelevance.length > 0) {
+                    this.$store.dispatch('keywords/getMultiple', kwIdsAndRelevance.map(kw => kw.id))
+                        .then((keywords) => {
+
+                            for (let i in keywords) {
+                                keywords[i].pivot = {relevance: kwIdsAndRelevance.find((el) => el.id === keywords[i].id).relevance}
+                            }
+
+                            this.keywordInput = keywords;
+                            this.updateKeywordForm(keywords);
+                        });
+                }
+
+                if (bvIdsAndRelevance.length > 0) {
+                    this.$store.dispatch('bibleverses/getMultiple', bvIdsAndRelevance.map(bv => bv.id))
+                        .then((bibleverses) => {
+
+                            for (let i in bibleverses) {
+                                bibleverses[i].pivot = {relevance: bvIdsAndRelevance.find((el) => el.id === bibleverses[i].id).relevance}
+                            }
+
+                            this.bibleverseInput = bibleverses;
+                            this.updateBibleverseForm(bibleverses);
+                        });
+                }
+
             },
 
             _selectFocus() {
@@ -421,7 +445,15 @@
             },
 
             useCurrentSelectionAsDefault() {
-                defaultForm = JSON.parse(JSON.stringify(this.form));
+
+                this.$store.commit('materialcreator/setTitle', this.form.title);
+                this.$store.commit('materialcreator/setDescription', this.form.description);
+                this.$store.commit('materialcreator/setRating', this.form.rating);
+                this.$store.commit('materialcreator/setFromBot', this.form.from_bot);
+                this.$store.commit('materialcreator/setAuthor', (this.form.author) ? this.form.author.id : null);
+                this.$store.commit('materialcreator/setKeywordIds', this.form.keywords);
+                this.$store.commit('materialcreator/setBibleverseIds', this.form.bibleverses);
+
             },
 
         },

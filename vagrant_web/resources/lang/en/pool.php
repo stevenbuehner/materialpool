@@ -177,6 +177,7 @@ return [
 	'Updated-at'                                               => 'Updated at',
 	'Page-Count'                                               => 'Page Count',
 	'missing'                                                  => 'missing',
+	'rating-missing'                                           => 'Rating is missing',
 	'Enter-text'                                               => 'Enter text',
 	'Create-entry'                                             => 'Create entry',
 	'Metadata'                                                 => 'Metadata',

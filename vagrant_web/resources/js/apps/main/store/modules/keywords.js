@@ -10,7 +10,7 @@ import {
     searchGuessKeywords
 } from '../../../../components/serverRoutes'
 import {convertErrorResponseToMessage} from "./handleErrorsHelper";
-
+import {clone as _clone} from 'lodash';
 import {queue} from "../networkQueue";
 
 
@@ -41,24 +41,17 @@ const getters = {
 const mutations = {
 
     setKeyword(state, keyword) {
-        state.keywords[keyword.id] = keyword;
+        state.keywords[keyword.id] = _clone(keyword);
+
+        if (state.keywords[keyword.id].pivot) {
+            delete state.keywords[keyword.id].pivot;
+        }
     },
 
     removeKeyword(state, id) {
         delete state.keywords[id];
     },
 
-    /**
-     *
-     * @param state
-     * @param Array allKeywords
-     */
-    setMultipleKeywords(state, allKeywords) {
-
-        for (let i in allKeywords) {
-            state.keywords[allKeywords[i].id] = allKeywords[i];
-        }
-    },
 
     allKeywordsLoaded(state, loaded) {
         loaded = !!loaded;
@@ -102,7 +95,7 @@ const actions = {
 
 
         response.then((keywords) => {
-            commit('setMultipleKeywords', keywords);
+            dispatch('setMultipleKeywords', keywords);
         });
 
         return response;
@@ -179,12 +172,24 @@ const actions = {
             });
 
         resultPromise.then((allKeywords) => {
-            commit('setMultipleKeywords', allKeywords);
+            dispatch('setMultipleKeywords', allKeywords);
             commit('allKeywordsLoaded', true);
         });
 
         return resultPromise;
 
+    },
+
+    /**
+     *
+     * @param state
+     * @param allKeywords
+     */
+    setMultipleKeywords: ({commit}, allKeywords) => {
+
+        for (let i in allKeywords) {
+            commit('setKeyword', allKeywords[i]);
+        }
     },
 
     create: ({commit, getters, dispatch}, {title, type}) => {
@@ -339,7 +344,7 @@ const actions = {
             .then(({data}) => {
 
                 if (data instanceof Array && data.length > 0) {
-                    commit('setMultipleKeywords', data);
+                    dispatch('setMultipleKeywords', data);
                 }
 
                 return data;

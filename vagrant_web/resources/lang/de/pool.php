@@ -168,6 +168,7 @@ return [
 	'Updated-at'                                               => 'Bearbeitet',
 	'Page-Count'                                               => 'Anzahl Seiten',
 	'missing'                                                  => 'fehlt',
+	'rating-missing'                                           => 'Bewertung fehlt',
 	'Enter-text'                                               => 'Text eingeben',
 	'Create-entry'                                             => 'Eintrag anlegen',
 	'Metadata'                                                 => 'Metainformationen',
