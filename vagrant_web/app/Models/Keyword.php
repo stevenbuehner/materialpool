@@ -230,7 +230,7 @@ class Keyword extends Model {
 		$str     = str_replace($search, $replace, $this->title);
 
 		$str = trim(strtolower($str));
-		$str = preg_replace('~[^a-z_-]+~i', '_', $str);
+		$str = preg_replace('~[^a-z_0-9-]+~i', '_', $str);
 
 		$this->attributes['lc_title'] = $this->type . '_' . $str;
 	}
