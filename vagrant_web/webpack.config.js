@@ -147,6 +147,7 @@ module.exports = {
         headers: {
             'Access-Control-Allow-Origin': '*',
         },
+        port: 8080,
     },
     performance: {
         hints: false
