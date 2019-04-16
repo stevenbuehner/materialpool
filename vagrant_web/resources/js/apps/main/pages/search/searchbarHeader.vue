@@ -7,11 +7,14 @@
             <div class="col-lg-1 col-lg-1 col-sm-1">
                 <div class="btn-group">
                     <button class="btn btn-default"
-                            @click="requestAdditionalSearchInputAfter(key)">+
+                            v-if="index > 0 || Object.keys(searchParams).length > 1"
+                            :title="$t('pool.Remove-this-searchinput')"
+                            @click="requestRemovingSarchInput(key)">-
                     </button>
                     <button class="btn btn-default"
-                            v-if="index > 0 || searchParams.length > 1"
-                            @click="requestRemovingSarchInput(key)">-
+                            v-if="Object.keys(searchParams).length -1 === index"
+                            :title="$t('pool.Add-another-AND-searchinput')"
+                            @click="requestAdditionalSearchInputAfter(key)">+
                     </button>
                 </div>
             </div>

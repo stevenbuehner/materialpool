@@ -214,7 +214,9 @@ export default {
             "close": "schließen",
             "Lonely-Resources": "Einsame Resourcen",
             "Congratulations-No-lonely-Resources-found": "Herzlichen Glückwünsch! Keine einsamen Resourcen gefunden.",
-            "Loading-from-bible": "Lade aus der Bibel ..."
+            "Loading-from-bible": "Lade aus der Bibel ...",
+            "Remove-this-searchinput": "Suchzeile entfernen",
+            "Add-another-AND-searchinput": "UND-verknüpfte Suchzeile hinzufügen"
         }
     },
     "en": {
@@ -456,7 +458,9 @@ export default {
             "close": "close",
             "Lonely-Resources": "Lonely Resources",
             "Congratulations-No-lonely-Resources-found": "Congratulations! No lonely resources found.",
-            "Loading-from-bible": "Loading from bible ..."
+            "Loading-from-bible": "Loading from bible ...",
+            "Remove-this-searchinput": "Remove this searchinput",
+            "Add-another-AND-searchinput": "Add another AND searchinput"
         },
         "validation": {
             "accepted": "The {attribute} must be accepted.",

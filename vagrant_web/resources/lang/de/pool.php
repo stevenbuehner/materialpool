@@ -215,5 +215,7 @@ return [
 	'close'                                                    => 'schließen',
 	'Lonely-Resources'                                         => 'Einsame Resourcen',
 	'Congratulations-No-lonely-Resources-found'                => 'Herzlichen Glückwünsch! Keine einsamen Resourcen gefunden.',
-	'Loading-from-bible'                                       => 'Lade aus der Bibel ...'
+	'Loading-from-bible'                                       => 'Lade aus der Bibel ...',
+	'Remove-this-searchinput'                                  => 'Suchzeile entfernen',
+	'Add-another-AND-searchinput'                              => 'UND-verknüpfte Suchzeile hinzufügen',
 ];
