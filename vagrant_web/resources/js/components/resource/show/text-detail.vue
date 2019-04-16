@@ -10,17 +10,17 @@
         </div>
     </div>
     <div class="row" v-else>
-        <div class="col-6 p-3 liveEditorWrapper" :class="{savingNeccessary}">
+        <div class="col-6 p-0 liveEditorWrapper" :class="{savingNeccessary}">
             <textarea
-                    class="liveEditor"
+                    class="liveEditor p-3"
                     v-model="myTextContent"
                     @keydown.meta.enter.exact="btnSave"
                     @keyup.esc.exact="btnCancelIfNothingChanged"></textarea>
         </div>
-        <div class="col-6 p-3 livePreviewWrapper">
-            <markdown :text="myTextContent" :load-bibleverses="false"/>
+        <div class="col-6 p-0 livePreviewWrapper">
+            <markdown class="p-3" :text="myTextContent" :load-bibleverses="false"/>
         </div>
-        <div class="col-12">
+        <div class="col-12 p-3">
             <button
                     class="btn btn-sm btn-success float-right m-1"
                     @click="btnSave"
@@ -138,16 +138,18 @@
     .liveEditor, .livePreview {
         display: inline-block;
         vertical-align: top;
-        box-sizing: border-box;
-        width: 100%;
+        left: 0;
         height: 100%;
-        min-height: 80vh;
+        width: 100%;
+        overflow-y: scroll;
+        // overflow-x: hidden;
     }
 
     .liveEditorWrapper {
         background-color: #f6f6f6;
         border: 1px solid #f6f6f6;
         border-right: 1px solid #ccc;
+        position: relative;
 
         .liveEditor {
             border: none;
@@ -166,6 +168,8 @@
     }
 
     .livePreviewWrapper {
+        height: 80vh;
+        overflow-y: scroll;
     }
 
 
