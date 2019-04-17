@@ -26,7 +26,7 @@
                         :removeable="!disabled"
                         :editable="!disabled"
                         :searchable="!disabled"
-                        :dragable="!disabled"
+                        :dragable="!disabled && enableRelevance"
                         @removed="bibleverseRemoved"
                         @saved="bibleverseUpdated(bv, index)"
             ></bibleverse>
@@ -137,6 +137,11 @@
                 default() {
                     return [];
                 }
+            },
+
+            enableRelevance: {
+                type: Boolean,
+                default: true
             }
 
         },
@@ -436,7 +441,7 @@
         transform: translateY(30px);
     }
 
-    .fade-leave-active{
+    .fade-leave-active {
         position: absolute;
     }
 </style>

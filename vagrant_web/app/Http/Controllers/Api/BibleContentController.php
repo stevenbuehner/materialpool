@@ -18,17 +18,31 @@ class BibleContentController extends BaseController {
 		$this->bibleVerseService = $bibleVerseService;
 	}
 
-	public function getBibleverse(int $from, int $to, $bibleId = NULL) {
+	public function getBibleverse(int $from, int $to, $bibleUid = NULL) {
 
 		$query = BibleContent::whereBetween('verse', [$from, $to])
 							 ->orderBy('verse', 'asc');
 
-		if (!is_null($bibleId)) {
-			$query = $query->where('bible_id', '=', $bibleId);
-		}
+		$bible = $this->getBibleFirstOrFail($bibleUid);
+		$query = $query->where('bible_id', '=', $bible->id);
 
 		return $query->get();
 
+	}
+
+	/**
+	 * @param null|string $bibleUid
+	 * @return Bible
+	 */
+	protected function getBibleFirstOrFail($bibleUid = NULL) {
+		if ($bibleUid !== NULL) {
+			$bible = Bible::where('uuid', '=', $bibleUid)->firstOrFail();
+		} else {
+			// Das sollte eine Bibel sein, die AT + NT hat!
+			$bible = Bible::firstOrFail();
+		}
+
+		return $bible;
 	}
 
 	public function searchAndGet(Request $request, $bibleUid = NULL) {
@@ -54,12 +68,7 @@ class BibleContentController extends BaseController {
 			$query->whereBetween('verse', [$b2->from, $b2->to]);
 		}
 
-		if ($bibleUid !== NULL) {
-			$bible = Bible::where('uuid', '=', $bibleUid)->firstOrFail();
-		} else {
-			// Das sollte eine Bibel sein, die AT + NT hat!
-			$bible = Bible::firstOrFail();
-		}
+		$bible = $this->getBibleFirstOrFail($bibleUid);
 
 		$query->where('bible_id', '=', $bible->id);
 

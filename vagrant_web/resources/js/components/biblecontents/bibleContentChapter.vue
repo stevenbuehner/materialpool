@@ -1,6 +1,6 @@
 <template>
-    <div class="chapter">
-        <h1 class="chapterTitle">{{chapterTitle}}</h1>
+    <div class="chapter pb-3 pt-2">
+        <h1 class="chapterTitle">{{caption || chapterTitle}}</h1>
         <bible-content-verse v-for="v in verses" :verse="v" :key="'v' + v.verse"/>
     </div>
 </template>
@@ -16,6 +16,11 @@
             verses: {
                 type: Array,
                 required: true
+            },
+
+            caption: {
+                type: String,
+                required: false,
             }
         },
 
@@ -48,13 +53,10 @@
 
     .chapter {
 
-        margin-bottom: 2em;
-
         .chapterTitle {
             color: $cyan;
             border-bottom: $cyan 0.05em solid;
         }
-
     }
 
 </style>

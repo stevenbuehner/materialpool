@@ -176,12 +176,12 @@ export function api_v1_bundles_get_icon(bundleId) {
 }
 
 // API - BibleContentVerse
-export function api_v1_biblecontents_get(from, to, bibleId) {
+export function api_v1_biblecontents_get(from, to, bibleUuid) {
 
     let route = '/api/v1/biblecontents/' + from + '-' + to;
 
-    if (bibleId) {
-        route += '/' + bibleId;
+    if (bibleUuid) {
+        route += '/' + bibleUuid;
     }
 
     return route;

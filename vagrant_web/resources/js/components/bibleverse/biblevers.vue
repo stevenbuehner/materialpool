@@ -53,6 +53,7 @@
                 default: 'normal'
             },
 
+            // Submenü zum Suchen nach dieser Bibelstelle aktivieren
             searchable: {
                 type: Boolean,
                 required: false,
@@ -64,6 +65,7 @@
                 default: true
             },
 
+            // x  zum entfernen der Bibelstelle anzeigen
             removeable: {
                 type: Boolean,
                 required: false,

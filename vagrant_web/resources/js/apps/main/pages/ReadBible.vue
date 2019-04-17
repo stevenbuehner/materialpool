@@ -1,6 +1,20 @@
 <template>
     <div class="container">
-        <bible-content-chapter v-for="verses in chapter" :verses="verses" :key="'c' + verses[0].verse"/>
+        <form-input
+                v-model="searchInput"
+                :placeholder="$t('pool.Insert-bibleverse-here')"
+                @keydown.enter="analyseSearchInput"
+        />
+
+        <div class="range p-3">
+            <bible-content-chapter
+                    v-for="(verses, rangeIndex) in ranges"
+                    :verses="verses"
+                    :caption="toCaption(bibleVerses[rangeIndex], 'long')"
+                    :key="'r' + rangeIndex + 'bc' "/>
+        </div>
+
+
     </div>
 </template>
 
@@ -8,71 +22,48 @@
     import BibleContentVerse from "../../../components/biblecontents/bibleContentVerse";
     import BibleContentChapter from "../../../components/biblecontents/bibleContentChapter";
     import {searchArrayObjectsToSearchArrayItems} from "../../../components/search/searchHelper";
-
+    import formInput from "bootstrap-vue/src/components/form-input/form-input"
+    import {BibleVerseService} from '../../../../../vendor/stevenbuehner/bible-verse-bundle/js/out/BibleVerseService_de.js';
+    import BibleVerse from '../../../../../vendor/stevenbuehner/bible-verse-bundle/js/in/BibleVerse';
 
     export default {
         name: "ReadBible",
-        props: {
-            from: {
-                type: Number,
-                required: true
-            },
-            to: {
-                type: Number,
-                required: true
-            },
-            bibleId: {
-                type: Number,
-                required: false,
-                default: undefined
-            },
-        },
 
         data() {
-            return {};
+            return {
+                bibleUuid: null,
+
+                bibleVerses: [],
+                searchInput: '',
+                bibleVerseContent: [],
+
+            };
         },
 
         asyncComputed: {
-            chapter: {
+            ranges: {
                 get() {
-                    return this.$store.dispatch('biblecontents/get', {
-                        from: this.from,
-                        to: this.to,
-                        bibleId: this.bibleId
-                    }).then((verses) => {
-
-                        const chapters = {};
-
-                        // Gruppieren nach Kapitel
-                        verses.forEach((el) => {
-
-                            const c = Math.floor(el.verse / 1000) % 1000;
-
-                            if (chapters[c] === undefined) {
-                                chapters[c] = [];
-                            }
-
-                            chapters[c].push(el);
-
-                        });
-
-                        return chapters;
-
-                    });
+                    return this.$store.dispatch('biblecontents/getMultiple', this.bibleVerses.map(bv => {
+                            return {
+                                from: bv.getFrom(),
+                                to: bv.getTo(),
+                                bibleUuid: this.bibleUuid
+                            };
+                        })
+                    );
                 },
-                default: null,
+                default() {
+                    return [];
+                },
+                deep: true,
                 watch() {
-                    this.from;
-                    this.to;
-                    this.bibleId;
+                    this.bibleVerses
                 }
             },
 
             materials: {
                 get() {
-
-                    const searchData = searchArrayObjectsToSearchArrayItems([[{from: this.from, to: this.to}]]);
-                    console.log(searchData);
+                    const searchData = searchArrayObjectsToSearchArrayItems([this.verses]);
 
                     return this.$store.dispatch('search/materials', {query: searchData});
                 },
@@ -84,7 +75,82 @@
             }
         },
 
-        components: {BibleContentChapter, BibleContentVerse},
+        methods: {
+            initVerses(verses) {
+
+                this.bibleVerses = verses.map((bv) => {
+                    return new BibleVerse(bv.from, bv.to);
+                });
+
+                this.searchInput = this.bibleVerses.map(bv => BibleVerseService.bibleVerseToString(bv)).join(', ')
+
+            },
+
+            analyseSearchInput() {
+
+                this.$store.dispatch('bibleverses/search', this.searchInput)
+                    .then(bibleverses => {
+                        this.updateRoute(bibleverses)
+                    });
+
+            },
+
+            updateRoute(verses) {
+
+                this.$router.push({
+                    name: 'readbible',
+                    params: {
+                        searchquery: this.fromRangeArrayToString(verses)
+                    }
+                });
+
+            },
+
+            fromStringToRangeArray(text) {
+
+                const query       = text || '';
+                const verseranges = query.split(',');
+
+                return verseranges
+                    .filter(text => text !== '')
+                    .map((range) => {
+                        const split = range.split('-');
+
+                        return {
+                            from: parseInt(split[0]),
+                            to: parseInt(split[1]),
+                            bibleId: split.length > 2 ? parseInt(split[2]) : null
+                        };
+                    });
+            },
+
+            fromRangeArrayToString(verseranges) {
+                return verseranges.map(bv => {
+                    return bv.from + '-' + bv.to + (bv.bibleId ? '-' + bv.bibleId : '');
+                }).join(',');
+            },
+
+            toCaption(bibleverse, displayLength) {
+                return BibleVerseService.bibleVerseToString(bibleverse, displayLength);
+            }
+        },
+
+        beforeRouteEnter(to, from, next) {
+            next(vm => {
+                vm.initVerses(vm.fromStringToRangeArray(to.params.searchquery || ''));
+            });
+        },
+
+        beforeRouteUpdate(to, from, next) {
+            this.initVerses(this.fromStringToRangeArray(to.params.searchquery || ''));
+            next();
+        },
+
+        components: {
+            BibleContentChapter,
+            BibleContentVerse,
+            formInput
+        },
 
     }
 </script>

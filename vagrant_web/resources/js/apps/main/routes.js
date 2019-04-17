@@ -10,10 +10,10 @@ import KeywordDetail from './pages/KeywordDetail.vue'
 import ResourceTextCreate from './pages/ResourceTextCreateWithMaterial.vue';
 
 
-const KeywordList = () => import('./pages/KeywordList.vue');
-const ReadBible   = () => import('./pages/ReadBible');
-const BundleList  = () => import('./pages/BundleList.vue');
-const MaterialApp = () => import('./pages/MaterialList.vue');
+const KeywordList    = () => import('./pages/KeywordList.vue');
+const ReadBible      = () => import('./pages/ReadBible');
+const BundleList     = () => import('./pages/BundleList.vue');
+const MaterialApp    = () => import('./pages/MaterialList.vue');
 const ResourceLonely = () => import('./pages/ResourceLonely.vue');
 
 export const routes = [
@@ -83,18 +83,7 @@ export const routes = [
                path: '/bundle', name: 'bundle-list', component: BundleList, alias: '/bundles'
            },
            {
-               path: '/readbible/:from/:to/:bibleId?', component: ReadBible, name: 'readbible', props: (route) => {
-                   const result = {
-                       from: parseInt(route.params.from),
-                       to: parseInt(route.params.to),
-                   };
-
-                   if (route.params.bibleId) {
-                       result.bibleId = parseInt(route.params.bibleId)
-                   }
-
-                   return result;
-               }
+               path: '/readbible/:searchquery?', component: ReadBible, name: 'readbible', props: true
            },
            /*
            {

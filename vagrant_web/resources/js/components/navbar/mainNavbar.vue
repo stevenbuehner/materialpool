@@ -25,6 +25,8 @@
                         </b-dropdown-item>
                     </b-nav-item-dropdown>
 
+                    <b-nav-item :to="{name: 'readbible'}">{{$t('pool.Read-bible')}}</b-nav-item>
+
                     <b-nav-item :to="{name: 'search'}">{{$t('pool.Searchmask')}}</b-nav-item>
                 </b-navbar-nav>
 

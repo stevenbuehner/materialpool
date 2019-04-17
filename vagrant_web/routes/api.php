@@ -240,10 +240,10 @@ Route::group([
 		 ->name('bundles.geticon');
 
 	// Todo: Create middleware can:....
-	Route::get('biblecontents/{from}-{to}/{bibleId?}', 'BibleContentController@getBibleverse')
+	Route::get('biblecontents/{from}-{to}/{bibleUid?}', 'BibleContentController@getBibleverse')
 		 ->where('from', '[0-9]{6,9}')
 		 ->where('to', '[0-9]{6,9}')
-		 ->where('bibleId', '[0-9]+')
+		 ->where('bibleUid', '[a-zA-Z0-9_-]+')
 		 ->name('api.v1.biblecontents.get');
 	Route::get('biblecontents/search/{bibleUid?}', 'BibleContentController@searchAndGet')
 		 ->where('bibleUid', '[0-9a-zA-Z]+')
