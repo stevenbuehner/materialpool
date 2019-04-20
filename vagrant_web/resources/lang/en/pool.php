@@ -229,4 +229,7 @@ return [
 	'Loading-from-bible'                                       => 'Loading from bible ...',
 	'Remove-this-searchinput'                                  => 'Remove this searchinput',
 	'Add-another-AND-searchinput'                              => 'Add another AND searchinput',
+	'Translation'                                              => 'Translation',
+	'Select-Translation'                                       => 'Select Translation',
+
 ];

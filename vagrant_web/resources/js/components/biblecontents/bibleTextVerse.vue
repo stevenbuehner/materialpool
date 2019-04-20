@@ -1,4 +1,5 @@
 <template>
+
     <div class="verse" :id="'bv' + bibleId">
         <router-link
                 class="verseNumber"
@@ -6,12 +7,12 @@
         </router-link>
         <div class="verseText">{{text}}</div>
     </div>
+
 </template>
 
 <script>
-
     export default {
-        name: "bibleContentVerse",
+        name: "bibleTextVerse",
 
         props: {
             verse: {
@@ -30,11 +31,10 @@
             bibleId() {
                 return this.verse.bible_id;
             },
-
-
         }
     }
 </script>
+
 
 <style type="scss">
     @import "../../../sass/theme";

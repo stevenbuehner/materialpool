@@ -141,6 +141,14 @@ export function api_v1_keywords_deleteassignment(materialID, keywordId) {
     return '/api/v1/material/' + materialID + '/keyword/' + keywordId;
 }
 
+
+// API - Bibles
+export const api_v1_bibles_index = '/api/v1/bibles';
+
+export function api_v1_bibles_show(bibleUuid) {
+    return '/api/v1/bibles/' + bibleUuid;
+}
+
 // API - Bibleverses
 export function api_v1_bibleverses_show(bibleverseId) {
     return '/api/v1/bibleverses/' + bibleverseId;

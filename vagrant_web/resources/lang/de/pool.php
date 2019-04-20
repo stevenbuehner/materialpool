@@ -220,4 +220,6 @@ return [
 	'Loading-from-bible'                                       => 'Lade aus der Bibel ...',
 	'Remove-this-searchinput'                                  => 'Suchzeile entfernen',
 	'Add-another-AND-searchinput'                              => 'UND-verknüpfte Suchzeile hinzufügen',
+	'Translation'                                              => 'Übersetzung',
+	'Select-Translation'                                       => 'Übersetzung auswählen',
 ];

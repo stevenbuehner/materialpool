@@ -39,7 +39,7 @@ class BibleContentController extends BaseController {
 			$bible = Bible::where('uuid', '=', $bibleUid)->firstOrFail();
 		} else {
 			// Das sollte eine Bibel sein, die AT + NT hat!
-			$bible = Bible::firstOrFail();
+			$bible = Bible::orderBy('usage_priority', 'DESC')->firstOrFail();
 		}
 
 		return $bible;

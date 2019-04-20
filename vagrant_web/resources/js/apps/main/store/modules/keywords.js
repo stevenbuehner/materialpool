@@ -12,6 +12,7 @@ import {
 import {convertErrorResponseToMessage} from "./handleErrorsHelper";
 import {clone as _clone} from 'lodash';
 import {queue} from "../networkQueue";
+import {getAllPages} from "../helper/paginationHelperQueued";
 
 
 const state = {
@@ -118,58 +119,7 @@ const actions = {
 
         }
 
-        const getPage = async (pageNo) => {
-
-            // console.log('Start RUNNING (AXIOS) for page ' + pageNo);
-
-            return axios.get(api_v1_keywords_index,
-                {
-                    params: {page: pageNo}
-                })
-                .then(({data}) => {
-                    return data
-                })
-                .catch((response) => {
-                    console.error(response);
-                    return [];
-                });
-        };
-
-
-        const resultPromise = getPage(1)
-            .then(data => {
-                const last_page    = data.last_page;
-                const current_page = data.current_page;
-
-                if (last_page !== current_page) {
-
-                    let allPromises = [];
-
-                    allPromises.push(
-                        queue.add(
-                            () => {
-                                return data.data;
-                            }
-                        ));
-
-                    for (let i = 2; i <= last_page; i++) {
-                        allPromises.push(
-                            queue.add(
-                                () => {
-                                    return getPage(i).then(({data}) => data);
-                                }
-                            )
-                        );
-                    }
-
-                    return Promise.all(allPromises).then((results) => {
-
-                        return [].concat(...results);
-                    });
-                } else {
-                    return data.data;
-                }
-            });
+        const resultPromise = getAllPages(api_v1_keywords_index);
 
         resultPromise.then((allKeywords) => {
             dispatch('setMultipleKeywords', allKeywords);

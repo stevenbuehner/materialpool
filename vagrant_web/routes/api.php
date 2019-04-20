@@ -251,5 +251,7 @@ Route::group([
 		 ->where('bibleUid', '[0-9a-zA-Z]+')
 		 ->name('biblecontents.searchAndGet');
 
+	Route::apiResource('bibles', 'BibleController')
+		 ->only(['index', 'show']);
 
 });

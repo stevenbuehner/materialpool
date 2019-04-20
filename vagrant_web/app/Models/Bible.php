@@ -22,6 +22,7 @@ use Illuminate\Database\Eloquent\Model;
 class Bible extends Model {
 	use HasTimestamps;
 
+
 	protected $fillable = [
 		'uuid', 'title', 'description', 'version_date', 'creator', 'language', 'rights', 'source'
 	];
@@ -32,6 +33,10 @@ class Bible extends Model {
 
 	public function verses() {
 		return $this->hasMany(BibleContent::class);
+	}
+
+	public function getRouteKeyName() {
+		return 'uuid';
 	}
 
 }

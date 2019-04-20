@@ -2,20 +2,46 @@ import {api_v1_biblecontents_get, api_v1_biblecontents_search_and_get} from '../
 import axios from '../../axiosInstance';
 import {queue} from "../networkQueue";
 
-const state = {};
+function verseKey(from, to, bibleuuid) {
+    return from + '-' + to + '-' + bibleuuid;
+}
+
+const state = {
+    cache: {}
+};
 
 const getters = {};
 
 const mutations = {};
 
+
 const actions = {
 
-    get: ({commit, getters, dispatch}, {from, to, bibleUuid}) => {
+    get: ({commit, getters, dispatch, state}, {from, to, bibleUuid}) => {
 
-        const route = api_v1_biblecontents_get(from, to, bibleUuid);
+        const cacheKey = verseKey(from, to, bibleUuid);
 
-        return axios.get(route)
-            .then(({data}) => data);
+        if (state.cache[cacheKey]) {
+
+            return new Promise((resolve, reject) => {
+                resolve(state.cache[cacheKey]);
+            });
+
+        } else {
+
+            const route = api_v1_biblecontents_get(from, to, bibleUuid);
+
+            return axios.get(route)
+                .then(({data}) => {
+
+                    state.cache[cacheKey] = data;
+
+                    return data
+
+                });
+
+        }
+
 
     },
 
