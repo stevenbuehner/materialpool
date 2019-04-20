@@ -1,10 +1,9 @@
 <template>
 
-    <div class="verse" :id="'bv' + bibleId">
-        <router-link
-                class="verseNumber"
-                :to="{name:'readbible', params:{from : verse.verse, to: verse.verse, bibleId:bibleId}}">{{verseNumber}}
-        </router-link>
+    <div class="verse" :id="'bv' + bibleId"
+         :class="{selected : isSelected}"
+         @click="onClicked">
+        <span class="verseNumber">{{verseNumber}}</span>
         <div class="verseText">{{text}}</div>
     </div>
 
@@ -21,6 +20,12 @@
             }
         },
 
+        data() {
+            return {
+                isSelected: false
+            };
+        },
+
         computed: {
             text() {
                 return this.verse.text;
@@ -31,6 +36,18 @@
             bibleId() {
                 return this.verse.bible_id;
             },
+        },
+
+        methods: {
+            onClicked() {
+
+                this.$emit('verse-clicked', this.verse);
+
+                this.isSelected = !this.isSelected;
+
+                this.$emit('verse-' + (this.isSelected === true ? 'selected' : 'deselected'), this.verse);
+
+            }
         }
     }
 </script>
@@ -57,7 +74,7 @@
             }
         }
 
-        &:hover {
+        &:hover, &.selected {
             background-color: $cyan;
             color: white;
 
@@ -65,6 +82,7 @@
                 color: white;
             }
         }
+
 
         .verseText {
             display: inline;
