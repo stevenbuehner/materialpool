@@ -16,7 +16,8 @@ use Illuminate\Support\Facades\Route;
 Route::group([
 				 'middleware' => 'auth:api',
 				 'prefix'     => 'v2',
-				 'namespace'  => 'Api'
+				 'namespace'  => 'Api',
+				 'as'         => 'api.v2.'
 			 ], function () {
 
 
@@ -58,76 +59,77 @@ Route::group([
 Route::group([
 				 // 'middleware' => 'auth:api', // im Konstruktor der Klassen eingebettet
 				 'prefix'    => 'v1',
-				 'namespace' => 'Api'
+				 'namespace' => 'Api',
+				 'as'        => 'api.v1.'
 			 ], function () {
 
 
 	// General
 	Route::get('general/options', 'GeneralOptionsController@index')
-		 ->name('api.v1.general.options');
+		 ->name('general.options');
 
 	// Resources
 	Route::get('resources/find', 'ResourceController@find')
-		 ->name('api.v1.resources.find');
+		 ->name('resources.find');
 
 
 	// Materials
 	Route::get('materials', 'MaterialController@index')
-		 ->name('api.v1.materials.index');
+		 ->name('materials.index');
 	Route::get('materials/{material}', 'MaterialController@show')
 		 ->where(['material' => '[0-9]+'])
-		 ->name('api.v1.materials.show');
+		 ->name('materials.show');
 	Route::post('materials', 'MaterialController@store')
-		 ->name('api.v1.materials.store');
+		 ->name('materials.store');
 	Route::put('materials/{material}', 'MaterialController@update')
 		 ->where(['material' => '[0-9]+'])
-		 ->name('api.v1.materials.update');
+		 ->name('materials.update');
 	Route::put('materials/{material}/resources', 'MaterialController@associateResources')
 		 ->where(['material' => '[0-9]+'])
-		 ->name('api.v1.materials.associateResources');
+		 ->name('materials.associateResources');
 	Route::get('materials/{material}/copy', 'MaterialController@copy')
 		 ->where(['material' => '[0-9]+'])
-		 ->name('api.v1.materials.show');
+		 ->name('materials.show');
 
 	// Bibleverses
 	Route::get('bibleverses', 'BibleverseController@index')
-		 ->name('api.v1.bibleverses.index');
+		 ->name('bibleverses.index');
 	Route::get('bibleverses/{bibleverse}', 'BibleverseController@show')
-		 ->name('api.v1.bibleverses.show');
+		 ->name('bibleverses.show');
 	Route::post('bibleverses', 'BibleverseController@store')
-		 ->name('api.v1.bibleverses.store');
+		 ->name('bibleverses.store');
 
 
 	// Keywords
 	Route::get('keywords', 'KeywordController@index')
-		 ->name('api.v1.keywords.index');
+		 ->name('keywords.index');
 	Route::get('keywords/{keyword}', 'KeywordController@show')
 		 ->where(['keyword' => '[0-9]+'])
-		 ->name('api.v1.keywords.show');
+		 ->name('keywords.show');
 	Route::post('keywords', 'KeywordController@create')
-		 ->name('api.v1.keywords.create');
+		 ->name('keywords.create');
 	Route::put('keywords/{keyword}', 'KeywordController@update')
 		 ->where(['keyword' => '[0-9]+'])
-		 ->name('api.v1.keywords.update');
+		 ->name('keywords.update');
 	Route::delete('keywords/{keyword}', 'KeywordController@delete')
 		 ->where(['keyword' => '[0-9]+'])
-		 ->name('api.v1.keywords.delete');
+		 ->name('keywords.delete');
 
 	// Material <- Keywords-Relevance
 	Route::put('material/{material}/keyword/{keyword?}', 'KeywordController@createOrUpdateAssignment')
 		 ->where(['material' => '[0-9]+'])
 		 ->where(['keyword' => '[0-9]+'])
-		 ->name('api.v1.keywords.updateAssignment');
+		 ->name('keywords.updateAssignment');
 	Route::delete('material/{material}/keyword/{keyword}', 'KeywordController@deleteAssignment')
 		 ->where(['material' => '[0-9]+'])
 		 ->where(['keyword' => '[0-9]+'])
-		 ->name('api.v1.keywords.deleteAssignment');
+		 ->name('keywords.deleteAssignment');
 
 	// Material <- Bibleverse-Relevance
 	Route::put('material/{material}/bibleverse/{bibleverse?}', 'BibleverseController@createOrUpdateAssignment')
-		 ->name('api.v1.bibleverses.createOrUpdateAssignment');
+		 ->name('bibleverses.createOrUpdateAssignment');
 	Route::delete('material/{material}/bibleverse/{bibleverse}', 'BibleverseController@deleteAssignment')
-		 ->name('api.v1.bibleverses.deleteAssignment');
+		 ->name('bibleverses.deleteAssignment');
 
 	/*
 	 * Aus der Sicht der Foreign Instance mit ihren eigenen IDs
@@ -137,69 +139,69 @@ Route::group([
 	Route::get('foreign-materials/{foreignMaterialId}', 'ForeignMaterialController@show')
 		 ->where('foreignMaterialId', '[0-9a-zA-Z_-]+')
 		 ->middleware('can:view,foreignMaterialId')
-		 ->name('api.v1.foreignMaterialShow');
+		 ->name('foreignMaterialShow');
 	Route::post('foreign-materials/{foreignMaterialId}', 'ForeignMaterialController@store')
 		 ->where('foreignMaterialId', '[0-9a-zA-Z_-]+')
 		 ->middleware('can:create,App\Models\ForeignMaterialId')
-		 ->name('api.v1.foreignMaterialStore');
+		 ->name('foreignMaterialStore');
 	Route::put('foreign-materials/{foreignMaterialId}', 'ForeignMaterialController@update')
 		 ->where('foreignMaterialId', '[0-9a-zA-Z_-]+')
 		 ->middleware('can:update,foreignMaterialId')
-		 ->name('api.v1.foreignMaterialUpdate');
+		 ->name('foreignMaterialUpdate');
 	Route::delete('foreign-materials/{foreignMaterialId}', 'ForeignMaterialController@destroy')
 		 ->where('foreignMaterialId', '[0-9a-zA-Z_-]+')
 		 ->middleware('can:delete,foreignMaterialId')
-		 ->name('api.v1.foreignMaterialDelete');
+		 ->name('foreignMaterialDelete');
 
 	Route::post('foreign-materials/{foreignMaterialId}/create-from-resource',
 				'ForeignMaterialController@createFromResources')
 		 ->where('foreignMaterialId', '[0-9a-zA-Z_-]+')
 		 ->middleware('can:create,App\Models\ForeignMaterialId')
-		 ->name('api.v1.foreignMaterialCreateFromResource');
+		 ->name('foreignMaterialCreateFromResource');
 
 	// Neu - Ressourcen
 	Route::get('resources/{resource}', 'ResourceController@show')
 		 ->where('resource', '[0-9]+')
 		 ->middleware('can:view,resource')
-		 ->name('api.v1.resources.show');
+		 ->name('resources.show');
 	Route::get('foreign-resources/{foreignResourceId}', 'ForeignResourceController@showForeign')
 		 ->where('foreignResourceId', '[0-9a-zA-Z_-]+')
 		 ->middleware('can:view,foreignResourceId')
-		 ->name('api.v1.foreignResources.show');
+		 ->name('foreignResources.show');
 
 	Route::post('resources/', 'ResourceController@store')
 		 ->middleware('can:create,App\Models\Resource')
-		 ->name('api.v1.resources.store');
+		 ->name('resources.store');
 	Route::post('foreign-resources/', 'ForeignResourceController@storeForeign')
 		 ->middleware('can:create,App\Models\ForeignResourceId')
-		 ->name('api.v1.foreignResources.store');
+		 ->name('foreignResources.store');
 	Route::post('resources/create-material', 'ResourceController@createMaterialFromResourceIds')
 		 ->middleware('can:create,App\Models\Material')
-		 ->name('api.v1.resources.create-material');
+		 ->name('resources.create-material');
 
 	Route::post('resources/{resource}/pdf-tags', 'PdfTagExtractionController@extractTags')
 		 ->where('resource', '[0-9]+')
 		 ->middleware('can:view,resource')
-		 ->name('api.v1.resources.pdf-tags');
+		 ->name('resources.pdf-tags');
 
 
 	Route::put('resources/{resource}', 'ResourceController@update')
 		 ->where('resource', '[0-9]+')
 		 ->middleware('can:update,resource')
-		 ->name('api.v1.resources.update');
+		 ->name('resources.update');
 	Route::put('foreign-resources/{foreignResourceId}', 'ForeignResourceController@updateForeign')
 		 ->where('foreignResourceId', '[0-9a-zA-Z_-]+')
 		 ->middleware('can:update,foreignResourceId')
-		 ->name('api.v1.foreignResources.update');
+		 ->name('foreignResources.update');
 
 	Route::delete('resources/{resource}', 'ResourceController@destroy')
 		 ->where('resource', '[0-9]+')
 		 ->middleware('can:delete,resource')
-		 ->name('api.v1.resources.delete');
+		 ->name('resources.delete');
 	Route::delete('foreign-resources/{foreignResourceId}', 'ForeignResourceController@destroyForeign')
 		 ->where('foreignResourceId', '[0-9a-zA-Z_-]+')
 		 ->middleware('can:delete,foreignResourceId')
-		 ->name('api.v1.foreignResources.delete');
+		 ->name('foreignResources.delete');
 
 
 	// Neu Attach/Detach Foreign-Resources + Foreign-Materials
@@ -209,18 +211,18 @@ Route::group([
 		 ->where('foreignResourceId', '[0-9a-zA-Z_-]+')
 		 ->middleware('can:update,foreignMaterialId')
 		 ->middleware('can:view,foreignResourceId')
-		 ->name('api.v1.materialresource.attach');
+		 ->name('materialresource.attach');
 	Route::delete('foreign-material/{foreignMaterialId}/foreign-resource/{foreignResourceId}',
 				  'ForeignResourceMaterialController@detach')
 		 ->where('foreignMaterialId', '[0-9a-zA-Z_-]+')
 		 ->where('foreignResourceId', '[0-9a-zA-Z_-]+')
 		 ->middleware('can:update,foreignMaterialId')
 		// ->middleware('can:view,foreignResourceId') // Even if the resource owner made his resource not public anymore, the detaching should work
-		 ->name('api.v1.materialresource.detach');
+		 ->name('materialresource.detach');
 	Route::post('foreign-material/{foreignMaterialId}/sync', 'ForeignResourceMaterialController@sync')
 		 ->where('foreignMaterialId', '[0-9a-zA-Z_-]+')
 		 ->middleware('can:update,foreignMaterialId')
-		 ->name('api.v1.materialresource.sync');
+		 ->name('materialresource.sync');
 
 
 	// Bundle import and update
@@ -244,10 +246,10 @@ Route::group([
 		 ->where('from', '[0-9]{6,9}')
 		 ->where('to', '[0-9]{6,9}')
 		 ->where('bibleUid', '[a-zA-Z0-9_-]+')
-		 ->name('api.v1.biblecontents.get');
+		 ->name('biblecontents.get');
 	Route::get('biblecontents/search/{bibleUid?}', 'BibleContentController@searchAndGet')
 		 ->where('bibleUid', '[0-9a-zA-Z]+')
-		 ->name('api.v1.biblecontents.searchAndGet');
+		 ->name('biblecontents.searchAndGet');
 
 
 });
