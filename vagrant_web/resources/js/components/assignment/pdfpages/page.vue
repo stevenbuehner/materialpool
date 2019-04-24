@@ -17,11 +17,7 @@
                 <transition name="fade">
                     <img v-show="imageLoaded" :src="image" @load="imageLoaded = true"/>
                 </transition>
-                <hollow-dots-spinner v-if="!imageLoaded"
-                                     :dot-size="10"
-                                     :dots-num="3"
-                                     :animation-duration="1500"
-                                     color="grey"></hollow-dots-spinner>
+                <materialpool-spinner v-if="!imageLoaded"/>
             </div>
 
             <div class="banderole"></div>
@@ -39,7 +35,7 @@
 <script>
 
     import bBadge from 'bootstrap-vue/src/components/badge/badge';
-    import {HollowDotsSpinner} from 'epic-spinners'
+    import MaterialpoolSpinner from "../../spinner/materialpool-spinner";
 
     export default {
 
@@ -127,8 +123,8 @@
         },
 
         components: {
+            MaterialpoolSpinner,
             bBadge,
-            HollowDotsSpinner
         }
     }
 </script>

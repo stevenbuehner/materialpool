@@ -3,11 +3,7 @@
 
         <div class="beforeLoaded d-flex flex-column justify-content-around " v-if="!keyword">
             <span class="align-self-center d-flex flex-column justify-content-center">
-                <hollow-dots-spinner :dot-size="10"
-                                     :dots-num="3"
-                                     :animation-duration="1500"
-                                     color="grey"
-                                     class="align-self-center"></hollow-dots-spinner>
+                <materialpool-spinner class="align-self-center"/>
             {{$t('pool.Keyword-is-beeing-loaded')}}
             </span>
 
@@ -108,8 +104,8 @@
     import bFormInput from 'bootstrap-vue/src/components/form-input/form-input';
     import bFormSelect from 'bootstrap-vue/src/components/form-select/form-select';
     import bButton from 'bootstrap-vue/src/components/button/button';
-    import {HollowDotsSpinner} from 'epic-spinners'
     import Keyword from "./keyword";
+    import MaterialpoolSpinner from "../spinner/materialpool-spinner";
 
 
     export default {
@@ -275,10 +271,10 @@
         },
 
         components: {
+            MaterialpoolSpinner,
             Keyword,
             bFormInput,
             bFormSelect,
-            HollowDotsSpinner,
             bButton
         }
     }

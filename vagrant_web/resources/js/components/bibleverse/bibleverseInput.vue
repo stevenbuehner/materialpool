@@ -48,10 +48,7 @@
                     <button
                             class="btn btn-outline-secondary spinnerBlock"
                             type="button">
-                        <hollow-dots-spinner :dot-size="10"
-                                             :dots-num="3"
-                                             :animation-duration="1500"
-                                             color="grey"></hollow-dots-spinner>
+                        <materialpool-spinner/>
                     </button>
 
                 </div>
@@ -104,10 +101,10 @@
 <script>
 
     import bibleverse from './biblevers.vue'
-    import {HollowDotsSpinner} from 'epic-spinners'
     import eraseSvg from 'svg-icon/dist/svg/zero/clear.svg';
     import {RELEVANCE_USER_MAX} from "../../apps/config";
     import _debounce from 'lodash/debounce';
+    import MaterialpoolSpinner from "../spinner/materialpool-spinner";
 
     export default {
 
@@ -397,8 +394,8 @@
         },
 
         components: {
+            MaterialpoolSpinner,
             bibleverse,
-            HollowDotsSpinner,
             eraseSvg,
         }
 

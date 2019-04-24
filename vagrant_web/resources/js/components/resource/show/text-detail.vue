@@ -42,7 +42,6 @@
 
     import myTextBlock from '../../my-text-block.vue';
     import marked from 'marked';
-    import {HollowDotsSpinner} from 'epic-spinners'
     import {BibleVerseService} from '../../../../../vendor/stevenbuehner/bible-verse-bundle/js/out/BibleVerseService_de.js';
     import Markdown from "../../markdown/markdown";
 
@@ -125,7 +124,6 @@
         components: {
             Markdown,
             myTextBlock,
-            HollowDotsSpinner,
         }
 
     }
@@ -171,7 +169,6 @@
         height: 80vh;
         overflow-y: scroll;
     }
-
 
 
 </style>

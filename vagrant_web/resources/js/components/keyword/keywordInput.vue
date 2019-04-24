@@ -55,10 +55,7 @@
                     <button v-if="stillLoading"
                             class="btn btn-outline-secondary spinnerBlock"
                             type="button">
-                        <hollow-dots-spinner :dot-size="10"
-                                             :dots-num="3"
-                                             :animation-duration="1500"
-                                             color="grey"></hollow-dots-spinner>
+                        <materialpool-spinner/>
                     </button>
                 </div>
             </div>
@@ -89,10 +86,10 @@
 
 <script>
     import Keyword from './keyword.vue';
-    import {HollowDotsSpinner} from 'epic-spinners'
     import _debounce from 'lodash/debounce';
     import eraseSvg from 'svg-icon/dist/svg/zero/clear.svg';
     import {RELEVANCE_USER_MAX} from "../../apps/config";
+    import MaterialpoolSpinner from "../spinner/materialpool-spinner";
 
 
     export default {
@@ -398,8 +395,8 @@
         },
 
         components: {
+            MaterialpoolSpinner,
             Keyword,
-            HollowDotsSpinner,
             eraseSvg
         }
     }

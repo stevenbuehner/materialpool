@@ -48,11 +48,7 @@
                     ({{$t('pool.ID')}}: {{mat.id}}) {{mat.title}}
                 </li>
             </ul>
-            <hollow-dots-spinner v-if="searchOngoing"
-                                 :dot-size="10"
-                                 :dots-num="3"
-                                 :animation-duration="1500"
-                                 color="grey"></hollow-dots-spinner>
+            <materialpool-spinner v-if="searchOngoing"/>
 
             <b-alert fade
                      :show="!searchOngoing && searchErrorMessage !== ''"
@@ -84,9 +80,9 @@
     import bFormInput from 'bootstrap-vue/src/components/form-input/form-input';
     import bModal from 'bootstrap-vue/src/components/modal/modal';
     import bButton from 'bootstrap-vue/src/components/button/button';
-    import {HollowDotsSpinner} from 'epic-spinners';
     import bAlert from 'bootstrap-vue/src/components/alert/alert';
     import _debounce from 'lodash/debounce';
+    import MaterialpoolSpinner from "../../spinner/materialpool-spinner";
 
     export default {
         name: "materialSelector",
@@ -215,12 +211,12 @@
         },
 
         components: {
+            MaterialpoolSpinner,
             bForm,
             bFormGroup,
             bFormInput,
             bModal,
             bButton,
-            HollowDotsSpinner,
             bAlert
         }
 

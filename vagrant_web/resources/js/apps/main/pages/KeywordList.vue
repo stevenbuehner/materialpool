@@ -5,11 +5,7 @@
 
         <div class="waitmessage d-flex flex-column justify-content-around " v-if="treeStillLoading">
             <span class="align-self-center d-flex flex-column justify-content-center">
-                <hollow-dots-spinner :dot-size="10"
-                                     :dots-num="3"
-                                     :animation-duration="1500"
-                                     color="grey"
-                                     class="align-self-center"></hollow-dots-spinner>
+                <materialpool-spinner class="align-self-center"/>
                 <span>Keywords are beeing refreshed from the server. Please wait.</span>
             </span>
 
@@ -44,11 +40,11 @@
 
 <script>
 
-    import {HollowDotsSpinner} from 'epic-spinners'
     import editIcon from 'svg-icon/dist/svg/ionic/edit.svg';
     import refreshIcon from 'svg-icon/dist/svg/awesome/refresh.svg';
     import Tree from "../../../components/keyword/tree/Tree";
     import bInput from 'bootstrap-vue/src/components/form-input/form-input';
+    import MaterialpoolSpinner from "../../../components/spinner/materialpool-spinner";
 
     export default {
         name: "KeywordList",
@@ -271,8 +267,8 @@
         },
 
         components: {
+            MaterialpoolSpinner,
             Tree,
-            HollowDotsSpinner,
             editIcon,
             refreshIcon,
             bInput

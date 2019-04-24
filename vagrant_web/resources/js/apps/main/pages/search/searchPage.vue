@@ -16,13 +16,7 @@
         ></searchbar-outcome>
 
         <div class="d-flex justify-content-between align-items-center">
-            <hollow-dots-spinner
-                    :dot-size="10"
-                    :dots-num="3"
-                    :animation-duration="1500"
-                    v-if="isLoading"
-                    color="grey"
-            ></hollow-dots-spinner>
+            <materialpool-spinner v-if="isLoading"/>
         </div>
 
         <b-alert variant="danger" :show="hasError">Error: {{errorMessage}}</b-alert>
@@ -47,12 +41,12 @@
     import bPaginationNav from 'bootstrap-vue/src/components/pagination-nav/pagination-nav';
     import bAlert from 'bootstrap-vue/src/components/alert/alert'
 
-    import {HollowDotsSpinner} from 'epic-spinners'
     import {
         searchArrayItemsToSearchQuery,
         searchQueryStringToSearchQueryArray,
         searchQueryToSearchArrayObjects
     } from "../../../../components/search/searchHelper";
+    import MaterialpoolSpinner from "../../../../components/spinner/materialpool-spinner";
 
     export default {
 
@@ -204,9 +198,9 @@
         },
 
         components: {
+            MaterialpoolSpinner,
             searchbarHeader,
             searchbarOutcome,
-            HollowDotsSpinner,
             bPaginationNav,
             bAlert
         }

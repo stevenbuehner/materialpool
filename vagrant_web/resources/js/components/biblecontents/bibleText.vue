@@ -4,11 +4,7 @@
 
         <bible-text-portion :verses="verses" :bible="bible" v-if="!versesAreReloading"/>
 
-        <hollow-dots-spinner :dot-size="10"
-                             :dots-num="3"
-                             :animation-duration="1500"
-                             color="grey"
-                             v-if="versesAreReloading"/>
+        <materialpool-spinner v-if="versesAreReloading"/>
     </div>
 </template>
 
@@ -16,14 +12,14 @@
     import BibleTextCaption from "./bibleTextCaption";
     import BibleTextPortion from "./bibleTextPortion";
     import BibleTextVerse from "./bibleTextVerse";
-    import {BibleVerseService} from '../../../../vendor/stevenbuehner/bible-verse-bundle/js/out/BibleVerseService_de.js';
     import BibleVerse from '../../../../vendor/stevenbuehner/bible-verse-bundle/js/in/BibleVerse.js';
-    import HollowDotsSpinner from "epic-spinners/src/components/lib/HollowDotsSpinner";
+    import MaterialpoolSpinner from "../spinner/materialpool-spinner";
 
     export default {
         name: "bibleText",
         components: {
-            HollowDotsSpinner, BibleTextVerse, BibleTextPortion, BibleTextCaption
+            MaterialpoolSpinner,
+            BibleTextVerse, BibleTextPortion, BibleTextCaption
         },
 
         props: {

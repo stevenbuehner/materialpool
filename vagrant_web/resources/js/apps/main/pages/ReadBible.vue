@@ -1,7 +1,7 @@
 <template>
     <div class="container">
 
-        <div id="ReadBibleInputGroup">
+        <div id="ReadBibleInputGroup" class="pb-3">
             <b-input-group>
                 <b-form-input
                         v-model="searchInput"
@@ -17,7 +17,7 @@
             </b-input-group>
         </div>
 
-        <div class="range p-3">
+        <div class="range pt-3 jumbotron">
             <bible-text
                     v-for="(bv, rangeIndex) in bibleVerses"
                     :key="'bvr' + rangeIndex"
