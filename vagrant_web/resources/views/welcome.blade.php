@@ -85,8 +85,8 @@
         <div class="links">
             <a href="/vue/search">Suche</a>
             <a href="/vue/resource/create">Upload</a>
-            <a href="/vue/bundle">Bundles</a>
-            <a href="/vue/keywords">Schlagwörter</a>
+            <a href="/vue/resource/text/create">Text erstellen</a>
+            <a href="/vue/readbible">Bibel lesen</a>
             <a href="/vue/materials">Materialliste</a>
         </div>
     </div>
