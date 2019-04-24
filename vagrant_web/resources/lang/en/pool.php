@@ -226,7 +226,7 @@ return [
 	'close'                                                    => 'close',
 	'Lonely-Resources'                                         => 'Lonely Resources',
 	'Congratulations-No-lonely-Resources-found'                => 'Congratulations! No lonely resources found.',
-	'Loading-from-bible'                                       => 'Loading from bible ...',
+	'Loading'                                                  => 'Loading ...',
 	'Remove-this-searchinput'                                  => 'Remove this searchinput',
 	'Add-another-AND-searchinput'                              => 'Add another AND searchinput',
 	'Translation'                                              => 'Translation',

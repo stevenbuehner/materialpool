@@ -35,7 +35,7 @@
             </span>
         </span>
         <span v-else>
-            {{$t('pool.Loading-from-bible')}}
+            <materialpool-spinner/> {{$t('pool.Loading')}}
         </span>
 
     </b-popover>
@@ -48,6 +48,7 @@
     import bPopover from 'bootstrap-vue/src/components/popover/popover'
     import BibleVerse from '../../../../vendor/stevenbuehner/bible-verse-bundle/js/in/BibleVerse';
     import {BibleVerseService} from '../../../../vendor/stevenbuehner/bible-verse-bundle/js/out/BibleVerseService_de';
+    import MaterialpoolSpinner from "../spinner/materialpool-spinner";
 
     export default {
         name: "biblePopover",
@@ -136,6 +137,7 @@
         },
 
         components: {
+            MaterialpoolSpinner,
             bPopover
         }
     }
