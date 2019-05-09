@@ -35,7 +35,8 @@ class PdfHandlingService {
 		if ($resource->hasLocalFile() && $localPdfPath = $resource->getAbsoluteLocalPath()) {
 
 			try {
-				$this->countPdfPagesInFilepath($localPdfPath);
+				$count = $this->countPdfPagesInFilepath($localPdfPath);
+				$resource->page_count = $count;
 			} catch (InvalidPageNoException $e) {
 				$resource->page_count = FALSE;
 				Log::error($e->getMessage(), [$e->getTraceAsString(), 'resource' => $resource->toArray()]);
