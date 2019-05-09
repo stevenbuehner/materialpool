@@ -101,8 +101,6 @@
                 ref="materialCreator"
                 :external-bibleverse-suggestions="materialCreationBibleverseSuggestions"
         ></material-creator>
-
-        <button class="btn btn-danger btn-lg" @click="guessBibleversesFromSelection">test</button>
     </div>
 </template>
 
