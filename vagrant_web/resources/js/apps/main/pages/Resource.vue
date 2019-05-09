@@ -4,7 +4,7 @@
         <div class="card" v-if="resource">
 
             <div class="card-header">
-                <h1><span v-if="resource">{{resource.type | upper}}</span>-Resource</h1>
+                <h1>{{resource.original_filename || resource.type.toUpperCase() + '-Resource'}}</h1>
             </div>
 
             <b-tabs card>
@@ -380,12 +380,6 @@
             }
 
 
-        },
-
-        filters: {
-            upper(text) {
-                return text.toUpperCase();
-            }
         },
 
         components: {
