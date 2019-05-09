@@ -82,13 +82,15 @@ const mutations = {
 const actions = {
 
 
-    materials: ({commit, getters, dispatch}, {query, page}) => {
+    materials: ({commit, getters, dispatch}, {query, page, per_page}) => {
 
-        page = page || 1;
+        page     = page || 1;
+        per_page = per_page || 30;
 
         var data = {
             q: query,
-            page: page
+            page: page,
+            per_page: per_page,
         };
 
         let resultPromise = null;

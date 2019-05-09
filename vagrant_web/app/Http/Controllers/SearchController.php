@@ -270,7 +270,9 @@ class SearchController extends Controller {
 	}
 
 	public function get(Request $request) {
-		$query = $this->turnRequestIntoQuery($request);
+		$query          = $this->turnRequestIntoQuery($request);
+		$paginationSize = min((int) $request->get('per_page', 30), 100);
+
 
 		/* Pagination funktioniert nur, wenn der Bugfix manuell eingespielt wird in der paginate() Funktion
 		$paginationColumns = $this->query->distinct ? $columns : ['*'];
@@ -282,7 +284,7 @@ class SearchController extends Controller {
 		https://github.com/laravel/framework/pull/27107
 		*/
 
-		return $query->paginate(20, ['materials.id']);
+		return $query->paginate($paginationSize, ['materials.id']);
 	}
 
 	protected function turnRequestIntoQuery(Request $request) {

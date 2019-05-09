@@ -71,6 +71,8 @@ function objectToSearchItem(obj) {
     } else if (obj.from && obj.to) {
         // Is Bibleverse
         return bibleverseToSearchItem(obj);
+    } else if (obj instanceof BibleVerse) {
+        return bibleverseToSearchItem(obj);
     }
 
     return false;
@@ -100,18 +102,26 @@ function keywordToSearchItem(keyword) {
     }
 }
 
-
+/**
+ *
+ * @param bibleverse Bibleverse||{from:int, to: int, label:string}
+ * @return {{item: {from: *, to: *, type: string}, icon: (string|string|default.computed.icon|*), text: (*|string)}}
+ */
 function bibleverseToSearchItem(bibleverse) {
+
     return {
         icon: bibleverse.icon || "/img/icons/bible.svg",
-        text: bibleverse.label,
+        text: bibleverse.label || BibleVerseService.bibleVerseToString(bibleverse),
         item: {
-            from: bibleverse.from,
-            to: bibleverse.to,
+            from: bibleverse.from || bibleverse.getFrom(),
+            to: bibleverse.to || bibleverse.getTo(),
             type: 'b'
+
         }
     }
+
 }
+
 
 function typeToSearchItem(type) {
     return {

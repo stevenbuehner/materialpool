@@ -88,14 +88,17 @@
 
             materials: {
                 get() {
-                    const searchData = searchArrayObjectsToSearchArrayItems([this.verses]);
+                    if (this.bibleVerses.length === 0) {
+                        return [];
+                    }
+
+                    const searchData = searchArrayObjectsToSearchArrayItems([this.bibleVerses]);
 
                     return this.$store.dispatch('search/materials', {query: searchData});
                 },
                 default: null,
                 watch() {
-                    this.from;
-                    this.to;
+                    this.bibleVerses
                 }
             }
         },
