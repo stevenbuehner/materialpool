@@ -127,6 +127,32 @@ php artisan vue-i18n:generate
 
 #Installieren auf meinem Mini-Server
 
+
+# DHCP -> Static
+source /etc/network/interfaces.d/*
+
+# The loopback network interface
+auto lo
+iface lo inet loopback
+
+# The primary network interface
+auto eno1
+# iface eno1 inet dhcp
+iface eno1 inet static
+        address 192.168.3.3
+        netmask 255.255.255.0
+        gateway 192.168.3.1
+
+auto eno1:1
+iface eno1:1 inet static
+        address 192.168.2.3
+        netmask 255.255.255.0
+
+dns-nameservers 192.168.3.1
+
+
+
+
 # Für pdftotext und pdfinfo (=PageCount)
 apt-get install poppler-utils
 which pdftotext
