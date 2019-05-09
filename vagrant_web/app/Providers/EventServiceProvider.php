@@ -10,6 +10,7 @@ use App\Events\ResourceWasChanged;
 use App\Events\ResourceWasCreated;
 use App\Events\ResourceWasDeleted;
 use App\Events\ResourceWasDetached;
+use App\Listeners\CalculateDocPageSize;
 use App\Listeners\CalculatePdfPageSize;
 use App\Listeners\Queued\CheckDuplicateResources;
 use App\Listeners\UpdateResourceHashes;
@@ -44,6 +45,7 @@ class EventServiceProvider extends ServiceProvider {
 
 			// Do Media-Specific stuff: Count PDF-Pages / Video-Seconds / Audio-Seconds / ...
 			CalculatePdfPageSize::class,
+			CalculateDocPageSize::class,
 
 			CheckDuplicateResources::class,
 			// CheckDuplicateMaterials::class,
@@ -56,6 +58,7 @@ class EventServiceProvider extends ServiceProvider {
 
 			// Do Media-Specific stuff: Count PDF-Pages / Video-Seconds / Audio-Seconds / ...
 			CalculatePdfPageSize::class,
+			CalculateDocPageSize::class,
 
 			CheckDuplicateResources::class,
 			// CheckDuplicateMaterials::class,

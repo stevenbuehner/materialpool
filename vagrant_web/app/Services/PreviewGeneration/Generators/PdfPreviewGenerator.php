@@ -56,11 +56,32 @@ class PdfPreviewGenerator implements PreviewGeneratorInterface {
 
 		try {
 
-			// Todo: Noch besser wäre direkt via convert -verbose -density 144 /home/vagrant/web/storage/app/resources/1/doc/DaZzBkRHHMdBr7IU4JC5sCz5EG5Ppbh0Ko6HFYrs.pdf[1] -quality 90 -flatten -trim test.png
+			$image = $this->getImagePreviewFromPdfPath($localPdfPath, $size, $page);
 
+		} catch (\Exception $e) {
+			throw new NotPreviewAbleException('Error when creating Preview', 0, $e);
+		}
+
+		return $image;
+
+	}
+
+	/**
+	 * @param      $path
+	 * @param Size $size
+	 * @param int  $page
+	 * @return \Intervention\Image\Image
+	 * @throws NotPreviewAbleException
+	 */
+	protected function getImagePreviewFromPdfPath($path, Size $size, $page = 1) {
+
+		// Todo: Noch besser wäre direkt via convert -verbose -density 144 /home/vagrant/web/storage/app/resources/1/doc/DaZzBkRHHMdBr7IU4JC5sCz5EG5Ppbh0Ko6HFYrs.pdf[1] -quality 90 -flatten -trim test.png
+
+		try {
 			$im = new \Imagick();
+
 			$im->setResolution(config('app.preview.resolution'), config('app.preview.resolution'));
-			$im->readImage(sprintf('%s[%s]', $localPdfPath, max(0, $page - 1)));
+			$im->readImage(sprintf('%s[%s]', $path, max(0, $page - 1)));
 
 			// Hintergrund im bei transparenten Geschichten (z.B. in PDFs) weiß nehmen und AlphaChannel entfernen
 			$im->setBackgroundColor('white');
@@ -71,13 +92,10 @@ class PdfPreviewGenerator implements PreviewGeneratorInterface {
 			$image = $this->imageManager->make($im);
 
 		} catch (\ImagickException $e) {
-			throw new NotPreviewAbleException('Imagick Error', 0, $e);
-		} catch (\Exception $e) {
-			throw new NotPreviewAbleException('Error when creating Preview', 0, $e);
+			throw new NotPreviewAbleException('Could not create PreviewImage', 0, $e);
 		}
 
 		return $image;
-
 	}
 
 	/**

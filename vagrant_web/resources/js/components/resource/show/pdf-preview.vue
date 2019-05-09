@@ -118,7 +118,7 @@
             getPreviewImage(pageNo) {
                 return {
                     src: pdfPreviewImageForPage(this.resource, pageNo),
-                    title: this.$t('pool.Page') + ' ' + pageNo,
+                    title: this.$tc('pool.Page', 1) + ' ' + pageNo,
                     page_no: pageNo
                 }
             },

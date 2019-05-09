@@ -144,6 +144,9 @@ sudo rm /etc/php/7.0/apache2/conf.d/20-xdebug.ini
 sudo service apache2 restart
 sudo apt-get install composer
 
+# libreoffice installieren um Vorschaubilder für Dokumente zu erzeugen
+sudo apt-get install libreoffice
+
 # Image Magic Security Checks für PDFs deaktivieren
 # see: https://stackoverflow.com/questions/42928765/convertnot-authorized-aaaa-error-constitute-c-readimage-453?rq=1
 # in File: /etc/ImageMagick-6/policy.xml

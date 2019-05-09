@@ -2,19 +2,25 @@
 
 namespace App\Models;
 
-use App\Jobs\CalculatePdfPageSize;
 use App\Services\PreviewGeneration\Generators\PdfPreviewGenerator;
 use App\Services\PreviewGeneration\Interfaces\PreviewGeneratorInterface;
 
+/**
+ * Class PdfFile
+ *
+ * @package App\Models
+ *
+ */
 class PdfFile extends File {
 
-	const PAGE_COUNT_KEY = 'pdfPageCount';
+	use PageCountTrait;
+
 	protected static $singleTableType = 'pdf';
 
 	public function __construct(array $attributes = []) {
 		parent::__construct($attributes);
 
-		$this->append('page_count');
+		$this->setupPageCountAttribute();
 	}
 
 	public static function getValidationRules() {
@@ -32,33 +38,5 @@ class PdfFile extends File {
 		return resolve(PdfPreviewGenerator::class);
 	}
 
-	public function setLocalPathAttribute($path) {
-		if ($path !== $this->local_path) {
-			parent::setLocalPathAttribute($path);
-			$this->removeOption(self::PAGE_COUNT_KEY);
-		}
-	}
-
-	public function setRemotePathAttribute($path) {
-		if ($path !== $this->remote_path) {
-			parent::setRemotePathAttribute($path);
-			$this->removeOption(self::PAGE_COUNT_KEY);
-		}
-	}
-
-
-	/**
-	 * @return int|NULL
-	 */
-	public function getPageCountAttribute() {
-		return $this->getOption(self::PAGE_COUNT_KEY, NULL);
-	}
-
-	/**
-	 * @param int|NULL $pageCount
-	 */
-	public function setPageCountAttribute($pageCount) {
-		$this->setOption(self::PAGE_COUNT_KEY, $pageCount);
-	}
 
 }

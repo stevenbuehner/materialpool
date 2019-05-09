@@ -10,10 +10,16 @@
                 <div class="notes" v-if="resource.notes && resource.notes.length > 0">Notiz: {{resource.notes}}</div>
                 <div class="originalFilename" v-if="resource.original_filename !== undefined">
                     {{$t('pool.Filename')}}: {{resource.original_filename}}
+
+                    <span class="page_count" v-if="resource.page_count">
+                        ({{resource.page_count}} {{$tc('pool.Page', resource.page_count)}})
+                    </span>
+
                 </div>
                 <div class="limitation" v-if="resource.pivot">
                     {{$t('pool.Limitation')}}: {{resource.pivot.limitation || $t('pool.none')}}
                 </div>
+
                 <div class="creator">{{$t('pool.Creator-ID')}}: {{resource.created_by}}</div>
                 <div class="resource-id">{{$t('pool.Resource-ID')}}: {{resource.id}}</div>
             </div>
@@ -47,7 +53,7 @@
     import pdfDetail from './pdf-detail.vue'
     import audioDetail from './audio-detail.vue'
     import videoDetail from './video-preview.vue'
-    import docDetail from './doc-preview.vue'
+    import docDetail from './doc-detail.vue'
     import resDetail from './res-preview.vue'
     import fileDetail from './file-detail.vue'
     import resourceLinks from '../resource-links.mixin';
@@ -98,8 +104,7 @@
                         .then((resource) => {
                             this.btnDeleteResource(resource);
                         });
-                }
-                else if (resource.materials.length > 0) {
+                } else if (resource.materials.length > 0) {
                     alert('Löschen nicht möglich. Materialien sind noch zugewwiesen!')
                 } else {
                     this.$store.dispatch('resources/deleteResource', resource.id)

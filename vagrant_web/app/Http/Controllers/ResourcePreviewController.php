@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Exceptions\InvalidResourceTypeException;
+use App\Models\DocumentFile;
 use App\Models\PdfFile;
 use App\Models\Resource;
 use App\Services\PreviewGeneration\ResourcePreviewService;
@@ -40,8 +41,8 @@ class ResourcePreviewController {
 
 	public function getPageImage(Resource $resource, $page) {
 
-		if (!$resource instanceof PdfFile) {
-			throw new InvalidResourceTypeException('Only PdfResources can have page-preview images');
+		if (!$resource instanceof PdfFile && !$resource instanceof DocumentFile) {
+			throw new InvalidResourceTypeException('Only PDF and DOC resources can have page-preview images');
 		}
 
 		$size = new Size(

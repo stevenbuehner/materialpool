@@ -70,7 +70,7 @@ return [
 	'select-all'                                               => 'alles auswählen',
 	'only-limited-pages'                                       => 'zeige nur :COUNT/:SUM Seiten',
 	'limited-pages'                                            => 'zeige :COUNT/:SUM Seiten',
-	'Page'                                                     => 'Seite',
+	'Page'                                                     => 'Seite|Seiten',
 	'small'                                                    => 'klein',
 	'medium'                                                   => 'mittel',
 	'large'                                                    => 'groß',

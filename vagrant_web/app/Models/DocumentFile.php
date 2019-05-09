@@ -2,16 +2,36 @@
 
 namespace App\Models;
 
+use App\Services\PreviewGeneration\Generators\DocumentPreviewGenerator;
+
 class DocumentFile extends File {
+
+	use PageCountTrait;
 
 	protected static $singleTableType = 'doc';
 
+	public function __construct(array $attributes = []) {
+		parent::__construct($attributes);
 
+		$this->setupPageCountAttribute();
+	}
+
+	/**
+	 * @return array
+	 */
 	public static function getValidationRules() {
 		$rules         = parent::getValidationRules();
-		$rules['file'] = 'required|file|mimes:doc,docx';
+		$rules['file'] = 'required|file|mimes:doc,docx,xls,xlsx,ppt,pptx';
 
 		return $rules;
+	}
+
+	/**
+	 * @param string $size
+	 * @return \App\Services\PreviewGeneration\Interfaces\PreviewGeneratorInterface|mixed
+	 */
+	public function getPreviewGenerator($size = 'large') {
+		return resolve(DocumentPreviewGenerator::class);
 	}
 
 }

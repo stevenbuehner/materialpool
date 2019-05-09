@@ -29,6 +29,7 @@
     "laravel/tinker": "^1.0",
     "martinlindhe/laravel-vue-i18n-generator": "^0.1.35",
     "nanigans/single-table-inheritance": "~0.8",
+    "ncjoes/office-converter": "^1.0",
     "php-ffmpeg/php-ffmpeg": "^0.13",
     "setasign/fpdi-fpdf": "^2.0",
     "spatie/laravel-backup": "^6.0",

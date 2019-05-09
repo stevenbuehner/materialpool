@@ -34,22 +34,11 @@ class PdfHandlingService {
 
 		if ($resource->hasLocalFile() && $localPdfPath = $resource->getAbsoluteLocalPath()) {
 
-
 			try {
-				$pdf                  = new PDFInfo($localPdfPath);
-				$resource->page_count = $pdf->pages;
-			} catch (OpenOutputException $e) {
+				$this->countPdfPagesInFilepath($localPdfPath);
+			} catch (InvalidPageNoException $e) {
 				$resource->page_count = FALSE;
-				Log::error('OpenOutputException', [$e->getTraceAsString(), 'resource' => $resource->toArray()]);
-			} catch (OpenPDFException $e) {
-				$resource->page_count = FALSE;
-				Log::error('OpenPDFException', [$e->getTraceAsString(), 'resource' => $resource->toArray()]);
-			} catch (PDFPermissionException $e) {
-				$resource->page_count = FALSE;
-				Log::error('PDFPermissionException', [$e->getTraceAsString(), 'resource' => $resource->toArray()]);
-			} catch (OtherException $e) {
-				$resource->page_count = FALSE;
-				Log::error('OtherException', [$e->getTraceAsString(), 'resource' => $resource->toArray()]);
+				Log::error($e->getMessage(), [$e->getTraceAsString(), 'resource' => $resource->toArray()]);
 			}
 
 			$resource->save();
@@ -57,6 +46,29 @@ class PdfHandlingService {
 
 		return $resource;
 
+	}
+
+	/**
+	 * @param $localPdfPath
+	 * @return mixed
+	 * @throws InvalidPageNoException
+	 */
+	public function countPdfPagesInFilepath($localPdfPath) {
+
+		try {
+			$pdf   = new PDFInfo($localPdfPath);
+			$count = $pdf->pages;
+		} catch (OpenOutputException $e) {
+			throw new InvalidPageNoException('Could not extract Page Number from PDF', 0, $e);
+		} catch (OpenPDFException $e) {
+			throw new InvalidPageNoException('Could not extract Page Number from PDF', 0, $e);
+		} catch (PDFPermissionException $e) {
+			throw new InvalidPageNoException('Could not extract Page Number from PDF', 0, $e);
+		} catch (OtherException $e) {
+			throw new InvalidPageNoException('Could not extract Page Number from PDF', 0, $e);
+		}
+
+		return $count;
 	}
 
 
@@ -76,8 +88,26 @@ class PdfHandlingService {
 	public function extractPdfPages(PdfFile $resource, $pages = NULL) {
 
 		$pdfSrcFilePath = $this->fileHandlingService->getLocalFilePath($resource);
-		$pdf            = new Fpdi();
-		$pagecount      = $pdf->setSourceFile($pdfSrcFilePath);
+
+		return $this->extractPdfPagesInFilepath($pdfSrcFilePath, $pages);
+
+	}
+
+	/**
+	 * @param      $path
+	 * @param null $pages
+	 * @return Fpdi
+	 * @throws InvalidPageNoException
+	 * @throws \setasign\Fpdi\PdfParser\CrossReference\CrossReferenceException
+	 * @throws \setasign\Fpdi\PdfParser\Filter\FilterException
+	 * @throws \setasign\Fpdi\PdfParser\PdfParserException
+	 * @throws \setasign\Fpdi\PdfParser\Type\PdfTypeException
+	 * @throws \setasign\Fpdi\PdfReader\PdfReaderException
+	 */
+	public function extractPdfPagesInFilepath($path, $pages = NULL) {
+
+		$pdf       = new Fpdi();
+		$pagecount = $pdf->setSourceFile($path);
 
 		// Add all pages to File
 		if ($pages === NULL) {

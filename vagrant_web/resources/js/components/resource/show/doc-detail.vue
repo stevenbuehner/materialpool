@@ -1,8 +1,8 @@
 <script>
-    import PdfPreview from './pdf-preview.vue';
+    import DocDetail from './pdf-detail.vue';
 
     export default {
-        extends: PdfPreview,
+        extends: DocDetail,
         mixins: [],
 
         props: {},

@@ -79,7 +79,7 @@ return [
 	'select-all'                                               => 'select all',
 	'only-limited-pages'                                       => 'show only :COUNT/:SUM pages',
 	'limited-pages'                                            => 'show :COUNT/:SUM pages',
-	'Page'                                                     => 'Page',
+	'Page'                                                     => 'page|pages',
 	'small'                                                    => 'small',
 	'medium'                                                   => 'medium',
 	'large'                                                    => 'large',
