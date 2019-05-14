@@ -222,4 +222,7 @@ return [
 	'Add-another-AND-searchinput'                              => 'UND-verknüpfte Suchzeile hinzufügen',
 	'Translation'                                              => 'Übersetzung',
 	'Select-Translation'                                       => 'Übersetzung auswählen',
+	'Bible-reference'                                          => 'Bibelstelle',
+	'Source'                                                   => 'Quelle',
+
 ];

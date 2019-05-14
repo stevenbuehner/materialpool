@@ -1,15 +1,13 @@
 <template>
-
+    
 </template>
 
 <script>
     export default {
-        name: "bible-popover-content",
+        name: "Test.vue"
     }
 </script>
 
-<style type="scss">
-
-
+<style scoped>
 
 </style>

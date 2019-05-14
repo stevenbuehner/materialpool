@@ -26,7 +26,18 @@ class BibleContentController extends BaseController {
 		$bible = $this->getBibleFirstOrFail($bibleUid);
 		$query = $query->where('bible_id', '=', $bible->id);
 
-		return $query->get();
+		$bibleverses = $query->get();
+
+		return [
+			'bible'  => $bible->toArray(),
+			'verses' => $bibleverses->map(function (BibleContent $content) use ($bible) {
+				return [
+					'text'      => $content->text,
+					'verse'     => $content->verse,
+					'bibleUuid' => $bible->uuid
+				];
+			})
+		];
 
 	}
 

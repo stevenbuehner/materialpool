@@ -220,7 +220,9 @@ export default {
             "Remove-this-searchinput": "Suchzeile entfernen",
             "Add-another-AND-searchinput": "UND-verknüpfte Suchzeile hinzufügen",
             "Translation": "Übersetzung",
-            "Select-Translation": "Übersetzung auswählen"
+            "Select-Translation": "Übersetzung auswählen",
+            "Bible-reference": "Bibelstelle",
+            "Source": "Quelle"
         }
     },
     "en": {
@@ -317,7 +319,7 @@ export default {
             "select-all": "select all",
             "only-limited-pages": "show only {COUNT}/{SUM} pages",
             "limited-pages": "show {COUNT}/{SUM} pages",
-            "Page": "Page|Pages",
+            "Page": "page|pages",
             "small": "small",
             "medium": "medium",
             "large": "large",
@@ -468,7 +470,9 @@ export default {
             "Remove-this-searchinput": "Remove this searchinput",
             "Add-another-AND-searchinput": "Add another AND searchinput",
             "Translation": "Translation",
-            "Select-Translation": "Select Translation"
+            "Select-Translation": "Select Translation",
+            "Bible-reference": "Bible reference",
+            "Source": "Source"
         },
         "validation": {
             "accepted": "The {attribute} must be accepted.",

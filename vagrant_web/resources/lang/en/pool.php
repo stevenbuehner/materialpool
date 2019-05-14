@@ -231,5 +231,6 @@ return [
 	'Add-another-AND-searchinput'                              => 'Add another AND searchinput',
 	'Translation'                                              => 'Translation',
 	'Select-Translation'                                       => 'Select Translation',
-
+	'Bible-reference'                                          => 'Bible reference',
+	'Source'                                                   => 'Source',
 ];

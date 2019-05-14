@@ -19,6 +19,7 @@ const actions = {
 
     get: ({commit, getters, dispatch, state}, {from, to, bibleUuid}) => {
 
+        bibleUuid      = bibleUuid || null;
         const cacheKey = verseKey(from, to, bibleUuid);
 
         if (state.cache[cacheKey]) {
@@ -34,9 +35,21 @@ const actions = {
             return axios.get(route)
                 .then(({data}) => {
 
-                    state.cache[cacheKey] = data;
+                    const bible  = data.bible;
+                    const verses = data.verses;
 
-                    return data
+                    // Cache verses
+                    state.cache[cacheKey] = verses;
+
+                    // Cache with bibleUuid if not done yet
+                    if (bibleUuid === null) {
+                        state.cache[verseKey(from, to, bible.uuid)] = verses;
+                    }
+
+                    // Cache bible
+                    commit('bibles/addBible', bible, {root: true});
+
+                    return verses;
 
                 });
 
