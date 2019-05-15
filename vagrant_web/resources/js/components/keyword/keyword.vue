@@ -329,7 +329,7 @@
         > .sb-keyword {
             border: $tag-background-colour-hover solid 1px;
             background-color: $tag-background-colour;
-            cursor: none;
+            cursor: pointer;
 
             &:hover {
                 background-color: $tag-background-colour-hover;
@@ -387,9 +387,6 @@
                     color: black;
                 }
             }
-
         }
     }
-
-
 </style>
