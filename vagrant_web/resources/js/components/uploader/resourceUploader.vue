@@ -43,7 +43,7 @@
 </template>
 
 <script>
-    import {VueTransmit} from "vue-transmit";
+    import {VueTransmit} from "vue-transmit/dist/vue-transmit.esm.min";
     import {api_v1_resources_store} from "../serverRoutes";
     import bAlert from 'bootstrap-vue/src/components/alert/alert';
     import bButton from 'bootstrap-vue/src/components/button/button';
