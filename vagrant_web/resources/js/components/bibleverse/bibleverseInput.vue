@@ -189,7 +189,7 @@
                     this.init();
                 },
                 deep: true,
-                imediately: true
+                immediate: true
             },
         },
 
@@ -386,13 +386,7 @@
             }
 
         },
-
-        created() {
-
-            this.init();
-
-        },
-
+        
         components: {
             MaterialpoolSpinner,
             bibleverse,
