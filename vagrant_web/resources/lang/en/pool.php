@@ -12,6 +12,7 @@ return [
 	'material-delete-headline'                                 => 'Delete Material',
 	'material-delete-and-resources'                            => '{1} Delete material and 1 resource|{2,*} Delete material with :COUNT resources',
 	'material-delete-shure'                                    => 'Are you shure about deleting this material?',
+	'show-materials'                                           => 'show materials',
 	'resource-created-by'                                      => 'Originally from :NAME',
 	'resource-deleted'                                         => 'Deleted resources',
 	'resource-ignored'                                         => 'Ignored resources',
@@ -233,4 +234,7 @@ return [
 	'Select-Translation'                                       => 'Select Translation',
 	'Bible-reference'                                          => 'Bible reference',
 	'Source'                                                   => 'Source',
+	'context'                                                  => 'context',
+	'lookup-in-context'                                        => 'lookup in context',
+
 ];

@@ -42,6 +42,18 @@
     import BibleVerse from '../../../../../vendor/stevenbuehner/bible-verse-bundle/js/in/BibleVerse.js';
     import BibleText from "../../../components/biblecontents/bibleText";
 
+    export function fromRangeArrayToString(verseranges) {
+        return verseranges.map(bv => {
+
+            if (bv instanceof BibleVerse) {
+                return bv.getFrom() + '-' + bv.getTo();
+            } else {
+                return bv.from + '-' + bv.to + (bv.bibleId ? '-' + bv.bibleId : '');
+            }
+
+        }).join(',');
+    }
+
     export default {
         name: "ReadBible",
 
@@ -149,7 +161,7 @@
                 this.$router.push({
                     name: 'readbible',
                     params: {
-                        searchquery: this.fromRangeArrayToString(verses)
+                        searchquery: fromRangeArrayToString(verses)
                     }
                 });
 
@@ -171,12 +183,6 @@
                             bibleId: split.length > 2 ? parseInt(split[2]) : null
                         };
                     });
-            },
-
-            fromRangeArrayToString(verseranges) {
-                return verseranges.map(bv => {
-                    return bv.from + '-' + bv.to + (bv.bibleId ? '-' + bv.bibleId : '');
-                }).join(',');
             },
 
             toCaption(bibleverse, displayLength) {

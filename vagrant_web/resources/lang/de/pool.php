@@ -7,6 +7,7 @@ return [
 	'material-count'                                           => 'keine Materialien|1 Material|:COUNT Materialien',
 	'material-other-count'                                     => 'kein anderes Material|1 anderes Material|:COUNT andere Materialien',
 	'material-other-assigned-material-pl'                      => 'kein anderes Material ist dieser Ressource zugewiesen|1 anderes Material ist dieser Ressource zugewiesen|:COUNT andere Materialien sind dieser Ressource zugewiesen',
+	'show-materials'                                           => 'zeige Material',
 	'resource-author-is'                                       => 'Original von :name',
 	'Contains'                                                 => 'Enthält',
 	'edited'                                                   => 'zuletzt bearbeitet',
@@ -224,5 +225,7 @@ return [
 	'Select-Translation'                                       => 'Übersetzung auswählen',
 	'Bible-reference'                                          => 'Bibelstelle',
 	'Source'                                                   => 'Quelle',
+	'context'                                                  => 'Kontext',
+	'lookup-in-context'                                        => 'im Kontext anzeigen',
 
 ];

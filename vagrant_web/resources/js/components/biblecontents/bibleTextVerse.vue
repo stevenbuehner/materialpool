@@ -1,6 +1,6 @@
 <template>
 
-    <div class="verse" :id="'bv' + bibleId"
+    <div class="bibleTextVerse" :id="'bv' + bibleId"
          :class="{selected : isSelected}"
          @click="onClicked">
         <span class="verseNumber">{{verseNumber}}</span>
@@ -56,7 +56,7 @@
 <style type="scss">
     @import "../../../sass/theme";
 
-    .verse {
+    .bibleTextVerse {
         display: inline;
         margin-right: 0.5em;
         padding-right: 0.25em;

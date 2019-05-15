@@ -49,21 +49,33 @@
             <div class="article-inner" ref="innercontent">
                 <h2>{{bibleverseLabel}}
                     <span class="ref-actions">
-                        <a class="action-button" target="_blank">{{materialCount}} Materialien</a>
-                        <a class="action-button" target="_blank">Kontext</a>
+                        <router-link class="action-button"
+                                     target="_blank"
+                                     v-if="materialCount"
+                                     :to="{name: 'search', params: {search: materialSearchParam}}"
+                                     :title="$t('pool.show-materials')">
+                            {{$tc('pool.material-count', materialCount, {COUNT: materialCount})}}
+                        </router-link>
+                        <router-link class="action-button"
+                                     target="_blank"
+                                     :to="{name: 'readbible', params: {searchquery: readBibleSearchParam}}"
+                                     :title="$t('pool.lookup-in-context')">
+                            {{$t('pool.context', materialCount, {COUNT: materialCount})}}
+                        </router-link>
                     </span>
                 </h2>
 
                 <p>
                     <span v-for="vers in verses" class="verse">
                         <span v-if="!isSingleVerse" class="vno">{{vers.vno}}</span>
-                        <span class="text">{{vers.text}}</span>
+                        <span class="text">{{vers.text}} </span>
                     </span>
                 </p>
                 <p></p>
                 <div class="version" v-if="bible.uuid">
                     <span>{{bible.title}} ({{bible.uuid}})</span><br>
-                    <span>{{$t('pool.Source')}} <a :href="bible.source" target="_blank">{{bibleSourceDomain}}</a></span>
+                    <span>{{$t('pool.Source')}}: <a :href="bible.source"
+                                                    target="_blank">{{bibleSourceDomain}}</a></span>
                 </div>
             </div>
         </article>
@@ -97,7 +109,8 @@ Events:
     import pinRemoveIcon from './pin-remove.svg';
     import closeIcon from './close.svg';
     import cursorMoveIcon from './cursor-move.svg';
-    import {bibleverseToSearchItem, searchArrayItemsToSearchQuery} from "../search/searchHelper";
+    import {bibleverseToSearchItem, searchArrayObjectsToSearchQuery} from "../search/searchHelper";
+    import {fromRangeArrayToString} from "./../../apps/main/pages/ReadBible.vue";
 
 
     export default {
@@ -183,6 +196,16 @@ Events:
             bibleverseLabel() {
                 return BibleVerseService.bibleVerseToString(this.bibleverse, 'long');
             },
+            usedBibleTranslationUuid() {
+                let bibleUuid = this.bibleUuid;
+
+                if (this.verses.length > 0 && this.verses[0].bibleUuid) {
+                    bibleUuid = this.verses[0].bibleUuid;
+                }
+
+                return bibleUuid;
+            },
+
 
             style() {
                 return {
@@ -225,6 +248,19 @@ Events:
                 } else {
                     return ';'
                 }
+            },
+
+            materialSearchParam() {
+                return searchArrayObjectsToSearchQuery([[this.bibleverse]]);
+            },
+
+            readBibleSearchParam() {
+                const context = new BibleVerse(this.bibleverse.getFrom(), this.bibleverse.getTo());
+                context.setFromVerse(1);
+                const book = BibleVerseService._getBibleBook(context.getFromBookId());
+                context.setToVerse(book.getVerseCountForChapter(context.getToChapter()));
+
+                return fromRangeArrayToString([context]);
             }
         },
 
@@ -248,9 +284,9 @@ Events:
                             return {
                                 bibleUuid: v.bibleUuid,
                                 text: v.text,
-                                cno: bookId,
-                                vno: chapter,
-                                bno: verse,
+                                vno: verse,
+                                cno: chapter,
+                                bno: bookId,
                                 no: v.verse
                             };
                         });
@@ -266,11 +302,7 @@ Events:
 
             bible: {
                 get() {
-                    let bibleUuid = this.bibleUuid;
-
-                    if (this.verses.length > 0 && this.verses[0].bibleUuid) {
-                        bibleUuid = this.verses[0].bibleUuid;
-                    }
+                    const bibleUuid = this.usedBibleTranslationUuid;
 
                     if (bibleUuid !== null) {
                         return this.$store.dispatch('bibles/get', bibleUuid)
@@ -282,24 +314,24 @@ Events:
 
             materialCount: {
                 get() {
-                    if (this.bibleUuid) {
 
-                        const searchItem = bibleverseToSearchItem(this.bibleverse);
-                        const query      = searchArrayItemsToSearchQuery([[searchItem]]);
+                    return this.$store.dispatch('search/materials', {
+                        query: [
+                            [{
+                                type: 'b',
+                                from: this.bibleverse.getFrom(),
+                                to: this.bibleverse.getTo()
+                            }]
+                        ]
+                    }).then(({materials, paging}) => {
+                        return paging.total;
+                    })
 
-                        return this.$store.dispatch('search/materials', {query}).then(({materials, paging}) => {
-                            return paging.total;
-                        })
-
-                    } else {
-                        return null;
-                    }
                 },
                 default: null,
                 watch() {
-                    this.bibleUuid;
                 }
-            }
+            },
         },
 
         watch: {
@@ -626,6 +658,7 @@ Events:
 
             }
 
+
         }
 
 
@@ -638,9 +671,6 @@ Events:
             overflow: auto;
             -webkit-overflow-scrolling: touch;
 
-            .has-footer {
-                bottom: 26px;
-            }
 
             .article-inner {
                 display: inline-block;
@@ -668,12 +698,6 @@ Events:
                 text-align: justify;
             }
 
-            small {
-                font-size: inherit;
-                color: #666;
-            }
-
-
             h2 {
                 font-size: inherit;
                 font-weight: bold;
@@ -684,15 +708,15 @@ Events:
                 background: white;
                 color: black;
                 border: 1px solid $bible-popover-theme-color;
-                border-radius: 4px;
+                border-radius: 0.3em;
                 text-decoration: none;
                 padding: 2px 4px 1px 4px;
-                font-size: 11px;
+                font-size: 0.85em;
                 position: relative;
-                margin-left: 5px;
+                margin-right: 5px;
                 top: -1px;
                 opacity: 0.9;
-                transition: 0.1s;
+                transition: 0.2s;
             }
 
             .action-button:hover {
@@ -702,7 +726,7 @@ Events:
             }
 
             .action-button + .action-button {
-                margin-left: 0;
+                margin-right: 0;
             }
 
             .ref-actions {
@@ -714,28 +738,29 @@ Events:
                 color: $bible-popover-theme-color;
                 position: relative;
                 top: -2px;
+
             }
 
             .version {
                 margin: 10px 0 3px 0;
                 font-size: 11px;
                 color: black;
-            }
 
-            .version > * {
-                opacity: 0.65;
-            }
+                & a, span {
+                    opacity: 0.65;
+                }
 
-            .version a {
-                color: inherit;
-                text-decoration: none;
-                border-bottom: 1px dotted black;
-                transition: 0.3s;
-            }
+                a {
+                    color: inherit;
+                    text-decoration: none;
+                    border-bottom: 1px dotted black;
+                    transition: 0.3s;
 
-            .version a:hover {
-                opacity: 1;
-                border-bottom-style: solid;
+                    &:hover {
+                        opacity: 1;
+                        border-bottom-style: solid;
+                    }
+                }
             }
         }
 

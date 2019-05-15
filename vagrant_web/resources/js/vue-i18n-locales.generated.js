@@ -6,6 +6,7 @@ export default {
             "material-count": "keine Materialien|1 Material|{COUNT} Materialien",
             "material-other-count": "kein anderes Material|1 anderes Material|{COUNT} andere Materialien",
             "material-other-assigned-material-pl": "kein anderes Material ist dieser Ressource zugewiesen|1 anderes Material ist dieser Ressource zugewiesen|{COUNT} andere Materialien sind dieser Ressource zugewiesen",
+            "show-materials": "zeige Material",
             "resource-author-is": "Original von {name}",
             "Contains": "Enthält",
             "edited": "zuletzt bearbeitet",
@@ -222,7 +223,9 @@ export default {
             "Translation": "Übersetzung",
             "Select-Translation": "Übersetzung auswählen",
             "Bible-reference": "Bibelstelle",
-            "Source": "Quelle"
+            "Source": "Quelle",
+            "context": "Kontext",
+            "lookup-in-context": "im Kontext anzeigen"
         }
     },
     "en": {
@@ -252,6 +255,7 @@ export default {
             "material-delete-headline": "Delete Material",
             "material-delete-and-resources": "{1} Delete material and 1 resource|{2,*} Delete material with {COUNT} resources",
             "material-delete-shure": "Are you shure about deleting this material?",
+            "show-materials": "show materials",
             "resource-created-by": "Originally from {NAME}",
             "resource-deleted": "Deleted resources",
             "resource-ignored": "Ignored resources",
@@ -472,7 +476,9 @@ export default {
             "Translation": "Translation",
             "Select-Translation": "Select Translation",
             "Bible-reference": "Bible reference",
-            "Source": "Source"
+            "Source": "Source",
+            "context": "context",
+            "lookup-in-context": "lookup in context"
         },
         "validation": {
             "accepted": "The {attribute} must be accepted.",
