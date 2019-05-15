@@ -1,32 +1,33 @@
 <template>
     <div class="bible-popover"
-         :style="style">
+         :style="style"
+         @mouseover.stop
+         @mouseout.stop.self="_onMouseout($event)">
         <header>
-            <h1 @mousedown.prevent.stop="_dragStart($event)"
-                @touchstart.prevent.stop="_dragStart($event)">
-                <span class="header-left">
+            <h1 @mousedown.self.prevent.stop="_dragStart($event)"
+                @touchstart.self.prevent.stop="_dragStart($event)">
+                <span class="header-left"
+                      @mousedown.prevent.stop="_dragStart($event)"
+                      @touchstart.prevent.stop="_dragStart($event)">
                     <span class="action cursorMove" v-if="isPinned">
                         <cursor-move-icon/>
                     </span>
                     <span class="text">{{$t('pool.Bible-reference')}}</span>
                 </span>
                 <span class="header-actions">
-                    <span @click="_togglePin"
-                          @mousedown.stop
+                    <span @click.stop="_togglePin"
                           class="action pin enabled" :class="{isPinned}">
                         <pin-icon class="icon" v-if="!isPinned"/>
                         <pin-remove-icon v-if="isPinned"/>
                     </span>
 
                     <span @click.stop="_doPrevious"
-                          @mousedown.stop
                           class="action previous" :class="{enabled: enablePrevious}"
                           v-if="enablePrevious">
                         <double-left-icon/>
                     </span>
 
-                    <span @click="_doNext"
-                          @mousedown.stop
+                    <span @click.stop="_doNext"
                           class="action next" :class="{enabled: enableNext}"
                           v-if="enableNext">
                         <double-right-icon/>
@@ -34,8 +35,7 @@
                     
                     <span class="space"></span>
 
-                    <span @click="_doClose"
-                          @mousedown.stop
+                    <span @click.stop="_doClose"
                           class="action close enabled"
                           :title="$t('pool.close')">
                         <close-icon/>
@@ -466,6 +466,15 @@ Events:
 
             },
 
+            _onMouseout(event) {
+
+                if (!this.isPinned) {
+                    // console.log(event);
+                    this._doClose();
+                }
+
+            },
+
 
             _togglePin() {
 
@@ -503,7 +512,7 @@ Events:
             },
 
             _incomingPopoverOpening(instance) {
-                if (instance !== this) {
+                if (instance !== this && !this.isPinned) {
                     this._doClose();
                 }
             },

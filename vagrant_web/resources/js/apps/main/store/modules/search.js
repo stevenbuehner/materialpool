@@ -133,9 +133,10 @@ const actions = {
                     throw response.message;
                 });
 
+            commit('putSearchCache', {query: data, promise: resultPromise});
+
         }
 
-        commit('putSearchCache', {query: data, promise: resultPromise});
 
         return resultPromise;
     },

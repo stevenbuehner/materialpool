@@ -76,7 +76,24 @@ const actions = {
         const route = api_v1_biblecontents_search_and_get(search, bibleUuid);
 
         return axios.get(route, {params: {search}})
-            .then(({data}) => data);
+            .then(({data}) => {
+                // data: {bible, bibleverses, verses}
+                commit('bibles/addBible', data.bible, {root: true});
+
+                if (data.bibleverses.length === 1) {
+                    // All bibleverses belong to this one bibleverse
+                    const from = data.bibleverses[0].from;
+                    const to   = data.bibleverses[0].to;
+
+                    state.cache[verseKey(from, to, bibleUuid)] = data.verses;
+
+                    if (bibleUuid === null) {
+                        state.cache[verseKey(from, to, data.bible.uuid)] = data.verses;
+                    }
+                }
+
+                return data;
+            });
 
     },
 

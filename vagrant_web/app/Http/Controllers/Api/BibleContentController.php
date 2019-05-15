@@ -72,7 +72,7 @@ class BibleContentController extends BaseController {
 			return [];
 		}
 
-		$query = BibleContent::query()->with('bible');
+		$query = BibleContent::query(); // ->with('bible');
 
 		foreach ($searchBvs as $bv) {
 			$b2 = Bibleverse::makeFromBibleverseInterface($bv);
@@ -82,9 +82,16 @@ class BibleContentController extends BaseController {
 		$bible = $this->getBibleFirstOrFail($bibleUid);
 
 		$query->where('bible_id', '=', $bible->id);
+		$content = $query->get();
 
+		return [
+			'bibleverses' => collect($searchBvs)->map(function (\StevenBuehner\BibleVerseBundle\Entity\BibleVerse $bv) {
+				return ['from' => $bv->getStart(), 'to' => $bv->getEnd()];
+			}),
+			'bible'       => $bible,
+			'verses'      => $content
+		];
 
-		return $query->get();
 	}
 
 }

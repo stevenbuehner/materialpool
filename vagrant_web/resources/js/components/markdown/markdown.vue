@@ -1,7 +1,7 @@
 <script>
     import {BibleVerseService} from '../../../../vendor/stevenbuehner/bible-verse-bundle/js/out/BibleVerseService_de.js';
     import marked from 'marked';
-    import biblePopover from "../bibleverse/biblePopover";
+    import biblePopover from "./../bibleverse/bibleverse-inline-popover-txt";
 
     const regexp = BibleVerseService.biblePattern;
 
