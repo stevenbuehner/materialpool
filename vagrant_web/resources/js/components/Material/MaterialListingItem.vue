@@ -153,6 +153,9 @@
                 get() {
                     if (this.material && this.material.icon_of_bundle) {
                         return this.$store.dispatch('bundles/getBundleNameById', this.material.icon_of_bundle)
+                            .catch(() => {
+                                return 'Missing Bundle name. Ups';
+                            })
                     } else {
                         return '';
                     }

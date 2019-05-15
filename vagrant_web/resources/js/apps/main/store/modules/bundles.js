@@ -170,13 +170,23 @@ const actions = {
     },
 
     getBundleById: ({dispatch}, bundleId) => {
-        return dispatch('allBundles').then((bundles) => {
-            return bundles.find(({id}) => id === bundleId);
-        })
+        return dispatch('allBundles')
+            .then((bundles) => {
+                return bundles.find(({id}) => id === bundleId);
+            })
     },
 
     getBundleNameById: ({dispatch}, bundleId) => {
-        return dispatch('getBundleById', bundleId).then(({name}) => name);
+        return dispatch('getBundleById', bundleId)
+            .then(data => {
+                if (data === undefined) {
+                    throw 'not found';
+                }
+                return data;
+            })
+            .then(({name}) => {
+                return name;
+            });
     }
 
 
