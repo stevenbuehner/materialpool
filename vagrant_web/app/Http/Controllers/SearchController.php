@@ -234,7 +234,7 @@ class SearchController extends Controller {
 		$queryString    = str_replace('%', '*', $queryString);
 		$queryType      = $request->get('t', FALSE);
 		$queryPage      = $request->get('page', 1);
-		$paginationSize = 15;
+		$paginationSize = min((int) $request->get('per_page', 15), 50);
 
 		if ($queryType && !in_array($queryType, array_keys(Keyword::AVAILABLE_TYPES))) {
 			$queryType = FALSE;
@@ -244,6 +244,7 @@ class SearchController extends Controller {
 		$keywords = Keyword::searchQuery($queryString, $queryType)
 						   ->offset(($paginationSize) * ($queryPage - 1))
 						   ->limit($paginationSize)
+						   ->orderByRaw('LENGTH(title)')
 						   ->get();
 
 		return $keywords;

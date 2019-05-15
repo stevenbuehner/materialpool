@@ -271,13 +271,15 @@ const actions = {
     },
 
 
-    search: ({commit, getters, dispatch}, {searchText, type, page}) => {
+    search: ({commit, getters, dispatch}, {searchText, type, per_page, page}) => {
 
-        type = type || false;
-        page = page || 1;
+        type     = type || false;
+        page     = page || 1;
+        per_page = per_page || 20;
 
         let data = {
-            q: searchText
+            q: searchText,
+            per_page,
         };
 
         if (type) {
@@ -316,9 +318,9 @@ const actions = {
 
         return Promise
             .all(
-                searchArray.map(({searchText, type}) => {
+                searchArray.map(({searchText, type, per_page}) => {
                         return queue.add(() => {
-                            return dispatch('search', {searchText, type});
+                            return dispatch('search', {searchText, type, per_page});
                         })
                     }
                 )

@@ -31,7 +31,7 @@
 </script>
 
 <style type="scss">
-    @import "../../../../node_modules/vue-flash-message/dist/vue-flash-message.min.css";
+    @import "../../../../node_modules/vue-flash-message/dist/vue-flash-message.min";
 
     .main-area {
         padding-top: 4.5rem;

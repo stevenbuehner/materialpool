@@ -8,6 +8,7 @@ import mainApp from './App.vue';
 import '../../../sass/main.scss';
 // Localisation
 import {i18n} from "./localisation";
+
 import ShortKey from 'vue-shortkey'
 import AsyncComputed from 'vue-async-computed';
 

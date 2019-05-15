@@ -99,7 +99,7 @@
 
     export default {
 
-        mixins:  [savingDialogs],
+        mixins: [savingDialogs],
 
         props: {
             // Only passing in. Later working with myKeywords
@@ -215,7 +215,7 @@
 
                 vm.$store.dispatch('keywords/searchMultiple',
                     multiKeywordParts.map((searchText) => {
-                        return {searchText};
+                        return {searchText, per_page: 40};
                     }))
                     .then((keywords) => {
                         console.log(keywords);
