@@ -68,6 +68,7 @@ export const draggingSupport = {
                 if (this.dragging.xEnd === this.dragging.xStart) {
                     // Don't call an Pivot update - this was only a missdirected single click
                     // To set the relevance = 0 we can use negative direction
+                    this.$emit('single-click');
                 } else {
                     this.$emit('dragging-done', this.dragPercentage);
                 }
