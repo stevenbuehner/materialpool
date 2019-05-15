@@ -50,7 +50,6 @@
                 <h2>{{bibleverseLabel}}
                     <span class="ref-actions">
                         <router-link class="action-button"
-                                     target="_blank"
                                      v-if="materialCount"
                                      :to="{name: 'search', params: {search: materialSearchParam}}"
                                      :title="$t('pool.show-materials')">
@@ -70,6 +69,7 @@
                         <span v-if="!isSingleVerse" class="vno">{{vers.vno}}</span>
                         <span class="text">{{vers.text}} </span>
                     </span>
+                    <materialpool-spinner v-if="verses.length === 0"/>
                 </p>
                 <p></p>
                 <div class="version" v-if="bible.uuid">
@@ -111,6 +111,7 @@ Events:
     import cursorMoveIcon from './cursor-move.svg';
     import {bibleverseToSearchItem, searchArrayObjectsToSearchQuery} from "../search/searchHelper";
     import {fromRangeArrayToString} from "./../../apps/main/pages/ReadBible.vue";
+    import MaterialpoolSpinner from "../spinner/materialpool-spinner";
 
 
     export default {
@@ -121,7 +122,7 @@ Events:
             bibleverse: {
                 required: true,
                 validator: function (value) {
-                    return value instanceof BibleVerse;
+                    return value instanceof BibleVerse || (value.from && value.to);
                 },
             },
             bibleUuid: {
@@ -187,14 +188,23 @@ Events:
         },
 
         computed: {
+            normalizedBibleverse() {
+                if (this.bibleverse instanceof BibleVerse) {
+                    return this.bibleverse;
+                } else if (this.bibleverse.from && this.bibleverse.to) {
+                    return new BibleVerse(this.bibleverse.from, this.bibleverse.to);
+                } else {
+                    console.error('Could not normalize bibleverse!');
+                }
+            },
             from() {
-                return this.bibleverse instanceof BibleVerse ? this.bibleverse.getFrom() : this.bibleverse.from;
+                return this.normalizedBibleverse.getFrom();
             },
             to() {
-                return this.bibleverse instanceof BibleVerse ? this.bibleverse.getTo() : this.bibleverse.to;
+                return this.normalizedBibleverse.getTo();
             },
             bibleverseLabel() {
-                return BibleVerseService.bibleVerseToString(this.bibleverse, 'long');
+                return BibleVerseService.bibleVerseToString(this.normalizedBibleverse, 'long');
             },
             usedBibleTranslationUuid() {
                 let bibleUuid = this.bibleUuid;
@@ -212,17 +222,12 @@ Events:
                     minHeight: this.boxHeight + 'px',
                     width: this.boxWidth + 'px',
                     left: this.styleData.left + 'px',
-                    top: this.styleData.top + 'px',
-                    position: 'fixed'
+                    top: this.styleData.top + 'px'
                 };
             },
 
             isSingleVerse() {
-                if (this.bibleverse instanceof BibleVerse && this.bibleverse.isSingleVerse()) {
-                    return true;
-                } else {
-                    return false;
-                }
+                return this.normalizedBibleverse.isSingleVerse();
             },
 
             boxHeight() {
@@ -255,7 +260,7 @@ Events:
             },
 
             readBibleSearchParam() {
-                const context = new BibleVerse(this.bibleverse.getFrom(), this.bibleverse.getTo());
+                const context = new BibleVerse(this.from, this.to);
                 context.setFromVerse(1);
                 const book = BibleVerseService._getBibleBook(context.getFromBookId());
                 context.setToVerse(book.getVerseCountForChapter(context.getToChapter()));
@@ -316,13 +321,14 @@ Events:
                 get() {
 
                     return this.$store.dispatch('search/materials', {
-                        query: [
-                            [{
-                                type: 'b',
-                                from: this.bibleverse.getFrom(),
-                                to: this.bibleverse.getTo()
-                            }]
-                        ]
+                        query: {
+                            1:
+                                [{
+                                    type: 'b',
+                                    from: parseInt(this.from).toString(),
+                                    to: parseInt(this.to).toString()
+                                }]
+                        }
                     }).then(({materials, paging}) => {
                         return paging.total;
                     })
@@ -493,55 +499,33 @@ Events:
             },
 
             _doClose() {
-                this._beforeClose();
-
                 this.$emit('bible-popover-closerequest');
-
-                this._afterClose();
             },
 
-            _beforeOpen() {
-                eventBus.$emit('bible-popover-opening', this);
-            },
-
-            _afterOpen() {
-                eventBus.$emit('bible-popover-opened', this);
-            },
-
-            _beforeClose() {
-                eventBus.$emit('bible-popover-closing', this);
-            },
-
-            _afterClose() {
-                eventBus.$emit('bible-popover-closed', this);
-            },
-        },
-
-        created() {
-            eventBus.$on('bible-popover-opening', (instance) => {
+            _incomingPopoverOpening(instance) {
                 if (instance !== this) {
                     this._doClose();
                 }
-            });
+            },
+
+        },
+
+        created() {
+            eventBus.$on('bible-popover-opening', this._incomingPopoverOpening);
 
             this._initPosition();
-
-            this._beforeOpen();
         },
 
         mounted() {
-
-            this._afterOpen();
-
+            eventBus.$emit('bible-popover-opening', this);
         },
 
         destroyed() {
-            eventBus.$off('bible-popover-opening', () => {
-
-            })
+            eventBus.$off('bible-popover-opening', this._incomingPopoverOpening);
         },
 
         components: {
+            MaterialpoolSpinner,
             BiblePopoverContent,
             BiblePopoverHeader,
             doubleLeftIcon,
@@ -558,16 +542,20 @@ Events:
 
     @import "../../../sass/theme";
 
-    $bible-popover-theme-color: $green;
+    $bible-popover-theme-color: $gray-600;
 
     .bible-popover {
         background: white;
         font-family: Arial;
-        position: relative;
+        position: fixed;
         line-height: 120%;
         color: black;
         border: 1px solid $bible-popover-theme-color;
         font-size: 13px;
+        z-index: 1000;
+        border-radius: .5em;
+        overflow: hidden;
+        box-shadow: 0 0 3px rgba(0, 0, 0, 0.75);
 
         header {
             background: $bible-popover-theme-color;
@@ -581,6 +569,7 @@ Events:
             height: 1.5em;
             box-shadow: 0 0 3px black;
             z-index: 10;
+
 
             h1 {
                 font-size: 1em;
@@ -598,7 +587,7 @@ Events:
 
                 .text {
                     display: inline-block;
-                    padding-top: .1em;
+                    padding-top: .2em;
                 }
             }
 
@@ -655,10 +644,7 @@ Events:
                     display: inline-block;
                     width: 1em;
                 }
-
             }
-
-
         }
 
 

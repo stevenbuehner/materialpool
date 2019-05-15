@@ -13,8 +13,9 @@
 <script>
     import menuItem from './context-menu-item.vue';
 
-    const MENU_CLOSE_EVENT = 'context-menu:close';
-    const MENU_OPEN_EVENT  = 'context-menu:open';
+    const MENU_CLOSE_EVENT         = 'context-menu:close';
+    const MENU_OPEN_EVENT          = 'context-menu:open';
+    export const MENU_ITEM_CLICKED = 'item-clicked';
 
     export default {
         name: "context-menu",
@@ -106,16 +107,18 @@
                 }.bind(this);
             }
 
-            /*
-            this.$on('item-clicked', () => {
-                console.log('itemCLicked');
+
+            this.$on(MENU_ITEM_CLICKED, () => {
+                this.menuOpen = false;
             });
-            */
+
         },
 
-        beforeDestroy() {
+        destroyed() {
             // Todo: Remove document onmousedown event
-        }
+            this.$off(MENU_ITEM_CLICKED);
+        },
+
     }
 </script>
 

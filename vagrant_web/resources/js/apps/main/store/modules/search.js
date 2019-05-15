@@ -97,13 +97,13 @@ const actions = {
 
         if (getters.hasCacheEntry(data)) {
 
-            console.log('Using cached Searchresults for:', query);
+            // console.log('Using cached Searchresults for:', query);
 
             resultPromise = getters.getCacheEntry(data);
 
         } else {
 
-            console.log('updating Searchresults for:', query);
+            // console.log('updating Searchresults for:', query);
 
             resultPromise = axios.post(searchUrl, data)
                 .then(response => response.data)

@@ -6,6 +6,8 @@
 </template>
 
 <script>
+    import {MENU_ITEM_CLICKED} from "./context-menu";
+
     export default {
         name: "context-menu-item",
 
@@ -25,7 +27,7 @@
 
         methods: {
             menuItemClicked(event) {
-                this.$parent.$emit('item-clicked', this);
+                this.$parent.$emit(MENU_ITEM_CLICKED, this);
                 this.$emit('click', event);
             }
         },

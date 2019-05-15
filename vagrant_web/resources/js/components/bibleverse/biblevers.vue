@@ -3,6 +3,8 @@
         <div class="btn btn-sm btn-secondary sb-bibleverse"
              :class="{'tag-readonly' : !editable, 'tag-editable' : editable, highlighted : highlight}"
              @mousedown.left="keydownStartDrag"
+             @mouseover.alt="displayBibleversePopover=true"
+             @mouseout.alt="displayBibleversePopover=false"
              @click.right.stop="openRightClickMenu"
              role="button">
             <div class="sb-progress-bar" :class="{isDragging : dragging.ongoing}" :style="styleObject"></div>
@@ -12,10 +14,18 @@
         </div>
 
         <context-menu ref="menu">
-            <context-menu-item v-if="searchable" @click.stop="goToBibleverseSearch">
+            <context-menu-item v-if="searchable" @click="goToBibleverseSearch">
                 Suche nach '{{ optimizedLabel }}'
             </context-menu-item>
+            <context-menu-item @click="displayBibleversePopover=true">
+                lesen
+            </context-menu-item>
         </context-menu>
+
+        <bible-popover v-if="displayBibleversePopover"
+                       :bibleverse="bibleverse"
+                       :position="$el"
+                       @bible-popover-closerequest="displayBibleversePopover=false"/>
     </div>
 </template>
 
@@ -29,6 +39,7 @@
     import {RELEVANCE_USER_MAX} from "../../apps/config";
     import BibleVerse from '../../../../vendor/stevenbuehner/bible-verse-bundle/js/in/BibleVerse.js';
     import {BibleVerseService} from '../../../../vendor/stevenbuehner/bible-verse-bundle/js/out/BibleVerseService_de.js';
+    import BiblePopover from "./../bible-popover/bible-popover.vue";
 
     export default {
 
@@ -90,6 +101,7 @@
         data: function () {
             return {
                 myBibleverse: {},
+                displayBibleversePopover: false,
             };
         },
 
@@ -231,6 +243,7 @@
         },
 
         components: {
+            BiblePopover,
             contextMenu,
             contextMenuItem,
             bibleIcon
@@ -273,6 +286,7 @@
         .sb-bibleverse {
             border: $tag-background-colour-hover solid 1px;
             background-color: $tag-background-colour;
+            cursor: pointer;
 
             &:hover {
                 background-color: $tag-background-colour-hover;
@@ -330,10 +344,5 @@
                 }
             }
         }
-
     }
-
-
-
-
 </style>
