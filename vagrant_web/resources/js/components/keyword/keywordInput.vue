@@ -28,7 +28,11 @@
                      :searchable="!disabled"
                      :dragable="!disabled"
                      @removed="keywordRemoved"
-                     @saved="keywordUpdated(kw, index)"
+                     @saved="keywordUpdated(kw, index); flashSaved('Keyword')"
+                     @saving="flashStartSaving('Keyword')"
+                     @savingPivot="flashStartSaving('Keyword Piot')"
+                     @savingError="flashUpdateTagError"
+                     @savingPivotError="flashUpdateTagError"
             ></keyword>
         </div>
 
@@ -90,9 +94,12 @@
     import eraseSvg from 'svg-icon/dist/svg/zero/clear.svg';
     import {RELEVANCE_USER_MAX} from "../../apps/config";
     import MaterialpoolSpinner from "../spinner/materialpool-spinner";
+    import {savingDialogs} from "../../helper/flashMessages";
 
 
     export default {
+
+        mixins:  [savingDialogs],
 
         props: {
             // Only passing in. Later working with myKeywords

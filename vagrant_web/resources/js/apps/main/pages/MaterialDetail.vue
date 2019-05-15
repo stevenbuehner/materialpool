@@ -217,12 +217,15 @@
     import {flagColors} from "../../../components/flags/flagOptions";
     import ResourceSelector from "../../../components/modals/selectors/resourceSelector";
     import KeywordToggleTextSelect from "../../../components/keyword/keywordToggleTextSelect";
+    import {savingDialogs} from "../../../helper/flashMessages";
 
 
     // https://github.com/craigh411/vue-star-rating/#props
     export default {
 
         name: 'MaterialDetail',
+
+        mixins:  [savingDialogs],
 
         props: {
             id: {
@@ -485,32 +488,6 @@
                     console.error('Changed bibleverse was not found in Array!');
                 }
 
-            },
-
-            flashUpdateTagError({tag, msg}) {
-                this.flash(msg, 'error', {})
-            },
-
-
-            flashStartSaving(propertyName) {
-                return this.flash('Saving ' + propertyName[0].toUpperCase() + propertyName.substring(1).toLowerCase() + ' now ...', 'warning', {
-                    important: false,
-                    timeout: 2000
-                });
-            },
-
-            flashSaved(propertyName) {
-                // console.debug('saved Flash: ', propertyName);
-                return this.flash(propertyName[0].toUpperCase() + propertyName.substring(1).toLowerCase() + ' saved', 'success', {
-                    timeout: 2000,
-                    important: false
-                })
-            },
-            flashError(propertyName) {
-                //  console.debug('Error Flash: ', propertyName);
-                return this.flash('An error accured while while saving ' + propertyName.toLowerCase(), 'error', {
-                    important: true
-                });
             },
 
             downloadResourceLink(resource) {

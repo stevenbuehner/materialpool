@@ -28,7 +28,11 @@
                         :searchable="!disabled"
                         :dragable="!disabled && enableRelevance"
                         @removed="bibleverseRemoved"
-                        @saved="bibleverseUpdated(bv, index)"
+                        @saved="bibleverseUpdated(bv, index); flashSaved('Bibleverse')"
+                        @saving="flashStartSaving('Bibleverse')"
+                        @savingPivot="flashStartSaving('Bibleverse Piot')"
+                        @savingError="flashUpdateTagError"
+                        @savingPivotError="flashUpdateTagError"
             ></bibleverse>
         </div>
 
@@ -105,8 +109,11 @@
     import {RELEVANCE_USER_MAX} from "../../apps/config";
     import _debounce from 'lodash/debounce';
     import MaterialpoolSpinner from "../spinner/materialpool-spinner";
+    import {savingDialogs} from "../../helper/flashMessages";
 
     export default {
+
+        mixins: [savingDialogs],
 
         props: {
             bibleverses: {
@@ -386,7 +393,7 @@
             }
 
         },
-        
+
         components: {
             MaterialpoolSpinner,
             bibleverse,
