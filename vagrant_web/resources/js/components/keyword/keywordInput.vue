@@ -172,7 +172,7 @@
                     this.init();
                 },
                 deep: true,
-                imediately: true
+                immediate: true
             },
 
         },
@@ -204,7 +204,7 @@
             search: _debounce((loading, search, vm) => {
 
                 // Split search into multiple keyword-searches by COMMA and SEMICOLON
-                const multiKeywordParts = search.split( /\s*[,;]\s*/);
+                const multiKeywordParts = search.split(/\s*[,;]\s*/);
 
                 vm.$store.dispatch('keywords/searchMultiple',
                     multiKeywordParts.map((searchText) => {
@@ -385,12 +385,6 @@
                 this.myKeywords = JSON.parse(JSON.stringify(this.keywords));
 
             }
-
-        },
-
-        created() {
-
-            this.init();
 
         },
 
