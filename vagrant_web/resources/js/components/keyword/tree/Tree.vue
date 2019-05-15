@@ -76,7 +76,7 @@
                     this.updateKeywordTree();
 
                 },
-                imediately: true
+                immediate: true
             },
 
         },
