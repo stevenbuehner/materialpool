@@ -102,15 +102,22 @@
             },
 
             _hideZoom() {
+
                 this.$refs.imageZoomModal.hide();
+
             },
 
-            show() {
-                this._showZoom(this.start);
+            show(index) {
+
+                index = index || this.start;
+                this._showZoom(index);
+
             },
 
             hide() {
+                
                 this._hideZoom();
+
             }
 
         },
