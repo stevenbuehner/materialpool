@@ -136,6 +136,8 @@
                             :keyword="material.author"
                             @newKeywordSelection="submitAuthor"
                             :emptyPlaceholder="$t('pool.unknown')"/>
+
+                    <public-material-download :material-id="id"/>
                 </div>
             </div>
 
@@ -210,7 +212,7 @@
     import fromBot from '../../../components/fromBot.vue';
     import starRating from 'vue-star-rating/src/star-rating';
     import ResourceUploader from "../../../components/uploader/resourceUploader";
-    import {resourceDownloadLink} from "../../../components/serverRoutes";
+    import {api_v1_materials_download, resourceDownloadLink} from "../../../components/serverRoutes";
     import customDialog from '../../../components/modals/dialogs/customDialog';
     import MaterialRating from "../../../components/Material/MaterialRating";
     import Flag from "../../../components/flags/Flag";
@@ -218,6 +220,7 @@
     import ResourceSelector from "../../../components/modals/selectors/resourceSelector";
     import KeywordToggleTextSelect from "../../../components/keyword/keywordToggleTextSelect";
     import {savingDialogs} from "../../../helper/flashMessages";
+    import PublicMaterialDownload from "../../../components/download/public-material-download";
 
 
     // https://github.com/craigh411/vue-star-rating/#props
@@ -225,7 +228,7 @@
 
         name: 'MaterialDetail',
 
-        mixins:  [savingDialogs],
+        mixins: [savingDialogs],
 
         props: {
             id: {
@@ -278,6 +281,10 @@
                 }
 
                 return false;
+            },
+
+            matDownloadUrl() {
+                return api_v1_materials_download(this.id);
             }
 
         },
@@ -498,6 +505,7 @@
 
 
         components: {
+            PublicMaterialDownload,
             KeywordToggleTextSelect,
             ResourceSelector,
             Flag,

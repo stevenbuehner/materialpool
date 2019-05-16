@@ -1,5 +1,7 @@
 import {
     api_v1_materials_copy,
+    api_v1_materials_create_download,
+    api_v1_materials_download,
     api_v1_materials_show,
     api_v1_materials_store,
     api_v1_materials_update,
@@ -346,6 +348,19 @@ const actions = {
             }).catch(({message}) => {
                 throw message;
             });
+    },
+
+    createDownloadLink: ({commit, dispatch}, id) => {
+        return axios.get(api_v1_materials_create_download(id)).then(({data}) => {
+            if (data.success === false) {
+                throw('invalid download link');
+            } else {
+                return {
+                    link: data.link,
+                    until: data.until
+                };
+            }
+        });
     }
 
 };

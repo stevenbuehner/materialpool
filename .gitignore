@@ -33,3 +33,4 @@ vagrant_web/public/img/octicons
 npm-debug.log
 develop.css
 .phpstorm.meta.php
+vagrant_web/public/downloads

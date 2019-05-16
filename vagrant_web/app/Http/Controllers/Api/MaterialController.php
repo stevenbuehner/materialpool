@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Events\MaterialWasChanged;
 use App\Events\MaterialWasCreated;
 use App\Http\Requests\MaterialRequest;
+use App\Jobs\DeletePublicDownloadFile;
 use App\Models\Material;
 use App\Services\MaterialHandling\MaterialHandlingService;
 use Illuminate\Http\Request;
@@ -153,5 +154,20 @@ class MaterialController extends BaseController {
 	 */
 	public function copy(Material $material) {
 		return $this->materialHandlingService->copyMaterial($material);
+	}
+
+	public function createPublicZipDownload(Material $material) {
+
+		$publicPath = $this->materialHandlingService->createZipDownloadOfMaterialContents($material);
+
+		// https://php.net/manual/en/dateinterval.construct.php
+		$until = now()->addHours(48);
+		DeletePublicDownloadFile::dispatch($publicPath, $until);
+
+		return [
+			'success' => TRUE,
+			'link'    => $publicPath,
+			'until'   => $until
+		];
 	}
 }

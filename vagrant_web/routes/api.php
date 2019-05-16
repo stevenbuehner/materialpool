@@ -90,6 +90,9 @@ Route::group([
 	Route::get('materials/{material}/copy', 'MaterialController@copy')
 		 ->where(['material' => '[0-9]+'])
 		 ->name('materials.show');
+	Route::get('materials/{material}/create-download', 'MaterialController@createPublicZipDownload')
+		 ->where(['material' => '[0-9]+'])
+		 ->name('materials.createPublicZipDownload');
 
 	// Bibleverses
 	Route::get('bibleverses', 'BibleverseController@index')

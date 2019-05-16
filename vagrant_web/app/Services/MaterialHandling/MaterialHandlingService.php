@@ -14,8 +14,13 @@ use App\Events\ResourceWasDetached;
 use App\Jobs\CheckLonelyBibleverse;
 use App\Jobs\CheckLonelyKeyword;
 use App\Jobs\CheckLonelyResource;
+use App\Models\File;
 use App\Models\Keyword;
 use App\Models\Material;
+use App\Services\ResourceHandling\Exceptions\LocalFileDoesNotExistException;
+use App\Services\ResourceHandling\Exceptions\RemoteFileDoesNotExistException;
+use App\Services\ResourceHandling\FileHandlingService;
+use App\Services\TagExtraction\ResourceHandles\TextContentInterface;
 
 class MaterialHandlingService {
 
@@ -131,6 +136,50 @@ class MaterialHandlingService {
 
 		return $clone->fresh($relationsToSync);
 
+	}
+
+	public function createZipDownloadOfMaterialContents(Material $material) {
+		$subPathInPublic = 'downloads';
+		$public_dir      = public_path($subPathInPublic);
+		$baseDir         = 'Material Collection';
+		$zipFileName     = 'Material_' . $material->id . '_' . uniqid() . '.zip';
+		$zip             = new \ZipArchive();
+
+		/** @var FileHandlingService $fileHandlingService */
+		$fileHandlingService = resolve(FileHandlingService::class);
+
+		if ($zip->open($public_dir . DIRECTORY_SEPARATOR . $zipFileName, \ZipArchive::CREATE) === TRUE) {
+
+			$zip->filename = 'Material Collection'; // Scheint nicht zu funktionieren
+			$zip->setArchiveComment('All the resources from material ' . $material->id);
+
+			foreach ($material->resources as $resource) {
+
+				if ($resource instanceof File) {
+
+					try {
+						$absPath = $fileHandlingService->getLocalFilePath($resource);
+						$zip->addFile($absPath, $baseDir . DIRECTORY_SEPARATOR . $resource->original_filename);
+					} catch (LocalFileDoesNotExistException $e) {
+						\Log::error($e->getMessage(), $resource->toArray());
+					} catch (RemoteFileDoesNotExistException $e) {
+						\Log::error($e->getMessage(), $resource->toArray());
+					}
+
+				} else if ($resource instanceof TextContentInterface) {
+
+					$path = tempnam(sys_get_temp_dir(), 'res_' . $resource->id . '_');
+					file_put_contents($path, $resource->getContent());
+					$zip->addFile($path, $baseDir . DIRECTORY_SEPARATOR . 'Textresource_' . $resource->id . '.txt');
+
+				}
+			}
+
+			$zip->close();
+
+		}
+
+		return DIRECTORY_SEPARATOR . $subPathInPublic . DIRECTORY_SEPARATOR . $zipFileName;
 	}
 
 

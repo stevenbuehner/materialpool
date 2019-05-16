@@ -112,6 +112,10 @@ export function api_v1_materials_copy(materialId) {
     return '/api/v1/materials/' + materialId + '/copy';
 }
 
+export function api_v1_materials_create_download(materialId) {
+    return '/api/v1/materials/' + materialId + '/create-download';
+}
+
 export function material_preview_image(materialId) {
     return '/material/' + materialId + '/preview';
 }

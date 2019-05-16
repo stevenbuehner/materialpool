@@ -18,6 +18,7 @@
     "ext-json": "*",
     "ext-pdo": "*",
     "ext-simplexml": "*",
+    "ext-zip": "*",
     "alchemy/phpexiftool": "dev-develop",
     "doctrine/dbal": "^2.9",
     "howtomakeaturn/pdfinfo": "^1.1",
