@@ -115,7 +115,7 @@
             },
 
             hide() {
-                
+
                 this._hideZoom();
 
             }

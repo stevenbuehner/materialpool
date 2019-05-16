@@ -20,17 +20,26 @@ class ResourceMaterialController extends BaseController {
 
 	public function attach(Material $material, Resource $resource, MaterialResourceRequest $request) {
 
+		$material->from_bot = FALSE;
+		$material->save();
+
 		return $this->doAttach($material, $resource, $request);
 
 	}
 
 	public function detach(Material $material, Resource $resource) {
 
+		$material->from_bot = FALSE;
+		$material->save();
+
 		return $this->doDetach($material, $resource);
 
 	}
 
 	public function sync(Material $material, Request $request) {
+
+		$material->from_bot = FALSE;
+		$material->save();
 
 		$resourceIds = $request->get('resource_id', []);
 
