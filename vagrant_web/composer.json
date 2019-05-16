@@ -34,7 +34,7 @@
     "setasign/fpdi-fpdf": "^2.0",
     "spatie/laravel-backup": "^6.0",
     "spatie/pdf-to-text": "^1.1",
-    "stevenbuehner/bible-verse-bundle": "^2.5"
+    "stevenbuehner/bible-verse-bundle": "dev-develop"
   },
   "require-dev": {
     "barryvdh/laravel-debugbar": "^3.2",

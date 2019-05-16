@@ -83,7 +83,24 @@ class ResourceController extends BaseController {
 		}
 
 		if ($request->get('missing_materials', FALSE) !== FALSE) {
+			// Macht einen Subselect => Super zeitaufwendig (doch nach dem anlegen neuer Indixes wieder performant genug)
 			$builder->doesntHave('materials');
+
+			/*
+			$tr = new Resource();
+			// $tm = new Material();
+
+			$first = $tr->materials()->getParentKeyName();
+			$seond = $tr->materials()->getRelatedKeyName();
+			$third = $tr->materials()->getForeignPivotKeyName();
+			$fourth = $tr->materials()->getRelatedPivotKeyName();
+
+
+			$builder->leftJoin($tr->materials()->getTable(),
+							   $tr->materials()->getParentKeyName(),
+							   '=',
+							   $tr->materials()->getForeignPivotKeyName());
+			*/
 		}
 
 		return $builder->with(self::DEFAULT_RELATIONS)->paginate(25);
