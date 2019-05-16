@@ -7,6 +7,7 @@
         <div class="preview" :class="{imageDisplayed: showImage}">
             <img class="image" v-show="showImage" :src="previewImageUrl" @load="showImage = true; imageIsLoading=false;"
                  @error="showImage = false; imageIsLoading=false;" :alt="fileTypes">
+            <play-icon class="playIcon" v-if="showImage && containsVideoResource"/>
             <span class="text" v-if="!showImage">
                 <span>
                     {{fileTypes}}
@@ -70,6 +71,7 @@
     import materialDetail from '../../apps/main/pages/MaterialDetail.vue';
     import {material_preview_image} from '../serverRoutes';
     import materialStoreMixin from './materialStore.mixin';
+    import playIcon from 'svg-icon/dist/svg/icomoon/play2.svg'
 
 
     function sortByRelevance(t1, t2) {
@@ -144,7 +146,14 @@
                 });
 
                 return Object.keys(types).map((t) => t.charAt(0).toUpperCase() + t.slice(1)).join(', ');
-            }
+            },
+
+            containsVideoResource() {
+                return this.material.resources.find((r) => {
+                    return r.type === 'video';
+                }) !== undefined;
+            },
+
         },
 
         asyncComputed: {
@@ -207,7 +216,8 @@
         components: {
             Biblevers,
             Keyword,
-            materialDetail
+            materialDetail,
+            playIcon
         }
     }
 </script>
@@ -215,6 +225,9 @@
 <style type="scss">
 
     @import "../../../sass/theme";
+
+    $preview-font-color: #DEE2E6;
+    $preview-background-color: #868E96;
 
 
     .materialListingItem {
@@ -233,7 +246,7 @@
             cursor: pointer;
 
             &:not(.imageDisplayed) {
-                background-color: #868E96;
+                background-color: $preview-background-color;
             }
 
             &.imageDisplayed {
@@ -248,7 +261,7 @@
 
             .text {
                 height: 100%;
-                color: #DEE2E6;
+                color: $preview-font-color;
                 font-size: 1.25rem;
                 display: flex;
                 flex-direction: column;
@@ -260,6 +273,12 @@
                     width: 2em;
                     height: 2em;
                 }
+            }
+
+            .playIcon {
+                width: 2em;
+                height: 2em;
+                fill: $preview-font-color;
             }
         }
 
@@ -297,8 +316,8 @@
             flex: 1;
             min-width: 1.5em;
             max-width: 2em;
-            background-color: #868E96;
-            color: #DEE2E6;
+            background-color: $preview-background-color;
+            color: $preview-font-color;
             cursor: pointer;
             border-bottom-right-radius: $border-radius;
             border-top-right-radius: $border-radius;
