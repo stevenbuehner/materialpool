@@ -39,7 +39,7 @@ class DocHandlingService {
 				try {
 					$localPdfPath         = $generator->getTemporaryPdfFromDocument($resource);
 					$pages                = $this->pdfHandlingService->countPdfPagesInFilepath($localPdfPath);
-					$resource->page_count = $pages;
+					$resource->page_count = (int) $pages;
 				} catch (NotPreviewAbleException $e) {
 					$resource->page_count = FALSE;
 				} catch (InvalidPageNoException $e) {
