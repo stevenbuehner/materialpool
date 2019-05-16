@@ -1,6 +1,6 @@
 <template>
     <div class="container">
-        <div class="sbResourceList card-columns" v-if="resources">
+        <div class="sbResourceList card-columns" v-if="resources.length > 0">
             <div class="card lonelyResource" v-for="r in resources">
                 <img :src="previewImage(r)" class="card-img-top" alt="No Resource Preview available">
                 <div class="card-body">
@@ -14,13 +14,15 @@
                     <router-link :to="{name: 'resource-detail', params:{id: r.id}}" class="btn btn-primary">
                         {{$t('pool.open')}}
                     </router-link>
+                    <b-button variant="danger" @click="btnDelete(r)">{{$t('pool.delete')}}</b-button>
                 </div>
             </div>
         </div>
-        <div class="alert alert-info" v-else-if="isLoading">
+
+        <div class="alert alert-info" v-if="isLoading">
             {{$t('pool.Loading-resource')}}
         </div>
-        <div class="alert alert-success" v-else>
+        <div class="alert alert-success" v-else-if="!isLoading && resources.length === 0">
             {{$t('pool.Congratulations-No-lonely-Resources-found')}}
         </div>
 
@@ -40,6 +42,7 @@
 <script>
     import bPaginationNav from 'bootstrap-vue/src/components/pagination-nav/pagination-nav';
     import {previewImageFirstPage} from "../../../components/serverRoutes";
+    import bButton from 'bootstrap-vue/src/components/button/button'
 
     export default {
         name: "ResourceLonely",
@@ -51,6 +54,7 @@
                 total: 1,
 
                 isLoading: true,
+                refreshResources: 0,
             }
         },
 
@@ -70,7 +74,11 @@
                         }).catch((message) => {
                             alert(message);
                         });
-                }
+                },
+                watch() {
+                    this.refreshResources;
+                },
+                default: []
             }
         },
 
@@ -86,11 +94,26 @@
 
             previewImage(resource) {
                 return previewImageFirstPage(resource);
+            },
+
+            btnDelete(resource) {
+                if (confirm('Resource sicher löschen?')) {
+                    this.$store.dispatch('resources/deleteResource', resource.id)
+                        .then(() => {
+                            this.refreshResources++;
+                        })
+                        .catch(() => {
+                            alert('Fehler beim löschen. Seite bitte neu laden!');
+                        });
+
+                }
+
             }
         },
 
         components: {
-            bPaginationNav
+            bPaginationNav,
+            bButton
         }
     }
 </script>
