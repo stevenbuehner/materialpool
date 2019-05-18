@@ -212,7 +212,7 @@
     import fromBot from '../../../components/fromBot.vue';
     import starRating from 'vue-star-rating/src/star-rating';
     import ResourceUploader from "../../../components/uploader/resourceUploader";
-    import {api_v1_materials_download, resourceDownloadLink} from "../../../components/serverRoutes";
+    import {resourceDownloadLink} from "../../../components/serverRoutes";
     import customDialog from '../../../components/modals/dialogs/customDialog';
     import MaterialRating from "../../../components/Material/MaterialRating";
     import Flag from "../../../components/flags/Flag";
@@ -282,10 +282,6 @@
 
                 return false;
             },
-
-            matDownloadUrl() {
-                return api_v1_materials_download(this.id);
-            }
 
         },
 

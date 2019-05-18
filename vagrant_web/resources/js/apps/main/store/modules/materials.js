@@ -1,7 +1,6 @@
 import {
     api_v1_materials_copy,
     api_v1_materials_create_download,
-    api_v1_materials_download,
     api_v1_materials_show,
     api_v1_materials_store,
     api_v1_materials_update,
