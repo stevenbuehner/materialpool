@@ -2,8 +2,9 @@
     <div class="container homeContainer">
 
         <div class="flex-center position-ref full-height">
-            <div class="top-right links">
+            <div class="top-right links" v-show="false">
                 <router-link :to="{name: 'landingpage'}" v-if="currentUser">{{$t('pool.home')}}</router-link>
+
                 <a href='/login' v-if="!currentUser">{{$t('pool.login')}}</a>
                 <a href='/register' v-if="!currentUser">{{$t('pool.logout')}}</a>
             </div>
