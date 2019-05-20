@@ -10,7 +10,7 @@ import {
     searchGuessKeywords
 } from '../../../../components/serverRoutes'
 import {convertErrorResponseToMessage} from "./handleErrorsHelper";
-import {clone as _clone} from 'lodash';
+import _clone from 'lodash/_baseClone'
 import {queue} from "../networkQueue";
 import {getAllPages} from "../helper/paginationHelperQueued";
 

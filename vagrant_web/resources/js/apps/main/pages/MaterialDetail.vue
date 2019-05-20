@@ -124,7 +124,7 @@
                         {{$tc('pool.resource-count', material.resources.length, {name : material.resources.length}) }},
                     </span>
 
-                    {{$t('pool.edited')}} {{material.updated_at | moment("calendar")}},
+                    {{$t('pool.edited')}} {{material.updated_at | dayjs | recentOrFormat }},
 
                     <span v-if="material.creator !== undefined && material.creator.name !== undefined"
                           class="mr-0 pr-0">
@@ -221,6 +221,7 @@
     import KeywordToggleTextSelect from "../../../components/keyword/keywordToggleTextSelect";
     import {savingDialogs} from "../../../helper/flashMessages";
     import PublicMaterialDownload from "../../../components/download/public-material-download";
+    import {formatLocalizedDate} from './../../../helper/datetime.mixin'
 
 
     // https://github.com/craigh411/vue-star-rating/#props
@@ -228,7 +229,7 @@
 
         name: 'MaterialDetail',
 
-        mixins: [savingDialogs],
+        mixins: [savingDialogs, formatLocalizedDate],
 
         props: {
             id: {

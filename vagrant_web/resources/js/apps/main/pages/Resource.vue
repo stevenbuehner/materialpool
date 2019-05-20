@@ -92,10 +92,10 @@
                         </b-list-group-item>
 
                         <b-list-group-item>
-                            <b>{{$t('pool.Created-at')}}:</b> {{resource.created_at | moment('calendar')}}
+                            <b>{{$t('pool.Created-at')}}:</b> {{resource.created_at | dayjs | recentOrFormat }}
                         </b-list-group-item>
                         <b-list-group-item>
-                            <b>{{$t('pool.Updated-at')}}:</b> {{resource.updated_at | moment('calendar')}}
+                            <b>{{$t('pool.Updated-at')}}:</b> {{resource.updated_at | dayjs | recentOrFormat }}
                         </b-list-group-item>
 
                         <b-list-group-item>
@@ -153,6 +153,7 @@
     import audioLimitation from '../../../components/resource/limitation/audioLimitation.vue';
     import {isResourceTypeLimitable} from "../../../components/resource/limitation/limitable";
     import resourceDetail from '../../../components/resource/show/resource-detail'
+    import {formatLocalizedDate} from "../../../helper/datetime.mixin";
 
     import user from '../../../components/user/user-name';
     import bAlert from 'bootstrap-vue/src/components/alert/alert';
@@ -165,7 +166,7 @@
 
     export default {
 
-        mixins: [resourceLinks],
+        mixins: [resourceLinks, formatLocalizedDate],
 
         props: {
             id: {

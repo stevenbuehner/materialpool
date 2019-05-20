@@ -11,8 +11,8 @@
                 <div class="d-flex justify-content-between bundleProgressFront">
                     <div>
                         <h4 class="card-title">{{bundle.name}}</h4>
-                        <h6 class="card-subtitle text-muted">{{installedVersion}}
-                            vom {{bundle.updated_at | moment("calendar")}}</h6>
+                        <h6 class="card-subtitle text-muted">{{installedVersion}},
+                            {{bundle.updated_at | dayjs | recentOrFormat }}</h6>
                     </div>
 
                     <div class="bundleTodoMenu">
@@ -69,7 +69,7 @@
                     {{$tc('pool.resource-count', info.count_files, {COUNT : info.count_files})}},
                 </b-list-group-item>
                 <b-list-group-item v-if="info">
-                    {{ $t('pool.export-date') }}: {{info.exportDate | moment("calendar")}}
+                    {{ $t('pool.export-date') }}: {{info.exportDate | dayjs | recentOrFormat }}
                 </b-list-group-item>
             </b-list-group>
 
@@ -84,10 +84,13 @@
     import bListGroupItem from 'bootstrap-vue/src/components/list-group/list-group-item'
     import bProgress from 'bootstrap-vue/src/components/progress/progress'
     import bProgressBar from 'bootstrap-vue/src/components/progress/progress-bar'
+    import {formatLocalizedDate} from "../../helper/datetime.mixin";
 
 
     export default {
         name: "bundle",
+
+        mixins: [formatLocalizedDate],
 
         props: {
             uuid: {
