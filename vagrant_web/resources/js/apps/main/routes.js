@@ -8,6 +8,7 @@ import AssignApp from './pages/PdfAssignApp.vue';
 import ResourceCreate from './pages/ResourceCreate.vue';
 import KeywordDetail from './pages/KeywordDetail.vue'
 import ResourceTextCreate from './pages/ResourceTextCreateWithMaterial.vue';
+import LandingPage from "./pages/LandingPage";
 
 
 const KeywordList    = () => import('./pages/KeywordList.vue');
@@ -17,6 +18,10 @@ const MaterialApp    = () => import('./pages/MaterialList.vue');
 const ResourceLonely = () => import('./pages/ResourceLonely.vue');
 
 export const routes = [
+
+           {
+               path: '/', component: LandingPage, name: 'landingpage'
+           },
 
            {
                path: '/search/:search?', component: SearchPage, name: 'search', props: (route) => {
@@ -99,8 +104,7 @@ export const routes = [
            },
            */
            {
-               path: '*', redirect:
-                   '/search'
+               path: '*', redirect: '/search'
            }
 
        ]

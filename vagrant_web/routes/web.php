@@ -14,7 +14,8 @@
 // use \Illuminate\Routing\Route;
 
 Route::get('/', function () {
-	return view('welcome');
+	return redirect('/vue');
+	// return view('welcome');
 });
 
 // VueJS Setup for history-Routing

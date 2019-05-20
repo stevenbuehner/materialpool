@@ -2,7 +2,11 @@
 
 return [
 
+	'home'                                                     => 'home',
+	'login'                                                    => 'login',
+	'logout'                                                   => 'logout',
 	'material'                                                 => 'material|materials',
+	'Materiallist'                                             => 'Materiallist',
 	'resource-count'                                           => 'no resources|1 resource|:COUNT resources',
 	'material-count'                                           => 'no materials|1 material|:COUNT materials',
 	'material-other-count'                                     => 'no other materials|1 othermaterial|:COUNT other materials',
@@ -189,6 +193,7 @@ return [
 	'Enter-metadata-here'                                      => 'Enter metadata here ...',
 	'Textinformation'                                          => 'Textinformation',
 	'Create-new-Material-from-Textinput'                       => 'Create new Material from Textinput',
+	'Create-text'                                              => 'Create Text',
 	'Please-enter-more-text'                                   => 'Please enter more text',
 	'Upload'                                                   => 'Upload',
 	'Undo-changes'                                             => 'Undo changes',

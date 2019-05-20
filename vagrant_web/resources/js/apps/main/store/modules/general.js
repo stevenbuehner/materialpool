@@ -59,8 +59,13 @@ const actions = {
         return dispatch('options').then((allOptions) => {
             return allOptions.user;
         });
-    }
+    },
 
+    systemName: ({dispatch}) => {
+        return dispatch('options').then((allOptions) => {
+            return allOptions.systemname || 'MaterialPool Default';
+        });
+    }
 
 
 };

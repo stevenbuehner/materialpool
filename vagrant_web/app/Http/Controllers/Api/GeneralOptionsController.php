@@ -18,7 +18,8 @@ class GeneralOptionsController extends BaseController {
 			'user'   => $this->getUserInformation(),
 			'server' => [
 				'max_upload' => $this->file_upload_max_size()
-			]
+			],
+			'systemname' => config('app.name')
 		];
 
 	}

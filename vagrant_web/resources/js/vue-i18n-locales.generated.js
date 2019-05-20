@@ -1,7 +1,11 @@
 export default {
     "de": {
         "pool": {
+            "home": "Home",
+            "login": "Einloggen",
+            "logout": "Ausloggen",
             "material": "Material|Materialien",
+            "Materiallist": "Materialliste",
             "resource-count": "keine Ressourcen|1 Resource|{COUNT} Resourcen",
             "material-count": "keine Materialien|1 Material|{COUNT} Materialien",
             "material-other-count": "kein anderes Material|1 anderes Material|{COUNT} andere Materialien",
@@ -179,6 +183,7 @@ export default {
             "Enter-metadata-here": "Metainfos hier eingeben ...",
             "Textinformation": "Textinformation",
             "Create-new-Material-from-Textinput": "Neues Material aus Text erstellen",
+            "Create-text": "Text erstellen",
             "Please-enter-more-text": "Bitte mehr Text eingeben",
             "Upload": "Hochladen",
             "Undo-changes": "Änderungen Rückgängig machen",
@@ -248,7 +253,11 @@ export default {
             "next": "Next &raquo;"
         },
         "pool": {
+            "home": "home",
+            "login": "login",
+            "logout": "logout",
             "material": "material|materials",
+            "Materiallist": "Materiallist",
             "resource-count": "no resources|1 resource|{COUNT} resources",
             "material-count": "no materials|1 material|{COUNT} materials",
             "material-other-count": "no other materials|1 othermaterial|{COUNT} other materials",
@@ -435,6 +444,7 @@ export default {
             "Enter-metadata-here": "Enter metadata here ...",
             "Textinformation": "Textinformation",
             "Create-new-Material-from-Textinput": "Create new Material from Textinput",
+            "Create-text": "Create Text",
             "Please-enter-more-text": "Please enter more text",
             "Upload": "Upload",
             "Undo-changes": "Undo changes",
