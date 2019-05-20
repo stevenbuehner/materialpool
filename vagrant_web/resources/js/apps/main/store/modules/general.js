@@ -31,15 +31,13 @@ const actions = {
         if (opt === null) {
             const promise = axios.get(api_v1_general_options)
                 .then(({data}) => {
-
                     return data;
-
                 })
                 .catch(({message}) => {
                     throw message;
                 });
 
-            mutations.setOptions(promise);
+            commit('setOptions', promise);
 
             return promise;
 
