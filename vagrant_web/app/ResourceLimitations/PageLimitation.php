@@ -38,8 +38,35 @@ class PageLimitation implements ResourceLimitationInterface {
 			$this->pages[] = (int) $page;
 		}
 
-		// Alphabetisch sortiert
+		$this->sortArrayAlphabetically();
+
+	}
+
+	/**
+	 * @param int $pageNo
+	 */
+	public function addPage(int $pageNo) {
+		if (!in_array($this->pages, $pageNo)) {
+			$this->pages[] = $pageNo;
+		}
+
+		$this->sortArrayAlphabetically();
+	}
+
+	/**
+	 *  $pages alphabetisch sortiert
+	 */
+	protected function sortArrayAlphabetically() {
 		sort($this->pages);
+	}
+
+	/**
+	 * @param int $pageNo
+	 */
+	public function removePage(int $pageNo) {
+		if ($key = array_search($this->pages, $pageNo)) {
+			unset($this->pages[$key]);
+		}
 	}
 
 	public function getLimitationView() {
@@ -70,7 +97,6 @@ class PageLimitation implements ResourceLimitationInterface {
 
 		return $this;
 	}
-
 
 	/**
 	 * Formats the limitation-data back to an string-value, which may be used in the webinterface
@@ -103,7 +129,6 @@ class PageLimitation implements ResourceLimitationInterface {
 
 		return $result;
 	}
-
 
 	/**
 	 * Returns true if the given Resource is able to use this $limitation
