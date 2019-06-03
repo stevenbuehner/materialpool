@@ -46,7 +46,7 @@ class PageLimitation implements ResourceLimitationInterface {
 	 * @param int $pageNo
 	 */
 	public function addPage(int $pageNo) {
-		if (!in_array($this->pages, $pageNo)) {
+		if (!in_array($pageNo, $this->pages)) {
 			$this->pages[] = $pageNo;
 		}
 
@@ -64,7 +64,7 @@ class PageLimitation implements ResourceLimitationInterface {
 	 * @param int $pageNo
 	 */
 	public function removePage(int $pageNo) {
-		if ($key = array_search($this->pages, $pageNo)) {
+		if ($key = array_search($pageNo, $this->pages)) {
 			unset($this->pages[$key]);
 		}
 	}
