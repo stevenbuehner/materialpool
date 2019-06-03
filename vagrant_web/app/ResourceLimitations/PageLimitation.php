@@ -31,6 +31,7 @@ class PageLimitation implements ResourceLimitationInterface {
 
 	/**
 	 * @param int[] $pages
+	 * @return PageLimitation
 	 */
 	public function setPages(array $pages) {
 		$this->pages = [];
@@ -40,10 +41,12 @@ class PageLimitation implements ResourceLimitationInterface {
 
 		$this->sortArrayAlphabetically();
 
+		return $this;
 	}
 
 	/**
 	 * @param int $pageNo
+	 * @return PageLimitation
 	 */
 	public function addPage(int $pageNo) {
 		if (!in_array($pageNo, $this->pages)) {
@@ -51,6 +54,8 @@ class PageLimitation implements ResourceLimitationInterface {
 		}
 
 		$this->sortArrayAlphabetically();
+
+		return $this;
 	}
 
 	/**
@@ -62,11 +67,14 @@ class PageLimitation implements ResourceLimitationInterface {
 
 	/**
 	 * @param int $pageNo
+	 * @return PageLimitation
 	 */
 	public function removePage(int $pageNo) {
-		if ($key = array_search($pageNo, $this->pages)) {
+		if (($key = array_search($pageNo, $this->pages)) !== false) {
 			unset($this->pages[$key]);
 		}
+
+		return $this;
 	}
 
 	public function getLimitationView() {
