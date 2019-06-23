@@ -142,7 +142,7 @@ const actions = {
     runJobs: ({commit, getters, dispatch}, bundleId) => {
 
 
-        const response = axios.post(api_v1_bundles_update_run(bundleId))
+        const response = axios.post(api_v1_bundles_update_run(bundleId), {}, {timeout: 0})
             .then(({data}) => data);
 
         response.then(({bundle}) => {

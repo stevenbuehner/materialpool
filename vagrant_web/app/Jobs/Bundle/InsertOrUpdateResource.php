@@ -8,15 +8,20 @@ use App\Http\Controllers\ResourceHelperTrait;
 use App\Models\Bundle;
 use App\Models\File;
 use App\Models\ForeignResourceId;
+use App\Models\Resource;
+use App\Models\Text;
 use App\Services\Bundles\BundlesService;
 use App\Services\ResourceRecognition\ResourceRecognitionService;
+use App\Services\TagExtraction\ResourceHandles\TextContentInterface;
 use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class InsertOrUpdateResource implements ShouldQueue, VersionInterface {
 	use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, ResourceHelperTrait;
@@ -125,7 +130,7 @@ class InsertOrUpdateResource implements ShouldQueue, VersionInterface {
 		return $this->bundle->container_root . '/' . BundlesService::BUNDLE_FILES_DIR . '/' . $this->localFileInfo->file_path;
 	}
 
-	protected function updateResource(BundlesService $bundlesService, File $resource) {
+	protected function updateResource(BundlesService $bundlesService, Resource $resource) {
 
 		if ($resource->notes !== $this->localFileInfo->notes) {
 			$resource->notes = $this->localFileInfo->notes;
@@ -139,12 +144,10 @@ class InsertOrUpdateResource implements ShouldQueue, VersionInterface {
 			$resource->remote_path = $this->localFileInfo->public_path;
 		}
 
-		if ($resource->original_filename !== $this->localFileInfo->original_basename) {
-			$resource->original_filename = $this->localFileInfo->original_basename;
-		}
-
-		if (!$resource->hasLocalFile() || $resource->getLocalFilePath() !== $this->getLocalFilePath()) {
-			$resource->setLocalStorageAndPath($bundlesService->getBundleDiskName(), $this->getLocalFilePath());
+		if ($resource instanceof File) {
+			$this->updateFileResource($bundlesService, $resource);
+		} else if ($resource instanceof TextContentInterface) {
+			$this->updateContentResource($bundlesService, $resource);
 		}
 
 		// Saving needed for PostQueueJobs
@@ -155,6 +158,43 @@ class InsertOrUpdateResource implements ShouldQueue, VersionInterface {
 		return $resource;
 
 	}
+
+	protected function updateFileResource(BundlesService $bundlesService, File $resource) {
+
+		// TODO: Handle ResourceType has changed from text to file
+
+		if ($resource->original_filename !== $this->localFileInfo->original_basename) {
+			$resource->original_filename = $this->localFileInfo->original_basename;
+		}
+
+		if (!$resource->hasLocalFile() || $resource->getLocalFilePath() !== $this->getLocalFilePath()) {
+			$resource->setLocalStorageAndPath($bundlesService->getBundleDiskName(), $this->getLocalFilePath());
+		}
+
+	}
+
+	protected function updateContentResource(BundlesService $bundlesService, Text $resource) {
+
+		// TODO: Handle ResourceType has changed from file to text
+
+		$content = '';
+
+		if ($this->getLocalFilePath()) {
+
+			$storage = Storage::disk($bundlesService->getBundleDiskName());
+
+			try {
+				$content = $storage->get($this->getLocalFilePath());
+			} catch (FileNotFoundException $e) {
+				$content = '';
+			}
+
+		}
+
+		$resource->setContent($content);
+
+	}
+
 
 	/**
 	 * @param BundlesService $bundlesService
