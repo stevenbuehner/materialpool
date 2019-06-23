@@ -161,7 +161,7 @@ return [
 	'continue-update-for'                                      => 'continue update to V:VERSION',
 	'update-available'                                         => 'update available',
 	'uninstall'                                                => 'uninstall',
-	'update-is-initializing'                                   => 'update is initializing',
+	'update-is-initializing'                                   => 'update is initializing (this might take some minutes)',
 	'cancel'                                                   => 'cancel',
 	'canceling-update'                                         => 'canceling update ...',
 	'Keyword-saved'                                            => 'Keyword saved',

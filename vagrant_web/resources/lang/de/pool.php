@@ -152,7 +152,7 @@ return [
 	'continue-update-for'                                      => 'update auf V:VERSION fortsetzen',
 	'update-available'                                         => 'update durchführen',
 	'uninstall'                                                => 'deinstallieren',
-	'update-is-initializing'                                   => 'Update wird initialisiert',
+	'update-is-initializing'                                   => 'Update wird initialisiert (das kann einige Minuten dauern)',
 	'cancel'                                                   => 'abbrechen',
 	'canceling-update'                                         => 'update wird abgebrochen ...',
 	'Keyword-saved'                                            => 'Tag gespeichert',

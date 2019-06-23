@@ -105,12 +105,11 @@ class BundleImportController extends BaseController {
 			$queueName           = $this->bundleQueueService->getQueueName($bundle);
 			$alreadyExistingJobs = $this->bundleQueueService->countJobsInQueue($queueName);
 			if ($alreadyExistingJobs > 0) {
-				$jobVersion = $this->bundleQueueService->getFirstJobVersion($queueName);
-
-				// Todo: Also check if the jobs are complete (by searching for the last job, that should be an instance of FinishImportAfterUpdate
+				$jobVersion                           = $this->bundleQueueService->getFirstJobVersion($queueName);
+				$lastUpdateJobsHaveBinSetUpCompletely = $this->bundleQueueService->hasFinishImportAfterUpdateJob($queueName);
 
 				// If Versions are the same
-				if ($bundleInfo['version'] == $jobVersion) {
+				if ($bundleInfo['version'] == $jobVersion && $lastUpdateJobsHaveBinSetUpCompletely === TRUE) {
 					$updateInProgress = TRUE;
 				} else {
 					$updateInProgress = FALSE;

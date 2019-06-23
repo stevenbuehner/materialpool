@@ -2,6 +2,7 @@
 
 namespace App\Services\Bundles;
 
+use App\Jobs\Bundle\FinishImportAfterUpdate;
 use App\Jobs\Bundle\VersionInterface;
 use App\Models\Bundle;
 use Illuminate\Queue\Worker;
@@ -75,6 +76,16 @@ class BundleQueueService {
 		}
 
 		return NULL;
+
+	}
+
+	public function hasFinishImportAfterUpdateJob($queueName) {
+
+		$job = DB::select('SELECT * FROM jobs WHERE queue=:QUEUE AND payload LIKE :JOBNAME ORDER BY id asc LIMIT 1;',
+						  ['QUEUE'   => $queueName,
+						   'JOBNAME' => '%' . FinishImportAfterUpdate::class . '%']);
+
+		return count($job) > 0;
 
 	}
 
