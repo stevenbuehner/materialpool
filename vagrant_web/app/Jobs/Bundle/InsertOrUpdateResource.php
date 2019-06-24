@@ -70,7 +70,10 @@ class InsertOrUpdateResource implements ShouldQueue, VersionInterface {
 				$resource = $foreignRes->resource;
 
 				// Just compare modified-timestamps and filePath from the last import
-				if ($foreignRes->{ForeignResourceId::UPDATED_AT} != new Carbon($this->localFileInfo->file_modified) || $resource->getLocalFilePath() != $this->getLocalFilePath()) {
+
+				if ($foreignRes->{ForeignResourceId::UPDATED_AT} != new Carbon($this->localFileInfo->file_modified) ||
+					($resource instanceof File && $resource->getLocalFilePath() != $this->getLocalFilePath())
+				) {
 
 					$this->updateResource($bundlesService, $resource);
 
