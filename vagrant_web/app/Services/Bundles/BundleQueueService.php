@@ -81,11 +81,14 @@ class BundleQueueService {
 
 	public function hasFinishImportAfterUpdateJob($queueName) {
 
-		$job = DB::select('SELECT * FROM jobs WHERE queue=? AND payload LIKE "%?%" ORDER BY id asc LIMIT 1;',
-						  [$queueName,
-						   FinishImportAfterUpdate::class]);
+		$className = substr(strrchr(FinishImportAfterUpdate::class, "\\"), 1);;
+		$job = DB::table('jobs')
+				 ->where('queue', '=', $queueName)
+				 ->where('payload', 'LIKE', "%{$className}%")
+				 ->limit(1)
+				 ->get();
 
-		return count($job) > 0;
+		return $job->count() > 0;
 
 	}
 
