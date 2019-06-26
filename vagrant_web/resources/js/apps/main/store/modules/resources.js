@@ -134,10 +134,10 @@ const actions = {
                 dispatch('setResource', resource);
                 return resource;
             })
-            .catch(({response}) => {
+            .catch((response) => {
                 throw {
-                    errors: response.data.errors,
-                    message: response.data.message
+                    errors: (response.data && response.data.errors ) ? response.data.errors : '',
+                    message: (response.data && response.data.message ) ? response.data.message : response.message
                 };
             });
     },

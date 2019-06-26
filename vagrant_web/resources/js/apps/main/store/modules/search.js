@@ -129,7 +129,7 @@ const actions = {
                     return {materials, paging};
 
                 })
-                .catch(({response}) => {
+                .catch((response) => {
                     throw response.message;
                 });
 
