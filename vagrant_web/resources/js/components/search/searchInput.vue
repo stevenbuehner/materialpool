@@ -8,8 +8,9 @@
                 :value="lineValues"
                 language="de-DE"
                 label="text"
-                @input="$emit('updated', $event)">
+                @input="$emit('updated', $event)"
                 @search="onSearch"
+    >
 
         <template slot="no-options">
             {{$t('pool.Insert-search-phrase')}}
