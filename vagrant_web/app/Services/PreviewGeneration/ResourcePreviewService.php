@@ -77,7 +77,7 @@ class ResourcePreviewService extends AbstractPreviewService {
 			$generator = resolve(NoPreviewGenerator::class);
 
 			try {
-				$image = $generator->getImagePreview($resource, $size);
+				$image = $generator->getImagePreview($resource, $size, $pageOrSeconds);
 			} catch (NotPreviewAbleException $e) {
 				Log::error($e->getMessage(), $e->getTraceAsString());
 			}
@@ -103,7 +103,7 @@ class ResourcePreviewService extends AbstractPreviewService {
 			/** @var $font AbstractFont */
 			$font->valign('top');
 			$font->size(14);
-			$font->file(resource_path('assets/fonts/Courier New.ttf'));
+			$font->file(resource_path('fonts/Courier New.ttf'));
 		});
 
 		return $image;

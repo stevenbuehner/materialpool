@@ -43,7 +43,7 @@ class NoPreviewGenerator implements PreviewGeneratorInterface {
 			/** @var $font AbstractFont */
 			$font->valign('top');
 			$font->size(14);
-			$font->file(resource_path('assets/fonts/Courier New.ttf'));
+			$font->file(resource_path('fonts/Courier New.ttf'));
 		});
 
 		return $image;
