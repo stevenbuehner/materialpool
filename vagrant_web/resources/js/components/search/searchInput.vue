@@ -1,15 +1,15 @@
 <template>
     <vue-select class="v-select"
                 name="searchInput"
-                :options="options"
-                @search="onSearch"
-                language="de-DE"
-                label="text"
                 multiple
+                :options="options"
                 :placeholder="$t('pool.Insert-search-phrase-here')"
                 :filterable="false"
                 :value="lineValues"
+                language="de-DE"
+                label="text"
                 @input="$emit('updated', $event)">
+                @search="onSearch"
 
         <template slot="no-options">
             {{$t('pool.Insert-search-phrase')}}
@@ -95,7 +95,9 @@
 </script>
 
 
-<style>
+<style type="scss">
+    @import "~vue-select/dist/vue-select.css";
+
     .selected-tag .close {
         margin-left: 0.25rem;
         top: -.15rem;

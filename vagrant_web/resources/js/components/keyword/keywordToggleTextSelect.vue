@@ -12,15 +12,15 @@
                 v-else
                 ref="mySelect"
                 class="searchInput"
+                v-model="selection"
                 :options="options"
-                @search="onSearch"
+                :placeholder="searchPlaceholder"
                 language="de-DE"
                 label="title"
-                :placeholder="searchPlaceholder"
-                v-model="selection"
                 @input="onChange"
                 @search:blur="onBlur"
                 @search:focus="onFocus"
+                @search="onSearch"
         >
 
             <template slot="no-options">
