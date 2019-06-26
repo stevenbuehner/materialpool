@@ -6,16 +6,18 @@
              :title="title"
              :hide-header-close="true"
              size="lg"
-             class="zoomImageModal">
-        <b-image :src="image"
-                 fluid
-                 @click="_hideZoom"></b-image>
-        <span class="previous"
-              @click.prevent="btnPrevious"
-              v-show="hasPrevious"><</span>
-        <span class="next"
-              @click.prevent="btnNext"
-              v-show="hasNext >= 0">></span>
+    >
+        <div class="zoomImageModal">
+            <b-image :src="image"
+                     fluid
+                     @click="_hideZoom"></b-image>
+            <span class="previous"
+                  @click.prevent="btnPrevious"
+                  v-show="hasPrevious"><</span>
+            <span class="next"
+                  @click.prevent="btnNext"
+                  v-show="hasNext >= 0">></span>
+        </div>
     </b-modal>
 </template>
 
