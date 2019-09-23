@@ -9,6 +9,8 @@ use App\Services\PreviewGeneration\Exceptions\NotPreviewAbleException;
 use App\Services\PreviewGeneration\Interfaces\PreviewGeneratorInterface;
 use App\Services\ResourceHandling\Exceptions\LocalFileDoesNotExistException;
 use App\Services\ResourceHandling\Exceptions\RemoteFileDoesNotExistException;
+use Illuminate\Support\Facades\Log;
+use Intervention\Image\Image as Image;
 use Intervention\Image\Size;
 use NcJoes\OfficeConverter\OfficeConverter;
 use NcJoes\OfficeConverter\OfficeConverterException;
@@ -63,6 +65,7 @@ class DocumentPreviewGenerator extends PdfPreviewGenerator implements PreviewGen
 
 
 		try {
+			Log::info('Start Converting Document to PDF');
 			$converter   = new OfficeConverter($resourcePath, $tempPdfDir);
 			$tempPdfPath = $converter->convertTo($tempPdfName);
 		} catch (OfficeConverterException $e) {
@@ -77,10 +80,14 @@ class DocumentPreviewGenerator extends PdfPreviewGenerator implements PreviewGen
 	 * @param ResourceEntity $resource
 	 * @param Size           $size
 	 * @param null|int       $page (optional) Starting from 1 to ... x
-	 * @return \Intervention\Image\Image
+	 * @return Image
 	 * @throws NotPreviewAbleException
 	 */
 	public function getImagePreview(ResourceEntity $resource, Size $size, $page = 1) {
+
+		if (!$resource instanceof DocumentFile) {
+			throw new NotPreviewAbleException('DocumentResource-Type required');
+		}
 
 		$tempPath = $this->getTemporaryPdfFromDocument($resource);
 		$image    = $this->getImagePreviewFromPdfPath($tempPath, $size, $page);
