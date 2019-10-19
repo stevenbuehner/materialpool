@@ -54,6 +54,10 @@
                         <b-dropdown-item href="/logout" class="dropdown-hover">{{$t('pool.Logout')}}</b-dropdown-item>
                         <b-dropdown-item disabled href="#" class="dropdown-hover">{{$t('pool.Settings')}}
                         </b-dropdown-item>
+                        <b-dropdown-item :to="{name: 'system-shutdown'}" class="dropdown-hover" v-if="isAdmin">
+                            {{$t('pool.Shutdown')}}
+                        </b-dropdown-item>
+
                     </b-nav-item-dropdown>
                 </b-navbar-nav>
 
@@ -80,7 +84,6 @@
     import bButton from 'bootstrap-vue/src/components/button/button';
     import {searchArrayObjectsToSearchQuery} from "../search/searchHelper";
 
-
     export default {
         name: "mainNavbar",
 
@@ -103,6 +106,19 @@
                 /* watch() {
                     this.forceReload
                 }*/
+            },
+
+            isAdmin: {
+                get() {
+                    return this.$store.dispatch('general/isAdmin')
+                        .then((isAdmin) => {
+                            return isAdmin;
+                        });
+                },
+                default: false,
+                /* watch() {
+                    this.forceReload
+                }*/
             }
         },
 
@@ -114,7 +130,9 @@
                         search: searchArrayObjectsToSearchQuery([[this.schnellsuche]])
                     }
                 });
-            }
+            },
+
+
         },
 
         components: {

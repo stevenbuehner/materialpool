@@ -9,6 +9,7 @@ import ResourceCreate from './pages/ResourceCreate.vue';
 import KeywordDetail from './pages/KeywordDetail.vue'
 import ResourceTextCreate from './pages/ResourceTextCreateWithMaterial.vue';
 import LandingPage from "./pages/LandingPage";
+import SystemShutdown from './pages/RequestShutdown';
 
 
 const KeywordList    = () => import('./pages/KeywordList.vue');
@@ -16,6 +17,7 @@ const ReadBible      = () => import('./pages/ReadBible');
 const BundleList     = () => import('./pages/BundleList.vue');
 const MaterialApp    = () => import('./pages/MaterialList.vue');
 const ResourceLonely = () => import('./pages/ResourceLonely.vue');
+
 
 export const routes = [
 
@@ -90,6 +92,11 @@ export const routes = [
            {
                path: '/readbible/:searchquery?', component: ReadBible, name: 'readbible', props: true
            },
+
+           {
+               path: '/system/shutdown', component: SystemShutdown, name: 'system-shutdown', props: false
+           },
+
            /*
            {
                path: '/passport/client', component: PassportClient, name: 'passport-client'

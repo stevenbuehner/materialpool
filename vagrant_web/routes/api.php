@@ -53,6 +53,10 @@ Route::group([
 		 ->name('api.v2.material.delete');
 
 
+	// Shutdown System
+	Route::get('system/shutdown', 'SystemController@shutdown')
+		 ->name('api.v2.system.shutdown');
+
 });
 
 

@@ -209,3 +209,7 @@ export function api_v1_biblecontents_search_and_get(searchText, bibleUuid) {
 
     return route;
 }
+
+
+// System
+export const api_v2_system_shutdown = '/api/v2/system/shutdown';

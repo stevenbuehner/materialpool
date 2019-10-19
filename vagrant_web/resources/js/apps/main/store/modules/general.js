@@ -61,6 +61,13 @@ const actions = {
         });
     },
 
+    isAdmin: ({dispatch}) => {
+        return dispatch('currentUser').then(({is_admin}) => {
+            return is_admin || false;
+        });
+
+    },
+
     systemName: ({dispatch}) => {
         return dispatch('options').then((allOptions) => {
             return allOptions.systemname || 'MaterialPool Default';
