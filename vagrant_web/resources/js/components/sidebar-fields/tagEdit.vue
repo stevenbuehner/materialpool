@@ -32,23 +32,13 @@
                         @search="onSearch"
                 >
                     <template v-slot:selected-option-container="{option, disabled, multiple, deselect}">
-                        <span class="selected-tag" v-bind:key="option.id">
-
-                            <div class="selected-relevance"
-                                 :style="{width: option.pivot.relevance/300*100 + '%'}"></div>
-
-                            <div class="text">
-                                {{ getTagLabelFromObject(option) }}
-
-                                <button :disabled="disabled" @click="deselect(option)"
-                                        type="button"
-                                        class="vs__deselect"
-                                        aria-label="Remove option">
-                                    <span aria-hidden="true">&times;</span>
-                                </button>
-                            </div>
-
-                        </span>
+                        <dragable-element
+                                :id="option.id"
+                                :label="getTagLabelFromObject(option)"
+                                :relevance="option.pivot.relevance"
+                                @deselect="deselect(option)"
+                                @request-update-relevance="$emit('request-update-relevance', {tag: option, relevance: $event});"
+                        ></dragable-element>
                     </template>
 
                     <template v-slot:option="option">
@@ -56,9 +46,12 @@
                             <span class="suggested-text">
                                 {{ getTagLabelFromObject(option) }}
                             </span>
-                            <span class="is-new badge badge-info" v-if="option.isNew">neu</span>
+                            <span class="is-new badge badge-info" v-if="option.isNew">{{$t('pool.new')}}</span>
                         </span>
                     </template>
+
+                    <template v-slot:no-options>{{$t('pool.no-results')}}</template>
+
                 </vue-select>
             </slot>
 
@@ -73,6 +66,7 @@
     import tagIcon from 'svg-icon/dist/svg/material/style.svg';
     import {keywordTypes} from "../keyword/keywordDefaultIcons";
     import {debounce as _debounce, differenceBy as _differenceBy} from 'lodash';
+    import DragableElement from "./vue-select/dragable-element";
 
     export default {
         name: "tagEdit",
@@ -203,6 +197,7 @@
         },
 
         components: {
+            DragableElement,
             tagIcon,
             VueSelect
         }
@@ -216,36 +211,16 @@
 
     .tagEditSidebarField {
         .editField {
-            .selected-tag {
-                display: flex;
-                align-items: center;
-                background-color: $sidebar-tag-background-color-active;
-                border: $vs-selected-border-width $vs-selected-border-style $vs-selected-border-color;
-                border-radius: $vs-border-radius;
-                color: $sidebar-input-font-color-active;
-                line-height: $vs-component-line-height;
-                margin: 4px 2px 0px 2px;
-                padding: 0 0.25em;
-
-                position: relative;
-
-                .selected-relevance {
-                    position: absolute;
-                    left: 0;
-                    top: 0;
-                    height: 100%;
-                    background-color: $sidebar-tag-relevance-colour-active;
-                }
-
-                .text {
-                    position: relative;
-                }
-
-            }
 
             .vs__dropdown-toggle {
                 background: inherit;
                 background-color: $sidebar-input-background-colour-active;
+
+                .vs__selected-options input {
+                    &::placeholder {
+                        color: $sidebar-input-text-colour-placeholder;
+                    }
+                }
             }
 
             .vs--disabled {

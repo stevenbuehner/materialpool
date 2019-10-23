@@ -219,6 +219,7 @@ return [
 	'Coming-soon'                                              => 'Coming soon ...',
 	'Edit-Keyword'                                             => 'Edit Keyword',
 	'none'                                                     => 'none',
+	'no-results'                                               => 'No results',
 	'Loading-parent-keyword'                                   => 'Loading parent keyword ...',
 	'Are-you-shure-about-deleting-this-keyword-from-existance' => 'Are you shure about deleting this keyword from existance?',
 	'Enter-name-please'                                        => 'Enter name please',

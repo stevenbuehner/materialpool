@@ -210,6 +210,7 @@ return [
 	'Coming-soon'                                              => 'Kommt bald ...',
 	'Edit-Keyword'                                             => 'Tag bearbeiten',
 	'none'                                                     => 'keine',
+	'no-results'                                               => 'keine Ergebnisse',
 	'Loading-parent-keyword'                                   => 'Eltern Tag wird geladen ...',
 	'Are-you-shure-about-deleting-this-keyword-from-existance' => 'Willst du diesen Tag wirklich von jeglicher Existenz befreien?',
 	'Enter-name-please'                                        => 'Bitte Namen eingeben',

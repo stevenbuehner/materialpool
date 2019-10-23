@@ -1,6 +1,7 @@
 import {getRelativeClickCoordinates} from "../general/relativeElementPositions";
 
-let elementWidth = 0;
+// Not "0" => naN
+let elementWidth = 1;
 
 export const draggingSupport = {
 

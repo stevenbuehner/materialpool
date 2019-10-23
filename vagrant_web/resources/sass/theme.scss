@@ -25,11 +25,17 @@ $tag-font-colour: white;
 // Sidebar
 $sidebar-input-background-colour-active: white;
 $sidebar-input-background-colour-disabled: $gray-300;
+$sidebar-input-text-colour-placeholder: $gray-500;
 
 // Sidebar-Tagging
 $sidebar-input-font-color-active: #333;
 $sidebar-tag-background-color-active: $gray-300;
 $sidebar-tag-relevance-colour-active: lighten($blue, 35%);
+
+$sidebar-input-font-color-active-hover: darken($sidebar-input-font-color-active, 5%);
+$sidebar-tag-background-color-active-hover: darken($sidebar-tag-background-color-active, 5%);
+$sidebar-tag-relevance-colour-active-hover: darken($sidebar-tag-relevance-colour-active, 5%);
+$sidebar-tag-relevance-colour-active-dragging: $orange-hover;
 
 $sidebar-input-font-color-disabled: $gray-600;
 $sidebar-tag-background-color-disabled: $gray-300;
