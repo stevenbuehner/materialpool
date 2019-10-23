@@ -62,6 +62,13 @@
             };
         },
 
+        watch: {
+            value(newVal, oldVal) {
+                this.text     = newVal;
+                this.editText = newVal;
+            }
+        },
+
         computed: {
             enableSave() {
                 return this.text !== this.editText;

@@ -1,0 +1,41 @@
+.sideBarField {
+
+  font-size: 0.8em;
+  margin-bottom: 1em;
+  margin-top: 0.5em;
+
+  .label {
+
+    display: flex;
+
+    svg {
+      font-size: 1.5em;
+      height: 1em;
+      width: 1em;
+      margin-right: .125em;
+    }
+
+    .title {
+    }
+
+  }
+
+  .editField {
+
+
+    .input {
+      font-size: 1em;
+      border-radius: 0.25em;
+    }
+
+  }
+
+  .save-button {
+    padding: 0.1rem 0.25rem;
+    font-size: 0.55rem;
+    margin-left: auto; // Pull right
+    position: relative;
+    top: -0.25em;
+  }
+
+}

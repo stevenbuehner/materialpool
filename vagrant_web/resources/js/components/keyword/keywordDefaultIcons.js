@@ -22,17 +22,18 @@ export {
     langIcon
 };
 
-export function iconName(keyword) {
-    let type = keyword.type || 'unknown';
+export const keywordTypes = [
+    'key', 'lang', 'place', 'person'
+];
 
-    switch (type) {
-        case 'lang':
-        case 'place':
-        case 'person':
-        case 'key':
-            return type + '-icon';
-        default:
-            console.error('Could not find an icon for type: ' + type, keyword);
-            return 'ayce-icon';
+export function iconName(keyword) {
+    const type = keyword.type || 'unknown';
+
+    if (keywordTypes.includes(type)) {
+        return type + '-icon';
+    } else {
+        console.error('Could not find an icon for type: ' + type, keyword);
+        return 'ayce-icon';
     }
+
 }

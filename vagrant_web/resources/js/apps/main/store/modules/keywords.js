@@ -233,6 +233,7 @@ const actions = {
             ).catch((response) => {
                 // on failure
                 console.error('Failed to remove keyword', this.myKeyword)
+                throw (response);
             });
 
     },

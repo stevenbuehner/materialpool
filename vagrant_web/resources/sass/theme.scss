@@ -21,3 +21,16 @@ $tag-progressbar-colour-hover: $green-hover;
 $tag-progressbar-dragging-colour: $orange;
 $tag-font-colour: white;
 
+
+// Sidebar
+$sidebar-input-background-colour-active: white;
+$sidebar-input-background-colour-disabled: $gray-300;
+
+// Sidebar-Tagging
+$sidebar-input-font-color-active: #333;
+$sidebar-tag-background-color-active: $gray-300;
+$sidebar-tag-relevance-colour-active: lighten($blue, 35%);
+
+$sidebar-input-font-color-disabled: $gray-600;
+$sidebar-tag-background-color-disabled: $gray-300;
+$sidebar-tag-relevance-colour-disabled: $gray-400;

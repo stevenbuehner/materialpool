@@ -23,6 +23,14 @@
                         <b-dropdown-item :to="{name: 'resource-lonely'}" class="dropdown-hover">
                             {{$t('pool.Lonely-Resources')}}
                         </b-dropdown-item>
+                        <!-- Todo: Newest Resources Seite -->
+                        <b-dropdown-item :to="{name: 'newest-resources'}" class="dropdown-hover" :disabled="true">
+                            {{$t('pool.Newest-Resources')}}
+                        </b-dropdown-item>
+                        <!-- Todo: Newest Materials Seite -->
+                        <b-dropdown-item :to="{name: 'newest-materials'}" class="dropdown-hover" :disabled="true">
+                            {{$t('pool.Newest-Materials')}}
+                        </b-dropdown-item>
                     </b-nav-item-dropdown>
 
                     <b-nav-item :to="{name: 'readbible'}">{{$t('pool.Read-bible')}}</b-nav-item>
