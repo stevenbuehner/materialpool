@@ -18,11 +18,11 @@
                             <public-material-download :material-id="id"/>
                         </button>
 
-                        <button class="btn btn-sm">
+                        <button class="btn btn-sm" :title="$t('pool.Delete-material')">
                             <trash-icon class="trashicon buttonIcon"></trash-icon>
                         </button>
 
-                        <button class="btn btn-sm" :title="$t('pool.duplicate')">
+                        <button class="btn btn-sm" :title="$t('pool.duplicate-material')">
                             <clone-icon class="cloneIcon buttonIcon"></clone-icon>
                         </button>
                     </div>
@@ -84,6 +84,19 @@
                                 @save-request="submitDescription"
                         />
 
+                        <bibleverse-edit-sidebar-field
+                                :value="material.bibleverses"
+                                :name="$t('pool.Bibleverses')"
+                                :placeholder="$t('pool.enter-bibleverse')"
+                                @input:added="addBibleverse"
+                                @input:removed="removeBibleverse"
+                                @request-update-relevance="updateBibleverseRelevance($event.tag, $event.relevance)"
+                        >
+                            <template slot="icon">
+                                <bibleverse-icon/>
+                            </template>
+                        </bibleverse-edit-sidebar-field>
+
 
                         <tag-edit-sidebar-field
                                 :value="material.keywords"
@@ -92,8 +105,53 @@
                                 typefilter="key"
                                 @input:added="addKeyword"
                                 @input:removed="removeKeyword"
+                                @request-update-relevance="updateKeywordRelevance($event.tag, $event.relevance)"
                         >
                         </tag-edit-sidebar-field>
+
+                        <tag-edit-sidebar-field
+                                :value="material.keywords"
+                                :name="$t('pool.Persons')"
+                                :placeholder="$t('pool.enter-tags')"
+                                typefilter="person"
+                                @input:added="addKeyword"
+                                @input:removed="removeKeyword"
+                                @request-update-relevance="updateKeywordRelevance($event.tag, $event.relevance)"
+                        >
+                            <template slot="icon">
+                                <person-icon/>
+                            </template>
+                        </tag-edit-sidebar-field>
+
+                        <tag-edit-sidebar-field
+                                :value="material.keywords"
+                                :name="$t('pool.Places')"
+                                :placeholder="$t('pool.enter-tags')"
+                                typefilter="place"
+                                @input:added="addKeyword"
+                                @input:removed="removeKeyword"
+                                @request-update-relevance="updateKeywordRelevance($event.tag, $event.relevance)"
+                        >
+                            <template slot="icon">
+                                <place-icon/>
+                            </template>
+                        </tag-edit-sidebar-field>
+
+
+                        <tag-edit-sidebar-field
+                                :value="material.keywords"
+                                :name="$t('pool.Languages')"
+                                :placeholder="$t('pool.enter-tags')"
+                                typefilter="lang"
+                                @input:added="addKeyword"
+                                @input:removed="removeKeyword"
+                                @request-update-relevance="updateKeywordRelevance($event.tag, $event.relevance)"
+                        >
+                            <template slot="icon">
+                                <language-icon/>
+                            </template>
+                        </tag-edit-sidebar-field>
+
 
                         <rating-edit
                                 :value="material.rating"
@@ -302,6 +360,7 @@
     import PublicMaterialDownload from "../../../components/download/public-material-download";
     import {formatLocalizedDate} from './../../../helper/datetime.mixin'
 
+
     import cloneIcon from 'svg-icon/dist/svg/awesome/clone.svg';
     import trashIcon from 'svg-icon/dist/svg/oct/trashcan.svg';
     import titleIcon from 'svg-icon/dist/svg/material/title.svg';
@@ -309,11 +368,15 @@
     import descriptionIcon from 'svg-icon/dist/svg/material/description.svg';
     import placeIcon from 'svg-icon/dist/svg/material/place.svg';
     import authorIcon from 'svg-icon/dist/svg/material/person.svg';
+    import personIcon from 'svg-icon/dist/svg/material/person.svg';
+    import languageIcon from 'svg-icon/dist/svg/material/language.svg';
+    import bibleverseIcon from '../../../../icons/bibleverse/bible.svg'
 
 
     import Vue from 'vue';
     import {TabsPlugin} from 'bootstrap-vue';
     import TextEditSidebarField from "../../../components/sidebar-fields/textEdit";
+    import BibleverseEditSidebarField from "../../../components/sidebar-fields/bibleverseEdit";
     import dayjs from 'dayjs';
     import TagEditSidebarField from "../../../components/sidebar-fields/tagEdit";
     import {RELEVANCE_USER_MAX} from "../../config";
@@ -408,7 +471,7 @@
                 this.errorOnLoadingMessage = null;
 
                 this.$store.dispatch('materials/getMaterial', this.id).then((material) => {
-                    this.material              = material;
+                    this.material = material;
                     this.errorOnLoadingMessage = null;
                 }).catch((response) => {
                     this.errorOnLoadingMessage = response;
@@ -581,25 +644,13 @@
                     }
                 }
 
-                this.flashStartSaving(this.$t('pool.keyword'))
-
-                this.$store.dispatch('keywords/updateRelevance', {
-                    materialId: this.id,
-                    keywordId: keywordObject.id,
-                    relevance: keywordObject.pivot.relevance
-                }).then((data) => {
-                    this.materialWasModified();
-                    this.material.keywords.push(data);
-                    this.flashSaved(this.$t('pool.keyword'));
-                }).catch((message) => {
-                    alert(message);
-                });
+                this.updateKeywordRelevance(keywordObject, keywordObject.pivot.relevance);
 
             },
 
             removeKeyword(keywordObject) {
 
-                this.flashStartSaving(this.$t('pool.keyword'));
+                const startFlash = this.flashStartRemoving(this.$t('pool.keyword'));
 
                 // Remove Element from array
                 const i = this.material.keywords.findIndex(el => el.id === keywordObject.id);
@@ -612,20 +663,110 @@
                     keywordId: keywordObject.id
                 }).then((response) => {
                     this.materialWasModified();
-                    this.flashSaved(this.$t('pool.keyword'));
+                    startFlash.destroy();
+                    this.flashRemoved(this.$t('pool.keyword'));
                 }).catch((response) => {
                     alert('Error: Not able to detach keyword');
 
-                    // Re-Push element to array on error
-                    this.material.keywords.push(keywordObject);
-
+                    // Re-Insert element to array on error at last index (not tested yet)
+                    this.material.keywords.splice(Math.min(i, this.material.keywords.length - 1), 0, keywordObject);
                 });
 
             },
 
-            removeBibleverse(index) {
-                this.material.bibleverses.splice(index, 1);
+            updateKeywordRelevance(keywordObject, newRelevance) {
+                const startFlash = this.flashStartSaving(this.$t('pool.keyword'));
+
+                return this.$store.dispatch('keywords/updateRelevance', {
+                    materialId: this.id,
+                    keywordId: keywordObject.id,
+                    relevance: newRelevance
+                }).then((data) => {
+                    this.materialWasModified();
+
+                    const index = this.material.keywords.findIndex((el) => el.id === data.id);
+                    if (index === -1) {
+                        this.material.keywords.push(data);
+                    } else {
+                        this.$set(this.material.keywords, index, data);
+                    }
+
+                    startFlash.destroy();
+                    this.flashSaved(this.$t('pool.keyword'));
+
+                    return data;
+                }).catch((message) => {
+                    alert(message);
+                });
+
+            },
+
+            addBibleverse(bibleverseObject) {
+                const relevance = bibleverseObject && (!bibleverseObject.pivot || !bibleverseObject.pivot.relevance) ? RELEVANCE_USER_MAX : bibleverseObject.pivot.relevance;
+                this.updateBibleverseRelevance(bibleverseObject, relevance);
+            },
+
+            removeBibleverse(bibleVerseObject) {
+                const startFlash = this.flashStartRemoving(this.$t('pool.Bibleverse'));
+
+                // Remove element from array
+                const i = this.material.bibleverses.find((el) => el.id === bibleVerseObject.id);
+                if (i !== -1) {
+                    this.material.bibleverses.splice(i, 1);
+                }
+
+                this.$store.dispatch('bibleverses/deleteAssignment', {
+                    materialId: this.id,
+                    bibleverseId: bibleVerseObject.id
+                }).then((response) => {
+                    this.materialWasModified();
+                    startFlash.destroy();
+                    this.flashRemoved(this.$t('pool.Bibleverse'));
+                }).catch((response) => {
+                    alert('Error: Not able to detach bibleverse');
+
+                    // Re-Insert element to array on error at last index (not tested yet)
+                    this.material.bibleverses.splice(Math.min(i, this.material.bibleverses.length - 1), 0, bibleVerseObject);
+                });
+
                 this.materialWasModified();
+            },
+
+            updateBibleverseRelevance(bibleverseObject, newRelevance) {
+
+                const startFlash = this.flashStartSaving(this.$t('pool.Bibleverse'));
+
+                const promise = bibleverseObject.id === undefined ?
+                    this.$store.dispatch('bibleverses/createAndAssign', {
+                        from: bibleverseObject.from,
+                        to: bibleverseObject.to,
+                        materialId: this.id,
+                        relevance: newRelevance
+                    }) :
+                    this.$store.dispatch('bibleverses/updateRelevance', {
+                        materialId: this.id,
+                        bibleverseId: bibleverseObject.id,
+                        relevance: newRelevance
+                    });
+
+                promise.then((data) => {
+                    this.materialWasModified();
+
+                    const index = this.material.bibleverses.findIndex((el) => el.id === data.id);
+                    if (index === -1) {
+                        this.material.bibleverses.push(data);
+                    } else {
+                        this.$set(this.material.bibleverses, index, data);
+                    }
+
+                    startFlash.destroy();
+                    this.flashSaved(this.$t('pool.Bibleverse'));
+
+                    return data;
+                }).catch((message) => {
+                    alert(message);
+                });
+
             },
 
             materialWasModified() {
@@ -641,7 +782,7 @@
 
                 if (index !== -1) {
                     this.material.bibleverses.splice(index, 1, newBibleverse); // https://vuejs.org/2016/02/06/common-gotchas/
-                    this.flashSaved('Keyword "' + newBibleverse.label + '"');
+                    this.flashSaved('Bibleverse "' + newBibleverse.label + '"');
                     this.materialWasModified();
                 } else {
                     console.error('Changed bibleverse was not found in Array!');
@@ -659,6 +800,7 @@
         components: {
             RatingEdit,
             TagEditSidebarField,
+            BibleverseEditSidebarField,
             TextEditSidebarField,
             PublicMaterialDownload,
             KeywordToggleTextSelect,
@@ -678,7 +820,7 @@
             customDialog,
             trashIcon,
             cloneIcon,
-            calendarIcon, titleIcon, descriptionIcon, placeIcon, authorIcon
+            calendarIcon, titleIcon, descriptionIcon, placeIcon, authorIcon, personIcon, languageIcon, bibleverseIcon
         },
 
     }

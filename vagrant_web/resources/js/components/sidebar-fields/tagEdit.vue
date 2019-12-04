@@ -24,7 +24,7 @@
                         :filterBy="filterSuggestionsBy"
                         :filterable="true"
                         :multiple="true"
-                        :clearSearchOnSelect="false"
+                        :clearSearchOnSelect="clearOnSelect"
                         :close-on-select="false"
                         :selectOnTab="true"
                         :getOptionLabel="getTagLabelFromObject"
@@ -43,6 +43,11 @@
 
                     <template v-slot:option="option">
                         <span class="suggested-option" :class="{'is-new' : option.isNew}">
+                            <span class="tagOptionIcon">
+                                <slot name="icon">
+                                    <tag-icon/>
+                                </slot>
+                            </span>
                             <span class="suggested-text">
                                 {{ getTagLabelFromObject(option) }}
                             </span>
@@ -77,7 +82,7 @@
             typefilter: {
                 type: String,
                 required: false,
-                default: 'key',
+                default: '',
                 validator(value) {
                     return value === '' || keywordTypes.includes(value);
                 }
@@ -92,7 +97,8 @@
 
         data() {
             return {
-                suggestedTags: []
+                suggestedTags: [],
+                clearOnSelect: false,
             };
         },
 
@@ -118,7 +124,7 @@
         methods: {
             onInputChanged(currentValues) {
 
-                const newObjects     = _differenceBy(currentValues, this.validTypesValues, (el) => el.id);
+                const newObjects = _differenceBy(currentValues, this.validTypesValues, (el) => el.id);
                 const removedObjects = _differenceBy(this.validTypesValues, currentValues, (el) => el.id);
 
                 // console.log(newObjects, removedObjects);
@@ -156,6 +162,8 @@
             onSearch(search, loading) {
                 loading(true);
 
+                this.suggestedTags = [];
+
                 this.search(loading, search, this);
             },
 
@@ -172,7 +180,7 @@
                     per_page: 40
                 })
                     .then((keywords) => {
-                        console.log(keywords);
+                        // console.log(keywords);
                         vm.suggestedTags = keywords;
                         vm.suggestedTags.push({
                             title: search,
@@ -217,6 +225,7 @@
                 background-color: $sidebar-input-background-colour-active;
 
                 .vs__selected-options input {
+                    min-width: 50%;
                     &::placeholder {
                         color: $sidebar-input-text-colour-placeholder;
                     }
@@ -243,6 +252,16 @@
 
                 .vs__actions {
                     display: none;
+                }
+            }
+
+            .vs__dropdown-option {
+
+                padding-left: .5em;
+
+                .tagOptionIcon svg{
+                    width: 1em;
+                    height: 1em;
                 }
             }
         }
