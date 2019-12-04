@@ -216,7 +216,7 @@ return [
 	'Enter-name-please'                                        => 'Bitte Namen eingeben',
 	'Click-here-to-edit'                                       => 'Um zu Bearbeiten hier klicken',
 	'No-author-given'                                          => 'Kein Author angegeben',
-	'assign-pages'                                             => 'Seiten zuordnen',
+	'page-assignments'                                             => 'Seitenzuordnung',
 	'Edit-Limitation'                                          => 'Limitation bearbeiten',
 	'Create-Limitation'                                        => 'Limitation erstellen',
 	'copy'                                                     => 'kopieren',

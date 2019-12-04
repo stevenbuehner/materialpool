@@ -19,13 +19,21 @@ export default {
 
         },
 
-        routerEditLimitationObject(resource, pivot) {
+        routerEditLimitationObject(resource, pivotOverride) {
 
             switch (resource.type) {
                 case 'pdf':
                 case 'doc':
 
                     let query = {};
+                    let pivot = undefined;
+
+
+                    if(pivotOverride !== undefined){
+                        pivot = pivotOverride;
+                    }else if(resource.pivot !== undefined){
+                        pivot = resource.pivot;
+                    }
 
                     if (pivot && pivot.limitation && Array.isArray(pivot.limitation.pages)) {
                         query.selection = pivot.limitation.pages.join(',');
