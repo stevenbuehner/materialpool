@@ -70,6 +70,8 @@ class ResourcePreviewService extends AbstractPreviewService {
 
 		} catch (NotPreviewAbleException $e) {
 
+		    Log::error($e->getMessage(), $e->getTraceAsString());
+
 			if ($e->getPrevious() instanceof FileNotFoundException) {
 				return $this->getImageWithText('Resource missing', $size->getWidth(), $size->getHeight());
 			}
