@@ -6,6 +6,7 @@ use App\Models\PdfFile;
 use App\Services\ResourceHandling\Exceptions\InvalidPageNoException;
 use App\Services\ResourceHandling\Exceptions\LocalFileDoesNotExistException;
 use App\Services\ResourceHandling\Exceptions\RemoteFileDoesNotExistException;
+use Howtomakeaturn\PDFInfo\Exceptions\CommandNotFoundException;
 use Howtomakeaturn\PDFInfo\Exceptions\OpenOutputException;
 use Howtomakeaturn\PDFInfo\Exceptions\OpenPDFException;
 use Howtomakeaturn\PDFInfo\Exceptions\OtherException;
@@ -69,7 +70,9 @@ class PdfHandlingService {
 			throw new InvalidPageNoException('Could not extract Page Number from PDF', 0, $e);
 		} catch (OtherException $e) {
 			throw new InvalidPageNoException('Could not extract Page Number from PDF', 0, $e);
-		}
+		}catch (CommandNotFoundException $e){
+            throw new InvalidPageNoException('Could not extract Page Number from PDF, because the binary PDFINFO is missing', 0, $e);
+        }
 
 		return $count;
 	}

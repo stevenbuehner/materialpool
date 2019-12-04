@@ -13,10 +13,10 @@ use App\Services\ResourceRecognition\ResourceRecognitionService;
 use App\Services\TagExtraction\MaterialExtractionService;
 use App\Services\TagExtraction\ResourceHandles\TextContentInterface;
 use Illuminate\Contracts\Bus\Dispatcher;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 
 trait ResourceHelperTrait {
@@ -100,7 +100,12 @@ trait ResourceHelperTrait {
 
 			$newTargetFolder      = DIRECTORY_SEPARATOR . intval($resource->id / 10000);
 			$newTargetFolder      .= DIRECTORY_SEPARATOR . intval($resource->id / 100);
-			$relativeFilePath     = $disk->putFile($newTargetFolder, $file);
+
+            $fileHash = str_replace('.' . $file->extension(), '', $file->hashName());
+            $fileName = $fileHash . '.' . $file->getClientOriginalExtension();
+
+            $relativeFilePath     = $disk->putFileAs($newTargetFolder, $file, $fileName);
+
 			$resource->setLocalStorageAndPath(config('app.disks.resources'), $relativeFilePath);
 
 		} else if ($resource instanceof Text) {
@@ -164,7 +169,7 @@ trait ResourceHelperTrait {
 			//Todo: Cleanup again
 			Log::error('Error during File-Upload', [
 				'message' => $e->getMessage(),
-				'trace'   => $e->getTrace()
+				'trace'   => $e->getTraceAsString()
 			]);
 
 		}
