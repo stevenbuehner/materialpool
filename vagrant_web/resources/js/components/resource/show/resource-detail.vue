@@ -31,7 +31,7 @@
                     <router-link v-if="showOpen" :to="{name:'resource-detail', params: {id: resource.id}}"
                                  class="btn btn-outline-primary mb-1">{{$t('pool.open')}}
                     </router-link>
-                    <router-link v-if="resource.type==='pdf'" :to="routerEditLimitationObject(resource, resource.pivot)"
+                    <router-link v-if="resource.type==='pdf' || resource.type==='doc'" :to="routerEditLimitationObject(resource, resource.pivot)"
                                  class="btn btn-outline-primary  mb-1">{{$t('pool.assign-pages')}}
                     </router-link>
                     <button v-if="showDelete"

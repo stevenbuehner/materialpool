@@ -1,7 +1,7 @@
 import MaterialDetail from './pages/MaterialDetail.vue';
 import SearchPage from './pages/search/searchPage.vue';
 import ResourceDetail from './pages/Resource.vue';
-import AssignApp from './pages/PdfAssignApp.vue';
+import AssignApp from './pages/AssignApp.vue';
 // import PassportClient from '../../components/passport/Clients.vue';
 // import PassportAuthorizedClient from '../../components/passport/AuthorizedClients.vue';
 // import PassportPersonalAccessTokens from '../../components/passport/PersonalAccessTokens.vue';
@@ -69,7 +69,7 @@ export const routes = [
                }
            },
            {
-               path: '/resource/:id/pdf-assign', name: 'resource-pdf-assign', component: AssignApp, props: (route) => {
+               path: '/resource/:id/page-assign', name: 'resource-page-assign', component: AssignApp, props: (route) => {
                    return {id: parseInt(route.params.id)};
                }
            },

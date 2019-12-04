@@ -23,6 +23,7 @@ export default {
 
             switch (resource.type) {
                 case 'pdf':
+                case 'doc':
 
                     let query = {};
 
@@ -31,7 +32,7 @@ export default {
                     }
 
                     return {
-                        name: 'resource-' + resource.type + '-assign',
+                        name: 'resource-page-assign',
                         params: {
                             id: resource.id,
                         },
