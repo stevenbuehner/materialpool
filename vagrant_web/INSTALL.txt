@@ -222,6 +222,11 @@ sudo crontab -u www-data -e
 # Einfügen in die Datei:
 * * * * * cd /var/www/wissensbase; php artisan schedule:run >> /dev/null 2>&1
 
+# Download-Path writeable machen unter
+sudo chown -R steven.www-data /var/www/wissensbase/public/downloads
+sudo chmod 770 /var/www/wissensbase/public/downloads
+
+
 # Dem ausführenden Webserver-Benutzer Shutdown-Rechte geben. Dazu Datei mit Root-Schreibrechten anlegen:
 sudo touch /etc/sudoers.d/10_materialpool
 sudo vi /etc/sudoers.d/10_materialpool
