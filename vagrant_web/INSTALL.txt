@@ -176,8 +176,15 @@ sudo apt-get install libreoffice
 # Image Magic Security Checks für PDFs deaktivieren
 # see: https://stackoverflow.com/questions/42928765/convertnot-authorized-aaaa-error-constitute-c-readimage-453?rq=1
 # in File: /etc/ImageMagick-6/policy.xml
-# Change: <policy domain="coder" rights="none" pattern="PDF" />
-# To<policy domain="coder" rights="read" pattern="PDF" />
+# Change:
+  <policy domain="coder" rights="read" pattern="PDF" />
+  <policy domain="resource" name="memory" value="512MiB"/>
+  <policy domain="resource" name="map" value="1GiB"/>
+  <policy domain="resource" name="width" value="16KP"/>
+  <policy domain="resource" name="height" value="16KP"/>
+  <policy domain="resource" name="area" value="256MB"/>
+  <policy domain="resource" name="disk" value="2GiB"/>
+
 # Then restart apache
 sudo service apache2 restart
 
