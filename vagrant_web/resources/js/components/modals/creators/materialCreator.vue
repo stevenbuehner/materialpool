@@ -131,12 +131,12 @@
 
 <script>
 
-    import bForm from 'bootstrap-vue/src/components/form/form';
-    import bAlert from 'bootstrap-vue/src/components/alert/alert';
-    import bFormGroup from 'bootstrap-vue/src/components/form-group/form-group';
-    import bFormInput from 'bootstrap-vue/src/components/form-input/form-input';
-    import bModal from 'bootstrap-vue/src/components/modal/modal';
-    import bButton from 'bootstrap-vue/src/components/button/button';
+    import {BForm} from 'bootstrap-vue';
+    import {BAlert} from 'bootstrap-vue';
+    import {BFormGroup} from 'bootstrap-vue';
+    import {BFormInput} from 'bootstrap-vue';
+    import {BModal} from 'bootstrap-vue';
+    import {BButton} from 'bootstrap-vue';
     import starRating from 'vue-star-rating';
     import KeywordInput from "../../keyword/keywordInput.vue";
     import BibleverseInput from "../../bibleverse/bibleverseInput";
@@ -462,12 +462,12 @@
             KeywordToggleTextSelect,
             BibleverseInput,
             KeywordInput,
-            bForm,
-            bAlert,
-            bFormGroup,
-            bFormInput,
-            bModal,
-            bButton,
+            BForm,
+            BAlert,
+            BFormGroup,
+            BFormInput,
+            BModal,
+            BButton,
             starRating
         }
 

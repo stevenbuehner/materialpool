@@ -1,19 +1,19 @@
 <template>
 
-    <b-image-lazy
+    <b-img-lazy
             :src="resourceImagePreviewUrl"
             fluid
             :alt="resource.notes"
             center
-            @click="goToResource"></b-image-lazy>
+            @click="goToResource"></b-img-lazy>
 
 </template>
 
 <script>
 
-    import bImageLazy from 'bootstrap-vue/src/components/image/img-lazy';
-    import bCard from 'bootstrap-vue/es/components/card/card'
-    import bButton from 'bootstrap-vue/es/components/button/button'
+    import {BImgLazy} from 'bootstrap-vue';
+    import {BCard} from 'bootstrap-vue'
+    import {BButton} from 'bootstrap-vue'
     import {previewImageFirstPage} from '../../serverRoutes';
     import resourceLinks from '../resource-links.mixin';
 
@@ -61,9 +61,9 @@
             }
         },
         components: {
-            bCard,
-            bButton,
-            bImageLazy
+            BCard,
+            BButton,
+            BImgLazy
         }
     }
 </script>

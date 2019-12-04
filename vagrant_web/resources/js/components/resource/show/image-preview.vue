@@ -20,8 +20,8 @@
 
 <script>
 
-    import bCard from 'bootstrap-vue/es/components/card/card'
-    import bButton from 'bootstrap-vue/es/components/button/button'
+    import {BCard} from 'bootstrap-vue'
+    import {BButton} from 'bootstrap-vue'
     import resourceLinks from '../resource-links.mixin';
     import {previewImageFirstPage} from "../../serverRoutes";
 
@@ -72,8 +72,8 @@
             }
         },
         components: {
-            bCard,
-            bButton
+            BCard,
+            BButton
         }
     }
 </script>

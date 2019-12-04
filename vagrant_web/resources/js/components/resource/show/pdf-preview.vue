@@ -1,7 +1,7 @@
 <template>
     <div>
         <div class="previewContainer" @click="$refs.imageZoom.show(currentlyDisplayedPageIndex)">
-            <b-image :src="currentlyDisplayedImage.src"
+            <b-img :src="currentlyDisplayedImage.src"
                      :alt="currentlyDisplayedImage.title"
                      :key="currentlyDisplayedImage.src"
                      class="card-img-top pdfPreviewImage"/>
@@ -29,7 +29,7 @@
 <script>
 
     import {pdfPreviewImageForPage} from '../../serverRoutes';
-    import bImage from 'bootstrap-vue/src/components/image/img';
+    import {BImg} from 'bootstrap-vue';
     import pdfMixin from '../pdf-mixin';
     import ImageZoom from "../../modals/imageZoom";
 
@@ -142,7 +142,7 @@
 
         components: {
             ImageZoom,
-            bImage
+            BImg
         }
 
     }

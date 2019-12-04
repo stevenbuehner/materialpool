@@ -34,7 +34,7 @@
 
 <script>
 
-    import bBadge from 'bootstrap-vue/src/components/badge/badge';
+    import {BBadge} from 'bootstrap-vue';
     import MaterialpoolSpinner from "../../spinner/materialpool-spinner";
 
     export default {
@@ -124,7 +124,7 @@
 
         components: {
             MaterialpoolSpinner,
-            bBadge,
+            BBadge,
         }
     }
 </script>

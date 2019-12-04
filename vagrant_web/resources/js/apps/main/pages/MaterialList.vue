@@ -18,7 +18,7 @@
 
 <script>
     import MaterialCardListing from "../../../components/Material/MaterialCardListing.vue";
-    import bPaginationNav from 'bootstrap-vue/src/components/pagination-nav/pagination-nav';
+    import {BPaginationNav} from 'bootstrap-vue';
 
     export default {
 
@@ -84,7 +84,7 @@
 
         components: {
             MaterialCardListing,
-            bPaginationNav
+            BPaginationNav
         }
     }
 </script>

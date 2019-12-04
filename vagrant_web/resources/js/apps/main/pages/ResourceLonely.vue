@@ -40,9 +40,9 @@
 </template>
 
 <script>
-    import bPaginationNav from 'bootstrap-vue/src/components/pagination-nav/pagination-nav';
+    import {BPaginationNav} from 'bootstrap-vue';
+    import {BButton} from 'bootstrap-vue'
     import {previewImageFirstPage} from "../../../components/serverRoutes";
-    import bButton from 'bootstrap-vue/src/components/button/button'
 
     export default {
         name: "ResourceLonely",
@@ -112,8 +112,8 @@
         },
 
         components: {
-            bPaginationNav,
-            bButton
+            BPaginationNav,
+            BButton
         }
     }
 </script>

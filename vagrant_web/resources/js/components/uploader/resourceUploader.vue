@@ -45,8 +45,8 @@
 <script>
     import {VueTransmit} from "vue-transmit/dist/vue-transmit.esm.min";
     import {api_v1_resources_store} from "../serverRoutes";
-    import bAlert from 'bootstrap-vue/src/components/alert/alert';
-    import bButton from 'bootstrap-vue/src/components/button/button';
+    import {BAlert} from 'bootstrap-vue';
+    import {BButton} from 'bootstrap-vue';
 
 
     export default {
@@ -174,8 +174,8 @@
 
         components: {
             VueTransmit,
-            bAlert,
-            bButton
+            BAlert,
+            BButton
         }
     }
 </script>

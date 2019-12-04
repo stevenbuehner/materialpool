@@ -11,7 +11,7 @@
             </resource-uploader>
 
             <div class="options">{{$t('pool.Additional-Options')}}:</div>
-            <b-checkbox v-model="autocreateMaterial">{{$t('pool.auto-create-material')}}</b-checkbox>
+            <b-form-checkbox v-model="autocreateMaterial">{{$t('pool.auto-create-material')}}</b-form-checkbox>
         </div>
 
         <b-alert variant="info" :show="materialCreationRunning && !error">{{$t('pool.material-is-beeing-generated')}}
@@ -28,8 +28,8 @@
 <script>
 
     import ResourceUploader from "../../../components/uploader/resourceUploader";
-    import bCheckbox from 'bootstrap-vue/src/components/form-checkbox/form-checkbox';
-    import bAlert from 'bootstrap-vue/src/components/alert/alert';
+    import {BFormCheckbox} from 'bootstrap-vue';
+    import {BAlert} from 'bootstrap-vue';
 
     export default {
         name: "resourceUpload",
@@ -70,8 +70,8 @@
         },
         components: {
             ResourceUploader,
-            bCheckbox,
-            bAlert
+            BFormCheckbox,
+            BAlert
         }
     }
 </script>

@@ -34,8 +34,8 @@
 </template>
 
 <script>
-    import bModal from 'bootstrap-vue/src/components/modal/modal';
-    import bButton from 'bootstrap-vue/src/components/button/button';
+    import {BModal} from 'bootstrap-vue';
+    import {BButton} from 'bootstrap-vue';
 
     export default {
         name: "customDialog",
@@ -256,8 +256,8 @@
         },
 
         components: {
-            bModal,
-            bButton
+            BModal,
+            BButton
         }
     }
 </script>

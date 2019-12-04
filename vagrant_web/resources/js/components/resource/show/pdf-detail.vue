@@ -4,18 +4,18 @@
              class="col-lg-3 col-md-4 col-sm-6 col-12 imageContainer pdfDetail img-thumbnail"
              @click="$refs.imageZoom.show(index)"
              :key="image.src">
-            <b-image-lazy
+            <b-img-lazy
                     v-if="index > 12"
                     :src="image.src"
                     :alt="image.title"
                     fluid
-            ></b-image-lazy>
-            <b-image
+            ></b-img-lazy>
+            <b-img
                     v-if="index <= 12"
                     :src="image.src"
                     :alt="image.title"
                     fluid
-            ></b-image>
+            ></b-img>
 
             <div class="title text-center">{{image.title}}</div>
         </div>
@@ -27,8 +27,8 @@
 <script>
 
     import {previewImageFirstPage} from '../../serverRoutes';
-    import bImage from 'bootstrap-vue/src/components/image/img';
-    import bImageLazy from 'bootstrap-vue/src/components/image/img-lazy';
+    import {BImg} from 'bootstrap-vue';
+    import {BImgLazy} from 'bootstrap-vue';
     import pdfMixin from '../pdf-mixin';
     import ImageZoom from "../../modals/imageZoom";
 
@@ -76,8 +76,8 @@
 
         components: {
             ImageZoom,
-            bImage,
-            bImageLazy
+            BImg,
+            BImgLazy
         }
 
     }

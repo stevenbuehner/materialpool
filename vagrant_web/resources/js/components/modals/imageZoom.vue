@@ -8,9 +8,9 @@
              size="lg"
     >
         <div class="zoomImageModal">
-            <b-image :src="image"
+            <b-img :src="image"
                      fluid
-                     @click="_hideZoom"></b-image>
+                     @click="_hideZoom"></b-img>
             <span class="previous"
                   @click.prevent="btnPrevious"
                   v-show="hasPrevious"><</span>
@@ -22,8 +22,8 @@
 </template>
 
 <script>
-    import bModal from 'bootstrap-vue/src/components/modal/modal';
-    import bImage from 'bootstrap-vue/src/components/image/img'
+    import {BModal} from 'bootstrap-vue';
+    import {BImg} from 'bootstrap-vue'
 
     export default {
         name: "imageZoom",
@@ -125,8 +125,8 @@
         },
 
         components: {
-            bModal,
-            bImage,
+            BModal,
+            BImg,
         }
     }
 </script>

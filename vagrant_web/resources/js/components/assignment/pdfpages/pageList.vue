@@ -24,9 +24,9 @@
                  :hide-header-close="true"
                  size="lg"
                  class="zoomImageModal">
-            <b-image :src="zoomedImage.src"
+            <b-img :src="zoomedImage.src"
                      fluid
-                     @click="hideZoom()"></b-image>
+                     @click="hideZoom()"></b-img>
             <span class="previous"
                   @click.prevent="showZoom(zoomedImage.previous)"
                   v-if="zoomedImage.previous >= 0"><</span>
@@ -48,8 +48,8 @@
 <script>
 
     import Page from './page.vue';
-    import bModal from 'bootstrap-vue/src/components/modal/modal';
-    import bImage from 'bootstrap-vue/src/components/image/img'
+    import {BModal} from 'bootstrap-vue';
+    import {BImg} from 'bootstrap-vue'
     import {pdfPreviewImageForPage} from "../../serverRoutes";
 
     export default {
@@ -278,8 +278,8 @@
 
         components: {
             Page,
-            bModal,
-            bImage,
+            BModal,
+            BImg,
         }
 
     }

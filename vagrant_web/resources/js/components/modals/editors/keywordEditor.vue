@@ -24,9 +24,9 @@
 </template>
 
 <script>
-    import bModal from 'bootstrap-vue/src/components/modal/modal'
+    import {BModal} from 'bootstrap-vue'
     import KeywordEdit from "../../keyword/keywordEdit";
-    import bButton from 'bootstrap-vue/src/components/button/button';
+    import {BButton} from 'bootstrap-vue';
 
 
     export default {
@@ -64,8 +64,8 @@
 
         components: {
             KeywordEdit,
-            bModal,
-            bButton
+            BModal,
+            BButton
         }
     }
 </script>

@@ -38,8 +38,8 @@
 <script>
     import searchbarHeader from './searchbarHeader.vue';
     import searchbarOutcome from './searchbarOutcome.vue';
-    import bPaginationNav from 'bootstrap-vue/src/components/pagination-nav/pagination-nav';
-    import bAlert from 'bootstrap-vue/src/components/alert/alert'
+    import {BPaginationNav} from 'bootstrap-vue';
+    import {BAlert} from 'bootstrap-vue'
 
     import {
         searchArrayItemsToSearchQuery,
@@ -201,8 +201,8 @@
             MaterialpoolSpinner,
             searchbarHeader,
             searchbarOutcome,
-            bPaginationNav,
-            bAlert
+            BPaginationNav,
+            BAlert
         }
     }
 </script>

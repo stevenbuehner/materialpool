@@ -1,5 +1,5 @@
 <template>
-    <b-nav-bar toggleable="md" type="light" variant="light" fixed="top">
+    <b-navbar toggleable="md" type="light" variant="light" fixed="top">
 
         <div class="container">
 
@@ -72,24 +72,24 @@
             </b-collapse>
 
         </div>
-    </b-nav-bar>
+    </b-navbar>
 </template>
 
 <script>
-    import bNavBar from 'bootstrap-vue/src/components/navbar/navbar';
-    import bNavbarToggle from 'bootstrap-vue/src/components/navbar/navbar-toggle';
-    import bNavbarBrand from 'bootstrap-vue/src/components/navbar/navbar-brand';
-    import bNavbarNav from 'bootstrap-vue/src/components/navbar/navbar-nav';
-    import bNavItem from 'bootstrap-vue/src/components/nav/nav-item';
-    import bNavItemDropdown from 'bootstrap-vue/src/components/nav/nav-item-dropdown';
-    import bDropdownItem from 'bootstrap-vue/src/components/dropdown/dropdown-item';
-    import bDropdownDivider from 'bootstrap-vue/src/components/dropdown/dropdown-divider';
-    import bNavForm from 'bootstrap-vue/src/components/nav/nav-form';
-    import bCollapse from 'bootstrap-vue/src/components/collapse/collapse';
-    import bFormInput from 'bootstrap-vue/src/components/form-input/form-input';
-    import bInputGroup from 'bootstrap-vue/src/components/input-group/input-group';
-    import bInputGroupAppend from 'bootstrap-vue/src/components/input-group/input-group-append';
-    import bButton from 'bootstrap-vue/src/components/button/button';
+    import {BNavbar} from 'bootstrap-vue';
+    import {BNavbarToggle} from 'bootstrap-vue';
+    import {BNavbarBrand} from 'bootstrap-vue';
+    import {BNavbarNav} from 'bootstrap-vue';
+    import {BNavItem} from 'bootstrap-vue';
+    import {BNavItemDropdown} from 'bootstrap-vue';
+    import {BDropdownItem} from 'bootstrap-vue';
+    import {BDropdownDivider} from 'bootstrap-vue';
+    import {BNavForm} from 'bootstrap-vue';
+    import {BCollapse} from 'bootstrap-vue';
+    import {BFormInput} from 'bootstrap-vue';
+    import {BInputGroup} from 'bootstrap-vue';
+    import {BInputGroupAppend} from 'bootstrap-vue';
+    import {BButton} from 'bootstrap-vue';
     import {searchArrayObjectsToSearchQuery} from "../search/searchHelper";
 
     export default {
@@ -144,20 +144,20 @@
         },
 
         components: {
-            bNavBar,
-            bNavbarToggle,
-            bNavbarBrand,
-            bNavbarNav,
-            bNavItem,
-            bNavForm,
-            bNavItemDropdown,
-            bDropdownDivider,
-            bDropdownItem,
-            bCollapse,
-            bFormInput,
-            bButton,
-            bInputGroup,
-            bInputGroupAppend,
+            BNavbar,
+            BNavbarToggle,
+            BNavbarBrand,
+            BNavbarNav,
+            BNavItem,
+            BNavForm,
+            BNavItemDropdown,
+            BDropdownDivider,
+            BDropdownItem,
+            BCollapse,
+            BFormInput,
+            BButton,
+            BInputGroup,
+            BInputGroupAppend,
         }
     }
 </script>

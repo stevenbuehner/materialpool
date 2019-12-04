@@ -32,12 +32,11 @@
 
 <script>
     import {searchArrayObjectsToSearchArrayItems} from "../../../components/search/searchHelper";
-    import formInput from "bootstrap-vue/src/components/form-input/form-input"
-    import bFormInput from "bootstrap-vue/src/components/form-input/form-input"
-    import bInputGroup from "bootstrap-vue/src/components/input-group/input-group"
-    import bInputGroupText from "bootstrap-vue/src/components/input-group/input-group-text"
-    import bDropdown from "bootstrap-vue/src/components/dropdown/dropdown"
-    import bDropdownItem from "bootstrap-vue/src/components/dropdown/dropdown-item"
+    import {BFormInput} from "bootstrap-vue";
+    import {BInputGroup} from "bootstrap-vue"
+    import {BInputGroupText} from "bootstrap-vue"
+    import {BDropdown} from "bootstrap-vue"
+    import {BDropdownItem} from "bootstrap-vue"
     import {BibleVerseService} from '../../../../../vendor/stevenbuehner/bible-verse-bundle/js/out/BibleVerseService_de.js';
     import BibleVerse from '../../../../../vendor/stevenbuehner/bible-verse-bundle/js/in/BibleVerse.js';
     import BibleText from "../../../components/biblecontents/bibleText";
@@ -203,12 +202,11 @@
 
         components: {
             BibleText,
-            formInput,
-            bInputGroup,
-            bFormInput,
-            bInputGroupText,
-            bDropdown,
-            bDropdownItem,
+            BInputGroup,
+            BFormInput,
+            BInputGroupText,
+            BDropdown,
+            BDropdownItem,
         },
 
     }

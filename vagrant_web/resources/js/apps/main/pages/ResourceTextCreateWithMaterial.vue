@@ -62,9 +62,9 @@
 
 <script>
 
-    import bFormGroup from 'bootstrap-vue/src/components/form-group/form-group';
-    import bFormInput from 'bootstrap-vue/src/components/form-input/form-input';
-    import bFormTextarea from 'bootstrap-vue/src/components/form-textarea/form-textarea';
+    import {BFormGroup} from 'bootstrap-vue';
+    import {BFormInput} from 'bootstrap-vue';
+    import {BFormTextarea} from 'bootstrap-vue';
     import marked from 'marked';
     import CustomDialog from "../../../components/modals/dialogs/customDialog";
 
@@ -197,9 +197,9 @@
 
         components: {
             CustomDialog,
-            bFormGroup,
-            bFormTextarea,
-            bFormInput
+            BFormGroup,
+            BFormTextarea,
+            BFormInput
 
         }
 

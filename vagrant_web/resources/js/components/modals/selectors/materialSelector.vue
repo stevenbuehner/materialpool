@@ -75,12 +75,12 @@
 
 <script>
 
-    import bForm from 'bootstrap-vue/src/components/form/form';
-    import bFormGroup from 'bootstrap-vue/src/components/form-group/form-group';
-    import bFormInput from 'bootstrap-vue/src/components/form-input/form-input';
-    import bModal from 'bootstrap-vue/src/components/modal/modal';
-    import bButton from 'bootstrap-vue/src/components/button/button';
-    import bAlert from 'bootstrap-vue/src/components/alert/alert';
+    import {BForm} from 'bootstrap-vue';
+    import {BFormGroup} from 'bootstrap-vue';
+    import {BFormInput} from 'bootstrap-vue';
+    import {BModal} from 'bootstrap-vue';
+    import {BButton} from 'bootstrap-vue';
+    import {BAlert} from 'bootstrap-vue';
     import _debounce from 'lodash/debounce';
     import MaterialpoolSpinner from "../../spinner/materialpool-spinner";
 
@@ -212,12 +212,12 @@
 
         components: {
             MaterialpoolSpinner,
-            bForm,
-            bFormGroup,
-            bFormInput,
-            bModal,
-            bButton,
-            bAlert
+            BForm,
+            BFormGroup,
+            BFormInput,
+            BModal,
+            BButton,
+            BAlert
         }
 
 

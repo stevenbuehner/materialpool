@@ -32,9 +32,9 @@
 
 
 <script>
-    import bModal from 'bootstrap-vue/es/components/modal/modal';
-    import bFormInput from 'bootstrap-vue/es/components/form-input/form-input';
-    import bFormSelect from 'bootstrap-vue/es/components/form-select/form-select';
+    import {BModal} from 'bootstrap-vue';
+    import {BFormInput} from 'bootstrap-vue';
+    import {BFormSelect} from 'bootstrap-vue';
     import contextMenu from '../context-menu/context-menu.vue';
     import contextMenuItem from "../context-menu/context-menu-item.vue";
     import {keywordSearchLink} from '../serverRoutes';
@@ -280,9 +280,9 @@
             KeywordEditor: () => import("../modals/editors/keywordEditor"),
 
             ContextMenuItem: contextMenuItem,
-            bModal,
-            bFormInput,
-            bFormSelect,
+            BModal,
+            BFormInput,
+            BFormSelect,
             contextMenu,
             keyIcon,
             placeIcon,

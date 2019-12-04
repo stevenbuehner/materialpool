@@ -78,12 +78,12 @@
 </template>
 
 <script>
-    import bCard from 'bootstrap-vue/src/components/card/card'
-    import bButton from 'bootstrap-vue/src/components/button/button';
-    import bListGroup from 'bootstrap-vue/src/components/list-group/list-group'
-    import bListGroupItem from 'bootstrap-vue/src/components/list-group/list-group-item'
-    import bProgress from 'bootstrap-vue/src/components/progress/progress'
-    import bProgressBar from 'bootstrap-vue/src/components/progress/progress-bar'
+    import {BCard} from 'bootstrap-vue'
+    import {BButton} from 'bootstrap-vue';
+    import {BListGroup} from 'bootstrap-vue'
+    import {BListGroupItem} from 'bootstrap-vue'
+    import {BProgress} from 'bootstrap-vue'
+    import {BProgressBar} from 'bootstrap-vue'
     import {formatLocalizedDate} from "../../helper/datetime.mixin";
 
 
@@ -259,12 +259,12 @@
         },
 
         components: {
-            bCard,
-            bButton,
-            bListGroup,
-            bListGroupItem,
-            bProgress,
-            bProgressBar
+            BCard,
+            BButton,
+            BListGroup,
+            BListGroupItem,
+            BProgress,
+            BProgressBar
         }
     }
 </script>

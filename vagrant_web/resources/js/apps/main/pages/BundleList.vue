@@ -8,7 +8,7 @@
 
 <script>
     import Bundle from "../../../components/bundles/bundle.vue";
-    import bCardGroup from 'bootstrap-vue/src/components/card/card-group';
+    import {BCardGroup} from 'bootstrap-vue';
 
 
     export default {
@@ -39,7 +39,7 @@
 
         components: {
             Bundle,
-            bCardGroup
+            BCardGroup
 
         }
 

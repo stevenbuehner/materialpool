@@ -62,7 +62,7 @@
     import {FormInputPlugin, FormTextareaPlugin} from 'bootstrap-vue';
     import textFieldIcon from 'svg-icon/dist/svg/material/text-fields.svg'
     import generalMixin from './generalSidebarFields.mixin';
-    import bButton from 'bootstrap-vue/src/components/button/button';
+    import {BButton} from 'bootstrap-vue';
 
     Vue.use(FormTextareaPlugin);
     Vue.use(FormInputPlugin);
@@ -149,7 +149,7 @@
 
         components: {
             textFieldIcon,
-            bButton
+            BButton
         }
     }
 </script>

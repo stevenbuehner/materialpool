@@ -16,7 +16,7 @@
 
             <div class="col-6">
                 <div class="mb-4">
-                    <b-input v-model="treeSearch" :placeholder="$t('pool.Search')"/>
+                    <b-form-input v-model="treeSearch" :placeholder="$t('pool.Search')"/>
                 </div>
                 <div style="display: inline-block; width: 100%">
                     <Tree :tree="this.treeModel"
@@ -43,7 +43,7 @@
     import editIcon from 'svg-icon/dist/svg/ionic/edit.svg';
     import refreshIcon from 'svg-icon/dist/svg/awesome/refresh.svg';
     import Tree from "../../../components/keyword/tree/Tree";
-    import bInput from 'bootstrap-vue/src/components/form-input/form-input';
+    import {BFormInput} from 'bootstrap-vue';
     import MaterialpoolSpinner from "../../../components/spinner/materialpool-spinner";
 
     export default {
@@ -271,7 +271,7 @@
             Tree,
             editIcon,
             refreshIcon,
-            bInput
+            BFormInput
         }
     }
 </script>

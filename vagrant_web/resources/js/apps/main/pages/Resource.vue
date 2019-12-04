@@ -145,10 +145,10 @@
 
 <script>
     import resourceLinks from '../../../components/resource/resource-links.mixin';
-    import bTabs from 'bootstrap-vue/src/components/tabs/tabs';
-    import bTab from 'bootstrap-vue/src/components/tabs/tab';
-    import bListGroup from 'bootstrap-vue/src/components/list-group/list-group';
-    import bListGroupItem from 'bootstrap-vue/src/components/list-group/list-group-item';
+    import {BTabs} from 'bootstrap-vue';
+    import {BTab} from 'bootstrap-vue';
+    import {BListGroup} from 'bootstrap-vue';
+    import {BListGroupItem} from 'bootstrap-vue';
     import pdfLimitation from '../../../components/resource/limitation/pdfLimitation.vue';
     import audioLimitation from '../../../components/resource/limitation/audioLimitation.vue';
     import {isResourceTypeLimitable} from "../../../components/resource/limitation/limitable";
@@ -156,7 +156,7 @@
     import {formatLocalizedDate} from "../../../helper/datetime.mixin";
 
     import user from '../../../components/user/user-name';
-    import bAlert from 'bootstrap-vue/src/components/alert/alert';
+    import {BAlert} from 'bootstrap-vue';
     import MaterialSelector from "../../../components/modals/selectors/materialSelector";
     import CustomDialog from "../../../components/modals/dialogs/customDialog";
     import MaterialCreator from "../../../components/modals/creators/materialCreator";
@@ -390,14 +390,14 @@
             CustomDialog,
             MaterialSelector,
             resourceDetail,
-            bTabs,
-            bTab,
-            bListGroup,
-            bListGroupItem,
+            BTabs,
+            BTab,
+            BListGroup,
+            BListGroupItem,
             pdfLimitation,
             audioLimitation,
             user,
-            bAlert
+            BAlert
         }
     }
 </script>

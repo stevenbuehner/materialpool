@@ -101,9 +101,9 @@
 </template>
 
 <script>
-    import bFormInput from 'bootstrap-vue/src/components/form-input/form-input';
-    import bFormSelect from 'bootstrap-vue/src/components/form-select/form-select';
-    import bButton from 'bootstrap-vue/src/components/button/button';
+    import {BFormInput} from 'bootstrap-vue';
+    import {BFormSelect} from 'bootstrap-vue';
+    import {BButton} from 'bootstrap-vue';
     import Keyword from "./keyword";
     import MaterialpoolSpinner from "../spinner/materialpool-spinner";
 
@@ -273,9 +273,9 @@
         components: {
             MaterialpoolSpinner,
             Keyword,
-            bFormInput,
-            bFormSelect,
-            bButton
+            BFormInput,
+            BFormSelect,
+            BButton
         }
     }
 </script>

@@ -107,15 +107,15 @@
 <script>
 
     import PageList from '../../../components/assignment/pdfpages/pageList.vue'
-    import bAlert from 'bootstrap-vue/src/components/alert/alert';
-    import bNavbar from 'bootstrap-vue/src/components/navbar/navbar';
-    import bNavbarBrand from 'bootstrap-vue/src/components/navbar/navbar-brand';
-    import bNavbarNav from 'bootstrap-vue/src/components/navbar/navbar-nav';
-    import bNavItem from 'bootstrap-vue/src/components/nav/nav-item';
-    import bNavItemDropdown from 'bootstrap-vue/src/components/nav/nav-item-dropdown';
-    import bDropdownItem from 'bootstrap-vue/src/components/dropdown/dropdown-item';
-    import bButton from 'bootstrap-vue/src/components/button/button';
-    import bTooltip from 'bootstrap-vue/src/directives/tooltip/tooltip';
+    import {BAlert} from 'bootstrap-vue';
+    import {BNavbar} from 'bootstrap-vue/';
+    import {BNavbarBrand} from 'bootstrap-vue';
+    import {BNavbarNav} from 'bootstrap-vue';
+    import {BNavItem} from 'bootstrap-vue';
+    import {BNavItemDropdown} from 'bootstrap-vue';
+    import {BDropdownItem} from 'bootstrap-vue';
+    import {BButton} from 'bootstrap-vue';
+    import {VBTooltip} from 'bootstrap-vue';
     import materialSelector from '../../../components/modals/selectors/materialSelector.vue';
     import materialCreator from '../../../components/modals/creators/materialCreator.vue';
     import truncate from '../../../filters/truncate-filter.mixin'
@@ -375,20 +375,20 @@
 
         components: {
             PageList,
-            bAlert,
-            bNavbar,
-            bNavbarBrand,
-            bNavbarNav,
-            bNavItem,
-            bNavItemDropdown,
-            bDropdownItem,
-            bButton,
+            BAlert,
+            BNavbar,
+            BNavbarBrand,
+            BNavbarNav,
+            BNavItem,
+            BNavItemDropdown,
+            BDropdownItem,
+            BButton,
             materialSelector,
             materialCreator
         },
 
         directives: {
-            bTooltip
+            bTooltip : VBTooltip
         },
 
         mixins: [truncate]
