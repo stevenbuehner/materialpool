@@ -2,15 +2,14 @@ import MaterialDetail from './pages/MaterialDetail.vue';
 import SearchPage from './pages/search/searchPage.vue';
 import ResourceDetail from './pages/Resource.vue';
 import AssignApp from './pages/AssignApp.vue';
-// import PassportClient from '../../components/passport/Clients.vue';
-// import PassportAuthorizedClient from '../../components/passport/AuthorizedClients.vue';
-// import PassportPersonalAccessTokens from '../../components/passport/PersonalAccessTokens.vue';
 import ResourceCreate from './pages/ResourceCreate.vue';
 import KeywordDetail from './pages/KeywordDetail.vue'
 import ResourceTextCreate from './pages/ResourceTextCreateWithMaterial.vue';
 import LandingPage from "./pages/LandingPage";
 import SystemShutdown from './pages/RequestShutdown';
-
+// import PassportClient from '../../components/passport/Clients.vue';
+// import PassportAuthorizedClient from '../../components/passport/AuthorizedClients.vue';
+// import PassportPersonalAccessTokens from '../../components/passport/PersonalAccessTokens.vue';
 
 const KeywordList    = () => import('./pages/KeywordList.vue');
 const ReadBible      = () => import('./pages/ReadBible');
