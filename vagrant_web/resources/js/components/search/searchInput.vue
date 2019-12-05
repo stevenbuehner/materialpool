@@ -1,7 +1,7 @@
 <template>
-    <vue-select class="v-select"
-                name="searchInput"
-                multiple
+    <vue-select class="searchInputSelect"
+                :multiple="true"
+                :selectOnTab="true"
                 :options="options"
                 :placeholder="$t('pool.Insert-search-phrase-here')"
                 :filterable="false"
@@ -12,21 +12,29 @@
                 @search="onSearch"
     >
 
-        <template slot="no-options">
+        <template v-slot:no-options>
             {{$t('pool.Insert-search-phrase')}}
         </template>
 
-        <template slot="option" slot-scope="option">
+        <template v-slot:option="option">
             <div class="d-center">
                 <span class="icon" :style="{backgroundImage: 'url('+ option.icon+')'}"></span>
                 {{ option.text }}
             </div>
         </template>
 
-        <template slot="selected-option" slot-scope="option">
-            <div class="selected d-center">
+        <template v-slot:selected-option-container="{option, disabled, multiple, deselect}">
+            <div class="vs__selected d-center">
                 <span class="icon" :style="{backgroundImage: 'url('+ option.icon+')'}"></span>
                 {{ option.text }}
+
+                <button v-if="!disabled" @click="deselect(option)"
+                        type="button"
+                        class="vs__deselect"
+                        aria-label="Remove option">
+
+                    <span aria-hidden="true"><slot name="label">&times;</slot></span>
+                </button>
             </div>
         </template>
 
@@ -99,55 +107,62 @@
 <style type="scss">
     @import "~vue-select/dist/vue-select.css";
 
-    .selected-tag .close {
-        margin-left: 0.25rem;
-        top: -.15rem;
-        position: relative;
+    .searchInputSelect {
+
+        .vs__selected-options{
+            .selected .close {
+                margin-left: 0.25rem;
+                top: -.15rem;
+                position: relative;
+            }
+        }
+
+        .icon {
+            position: relative;
+            display: inline-block;
+            background-size: contain;
+            background-position: 0 0;
+            height: 1rem;
+            background-repeat: no-repeat;
+            width: 1rem;
+            margin-right: 0.25rem;
+            margin-left: 0;
+        }
+
+        img {
+            height: auto;
+            max-width: 2.5rem;
+            margin-right: 1rem;
+        }
+
+        .d-center {
+            align-items: center;
+            display: inline-flex;
+        }
+
+        .vs__dropdown-menu {
+
+            li {
+                border-bottom: 1px solid rgba(112, 128, 144, 0.1);
+            }
+
+            li:last-child {
+                border-bottom: none;
+            }
+
+            li a {
+                padding: 10px 20px;
+                width: 100%;
+                font-size: 1.25em;
+                color: #3c3c3c;
+            }
+
+            .active > a {
+                color: green;
+            }
+
+        }
+
     }
 </style>
 
-
-<style scoped>
-
-    .icon {
-        position: relative;
-        display: inline-block;
-        background-size: contain;
-        background-position: 0 0;
-        height: 1rem;
-        background-repeat: no-repeat;
-        width: 1rem;
-        margin-right: 0.25rem;
-        margin-left: 0;
-    }
-
-    img {
-        height: auto;
-        max-width: 2.5rem;
-        margin-right: 1rem;
-    }
-
-    .d-center {
-        align-items: center;
-        display: inline-flex;
-    }
-
-    .v-select .dropdown li {
-        border-bottom: 1px solid rgba(112, 128, 144, 0.1);
-    }
-
-    .v-select .dropdown li:last-child {
-        border-bottom: none;
-    }
-
-    .v-select .dropdown li a {
-        padding: 10px 20px;
-        width: 100%;
-        font-size: 1.25em;
-        color: #3c3c3c;
-    }
-
-    .v-select .dropdown-menu .active > a {
-        color: green;
-    }
-</style>
