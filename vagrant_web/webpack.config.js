@@ -1,10 +1,10 @@
-const path    = require('path');
+const path = require('path');
 const webpack = require('webpack');
 
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
-const devMode              = process.env.NODE_ENV !== 'production';
-const VueLoaderPlugin      = require('vue-loader/lib/plugin');
-const ASSET_PATH           = devMode ? 'http://localhost:8080/' /* In DEV Mode This is the VIRTUAL Path where the files will be served from memory. But also where the hot-reload stuff comes from. */ : '/';
+const devMode = process.env.NODE_ENV !== 'production';
+const VueLoaderPlugin = require('vue-loader/lib/plugin');
+const ASSET_PATH = devMode ? 'http://localhost:8080/' /* In DEV Mode This is the VIRTUAL Path where the files will be served from memory. But also where the hot-reload stuff comes from. */ : '/';
 
 // const MergeIntoSingleFilePlugin = require('webpack-merge-and-include-globally');
 
@@ -85,10 +85,15 @@ module.exports = {
                 test: /\.(sa|sc|c)ss$/,
                 use: [
                     devMode ? 'style-loader' : {
-                        loader: MiniCssExtractPlugin.loader, options: {
+                        loader: MiniCssExtractPlugin.loader,
+                        options: {
                             // you can specify a publicPath here
                             // by default it use publicPath in webpackOptions.output
-                            publicPath: 'css/'
+                            publicPath: 'css/',
+
+                            // only enable hot in development
+                            // hmr: devMode,
+
                         }
                     },
                     'css-loader',
@@ -156,11 +161,7 @@ module.exports = {
     optimization: {
         splitChunks: {
             cacheGroups: {
-                commons: {
-                    test: /[\\/](node_modules|vendor)[\\/]/,
-                    name: "vendor",
-                    chunks: "initial",
-                },
+
             },
         },
     },
