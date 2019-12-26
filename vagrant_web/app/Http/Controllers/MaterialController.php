@@ -53,9 +53,9 @@ class MaterialController extends Controller {
 
 		$kw        = Keyword::where(['lc_title' => $lcKeyword])->first();
 		$materials = $kw->materials()
-						->with($this->withAttributes)
-						->orderBy('pivot_relevance', 'desc')
-						->paginate(50);
+			->with($this->withAttributes)
+			->orderBy('pivot_relevance', 'desc')
+			->paginate(50);
 
 		$title = "Suche nach " . $kw->title . "'";
 
@@ -65,24 +65,24 @@ class MaterialController extends Controller {
 	public function indexByBibleverse(int $from, int $to) {
 
 		$matQuery = Material::query()
-							->select(['materials.*', DB::raw('max(bibleverse_material.relevance) as relevance')])
-							->distinct()
-							->with($this->withAttributes)
-							->orderBy('relevance', 'desc')
-							->groupBy('materials.id')
-							->where(function ($q) use ($from, $to) {
-								$q->orWhereBetween("bibleverses.from", [$from, $to]);
-								$q->orWhereBetween("bibleverses.to", [$from, $to]);
-								$q->orWhere(function ($q) use ($from, $to) {
-									$q->where("bibleverses.from", '>', $from);
-									$q->where("bibleverses.to", '<', $to);
-								});
-							})
-							->leftJoin("bibleverse_material as bibleverse_material", 'materials.id', '=',
-									   "bibleverse_material.material_id")
-							->leftJoin("bibleverses as bibleverses",
-									   "bibleverse_material.bibleverse_id", '=',
-									   "bibleverses.id");
+			->select(['materials.*', DB::raw('max(bibleverse_material.relevance) as relevance')])
+			->distinct()
+			->with($this->withAttributes)
+			->orderBy('relevance', 'desc')
+			->groupBy('materials.id')
+			->where(function ($q) use ($from, $to) {
+				$q->orWhereBetween("bibleverses.from", [$from, $to]);
+				$q->orWhereBetween("bibleverses.to", [$from, $to]);
+				$q->orWhere(function ($q) use ($from, $to) {
+					$q->where("bibleverses.from", '>', $from);
+					$q->where("bibleverses.to", '<', $to);
+				});
+			})
+			->leftJoin("bibleverse_material as bibleverse_material", 'materials.id', '=',
+				"bibleverse_material.material_id")
+			->leftJoin("bibleverses as bibleverses",
+				"bibleverse_material.bibleverse_id", '=',
+				"bibleverses.id");
 
 
 		try {
@@ -106,7 +106,7 @@ class MaterialController extends Controller {
 	/**
 	 * Store a newly created resource in storage.
 	 *
-	 * @param  \Illuminate\Http\Request $request
+	 * @param \Illuminate\Http\Request $request
 	 * @return \Illuminate\Http\Response
 	 */
 	public function store(MaterialRequest $request) {
@@ -175,7 +175,7 @@ class MaterialController extends Controller {
 	/**
 	 * Display the specified resource.
 	 *
-	 * @param  Material $material
+	 * @param Material $material
 	 * @return \Illuminate\Http\Response
 	 */
 	public function show(Material $material) {
@@ -184,10 +184,10 @@ class MaterialController extends Controller {
 		// Zeige andere Materialien, die ebenfalls mit diesen Ressourcen verknüpft sind
 		$resourceIds       = $material->resources->pluck('id');
 		$andereMaterialien = DB::table('material_resource')
-							   ->select('material_id')
-							   ->whereIn('resource_id', $resourceIds)
-							   ->where('material_id', '!=', $material->id)
-							   ->groupBy('material_id')->get();
+			->select('material_id')
+			->whereIn('resource_id', $resourceIds)
+			->where('material_id', '!=', $material->id)
+			->groupBy('material_id')->get();
 
 
 		return view('materials.show', ['material' => $material, 'andereMaterialien' => $andereMaterialien]);
@@ -196,7 +196,7 @@ class MaterialController extends Controller {
 	/**
 	 * Show the form for editing the specified resource.
 	 *
-	 * @param  Material $material
+	 * @param Material $material
 	 * @return \Illuminate\Http\Response
 	 */
 	public function edit(Material $material) {
@@ -208,8 +208,8 @@ class MaterialController extends Controller {
 	/**
 	 * Update the specified resource in storage.
 	 *
-	 * @param  \Illuminate\Http\Request $request
-	 * @param  Material                 $material
+	 * @param \Illuminate\Http\Request $request
+	 * @param Material $material
 	 * @return \Illuminate\Http\Response
 	 */
 	public function update(MaterialRequest $request, Material $material) {
@@ -223,7 +223,7 @@ class MaterialController extends Controller {
 	/**
 	 * Remove the specified resource from storage.
 	 *
-	 * @param  Material $material
+	 * @param Material $material
 	 * @return \Illuminate\Http\Response
 	 */
 	public function delete(Material $material) {
@@ -237,13 +237,13 @@ class MaterialController extends Controller {
 	/**
 	 * Remove the specified resource from storage.
 	 *
-	 * @param  Material $material
+	 * @param Material $material
 	 * @param           $request
 	 * @return \Illuminate\Http\Response
 	 */
 	public function destroy(Material $material, Request $request) {
 
-		$delResources     = (bool) $request->get('deleteResources', FALSE);
+		$delResources     = (bool)$request->get('deleteResources', FALSE);
 		$deletedResources = 0;
 		$ignoredResources = 0;
 		$deletedMaterials = 0;
@@ -273,7 +273,7 @@ class MaterialController extends Controller {
 		$deletedMaterials++;
 
 		return view('materials.destroyConfirm',
-					compact('deletedResources', 'ignoredResources', 'deletedMaterials')
+			compact('deletedResources', 'ignoredResources', 'deletedMaterials')
 		);
 
 	}

@@ -104,9 +104,9 @@ class SearchController extends Controller {
 
 				// Search for Keywords
 				$query = Keyword::searchQuery($restString)
-								->offset($offset)
-								->limit($takeFromQuery)
-								->get();
+					->offset($offset)
+					->limit($takeFromQuery)
+					->get();
 
 				$query->each(function (Keyword $keyword) use ($result) {
 					$result->push(
@@ -200,9 +200,9 @@ class SearchController extends Controller {
 
 				// Search for Keywords
 				$query = Keyword::searchQuery($restString)
-								->offset($offset)
-								->limit($takeFromQuery)
-								->get();
+					->offset($offset)
+					->limit($takeFromQuery)
+					->get();
 
 				$query->each(function (Keyword $keyword) use ($result) {
 					$result->push(
@@ -234,7 +234,7 @@ class SearchController extends Controller {
 		$queryString    = str_replace('%', '*', $queryString);
 		$queryType      = $request->get('t', FALSE);
 		$queryPage      = $request->get('page', 1);
-		$paginationSize = min((int) $request->get('per_page', 15), 50);
+		$paginationSize = min((int)$request->get('per_page', 15), 50);
 
 		if ($queryType && !in_array($queryType, array_keys(Keyword::AVAILABLE_TYPES))) {
 			$queryType = FALSE;
@@ -242,10 +242,10 @@ class SearchController extends Controller {
 
 		// Search for Keywords
 		$keywords = Keyword::searchQuery($queryString, $queryType)
-						   ->offset(($paginationSize) * ($queryPage - 1))
-						   ->limit($paginationSize)
-						   ->orderByRaw('LENGTH(title)')
-						   ->get();
+			->offset(($paginationSize) * ($queryPage - 1))
+			->limit($paginationSize)
+			->orderByRaw('LENGTH(title)')
+			->get();
 
 		return $keywords;
 	}
@@ -272,7 +272,7 @@ class SearchController extends Controller {
 
 	public function get(Request $request) {
 		$query          = $this->turnRequestIntoQuery($request);
-		$paginationSize = min((int) $request->get('per_page', 30), 100);
+		$paginationSize = min((int)$request->get('per_page', 30), 100);
 
 
 		/* Pagination funktioniert nur, wenn der Bugfix manuell eingespielt wird in der paginate() Funktion
@@ -291,10 +291,10 @@ class SearchController extends Controller {
 	protected function turnRequestIntoQuery(Request $request) {
 		$searchBars = $request->get('q', []);
 		$matQuery   = Material::query()
-							  ->select('materials.*')
-							  ->distinct()
-							  ->with(['author', 'keywords', 'bibleverses', 'resources'])
-							  ->orderBy('materials.rating', 'desc');
+			->select('materials.*')
+			->distinct()
+			->with(['author', 'keywords', 'bibleverses', 'resources'])
+			->orderBy('materials.rating', 'desc');
 
 
 		foreach ($searchBars as $index => $bar) {
@@ -321,14 +321,14 @@ class SearchController extends Controller {
 
 				if ($barGroupColl->has('t')) {
 					$resourceTypes = $barGroupColl->get('t')
-												  ->filter(function ($el, $key) {
-													  return isset($el['text']) && in_array(strtolower($el['text']),
-																							Resource::$allResourceTypeKeys);
-												  })
-												  ->map(function ($el) {
-													  return strtolower($el['text']);
-												  })
-												  ->all();
+						->filter(function ($el, $key) {
+							return isset($el['text']) && in_array(strtolower($el['text']),
+									Resource::$allResourceTypeKeys);
+						})
+						->map(function ($el) {
+							return strtolower($el['text']);
+						})
+						->all();
 				}
 
 				if ($barGroupColl->has('*')) {
@@ -346,8 +346,8 @@ class SearchController extends Controller {
 					// Todo: Merge bibleverses if they intersect
 					if (count($bibleverseRanges) > 0) {
 						foreach ($bibleverseRanges as $bv) {
-							$from = (int ) $bv['from'];
-							$to   = (int) $bv['to'];
+							$from = (int )$bv['from'];
+							$to   = (int)$bv['to'];
 
 							$q->orWhereBetween("bibleverses{$index}.from", [$from, $to]);
 							$q->orWhereBetween("bibleverses{$index}.to", [$from, $to]);
@@ -376,26 +376,26 @@ class SearchController extends Controller {
 				if ($keywordsAvailable === TRUE) {
 					/** @var Builder $matQuery */
 					$matQuery->leftJoin("keyword_material as keyword_material{$index}", 'materials.id', '=',
-										"keyword_material{$index}.material_id");
+						"keyword_material{$index}.material_id");
 				}
 
 				if ($bibleversesAvailable === TRUE) {
 					/** @var Builder $matQuery */
 					// Todo: Kann hier evt. eine der beiden left Joins ohne das index auskommen?
 					$matQuery->leftJoin("bibleverse_material as bibleverse_material{$index}", 'materials.id', '=',
-										"bibleverse_material{$index}.material_id");
+						"bibleverse_material{$index}.material_id");
 					$matQuery->join("bibleverses as bibleverses{$index}",
-									"bibleverse_material{$index}.bibleverse_id", '=',
-									"bibleverses{$index}.id");
+						"bibleverse_material{$index}.bibleverse_id", '=',
+						"bibleverses{$index}.id");
 				}
 
 				if (count($resourceTypes) > 0) {
 					/** @var Builder $matQuery */
 					$matQuery->leftJoin("material_resource as material_resource{$index}", 'materials.id', '=',
-										"material_resource{$index}.material_id");
+						"material_resource{$index}.material_id");
 					$matQuery->join("resources as resources{$index}",
-									"material_resource{$index}.resource_id", '=',
-									"resources{$index}.id");
+						"material_resource{$index}.resource_id", '=',
+						"resources{$index}.id");
 				}
 			}
 		}

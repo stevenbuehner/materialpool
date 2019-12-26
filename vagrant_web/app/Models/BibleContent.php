@@ -8,8 +8,8 @@ use Illuminate\Database\Eloquent\Model;
  * Class BibleverseContent
  *
  * @package App\Models
- * @property int    $bible_id;
- * @property int    $verse;
+ * @property int $bible_id;
+ * @property int $verse;
  * @property string text;
  *
  */
@@ -36,7 +36,7 @@ class BibleContent extends Model {
 	}
 
 	protected static function getCombi($bookId, $chapter, $verse) {
-		return (int) sprintf('%03d%03d%03d', $bookId, $chapter, $verse);
+		return (int)sprintf('%03d%03d%03d', $bookId, $chapter, $verse);
 	}
 
 	public function bible() {

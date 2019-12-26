@@ -48,9 +48,9 @@ class KeywordProperty extends Property {
 	public function getKeywordValue() {
 		list($type, $title) = parent::getValue();
 		$newKeyword = Keyword::firstOrNew([
-											  'title' => $title,
-											  'type'  => $type
-										  ]);
+			'title' => $title,
+			'type'  => $type
+		]);
 
 		return $newKeyword;
 	}

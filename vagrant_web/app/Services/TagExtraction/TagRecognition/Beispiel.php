@@ -19,8 +19,8 @@ class Beispiel extends AbstractTagRecognition {
 		$result = [];
 
 		$tagValue = $this->hasPrefix([
-										 'beispiel'
-									 ], $stringValue);
+			'beispiel'
+		], $stringValue);
 
 		if (FALSE !== $tagValue) {
 			$result[] = new KeywordProperty($tagValue, 'key');

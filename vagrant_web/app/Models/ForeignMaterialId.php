@@ -8,15 +8,15 @@ use Illuminate\Database\Eloquent\Model;
  * Class ForeignMaterialId
  *
  * @package App\Models
- * @property int      $id
- * @property int      $material_id
- * @property int      $foreign_id
- * @property int      $user_id
+ * @property int $id
+ * @property int $material_id
+ * @property int $foreign_id
+ * @property int $user_id
  * @property          $created_at
  * @property          $updated_at
  * @property Material $material
- * @property User     $user
- * @property Bundle   $bundle
+ * @property User $user
+ * @property Bundle $bundle
  */
 class ForeignMaterialId extends Model {
 

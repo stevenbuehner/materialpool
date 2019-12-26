@@ -29,8 +29,8 @@ class TextLargePreviewGenerator implements PreviewGeneratorInterface {
 
 	/**
 	 * @param ResourceEntity $resource
-	 * @param Size           $size
-	 * @param null           $page
+	 * @param Size $size
+	 * @param null $page
 	 * @return \Intervention\Image\Image
 	 * @throws NotPreviewAbleException
 	 */
@@ -144,9 +144,9 @@ class TextLargePreviewGenerator implements PreviewGeneratorInterface {
 	}
 
 	/**
-	 * @param ResourceEntity              $resource
+	 * @param ResourceEntity $resource
 	 * @param ResourceLimitationInterface $limitation
-	 * @param string|null                 $context
+	 * @param string|null $context
 	 * @return string|false
 	 */
 	public function renderHTMLPreview(ResourceEntity $resource, ResourceLimitationInterface $limitation = NULL, $context = NULL) {
@@ -154,10 +154,10 @@ class TextLargePreviewGenerator implements PreviewGeneratorInterface {
 		/** @var $resource Text */
 
 		$view = View::make('resources.generators.text-large')
-					->with('resource', $resource)
-					->with('context', $context)
-					->with('content', $resource->content)
-					->with('title', 'Textschnipsel');
+			->with('resource', $resource)
+			->with('context', $context)
+			->with('content', $resource->content)
+			->with('title', 'Textschnipsel');
 
 		return $view->render();
 	}

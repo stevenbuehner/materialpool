@@ -82,15 +82,15 @@ trait ResourceMaterialTrait {
 		$changes = $material->resources()->sync($resourceIds);
 
 		foreach ($changes['attached'] as $resourceId) {
-			event(new ResourceWasAttached($material, new Resource(['id' => $resourceId]) ));
+			event(new ResourceWasAttached($material, new Resource(['id' => $resourceId])));
 		}
 
 		foreach ($changes['updated'] as $resourceId) {
-			event(new ResourceWasAttached($material, new Resource(['id' => $resourceId]) ));
+			event(new ResourceWasAttached($material, new Resource(['id' => $resourceId])));
 		}
 
 		foreach ($changes['detached'] as $resourceId) {
-			event(new ResourceWasDetached($material, new Resource(['id' => $resourceId]) ));
+			event(new ResourceWasDetached($material, new Resource(['id' => $resourceId])));
 		}
 
 

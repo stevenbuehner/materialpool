@@ -28,8 +28,8 @@ class TagExtractionService {
 	/**
 	 *
 	 * @param string|array<string> $strings
-	 * @param int                  $numRequiredCommasForResult (Default = 2)
-	 * @param array                $context (Data, that may be passed to the tagRecognition etc.)
+	 * @param int $numRequiredCommasForResult (Default = 2)
+	 * @param array $context (Data, that may be passed to the tagRecognition etc.)
 	 * @return Collection
 	 * @throws \StevenBuehner\BibleVerseBundle\Exceptions\InvalidBookIdException
 	 */
@@ -44,7 +44,7 @@ class TagExtractionService {
 
 		foreach ($strings as $key => $str) {
 			list($preProcessedString, $preTagCollection, $allowTagRecognition) = $this->runPreRecognitionTasks($str,
-																											   $context);
+				$context);
 
 			/** @var $preTagCollection Collection */
 			if ($preTagCollection->count() > 0) {
@@ -137,7 +137,7 @@ class TagExtractionService {
 			for ($i = 2; $i < count($scan); $i++) {
 				// ignore the first two entries of ''. and '..'
 				$fullClassName = $this->recognitionNamespace . '\\' . substr(ucfirst($scan [$i]), 0,
-																			 strlen($scan [$i]) - 4);
+						strlen($scan [$i]) - 4);
 				// require_once $this->recognitionFolder . $scan [$i];
 				$instance = new $fullClassName ();
 
@@ -235,8 +235,8 @@ class TagExtractionService {
 	 */
 	protected function getDefaultTagFromString($tagValue) {
 		return Keyword::firstOrCreate([
-										  'title' => $tagValue
-									  ]);
+			'title' => $tagValue
+		]);
 	}
 
 	/**

@@ -33,9 +33,9 @@ class ResourcePreviewService extends AbstractPreviewService {
 	/**
 	 *
 	 * @param ResourceEntity $resource
-	 * @param null           $width
-	 * @param null           $height
-	 * @param null           $pageOrSeconds
+	 * @param null $width
+	 * @param null $height
+	 * @param null $pageOrSeconds
 	 * @return Image
 	 */
 	public function getImagePreviewByWidthAndHeight(ResourceEntity $resource, $width = NULL, $height = NULL, $pageOrSeconds = NULL) {
@@ -57,8 +57,8 @@ class ResourcePreviewService extends AbstractPreviewService {
 	 * Wraps the generator function of the resource and catches errors to log them but not show them in the frontend
 	 *
 	 * @param ResourceEntity $resource
-	 * @param Size           $size
-	 * @param null|int       $pageOrSeconds Page counting from 1 or seconds offset of Video/Audio
+	 * @param Size $size
+	 * @param null|int $pageOrSeconds Page counting from 1 or seconds offset of Video/Audio
 	 * @return Image
 	 */
 	public function getFreshImagePreview(ResourceEntity $resource, Size $size, $pageOrSeconds = NULL) {
@@ -70,7 +70,7 @@ class ResourcePreviewService extends AbstractPreviewService {
 
 		} catch (NotPreviewAbleException $e) {
 
-		    Log::error($e->getMessage(), $e->getTraceAsString());
+			Log::error($e->getMessage(), $e->getTraceAsString());
 
 			if ($e->getPrevious() instanceof FileNotFoundException) {
 				return $this->getImageWithText('Resource missing', $size->getWidth(), $size->getHeight());
@@ -113,8 +113,8 @@ class ResourcePreviewService extends AbstractPreviewService {
 
 	/**
 	 * @param ResourceEntity $resource
-	 * @param Size           $size
-	 * @param null           $pageOrSeconds
+	 * @param Size $size
+	 * @param null $pageOrSeconds
 	 * @return Image
 	 */
 	public function getCachedImage(ResourceEntity $resource, Size $size, $pageOrSeconds = NULL) {
@@ -140,9 +140,9 @@ class ResourcePreviewService extends AbstractPreviewService {
 	/**
 	 * Wraps the generator function of the resource and catches errors to log them but not show them in the frontend
 	 *
-	 * @param ResourceEntity                   $resource
+	 * @param ResourceEntity $resource
 	 * @param ResourceLimitationInterface|NULL $limitation
-	 * @param null                             $context
+	 * @param null $context
 	 * @return false|string
 	 */
 	public function renderHTMLPreview(ResourceEntity $resource, ?ResourceLimitationInterface $limitation = NULL, $context = NULL, $size) {

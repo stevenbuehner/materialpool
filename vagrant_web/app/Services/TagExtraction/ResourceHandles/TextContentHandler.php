@@ -74,13 +74,13 @@ class TextContentHandler implements HandlerInterface {
 			// How many tags where found in the first line of text? => At least three are needed, to identify this as info
 			if ($foundTags->count() < 3) {
 				Log::info("Too less information was extracted from the first line -> ignoring information",
-						  ['resource_id' => $resource->id, 'handler' => __CLASS__]);
+					['resource_id' => $resource->id, 'handler' => __CLASS__]);
 
 				// Use the whole Textfile as OCR-Information
 				$otherLines = trim($content);
 				if (strlen($otherLines) > 3) {
 					$ocrProperty = new OcrTextProperty(str_limit($content, 200),
-													   RelevanceInterface::RELEVANCE_EXIF_MAX - 10);
+						RelevanceInterface::RELEVANCE_EXIF_MAX - 10);
 					$result->push($ocrProperty);
 				}
 
@@ -118,7 +118,7 @@ class TextContentHandler implements HandlerInterface {
 			$resource->save();
 		} else {
 			Log::error('This file is not of mimetype text/plain. Could not delete FirstContentLine',
-					   ['resource_id' => $resource->id]);
+				['resource_id' => $resource->id]);
 		}
 	}
 

@@ -19,8 +19,8 @@ class Tag extends AbstractTagRecognition {
 	 */
 	public function extractSpecializedTag($stringValue) {
 		$tagValue = $this->hasPrefix([
-										 'tag'
-									 ], $stringValue);
+			'tag'
+		], $stringValue);
 
 		$result = [];
 

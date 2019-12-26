@@ -30,8 +30,8 @@ class ImagePreviewGenerator implements PreviewGeneratorInterface {
 
 	/**
 	 * @param ResourceEntity $resource
-	 * @param Size           $size
-	 * @param null           $page
+	 * @param Size $size
+	 * @param null $page
 	 * @return \Imagick
 	 * @throws NotPreviewAbleException
 	 */
@@ -83,9 +83,9 @@ class ImagePreviewGenerator implements PreviewGeneratorInterface {
 	}
 
 	/**
-	 * @param ResourceEntity              $resource
+	 * @param ResourceEntity $resource
 	 * @param ResourceLimitationInterface $limitation
-	 * @param string|null                 $context
+	 * @param string|null $context
 	 * @return string|false
 	 */
 	public function renderHTMLPreview(ResourceEntity $resource, ResourceLimitationInterface $limitation = NULL, $context = NULL) {
@@ -97,16 +97,16 @@ class ImagePreviewGenerator implements PreviewGeneratorInterface {
 			$maxWidth  = config('app.resource.preview.maxWidth');
 			$maxHeight = config('app.resource.preview.maxHeight');
 			$src       = route('resource.image.preview',
-							   ['resource' => $resource->id,
-								'width'    => $maxWidth,
-								'height'   => $maxHeight]);
+				['resource' => $resource->id,
+				 'width'    => $maxWidth,
+				 'height'   => $maxHeight]);
 		}
 
 		$view = View::make('resources.generators.image')
-					->with('resource', $resource)
-					->with('context', $context)
-					->with('src', $src)
-					->with('title', empty($resource->notes) ? 'Bild' : $resource->notes);
+			->with('resource', $resource)
+			->with('context', $context)
+			->with('src', $src)
+			->with('title', empty($resource->notes) ? 'Bild' : $resource->notes);
 
 		return $view->render();
 	}

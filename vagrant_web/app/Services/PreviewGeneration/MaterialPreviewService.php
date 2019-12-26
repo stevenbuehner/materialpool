@@ -79,7 +79,7 @@ class MaterialPreviewService extends AbstractPreviewService {
 
 			$limitationStartValue = $this->getLimitationPreviewValue($resource);
 			$size                 = new Size(config('app.resource.preview.maxWidth'),
-											 config('app.resource.preview.maxHeight'));
+				config('app.resource.preview.maxHeight'));
 
 			$preview = $generator->getImagePreview($resource, $size, $limitationStartValue);
 

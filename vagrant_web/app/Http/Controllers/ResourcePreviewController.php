@@ -22,8 +22,8 @@ class ResourcePreviewController {
 
 	/**
 	 * @param Resource $resource
-	 * @param int      $width
-	 * @param int      $height
+	 * @param int $width
+	 * @param int $height
 	 * @return \Illuminate\Http\Response
 	 */
 	public function getImage(Resource $resource, $width = 1024, $height = 1024) {

@@ -36,7 +36,7 @@ class PageLimitation implements ResourceLimitationInterface {
 	public function setPages(array $pages) {
 		$this->pages = [];
 		foreach ($pages as $page) {
-			$this->pages[] = (int) $page;
+			$this->pages[] = (int)$page;
 		}
 
 		$this->sortArrayAlphabetically();
@@ -70,7 +70,7 @@ class PageLimitation implements ResourceLimitationInterface {
 	 * @return PageLimitation
 	 */
 	public function removePage(int $pageNo) {
-		if (($key = array_search($pageNo, $this->pages)) !== false) {
+		if (($key = array_search($pageNo, $this->pages)) !== FALSE) {
 			unset($this->pages[$key]);
 		}
 

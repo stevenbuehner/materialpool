@@ -34,8 +34,8 @@ class VideoPreviewGenerator implements PreviewGeneratorInterface {
 
 	/**
 	 * @param ResourceEntity $resource
-	 * @param Size           $size
-	 * @param null           $seconds
+	 * @param Size $size
+	 * @param null $seconds
 	 * @return Image
 	 * @throws NotPreviewAbleException
 	 * @throws \League\Flysystem\FileExistsException
@@ -44,11 +44,11 @@ class VideoPreviewGenerator implements PreviewGeneratorInterface {
 
 		$image  = NULL;
 		$ffmpeg = FFMpeg::create([
-									 'ffmpeg.binaries'  => resource_path('bin/ffmpeg'),
-									 'ffprobe.binaries' => resource_path('bin/ffprobe'),
-									 'timeout'          => 3600, // The timeout for the underlying process
-									 'ffmpeg.threads'   => 12,   // The number of threads that FFMpeg should use
-								 ]);
+			'ffmpeg.binaries'  => resource_path('bin/ffmpeg'),
+			'ffprobe.binaries' => resource_path('bin/ffprobe'),
+			'timeout'          => 3600, // The timeout for the underlying process
+			'ffmpeg.threads'   => 12,   // The number of threads that FFMpeg should use
+		]);
 
 
 		// Make a local copy of the movie (copy to local, whereever it is)
@@ -68,7 +68,7 @@ class VideoPreviewGenerator implements PreviewGeneratorInterface {
 
 			$video            = $ffmpeg->open($localPath);
 			$firstVideoStream = $video->getStreams()->videos()->first();
-			$duration         = (float) $firstVideoStream->get('duration');
+			$duration         = (float)$firstVideoStream->get('duration');
 
 			if ($seconds === NULL || $seconds < 0 || $seconds > $duration) {
 				$offset = TimeCode::fromSeconds(round($duration * 0.15, 2));
@@ -102,19 +102,19 @@ class VideoPreviewGenerator implements PreviewGeneratorInterface {
 	}
 
 	/**
-	 * @param ResourceEntity              $resource
+	 * @param ResourceEntity $resource
 	 * @param ResourceLimitationInterface $limitation
-	 * @param string|null                 $context
+	 * @param string|null $context
 	 * @return string|false
 	 */
 	public function renderHTMLPreview(ResourceEntity $resource, ResourceLimitationInterface $limitation = NULL, $context = NULL) {
 
 		/** @var $resource Text */
 		$view = View::make('resources.generators.video')
-					->with('resource', $resource)
-					->with('context', $context)
-					->with('limitation', $limitation)
-					->with('content', $resource->content);
+			->with('resource', $resource)
+			->with('context', $context)
+			->with('limitation', $limitation)
+			->with('content', $resource->content);
 
 		return $view->render();
 	}

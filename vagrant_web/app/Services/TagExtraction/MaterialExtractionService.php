@@ -40,7 +40,7 @@ class MaterialExtractionService {
 
 	/**
 	 * @param Resource|Resource[] $resources
-	 * @param array               $additionalInformation
+	 * @param array $additionalInformation
 	 * @return Material
 	 */
 	public function createGuessedMaterialFromResource($resources, $additionalInformation = []) {
@@ -97,7 +97,7 @@ class MaterialExtractionService {
 		// $properties = $this->sortBibleVerseProperties($properties);
 
 		$this->insertPropertiesIntoMaterial($material, $properties)
-			 ->save();
+			->save();
 
 		event(new MaterialWasCreated($material));
 
@@ -188,7 +188,7 @@ class MaterialExtractionService {
 	 * Orders, prioritizes and inserts properties into an existing material.
 	 * But it does NOT save the material.
 	 *
-	 * @param Material                       $material
+	 * @param Material $material
 	 * @param PropertyInterface[]|Collection $properties
 	 * @return Material
 	 */

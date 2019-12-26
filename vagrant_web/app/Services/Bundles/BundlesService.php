@@ -134,13 +134,13 @@ class BundlesService {
 
 		$bundles = $dbConnection->select('SELECT * FROM bundle');
 		foreach ($bundles as $bundleInfo) {
-			$myBundle                    = (array) $bundleInfo;
-			$myBundle["id"]              = (int) $myBundle["id"]; // Parse to int
+			$myBundle                    = (array)$bundleInfo;
+			$myBundle["id"]              = (int)$myBundle["id"]; // Parse to int
 			$myBundle['container_root']  = dirname($dbPath);
 			$myBundle['disk_files']      = dirname(($dbPath)) . '/files';
 			$myBundle['connection']      = $containerName;
-			$myBundle['count_materials'] = (int) $dbConnection->selectOne('SELECT COUNT(*) as Anzahl FROM material WHERE bundle_id=' . $bundleInfo->id)->Anzahl;
-			$myBundle['count_files']     = (int) $dbConnection->selectOne('SELECT COUNT(mf.file_id) as Anzahl FROM material m INNER JOIN material_files mf ON (m.id = mf.material_id) WHERE m.bundle_id=' . $bundleInfo->id)->Anzahl;
+			$myBundle['count_materials'] = (int)$dbConnection->selectOne('SELECT COUNT(*) as Anzahl FROM material WHERE bundle_id=' . $bundleInfo->id)->Anzahl;
+			$myBundle['count_files']     = (int)$dbConnection->selectOne('SELECT COUNT(mf.file_id) as Anzahl FROM material m INNER JOIN material_files mf ON (m.id = mf.material_id) WHERE m.bundle_id=' . $bundleInfo->id)->Anzahl;
 			$myBundle['icons']           = isset($bundleInfo->icons) ? json_decode($bundleInfo->icons) : [];
 
 			$containerBundles->put($bundleInfo->uuid, $myBundle);
@@ -164,7 +164,7 @@ class BundlesService {
 		$query = 'SELECT DISTINCT files.* FROM material INNER JOIN material_files ON (material.id = material_files.material_id) INNER JOIN files ON (files.id=material_files.file_id) WHERE material.bundle_id=:BUNDLE_ID ';
 
 		// Pagination
-		$page             = ($page <= 0) ? 1 : (int) $page;  // Start at 1
+		$page             = ($page <= 0) ? 1 : (int)$page;  // Start at 1
 		$resourcesPerPage = ($resourcesPerPage <= 0) ? 100 : $resourcesPerPage;
 		$start            = $start = ($page - 1) * $resourcesPerPage;
 		$limit            = " LIMIT " . $start . "," . $resourcesPerPage;
@@ -257,7 +257,7 @@ class BundlesService {
 		$query = 'SELECT DISTINCT material.* FROM material WHERE bundle_id=:BUNDLE_ID ';
 
 		// Pagination
-		$page    = ($page <= 0) ? 1 : (int) $page;  // Start at 1
+		$page    = ($page <= 0) ? 1 : (int)$page;  // Start at 1
 		$perPage = ($perPage <= 0) ? 100 : $perPage;
 		$start   = $start = ($page - 1) * $perPage;
 		$limit   = " LIMIT " . $start . "," . $perPage;

@@ -45,7 +45,7 @@ class BibleverseController extends BaseController {
 	/**
 	 * Store a newly created resource in storage.
 	 *
-	 * @param  \Illuminate\Http\Request $request
+	 * @param \Illuminate\Http\Request $request
 	 * @return \Illuminate\Http\Response
 	 */
 	public function store(Request $request) {
@@ -55,9 +55,9 @@ class BibleverseController extends BaseController {
 
 		if ($request->has('from') && $request->has('to')) {
 			$bibleverse = Bibleverse::firstOrCreate([
-														'from' => $request->get('from'),
-														'to'   => $request->get('to')
-													]);
+				'from' => $request->get('from'),
+				'to'   => $request->get('to')
+			]);
 		}
 
 		if ($bibleverse === NULL && $request->has('label')) {
@@ -83,7 +83,7 @@ class BibleverseController extends BaseController {
 	/**
 	 * Show the form for editing the specified resource.
 	 *
-	 * @param  \App\Models\Bibleverse $bibleverse
+	 * @param \App\Models\Bibleverse $bibleverse
 	 * @return \Illuminate\Http\Response
 	 */
 	public function edit(Bibleverse $bibleverse) {
@@ -93,8 +93,8 @@ class BibleverseController extends BaseController {
 	/**
 	 * Update the specified resource in storage.
 	 *
-	 * @param  \Illuminate\Http\Request $request
-	 * @param  \App\Models\Bibleverse   $bibleverse
+	 * @param \Illuminate\Http\Request $request
+	 * @param \App\Models\Bibleverse $bibleverse
 	 * @return \Illuminate\Http\Response
 	 */
 	public function update(Request $request, Bibleverse $bibleverse) {
@@ -104,7 +104,7 @@ class BibleverseController extends BaseController {
 	/**
 	 * Remove the specified resource from storage.
 	 *
-	 * @param  \App\Models\Bibleverse $bibleverse
+	 * @param \App\Models\Bibleverse $bibleverse
 	 * @return \Illuminate\Http\Response
 	 */
 	public function destroy(Bibleverse $bibleverse) {
@@ -120,7 +120,7 @@ class BibleverseController extends BaseController {
 				$bibleverse->id =>
 					[
 						'relevance' => $request->get('relevance',
-													 RelevanceInterface::RELEVANCE_USER_AVG)
+							RelevanceInterface::RELEVANCE_USER_AVG)
 					]
 			],
 			$doNotDetachOtherRelationships = FALSE);

@@ -50,9 +50,9 @@ class NoPreviewGenerator implements PreviewGeneratorInterface {
 	}
 
 	/**
-	 * @param ResourceEntity                   $resource
+	 * @param ResourceEntity $resource
 	 * @param ResourceLimitationInterface|NULL $limitation
-	 * @param null                             $context
+	 * @param null $context
 	 * @return false|string|void
 	 * @throws NotPreviewAbleException
 	 */

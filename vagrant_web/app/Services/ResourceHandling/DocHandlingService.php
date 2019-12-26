@@ -32,14 +32,14 @@ class DocHandlingService {
 
 				$resource->page_count = FALSE;
 				Log::error('Could not count the page number because there is no fitting generator',
-						   ['resource' => $resource->toArray()]);
+					['resource' => $resource->toArray()]);
 
 			} else {
 
 				try {
 					$localPdfPath         = $generator->getTemporaryPdfFromDocument($resource);
 					$pages                = $this->pdfHandlingService->countPdfPagesInFilepath($localPdfPath);
-					$resource->page_count = (int) $pages;
+					$resource->page_count = (int)$pages;
 				} catch (NotPreviewAbleException $e) {
 					$resource->page_count = FALSE;
 				} catch (InvalidPageNoException $e) {

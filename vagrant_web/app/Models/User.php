@@ -12,12 +12,12 @@ use Laravel\Passport\HasApiTokens;
  * Class User
  *
  * @package App\Models
- * @property string     $name
- * @property string     $email
- * @property string     $password
- * @property string     $remember_token
- * @property int        $id
- * @property boolean    $is_admin
+ * @property string $name
+ * @property string $email
+ * @property string $password
+ * @property string $remember_token
+ * @property int $id
+ * @property boolean $is_admin
  * @property Collection $foreignResourceIds
  * @property Collection $foreignMaterialIds
  *

@@ -20,10 +20,10 @@ class Author extends AbstractTagRecognition {
 	 */
 	public function extractSpecializedTag($stringValue) {
 		$tagValue = $this->hasPrefix([
-										 'von',
-										 'from',
-										 'author'
-									 ], $stringValue);
+			'von',
+			'from',
+			'author'
+		], $stringValue);
 
 		$result = [];
 

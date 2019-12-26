@@ -14,17 +14,17 @@ use Nanigans\SingleTableInheritance\SingleTableInheritanceTrait;
  * Class Resource
  *
  * @package App
- * @property int        $id
- * @property int        $created_by
- * @property string     $remote_path
- * @property string     $local_path
- * @property string     $content_hash
- * @property string     $notes
- * @property bool       $is_public
+ * @property int $id
+ * @property int $created_by
+ * @property string $remote_path
+ * @property string $local_path
+ * @property string $content_hash
+ * @property string $notes
+ * @property bool $is_public
  * @property            $created_at
  * @property            $updated_at
- * @property int        $user_id
- * @property User       $creator
+ * @property int $user_id
+ * @property User $creator
  * @property Collection $materials
  * @property Collection $foreignIds
  */
@@ -142,8 +142,8 @@ class Resource extends Model {
 	 */
 	public function materials() {
 		return $this->belongsToMany(Material::class, 'material_resource', 'resource_id', 'material_id')
-					->withPivot('limitation')
-					->using(MaterialResource::class);
+			->withPivot('limitation')
+			->using(MaterialResource::class);
 	}
 
 	/**
@@ -168,7 +168,7 @@ class Resource extends Model {
 
 	/**
 	 * @param string $key
-	 * @param mixed  $default
+	 * @param mixed $default
 	 * @return mixed|null
 	 */
 	protected function getOption(string $key, $default = NULL) {

@@ -10,7 +10,7 @@ use Illuminate\Queue\SerializesModels;
 class CheckDuplicateResources implements ShouldQueue {
 	use  SerializesModels;
 
-	public $connection = 'database';
+	public    $connection = 'database';
 	protected $service;
 
 	/**

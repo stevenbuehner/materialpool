@@ -8,7 +8,7 @@ interface PreRecognitionProcessInterface {
 	 * preProcessTheInput change it if needed  ...
 	 *
 	 * @param string $value
-	 * @param array  $context
+	 * @param array $context
 	 * @return array [$resultInputString, Collection]
 	 */
 	public function preProcessInput($inputValue, $context);

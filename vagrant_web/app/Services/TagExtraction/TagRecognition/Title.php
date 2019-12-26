@@ -17,7 +17,7 @@ class Title implements PreRecognitionProcessInterface {
 	 * PreProcess found Title. Because a title might contain a bibleverse.
 	 *
 	 * @param string $value
-	 * @param array  $context
+	 * @param array $context
 	 * @return string
 	 */
 	public function preProcessInput($inputValue, $context) {

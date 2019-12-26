@@ -17,8 +17,8 @@ class ExifDate extends Created {
 	 */
 	public function extractSpecializedTag($stringValue) {
 		$tagValue = $this->hasPrefix([
-										 'CreateDate',
-									 ], $stringValue);
+			'CreateDate',
+		], $stringValue);
 
 		$result = [];
 
@@ -51,8 +51,8 @@ class ExifDate extends Created {
 		 * 2012:06:07 13:01:42Z
 		 */
 		if (preg_match('~^(\d{4}):(0\d|1[012]|\d):(31|30|[012]\d|\d)(\s+\d{2}:\d{2}:\d{2}(\s+\+\d{2}:\d{2})?(Z|(\.\d+)\+[0-9:]+)?)?$$~',
-					   $str,
-					   $matches) === 1
+				$str,
+				$matches) === 1
 		) {
 			$d = new \DateTime();
 			$d->setDate($matches[1], $matches[2], $matches[3]);

@@ -31,8 +31,8 @@ class ResourceController extends BaseController {
 	/**
 	 * Display the specified resource.
 	 *
-	 * @param  Resource $resource
-	 * @param Request   $request
+	 * @param Resource $resource
+	 * @param Request $request
 	 * @return Resource
 	 */
 	public function show(Resource $resource, Request $request) {
@@ -75,7 +75,7 @@ class ResourceController extends BaseController {
 		}
 
 		if ($request->has('is_public')) {
-			$builder->where('is_public', (bool) $request->get('is_public', FALSE));
+			$builder->where('is_public', (bool)$request->get('is_public', FALSE));
 		}
 
 		if ($request->has('content_hash')) {
@@ -115,10 +115,10 @@ class ResourceController extends BaseController {
 		// Check requirements
 		if (!($request->hasFile('file') xor !empty($request->get('content', NULL)))) {
 			return response()->json([
-										'success' => FALSE,
-										'error'   => 'Files XOR Content!'
-									])
-							 ->setStatusCode(409);
+				'success' => FALSE,
+				'error'   => 'Files XOR Content!'
+			])
+				->setStatusCode(409);
 		}
 
 		$uid = $request->get('foreign_material_id', NULL);
@@ -126,10 +126,10 @@ class ResourceController extends BaseController {
 
 			if (empty($uid)) {
 				return response()->json([
-											'success' => FALSE,
-											'error'   => 'Missing parameter foreign_material_id when using create_material_from_ressource=TRUE'
-										])
-								 ->setStatusCode(409);
+					'success' => FALSE,
+					'error'   => 'Missing parameter foreign_material_id when using create_material_from_ressource=TRUE'
+				])
+					->setStatusCode(409);
 			}
 
 			$fid = ForeignMaterialId::where(
@@ -139,10 +139,10 @@ class ResourceController extends BaseController {
 
 			if ($fid !== NULL) {
 				return response()->json([
-											'success' => FALSE,
-											'error'   => 'The ForeignMaterialID for this user exists already'
-										])
-								 ->setStatusCode(409);
+					'success' => FALSE,
+					'error'   => 'The ForeignMaterialID for this user exists already'
+				])
+					->setStatusCode(409);
 			}
 		}
 
@@ -196,7 +196,7 @@ class ResourceController extends BaseController {
 
 
 	/**
-	 * @param Request              $request
+	 * @param Request $request
 	 * @param \App\Models\Resource $resource
 	 * @return Resource
 	 * @throws \Illuminate\Validation\ValidationException

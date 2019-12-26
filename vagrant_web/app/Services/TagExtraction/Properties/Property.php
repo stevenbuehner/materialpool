@@ -50,7 +50,7 @@ abstract class Property implements CompareablePropertyInterface, RelevanceInterf
 	abstract function insertYourselfToItem(Material $material);
 
 	public function __toString() {
-		return 'r=' . $this->getRelevance() . ',v=' . ((string) $this->getValue());
+		return 'r=' . $this->getRelevance() . ',v=' . ((string)$this->getValue());
 	}
 
 	/**
@@ -79,7 +79,7 @@ abstract class Property implements CompareablePropertyInterface, RelevanceInterf
 	 * @param int $relevance
 	 */
 	public function setRelevance($relevance) {
-		$this->relevance = ( int ) $relevance;
+		$this->relevance = ( int )$relevance;
 	}
 }
 

@@ -15,18 +15,18 @@ use StevenBuehner\BibleVerseBundle\Service\BibleVerseService;
  * Class Bibleverse
  *
  * @package App\Modules
- * @property int      $id
- * @property int      $from
- * @property int      $to
+ * @property int $id
+ * @property int $from
+ * @property int $to
  * @property int|null $bible_id
- * @property string   $label
- * @property int      $from_book_id
- * @property int      $from_chapter
- * @property int      $from_verse
- * @property int      $to_book_id
- * @property int      $to_chapter
- * @property int      $to_verse
- * @property int      $icon
+ * @property string $label
+ * @property int $from_book_id
+ * @property int $from_chapter
+ * @property int $from_verse
+ * @property int $to_book_id
+ * @property int $to_chapter
+ * @property int $to_verse
+ * @property int $icon
  */
 class Bibleverse extends Model implements BibleVerseInterface {
 
@@ -34,16 +34,16 @@ class Bibleverse extends Model implements BibleVerseInterface {
 	protected static $toColumn          = 'to';
 	protected        $casts             = ['from' => 'integer', 'to' => 'integer'];
 	protected        $fillable          = ['from',
-										   'to',
-										   'bible_id',
-										   'book_id',
-										   'from_book_id',
-										   'from_chapter',
-										   'from_verse',
-										   'to_book_id',
-										   'to_chapter',
-										   'to_verse',
-										   'label'];
+	                                       'to',
+	                                       'bible_id',
+	                                       'book_id',
+	                                       'from_book_id',
+	                                       'from_chapter',
+	                                       'from_verse',
+	                                       'to_book_id',
+	                                       'to_chapter',
+	                                       'to_verse',
+	                                       'label'];
 	protected        $bibleVerseService = NULL;
 
 	// Default values
@@ -84,7 +84,7 @@ class Bibleverse extends Model implements BibleVerseInterface {
 	}
 
 	protected static function getCombi($bookId, $chapter, $verse) {
-		return (int) sprintf('%03d%03d%03d', $bookId, $chapter, $verse);
+		return (int)sprintf('%03d%03d%03d', $bookId, $chapter, $verse);
 	}
 
 	public static function makeFromBibleverseInterface(BibleVerseInterface $bibleVerse, $bibleId = NULL) {
@@ -93,7 +93,7 @@ class Bibleverse extends Model implements BibleVerseInterface {
 
 	/**
 	 * @param BibleVerseInterface $bibleVerse
-	 * @param null                $bibleId
+	 * @param null $bibleId
 	 * @return NULL|Bibleverse
 	 */
 	public static function findOrNewFromBibleverseInterface(BibleVerseInterface $bibleVerse, $bibleId = NULL) {
@@ -180,7 +180,7 @@ class Bibleverse extends Model implements BibleVerseInterface {
 	 * @return int
 	 */
 	protected static function getBookFromCombi($chapterVerseNum) {
-		return (int) floor($chapterVerseNum / 1000000);
+		return (int)floor($chapterVerseNum / 1000000);
 	}
 
 	public function setFromBookIdAttribute(int $fromBookId) {
@@ -210,7 +210,7 @@ class Bibleverse extends Model implements BibleVerseInterface {
 	 */
 	protected static function getChapterFromCombi($chapterVerseNum) {
 		// cut off bookId and then cut of verses
-		return (int) floor(($chapterVerseNum % 1000000) / 1000);
+		return (int)floor(($chapterVerseNum % 1000000) / 1000);
 	}
 
 	/**
@@ -227,7 +227,7 @@ class Bibleverse extends Model implements BibleVerseInterface {
 	 * @return int
 	 */
 	protected static function getVerseFromCombi($chapterVerseNum) {
-		return (int) ($chapterVerseNum % 1000);
+		return (int)($chapterVerseNum % 1000);
 	}
 
 	public function getFromChapterAttribute() {
@@ -374,14 +374,14 @@ class Bibleverse extends Model implements BibleVerseInterface {
 	}
 
 	/**
-	 * @param int      $bookId
-	 * @param int      $fromChapter
-	 * @param int      $fromVerse
+	 * @param int $bookId
+	 * @param int $fromChapter
+	 * @param int $fromVerse
 	 * @param int|NULL $toChapter
 	 * @param int|NULL $toVerse
 	 *
-	 * @throws InvalidParameterCombinationException
 	 * @return Bibleverse
+	 * @throws InvalidParameterCombinationException
 	 */
 	public function setVerse($bookId, $fromChapter, $fromVerse, $toChapter = NULL, $toVerse = NULL) {
 		$this->setFromCombined($bookId, $fromChapter, $fromVerse);
@@ -412,8 +412,8 @@ class Bibleverse extends Model implements BibleVerseInterface {
 
 	public function materials() {
 		return $this->belongsToMany(Material::class)
-					->withPivot('relevance')
-					->using(MaterialBibleverse::class);
+			->withPivot('relevance')
+			->using(MaterialBibleverse::class);
 	}
 
 	public function __toString() {

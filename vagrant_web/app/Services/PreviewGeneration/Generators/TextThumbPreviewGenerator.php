@@ -22,9 +22,9 @@ class TextThumbPreviewGenerator extends TextLargePreviewGenerator {
 	}
 
 	/**
-	 * @param ResourceEntity              $resource
+	 * @param ResourceEntity $resource
 	 * @param ResourceLimitationInterface $limitation
-	 * @param string|null                 $context
+	 * @param string|null $context
 	 * @return string|false
 	 */
 	public function renderHTMLPreview(ResourceEntity $resource, ResourceLimitationInterface $limitation = NULL, $context = NULL) {
@@ -32,10 +32,10 @@ class TextThumbPreviewGenerator extends TextLargePreviewGenerator {
 		/** @var $resource Text */
 
 		$view = View::make('resources.generators.text-thumb')
-					->with('resource', $resource)
-					->with('context', $context)
-					->with('content', $resource->content)
-					->with('title', 'Textschnipsel');
+			->with('resource', $resource)
+			->with('context', $context)
+			->with('content', $resource->content)
+			->with('title', 'Textschnipsel');
 
 		return $view->render();
 	}

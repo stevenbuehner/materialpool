@@ -18,8 +18,8 @@ class MaterialPolicy {
 	/**
 	 * Determine whether the user can view the material.
 	 *
-	 * @param  \App\Models\User     $user
-	 * @param  \App\Models\Material $material
+	 * @param \App\Models\User $user
+	 * @param \App\Models\Material $material
 	 * @return mixed
 	 */
 	public function view(User $user, Material $material) {
@@ -29,7 +29,7 @@ class MaterialPolicy {
 	/**
 	 * Determine whether the user can create materials.
 	 *
-	 * @param  \App\Models\User $user
+	 * @param \App\Models\User $user
 	 * @return mixed
 	 */
 	public function create(User $user) {
@@ -39,8 +39,8 @@ class MaterialPolicy {
 	/**
 	 * Determine whether the user can update the material.
 	 *
-	 * @param  \App\Models\User     $user
-	 * @param  \App\Models\Material $material
+	 * @param \App\Models\User $user
+	 * @param \App\Models\Material $material
 	 * @return mixed
 	 */
 	public function update(User $user, Material $material) {
@@ -50,8 +50,8 @@ class MaterialPolicy {
 	/**
 	 * Determine whether the user can delete the material.
 	 *
-	 * @param  \App\Models\User     $user
-	 * @param  \App\Models\Material $material
+	 * @param \App\Models\User $user
+	 * @param \App\Models\Material $material
 	 * @return mixed
 	 */
 	public function delete(User $user, Material $material) {

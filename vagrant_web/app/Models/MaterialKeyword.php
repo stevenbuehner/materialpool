@@ -13,7 +13,7 @@ class MaterialKeyword extends Pivot {
 
 
 	public function setRelevanceAttribute($relevance) {
-		$this->attributes['relevance'] = (int) ($relevance);
+		$this->attributes['relevance'] = (int)($relevance);
 	}
 
 	public function toArray() {
@@ -26,7 +26,7 @@ class MaterialKeyword extends Pivot {
 	 * @return int
 	 */
 	public function getRelevanceAttribute($relevance) {
-		return (int) $relevance;
+		return (int)$relevance;
 	}
 
 

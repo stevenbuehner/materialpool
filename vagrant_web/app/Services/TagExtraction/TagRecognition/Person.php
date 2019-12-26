@@ -17,8 +17,8 @@ class Person extends AbstractTagRecognition {
 	 */
 	public function extractSpecializedTag($stringValue) {
 		$tagValue = $this->hasPrefix([
-										 'person'
-									 ], $stringValue);
+			'person'
+		], $stringValue);
 
 		$result = [];
 

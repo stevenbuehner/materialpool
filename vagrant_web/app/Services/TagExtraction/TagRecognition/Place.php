@@ -17,11 +17,11 @@ class Place extends AbstractTagRecognition {
 	 */
 	public function extractSpecializedTag($stringValue) {
 		$tagValue = $this->hasPrefix([
-										 'place',
-										 'ort',
-										 'city',
-										 'stadt'
-									 ], $stringValue);
+			'place',
+			'ort',
+			'city',
+			'stadt'
+		], $stringValue);
 
 		$result = [];
 

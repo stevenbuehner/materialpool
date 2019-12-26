@@ -61,7 +61,7 @@ abstract class AbstractPreviewService {
 		$cache = $this->getCacheStore();
 
 		// encode image data only if image is not encoded yet
-		$encoded = $image->encoded ? $image->encoded : (string) $image->encode();
+		$encoded = $image->encoded ? $image->encoded : (string)$image->encode();
 
 		$cache->put($cacheKey, $encoded, $this->cacheLifeTimeInMinutes);
 

@@ -42,7 +42,7 @@ class FileExifHandler implements HandlerInterface {
 		if (empty($resource->local_path)) {
 			// First needs a download of the remote Resource!
 			Log::error('This handler can only applied to local files!',
-					   ['resource_id' => $resource->id, 'handler' => __CLASS__]);
+				['resource_id' => $resource->id, 'handler' => __CLASS__]);
 
 			// TODO: Download remote Files to local
 		}
@@ -119,7 +119,7 @@ class FileExifHandler implements HandlerInterface {
 	 * All String-Values found for the given keys. Dublicate and empty values have been removed.
 	 *
 	 * @param MetadataBag $metaDataBag
-	 * @param string[]    $keys
+	 * @param string[] $keys
 	 * @return String[]
 	 */
 	protected function allMatchesValuesForKeys(MetadataBag $metaDataBag, $keys) {
@@ -191,7 +191,7 @@ class FileExifHandler implements HandlerInterface {
 	 * Set the relevance/priority for all RelevanceInterface instances in $metaData array
 	 *
 	 * @param Collection &$propertiesCollection
-	 * @param int        $relevance
+	 * @param int $relevance
 	 * @return Collection
 	 */
 	protected function setRelevance(Collection &$propertiesCollection, $relevance) {
@@ -328,7 +328,7 @@ class FileExifHandler implements HandlerInterface {
 				$values   = config('tagging.exif.keywords.ignore.values', []);
 
 				return $this->doesTagMatchIgnorePattern($value, $patterns) || $this->doesTagMatchIgnoreValue($value,
-																											 $values);
+						$values);
 
 			} else if ($property instanceof AuthorProperty) {
 				return TRUE;
@@ -340,7 +340,7 @@ class FileExifHandler implements HandlerInterface {
 				$values   = config('tagging.exif.author.ignore.values', []);
 
 				return $this->doesTagMatchIgnorePattern($value, $patterns) || $this->doesTagMatchIgnoreValue($value,
-																											 $values);
+						$values);
 			}
 
 
@@ -352,8 +352,8 @@ class FileExifHandler implements HandlerInterface {
 	 * Returns the best match of the requested keys ... currently the first found element or $default
 	 *
 	 * @param MetadataBag $metaDataBag
-	 * @param string[]    $keys
-	 * @param mixed       $default return value
+	 * @param string[] $keys
+	 * @param mixed $default return value
 	 * @return mixed
 	 */
 	protected function bestMatchValueForKeys($metaDataBag, $keys, $default = '') {

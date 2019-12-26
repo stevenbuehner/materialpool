@@ -26,16 +26,16 @@ class ForeignResourceController extends ResourceController {
 		// Check if a resource with this foreignResourceKey exists already
 
 		$foreignResource = ForeignResourceId::where([
-														'user_id'    => \Auth::id(),
-														'foreign_id' => $validatedData['id']
-													])->get()->first();
+			'user_id'    => \Auth::id(),
+			'foreign_id' => $validatedData['id']
+		])->get()->first();
 
 		if ($foreignResource !== NULL) {
 			return response()->json([
-										'success' => FALSE,
-										'error'   => 'The ForeignResourceId for this user exists already'
-									])
-							 ->setStatusCode(409);
+				'success' => FALSE,
+				'error'   => 'The ForeignResourceId for this user exists already'
+			])
+				->setStatusCode(409);
 		}
 
 		$resource = $this->store($request);
@@ -45,10 +45,10 @@ class ForeignResourceController extends ResourceController {
 		}
 
 		$foreignResourceId = ForeignResourceId::create([
-														   'user_id'     => $resource->created_by,
-														   'resource_id' => $resource->id,
-														   'foreign_id'  => $validatedData['id']
-													   ]);
+			'user_id'     => $resource->created_by,
+			'resource_id' => $resource->id,
+			'foreign_id'  => $validatedData['id']
+		]);
 
 		return $foreignResourceId;
 	}
@@ -58,7 +58,7 @@ class ForeignResourceController extends ResourceController {
 		$resource = $foreignResourceId->resource;
 
 		$otherUsersWithThisResource = $resource->foreignIds()->where('user_id', '!=', $foreignResourceId->user_id)
-											   ->first();
+			->first();
 		if ($otherUsersWithThisResource !== NULL) {
 			// ToDo: We need to copy the resource and update only the copy
 			$resource = NULL;

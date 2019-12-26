@@ -18,8 +18,8 @@ interface PreviewGeneratorInterface {
 
 	/**
 	 * @param ResourceEntity $resource
-	 * @param Size           $size
-	 * @param null|int       $page (optional) Starting from 1 to ... x
+	 * @param Size $size
+	 * @param null|int $page (optional) Starting from 1 to ... x
 	 * @return Image
 	 * @throws NotPreviewAbleException
 	 */
@@ -32,9 +32,9 @@ interface PreviewGeneratorInterface {
 	public function htmlPreviewAble(ResourceEntity $resource);
 
 	/**
-	 * @param ResourceEntity              $resource
+	 * @param ResourceEntity $resource
 	 * @param ResourceLimitationInterface $limitation
-	 * @param string|null                 $context
+	 * @param string|null $context
 	 * @return string|false
 	 */
 	public function renderHTMLPreview(ResourceEntity $resource, ResourceLimitationInterface $limitation = NULL, $context = NULL);

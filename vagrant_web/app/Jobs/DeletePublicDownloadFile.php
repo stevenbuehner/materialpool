@@ -16,7 +16,7 @@ class DeletePublicDownloadFile implements ShouldQueue {
 	/**
 	 * CheckLonelyResource constructor.
 	 *
-	 * @param String                                    $filePath
+	 * @param String $filePath
 	 * @param \DateTimeInterface|\DateInterval|int|null $delay
 	 */
 	public function __construct($filePath, $delay) {

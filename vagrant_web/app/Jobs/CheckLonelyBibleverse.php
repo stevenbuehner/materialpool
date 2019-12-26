@@ -33,10 +33,10 @@ class CheckLonelyBibleverse implements ShouldQueue {
 
 		// Test for material-keyword-relationship
 		$BibleverseHasMaterial = $this->bibleverseToCheck::has('materials')
-														 ->where('id', '=', $this->bibleverseToCheck->id)
-														 ->take(1)
-														 ->get()
-														 ->count();
+			->where('id', '=', $this->bibleverseToCheck->id)
+			->take(1)
+			->get()
+			->count();
 
 		if ($BibleverseHasMaterial === 0) {
 			Log::info("Delete bibleverse from={$this->bibleverseToCheck->from}; to={$this->bibleverseToCheck->to} because it was lonely");

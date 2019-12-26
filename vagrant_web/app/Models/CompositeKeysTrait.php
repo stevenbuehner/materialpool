@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Builder;
@@ -9,8 +10,8 @@ Trait CompositeKeysTrait {
 	/**
 	 * Execute a query for a single record by ID.
 	 *
-	 * @param  array $ids Array of keys, like [column => value].
-	 * @param  array $columns
+	 * @param array $ids Array of keys, like [column => value].
+	 * @param array $columns
 	 * @return mixed|static
 	 */
 	public static function find($ids, $columns = ['*']) {
@@ -37,7 +38,7 @@ Trait CompositeKeysTrait {
 	/**
 	 * Set the keys for a save update query.
 	 *
-	 * @param  \Illuminate\Database\Eloquent\Builder $query
+	 * @param \Illuminate\Database\Eloquent\Builder $query
 	 * @return \Illuminate\Database\Eloquent\Builder
 	 */
 	protected function setKeysForSaveQuery(Builder $query) {

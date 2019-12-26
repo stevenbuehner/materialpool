@@ -49,9 +49,9 @@ class MaterialController extends BaseController {
 	public function index() {
 
 		$materials = Material::where('created_by', Auth::id())
-							 ->with($this->withAttributes)
-							 ->orderBy('updated_at')
-							 ->paginate(50);
+			->with($this->withAttributes)
+			->orderBy('updated_at')
+			->paginate(50);
 
 		return $materials;
 	}
@@ -98,7 +98,7 @@ class MaterialController extends BaseController {
 	/**
 	 * Display the specified resource.
 	 *
-	 * @param  Material $material
+	 * @param Material $material
 	 * @return Material
 	 */
 	public function show(Material $material) {
@@ -112,7 +112,7 @@ class MaterialController extends BaseController {
 	 * Update the specified material in storage.
 	 *
 	 * @param MaterialRequest $request
-	 * @param  Material       $material
+	 * @param Material $material
 	 * @return Material|null
 	 * @throws \App\Models\Exceptions\InvalidKeywordTypeException
 	 */
@@ -137,7 +137,7 @@ class MaterialController extends BaseController {
 	/**
 	 * Remove the specified material from storage.
 	 *
-	 * @param  Material $material
+	 * @param Material $material
 	 * @return array
 	 * @throws \Exception
 	 */

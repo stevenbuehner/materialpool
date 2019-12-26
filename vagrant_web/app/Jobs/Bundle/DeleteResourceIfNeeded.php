@@ -42,7 +42,7 @@ class DeleteResourceIfNeeded implements ShouldQueue, VersionInterface {
 	/**
 	 * Check if this resource does not exist anymore and needs to be deleted
 	 *
-	 * @param BundlesService          $bundlesService
+	 * @param BundlesService $bundlesService
 	 * @param ResourceHandlingService $resourceHandlingService
 	 * @throws \Exception
 	 */

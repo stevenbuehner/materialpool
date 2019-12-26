@@ -229,10 +229,10 @@ class Language extends AbstractTagRecognition {
 	 */
 	public function extractSpecializedTag($stringValue) {
 		$tagValue = $this->hasPrefix([
-										 'language',
-										 'lang',
-										 'sprache'
-									 ], $stringValue);
+			'language',
+			'lang',
+			'sprache'
+		], $stringValue);
 		$result   = [];
 
 
@@ -242,7 +242,7 @@ class Language extends AbstractTagRecognition {
 
 			if ($langCode !== self::LANG_NO_LANG) {
 				$result[] = new KeywordProperty($langCode,
-												'lang'); // Don't set a priority, because we don't know the source of our guessed information
+					'lang'); // Don't set a priority, because we don't know the source of our guessed information
 			}
 
 		} else {
@@ -251,7 +251,7 @@ class Language extends AbstractTagRecognition {
 			$found = $this->getLanguageCodeFromString($stringValue);
 			if ($found !== self::LANG_NO_LANG) {
 				$result[] = new KeywordProperty($stringValue,
-												'lang'); // Don't set a priority, because we don't know the source of our guessed information
+					'lang'); // Don't set a priority, because we don't know the source of our guessed information
 			}
 
 		}

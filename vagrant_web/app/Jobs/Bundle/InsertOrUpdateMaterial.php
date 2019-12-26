@@ -52,7 +52,7 @@ class InsertOrUpdateMaterial implements ShouldQueue, VersionInterface {
 
 		/** @var ForeignMaterialId $foreignMat */
 		$foreignMat = ForeignMaterialId::where(['foreign_id' => $this->getUUID()])
-									   ->with(['material', 'material.keywords', 'material.bibleverses'])->first();
+			->with(['material', 'material.keywords', 'material.bibleverses'])->first();
 
 		try {
 
@@ -125,12 +125,12 @@ class InsertOrUpdateMaterial implements ShouldQueue, VersionInterface {
 			$material->description = $this->localMatInfo->description;
 		}
 
-		if ($material->rating !== (int) $this->localMatInfo->author_rating) {
-			$material->rating = (int) $this->localMatInfo->author_rating;
+		if ($material->rating !== (int)$this->localMatInfo->author_rating) {
+			$material->rating = (int)$this->localMatInfo->author_rating;
 		}
 
-		if ($material->from_bot !== (bool) $this->localMatInfo->from_bot) {
-			$material->from_bot = (bool) $this->localMatInfo->from_bot;
+		if ($material->from_bot !== (bool)$this->localMatInfo->from_bot) {
+			$material->from_bot = (bool)$this->localMatInfo->from_bot;
 		}
 
 		if ($material->icon_of_bundle !== $this->bundle->icon) {
@@ -217,13 +217,13 @@ class InsertOrUpdateMaterial implements ShouldQueue, VersionInterface {
 
 
 						$bv = new Bibleverse([
-												 'from_book_id' => $from_book,
-												 'from_chapter' => $from_chapter,
-												 'from_verse'   => $from_verse,
-												 'to_book_id'   => $to_book,
-												 'to_chapter'   => $to_chapter,
-												 'to_verse'     => $to_verse,
-											 ]);
+							'from_book_id' => $from_book,
+							'from_chapter' => $from_chapter,
+							'from_verse'   => $from_verse,
+							'to_book_id'   => $to_book,
+							'to_chapter'   => $to_chapter,
+							'to_verse'     => $to_verse,
+						]);
 						$bv = Bibleverse::findOrCreateFromBibleverseInterface($bv);
 
 
@@ -300,10 +300,10 @@ class InsertOrUpdateMaterial implements ShouldQueue, VersionInterface {
 				$resourceIDs[] = $frid->resource_id;
 			} else {
 				Log::error('It seems like there is a resource missing, which should have been synced',
-						   [
-							   'material'    => $material,
-							   'missingUUID' => $uuid
-						   ]);
+					[
+						'material'    => $material,
+						'missingUUID' => $uuid
+					]);
 			}
 		}
 

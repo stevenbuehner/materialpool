@@ -57,7 +57,7 @@ class InsertOrUpdateResource implements ShouldQueue, VersionInterface {
 
 		/** @var ForeignResourceId $foreignRes */
 		$foreignRes = ForeignResourceId::where(['foreign_id' => $this->getUUID()])
-									   ->with(['resource'])->first();
+			->with(['resource'])->first();
 
 		try {
 
@@ -139,8 +139,8 @@ class InsertOrUpdateResource implements ShouldQueue, VersionInterface {
 			$resource->notes = $this->localFileInfo->notes;
 		}
 
-		if ($resource->is_public !== (bool) $this->localFileInfo->is_public) {
-			$resource->is_public = (bool) $this->localFileInfo->is_public;
+		if ($resource->is_public !== (bool)$this->localFileInfo->is_public) {
+			$resource->is_public = (bool)$this->localFileInfo->is_public;
 		}
 
 		if ($resource->remote_path !== $this->localFileInfo->public_path) {

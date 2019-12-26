@@ -67,7 +67,7 @@ class ForeignMaterialController extends BaseController {
 	/**
 	 * Display the specified resource.
 	 *
-	 * @param  ForeignMaterialId $foreignMaterialId
+	 * @param ForeignMaterialId $foreignMaterialId
 	 * @return ForeignMaterialId
 	 */
 	public function show(ForeignMaterialId $foreignMaterialId) {
@@ -84,12 +84,12 @@ class ForeignMaterialController extends BaseController {
 		$material = $foreignMaterialId->material;
 
 		$material->load([
-							'keywords',
-							'bibleverses',
-							'resources.foreignIds' => function ($query) use ($material) {
-								$query->where("user_id", "=", $material->created_by);
-							}
-						]);
+			'keywords',
+			'bibleverses',
+			'resources.foreignIds' => function ($query) use ($material) {
+				$query->where("user_id", "=", $material->created_by);
+			}
+		]);
 
 		// Remove Resources without foreignResourceId
 		$material->resources->each(function () {
@@ -142,8 +142,8 @@ class ForeignMaterialController extends BaseController {
 	public function createFromResources(Request $request, $foreignMaterialId) {
 
 		$foreignMaterialIdObj = ForeignMaterialId::where('foreign_id', $foreignMaterialId)
-												 ->where('user_id', Auth::id())
-												 ->first();
+			->where('user_id', Auth::id())
+			->first();
 
 		if ($foreignMaterialIdObj !== NULL) {
 			return response('ForeignMaterialId exists already!!!', 409);
@@ -176,9 +176,9 @@ class ForeignMaterialController extends BaseController {
 			foreach ($data['resources'] as $key => $resource) {
 
 				$foreignResource = ForeignResourceId::where('foreign_id', $resource['id'])
-													->where('user_id', Auth::id())
-													->with('resource')
-													->first();
+					->where('user_id', Auth::id())
+					->with('resource')
+					->first();
 
 				if ($foreignResource === NULL) {
 					$validator->errors()->add("resources.{$key}", 'This user does not own the foreignResource');
@@ -206,28 +206,28 @@ class ForeignMaterialController extends BaseController {
 
 		if (isset($data['title']) && $data['title'] !== NULL) {
 			$tagExtractionProperties['properties'][] = new TitleProperty($data['title'],
-																		 RelevanceInterface::RELEVANCE_USER_MAX);
+				RelevanceInterface::RELEVANCE_USER_MAX);
 		}
 
 		if (isset($data['description']) && $data['description'] !== NULL) {
 			$tagExtractionProperties['properties'][] = new OcrTextProperty($data['description'],
-																		   RelevanceInterface::RELEVANCE_USER_MAX);
+				RelevanceInterface::RELEVANCE_USER_MAX);
 		}
 
 		if (isset($data['rating']) && $data['rating'] !== NULL) {
 			$tagExtractionProperties['properties'][] = new RatingProperty($data['rating'],
-																		  RelevanceInterface::RELEVANCE_USER_MAX);
+				RelevanceInterface::RELEVANCE_USER_MAX);
 		}
 
 		if (isset($data['author']) && $data['author'] !== NULL) {
 			$tagExtractionProperties['properties'][] = new AuthorProperty($data['author'],
-																		  RelevanceInterface::RELEVANCE_USER_MAX);
+				RelevanceInterface::RELEVANCE_USER_MAX);
 		}
 
 		if (isset($data['keywords']) && is_array($data['keywords'])) {
 			foreach ($data['keywords'] as $kw) {
 				$tagExtractionProperties['properties'][] = new KeywordProperty($kw['title'], Keyword::class,
-																			   $kw['relevance']);
+					$kw['relevance']);
 			}
 
 		}
@@ -246,10 +246,10 @@ class ForeignMaterialController extends BaseController {
 		}
 
 		$foreignMaterialIdObj = ForeignMaterialId::create([
-															  'foreign_id'  => $foreignMaterialId,
-															  'user_id'     => Auth::id(),
-															  'material_id' => $material->id
-														  ]);
+			'foreign_id'  => $foreignMaterialId,
+			'user_id'     => Auth::id(),
+			'material_id' => $material->id
+		]);
 
 		return $this->turnForeignMaterialIdIntoCustomFormat($foreignMaterialIdObj);
 
@@ -305,8 +305,8 @@ class ForeignMaterialController extends BaseController {
 	/**
 	 * Update the specified material in storage.
 	 *
-	 * @param  FullMaterialRequest $request
-	 * @param  ForeignMaterialId   $foreignMaterialId
+	 * @param FullMaterialRequest $request
+	 * @param ForeignMaterialId $foreignMaterialId
 	 * @return \Illuminate\Http\Response
 	 */
 	public function update(FullMaterialRequest $request, ForeignMaterialId $foreignMaterialId) {
@@ -318,7 +318,7 @@ class ForeignMaterialController extends BaseController {
 
 		if ($material->foreign_ids_count > 1) {
 			return response('The requested material exists but is connected with multiple other foreignMaterialIds.',
-							409);
+				409);
 		}
 
 		// Update data
@@ -350,7 +350,7 @@ class ForeignMaterialController extends BaseController {
 	/**
 	 * Remove the specified material from storage.
 	 *
-	 * @param  ForeignMaterialId $foreignMaterialId
+	 * @param ForeignMaterialId $foreignMaterialId
 	 */
 	public function destroy(ForeignMaterialId $foreignMaterialId) {
 		/** @var Material $material */

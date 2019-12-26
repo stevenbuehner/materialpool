@@ -12,11 +12,11 @@ class Created extends AbstractTagRecognition implements PreRecognitionProcessInt
 	const GERMAN_DATE_REGEX   = '(31|30|[012]\d|[1-9])\.(0\d|1[012]|[1-9])\.(\d{4})';
 	const ENG_GERM_DATE_REGEX = '(\d{4})-(0\d|1[012]|[1-9])-(31|30|[012]\d|[1-9])';
 	const POSSIBLE_PREFIX     = ['erstellt',
-								 'spoken',
-								 'created',
-								 'am',
-								 'vom',
-								 'von'];
+	                             'spoken',
+	                             'created',
+	                             'am',
+	                             'vom',
+	                             'von'];
 
 	public function __construct() {
 		$this->setPriority(50);
@@ -87,12 +87,12 @@ class Created extends AbstractTagRecognition implements PreRecognitionProcessInt
 	 * Replace "am DATUM" with "erstellt: DATUM" (damit es nicht als Bibelstelle "amos ..." erkennt wird
 	 *
 	 * @param string $value
-	 * @param array  $context
+	 * @param array $context
 	 * @return string
 	 */
 	public function preProcessInput($inputValue, $context) {
 		$resultString = preg_replace('~(^|(?![0-9]))(am)(: ?| )(' . self::GERMAN_DATE_REGEX . '|' . self::ENG_GERM_DATE_REGEX . ')~i',
-									 'erstellt: $4', $inputValue);
+			'erstellt: $4', $inputValue);
 
 		return [$resultString, $tags = []];
 	}

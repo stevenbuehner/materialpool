@@ -22,20 +22,20 @@ class ResourceDuplicationHandlingService {
 
 	public function mergeAllDuplicates() {
 		DB::table('resources')
-		  ->select(['content_hash', DB::raw('COUNT(id) as count')])
-		  ->whereNotNull('content_hash')
-		  ->groupBy(['content_hash'])
-		  ->orderBy('count', 'desc')
-		  ->having(DB::raw('COUNT(id)'), '>=', 2)
-		  ->chunk(100, function ($resources) {
+			->select(['content_hash', DB::raw('COUNT(id) as count')])
+			->whereNotNull('content_hash')
+			->groupBy(['content_hash'])
+			->orderBy('count', 'desc')
+			->having(DB::raw('COUNT(id)'), '>=', 2)
+			->chunk(100, function ($resources) {
 
-			  foreach ($resources as $resTable) {
-				  $hash  = $resTable->content_hash;
-				  $count = (int) $resTable->count;
+				foreach ($resources as $resTable) {
+					$hash  = $resTable->content_hash;
+					$count = (int)$resTable->count;
 
-				  $this->migrateResourcesWithHash($hash);
-			  }
-		  });
+					$this->migrateResourcesWithHash($hash);
+				}
+			});
 	}
 
 	protected function migrateResourcesWithHash($hash) {
@@ -53,14 +53,14 @@ class ResourceDuplicationHandlingService {
 		}
 
 		Res::where('content_hash', '=', $resourceToCheck->content_hash)
-		   ->where('id', '!=', $resourceToCheck->id)
-		   ->orderBy('id')
-		   ->chunk(30, function ($slaveResources) use ($resourceToCheck) {
-			   foreach ($slaveResources as $slave) {
-				   $this->migrateSlaveIntoMasterResource($slave, $resourceToCheck);
-				   // CheckDuplicateMaterials::dispatch($resourceToCheck);
-			   }
-		   });
+			->where('id', '!=', $resourceToCheck->id)
+			->orderBy('id')
+			->chunk(30, function ($slaveResources) use ($resourceToCheck) {
+				foreach ($slaveResources as $slave) {
+					$this->migrateSlaveIntoMasterResource($slave, $resourceToCheck);
+					// CheckDuplicateMaterials::dispatch($resourceToCheck);
+				}
+			});
 
 	}
 
@@ -72,15 +72,15 @@ class ResourceDuplicationHandlingService {
 		// Update material_resource
 		try {
 			DB::table('material_resource')
-			  ->where('resource_id', '=', $slaveResource->id)
-			  ->update(['resource_id' => $masterResource->id]);
+				->where('resource_id', '=', $slaveResource->id)
+				->update(['resource_id' => $masterResource->id]);
 		} catch (QueryException $e) {
 			if ($e->getPrevious() instanceof \PDOException &&
 				strpos($e->getPrevious()->getMessage(), 'Duplicate entry') !== FALSE) {
 				// the Entry exists already --> ignore the exception
 				DB::table('material_resource')
-				  ->where('resource_id', '=', $slaveResource->id)
-				  ->delete();
+					->where('resource_id', '=', $slaveResource->id)
+					->delete();
 
 			} else {
 				DB::rollBack();
@@ -91,8 +91,8 @@ class ResourceDuplicationHandlingService {
 		// Update resource_foreign_ids
 		try {
 			DB::table('resource_foreign_ids')
-			  ->where('resource_id', '=', $slaveResource->id)
-			  ->update(['resource_id' => $masterResource->id]);
+				->where('resource_id', '=', $slaveResource->id)
+				->update(['resource_id' => $masterResource->id]);
 		} catch (\Exception $e) {
 			DB::rollBack();
 			throw($e);

@@ -11,12 +11,12 @@ use Kalnoy\Nestedset\NodeTrait;
 /**
  * Class Keyword
  *
- * @property int        $id
- * @property string     $title
- * @property string     $type
- * @property string     $lc_title
- * @property int        $parent_id
- * @property string     $custom_icon
+ * @property int $id
+ * @property string $title
+ * @property string $type
+ * @property string $lc_title
+ * @property int $parent_id
+ * @property string $custom_icon
  * @property Collection $materials
  */
 class Keyword extends Model {
@@ -91,7 +91,7 @@ class Keyword extends Model {
 	/**
 	 * @param string $value
 	 * @param string $type
-	 * @param array  $otherAttributes
+	 * @param array $otherAttributes
 	 * @return Keyword
 	 * @throws InvalidKeywordTypeException
 	 */
@@ -108,7 +108,7 @@ class Keyword extends Model {
 	/**
 	 * @param string $value
 	 * @param string $type
-	 * @param array  $otherAttributes
+	 * @param array $otherAttributes
 	 * @return Keyword
 	 * @throws InvalidKeywordTypeException
 	 */
@@ -124,7 +124,7 @@ class Keyword extends Model {
 	}
 
 	/**
-	 * @param string            $text
+	 * @param string $text
 	 * @param bool|string|array $type
 	 * @return Builder
 	 */
@@ -170,13 +170,13 @@ class Keyword extends Model {
 
 	public function materials() {
 		return $this->belongsToMany(Material::class, 'keyword_material', 'keyword_id', 'material_id')
-					->withPivot('relevance')
-					->using(MaterialKeyword::class);
+			->withPivot('relevance')
+			->using(MaterialKeyword::class);
 	}
 
-	public function materialAuthors(){
-	    return $this->hasMany(Material::class, 'author_id');
-    }
+	public function materialAuthors() {
+		return $this->hasMany(Material::class, 'author_id');
+	}
 
 	/*
 	|--------------------------------------------------------------------------
@@ -191,9 +191,9 @@ class Keyword extends Model {
 
 		$query = Material::query();
 		$query->select('materials.*')->distinct()->from($this->getTable())
-			  ->whereBetween(self::getLftName(), [$this->getLft(), $this->getRgt()])
-			  ->join('keyword_material', 'keyword_material.keyword_id', '=', $this->getTable() . '.id')
-			  ->join('materials', 'keyword_material.material_id', '=', 'materials.id');
+			->whereBetween(self::getLftName(), [$this->getLft(), $this->getRgt()])
+			->join('keyword_material', 'keyword_material.keyword_id', '=', $this->getTable() . '.id')
+			->join('materials', 'keyword_material.material_id', '=', 'materials.id');
 
 		return $query;
 	}

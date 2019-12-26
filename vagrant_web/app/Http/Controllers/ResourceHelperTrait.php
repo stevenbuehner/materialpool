@@ -98,13 +98,13 @@ trait ResourceHelperTrait {
 			$resource->original_filename = $file->getClientOriginalName();
 			$resource->save();
 
-			$newTargetFolder      = DIRECTORY_SEPARATOR . intval($resource->id / 10000);
-			$newTargetFolder      .= DIRECTORY_SEPARATOR . intval($resource->id / 100);
+			$newTargetFolder = DIRECTORY_SEPARATOR . intval($resource->id / 10000);
+			$newTargetFolder .= DIRECTORY_SEPARATOR . intval($resource->id / 100);
 
-            $fileHash = str_replace('.' . $file->extension(), '', $file->hashName());
-            $fileName = $fileHash . '.' . $file->getClientOriginalExtension();
+			$fileHash = str_replace('.' . $file->extension(), '', $file->hashName());
+			$fileName = $fileHash . '.' . $file->getClientOriginalExtension();
 
-            $relativeFilePath     = $disk->putFileAs($newTargetFolder, $file, $fileName);
+			$relativeFilePath = $disk->putFileAs($newTargetFolder, $file, $fileName);
 
 			$resource->setLocalStorageAndPath(config('app.disks.resources'), $relativeFilePath);
 
@@ -180,7 +180,7 @@ trait ResourceHelperTrait {
 
 	/**
 	 * @param Resource|Resource[] $resources
-	 * @param string              $metaData
+	 * @param string $metaData
 	 * @return Material
 	 */
 	protected function createMaterialFromResources($resources, $metaData = '') {
@@ -203,7 +203,7 @@ trait ResourceHelperTrait {
 		/** @var ResourceRecognitionService $recognitionService */
 		$recognitionService = resolve('app.resource.type.recognition');
 		$content            = $request->get('content',
-											$resource instanceof TextContentInterface ? $resource->getContent() : '');
+			$resource instanceof TextContentInterface ? $resource->getContent() : '');
 		$resourceClass      = $recognitionService->guessResourceContent($content);
 		$postEvent          = $resource === NULL ? ResourceWasCreated::class : ResourceWasChanged::class;
 
@@ -249,8 +249,8 @@ trait ResourceHelperTrait {
 
 	/**
 	 * @param Request $request
-	 * @param string  $resourceClass
-	 * @param bool    $partialUpdateAllowed only use rules for the parameters in $request (don't require any other parameters)
+	 * @param string $resourceClass
+	 * @param bool $partialUpdateAllowed only use rules for the parameters in $request (don't require any other parameters)
 	 * @throws \Illuminate\Validation\ValidationException
 	 */
 	protected function validateResourceRequest(Request $request, $resourceClass, $partialUpdateAllowed = FALSE) {

@@ -24,18 +24,18 @@ class ZefaniaImportService {
 	public function import($xmlFilePath) {
 
 		// see: http://www.bgfdb.de/zefaniaxml/bml/namespaces/global_namespace/namespace-overview.html
-		
+
 		/** @var \SimpleXMLElement $xml */
 		$xml          = simplexml_load_file($xmlFilePath);
-		$title        = trim((string) $xml->INFORMATION->title);
-		$uid          = trim((string) $xml->INFORMATION->identifier);
-		$description  = trim((string) $xml->INFORMATION->description);
-		$version_date = trim((string) $xml->INFORMATION->date);
+		$title        = trim((string)$xml->INFORMATION->title);
+		$uid          = trim((string)$xml->INFORMATION->identifier);
+		$description  = trim((string)$xml->INFORMATION->description);
+		$version_date = trim((string)$xml->INFORMATION->date);
 		$creator      = join(', ', $xml->INFORMATION->xpath('//creator'));
-		$language     = trim((string) $xml->INFORMATION->language);
-		$rights       = trim((string) $xml->INFORMATION->rights);
-		$source       = trim((string) $xml->INFORMATION->source);
-		$version      = trim((string) $xml['version']);
+		$language     = trim((string)$xml->INFORMATION->language);
+		$rights       = trim((string)$xml->INFORMATION->rights);
+		$source       = trim((string)$xml->INFORMATION->source);
+		$version      = trim((string)$xml['version']);
 
 
 		/** @var Bible $bible */
@@ -46,20 +46,20 @@ class ZefaniaImportService {
 
 
 		foreach ($xml->BIBLEBOOK as $book) {
-			$bookId = (int) $book['bnumber'];
+			$bookId = (int)$book['bnumber'];
 
 			$this->deleteAllFromBook($bible->id, $bookId);
 
 			foreach ($book->CHAPTER as $chapter) {
-				$chapterNo = (int) $chapter['cnumber'];
+				$chapterNo = (int)$chapter['cnumber'];
 
 				if ($chapterNo === 13 && $bookId === 40) {
 					$t = "...";
 				}
 
 				foreach ($chapter->VERS as $verse) {
-					$verseNo = (int) $verse['vnumber'];
-					$text    = (string) $verse;
+					$verseNo = (int)$verse['vnumber'];
+					$text    = (string)$verse;
 
 					$content           = new BibleContent();
 					$content->bible_id = $bible->id;
@@ -95,8 +95,8 @@ class ZefaniaImportService {
 		$to = $bv->from;
 
 		BibleContent::where('bible_id', $bible_id)
-					->whereBetween('verse', [$from, $to])
-					->delete();
+			->whereBetween('verse', [$from, $to])
+			->delete();
 
 		/*
 		DB::table($bv->getTable())
@@ -108,7 +108,7 @@ class ZefaniaImportService {
 	}
 
 	protected function translateBookId($zefaniaBookId) {
-		return (int) $zefaniaBookId;
+		return (int)$zefaniaBookId;
 
 		/* ZEFANIABIBLE_BIBLE_BOOK_NAME_1  = "Genesis"
 ZEFANIABIBLE_BIBLE_BOOK_NAME_2 = "Exodus"

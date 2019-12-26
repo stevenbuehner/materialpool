@@ -37,7 +37,7 @@ abstract class AbstractTagRecognition implements TagRecognitionInterface {
 	}
 
 	public function setPriority($prio) {
-		$this->priority = ( int ) $prio;
+		$this->priority = ( int )$prio;
 	}
 
 	/**
@@ -47,7 +47,7 @@ abstract class AbstractTagRecognition implements TagRecognitionInterface {
 	 * Example: ('von', "von: Steven") would return "Steven"
 	 *
 	 * @param string|array $prefix
-	 * @param string       $haystack
+	 * @param string $haystack
 	 * @return string|false
 	 */
 	protected function hasPrefix($prefix, $haystack) {

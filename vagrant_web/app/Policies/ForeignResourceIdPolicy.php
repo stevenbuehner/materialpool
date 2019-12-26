@@ -12,8 +12,8 @@ class ForeignResourceIdPolicy {
 	/**
 	 * Determine whether the user can view the foreignResourceId.
 	 *
-	 * @param  \App\Models\User              $user
-	 * @param  \App\Models\ForeignResourceId $foreignResourceId
+	 * @param \App\Models\User $user
+	 * @param \App\Models\ForeignResourceId $foreignResourceId
 	 * @return mixed
 	 */
 	public function view(User $user, ForeignResourceId $foreignResourceId) {
@@ -23,7 +23,7 @@ class ForeignResourceIdPolicy {
 	/**
 	 * Determine whether the user can create foreignMaterialIds.
 	 *
-	 * @param  \App\Models\User $user
+	 * @param \App\Models\User $user
 	 * @return mixed
 	 */
 	public function create(User $user) {
@@ -33,8 +33,8 @@ class ForeignResourceIdPolicy {
 	/**
 	 * Determine whether the user can update the foreignResourceId.
 	 *
-	 * @param  \App\Models\User              $user
-	 * @param  \App\Models\ForeignResourceId $foreignResourceId
+	 * @param \App\Models\User $user
+	 * @param \App\Models\ForeignResourceId $foreignResourceId
 	 * @return mixed
 	 */
 	public function update(User $user, ForeignResourceId $foreignResourceId) {
@@ -44,8 +44,8 @@ class ForeignResourceIdPolicy {
 	/**
 	 * Determine whether the user can delete the foreignResourceId.
 	 *
-	 * @param  \App\Models\User              $user
-	 * @param  \App\Models\ForeignResourceId $foreignResourceId
+	 * @param \App\Models\User $user
+	 * @param \App\Models\ForeignResourceId $foreignResourceId
 	 * @return mixed
 	 */
 	public function delete(User $user, ForeignResourceId $foreignResourceId) {

@@ -61,7 +61,7 @@ class PdfTagExtractionController extends BaseController {
 			$pages = [];
 		} else {
 			foreach ($pages as $i => $page) {
-				$pages[$i] = (int) $page;
+				$pages[$i] = (int)$page;
 			}
 
 			asort($pages);

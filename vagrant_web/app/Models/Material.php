@@ -11,17 +11,17 @@ use Illuminate\Support\Facades\DB;
  * Class Material
  *
  * @package App\Models
- * @property int        $id
- * @property string     $title
- * @property string     $description
- * @property int        $rating (0-20)
- * @property boolean    $from_bot
- * @property int        $created_by
- * @property int        $modified_by
- * @property int        $author_id
- * @property int        $flag;
- * @property int|null   $icon_of_bundle
- * @property Keyword    $author
+ * @property int $id
+ * @property string $title
+ * @property string $description
+ * @property int $rating (0-20)
+ * @property boolean $from_bot
+ * @property int $created_by
+ * @property int $modified_by
+ * @property int $author_id
+ * @property int $flag;
+ * @property int|null $icon_of_bundle
+ * @property Keyword $author
  * @property Collection $resources;
  * @property Collection $keywords;
  * @property Collection $foreignIds;
@@ -29,8 +29,8 @@ use Illuminate\Support\Facades\DB;
  * @property Collection $languages;
  * @property Collection $tags;
  * @property Collection $places;
- * @property User|NULL  $creator;
- * @property User|NULL  $modifier;
+ * @property User|NULL $creator;
+ * @property User|NULL $modifier;
  * @property Collection $bibleverses;
  * @property            $updated_at;
  * @property            $created_at;
@@ -80,11 +80,11 @@ class Material extends Model {
 		$fi = new        ForeignResourceId();
 
 		$query = DB::table($fi->getTable())
-				   ->where('user_id', $userId)
-				   ->join('resources', $fi->getTable() . '.resource_id', 'resources.id')
-				   ->join('material_resource', 'resources.id', 'material_resource.resource_id')
-				   ->where('material_resource.material_id', $this->id)
-				   ->select($fi->getTable() . '.*');
+			->where('user_id', $userId)
+			->join('resources', $fi->getTable() . '.resource_id', 'resources.id')
+			->join('material_resource', 'resources.id', 'material_resource.resource_id')
+			->where('material_resource.material_id', $this->id)
+			->select($fi->getTable() . '.*');
 
 		$builder = $fi->newEloquentBuilder($query); //->with('resource');
 		$builder->setModel($fi);
@@ -105,9 +105,9 @@ class Material extends Model {
 	 */
 	protected function keyWordClassAndChildren($type) {
 		return $this->belongsToMany(Keyword::class, 'keyword_material', 'material_id', 'keyword_id')
-					->where('type', '=', $type)
-					->withPivot('relevance')
-					->using(MaterialKeyword::class);
+			->where('type', '=', $type)
+			->withPivot('relevance')
+			->using(MaterialKeyword::class);
 	}
 
 	public function languages() {
@@ -151,14 +151,14 @@ class Material extends Model {
 
 	public function resources() {
 		return $this->belongsToMany(Resource::class, 'material_resource', 'material_id', 'resource_id')
-					->withPivot('limitation')
-					->using(MaterialResource::class);
+			->withPivot('limitation')
+			->using(MaterialResource::class);
 	}
 
 	public function keywords() {
 		return $this->belongsToMany(Keyword::class, 'keyword_material', 'material_id', 'keyword_id')
-					->withPivot('relevance')
-					->using(MaterialKeyword::class);
+			->withPivot('relevance')
+			->using(MaterialKeyword::class);
 	}
 
 	/**
@@ -166,8 +166,8 @@ class Material extends Model {
 	 */
 	public function bibleverses() {
 		return $this->belongsToMany(Bibleverse::class)
-					->withPivot('relevance')
-					->using(MaterialBibleverse::class);
+			->withPivot('relevance')
+			->using(MaterialBibleverse::class);
 	}
 
 	public function foreignIds() {

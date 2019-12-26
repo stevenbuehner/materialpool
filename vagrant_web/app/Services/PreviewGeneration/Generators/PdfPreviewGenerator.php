@@ -33,8 +33,8 @@ class PdfPreviewGenerator implements PreviewGeneratorInterface {
 
 	/**
 	 * @param ResourceEntity $resource
-	 * @param Size           $size
-	 * @param int            $page
+	 * @param Size $size
+	 * @param int $page
 	 * @return \Imagick|\Symfony\Component\HttpFoundation\Response
 	 * @throws NotPreviewAbleException
 	 */
@@ -69,7 +69,7 @@ class PdfPreviewGenerator implements PreviewGeneratorInterface {
 	/**
 	 * @param      $path
 	 * @param Size $size
-	 * @param int  $page
+	 * @param int $page
 	 * @return \Intervention\Image\Image
 	 * @throws NotPreviewAbleException
 	 */
@@ -99,9 +99,9 @@ class PdfPreviewGenerator implements PreviewGeneratorInterface {
 	}
 
 	/**
-	 * @param ResourceEntity              $resource
+	 * @param ResourceEntity $resource
 	 * @param ResourceLimitationInterface $limitation
-	 * @param string|null                 $context
+	 * @param string|null $context
 	 * @return string|false
 	 */
 	public function renderHTMLPreview(ResourceEntity $resource, ResourceLimitationInterface $limitation = NULL, $context = NULL) {
@@ -110,11 +110,11 @@ class PdfPreviewGenerator implements PreviewGeneratorInterface {
 		$pageCount = $resource->page_count;
 
 		$view = View::make('resources.generators.pdf')
-					->with('resource', $resource)
-					->with('context', $context)
-					->with('title', empty($resource->notes) ? 'PDF' : $resource->notes)
-					->with('limitation', is_null($limitation) ? FALSE : $limitation)
-					->with('totalPageCount', $pageCount);
+			->with('resource', $resource)
+			->with('context', $context)
+			->with('title', empty($resource->notes) ? 'PDF' : $resource->notes)
+			->with('limitation', is_null($limitation) ? FALSE : $limitation)
+			->with('totalPageCount', $pageCount);
 
 		return $view->render();
 	}

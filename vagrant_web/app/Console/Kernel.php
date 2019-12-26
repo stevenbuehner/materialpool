@@ -21,21 +21,21 @@ class Kernel extends ConsoleKernel {
 	/**
 	 * Define the application's command schedule.
 	 *
-	 * @param  \Illuminate\Console\Scheduling\Schedule $schedule
+	 * @param \Illuminate\Console\Scheduling\Schedule $schedule
 	 * @return void
 	 */
 	protected function schedule(Schedule $schedule) {
 
 		// Backups erstellen
 		$schedule->command(BackupCommand::class, [])
-				 ->daily()
-				 ->runInBackground();
+			->daily()
+			->runInBackground();
 		$schedule->command(CleanupCommand::class)
-				 ->daily();
+			->daily();
 
 		$schedule->command(WorkCommand::class,
-						   ['database', '--queue=default', '--stop-when-empty', '--tries=50', '--timeout=120', '--no-interaction'])
-				 ->everyFiveMinutes();
+			['database', '--queue=default', '--stop-when-empty', '--tries=50', '--timeout=120', '--no-interaction'])
+			->everyFiveMinutes();
 
 	}
 

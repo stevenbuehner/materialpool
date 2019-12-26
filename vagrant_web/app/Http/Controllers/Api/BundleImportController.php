@@ -57,7 +57,7 @@ class BundleImportController extends BaseController {
 		}
 
 		return ['bundles' => $bundles,
-				'infos'   => $localInfos];
+		        'infos'   => $localInfos];
 
 	}
 
@@ -154,30 +154,30 @@ class BundleImportController extends BaseController {
 		$version   = $bundleInfo['version'];
 
 		ForeignMaterialId::where('bundle_id', $bundle->id)
-						 ->chunk(100, function (Collection $fmids) use ($bundle, $queueName, &$count, $version) {
+			->chunk(100, function (Collection $fmids) use ($bundle, $queueName, &$count, $version) {
 
-							 foreach ($fmids as $fmid) {
-								 DeleteMaterialIfNeeded::dispatch($bundle, $fmid, $version)
-													   ->onQueue($queueName)
-													   ->onConnection('database');
-							 }
+				foreach ($fmids as $fmid) {
+					DeleteMaterialIfNeeded::dispatch($bundle, $fmid, $version)
+						->onQueue($queueName)
+						->onConnection('database');
+				}
 
-							 $count += $fmids->count();
+				$count += $fmids->count();
 
-						 });
+			});
 
 		ForeignResourceId::where('bundle_id', $bundle->id)
-						 ->chunk(100, function (Collection $frids) use ($bundle, $queueName, &$count, $version) {
+			->chunk(100, function (Collection $frids) use ($bundle, $queueName, &$count, $version) {
 
-							 foreach ($frids as $frid) {
-								 DeleteResourceIfNeeded::dispatch($bundle, $frid, $version)
-													   ->onQueue($queueName)
-													   ->onConnection('database');
-							 }
+				foreach ($frids as $frid) {
+					DeleteResourceIfNeeded::dispatch($bundle, $frid, $version)
+						->onQueue($queueName)
+						->onConnection('database');
+				}
 
-							 $count += $frids->count();
+				$count += $frids->count();
 
-						 });
+			});
 
 
 		return $count;
@@ -193,13 +193,13 @@ class BundleImportController extends BaseController {
 		$count = 0;
 
 		while (($files = collect($this->bundlesService->getBundleFiles($bundleInfo, $page++,
-																	   $perPage)))->isNotEmpty()) {
+			$perPage)))->isNotEmpty()) {
 			$count += $files->count();
 
 			$files->each(function ($file) use ($bundle, $queueName, $version) {
 				InsertOrUpdateResource::dispatch($bundle, $file, $version)
-									  ->onQueue($queueName)
-									  ->onConnection('database');
+					->onQueue($queueName)
+					->onConnection('database');
 			});
 
 		}
@@ -207,13 +207,13 @@ class BundleImportController extends BaseController {
 		$page    = 1;
 		$perPage = 100;
 		while (($files = collect($this->bundlesService->getBundleMaterials($bundleInfo, $page++,
-																		   $perPage)))->isNotEmpty()) {
+			$perPage)))->isNotEmpty()) {
 			$count += $files->count();
 
 			$files->each(function ($material) use ($bundle, $queueName, $version) {
 				InsertOrUpdateMaterial::dispatch($bundle, $material, $version)
-									  ->onQueue($queueName)
-									  ->onConnection('database');
+					->onQueue($queueName)
+					->onConnection('database');
 			});
 
 		}
@@ -225,8 +225,8 @@ class BundleImportController extends BaseController {
 
 		$queueName = $this->bundleQueueService->getQueueName($bundle);
 		FinishImportAfterUpdate::dispatch($bundle, $bundleInfo['version'])
-							   ->onQueue($queueName)
-							   ->onConnection('database');
+			->onQueue($queueName)
+			->onConnection('database');
 	}
 
 	public function runJobs(Bundle $bundle, Request $request) {

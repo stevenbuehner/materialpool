@@ -124,7 +124,7 @@ class MaterialHandlingService {
 				// we intentionally leave out the foreignKey, as we already
 				// have it in the newModel
 				$extra_attributes            = array_except($item->pivot->getAttributes(),
-															[$item->pivot->getForeignKey(), $item->pivot->getRelatedKey()]);
+					[$item->pivot->getForeignKey(), $item->pivot->getRelatedKey()]);
 				$attachKeys[$item->getKey()] = $extra_attributes;
 			}
 

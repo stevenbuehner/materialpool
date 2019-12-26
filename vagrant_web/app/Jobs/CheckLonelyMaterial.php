@@ -33,10 +33,10 @@ class CheckLonelyMaterial implements ShouldQueue {
 
 		// Test for material-keyword-relationship
 		$materialHasResource = $this->materialToCheck::has('resources')
-													 ->where('id', '=', $this->materialToCheck->id)
-													 ->take(1)
-													 ->get()
-													 ->count();
+			->where('id', '=', $this->materialToCheck->id)
+			->take(1)
+			->get()
+			->count();
 
 		if ($materialHasResource === 0) {
 			Log::alert("This material seems to be lonely (has no resources attached). Material-id: {$this->materialToCheck->id}");

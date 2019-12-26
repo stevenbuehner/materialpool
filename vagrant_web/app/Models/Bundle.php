@@ -9,19 +9,19 @@ use Illuminate\Database\Eloquent\Model;
  * Class Bundle
  *
  * @package App\Models
- * @property int       $id
- * @property string    $author
- * @property string    installed_version
+ * @property int $id
+ * @property string $author
+ * @property string installed_version
  * @property \DateTime last_update
- * @property string    $uuid
- * @property string    $container_root
+ * @property string $uuid
+ * @property string $container_root
  * @property \DateTime $created_at
  * @property \DateTime $updated_at
- * @property string    $name
- * @property string    $description
- * @property bool      $is_installed
- * @property bool      $update_available
- * @property string    $icon
+ * @property string $name
+ * @property string $description
+ * @property bool $is_installed
+ * @property bool $update_available
+ * @property string $icon
  */
 class Bundle extends Model {
 	use HasTimestamps;

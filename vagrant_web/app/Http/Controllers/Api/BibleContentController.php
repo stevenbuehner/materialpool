@@ -21,7 +21,7 @@ class BibleContentController extends BaseController {
 	public function getBibleverse(int $from, int $to, $bibleUid = NULL) {
 
 		$query = BibleContent::whereBetween('verse', [$from, $to])
-							 ->orderBy('verse', 'asc');
+			->orderBy('verse', 'asc');
 
 		$bible = $this->getBibleFirstOrFail($bibleUid);
 		$query = $query->where('bible_id', '=', $bible->id);

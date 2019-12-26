@@ -19,7 +19,7 @@ class BibleController extends BaseController {
 	/**
 	 * Store a newly created resource in storage.
 	 *
-	 * @param  \Illuminate\Http\Request $request
+	 * @param \Illuminate\Http\Request $request
 	 * @return void
 	 * @throws \Exception
 	 */
@@ -30,7 +30,7 @@ class BibleController extends BaseController {
 	/**
 	 * Display the specified resource.
 	 *
-	 * @param  \App\Models\Bible $bible
+	 * @param \App\Models\Bible $bible
 	 * @return Bible
 	 */
 	public function show(Bible $bible) {
@@ -40,8 +40,8 @@ class BibleController extends BaseController {
 	/**
 	 * Update the specified resource in storage.
 	 *
-	 * @param  \Illuminate\Http\Request $request
-	 * @param  \App\Models\Bible        $bible
+	 * @param \Illuminate\Http\Request $request
+	 * @param \App\Models\Bible $bible
 	 * @return void
 	 * @throws \Exception
 	 */
@@ -52,7 +52,7 @@ class BibleController extends BaseController {
 	/**
 	 * Remove the specified resource from storage.
 	 *
-	 * @param  \App\Models\Bible $bible
+	 * @param \App\Models\Bible $bible
 	 * @return void
 	 * @throws \Exception
 	 */

@@ -9,15 +9,15 @@ use Illuminate\Database\Eloquent\Model;
  * Class Bible
  *
  * @package App\Models
- * @property int       $id
- * @property string    $uuid
- * @property string    $title
- * @property string    $decription
+ * @property int $id
+ * @property string $uuid
+ * @property string $title
+ * @property string $decription
  * @property \DateTime $ersion_date
- * @property string    creator
- * @property string    language
- * @property string    rights
- * @property string    source
+ * @property string creator
+ * @property string language
+ * @property string rights
+ * @property string source
  */
 class Bible extends Model {
 	use HasTimestamps;

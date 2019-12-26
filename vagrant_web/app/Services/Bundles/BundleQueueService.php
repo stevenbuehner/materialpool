@@ -17,7 +17,7 @@ class BundleQueueService {
 	public function deleteOldBundleJobs(Bundle $bundle) {
 
 		$countDeletedJobs = DB::delete('DELETE FROM jobs WHERE queue=:QUEUE',
-									   ['QUEUE' => $this->getQueueName($bundle)]);
+			['QUEUE' => $this->getQueueName($bundle)]);
 
 		return $countDeletedJobs;
 
@@ -42,9 +42,9 @@ class BundleQueueService {
 
 
 		$data = DB::select('SELECT count(*) as Anzahl FROM jobs WHERE queue=:QUEUE',
-						   ['QUEUE' => $queueName]);
+			['QUEUE' => $queueName]);
 
-		return (int) $data[0]->Anzahl;
+		return (int)$data[0]->Anzahl;
 	}
 
 	/**
@@ -57,7 +57,7 @@ class BundleQueueService {
 	public function getFirstJobVersion($queueName) {
 
 		$job = DB::select('SELECT * FROM jobs WHERE queue=:QUEUE ORDER BY id asc LIMIT 1;',
-						  ['QUEUE' => $queueName]);
+			['QUEUE' => $queueName]);
 
 		if (count($job) > 0) {
 			try {
@@ -83,10 +83,10 @@ class BundleQueueService {
 
 		$className = substr(strrchr(FinishImportAfterUpdate::class, "\\"), 1);;
 		$job = DB::table('jobs')
-				 ->where('queue', '=', $queueName)
-				 ->where('payload', 'LIKE', "%{$className}%")
-				 ->limit(1)
-				 ->get();
+			->where('queue', '=', $queueName)
+			->where('payload', 'LIKE', "%{$className}%")
+			->limit(1)
+			->get();
 
 		return $job->count() > 0;
 

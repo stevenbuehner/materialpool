@@ -70,9 +70,9 @@ class PdfHandlingService {
 			throw new InvalidPageNoException('Could not extract Page Number from PDF', 0, $e);
 		} catch (OtherException $e) {
 			throw new InvalidPageNoException('Could not extract Page Number from PDF', 0, $e);
-		}catch (CommandNotFoundException $e){
-            throw new InvalidPageNoException('Could not extract Page Number from PDF, because the binary PDFINFO is missing', 0, $e);
-        }
+		} catch (CommandNotFoundException $e) {
+			throw new InvalidPageNoException('Could not extract Page Number from PDF, because the binary PDFINFO is missing', 0, $e);
+		}
 
 		return $count;
 	}

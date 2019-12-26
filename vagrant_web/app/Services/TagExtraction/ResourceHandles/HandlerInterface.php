@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Services\TagExtraction\ResourceHandles;
 
 use App\Models\Resource;

@@ -18,7 +18,7 @@ class ClearMaterialPreviewCache {
 	/**
 	 * Handle the event.
 	 *
-	 * @param  MaterialWasChanged $event
+	 * @param MaterialWasChanged $event
 	 * @return void
 	 */
 	public function handle(MaterialWasChanged $event) {

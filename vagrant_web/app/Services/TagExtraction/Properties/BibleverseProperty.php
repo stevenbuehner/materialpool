@@ -17,7 +17,7 @@ class BibleverseProperty extends Property {
 	 * BibleverseProperty constructor.
 	 *
 	 * @param BibleVerseInterface $bibleVerse
-	 * @param int                 $relevance
+	 * @param int $relevance
 	 */
 	public function __construct(BibleVerseInterface $bibleVerse, int $relevance = 0) {
 		parent::__construct($bibleVerse, $relevance);

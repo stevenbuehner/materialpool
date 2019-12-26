@@ -19,7 +19,7 @@ trait MaterialHelperTrait {
 
 	/**
 	 * @param null|string|array $author
-	 * @param Material          $material
+	 * @param Material $material
 	 * @return Keyword|null
 	 * @throws InvalidKeywordTypeException
 	 */
@@ -52,7 +52,7 @@ trait MaterialHelperTrait {
 	/**
 	 * As 'keywords' => ['type', 'title', 'relevance']
 	 *
-	 * @param Request  $request
+	 * @param Request $request
 	 * @param Material $material
 	 * @return int
 	 */

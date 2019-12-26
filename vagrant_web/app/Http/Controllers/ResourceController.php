@@ -42,7 +42,7 @@ class ResourceController extends Controller {
 	/**
 	 * Store a newly created resource or resoures (plural!) in storage and create single material for them.
 	 *
-	 * @param  \Illuminate\Http\Request $request
+	 * @param \Illuminate\Http\Request $request
 	 * @return \Illuminate\Http\Response
 	 */
 	public function store(Request $request) {
@@ -51,7 +51,7 @@ class ResourceController extends Controller {
 			return redirect(route('pool.resource.create'))->withErrors(['Missing upload file']);
 		}
 
-		$oneMaterial = (bool) $request->get('one_material', FALSE);
+		$oneMaterial = (bool)$request->get('one_material', FALSE);
 		$metaData    = $request->get('meta', '');
 		$resources   = $this->handleMultiResourceFileData($request);
 
@@ -77,7 +77,7 @@ class ResourceController extends Controller {
 	/**
 	 * Display the specified resource.
 	 *
-	 * @param  ResourceEntity $resource
+	 * @param ResourceEntity $resource
 	 * @return \Illuminate\Http\Response
 	 */
 	public function show(ResourceEntity $resource) {
@@ -89,7 +89,7 @@ class ResourceController extends Controller {
 	/**
 	 * Show the form for editing the specified resource.
 	 *
-	 * @param  ResourceEntity $resource
+	 * @param ResourceEntity $resource
 	 * @return \Illuminate\Http\Response
 	 */
 	public function edit(ResourceEntity $resource) {
@@ -103,8 +103,8 @@ class ResourceController extends Controller {
 	/**
 	 * Update the specified resource in storage.
 	 *
-	 * @param  \Illuminate\Http\Request $request
-	 * @param  ResourceEntity           $resource
+	 * @param \Illuminate\Http\Request $request
+	 * @param ResourceEntity $resource
 	 * @return \Illuminate\Http\Response
 	 */
 	public function update(Request $request, ResourceEntity $resource) {
@@ -118,7 +118,7 @@ class ResourceController extends Controller {
 	/**
 	 * Remove the specified resource from storage.
 	 *
-	 * @param  ResourceEntity $resource
+	 * @param ResourceEntity $resource
 	 * @return \Illuminate\Http\Response
 	 */
 	public function destroy(ResourceEntity $resource) {
