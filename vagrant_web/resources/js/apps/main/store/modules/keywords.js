@@ -263,7 +263,7 @@ const actions = {
 
                 commit('removeKeyword', id);
 
-                return data.deletedAssociations;
+                return data.success;
             })
             .catch((response) => {
                 throw convertErrorResponseToMessage(response);

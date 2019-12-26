@@ -174,6 +174,10 @@ class Keyword extends Model {
 					->using(MaterialKeyword::class);
 	}
 
+	public function materialAuthors(){
+	    return $this->hasMany(Material::class, 'author_id');
+    }
+
 	/*
 	|--------------------------------------------------------------------------
 	| ACCESORS
