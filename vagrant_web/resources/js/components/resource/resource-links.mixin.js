@@ -1,62 +1,62 @@
 import {resourceDownloadLink, resourceLimitedPdfDownload} from '../serverRoutes'
 
 export default {
-    methods: {
+	methods: {
 
-        downloadResourceLink(resource) {
-
-
-            if (!this.hasLimitation(resource)) {
-                return resourceDownloadLink(resource);
-            }
-
-            switch (resource.type) {
-                case 'pdf':
-                    return resourceLimitedPdfDownload(resource.pivot.resource_id, resource.pivot.material_id)
-                default:
-                    return resourceDownloadLink(resource);
-            }
-
-        },
-
-        routerEditLimitationObject(resource, pivotOverride) {
-
-            switch (resource.type) {
-                case 'pdf':
-                case 'doc':
-
-                    let query = {};
-                    let pivot = undefined;
+		downloadResourceLink(resource) {
 
 
-                    if(pivotOverride !== undefined){
-                        pivot = pivotOverride;
-                    }else if(resource.pivot !== undefined){
-                        pivot = resource.pivot;
-                    }
+			if (!this.hasLimitation(resource)) {
+				return resourceDownloadLink(resource);
+			}
 
-                    if (pivot && pivot.limitation && Array.isArray(pivot.limitation.pages)) {
-                        query.selection = pivot.limitation.pages.join(',');
-                    }
+			switch (resource.type) {
+				case 'pdf':
+					return resourceLimitedPdfDownload(resource.pivot.resource_id, resource.pivot.material_id)
+				default:
+					return resourceDownloadLink(resource);
+			}
 
-                    return {
-                        name: 'resource-page-assign',
-                        params: {
-                            id: resource.id,
-                        },
-                        query: query
-                    };
-                default:
-                    return {};
-            }
+		},
 
-        },
+		routerEditLimitationObject(resource, pivotOverride) {
 
-        hasLimitation(resource) {
-            return resource.pivot && resource.pivot.limitation;
-        }
+			switch (resource.type) {
+				case 'pdf':
+				case 'doc':
 
-    },
+					let query = {};
+					let pivot = undefined;
 
-    computed: {}
+
+					if (pivotOverride !== undefined) {
+						pivot = pivotOverride;
+					} else if (resource.pivot !== undefined) {
+						pivot = resource.pivot;
+					}
+
+					if (pivot && pivot.limitation && Array.isArray(pivot.limitation.pages)) {
+						query.selection = pivot.limitation.pages.join(',');
+					}
+
+					return {
+						name: 'resource-page-assign',
+						params: {
+							id: resource.id,
+						},
+						query: query
+					};
+				default:
+					return {};
+			}
+
+		},
+
+		hasLimitation(resource) {
+			return resource.pivot && resource.pivot.limitation;
+		}
+
+	},
+
+	computed: {}
 }

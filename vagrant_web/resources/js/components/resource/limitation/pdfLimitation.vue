@@ -3,30 +3,30 @@
 </template>
 
 <script>
-    export default {
+	export default {
 
-        props: {
-            limitation: {
-                required: true
-            }
-        },
+		props: {
+			limitation: {
+				required: true
+			}
+		},
 
-        computed: {
-            formatedLimitation() {
+		computed: {
+			formatedLimitation() {
 
-                if (this.limitation === null) {
-                    return '';
-                }
+				if (this.limitation === null) {
+					return '';
+				}
 
-                if (this.limitation && this.limitation.pages && this.limitation.pages.length > 0) {
-                    return 'Limitiert auf die Seiten: ' + this.limitation.pages.join(', ');
-                }
+				if (this.limitation && this.limitation.pages && this.limitation.pages.length > 0) {
+					return 'Limitiert auf die Seiten: ' + this.limitation.pages.join(', ');
+				}
 
-                return '';
+				return '';
 
-            }
-        }
-    }
+			}
+		}
+	}
 </script>
 
 <style scoped>

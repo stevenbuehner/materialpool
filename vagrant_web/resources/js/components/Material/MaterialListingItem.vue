@@ -66,160 +66,160 @@
 </template>
 
 <script>
-    import Keyword from '../keyword/keyword.vue'
-    import Biblevers from "../bibleverse/biblevers.vue";
-    import materialDetail from '../../apps/main/pages/MaterialDetail.vue';
-    import {material_preview_image} from '../serverRoutes';
-    import materialStoreMixin from './materialStore.mixin';
-    import playIcon from 'svg-icon/dist/svg/icomoon/play2.svg'
+	import Keyword                  from '../keyword/keyword.vue'
+	import Biblevers                from "../bibleverse/biblevers.vue";
+	import materialDetail           from '../../apps/main/pages/MaterialDetail.vue';
+	import {material_preview_image} from '../serverRoutes';
+	import materialStoreMixin       from './materialStore.mixin';
+	import playIcon                 from 'svg-icon/dist/svg/icomoon/play2.svg'
 
 
-    function sortByRelevance(t1, t2) {
-        return t2.pivot.relevance - t1.pivot.relevance;
-    }
+	function sortByRelevance(t1, t2) {
+		return t2.pivot.relevance - t1.pivot.relevance;
+	}
 
-    export default {
+	export default {
 
-        mixins: [
-            materialStoreMixin
-        ],
+		mixins: [
+			materialStoreMixin
+		],
 
-        props: {
-            id: {
-                type: Number,
-                required: true
-            },
+		props: {
+			id: {
+				type: Number,
+				required: true
+			},
 
-            highlightKeywords: {
-                type: Array,
-                required: false,
-                default() {
-                    return [];
-                }
-            },
+			highlightKeywords: {
+				type: Array,
+				required: false,
+				default() {
+					return [];
+				}
+			},
 
-            highlightBibleverses: {
-                type: Array,
-                required: false,
-                default() {
-                    return [];
-                }
-            },
-        },
+			highlightBibleverses: {
+				type: Array,
+				required: false,
+				default() {
+					return [];
+				}
+			},
+		},
 
-        data() {
-            return {
-                bundleIcon: null,
-                showMore: false,
-                showImage: false,
-                imageIsLoading: true
-            }
-        },
+		data() {
+			return {
+				bundleIcon: null,
+				showMore: false,
+				showImage: false,
+				imageIsLoading: true
+			}
+		},
 
-        computed: {
-            highlightedKeywords() {
-                return this.material.keywords.filter((k) => this.isKeywordHighlighted(k.id)).sort(sortByRelevance);
-            },
+		computed: {
+			highlightedKeywords() {
+				return this.material.keywords.filter((k) => this.isKeywordHighlighted(k.id)).sort(sortByRelevance);
+			},
 
-            notHighlightedKeywords() {
-                return this.material.keywords.filter((k) => !this.isKeywordHighlighted(k.id)).sort(sortByRelevance);
-            },
+			notHighlightedKeywords() {
+				return this.material.keywords.filter((k) => !this.isKeywordHighlighted(k.id)).sort(sortByRelevance);
+			},
 
-            highlightedBibleverses() {
-                return this.material.bibleverses.filter((b) => this.isBibleverseHighlighted(b.from, b.to)).sort(sortByRelevance);
-            },
+			highlightedBibleverses() {
+				return this.material.bibleverses.filter((b) => this.isBibleverseHighlighted(b.from, b.to)).sort(sortByRelevance);
+			},
 
-            notHighlightedBibleverses() {
-                return this.material.bibleverses.filter((b) => !this.isBibleverseHighlighted(b.from, b.to)).sort(sortByRelevance);
-            },
+			notHighlightedBibleverses() {
+				return this.material.bibleverses.filter((b) => !this.isBibleverseHighlighted(b.from, b.to)).sort(sortByRelevance);
+			},
 
-            previewImageUrl() {
-                return material_preview_image(this.id);
-            },
+			previewImageUrl() {
+				return material_preview_image(this.id);
+			},
 
-            fileTypes() {
-                const types = {};
+			fileTypes() {
+				const types = {};
 
-                this.material.resources.forEach((resource) => {
-                    types[resource.type] = types[resource.type] || 0;
-                    types[resource.type]++;
-                });
+				this.material.resources.forEach((resource) => {
+					types[resource.type] = types[resource.type] || 0;
+					types[resource.type]++;
+				});
 
-                return Object.keys(types).map((t) => t.charAt(0).toUpperCase() + t.slice(1)).join(', ');
-            },
+				return Object.keys(types).map((t) => t.charAt(0).toUpperCase() + t.slice(1)).join(', ');
+			},
 
-            containsVideoResource() {
-                return this.material.resources.find((r) => {
-                    return r.type === 'video';
-                }) !== undefined;
-            },
+			containsVideoResource() {
+				return this.material.resources.find((r) => {
+					return r.type === 'video';
+				}) !== undefined;
+			},
 
-        },
+		},
 
-        asyncComputed: {
+		asyncComputed: {
 
-            bundleName: {
-                get() {
-                    if (this.material && this.material.icon_of_bundle) {
-                        return this.$store.dispatch('bundles/getBundleNameById', this.material.icon_of_bundle)
-                            .catch(() => {
-                                return 'Missing Bundle name. Ups';
-                            })
-                    } else {
-                        return '';
-                    }
-                },
-                default: null,
-                watch() {
-                    this.material;
-                }
-            },
+			bundleName: {
+				get() {
+					if (this.material && this.material.icon_of_bundle) {
+						return this.$store.dispatch('bundles/getBundleNameById', this.material.icon_of_bundle)
+						           .catch(() => {
+							           return 'Missing Bundle name. Ups';
+						           })
+					} else {
+						return '';
+					}
+				},
+				default: null,
+				watch() {
+					this.material;
+				}
+			},
 
-            material: {
-                get() {
-                    return this.$store.dispatch('materials/getMaterial', this.id);
-                },
-                default: null,
-                watch() {
-                }
-            }
+			material: {
+				get() {
+					return this.$store.dispatch('materials/getMaterial', this.id);
+				},
+				default: null,
+				watch() {
+				}
+			}
 
-        },
+		},
 
-        watch: {},
+		watch: {},
 
 
-        methods: {
+		methods: {
 
-            isBibleverseHighlighted(from, to) {
-                return !!this.highlightBibleverses.find((el) => {
+			isBibleverseHighlighted(from, to) {
+				return !!this.highlightBibleverses.find((el) => {
 
-                    if (from >= el.from && from <= el.to) {
-                        return true;
-                    } else if (to >= el.from && to <= el.to) {
-                        return true;
-                    } else {
-                        return false;
-                    }
-                });
+					if (from >= el.from && from <= el.to) {
+						return true;
+					} else if (to >= el.from && to <= el.to) {
+						return true;
+					} else {
+						return false;
+					}
+				});
 
-            },
+			},
 
-            isKeywordHighlighted(keywordId) {
-                return !!this.highlightKeywords.find((el) => {
-                    return el == keywordId;
-                });
-            },
+			isKeywordHighlighted(keywordId) {
+				return !!this.highlightKeywords.find((el) => {
+					return el == keywordId;
+				});
+			},
 
-        },
+		},
 
-        components: {
-            Biblevers,
-            Keyword,
-            materialDetail,
-            playIcon
-        }
-    }
+		components: {
+			Biblevers,
+			Keyword,
+			materialDetail,
+			playIcon
+		}
+	}
 </script>
 
 <style type="scss">

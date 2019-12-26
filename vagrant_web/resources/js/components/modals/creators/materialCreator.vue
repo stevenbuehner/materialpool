@@ -131,348 +131,348 @@
 
 <script>
 
-    import {BForm} from 'bootstrap-vue';
-    import {BAlert} from 'bootstrap-vue';
-    import {BFormGroup} from 'bootstrap-vue';
-    import {BFormInput} from 'bootstrap-vue';
-    import {BModal} from 'bootstrap-vue';
-    import {BButton} from 'bootstrap-vue';
-    import starRating from 'vue-star-rating';
-    import KeywordInput from "../../keyword/keywordInput.vue";
-    import BibleverseInput from "../../bibleverse/bibleverseInput";
-    import _debounce from 'lodash/debounce';
-    import KeywordToggleTextSelect from "../../keyword/keywordToggleTextSelect";
-    import {RELEVANCE_USER_AVG} from "../../../apps/config";
-
-    export default {
-        name: "materialCreator",
-
-        data() {
-            return {
-                form: {
-                    title: '',
-                    description: '',
-                    rating: null,
-                    from_bot: false,
-                    author: '',
-                    keywords: [],
-                    bibleverses: [],
-                },
-
-                keywordInput: [],
-                bibleverseInput: [],
-
-                labelCols: 2,
-
-                reject: null,
-                resolve: null,
-
-                formErrors: [],
-                materialCreationRunning: false,
-            };
-        },
-
-        props: {
-            headline: {
-                type: String,
-                false: true,
-                default: ''
-            },
-            title: {
-                type: String,
-                required: false,
-                default: ''
-            },
-            description: {
-                type: String,
-                required: false,
-                default: ''
-            },
-            author: {
-                type: String,
-                required: false,
-                default: ''
-            },
-            rating: {
-                type: Number,
-                required: false,
-                default: -1
-            },
-            keywordIds: {
-                type: Array,
-                required: false,
-                default() {
-                    return [];
-                }
-            },
-            bibleverseIds: {
-                type: Array,
-                required: false,
-                default() {
-                    return [];
-                }
-            },
-
-            externalBibleverseSuggestions: {
-                type: Array,
-                required: false,
-                default() {
-                    return [];
-                }
-            }
-
-        },
-
-        computed: {
-            formDisabled() {
-                return this.materialCreationRunning;
-            },
-
-            buttonsDisabled() {
-                return this.materialCreationRunning;
-            }
-        },
+	import {BForm}                 from 'bootstrap-vue';
+	import {BAlert}                from 'bootstrap-vue';
+	import {BFormGroup}            from 'bootstrap-vue';
+	import {BFormInput}            from 'bootstrap-vue';
+	import {BModal}                from 'bootstrap-vue';
+	import {BButton}               from 'bootstrap-vue';
+	import starRating              from 'vue-star-rating';
+	import KeywordInput            from "../../keyword/keywordInput.vue";
+	import BibleverseInput         from "../../bibleverse/bibleverseInput";
+	import _debounce               from 'lodash/debounce';
+	import KeywordToggleTextSelect from "../../keyword/keywordToggleTextSelect";
+	import {RELEVANCE_USER_AVG}    from "../../../apps/config";
+
+	export default {
+		name: "materialCreator",
+
+		data() {
+			return {
+				form: {
+					title: '',
+					description: '',
+					rating: null,
+					from_bot: false,
+					author: '',
+					keywords: [],
+					bibleverses: [],
+				},
+
+				keywordInput: [],
+				bibleverseInput: [],
+
+				labelCols: 2,
+
+				reject: null,
+				resolve: null,
+
+				formErrors: [],
+				materialCreationRunning: false,
+			};
+		},
+
+		props: {
+			headline: {
+				type: String,
+				false: true,
+				default: ''
+			},
+			title: {
+				type: String,
+				required: false,
+				default: ''
+			},
+			description: {
+				type: String,
+				required: false,
+				default: ''
+			},
+			author: {
+				type: String,
+				required: false,
+				default: ''
+			},
+			rating: {
+				type: Number,
+				required: false,
+				default: -1
+			},
+			keywordIds: {
+				type: Array,
+				required: false,
+				default() {
+					return [];
+				}
+			},
+			bibleverseIds: {
+				type: Array,
+				required: false,
+				default() {
+					return [];
+				}
+			},
+
+			externalBibleverseSuggestions: {
+				type: Array,
+				required: false,
+				default() {
+					return [];
+				}
+			}
+
+		},
+
+		computed: {
+			formDisabled() {
+				return this.materialCreationRunning;
+			},
+
+			buttonsDisabled() {
+				return this.materialCreationRunning;
+			}
+		},
 
-        watch: {
-            authorSearch: _debounce(function (searchValue) {
-                this._getAuthorSuggestion(searchValue)
-            }, 300)
-        },
+		watch: {
+			authorSearch: _debounce(function (searchValue) {
+				this._getAuthorSuggestion(searchValue)
+			}, 300)
+		},
 
-        created() {
+		created() {
 
-            this._onReset();
+			this._onReset();
 
-        },
+		},
 
-        methods: {
+		methods: {
 
-            showPromise() {
+			showPromise() {
 
-                return new Promise((resolve, reject) => {
-                    this.resolve = resolve;
-                    this.reject  = reject;
+				return new Promise((resolve, reject) => {
+					this.resolve = resolve;
+					this.reject = reject;
 
-                    this.$refs.myModal.show();
-                });
+					this.$refs.myModal.show();
+				});
 
-            },
+			},
 
-            _cancelPromise() {
+			_cancelPromise() {
 
-                if (typeof this.reject === 'function') {
-                    this.reject('closed early');
-                    // this.$refs.myModal.close();
-                    this.resolve = null;
-                    this.reject  = null;
-                }
+				if (typeof this.reject === 'function') {
+					this.reject('closed early');
+					// this.$refs.myModal.close();
+					this.resolve = null;
+					this.reject = null;
+				}
 
-            },
+			},
 
-            createAndReturnMaterial() {
+			createAndReturnMaterial() {
 
-                if (typeof this.resolve === 'function') {
+				if (typeof this.resolve === 'function') {
 
-                    this.materialCreationRunning = true;
+					this.materialCreationRunning = true;
 
-                    this.$store.dispatch('materials/create', this.form)
-                        .then((material) => {
-                            console.info('Created successfull: ', material);
+					this.$store.dispatch('materials/create', this.form)
+					    .then((material) => {
+						    console.info('Created successfull: ', material);
 
-                            this.resolve(material);
-                            this.resolve = null; // already done during hide()
-                            this.reject  = null; // already done during hide()
+						    this.resolve(material);
+						    this.resolve = null; // already done during hide()
+						    this.reject = null; // already done during hide()
 
-                            this.$refs.myModal.hide();
+						    this.$refs.myModal.hide();
 
-                            this.$store.commit('recentmaterials/addRecentMaterialId', material.id);
-                        })
-                        .catch((response) => {
-                            console.error(response);
-                        })
-                        .then(() => {
-                            // Always
-                            this.materialCreationRunning = false;
-                        });
-                }
-            },
+						    this.$store.commit('recentmaterials/addRecentMaterialId', material.id);
+					    })
+					    .catch((response) => {
+						    console.error(response);
+					    })
+					    .then(() => {
+						    // Always
+						    this.materialCreationRunning = false;
+					    });
+				}
+			},
 
-            updateBibleverseForm(bibleverses) {
-                this.form.bibleverses = bibleverses.map((bv) => {
-                    let response = {
-                        from: bv.from,
-                        to: bv.to,
-                        id: bv.id,
-                    };
+			updateBibleverseForm(bibleverses) {
+				this.form.bibleverses = bibleverses.map((bv) => {
+					let response = {
+						from: bv.from,
+						to: bv.to,
+						id: bv.id,
+					};
 
-                    if (bv.pivot && bv.pivot.relevance) {
-                        response.relevance = bv.pivot.relevance;
-                    }
+					if (bv.pivot && bv.pivot.relevance) {
+						response.relevance = bv.pivot.relevance;
+					}
 
-                    return response;
-                });
-            },
+					return response;
+				});
+			},
 
-            updateKeywordForm(keywords) {
-                this.form.keywords = keywords.map((kw) => {
-                    let response = {
-                        type: kw.type,
-                        title: kw.title,
-                        id: kw.id,
-                    };
+			updateKeywordForm(keywords) {
+				this.form.keywords = keywords.map((kw) => {
+					let response = {
+						type: kw.type,
+						title: kw.title,
+						id: kw.id,
+					};
 
-                    if (kw.pivot && kw.pivot.relevance) {
-                        response.relevance = kw.pivot.relevance;
-                    }
+					if (kw.pivot && kw.pivot.relevance) {
+						response.relevance = kw.pivot.relevance;
+					}
 
-                    return response;
-                });
-            },
+					return response;
+				});
+			},
 
-            hide() {
-                this.$refs.myModal.hide();
-            },
+			hide() {
+				this.$refs.myModal.hide();
+			},
 
-            _onSubmit() {
+			_onSubmit() {
 
-                this.checkRequirements();
+				this.checkRequirements();
 
-                if (this.formErrors.length === 0) {
-                    this.createAndReturnMaterial();
-                }
+				if (this.formErrors.length === 0) {
+					this.createAndReturnMaterial();
+				}
 
-            },
+			},
 
-            checkRequirements() {
+			checkRequirements() {
 
-                this.formErrors = [];
+				this.formErrors = [];
 
-                // Check title
-                if (!this.form.title || this.form.title.trim().length < 3) {
-                    this.formErrors.push(this.$tc('pool.min-length', this.form.title.trim().length, {
-                        COUNT: this.form.title.trim().length,
-                        REQUIRED: 3,
-                        FIELD: this.$t('pool.Title')
-                    }));
-                }
+				// Check title
+				if (!this.form.title || this.form.title.trim().length < 3) {
+					this.formErrors.push(this.$tc('pool.min-length', this.form.title.trim().length, {
+						COUNT: this.form.title.trim().length,
+						REQUIRED: 3,
+						FIELD: this.$t('pool.Title')
+					}));
+				}
 
-                if (!this.form.rating) {
-                    this.formErrors.push(this.$tc('pool.rating-missing'));
-                }
+				if (!this.form.rating) {
+					this.formErrors.push(this.$tc('pool.rating-missing'));
+				}
 
-                if (this.form.keywords.length < 3) {
-                    this.formErrors.push(this.$tc('pool.min-3-keywords'));
-                }
+				if (this.form.keywords.length < 3) {
+					this.formErrors.push(this.$tc('pool.min-3-keywords'));
+				}
 
-            },
+			},
 
-            _onReset() {
-                this.formErrors = [];
+			_onReset() {
+				this.formErrors = [];
 
-                this.form.title       = (this.title !== '') ? this.title : this.$store.getters['materialcreator/getTitle'];
-                this.form.description = (this.description !== '') ? this.description : this.$store.getters['materialcreator/getDescription'];
-                this.form.rating      = (this.rating !== -1) ? this.rating : this.$store.getters['materialcreator/getRating'];
-                this.form.from_bot    = (this.from_bot === false) ? false : this.$store.getters['materialcreator/getFromBot'];
-                this.form.author      = (this.author !== '') ? this.author : this.$store.getters['materialcreator/getAuthor'];
-                this.form.keywords    = [];
-                this.form.bibleverses = [];
+				this.form.title = (this.title !== '') ? this.title : this.$store.getters['materialcreator/getTitle'];
+				this.form.description = (this.description !== '') ? this.description : this.$store.getters['materialcreator/getDescription'];
+				this.form.rating = (this.rating !== -1) ? this.rating : this.$store.getters['materialcreator/getRating'];
+				this.form.from_bot = (this.from_bot === false) ? false : this.$store.getters['materialcreator/getFromBot'];
+				this.form.author = (this.author !== '') ? this.author : this.$store.getters['materialcreator/getAuthor'];
+				this.form.keywords = [];
+				this.form.bibleverses = [];
 
 
-                // Wenn nur die IDs gegeben sind, dann nimm die Standard-Relevanz
-                const kwIdsAndRelevance = this.keywordIds.length > 0 ? this.keywordIds.map((kw) => {
-                    return {id: kw.id, relevance: RELEVANCE_USER_AVG}
-                }) : this.$store.getters['materialcreator/getKeywordIds'];
+				// Wenn nur die IDs gegeben sind, dann nimm die Standard-Relevanz
+				const kwIdsAndRelevance = this.keywordIds.length > 0 ? this.keywordIds.map((kw) => {
+					return {id: kw.id, relevance: RELEVANCE_USER_AVG}
+				}) : this.$store.getters['materialcreator/getKeywordIds'];
 
-                // Wenn nur die IDs gegeben sind, dann nimm die Standard-Relevanz
-                const bvIdsAndRelevance = (this.bibleverseIds.length > 0) ? this.bibleverseIds.map((bv) => {
-                    return {id: bv.id, relevance: RELEVANCE_USER_AVG}
-                }) : this.$store.getters['materialcreator/getBibleverseIds'];
+				// Wenn nur die IDs gegeben sind, dann nimm die Standard-Relevanz
+				const bvIdsAndRelevance = (this.bibleverseIds.length > 0) ? this.bibleverseIds.map((bv) => {
+					return {id: bv.id, relevance: RELEVANCE_USER_AVG}
+				}) : this.$store.getters['materialcreator/getBibleverseIds'];
 
 
-                // Lade den Author anhand der zwischengespeicherten ID nach
-                if (this.form.author) {
-                    this.$store.dispatch('keywords/get', this.form.author)
-                        .then((author) => {
-                            this.form.author = author;
-                        });
-                }
+				// Lade den Author anhand der zwischengespeicherten ID nach
+				if (this.form.author) {
+					this.$store.dispatch('keywords/get', this.form.author)
+					    .then((author) => {
+						    this.form.author = author;
+					    });
+				}
 
-                // Lade die Keywords anhand der zwischengespeicherten IDs nach und füge die Relevanz hinzu
-                if (kwIdsAndRelevance.length > 0) {
-                    this.$store.dispatch('keywords/getMultiple', kwIdsAndRelevance.map(kw => kw.id))
-                        .then((keywords) => {
+				// Lade die Keywords anhand der zwischengespeicherten IDs nach und füge die Relevanz hinzu
+				if (kwIdsAndRelevance.length > 0) {
+					this.$store.dispatch('keywords/getMultiple', kwIdsAndRelevance.map(kw => kw.id))
+					    .then((keywords) => {
 
-                            for (let i in keywords) {
-                                keywords[i].pivot = {relevance: kwIdsAndRelevance.find((el) => el.id === keywords[i].id).relevance}
-                            }
+						    for (let i in keywords) {
+							    keywords[i].pivot = {relevance: kwIdsAndRelevance.find((el) => el.id === keywords[i].id).relevance}
+						    }
 
-                            this.keywordInput = keywords;
-                            this.updateKeywordForm(keywords);
-                        });
-                }
+						    this.keywordInput = keywords;
+						    this.updateKeywordForm(keywords);
+					    });
+				}
 
-                if (bvIdsAndRelevance.length > 0) {
-                    this.$store.dispatch('bibleverses/getMultiple', bvIdsAndRelevance.map(bv => bv.id))
-                        .then((bibleverses) => {
+				if (bvIdsAndRelevance.length > 0) {
+					this.$store.dispatch('bibleverses/getMultiple', bvIdsAndRelevance.map(bv => bv.id))
+					    .then((bibleverses) => {
 
-                            for (let i in bibleverses) {
-                                bibleverses[i].pivot = {relevance: bvIdsAndRelevance.find((el) => el.id === bibleverses[i].id).relevance}
-                            }
+						    for (let i in bibleverses) {
+							    bibleverses[i].pivot = {relevance: bvIdsAndRelevance.find((el) => el.id === bibleverses[i].id).relevance}
+						    }
 
-                            this.bibleverseInput = bibleverses;
-                            this.updateBibleverseForm(bibleverses);
-                        });
-                }
+						    this.bibleverseInput = bibleverses;
+						    this.updateBibleverseForm(bibleverses);
+					    });
+				}
 
-            },
+			},
 
-            _selectFocus() {
+			_selectFocus() {
 
-                const el = this.$refs.titleInput.$el;
+				const el = this.$refs.titleInput.$el;
 
-                el.focus();
+				el.focus();
 
-                // Move cursor to selection end
-                // see: https://css-tricks.com/snippets/javascript/move-cursor-to-end-of-input/
-                if (typeof el.selectionStart == "number") {
-                    el.selectionStart = el.selectionEnd = el.value.length;
-                } else if (typeof el.createTextRange != "undefined") {
-                    const range = el.createTextRange();
-                    range.collapse(false);
-                    range.select();
-                }
+				// Move cursor to selection end
+				// see: https://css-tricks.com/snippets/javascript/move-cursor-to-end-of-input/
+				if (typeof el.selectionStart == "number") {
+					el.selectionStart = el.selectionEnd = el.value.length;
+				} else if (typeof el.createTextRange != "undefined") {
+					const range = el.createTextRange();
+					range.collapse(false);
+					range.select();
+				}
 
-            },
+			},
 
-            useCurrentSelectionAsDefault() {
+			useCurrentSelectionAsDefault() {
 
-                this.$store.commit('materialcreator/setTitle', this.form.title);
-                this.$store.commit('materialcreator/setDescription', this.form.description);
-                this.$store.commit('materialcreator/setRating', this.form.rating);
-                this.$store.commit('materialcreator/setFromBot', this.form.from_bot);
-                this.$store.commit('materialcreator/setAuthor', (this.form.author) ? this.form.author.id : null);
-                this.$store.commit('materialcreator/setKeywordIds', this.form.keywords);
-                this.$store.commit('materialcreator/setBibleverseIds', this.form.bibleverses);
+				this.$store.commit('materialcreator/setTitle', this.form.title);
+				this.$store.commit('materialcreator/setDescription', this.form.description);
+				this.$store.commit('materialcreator/setRating', this.form.rating);
+				this.$store.commit('materialcreator/setFromBot', this.form.from_bot);
+				this.$store.commit('materialcreator/setAuthor', (this.form.author) ? this.form.author.id : null);
+				this.$store.commit('materialcreator/setKeywordIds', this.form.keywords);
+				this.$store.commit('materialcreator/setBibleverseIds', this.form.bibleverses);
 
-            },
+			},
 
-        },
+		},
 
-        components: {
-            KeywordToggleTextSelect,
-            BibleverseInput,
-            KeywordInput,
-            BForm,
-            BAlert,
-            BFormGroup,
-            BFormInput,
-            BModal,
-            BButton,
-            starRating
-        }
+		components: {
+			KeywordToggleTextSelect,
+			BibleverseInput,
+			KeywordInput,
+			BForm,
+			BAlert,
+			BFormGroup,
+			BFormInput,
+			BModal,
+			BButton,
+			starRating
+		}
 
 
-    }
+	}
 </script>
 
 <style scoped>

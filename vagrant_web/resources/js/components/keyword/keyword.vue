@@ -32,266 +32,266 @@
 
 
 <script>
-    import {BModal} from 'bootstrap-vue';
-    import {BFormInput} from 'bootstrap-vue';
-    import {BFormSelect} from 'bootstrap-vue';
-    import contextMenu from '../context-menu/context-menu.vue';
-    import contextMenuItem from "../context-menu/context-menu-item.vue";
-    import {keywordSearchLink} from '../serverRoutes';
-    import {ayceIcon, iconName, keyIcon, langIcon, personIcon, placeIcon} from './keywordDefaultIcons';
-    import {searchArrayObjectsToSearchQuery} from "../search/searchHelper";
-    import {draggingSupport} from "./dragging.mixin";
-    import {RELEVANCE_USER_MAX} from "../../apps/config";
+	import {BModal}                                                       from 'bootstrap-vue';
+	import {BFormInput}                                                   from 'bootstrap-vue';
+	import {BFormSelect}                                                  from 'bootstrap-vue';
+	import contextMenu                                                    from '../context-menu/context-menu.vue';
+	import contextMenuItem                                                from "../context-menu/context-menu-item.vue";
+	import {keywordSearchLink}                                            from '../serverRoutes';
+	import {ayceIcon, iconName, keyIcon, langIcon, personIcon, placeIcon} from './keywordDefaultIcons';
+	import {searchArrayObjectsToSearchQuery}                              from "../search/searchHelper";
+	import {draggingSupport}                                              from "./dragging.mixin";
+	import {RELEVANCE_USER_MAX}                                           from "../../apps/config";
 
-    export default {
+	export default {
 
-        name: 'Keyword',
+		name: 'Keyword',
 
-        mixins: [
-            draggingSupport
-        ],
+		mixins: [
+			draggingSupport
+		],
 
-        props: {
-            // Passing in only. Later working with myKeyword (data)
-            keyword: {
-                type: Object,
-                required: true
-            },
+		props: {
+			// Passing in only. Later working with myKeyword (data)
+			keyword: {
+				type: Object,
+				required: true
+			},
 
-            materialId: {
-                type: Number,
-                required: false
-            },
+			materialId: {
+				type: Number,
+				required: false
+			},
 
-            searchlink: {
-                type: String,
-                required: false,
-                default: ''
-            },
-            size: {
-                type: String,
-                required: false,
-                default: 'normal'
-            },
+			searchlink: {
+				type: String,
+				required: false,
+				default: ''
+			},
+			size: {
+				type: String,
+				required: false,
+				default: 'normal'
+			},
 
-            searchable: {
-                type: Boolean,
-                required: false,
-                default: true
-            },
-            editable: {
-                type: Boolean,
-                required: false,
-                default: true
-            },
-            removeable: {
-                type: Boolean,
-                required: false,
-                default: false
-            },
+			searchable: {
+				type: Boolean,
+				required: false,
+				default: true
+			},
+			editable: {
+				type: Boolean,
+				required: false,
+				default: true
+			},
+			removeable: {
+				type: Boolean,
+				required: false,
+				default: false
+			},
 
-            /* Whether this biblverse should be displayed in a highlighted colour*/
-            highlight: {
-                type: Boolean,
-                required: false,
-                default: false
-            }
-        },
+			/* Whether this biblverse should be displayed in a highlighted colour*/
+			highlight: {
+				type: Boolean,
+				required: false,
+				default: false
+			}
+		},
 
-        model: {
-            prop: 'keyword',
-            event: 'saved'
-        },
-
-
-        data: function () {
-            return {
-                menuIsOpen: false,
-                myKeyword: {},
-            };
-        },
-
-        computed: {
-
-            searchLink() {
-                return keywordSearchLink(this.myKeyword);
-            },
-
-            relevance() {
-                if (this.dragging.ongoing === true) {
-                    return this.dragPercentage * RELEVANCE_USER_MAX;
-                } else if (this.myKeyword.pivot) {
-                    return this.myKeyword.pivot.relevance;
-                } else {
-                    return 0;
-                }
-            },
-
-            styleObject: function () {
-                return {
-                    width: this.relevance / 300 * 100 + '%',
-                }
-            },
-
-            iconName() {
-                return iconName(this.myKeyword);
-            },
-
-        },
-
-        created: function () {
-
-            // Needs to be copied. Because any changes in properties are not recognized in computed properties
-            this.myKeyword = JSON.parse(JSON.stringify(this.keyword));
-
-            this.$on('dragging-done', (dragPercentage) => {
-                this.updateRelevance(dragPercentage * RELEVANCE_USER_MAX);
-            });
-
-        },
-
-        methods: {
-
-            keydownStartDrag(event) {
-                if (this.editable) {
-                    event.stopPropagation();
-                    this.startDrag(event);
-                }
-            },
+		model: {
+			prop: 'keyword',
+			event: 'saved'
+		},
 
 
-            /* used by mixin */
-            updateRelevance(relevance) {
+		data: function () {
+			return {
+				menuIsOpen: false,
+				myKeyword: {},
+			};
+		},
 
-                this.$emit('savingPivot', {relevance: relevance});
+		computed: {
 
-                if (this.materialId) {
+			searchLink() {
+				return keywordSearchLink(this.myKeyword);
+			},
 
-                    const promise = this.$store.dispatch('keywords/updateRelevance', {
-                        materialId: this.materialId,
-                        keywordId: this.keyword.id,
-                        relevance: relevance
-                    });
+			relevance() {
+				if (this.dragging.ongoing === true) {
+					return this.dragPercentage * RELEVANCE_USER_MAX;
+				} else if (this.myKeyword.pivot) {
+					return this.myKeyword.pivot.relevance;
+				} else {
+					return 0;
+				}
+			},
 
-                    promise.then((keyword) => {
+			styleObject: function () {
+				return {
+					width: this.relevance / 300 * 100 + '%',
+				}
+			},
 
-                        // Nur für den Fall, dass die Komponente irgendwo eingesetzt wird, wo sich das im Hintergrund nicht aktualisiert
-                        this.myKeyword.pivot = keyword.pivot;
+			iconName() {
+				return iconName(this.myKeyword);
+			},
 
-                        this.emitSaved(keyword);
+		},
 
-                    }).catch((response) => {
+		created: function () {
 
-                        // on failure
-                        this.$emit('savingPivotError', {
-                            tag: this.keyword,  // "tag" is used for bibleverses and keywords
-                            msg: this.parseResponseErrors(response.response)
-                        });
-                    });
-                } else {
+			// Needs to be copied. Because any changes in properties are not recognized in computed properties
+			this.myKeyword = JSON.parse(JSON.stringify(this.keyword));
 
-                    console.info('Relevance can only be changed in the backend when a material-id is given!');
+			this.$on('dragging-done', (dragPercentage) => {
+				this.updateRelevance(dragPercentage * RELEVANCE_USER_MAX);
+			});
 
-                    let pivot            = this.myKeyword.pivot || {};
-                    pivot.relevance      = relevance;
-                    this.myKeyword.pivot = pivot;
+		},
 
-                    this.emitSaved(this.myKeyword);
+		methods: {
 
-                }
+			keydownStartDrag(event) {
+				if (this.editable) {
+					event.stopPropagation();
+					this.startDrag(event);
+				}
+			},
 
-            },
 
-            removeKeyword() {
+			/* used by mixin */
+			updateRelevance(relevance) {
 
-                if (this.materialId) {
-                    this.$store.dispatch('keywords/deleteAssignment', {
-                        materialId: this.materialId,
-                        keywordId: this.myKeyword.id
-                    })
-                        .then((response) => {
-                            this.$emit('removed', this.myKeyword);
-                        });
-                } else {
-                    console.info('Missing MaterialID -> The association is only removed in frontend!');
-                    this.$emit('removed', this.myKeyword);
-                }
+				this.$emit('savingPivot', {relevance: relevance});
 
-            },
+				if (this.materialId) {
 
-            onKeywordPropertiesChanged(newKeyword) {
+					const promise = this.$store.dispatch('keywords/updateRelevance', {
+						materialId: this.materialId,
+						keywordId: this.keyword.id,
+						relevance: relevance
+					});
 
-                for (let i in newKeyword) {
-                    this.myKeyword[i] = newKeyword[i];
-                }
+					promise.then((keyword) => {
 
-                this.emitSaved(newKeyword);
-            },
+						// Nur für den Fall, dass die Komponente irgendwo eingesetzt wird, wo sich das im Hintergrund nicht aktualisiert
+						this.myKeyword.pivot = keyword.pivot;
 
-            onDeleted() {
-                this.$emit('removed', this.keyword);
-                this.$emit('deleted', this.keyword);
-            },
+						this.emitSaved(keyword);
 
-            emitSaved(newKeyword) {
-                this.$emit('saved', newKeyword);
-            },
+					}).catch((response) => {
 
-            parseResponseErrors(response) {
-                let msg = 'Error! ';
+						// on failure
+						this.$emit('savingPivotError', {
+							tag: this.keyword,  // "tag" is used for bibleverses and keywords
+							msg: this.parseResponseErrors(response.response)
+						});
+					});
+				} else {
 
-                if (response.data && response.data.errors) {
-                    for (let i in response.data.errors) {
-                        msg += i + ': ' + response.data.errors[i] + '. ';
-                    }
-                }
+					console.info('Relevance can only be changed in the backend when a material-id is given!');
 
-                return msg;
-            },
+					let pivot = this.myKeyword.pivot || {};
+					pivot.relevance = relevance;
+					this.myKeyword.pivot = pivot;
 
-            openKeywordEditModal() {
+					this.emitSaved(this.myKeyword);
 
-                if (this.editable === true) {
-                    this.$refs.keywordEditor.show();
-                }
+				}
 
-            },
+			},
 
-            goToKeywordSearch() {
-                this.$router.push({
-                    name: 'search',
-                    params: {
-                        search: searchArrayObjectsToSearchQuery([[this.keyword]])
-                    }
-                });
-            },
+			removeKeyword() {
 
-            openRightClickMenu(event) {
-                if (this.searchable || this.editable || this.removeable) {
-                    this.$refs.menu.openMenu(event)
-                }
-            },
+				if (this.materialId) {
+					this.$store.dispatch('keywords/deleteAssignment', {
+						materialId: this.materialId,
+						keywordId: this.myKeyword.id
+					})
+					    .then((response) => {
+						    this.$emit('removed', this.myKeyword);
+					    });
+				} else {
+					console.info('Missing MaterialID -> The association is only removed in frontend!');
+					this.$emit('removed', this.myKeyword);
+				}
 
-        },
+			},
 
-        components: {
-            // To avoid recursive imports of "keyword" Component
-            // see: https://vuejs.org/v2/guide/components-edge-cases.html#Recursive-Components
-            KeywordEditor: () => import("../modals/editors/keywordEditor"),
+			onKeywordPropertiesChanged(newKeyword) {
 
-            ContextMenuItem: contextMenuItem,
-            BModal,
-            BFormInput,
-            BFormSelect,
-            contextMenu,
-            keyIcon,
-            placeIcon,
-            personIcon,
-            langIcon: langIcon,
-            ayceIcon,
-        }
+				for (let i in newKeyword) {
+					this.myKeyword[i] = newKeyword[i];
+				}
 
-    }
+				this.emitSaved(newKeyword);
+			},
+
+			onDeleted() {
+				this.$emit('removed', this.keyword);
+				this.$emit('deleted', this.keyword);
+			},
+
+			emitSaved(newKeyword) {
+				this.$emit('saved', newKeyword);
+			},
+
+			parseResponseErrors(response) {
+				let msg = 'Error! ';
+
+				if (response.data && response.data.errors) {
+					for (let i in response.data.errors) {
+						msg += i + ': ' + response.data.errors[i] + '. ';
+					}
+				}
+
+				return msg;
+			},
+
+			openKeywordEditModal() {
+
+				if (this.editable === true) {
+					this.$refs.keywordEditor.show();
+				}
+
+			},
+
+			goToKeywordSearch() {
+				this.$router.push({
+					name: 'search',
+					params: {
+						search: searchArrayObjectsToSearchQuery([[this.keyword]])
+					}
+				});
+			},
+
+			openRightClickMenu(event) {
+				if (this.searchable || this.editable || this.removeable) {
+					this.$refs.menu.openMenu(event)
+				}
+			},
+
+		},
+
+		components: {
+			// To avoid recursive imports of "keyword" Component
+			// see: https://vuejs.org/v2/guide/components-edge-cases.html#Recursive-Components
+			KeywordEditor: () => import("../modals/editors/keywordEditor"),
+
+			ContextMenuItem: contextMenuItem,
+			BModal,
+			BFormInput,
+			BFormSelect,
+			contextMenu,
+			keyIcon,
+			placeIcon,
+			personIcon,
+			langIcon: langIcon,
+			ayceIcon,
+		}
+
+	}
 
 
 </script>

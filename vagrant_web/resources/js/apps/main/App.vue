@@ -9,25 +9,25 @@
 </template>
 
 <script>
-    import mainNavbar from '../../components/navbar/mainNavbar.vue';
-    import flashMessage from 'vue-flash-message';
-    import Vue from 'vue';
+	import mainNavbar   from '../../components/navbar/mainNavbar.vue';
+	import flashMessage from 'vue-flash-message';
+	import Vue          from 'vue';
 
-    Vue.use(flashMessage, {
-        messageOptions: {
-            timeout: 3000,
-            important: false,
-            pauseOnInteract: true
-        }
-    });
+	Vue.use(flashMessage, {
+		messageOptions: {
+			timeout: 3000,
+			important: false,
+			pauseOnInteract: true
+		}
+	});
 
-    export default {
-        name: 'AppWrapper',
+	export default {
+		name: 'AppWrapper',
 
-        components: {
-            mainNavbar
-        }
-    }
+		components: {
+			mainNavbar
+		}
+	}
 </script>
 
 <style type="scss">

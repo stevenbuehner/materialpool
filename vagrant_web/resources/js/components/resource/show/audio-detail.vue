@@ -9,31 +9,31 @@
 </template>
 
 <script>
-    import AudioVisualLine from 'vue-audio-visual/src/components/AvLine';
-    import resourceLinks from '../resource-links.mixin';
+	import AudioVisualLine from 'vue-audio-visual/src/components/AvLine';
+	import resourceLinks   from '../resource-links.mixin';
 
-    export default {
-        mixins: [resourceLinks],
+	export default {
+		mixins: [resourceLinks],
 
-        props: {
-            resource: {
-                required: true,
-                type: Object
-            }
-        },
+		props: {
+			resource: {
+				required: true,
+				type: Object
+			}
+		},
 
-        computed: {
+		computed: {
 
-            audioCanvasWidth() {
-                return 300;
-            }
+			audioCanvasWidth() {
+				return 300;
+			}
 
-        },
+		},
 
-        components: {
-            AudioVisualLine
-        }
-    }
+		components: {
+			AudioVisualLine
+		}
+	}
 </script>
 
 <style scoped>

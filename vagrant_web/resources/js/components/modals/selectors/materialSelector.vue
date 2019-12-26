@@ -75,153 +75,153 @@
 
 <script>
 
-    import {BForm} from 'bootstrap-vue';
-    import {BFormGroup} from 'bootstrap-vue';
-    import {BFormInput} from 'bootstrap-vue';
-    import {BModal} from 'bootstrap-vue';
-    import {BButton} from 'bootstrap-vue';
-    import {BAlert} from 'bootstrap-vue';
-    import _debounce from 'lodash/debounce';
-    import MaterialpoolSpinner from "../../spinner/materialpool-spinner";
+	import {BForm}             from 'bootstrap-vue';
+	import {BFormGroup}        from 'bootstrap-vue';
+	import {BFormInput}        from 'bootstrap-vue';
+	import {BModal}            from 'bootstrap-vue';
+	import {BButton}           from 'bootstrap-vue';
+	import {BAlert}            from 'bootstrap-vue';
+	import _debounce           from 'lodash/debounce';
+	import MaterialpoolSpinner from "../../spinner/materialpool-spinner";
 
-    export default {
-        name: "materialSelector",
+	export default {
+		name: "materialSelector",
 
-        data() {
-            return {
-                form: {
-                    title: '',
-                    id: '',
-                },
-                reject: null,
-                resolve: null,
+		data() {
+			return {
+				form: {
+					title: '',
+					id: '',
+				},
+				reject: null,
+				resolve: null,
 
-                materialSuggestions: [],
-                searchErrorMessage: '',
-                searchOngoing: false,
-            };
-        },
+				materialSuggestions: [],
+				searchErrorMessage: '',
+				searchOngoing: false,
+			};
+		},
 
-        props: {
-            lastMaterials: {
-                type: Array,
-                required: false,
-                default() {
-                    return [];
-                }
-            }
-        },
+		props: {
+			lastMaterials: {
+				type: Array,
+				required: false,
+				default() {
+					return [];
+				}
+			}
+		},
 
-        watch: {
-            'form.title': function (newVal, oldVal) {
-                this.debounceUpdateMaterialSuggestions();
-            },
-            'form.id': function () {
-                this.debounceUpdateMaterialSuggestions();
-            }
-        },
+		watch: {
+			'form.title': function (newVal, oldVal) {
+				this.debounceUpdateMaterialSuggestions();
+			},
+			'form.id': function () {
+				this.debounceUpdateMaterialSuggestions();
+			}
+		},
 
-        methods: {
+		methods: {
 
-            showPromise() {
+			showPromise() {
 
-                return new Promise((resolve, reject) => {
-                    this.resolve = resolve;
-                    this.reject  = reject;
+				return new Promise((resolve, reject) => {
+					this.resolve = resolve;
+					this.reject = reject;
 
-                    this.$refs.myModal.show();
+					this.$refs.myModal.show();
 
-                });
+				});
 
-            },
+			},
 
-            _cancelPromise() {
+			_cancelPromise() {
 
-                if (typeof this.reject === 'function') {
-                    this.reject('closed early');
-                    // this.$refs.myModal.close();
-                    this.resolve = null;
-                    this.reject  = null;
-                }
+				if (typeof this.reject === 'function') {
+					this.reject('closed early');
+					// this.$refs.myModal.close();
+					this.resolve = null;
+					this.reject = null;
+				}
 
-            },
+			},
 
-            debounceUpdateMaterialSuggestions: _debounce(function () {
-                this._updateMaterialSuggestions();
-            }, 300),
+			debounceUpdateMaterialSuggestions: _debounce(function () {
+				this._updateMaterialSuggestions();
+			}, 300),
 
-            _updateMaterialSuggestions() {
+			_updateMaterialSuggestions() {
 
-                this.searchErrorMessage = '';
+				this.searchErrorMessage = '';
 
-                if (this.form.id) {
-                    this.searchOngoing = true;
-                    this.$store.dispatch('materials/getMaterial', this.form.id)
-                        .then((mat) => {
-                            return [mat];
-                        })
-                        .then(this._materialSearchPositive)
-                        .catch(this._materialearchNegative);
-                } else if (this.form.title) {
-                    this.searchOngoing = true;
-                    this.$store.dispatch('search/materialsWithParams', {
-                        material: {
-                            title: this.form.title
-                        }
-                    })
-                        .then((result) => result.materials)
-                        .then(this._materialSearchPositive)
-                        .catch(this._materialearchNegative);
+				if (this.form.id) {
+					this.searchOngoing = true;
+					this.$store.dispatch('materials/getMaterial', this.form.id)
+					    .then((mat) => {
+						    return [mat];
+					    })
+					    .then(this._materialSearchPositive)
+					    .catch(this._materialearchNegative);
+				} else if (this.form.title) {
+					this.searchOngoing = true;
+					this.$store.dispatch('search/materialsWithParams', {
+						material: {
+							title: this.form.title
+						}
+					})
+					    .then((result) => result.materials)
+					    .then(this._materialSearchPositive)
+					    .catch(this._materialearchNegative);
 
-                }
-            },
+				}
+			},
 
-            _materialSearchPositive(materials) {
-                this.searchOngoing       = false;
-                this.searchErrorMessage  = '';
-                this.materialSuggestions = materials;
-            },
+			_materialSearchPositive(materials) {
+				this.searchOngoing = false;
+				this.searchErrorMessage = '';
+				this.materialSuggestions = materials;
+			},
 
-            _materialearchNegative(errorMessage) {
-                this.searchOngoing       = false;
-                this.searchErrorMessage  = errorMessage;
-                this.materialSuggestions = [];
-            },
+			_materialearchNegative(errorMessage) {
+				this.searchOngoing = false;
+				this.searchErrorMessage = errorMessage;
+				this.materialSuggestions = [];
+			},
 
-            _selectAndReturnMaterial(material) {
-                if (typeof this.resolve === 'function') {
-                    this.resolve(material);
-                    this.$refs.myModal.hide();
-                    // this.resolve = null; // already done during hide()
-                    // this.reject  = null; // already done during hide()
-                    this.$store.commit('recentmaterials/addRecentMaterialId', material.id);
-                }
-            },
+			_selectAndReturnMaterial(material) {
+				if (typeof this.resolve === 'function') {
+					this.resolve(material);
+					this.$refs.myModal.hide();
+					// this.resolve = null; // already done during hide()
+					// this.reject  = null; // already done during hide()
+					this.$store.commit('recentmaterials/addRecentMaterialId', material.id);
+				}
+			},
 
-            hide() {
-                this.$refs.myModal.hide();
-            },
+			hide() {
+				this.$refs.myModal.hide();
+			},
 
-            _onSubmit() {
-                this.$refs.myModal.hide();
-            },
-            _onReset() {
+			_onSubmit() {
+				this.$refs.myModal.hide();
+			},
+			_onReset() {
 
-            }
-        },
+			}
+		},
 
-        components: {
-            MaterialpoolSpinner,
-            BForm,
-            BFormGroup,
-            BFormInput,
-            BModal,
-            BButton,
-            BAlert
-        }
+		components: {
+			MaterialpoolSpinner,
+			BForm,
+			BFormGroup,
+			BFormInput,
+			BModal,
+			BButton,
+			BAlert
+		}
 
 
-    }
+	}
 </script>
 
 <style scoped type="scss">

@@ -24,125 +24,125 @@
 
 <script>
 
-    import searchInput from '../../../../components/search/searchInput.vue';
+	import searchInput from '../../../../components/search/searchInput.vue';
 
 
-    function getNewSearchParam(id, values) {
-        return {
-            id,
-            values: values || []
-        }
-    }
+	function getNewSearchParam(id, values) {
+		return {
+			id,
+			values: values || []
+		}
+	}
 
-    export default {
+	export default {
 
-        props: {
-            searchObjects: {
-                type: Object,
-                default() {
-                    return {
-                        1: getNewSearchParam(1)
-                    };
-                }
-            }
-        },
+		props: {
+			searchObjects: {
+				type: Object,
+				default() {
+					return {
+						1: getNewSearchParam(1)
+					};
+				}
+			}
+		},
 
-        data() {
+		data() {
 
-            // Init search Params
-            return {
-                searchParams: this.fromPropsToData(this.searchObjects)
-            };
-        },
+			// Init search Params
+			return {
+				searchParams: this.fromPropsToData(this.searchObjects)
+			};
+		},
 
-        computed: {},
+		computed: {},
 
-        watch: {
-            searchObjects: {
-                handler(newValue, oldValue) {
-                    this.searchParams = this.fromPropsToData(newValue);
-                },
-                deep: true
-            }
-        },
+		watch: {
+			searchObjects: {
+				handler(newValue, oldValue) {
+					this.searchParams = this.fromPropsToData(newValue);
+				},
+				deep: true
+			}
+		},
 
-        methods: {
+		methods: {
 
-            fromPropsToData(searchObjects) {
-                let searchParams = {};
+			fromPropsToData(searchObjects) {
+				let searchParams = {};
 
-                if (Object.keys(searchObjects).length === 0) {
-                    searchParams[1] = getNewSearchParam(1);
-                } else {
-                    for (let i in searchObjects) {
-                        searchParams[i] = getNewSearchParam(i, searchObjects[i]);
-                    }
-                }
+				if (Object.keys(searchObjects).length === 0) {
+					searchParams[1] = getNewSearchParam(1);
+				} else {
+					for (let i in searchObjects) {
+						searchParams[i] = getNewSearchParam(i, searchObjects[i]);
+					}
+				}
 
-                return searchParams;
-            },
+				return searchParams;
+			},
 
-            requestRemovingSarchInput(idParam) {
+			requestRemovingSarchInput(idParam) {
 
-                if (this.searchParams.length <= 1) {
-                    alert('You have to leave at least one searchInput alive');
-                    return false;
-                }
+				if (this.searchParams.length <= 1) {
+					alert('You have to leave at least one searchInput alive');
+					return false;
+				}
 
-                const needsUpdateMaterials = this.searchParams[idParam] && this.searchParams[idParam].values && this.searchParams[idParam].values.length > 0;
+				const needsUpdateMaterials = this.searchParams[idParam] && this.searchParams[idParam].values && this.searchParams[idParam].values.length > 0;
 
-                this.$delete(this.searchParams, idParam);
+				this.$delete(this.searchParams, idParam);
 
-                if (needsUpdateMaterials) {
-                    this.emitSearchUpdated();
-                }
+				if (needsUpdateMaterials) {
+					this.emitSearchUpdated();
+				}
 
-            },
+			},
 
-            requestAdditionalSearchInputAfter(idParam) {
+			requestAdditionalSearchInputAfter(idParam) {
 
-                let nextCounter = 0;
-                Object.keys(this.searchParams).forEach((key) => {
-                    nextCounter = Math.max(key, nextCounter);
-                });
-                nextCounter++;
+				let nextCounter = 0;
+				Object.keys(this.searchParams).forEach((key) => {
+					nextCounter = Math.max(key, nextCounter);
+				});
+				nextCounter++;
 
-                this.$set(this.searchParams, nextCounter, getNewSearchParam(nextCounter));
+				this.$set(this.searchParams, nextCounter, getNewSearchParam(nextCounter));
 
-                // Don't emit. Because then the unneccessary lines will be removed again
-                // this.emitSearchUpdated(undefined, nextCounter);
-            },
+				// Don't emit. Because then the unneccessary lines will be removed again
+				// this.emitSearchUpdated(undefined, nextCounter);
+			},
 
-            emitSearchUpdated(data, id) {
+			emitSearchUpdated(data, id) {
 
-                let searchLineItems = [];
+				let searchLineItems = [];
 
-                Object.keys(this.searchParams).forEach((key) => {
-                    searchLineItems.push(
-                        this.searchParams[key].values.map((v) => v.item)
-                    );
-                });
+				Object.keys(this.searchParams).forEach((key) => {
+					searchLineItems.push(
+						this.searchParams[key].values.map((v) => v.item)
+					);
+				});
 
-                this.$emit('searchUpdated', searchLineItems);
+				this.$emit('searchUpdated', searchLineItems);
 
-            }
+			}
 
-        },
+		},
 
-        created() {
+		created() {
 
-            // Add one initial searchbar
-            if (Object.keys(this.searchParams).length === 0) {
-                this.requestAdditionalSearchInputAfter(0);
-            }
+			// Add one initial searchbar
+			if (Object.keys(this.searchParams).length === 0) {
+				this.requestAdditionalSearchInputAfter(0);
+			}
 
-        },
+		},
 
 
-        components: {
-            searchInput,
-        }
-    }
+		components: {
+			searchInput,
+		}
+	}
 </script>
 
 <style scoped>

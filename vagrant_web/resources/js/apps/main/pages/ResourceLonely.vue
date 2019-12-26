@@ -40,82 +40,82 @@
 </template>
 
 <script>
-    import {BPaginationNav} from 'bootstrap-vue';
-    import {BButton} from 'bootstrap-vue'
-    import {previewImageFirstPage} from "../../../components/serverRoutes";
+	import {BPaginationNav}        from 'bootstrap-vue';
+	import {BButton}               from 'bootstrap-vue'
+	import {previewImageFirstPage} from "../../../components/serverRoutes";
 
-    export default {
-        name: "ResourceLonely",
+	export default {
+		name: "ResourceLonely",
 
-        data() {
-            return {
-                page: 1,
-                numPages: 1,
-                total: 1,
+		data() {
+			return {
+				page: 1,
+				numPages: 1,
+				total: 1,
 
-                isLoading: true,
-                refreshResources: 0,
-            }
-        },
+				isLoading: true,
+				refreshResources: 0,
+			}
+		},
 
 
-        asyncComputed: {
-            resources: {
-                get() {
-                    this.isLoading = true;
+		asyncComputed: {
+			resources: {
+				get() {
+					this.isLoading = true;
 
-                    return this.$store.dispatch('resources/lonely', {page: this.page})
-                        .then(({data, current_page, last_page, total}) => {
-                            this.page      = current_page;
-                            this.numPages  = last_page;
-                            this.total     = total;
-                            this.isLoading = false;
-                            return data;
-                        }).catch((message) => {
-                            alert(message);
-                        });
-                },
-                watch() {
-                    this.refreshResources;
-                },
-                default: []
-            }
-        },
+					return this.$store.dispatch('resources/lonely', {page: this.page})
+					           .then(({data, current_page, last_page, total}) => {
+						           this.page = current_page;
+						           this.numPages = last_page;
+						           this.total = total;
+						           this.isLoading = false;
+						           return data;
+					           }).catch((message) => {
+							alert(message);
+						});
+				},
+				watch() {
+					this.refreshResources;
+				},
+				default: []
+			}
+		},
 
-        methods: {
-            linkGeneration(pageNum) {
-                return {
-                    name: 'resource-lonely',
-                    query: {
-                        page: pageNum
-                    }
-                }
-            },
+		methods: {
+			linkGeneration(pageNum) {
+				return {
+					name: 'resource-lonely',
+					query: {
+						page: pageNum
+					}
+				}
+			},
 
-            previewImage(resource) {
-                return previewImageFirstPage(resource);
-            },
+			previewImage(resource) {
+				return previewImageFirstPage(resource);
+			},
 
-            btnDelete(resource) {
-                if (confirm('Resource sicher löschen?')) {
-                    this.$store.dispatch('resources/deleteResource', resource.id)
-                        .then(() => {
-                            this.refreshResources++;
-                        })
-                        .catch(() => {
-                            alert('Fehler beim löschen. Seite bitte neu laden!');
-                        });
+			btnDelete(resource) {
+				if (confirm('Resource sicher löschen?')) {
+					this.$store.dispatch('resources/deleteResource', resource.id)
+					    .then(() => {
+						    this.refreshResources++;
+					    })
+					    .catch(() => {
+						    alert('Fehler beim löschen. Seite bitte neu laden!');
+					    });
 
-                }
+				}
 
-            }
-        },
+			}
+		},
 
-        components: {
-            BPaginationNav,
-            BButton
-        }
-    }
+		components: {
+			BPaginationNav,
+			BButton
+		}
+	}
 </script>
 
 <style scoped>

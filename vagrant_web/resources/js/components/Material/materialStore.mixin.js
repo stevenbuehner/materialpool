@@ -1,21 +1,21 @@
 export default {
 
-    data() {
-        return {
-            material: null
-        };
-    },
+	data() {
+		return {
+			material: null
+		};
+	},
 
-    methods: {
+	methods: {
 
-        goToMaterial(id) {
-            this.$router.push(
-                {
-                    name: 'material-detail',
-                    params: {id: id}
-                }
-            );
-        }
-    }
+		goToMaterial(id) {
+			this.$router.push(
+				{
+					name: 'material-detail',
+					params: {id: id}
+				}
+			);
+		}
+	}
 
 }

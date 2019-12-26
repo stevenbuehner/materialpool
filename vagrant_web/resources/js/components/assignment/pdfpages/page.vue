@@ -34,99 +34,99 @@
 
 <script>
 
-    import {BBadge} from 'bootstrap-vue';
-    import MaterialpoolSpinner from "../../spinner/materialpool-spinner";
+	import {BBadge}            from 'bootstrap-vue';
+	import MaterialpoolSpinner from "../../spinner/materialpool-spinner";
 
-    export default {
+	export default {
 
-        data: function () {
-            return {
-                isVisible: true,
-                imageLoaded: false,
-            }
-        },
+		data: function () {
+			return {
+				isVisible: true,
+				imageLoaded: false,
+			}
+		},
 
-        props: {
-            index: {
-                required: true,
-                type: Number
-            },
-            image: {
-                type: String
-            },
-            isSelectable: {
-                default: true,
-                type: Boolean
-            },
-            isSelected: {
-                default: false,
-                type: Boolean
-            },
-            assignedMaterials: {
-                default: 0,
-                type: Number
-            }
-        },
+		props: {
+			index: {
+				required: true,
+				type: Number
+			},
+			image: {
+				type: String
+			},
+			isSelectable: {
+				default: true,
+				type: Boolean
+			},
+			isSelected: {
+				default: false,
+				type: Boolean
+			},
+			assignedMaterials: {
+				default: 0,
+				type: Number
+			}
+		},
 
-        computed: {
-            label: function () {
-                return this.index;
-            }
-        },
+		computed: {
+			label: function () {
+				return this.index;
+			}
+		},
 
-        methods: {
-            handleClick: function (event) {
-                if (this.isSelectable === true) {
-                    if (event.shiftKey) {
-                        this.lastPageSelected();
-                    } else if (event.metaKey) {
-                        this.addPageSelected();
-                    } else if (event.altKey) {
-                        this.zoomInRequested();
-                    } else {
-                        this.firstPageSelected();
-                    }
-                }
-            },
+		methods: {
+			handleClick: function (event) {
+				if (this.isSelectable === true) {
+					if (event.shiftKey) {
+						this.lastPageSelected();
+					} else if (event.metaKey) {
+						this.addPageSelected();
+					} else if (event.altKey) {
+						this.zoomInRequested();
+					} else {
+						this.firstPageSelected();
+					}
+				}
+			},
 
-            firstPageSelected: function () {
-                // EventHandler.$emit('firstPageSelected', this.index);
-                this.$emit('firstPageSelected', this.index)
-            },
-            lastPageSelected: function () {
-                // EventHandler.$emit('lastPageSelected', this.index);
-                this.$emit('lastPageSelected', this.index);
-            },
-            addPageSelected: function () {
-                // EventHandler.$emit('addPageSelection', this.index);
-                this.$emit('addPageSelection', this.index);
-            },
+			firstPageSelected: function () {
+				// EventHandler.$emit('firstPageSelected', this.index);
+				this.$emit('firstPageSelected', this.index)
+			},
+			lastPageSelected: function () {
+				// EventHandler.$emit('lastPageSelected', this.index);
+				this.$emit('lastPageSelected', this.index);
+			},
+			addPageSelected: function () {
+				// EventHandler.$emit('addPageSelection', this.index);
+				this.$emit('addPageSelection', this.index);
+			},
 
-            zoomInRequested: function () {
-                this.$emit('zoomInRequest', this.index);
-            },
+			zoomInRequested: function () {
+				this.$emit('zoomInRequest', this.index);
+			},
 
-            hidePage: function () {
-                this.isVisible = false;
-            },
-            showPage: function () {
-                this.isVisible = true;
-            },
+			hidePage: function () {
+				this.isVisible = false;
+			},
+			showPage: function () {
+				this.isVisible = true;
+			},
 
-            checkSelectionRequest: function () {
-                if (this.isSelectable !== true) {
-                    console.log("Page is not selectable!");
-                }
+			checkSelectionRequest: function () {
+				if (this.isSelectable !== true) {
+					console.log("Page is not selectable!");
+				}
 
-                return this.isSelectable === true;
-            }
-        },
+				return this.isSelectable === true;
+			}
+		},
 
-        components: {
-            MaterialpoolSpinner,
-            BBadge,
-        }
-    }
+		components: {
+			MaterialpoolSpinner,
+			BBadge,
+		}
+	}
 </script>
 
 <style scoped>

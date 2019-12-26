@@ -40,240 +40,240 @@
 
 <script>
 
-    import editIcon from 'svg-icon/dist/svg/ionic/edit.svg';
-    import refreshIcon from 'svg-icon/dist/svg/awesome/refresh.svg';
-    import Tree from "../../../components/keyword/tree/Tree";
-    import {BFormInput} from 'bootstrap-vue';
-    import MaterialpoolSpinner from "../../../components/spinner/materialpool-spinner";
+	import editIcon            from 'svg-icon/dist/svg/ionic/edit.svg';
+	import refreshIcon         from 'svg-icon/dist/svg/awesome/refresh.svg';
+	import Tree                from "../../../components/keyword/tree/Tree";
+	import {BFormInput}        from 'bootstrap-vue';
+	import MaterialpoolSpinner from "../../../components/spinner/materialpool-spinner";
 
-    export default {
-        name: "KeywordList",
+	export default {
+		name: "KeywordList",
 
-        data() {
-            return {
-                treeModel: [
-                    {title: 'first Node', draggable: false, children: []}
-                ],
-                treeModelIds: {},
-                treeStillLoading: true,
+		data() {
+			return {
+				treeModel: [
+					{title: 'first Node', draggable: false, children: []}
+				],
+				treeModelIds: {},
+				treeStillLoading: true,
 
-                treeSearch: '',
+				treeSearch: '',
 
-            };
-        },
+			};
+		},
 
-        computed: {},
+		computed: {},
 
-        created() {
-            this.getAllKeywords();
-        },
+		created() {
+			this.getAllKeywords();
+		},
 
-        methods: {
-            onTreeSelection(newSelection) {
-                this.treeSelection = newSelection;
-            },
+		methods: {
+			onTreeSelection(newSelection) {
+				this.treeSelection = newSelection;
+			},
 
-            createModelFromKeywords(keywords) {
+			createModelFromKeywords(keywords) {
 
-                let ids   = {};
-                let model = [];
+				let ids = {};
+				let model = [];
 
-                const roots = {
-                    key: {
-                        title: this.$t('pool.Keywords'),
-                        type: 'key',
-                        draggable: false,
-                        isOpen: true,
-                        children: [],
-                        id: 'key'
-                    },
-                    person: {
-                        title: this.$t('pool.Persons'),
-                        type: 'person',
-                        draggable: false,
-                        isOpen: false,
-                        children: [],
-                        id: 'person'
-                    },
-                    place: {
-                        title: this.$t('pool.Places'),
-                        type: 'place',
-                        draggable: false,
-                        isOpen: false,
-                        children: [],
-                        id: 'place'
-                    },
-                    lang: {
-                        title: this.$t('pool.Languages'),
-                        type: 'lang',
-                        draggable: false,
-                        isOpen: false,
-                        children: [],
-                        id: 'lang'
-                    },
-                };
+				const roots = {
+					key: {
+						title: this.$t('pool.Keywords'),
+						type: 'key',
+						draggable: false,
+						isOpen: true,
+						children: [],
+						id: 'key'
+					},
+					person: {
+						title: this.$t('pool.Persons'),
+						type: 'person',
+						draggable: false,
+						isOpen: false,
+						children: [],
+						id: 'person'
+					},
+					place: {
+						title: this.$t('pool.Places'),
+						type: 'place',
+						draggable: false,
+						isOpen: false,
+						children: [],
+						id: 'place'
+					},
+					lang: {
+						title: this.$t('pool.Languages'),
+						type: 'lang',
+						draggable: false,
+						isOpen: false,
+						children: [],
+						id: 'lang'
+					},
+				};
 
-                for (let i in roots) {
-                    model.push(roots[i]);
-                    ids[roots[i].id] = roots[i];
-                }
+				for (let i in roots) {
+					model.push(roots[i]);
+					ids[roots[i].id] = roots[i];
+				}
 
-                let laterRun = [];
-
-
-                for (let i in keywords) {
-
-                    let k      = keywords[i];
-                    k.children = [];
-                    ids[k.id]  = k;
-
-                    if (k.parent_id) {
-
-                        if (!ids[k.parent_id]) {
-                            console.info('Missing Parrent ID for. Add later on', k)
-                            laterRun.push((k));
-                        } else {
-
-                            ids[k.parent_id].children.push(k);
-                        }
-
-                    } else {
-                        roots[k.type].children.push(k);
-                    }
-                }
-
-                for (let i in laterRun) {
-                    let k = laterRun[i];
-                    ids[k.parent_id].children.push(k);
-                }
-
-                this.treeModel    = model;
-                this.treeModelIds = ids;
-
-            },
+				let laterRun = [];
 
 
-            moveKeyword(sourceId, targetId, callback) {
+				for (let i in keywords) {
 
-                if (sourceId == targetId) {
-                    console.info('Dropped keyword on itself => do nothing');
-                    return;
-                }
+					let k = keywords[i];
+					k.children = [];
+					ids[k.id] = k;
 
-                // Detach from tree first
-                const backKW       = this.getKeyword(sourceId);
-                const backParentId = backKW.parent_id;
+					if (k.parent_id) {
 
-                this.detachKeyword(sourceId);
+						if (!ids[k.parent_id]) {
+							console.info('Missing Parrent ID for. Add later on', k)
+							laterRun.push((k));
+						} else {
 
-                backKW.temp = true;
-                this.attachKeyword(backKW, targetId);
+							ids[k.parent_id].children.push(k);
+						}
 
-                this.$store.dispatch('keywords/update', {
-                    id: sourceId,
-                    data: {
-                        parent_id: Number.isInteger(targetId) ? targetId : null
-                    }
-                }).then((keyword) => {
+					} else {
+						roots[k.type].children.push(k);
+					}
+				}
 
-                    // Add children to the keyword again
-                    keyword.children = backKW.children || [];
+				for (let i in laterRun) {
+					let k = laterRun[i];
+					ids[k.parent_id].children.push(k);
+				}
 
-                    // Attach Keyword in the DOM
-                    this.detachKeyword(keyword.id);
-                    this.attachKeyword(keyword, keyword.parent_id);
-                    this.flashSuccess(this.$t('pool.Keyword-saved'), {timeout: 3000});
+				this.treeModel = model;
+				this.treeModelIds = ids;
 
-                }).catch((response) => {
-                    // Reattach keyword at the end of the DOM
-                    delete backKw.temp;
-
-                    this.detachKeyword(backKw.id);
-                    this.attachKeyword(backKW, backParentId);
-                    this.flashError(this.$t('pool.Error-while-moving-keyword'));
-
-                }).then(() => {
-                    callback();
-                });
+			},
 
 
-            },
+			moveKeyword(sourceId, targetId, callback) {
 
-            getKeyword(keywordId, backupType) {
-                if (!keywordId) {
-                    // Return root
-                    return this.treeModelIds[backupType];
-                } else {
-                    return this.treeModelIds[keywordId];
-                }
-            },
+				if (sourceId == targetId) {
+					console.info('Dropped keyword on itself => do nothing');
+					return;
+				}
 
-            detachKeyword(keywordId) {
+				// Detach from tree first
+				const backKW = this.getKeyword(sourceId);
+				const backParentId = backKW.parent_id;
 
-                keywordId           = parseInt(keywordId);
-                const sourceKeyword = this.getKeyword(keywordId);
+				this.detachKeyword(sourceId);
 
-                // Remove from Array
-                const parent    = this.getKeyword(sourceKeyword.parent_id, sourceKeyword.type);
-                parent.children = parent.children.filter(kw => {
-                    return kw.id !== keywordId;
-                });
+				backKW.temp = true;
+				this.attachKeyword(backKW, targetId);
 
-                sourceKeyword.parent_id = null;
-                // parent.children.splice(parent.indexOf(oldModel), 1);
+				this.$store.dispatch('keywords/update', {
+					id: sourceId,
+					data: {
+						parent_id: Number.isInteger(targetId) ? targetId : null
+					}
+				}).then((keyword) => {
 
-                // Remove from Index-Object
-                delete this.treeModelIds[keywordId];
+					// Add children to the keyword again
+					keyword.children = backKW.children || [];
 
-            },
+					// Attach Keyword in the DOM
+					this.detachKeyword(keyword.id);
+					this.attachKeyword(keyword, keyword.parent_id);
+					this.flashSuccess(this.$t('pool.Keyword-saved'), {timeout: 3000});
 
-            attachKeyword(sourceKeyword, targetId) {
+				}).catch((response) => {
+					// Reattach keyword at the end of the DOM
+					delete backKw.temp;
 
-                const targetKeyword = this.getKeyword(targetId, sourceKeyword.type);
+					this.detachKeyword(backKw.id);
+					this.attachKeyword(backKW, backParentId);
+					this.flashError(this.$t('pool.Error-while-moving-keyword'));
 
-                if (!targetKeyword) {
-                    console.error('Keyword was not found by getKeyword. ID: ', targetId);
-                }
+				}).then(() => {
+					callback();
+				});
 
-                if (!targetKeyword.children || !Array.isArray(targetKeyword.children)) {
-                    targetKeyword.children = [];
-                }
 
-                targetKeyword.children.push(sourceKeyword);
+			},
 
-                sourceKeyword.parent_id             = targetId;
-                this.treeModelIds[sourceKeyword.id] = sourceKeyword;
+			getKeyword(keywordId, backupType) {
+				if (!keywordId) {
+					// Return root
+					return this.treeModelIds[backupType];
+				} else {
+					return this.treeModelIds[keywordId];
+				}
+			},
 
-            },
+			detachKeyword(keywordId) {
 
-            getAllKeywords(forceReload) {
+				keywordId = parseInt(keywordId);
+				const sourceKeyword = this.getKeyword(keywordId);
 
-                this.treeStillLoading = true;
+				// Remove from Array
+				const parent = this.getKeyword(sourceKeyword.parent_id, sourceKeyword.type);
+				parent.children = parent.children.filter(kw => {
+					return kw.id !== keywordId;
+				});
 
-                this.$store.dispatch('keywords/getAll', forceReload)
-                    .then((allKeywords) => {
-                        this.createModelFromKeywords(allKeywords);
-                        this.treeStillLoading = false;
-                    })
-                    .catch(() => {
-                        this.treeStillLoading = false;
-                    });
-            },
+				sourceKeyword.parent_id = null;
+				// parent.children.splice(parent.indexOf(oldModel), 1);
 
-            btnRefreshTree() {
-                this.getAllKeywords(true);
-            }
+				// Remove from Index-Object
+				delete this.treeModelIds[keywordId];
 
-        },
+			},
 
-        components: {
-            MaterialpoolSpinner,
-            Tree,
-            editIcon,
-            refreshIcon,
-            BFormInput
-        }
-    }
+			attachKeyword(sourceKeyword, targetId) {
+
+				const targetKeyword = this.getKeyword(targetId, sourceKeyword.type);
+
+				if (!targetKeyword) {
+					console.error('Keyword was not found by getKeyword. ID: ', targetId);
+				}
+
+				if (!targetKeyword.children || !Array.isArray(targetKeyword.children)) {
+					targetKeyword.children = [];
+				}
+
+				targetKeyword.children.push(sourceKeyword);
+
+				sourceKeyword.parent_id = targetId;
+				this.treeModelIds[sourceKeyword.id] = sourceKeyword;
+
+			},
+
+			getAllKeywords(forceReload) {
+
+				this.treeStillLoading = true;
+
+				this.$store.dispatch('keywords/getAll', forceReload)
+				    .then((allKeywords) => {
+					    this.createModelFromKeywords(allKeywords);
+					    this.treeStillLoading = false;
+				    })
+				    .catch(() => {
+					    this.treeStillLoading = false;
+				    });
+			},
+
+			btnRefreshTree() {
+				this.getAllKeywords(true);
+			}
+
+		},
+
+		components: {
+			MaterialpoolSpinner,
+			Tree,
+			editIcon,
+			refreshIcon,
+			BFormInput
+		}
+	}
 </script>
 
 <style>

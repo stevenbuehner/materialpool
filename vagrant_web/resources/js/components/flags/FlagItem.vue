@@ -5,56 +5,56 @@
 </template>
 
 <script>
-    import flagIcon from 'svg-icon/dist/svg/game/originals-black-flag.svg';
-    import {flagColors} from './flagOptions.js';
+	import flagIcon     from 'svg-icon/dist/svg/game/originals-black-flag.svg';
+	import {flagColors} from './flagOptions.js';
 
-    export default {
-        name: "FlagItem",
+	export default {
+		name: "FlagItem",
 
-        props: {
-            color: {
-                type: String,
-                required: false,
-                default() {
-                    return flagColors[0];
-                },
-                validator(value) {
-                    return flagColors.indexOf(value) !== -1;
-                }
-            },
+		props: {
+			color: {
+				type: String,
+				required: false,
+				default() {
+					return flagColors[0];
+				},
+				validator(value) {
+					return flagColors.indexOf(value) !== -1;
+				}
+			},
 
-            disabled: {
-                type: Boolean,
-                required: false,
-                default: false,
-            },
-
-
-            label: {
-                type: String,
-                required: false,
-                default: '1'
-            }
-        },
+			disabled: {
+				type: Boolean,
+				required: false,
+				default: false,
+			},
 
 
-        data() {
-            return {
-                allFlags: flagColors
-            };
-        },
+			label: {
+				type: String,
+				required: false,
+				default: '1'
+			}
+		},
 
-        methods: {
-            onFlagClicked() {
-                this.$emit('flag-selected', this.color);
-            }
-        },
 
-        components: {
-            flagIcon
-        }
+		data() {
+			return {
+				allFlags: flagColors
+			};
+		},
 
-    }
+		methods: {
+			onFlagClicked() {
+				this.$emit('flag-selected', this.color);
+			}
+		},
+
+		components: {
+			flagIcon
+		}
+
+	}
 </script>
 
 <style type="scss">

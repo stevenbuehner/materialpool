@@ -40,93 +40,93 @@
 
 <script>
 
-    import myTextBlock from '../../my-text-block.vue';
-    import marked from 'marked';
-    import {BibleVerseService} from '../../../../../vendor/stevenbuehner/bible-verse-bundle/js/out/BibleVerseService_de.js';
-    import Markdown from "../../markdown/markdown";
+	import myTextBlock         from '../../my-text-block.vue';
+	import marked              from 'marked';
+	import {BibleVerseService} from '../../../../../vendor/stevenbuehner/bible-verse-bundle/js/out/BibleVerseService_de.js';
+	import Markdown            from "../../markdown/markdown";
 
-    const regexp     = BibleVerseService.biblePattern;
-    window.bibletest = regexp;
+	const regexp = BibleVerseService.biblePattern;
+	window.bibletest = regexp;
 
-    export default {
-        mixins: [],
+	export default {
+		mixins: [],
 
-        props: {
-            resource: {
-                required: true,
-                type: Object
-            }
-        },
+		props: {
+			resource: {
+				required: true,
+				type: Object
+			}
+		},
 
-        data() {
-            return {
-                editModeEnabled: false,
-                isSaving: false,
-                myTextContent: this.resource.content,
-            };
-        },
+		data() {
+			return {
+				editModeEnabled: false,
+				isSaving: false,
+				myTextContent: this.resource.content,
+			};
+		},
 
-        computed: {
-            compiledMarkdown() {
-                return marked(this.myTextContent, {
-                    sanitize: true,
-                    gfm: false,
-                    smartLists: true,
-                    smartypants: true,
-                })
-            },
+		computed: {
+			compiledMarkdown() {
+				return marked(this.myTextContent, {
+					sanitize: true,
+					gfm: false,
+					smartLists: true,
+					smartypants: true,
+				})
+			},
 
-            almostNoContentToEditVisible() {
-                return this.myTextContent.length <= 5;
-            },
+			almostNoContentToEditVisible() {
+				return this.myTextContent.length <= 5;
+			},
 
-            savingNeccessary() {
-                return this.myTextContent !== this.resource.content;
-            },
-        },
+			savingNeccessary() {
+				return this.myTextContent !== this.resource.content;
+			},
+		},
 
-        methods: {
-            btnCancel() {
-                this.editModeEnabled = false;
-                this.myTextContent   = this.resource.content;
-                this.flashInfo(this.$t('pool.Undo-changes'));
-            },
+		methods: {
+			btnCancel() {
+				this.editModeEnabled = false;
+				this.myTextContent = this.resource.content;
+				this.flashInfo(this.$t('pool.Undo-changes'));
+			},
 
-            btnCancelIfNothingChanged() {
-                if (!this.savingNeccessary) {
-                    this.btnCancel();
-                }
-            },
+			btnCancelIfNothingChanged() {
+				if (!this.savingNeccessary) {
+					this.btnCancel();
+				}
+			},
 
-            btnSave() {
+			btnSave() {
 
-                this.editModeEnabled = false;
-                this.isSaving        = true;
+				this.editModeEnabled = false;
+				this.isSaving = true;
 
-                this.flashInfo(this.$t('pool.Saving-content-changes'));
+				this.flashInfo(this.$t('pool.Saving-content-changes'));
 
-                this.$store.dispatch('resources/update', {
-                    id: this.resource.id,
-                    data: {
-                        content: this.myTextContent
-                    }
-                }).then((resource) => {
-                    this.$emit('resource-updated', resource);
-                }).catch(() => {
-                    this.flash(this.$t('pool.Content-not-saved'), 'error', {timeout: 0});
-                }).then(() => {
-                    this.isSaving = false;
-                    this.flashSuccess(this.$t('pool.Content-saved'));
-                });
-            }
-        },
+				this.$store.dispatch('resources/update', {
+					id: this.resource.id,
+					data: {
+						content: this.myTextContent
+					}
+				}).then((resource) => {
+					this.$emit('resource-updated', resource);
+				}).catch(() => {
+					this.flash(this.$t('pool.Content-not-saved'), 'error', {timeout: 0});
+				}).then(() => {
+					this.isSaving = false;
+					this.flashSuccess(this.$t('pool.Content-saved'));
+				});
+			}
+		},
 
-        components: {
-            Markdown,
-            myTextBlock,
-        }
+		components: {
+			Markdown,
+			myTextBlock,
+		}
 
-    }
+	}
 </script>
 
 <style type="scss">

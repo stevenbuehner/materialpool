@@ -38,33 +38,33 @@
 
 <script>
 
-    export default {
-        name: "LandingPage",
+	export default {
+		name: "LandingPage",
 
-        data() {
-            return {}
-        },
+		data() {
+			return {}
+		},
 
 
-        asyncComputed: {
+		asyncComputed: {
 
-            currentUser: {
-                get() {
-                    return this.$store.dispatch('general/currentUser');
-                },
+			currentUser: {
+				get() {
+					return this.$store.dispatch('general/currentUser');
+				},
 
-            },
-            systemName: {
-                get() {
-                    return this.$store.dispatch('general/systemName');
-                }
-            }
-        },
+			},
+			systemName: {
+				get() {
+					return this.$store.dispatch('general/systemName');
+				}
+			}
+		},
 
-        methods: {},
+		methods: {},
 
-        components: {}
-    }
+		components: {}
+	}
 </script>
 
 <style type="scss">

@@ -1,235 +1,235 @@
 import {
-    api_v1_resources_create_material,
-    api_v1_resources_delete,
-    api_v1_resources_find,
-    api_v1_resources_show,
-    api_v1_resources_store,
-    api_v1_resources_update
-} from '../../../../components/serverRoutes'
-import axios from '../../axiosInstance';
+	api_v1_resources_create_material,
+	api_v1_resources_delete,
+	api_v1_resources_find,
+	api_v1_resources_show,
+	api_v1_resources_store,
+	api_v1_resources_update
+}                                      from '../../../../components/serverRoutes'
+import axios                           from '../../axiosInstance';
 import {convertErrorResponseToMessage} from "./handleErrorsHelper";
 
 
 const state = {
-    resources: {},
-    loadingPromise: {}
+	resources: {},
+	loadingPromise: {}
 };
 
-const getters   = {
-    updateResource: (state) => (id) => {
-        if (state.resources[id]) {
-            return state.resources[id];
-        }
+const getters = {
+	updateResource: (state) => (id) => {
+		if (state.resources[id]) {
+			return state.resources[id];
+		}
 
-        return null;
-    },
+		return null;
+	},
 
-    getResourceLoadingPromise: (state) => (id) => {
-        if (state.loadingPromise[id]) {
-            return state.loadingPromise[id];
-        } else if (state.resources[id]) {
-            return state.loadingPromise[id] = new Promise(function (resolve, reject) {
-                resolve(state.resources[id]);
-            });
-        } else {
-            return false;
-        }
-    }
+	getResourceLoadingPromise: (state) => (id) => {
+		if (state.loadingPromise[id]) {
+			return state.loadingPromise[id];
+		} else if (state.resources[id]) {
+			return state.loadingPromise[id] = new Promise(function (resolve, reject) {
+				resolve(state.resources[id]);
+			});
+		} else {
+			return false;
+		}
+	}
 };
 const mutations = {
-    setResource(state, resource) {
-        state.resources[resource.id] = resource;
-    },
+	setResource(state, resource) {
+		state.resources[resource.id] = resource;
+	},
 
-    setResourceLoadingPromise(state, {id, promise}) {
-        state.loadingPromise[id] = promise;
-    },
+	setResourceLoadingPromise(state, {id, promise}) {
+		state.loadingPromise[id] = promise;
+	},
 
-    clearResource(state, id) {
-        delete state.resources[id];
-        delete state.loadingPromise[id];
-    }
+	clearResource(state, id) {
+		delete state.resources[id];
+		delete state.loadingPromise[id];
+	}
 };
 
 const actions = {
-    get: ({getters, commit, dispatch, state}, id) => {
+	get: ({getters, commit, dispatch, state}, id) => {
 
-        let loadingPromise = getters.getResourceLoadingPromise(id);
+		let loadingPromise = getters.getResourceLoadingPromise(id);
 
-        if (loadingPromise === false) {
-            loadingPromise = new Promise((resolve, reject) => {
+		if (loadingPromise === false) {
+			loadingPromise = new Promise((resolve, reject) => {
 
-                let res = getters.updateResource(id);
+				let res = getters.updateResource(id);
 
-                if (res) {
-                    resolve(res);
-                } else {
-                    axios.get(api_v1_resources_show(id), {
-                        params: {
-                            relations: ['materials', 'materials.keywords', 'materials.bibleverses', 'creator']
-                        }
-                    }).then((response) => {
-                        dispatch('setResource', response.data);
-                        resolve(getters.updateResource(id));
-                    }).catch(() => {
-                        reject('Could not find Resource');
-                    });
-                }
-            });
+				if (res) {
+					resolve(res);
+				} else {
+					axios.get(api_v1_resources_show(id), {
+						params: {
+							relations: ['materials', 'materials.keywords', 'materials.bibleverses', 'creator']
+						}
+					}).then((response) => {
+						dispatch('setResource', response.data);
+						resolve(getters.updateResource(id));
+					}).catch(() => {
+						reject('Could not find Resource');
+					});
+				}
+			});
 
-            commit('setResourceLoadingPromise', {id: id, promise: loadingPromise});
+			commit('setResourceLoadingPromise', {id: id, promise: loadingPromise});
 
-        } else {
-            loadingPromise = loadingPromise;
-        }
+		} else {
+			loadingPromise = loadingPromise;
+		}
 
-        return loadingPromise;
+		return loadingPromise;
 
-    },
+	},
 
-    createTextResource: ({commit}, {text, notes, is_public}) => {
+	createTextResource: ({commit}, {text, notes, is_public}) => {
 
-        notes     = notes || '';
-        is_public = is_public || false;
+		notes = notes || '';
+		is_public = is_public || false;
 
-        return axios
-            .post(api_v1_resources_store, {
-                content: text,
-                notes,
-                is_public
-            })
-            .then(({data}) => {
+		return axios
+			.post(api_v1_resources_store, {
+				content: text,
+				notes,
+				is_public
+			})
+			.then(({data}) => {
 
-                if (data.id) {
-                    // commit('clearResource', id); // Resource should not exist yet
-                    commit('setResource', data);
-                }
+				if (data.id) {
+					// commit('clearResource', id); // Resource should not exist yet
+					commit('setResource', data);
+				}
 
-                return data;
-            });
+				return data;
+			});
 
-    },
+	},
 
-    deleteResource: ({commit}, id) => {
+	deleteResource: ({commit}, id) => {
 
-        return axios.delete(api_v1_resources_delete(id)).then(({data}) => {
+		return axios.delete(api_v1_resources_delete(id)).then(({data}) => {
 
-            commit('clearResource', id);
+			commit('clearResource', id);
 
-            return (data.success && data.success === true);
+			return (data.success && data.success === true);
 
-        });
+		});
 
-    },
+	},
 
-    setResource: ({commit}, resource) => {
-        commit('clearResource', resource.id);
-        commit('setResource', resource);
-    },
+	setResource: ({commit}, resource) => {
+		commit('clearResource', resource.id);
+		commit('setResource', resource);
+	},
 
-    update: ({commit, dispatch}, {id, data}) => {
-        return axios.put(api_v1_resources_update(id), data)
-            .then((response) => response.data)
-            .then((resource) => {
-                dispatch('setResource', resource);
-                return resource;
-            })
-            .catch((response) => {
-                throw {
-                    errors: (response.data && response.data.errors ) ? response.data.errors : '',
-                    message: (response.data && response.data.message ) ? response.data.message : response.message
-                };
-            });
-    },
+	update: ({commit, dispatch}, {id, data}) => {
+		return axios.put(api_v1_resources_update(id), data)
+		            .then((response) => response.data)
+		            .then((resource) => {
+			            dispatch('setResource', resource);
+			            return resource;
+		            })
+		            .catch((response) => {
+			            throw {
+				            errors: (response.data && response.data.errors) ? response.data.errors : '',
+				            message: (response.data && response.data.message) ? response.data.message : response.message
+			            };
+		            });
+	},
 
-    clearResource: ({commit}, id) => {
-        commit('clearResource', id);
-    },
+	clearResource: ({commit}, id) => {
+		commit('clearResource', id);
+	},
 
-    /**
-     *
-     * @param commit
-     * @param dispatch
-     * @param resourceIds
-     * @param meta
-     * @param from_bot
-     * @return {Promise<material>}
-     */
-    autoCreateMaterial: ({commit, dispatch}, {resourceIds, meta, from_bot}) => {
+	/**
+	 *
+	 * @param commit
+	 * @param dispatch
+	 * @param resourceIds
+	 * @param meta
+	 * @param from_bot
+	 * @return {Promise<material>}
+	 */
+	autoCreateMaterial: ({commit, dispatch}, {resourceIds, meta, from_bot}) => {
 
-        meta     = meta || '';
-        from_bot = from_bot || false;
+		meta = meta || '';
+		from_bot = from_bot || false;
 
-        const promise = axios.post(api_v1_resources_create_material, {
-            resourceIds: resourceIds,
-            from_bot,
-            meta
-        })
-            .then(({data}) => {
-                return data;
-            });
+		const promise = axios.post(api_v1_resources_create_material, {
+			resourceIds: resourceIds,
+			from_bot,
+			meta
+		})
+		                     .then(({data}) => {
+			                     return data;
+		                     });
 
-        promise.then((material) => {
+		promise.then((material) => {
 
-            for (let i in material.resources) {
-                // Clear, because the now assigned material is missing in the resource data
-                dispatch('clearResource', material.resources[i]);
-            }
+			for (let i in material.resources) {
+				// Clear, because the now assigned material is missing in the resource data
+				dispatch('clearResource', material.resources[i]);
+			}
 
-            dispatch('materials/setMaterial', material, {root: true});
-        });
+			dispatch('materials/setMaterial', material, {root: true});
+		});
 
-        return promise;
-    },
+		return promise;
+	},
 
-    find: ({dispatch}, {remote_path, is_public, content_hash, missing_materials, page}) => {
+	find: ({dispatch}, {remote_path, is_public, content_hash, missing_materials, page}) => {
 
-        let searchQuery = {};
+		let searchQuery = {};
 
-        if (remote_path) {
-            searchQuery.remote_path = remote_path;
-        }
+		if (remote_path) {
+			searchQuery.remote_path = remote_path;
+		}
 
-        if (is_public === true || is_public === false) {
-            searchQuery.is_public = is_public;
-        }
+		if (is_public === true || is_public === false) {
+			searchQuery.is_public = is_public;
+		}
 
-        if (content_hash) {
-            searchQuery.content_hash = content_hash;
-        }
+		if (content_hash) {
+			searchQuery.content_hash = content_hash;
+		}
 
-        if (missing_materials === true) {
-            searchQuery.missing_materials = true;
-        }
+		if (missing_materials === true) {
+			searchQuery.missing_materials = true;
+		}
 
-        if (page) {
-            searchQuery.page = page;
-        }
+		if (page) {
+			searchQuery.page = page;
+		}
 
-        return axios
-            .get(api_v1_resources_find, {params: searchQuery})
-            .then(({data}) => {
-                for (let i in data.data) {
-                    dispatch('setResource', data.data[i]);
-                }
-                return data;
-            })
-            .catch((response) => {
-                throw convertErrorResponseToMessage(response);
-            });
+		return axios
+			.get(api_v1_resources_find, {params: searchQuery})
+			.then(({data}) => {
+				for (let i in data.data) {
+					dispatch('setResource', data.data[i]);
+				}
+				return data;
+			})
+			.catch((response) => {
+				throw convertErrorResponseToMessage(response);
+			});
 
-    },
+	},
 
-    lonely: ({dispatch}, {page}) => {
-        return dispatch('find', {missing_materials: true, page});
-    }
+	lonely: ({dispatch}, {page}) => {
+		return dispatch('find', {missing_materials: true, page});
+	}
 
 };
 
 export default {
-    namespaced: true,
-    state,
-    getters,
-    actions,
-    mutations
+	namespaced: true,
+	state,
+	getters,
+	actions,
+	mutations
 };

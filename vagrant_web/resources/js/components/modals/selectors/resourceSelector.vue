@@ -51,128 +51,128 @@
 
 <script>
 
-    import {BForm} from 'bootstrap-vue';
-    import {BFormGroup} from 'bootstrap-vue';
-    import {BFormInput} from 'bootstrap-vue';
-    import {BModal} from 'bootstrap-vue';
-    import {BButton} from 'bootstrap-vue';
-    import {BAlert} from 'bootstrap-vue';
-    import _debounce from 'lodash/debounce';
-    import MaterialpoolSpinner from "../../spinner/materialpool-spinner";
+	import {BForm}             from 'bootstrap-vue';
+	import {BFormGroup}        from 'bootstrap-vue';
+	import {BFormInput}        from 'bootstrap-vue';
+	import {BModal}            from 'bootstrap-vue';
+	import {BButton}           from 'bootstrap-vue';
+	import {BAlert}            from 'bootstrap-vue';
+	import _debounce           from 'lodash/debounce';
+	import MaterialpoolSpinner from "../../spinner/materialpool-spinner";
 
-    export default {
-        name: "resourceSelector",
+	export default {
+		name: "resourceSelector",
 
-        data() {
-            return {
-                form: {
-                    id: '',
-                },
-                reject: null,
-                resolve: null,
+		data() {
+			return {
+				form: {
+					id: '',
+				},
+				reject: null,
+				resolve: null,
 
-                resourceSuggestions: [],
-                searchErrorMessage: '',
-                searchOngoing: false,
-            };
-        },
+				resourceSuggestions: [],
+				searchErrorMessage: '',
+				searchOngoing: false,
+			};
+		},
 
-        props: {},
+		props: {},
 
-        watch: {
-            'form.id': function () {
-                this.debounceUpdateMaterialSuggestions();
-            }
-        },
+		watch: {
+			'form.id': function () {
+				this.debounceUpdateMaterialSuggestions();
+			}
+		},
 
-        methods: {
+		methods: {
 
-            showPromise() {
+			showPromise() {
 
-                return new Promise((resolve, reject) => {
-                    this.resolve = resolve;
-                    this.reject  = reject;
+				return new Promise((resolve, reject) => {
+					this.resolve = resolve;
+					this.reject = reject;
 
-                    this.$refs.myModal.show();
-                });
+					this.$refs.myModal.show();
+				});
 
-            },
+			},
 
-            _cancelPromise() {
+			_cancelPromise() {
 
-                if (typeof this.reject === 'function') {
-                    this.reject('closed early');
-                    // this.$refs.myModal.close();
-                    this.resolve = null;
-                    this.reject  = null;
-                }
+				if (typeof this.reject === 'function') {
+					this.reject('closed early');
+					// this.$refs.myModal.close();
+					this.resolve = null;
+					this.reject = null;
+				}
 
-            },
+			},
 
-            debounceUpdateMaterialSuggestions: _debounce(function () {
-                this._updateResourceSuggestions();
-            }, 300),
+			debounceUpdateMaterialSuggestions: _debounce(function () {
+				this._updateResourceSuggestions();
+			}, 300),
 
-            _updateResourceSuggestions() {
+			_updateResourceSuggestions() {
 
-                this.searchErrorMessage = '';
+				this.searchErrorMessage = '';
 
-                if (this.form.id) {
-                    this.searchOngoing = true;
-                    this.$store.dispatch('resources/get', this.form.id)
-                        .then((res) => {
-                            return [res];
-                        })
-                        .then(this._resourceSearchPositive)
-                        .catch(this._resourceSearchNegative);
-                }
-            },
+				if (this.form.id) {
+					this.searchOngoing = true;
+					this.$store.dispatch('resources/get', this.form.id)
+					    .then((res) => {
+						    return [res];
+					    })
+					    .then(this._resourceSearchPositive)
+					    .catch(this._resourceSearchNegative);
+				}
+			},
 
-            _resourceSearchPositive(resources) {
-                this.searchOngoing       = false;
-                this.searchErrorMessage  = '';
-                this.resourceSuggestions = resources;
-            },
+			_resourceSearchPositive(resources) {
+				this.searchOngoing = false;
+				this.searchErrorMessage = '';
+				this.resourceSuggestions = resources;
+			},
 
-            _resourceSearchNegative(errorMessage) {
-                this.searchOngoing       = false;
-                this.searchErrorMessage  = errorMessage;
-                this.resourceSuggestions = [];
-            },
+			_resourceSearchNegative(errorMessage) {
+				this.searchOngoing = false;
+				this.searchErrorMessage = errorMessage;
+				this.resourceSuggestions = [];
+			},
 
-            _selectAndReturnResource(resource) {
-                if (typeof this.resolve === 'function') {
-                    this.resolve(resource);
-                    this.$refs.myModal.hide();
-                    // this.resolve = null; // already done during hide()
-                    // this.reject  = null; // already done during hide()
-                }
-            },
+			_selectAndReturnResource(resource) {
+				if (typeof this.resolve === 'function') {
+					this.resolve(resource);
+					this.$refs.myModal.hide();
+					// this.resolve = null; // already done during hide()
+					// this.reject  = null; // already done during hide()
+				}
+			},
 
-            hide() {
-                this.$refs.myModal.hide();
-            },
+			hide() {
+				this.$refs.myModal.hide();
+			},
 
-            _onSubmit() {
-                this.$refs.myModal.hide();
-            },
-            _onReset() {
+			_onSubmit() {
+				this.$refs.myModal.hide();
+			},
+			_onReset() {
 
-            }
-        },
+			}
+		},
 
-        components: {
-            MaterialpoolSpinner,
-            BForm,
-            BFormGroup,
-            BFormInput,
-            BModal,
-            BButton,
-            BAlert
-        }
+		components: {
+			MaterialpoolSpinner,
+			BForm,
+			BFormGroup,
+			BFormInput,
+			BModal,
+			BButton,
+			BAlert
+		}
 
 
-    }
+	}
 </script>
 
 <style scoped type="scss">

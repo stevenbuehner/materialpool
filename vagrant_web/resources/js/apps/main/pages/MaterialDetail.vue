@@ -202,325 +202,325 @@
 </template>
 
 <script>
-    import Keyword from '../../../components/keyword/keyword.vue';
-    import keywordInput from '../../../components/keyword/keywordInput.vue';
-    import bibleverse from '../../../components/bibleverse/biblevers.vue';
-    import bibleverseInput from '../../../components/bibleverse/bibleverseInput.vue';
-    import resourcePreview from '../../../components/resource/show/resource-preview.vue';
-    import resourceDetail from '../../../components/resource/show/resource-detail.vue';
-    import editableText from '../../../components/general/edditable.vue';
-    import fromBot from '../../../components/fromBot.vue';
-    import starRating from 'vue-star-rating/src/star-rating';
-    import ResourceUploader from "../../../components/uploader/resourceUploader";
-    import {resourceDownloadLink} from "../../../components/serverRoutes";
-    import customDialog from '../../../components/modals/dialogs/customDialog';
-    import MaterialRating from "../../../components/Material/MaterialRating";
-    import Flag from "../../../components/flags/Flag";
-    import {flagColors} from "../../../components/flags/flagOptions";
-    import ResourceSelector from "../../../components/modals/selectors/resourceSelector";
-    import KeywordToggleTextSelect from "../../../components/keyword/keywordToggleTextSelect";
-    import {savingDialogs} from "../../../helper/flashMessages";
-    import PublicMaterialDownload from "../../../components/download/public-material-download";
-    import {formatLocalizedDate} from './../../../helper/datetime.mixin'
+	import Keyword                 from '../../../components/keyword/keyword.vue';
+	import keywordInput            from '../../../components/keyword/keywordInput.vue';
+	import bibleverse              from '../../../components/bibleverse/biblevers.vue';
+	import bibleverseInput         from '../../../components/bibleverse/bibleverseInput.vue';
+	import resourcePreview         from '../../../components/resource/show/resource-preview.vue';
+	import resourceDetail          from '../../../components/resource/show/resource-detail.vue';
+	import editableText            from '../../../components/general/edditable.vue';
+	import fromBot                 from '../../../components/fromBot.vue';
+	import starRating              from 'vue-star-rating/src/star-rating';
+	import ResourceUploader        from "../../../components/uploader/resourceUploader";
+	import {resourceDownloadLink}  from "../../../components/serverRoutes";
+	import customDialog            from '../../../components/modals/dialogs/customDialog';
+	import MaterialRating          from "../../../components/Material/MaterialRating";
+	import Flag                    from "../../../components/flags/Flag";
+	import {flagColors}            from "../../../components/flags/flagOptions";
+	import ResourceSelector        from "../../../components/modals/selectors/resourceSelector";
+	import KeywordToggleTextSelect from "../../../components/keyword/keywordToggleTextSelect";
+	import {savingDialogs}         from "../../../helper/flashMessages";
+	import PublicMaterialDownload  from "../../../components/download/public-material-download";
+	import {formatLocalizedDate}   from './../../../helper/datetime.mixin'
 
 
-    // https://github.com/craigh411/vue-star-rating/#props
-    export default {
+	// https://github.com/craigh411/vue-star-rating/#props
+	export default {
 
-        name: 'MaterialDetail',
+		name: 'MaterialDetail',
 
-        mixins: [savingDialogs, formatLocalizedDate],
+		mixins: [savingDialogs, formatLocalizedDate],
 
-        props: {
-            id: {
-                required: true,
-                type: Number
-            },
-            editable: {
-                required: false,
-                type: Boolean,
-                default: true
-            },
+		props: {
+			id: {
+				required: true,
+				type: Number
+			},
+			editable: {
+				required: false,
+				type: Boolean,
+				default: true
+			},
 
 
-        },
+		},
 
-        data() {
-            return {
-                material: null,
-                editTagsModeEnabled: false,
-                errorOnLoadingMessage: null,
+		data() {
+			return {
+				material: null,
+				editTagsModeEnabled: false,
+				errorOnLoadingMessage: null,
 
-                currentRating: null,
-            };
-        },
+				currentRating: null,
+			};
+		},
 
-        computed: {
+		computed: {
 
-            keywordsAndBibleveres() {
+			keywordsAndBibleveres() {
 
-                this.material.keywords.forEach((kw) => {
-                    kw.is = 'keyword';
-                });
+				this.material.keywords.forEach((kw) => {
+					kw.is = 'keyword';
+				});
 
-                this.material.bibleverses.forEach((bv) => {
-                    bv.is = 'bibleverse';
-                });
+				this.material.bibleverses.forEach((bv) => {
+					bv.is = 'bibleverse';
+				});
 
-                return this.material.keywords.concat(this.material.bibleverses);
+				return this.material.keywords.concat(this.material.bibleverses);
 
-                /*.sort((k1, k2) => {
+				/*.sort((k1, k2) => {
                     return k1.pivot.relevance - k2.pivot.relevance;
                 }));
                 */
-            },
+			},
 
-            flagColor() {
+			flagColor() {
 
-                if (this.material.flag && this.material.flag <= flagColors.length) {
-                    return flagColors[this.material.flag - 1];
-                }
+				if (this.material.flag && this.material.flag <= flagColors.length) {
+					return flagColors[this.material.flag - 1];
+				}
 
-                return false;
-            },
+				return false;
+			},
 
-        },
+		},
 
-        asyncComputed: {},
+		asyncComputed: {},
 
-        watch: {
-            id(newValue) {
-                this.material = null;
-                this.getMaterial();
-            }
-        },
+		watch: {
+			id(newValue) {
+				this.material = null;
+				this.getMaterial();
+			}
+		},
 
-        created() {
-            this.getMaterial();
-        },
-
-
-        methods: {
-
-            getMaterial() {
-                this.errorOnLoadingMessage = null;
-
-                this.$store.dispatch('materials/getMaterial', this.id).then((material) => {
-                    this.material              = material;
-                    this.errorOnLoadingMessage = null;
-                }).catch((response) => {
-                    this.errorOnLoadingMessage = response;
-                });
-            },
-
-            submitFlag(newFlag) {
-                this.submitMaterialUpdate({flag: newFlag, from_bot: false}, 'Flag');
-            },
-
-            submitTitle(newTitle) {
-                this.submitMaterialUpdate({title: newTitle, from_bot: false}, 'Title');
-            },
-
-            submitRating(newRating) {
-                this.currentRatingChanged(newRating);
-                this.submitMaterialUpdate({rating: newRating}, 'Rating');
-            },
-
-            currentRatingChanged(value) {
-                this.currentRating = value;
-            },
-
-            submitDescription(newDescription) {
-                this.submitMaterialUpdate({description: newDescription, from_bot: false}, 'Description');
-            },
-
-            submitFromBot(newValue) {
-                this.submitMaterialUpdate({'from_bot': newValue}, 'From bot');
-            },
-
-            submitAuthor(newKeyword) {
-                this.submitMaterialUpdate({'author': newKeyword}, 'Authors');
-            },
-
-            submitMaterialUpdate(data, propertyName) {
-
-                const result = this.$store.dispatch('materials/updateMaterial', {id: this.material.id, data});
-
-                if (propertyName) {
-                    const startSavingMessage = this.flashStartSaving(propertyName);
-
-                    result.then((response) => {
-                        // On Success
-                        this.flashSaved(propertyName);
-                    }).catch(() => {
-                        // On Error
-                        this.flashError(propertyName);
-                    }).then((data) => {
-                        // Always
-                        startSavingMessage.destroy();
-                        return data;
-                    });
-                }
-
-                result.then((data) => {
-                    this.getMaterial();
-                    return data;
-                });
-
-                return result;
-            },
-
-            uploadResourceToThisMaterial(resource) {
-                this.$store.dispatch('materials/attachResource',
-                    {materialId: this.id, resourceId: resource.id}
-                ).then(({material}) => {
-                    this.material = material;
-                }).catch(() => {
-                });
-            },
-
-            btnDetachResource(resource) {
-
-                this.$store.dispatch('materials/detachResource',
-                    {materialId: this.id, resourceId: resource.id}
-                ).then(({material, resource}) => {
-                    this.material = material;
-
-                    if (resource.materials && resource.materials.length === 0) {
-                        this.$refs.customDialog.show({
-                            title: 'Rückfrage',
-                            content: 'Diese Ressource ist jetzt keinem Material mehr zugeordnet.<br/>Soll ' + (resource.original_filename ? '"' + resource.original_filename + '"' : 'sie') + ' <b>jetzt komplett</b> gelöscht werden?',
-                            yesText: 'Ja, löschen',
-                            yesVariant: 'success',
-                            noText: 'Nein, so lassen',
-                            noVariant: 'warning',
-                            allowBackdrop: false
-                        }).then((answerPositive) => {
-
-                            if (answerPositive === true) {
-                                this.$refs.customDialog.show({
-                                    title: 'Lösche Resource',
-                                    content: 'Lösche ' + (resource.original_filename ? '"' + resource.original_filename + '"' : 'Ressource') + '...',
-                                    yesEnabled: false,
-                                    noEnabled: false,
-                                    allowBackdrop: false
-                                }).catch(() => {
-                                });
-
-                                this.$store.dispatch('resources/deleteResource', resource.id)
-                                    .then(() => {
-                                        this.$refs.customDialog.show({
-                                            title: 'Resource gelöscht',
-                                            content: 'Resource erfolgreich gelöscht!',
-                                            yesText: 'ok',
-                                            yesVariant: 'primary',
-                                            yesEnabled: true,
-                                            noEnabled: false,
-                                            allowBackdrop: true,
-                                        });
-                                    });
-                            }
-
-                        }).catch(({message}) => {
-                            this.$refs.customDialog.show({
-                                title: 'Warnung',
-                                content: message,
-                                yesText: 'ok',
-                                yesVariant: 'primary',
-                                yesEnabled: true,
-                                noEnabled: false,
-                                allowBackdrop: true,
-                            });
-                        });
-                    }
-
-                });
-            },
-
-            assignResourceToThisMaterial() {
-                this.$refs.resourceSelector.showPromise()
-                    .then((resource) => {
-
-                        if (this.material.resources.find(mr => mr.id == resource.id)) {
-                            alert('This resource exists already in this material');
-                        } else {
-                            this.$store.dispatch('materials/attachResource', {
-                                materialId: this.id,
-                                resourceId: resource.id
-                            }).then(({material}) => {
-                                this.material = material;
-                            })
-                        }
-                    })
-            },
-
-            btnDeleteMaterial() {
-
-                this.$store.dispatch('materials/deleteMaterial', this.id)
-                    .then(() => {
-                        this.$router.go(-1);
-                    });
-
-            },
-
-            removeKeyword(index) {
-                this.material.keywords.splice(index, 1);
-                this.materialWasModified();
-            },
-
-            removeBibleverse(index) {
-                this.material.bibleverses.splice(index, 1);
-                this.materialWasModified();
-            },
-
-            materialWasModified() {
-                this.material.from_bot = false;
-            },
-
-            bibleverseUpdated({oldBibleverse, newBibleverse}) {
-
-                // Success
-                const index = this.material.bibleverses.findIndex((bv) => {
-                    return bv.id === oldBibleverse.id;
-                });
-
-                if (index !== -1) {
-                    this.material.bibleverses.splice(index, 1, newBibleverse); // https://vuejs.org/2016/02/06/common-gotchas/
-                    this.flashSaved('Keyword "' + newBibleverse.label + '"');
-                    this.materialWasModified();
-                } else {
-                    console.error('Changed bibleverse was not found in Array!');
-                }
-
-            },
-
-            downloadResourceLink(resource) {
-                window.location = resourceDownloadLink(resource);
-            },
-
-        },
+		created() {
+			this.getMaterial();
+		},
 
 
-        components: {
-            PublicMaterialDownload,
-            KeywordToggleTextSelect,
-            ResourceSelector,
-            Flag,
-            MaterialRating,
-            ResourceUploader,
-            Keyword,
-            keywordInput,
-            bibleverse,
-            bibleverseInput,
-            resourcePreview,
-            resourceDetail,
-            edditableText: editableText,
-            starRating,
-            fromBot,
-            customDialog,
-        },
+		methods: {
 
-    }
+			getMaterial() {
+				this.errorOnLoadingMessage = null;
+
+				this.$store.dispatch('materials/getMaterial', this.id).then((material) => {
+					this.material = material;
+					this.errorOnLoadingMessage = null;
+				}).catch((response) => {
+					this.errorOnLoadingMessage = response;
+				});
+			},
+
+			submitFlag(newFlag) {
+				this.submitMaterialUpdate({flag: newFlag, from_bot: false}, 'Flag');
+			},
+
+			submitTitle(newTitle) {
+				this.submitMaterialUpdate({title: newTitle, from_bot: false}, 'Title');
+			},
+
+			submitRating(newRating) {
+				this.currentRatingChanged(newRating);
+				this.submitMaterialUpdate({rating: newRating}, 'Rating');
+			},
+
+			currentRatingChanged(value) {
+				this.currentRating = value;
+			},
+
+			submitDescription(newDescription) {
+				this.submitMaterialUpdate({description: newDescription, from_bot: false}, 'Description');
+			},
+
+			submitFromBot(newValue) {
+				this.submitMaterialUpdate({'from_bot': newValue}, 'From bot');
+			},
+
+			submitAuthor(newKeyword) {
+				this.submitMaterialUpdate({'author': newKeyword}, 'Authors');
+			},
+
+			submitMaterialUpdate(data, propertyName) {
+
+				const result = this.$store.dispatch('materials/updateMaterial', {id: this.material.id, data});
+
+				if (propertyName) {
+					const startSavingMessage = this.flashStartSaving(propertyName);
+
+					result.then((response) => {
+						// On Success
+						this.flashSaved(propertyName);
+					}).catch(() => {
+						// On Error
+						this.flashError(propertyName);
+					}).then((data) => {
+						// Always
+						startSavingMessage.destroy();
+						return data;
+					});
+				}
+
+				result.then((data) => {
+					this.getMaterial();
+					return data;
+				});
+
+				return result;
+			},
+
+			uploadResourceToThisMaterial(resource) {
+				this.$store.dispatch('materials/attachResource',
+					{materialId: this.id, resourceId: resource.id}
+				).then(({material}) => {
+					this.material = material;
+				}).catch(() => {
+				});
+			},
+
+			btnDetachResource(resource) {
+
+				this.$store.dispatch('materials/detachResource',
+					{materialId: this.id, resourceId: resource.id}
+				).then(({material, resource}) => {
+					this.material = material;
+
+					if (resource.materials && resource.materials.length === 0) {
+						this.$refs.customDialog.show({
+							title: 'Rückfrage',
+							content: 'Diese Ressource ist jetzt keinem Material mehr zugeordnet.<br/>Soll ' + (resource.original_filename ? '"' + resource.original_filename + '"' : 'sie') + ' <b>jetzt komplett</b> gelöscht werden?',
+							yesText: 'Ja, löschen',
+							yesVariant: 'success',
+							noText: 'Nein, so lassen',
+							noVariant: 'warning',
+							allowBackdrop: false
+						}).then((answerPositive) => {
+
+							if (answerPositive === true) {
+								this.$refs.customDialog.show({
+									title: 'Lösche Resource',
+									content: 'Lösche ' + (resource.original_filename ? '"' + resource.original_filename + '"' : 'Ressource') + '...',
+									yesEnabled: false,
+									noEnabled: false,
+									allowBackdrop: false
+								}).catch(() => {
+								});
+
+								this.$store.dispatch('resources/deleteResource', resource.id)
+								    .then(() => {
+									    this.$refs.customDialog.show({
+										    title: 'Resource gelöscht',
+										    content: 'Resource erfolgreich gelöscht!',
+										    yesText: 'ok',
+										    yesVariant: 'primary',
+										    yesEnabled: true,
+										    noEnabled: false,
+										    allowBackdrop: true,
+									    });
+								    });
+							}
+
+						}).catch(({message}) => {
+							this.$refs.customDialog.show({
+								title: 'Warnung',
+								content: message,
+								yesText: 'ok',
+								yesVariant: 'primary',
+								yesEnabled: true,
+								noEnabled: false,
+								allowBackdrop: true,
+							});
+						});
+					}
+
+				});
+			},
+
+			assignResourceToThisMaterial() {
+				this.$refs.resourceSelector.showPromise()
+				    .then((resource) => {
+
+					    if (this.material.resources.find(mr => mr.id == resource.id)) {
+						    alert('This resource exists already in this material');
+					    } else {
+						    this.$store.dispatch('materials/attachResource', {
+							    materialId: this.id,
+							    resourceId: resource.id
+						    }).then(({material}) => {
+							    this.material = material;
+						    })
+					    }
+				    })
+			},
+
+			btnDeleteMaterial() {
+
+				this.$store.dispatch('materials/deleteMaterial', this.id)
+				    .then(() => {
+					    this.$router.go(-1);
+				    });
+
+			},
+
+			removeKeyword(index) {
+				this.material.keywords.splice(index, 1);
+				this.materialWasModified();
+			},
+
+			removeBibleverse(index) {
+				this.material.bibleverses.splice(index, 1);
+				this.materialWasModified();
+			},
+
+			materialWasModified() {
+				this.material.from_bot = false;
+			},
+
+			bibleverseUpdated({oldBibleverse, newBibleverse}) {
+
+				// Success
+				const index = this.material.bibleverses.findIndex((bv) => {
+					return bv.id === oldBibleverse.id;
+				});
+
+				if (index !== -1) {
+					this.material.bibleverses.splice(index, 1, newBibleverse); // https://vuejs.org/2016/02/06/common-gotchas/
+					this.flashSaved('Keyword "' + newBibleverse.label + '"');
+					this.materialWasModified();
+				} else {
+					console.error('Changed bibleverse was not found in Array!');
+				}
+
+			},
+
+			downloadResourceLink(resource) {
+				window.location = resourceDownloadLink(resource);
+			},
+
+		},
+
+
+		components: {
+			PublicMaterialDownload,
+			KeywordToggleTextSelect,
+			ResourceSelector,
+			Flag,
+			MaterialRating,
+			ResourceUploader,
+			Keyword,
+			keywordInput,
+			bibleverse,
+			bibleverseInput,
+			resourcePreview,
+			resourceDetail,
+			edditableText: editableText,
+			starRating,
+			fromBot,
+			customDialog,
+		},
+
+	}
 </script>
 
 <style scoped>

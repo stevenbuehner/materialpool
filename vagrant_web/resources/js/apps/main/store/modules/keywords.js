@@ -1,358 +1,358 @@
-import axios from '../../axiosInstance';
+import axios                           from '../../axiosInstance';
 import {
-    api_v1_keywords_create,
-    api_v1_keywords_delete,
-    api_v1_keywords_deleteassignment,
-    api_v1_keywords_index, api_v1_keywords_relations_count,
-    api_v1_keywords_show,
-    api_v1_keywords_update,
-    api_v1_keywords_updateassignment,
-    searchGuessKeywords
-} from '../../../../components/serverRoutes'
+	api_v1_keywords_create,
+	api_v1_keywords_delete,
+	api_v1_keywords_deleteassignment,
+	api_v1_keywords_index, api_v1_keywords_relations_count,
+	api_v1_keywords_show,
+	api_v1_keywords_update,
+	api_v1_keywords_updateassignment,
+	searchGuessKeywords
+}                                      from '../../../../components/serverRoutes'
 import {convertErrorResponseToMessage} from "./handleErrorsHelper";
-import _clone from 'lodash/_baseClone'
-import {queue} from "../networkQueue";
-import {getAllPages} from "../helper/paginationHelperQueued";
+import _clone                          from 'lodash/_baseClone'
+import {queue}                         from "../networkQueue";
+import {getAllPages}                   from "../helper/paginationHelperQueued";
 
 
 const state = {
-    keywords: {},
-    allKeywordsLoaded: false,
+	keywords: {},
+	allKeywordsLoaded: false,
 };
 
 const getters = {
 
-    getKeyword: (state) => (keywordId) => {
-        if (state.keywords[keywordId]) {
-            return state.keywords[keywordId];
-        } else {
-            return false;
-        }
-    },
+	getKeyword: (state) => (keywordId) => {
+		if (state.keywords[keywordId]) {
+			return state.keywords[keywordId];
+		} else {
+			return false;
+		}
+	},
 
-    allKeywordsLoaded: (state) => () => {
-        return state.allKeywordsLoaded;
-    },
+	allKeywordsLoaded: (state) => () => {
+		return state.allKeywordsLoaded;
+	},
 
-    getAllKeywords: (state) => () => {
-        return Object.values(state.keywords);
-    }
+	getAllKeywords: (state) => () => {
+		return Object.values(state.keywords);
+	}
 };
 
 const mutations = {
 
-    setKeyword(state, keyword) {
-        state.keywords[keyword.id] = _clone(keyword);
+	setKeyword(state, keyword) {
+		state.keywords[keyword.id] = _clone(keyword);
 
-        if (state.keywords[keyword.id].pivot) {
-            delete state.keywords[keyword.id].pivot;
-        }
-    },
+		if (state.keywords[keyword.id].pivot) {
+			delete state.keywords[keyword.id].pivot;
+		}
+	},
 
-    removeKeyword(state, id) {
-        delete state.keywords[id];
-    },
+	removeKeyword(state, id) {
+		delete state.keywords[id];
+	},
 
 
-    allKeywordsLoaded(state, loaded) {
-        loaded = !!loaded;
+	allKeywordsLoaded(state, loaded) {
+		loaded = !!loaded;
 
-        state.allKeywordsLoaded = loaded;
-    },
+		state.allKeywordsLoaded = loaded;
+	},
 
 
 };
 
 const actions = {
-    get: ({getters, commit}, keywordId) => {
+	get: ({getters, commit}, keywordId) => {
 
-        const keyword = getters.getKeyword(keywordId);
+		const keyword = getters.getKeyword(keywordId);
 
-        if (keyword) {
-            return new Promise((resolve, reject) => {
-                resolve(keyword);
-            });
-        }
+		if (keyword) {
+			return new Promise((resolve, reject) => {
+				resolve(keyword);
+			});
+		}
 
 
-        return axios.get(api_v1_keywords_show(keywordId))
-            .then(({data}) => {
-                commit('setKeyword', data);
-                return data;
-            });
-    },
+		return axios.get(api_v1_keywords_show(keywordId))
+		            .then(({data}) => {
+			            commit('setKeyword', data);
+			            return data;
+		            });
+	},
 
 
-    getMultiple: async ({dispatch, commit}, keywordIds) => {
-        // Not tested after changing - hopefully it works :-)
+	getMultiple: async ({dispatch, commit}, keywordIds) => {
+		// Not tested after changing - hopefully it works :-)
 
-        const response = Promise.all(
-            keywordIds.map(
-                id => queue.add(
-                    () => dispatch('get', id)
-                )
-            )
-        );
+		const response = Promise.all(
+			keywordIds.map(
+				id => queue.add(
+					() => dispatch('get', id)
+				)
+			)
+		);
 
 
-        response.then((keywords) => {
-            dispatch('setMultipleKeywords', keywords);
-        });
+		response.then((keywords) => {
+			dispatch('setMultipleKeywords', keywords);
+		});
 
-        return response;
+		return response;
 
-    },
+	},
 
-    getAll: ({dispatch, getters, commit}, forceReload) => {
+	getAll: ({dispatch, getters, commit}, forceReload) => {
 
-        if (forceReload === true) {
+		if (forceReload === true) {
 
-            // Force reload
-            commit('allKeywordsLoaded', false);
+			// Force reload
+			commit('allKeywordsLoaded', false);
 
-        } else if (getters.allKeywordsLoaded()) {
+		} else if (getters.allKeywordsLoaded()) {
 
-            // Load from cache
-            return new Promise((resolve, reject) => {
-                resolve(getters.getAllKeywords());
-            });
+			// Load from cache
+			return new Promise((resolve, reject) => {
+				resolve(getters.getAllKeywords());
+			});
 
-        }
+		}
 
-        const resultPromise = getAllPages(api_v1_keywords_index);
+		const resultPromise = getAllPages(api_v1_keywords_index);
 
-        resultPromise.then((allKeywords) => {
-            dispatch('setMultipleKeywords', allKeywords);
-            commit('allKeywordsLoaded', true);
-        });
+		resultPromise.then((allKeywords) => {
+			dispatch('setMultipleKeywords', allKeywords);
+			commit('allKeywordsLoaded', true);
+		});
 
-        return resultPromise;
+		return resultPromise;
 
-    },
+	},
 
-    relationsCount: ({commit}, keywordsId) => {
-        return axios.get(api_v1_keywords_relations_count(keywordsId))
-            .then(({data}) => {
-                return data;
-            }).catch((response) => {
-                throw convertErrorResponseToMessage(response);
-            });
-    },
+	relationsCount: ({commit}, keywordsId) => {
+		return axios.get(api_v1_keywords_relations_count(keywordsId))
+		            .then(({data}) => {
+			            return data;
+		            }).catch((response) => {
+				throw convertErrorResponseToMessage(response);
+			});
+	},
 
-    /**
-     *
-     * @param state
-     * @param allKeywords
-     */
-    setMultipleKeywords: ({commit}, allKeywords) => {
+	/**
+	 *
+	 * @param state
+	 * @param allKeywords
+	 */
+	setMultipleKeywords: ({commit}, allKeywords) => {
 
-        for (let i in allKeywords) {
-            commit('setKeyword', allKeywords[i]);
-        }
-    },
+		for (let i in allKeywords) {
+			commit('setKeyword', allKeywords[i]);
+		}
+	},
 
-    create: ({commit, getters, dispatch}, {title, type}) => {
+	create: ({commit, getters, dispatch}, {title, type}) => {
 
-        let params = {
-            title: title,
-            type: type || 'key'
-        };
+		let params = {
+			title: title,
+			type: type || 'key'
+		};
 
-        return axios.post(api_v1_keywords_create, params)
-            .then(({data}) => {
+		return axios.post(api_v1_keywords_create, params)
+		            .then(({data}) => {
 
-                console.info('created Keyword', data);
-                commit('setKeyword', data);
+			            console.info('created Keyword', data);
+			            commit('setKeyword', data);
 
-                return data;
-            })
-            .catch((response) => {
-                throw convertErrorResponseToMessage(response);
-            });
-
-    },
+			            return data;
+		            })
+		            .catch((response) => {
+			            throw convertErrorResponseToMessage(response);
+		            });
+
+	},
 
-    createAndAssign: async ({commit, getters, dispatch}, {title, type, materialId, relevance}) => {
-        const keyword = await dispatch('create', {title, type});
-        const keywordRelevance = await dispatch('updateRelevance', {materialId, keywordId: keyword.id, relevance});
+	createAndAssign: async ({commit, getters, dispatch}, {title, type, materialId, relevance}) => {
+		const keyword = await dispatch('create', {title, type});
+		const keywordRelevance = await dispatch('updateRelevance', {materialId, keywordId: keyword.id, relevance});
 
-        return keywordRelevance;
-    },
+		return keywordRelevance;
+	},
 
-    update: ({commit, getters, dispatch}, {id, data}) => {
+	update: ({commit, getters, dispatch}, {id, data}) => {
 
-        data._method = 'PUT';
+		data._method = 'PUT';
 
-        const result = axios.post(api_v1_keywords_update(id), data)
-            .then((response) => {
-                return response.data;
-            });
+		const result = axios.post(api_v1_keywords_update(id), data)
+		                    .then((response) => {
+			                    return response.data;
+		                    });
 
-        result
-            .then((keyword) => {
+		result
+			.then((keyword) => {
 
-                commit('setKeyword', keyword);
+				commit('setKeyword', keyword);
 
-                if (keyword.id !== id) {
-                    // The ID of the keyword was changed (weil der Tag mit einem anderen identischen Tag übereinstimmte und gemerged wurde)
-                    // => Der geladene Tag-Baum ist nicht mehr gültig => Reload
+				if (keyword.id !== id) {
+					// The ID of the keyword was changed (weil der Tag mit einem anderen identischen Tag übereinstimmte und gemerged wurde)
+					// => Der geladene Tag-Baum ist nicht mehr gültig => Reload
 
-                    commit('removeKeyword', id);
-                    commit('allKeywordsLoaded', false);
-                }
+					commit('removeKeyword', id);
+					commit('allKeywordsLoaded', false);
+				}
 
-            })
-            .catch((response) => {
-                console.error(response);
-            });
+			})
+			.catch((response) => {
+				console.error(response);
+			});
 
-        return result;
-    },
+		return result;
+	},
 
-    updateRelevance: ({commit, getters, dispatch}, {materialId, keywordId, relevance}) => {
+	updateRelevance: ({commit, getters, dispatch}, {materialId, keywordId, relevance}) => {
 
-        const data = {
-            _method: 'PUT',
-            relevance: relevance
-        };
+		const data = {
+			_method: 'PUT',
+			relevance: relevance
+		};
 
-        // Only assignment (without setting relevance)
-        if (!relevance) {
-            delete data.relevance;
-        }
+		// Only assignment (without setting relevance)
+		if (!relevance) {
+			delete data.relevance;
+		}
 
-        return axios.post(api_v1_keywords_updateassignment(materialId, keywordId), data)
-            .then((response) => {
-                return response.data;
-            }).catch((response) => {
-                throw convertErrorResponseToMessage(response);
-            });
-    },
+		return axios.post(api_v1_keywords_updateassignment(materialId, keywordId), data)
+		            .then((response) => {
+			            return response.data;
+		            }).catch((response) => {
+				throw convertErrorResponseToMessage(response);
+			});
+	},
 
-    deleteAssignment: ({commit, getters, dispatch}, {materialId, keywordId}) => {
+	deleteAssignment: ({commit, getters, dispatch}, {materialId, keywordId}) => {
 
-        let params = {
-            _method: 'DELETE'
-        };
-
-        return axios.post(api_v1_keywords_deleteassignment(materialId, keywordId), params)
-            .then((response) => {
-                    return response.data;
-                }
-            ).catch((response) => {
-                // on failure
-                console.error('Failed to remove keyword', this.myKeyword)
-                throw (response);
-            });
-
-    },
-
-    deleteMultipleAssignemts: async ({dispatch}, {keywordIds, materialId}) => {
-
-        return Promise.all(
-            keywordIds.map(
-                id => {
-                    return queue.add(
-                        () => dispatch('deleteAssignment', {materialId, keywordId: id})
-                    )
-                }
-            )
-        );
-
-    },
-
-    delete: ({commit}, id) => {
-
-        return axios.delete(api_v1_keywords_delete(id))
-            .then(({data}) => {
-
-                if (data.success !== true) {
-                    throw 'Unknown error while deleting keyword with id ' + id;
-                }
-
-                commit('removeKeyword', id);
-
-                return data.success;
-            })
-            .catch((response) => {
-                throw convertErrorResponseToMessage(response);
-            });
-
-    },
-
-
-    search: ({commit, getters, dispatch}, {searchText, type, per_page, page}) => {
-
-        type = type || false;
-        page = page || 1;
-        per_page = per_page || 20;
-
-        let data = {
-            q: searchText,
-            per_page,
-        };
-
-        if (type) {
-            // String or Array allowed here
-            data.t = type;
-        }
-
-        if (page) {
-            data.page = page;
-        }
-
-
-        return axios.get(searchGuessKeywords, {params: data})
-            .then(({data}) => {
-
-                if (data instanceof Array && data.length > 0) {
-                    dispatch('setMultipleKeywords', data);
-                }
-
-                return data;
-            });
-    },
-
-    /**
-     * Führe mehrere Keywordsuchen zeitgleich durch, merge die Ergebnisse, entferne Dublikate und gib das Ergebnis zurück
-     * @param commit
-     * @param dispatch
-     * @param searchArray
-     * @return {Promise<any[] | never>}
-     */
-    searchMultiple: ({commit, dispatch}, searchArray) => {
-
-        if (!Array.isArray(searchArray)) {
-            console.error('Parameter searchArray is not of type Array');
-        }
-
-        return Promise
-            .all(
-                searchArray.map(({searchText, type, per_page}) => {
-                        return queue.add(() => {
-                            return dispatch('search', {searchText, type, per_page});
-                        })
-                    }
-                )
-            )
-            .then((multiKeywords) => {
-
-                // reduce array structure by one
-                const keywords = multiKeywords.flat(1);
-
-                // remove duplicates in arrays
-                return keywords.filter((element, index, collection) =>
-                    index === collection.findIndex((t) => t.id === element.id)
-                );
-
-            });
-    }
+		let params = {
+			_method: 'DELETE'
+		};
+
+		return axios.post(api_v1_keywords_deleteassignment(materialId, keywordId), params)
+		            .then((response) => {
+				            return response.data;
+			            }
+		            ).catch((response) => {
+				// on failure
+				console.error('Failed to remove keyword', this.myKeyword)
+				throw (response);
+			});
+
+	},
+
+	deleteMultipleAssignemts: async ({dispatch}, {keywordIds, materialId}) => {
+
+		return Promise.all(
+			keywordIds.map(
+				id => {
+					return queue.add(
+						() => dispatch('deleteAssignment', {materialId, keywordId: id})
+					)
+				}
+			)
+		);
+
+	},
+
+	delete: ({commit}, id) => {
+
+		return axios.delete(api_v1_keywords_delete(id))
+		            .then(({data}) => {
+
+			            if (data.success !== true) {
+				            throw 'Unknown error while deleting keyword with id ' + id;
+			            }
+
+			            commit('removeKeyword', id);
+
+			            return data.success;
+		            })
+		            .catch((response) => {
+			            throw convertErrorResponseToMessage(response);
+		            });
+
+	},
+
+
+	search: ({commit, getters, dispatch}, {searchText, type, per_page, page}) => {
+
+		type = type || false;
+		page = page || 1;
+		per_page = per_page || 20;
+
+		let data = {
+			q: searchText,
+			per_page,
+		};
+
+		if (type) {
+			// String or Array allowed here
+			data.t = type;
+		}
+
+		if (page) {
+			data.page = page;
+		}
+
+
+		return axios.get(searchGuessKeywords, {params: data})
+		            .then(({data}) => {
+
+			            if (data instanceof Array && data.length > 0) {
+				            dispatch('setMultipleKeywords', data);
+			            }
+
+			            return data;
+		            });
+	},
+
+	/**
+	 * Führe mehrere Keywordsuchen zeitgleich durch, merge die Ergebnisse, entferne Dublikate und gib das Ergebnis zurück
+	 * @param commit
+	 * @param dispatch
+	 * @param searchArray
+	 * @return {Promise<any[] | never>}
+	 */
+	searchMultiple: ({commit, dispatch}, searchArray) => {
+
+		if (!Array.isArray(searchArray)) {
+			console.error('Parameter searchArray is not of type Array');
+		}
+
+		return Promise
+			.all(
+				searchArray.map(({searchText, type, per_page}) => {
+						return queue.add(() => {
+							return dispatch('search', {searchText, type, per_page});
+						})
+					}
+				)
+			)
+			.then((multiKeywords) => {
+
+				// reduce array structure by one
+				const keywords = multiKeywords.flat(1);
+
+				// remove duplicates in arrays
+				return keywords.filter((element, index, collection) =>
+					index === collection.findIndex((t) => t.id === element.id)
+				);
+
+			});
+	}
 };
 
 export default {
-    namespaced: true,
-    state,
-    getters,
-    actions,
-    mutations
+	namespaced: true,
+	state,
+	getters,
+	actions,
+	mutations
 };

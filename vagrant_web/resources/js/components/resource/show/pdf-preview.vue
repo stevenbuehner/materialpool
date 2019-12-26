@@ -2,9 +2,9 @@
     <div>
         <div class="previewContainer" @click="$refs.imageZoom.show(currentlyDisplayedPageIndex)">
             <b-img :src="currentlyDisplayedImage.src"
-                     :alt="currentlyDisplayedImage.title"
-                     :key="currentlyDisplayedImage.src"
-                     class="card-img-top pdfPreviewImage"/>
+                   :alt="currentlyDisplayedImage.title"
+                   :key="currentlyDisplayedImage.src"
+                   class="card-img-top pdfPreviewImage"/>
 
             <span class="previous"
                   @click.stop="previousPreviewImage"
@@ -28,124 +28,124 @@
 
 <script>
 
-    import {pdfPreviewImageForPage} from '../../serverRoutes';
-    import {BImg} from 'bootstrap-vue';
-    import pdfMixin from '../pdf-mixin';
-    import ImageZoom from "../../modals/imageZoom";
+	import {pdfPreviewImageForPage} from '../../serverRoutes';
+	import {BImg}                   from 'bootstrap-vue';
+	import pdfMixin                 from '../pdf-mixin';
+	import ImageZoom                from "../../modals/imageZoom";
 
-    export default {
-        mixins: [pdfMixin],
+	export default {
+		mixins: [pdfMixin],
 
-        props: {
-            resource: {
-                required: true,
-                type: Object
-            },
-            maxPreviewPages: {
-                required: false,
-                type: Number,
-                default: 5
-            }
-        },
+		props: {
+			resource: {
+				required: true,
+				type: Object
+			},
+			maxPreviewPages: {
+				required: false,
+				type: Number,
+				default: 5
+			}
+		},
 
-        data() {
-            return {
-                currentlyDisplayedPageIndex: 0
-            };
-        },
-        computed: {
+		data() {
+			return {
+				currentlyDisplayedPageIndex: 0
+			};
+		},
+		computed: {
 
-            currentlyDisplayedImage() {
-                return this.previewLimitedImages[this.currentlyDisplayedPageIndex];
-            },
+			currentlyDisplayedImage() {
+				return this.previewLimitedImages[this.currentlyDisplayedPageIndex];
+			},
 
-            previewPageNumbers() {
+			previewPageNumbers() {
 
-                let pages = [];
+				let pages = [];
 
-                if (this.pagePivotCount) {
-                    for (let i in this.resource.pivot.limitation.pages) {
-                        pages.push(this.resource.pivot.limitation.pages[i]);
-                    }
-                } else if (this.pageCount === 0) {
-                    pages.push(1);
-                } else if (this.pageCount > 0) {
-                    for (let i = 1; i <= this.pageCount; i++) {
-                        pages.push(i);
-                    }
-                }
+				if (this.pagePivotCount) {
+					for (let i in this.resource.pivot.limitation.pages) {
+						pages.push(this.resource.pivot.limitation.pages[i]);
+					}
+				} else if (this.pageCount === 0) {
+					pages.push(1);
+				} else if (this.pageCount > 0) {
+					for (let i = 1; i <= this.pageCount; i++) {
+						pages.push(i);
+					}
+				}
 
-                return pages;
+				return pages;
 
-            },
+			},
 
-            previewLimitedImages() {
+			previewLimitedImages() {
 
-                let urls = [];
+				let urls = [];
 
-                for (let i in this.previewPageNumbers) {
-                    if (i < this.maxPreviewPages) {
-                        urls.push(this.getPreviewImage(this.previewPageNumbers[i]));
-                    } else {
-                        break;
-                    }
-                }
+				for (let i in this.previewPageNumbers) {
+					if (i < this.maxPreviewPages) {
+						urls.push(this.getPreviewImage(this.previewPageNumbers[i]));
+					} else {
+						break;
+					}
+				}
 
-                return urls;
+				return urls;
 
-            },
+			},
 
-            previewPhrase() {
+			previewPhrase() {
 
-                if (this.previewPageNumbers.length > this.maxPreviewPages) {
-                    return this.$t('pool.only-limited-pages', {
-                        COUNT: this.previewLimitedImages.length,
-                        SUM: this.previewPageNumbers.length
-                    })
-                } else {
-                    return this.$t('pool.limited-pages', {
-                        COUNT: this.previewLimitedImages.length,
-                        SUM: this.previewPageNumbers.length
-                    })
-                }
+				if (this.previewPageNumbers.length > this.maxPreviewPages) {
+					return this.$t('pool.only-limited-pages', {
+						COUNT: this.previewLimitedImages.length,
+						SUM: this.previewPageNumbers.length
+					})
+				} else {
+					return this.$t('pool.limited-pages', {
+						COUNT: this.previewLimitedImages.length,
+						SUM: this.previewPageNumbers.length
+					})
+				}
 
-                // (Preview nur {{previewLimitedImages.length}}/{{previewPageNumbers.length}} Seiten)
-            }
-        },
+				// (Preview nur {{previewLimitedImages.length}}/{{previewPageNumbers.length}} Seiten)
+			}
+		},
 
-        methods: {
+		methods: {
 
-            getPreviewImage(pageNo) {
-                return {
-                    src: pdfPreviewImageForPage(this.resource, pageNo),
-                    title: this.$tc('pool.Page', 1) + ' ' + pageNo,
-                    page_no: pageNo
-                }
-            },
+			getPreviewImage(pageNo) {
+				return {
+					src: pdfPreviewImageForPage(this.resource, pageNo),
+					title: this.$tc('pool.Page', 1) + ' ' + pageNo,
+					page_no: pageNo
+				}
+			},
 
-            previousPreviewImage() {
-                if (this.currentlyDisplayedPageIndex === 0) {
-                    this.currentlyDisplayedPageIndex = this.previewLimitedImages.length - 1;
-                } else {
-                    this.currentlyDisplayedPageIndex--;
-                }
-            },
+			previousPreviewImage() {
+				if (this.currentlyDisplayedPageIndex === 0) {
+					this.currentlyDisplayedPageIndex = this.previewLimitedImages.length - 1;
+				} else {
+					this.currentlyDisplayedPageIndex--;
+				}
+			},
 
-            nextPreviewImage() {
-                if (this.previewLimitedImages.length <= this.currentlyDisplayedPageIndex + 1) {
-                    this.currentlyDisplayedPageIndex = 0;
-                } else {
-                    this.currentlyDisplayedPageIndex++;
-                }
-            }
-        },
+			nextPreviewImage() {
+				if (this.previewLimitedImages.length <= this.currentlyDisplayedPageIndex + 1) {
+					this.currentlyDisplayedPageIndex = 0;
+				} else {
+					this.currentlyDisplayedPageIndex++;
+				}
+			}
+		},
 
-        components: {
-            ImageZoom,
-            BImg
-        }
+		components: {
+			ImageZoom,
+			BImg
+		}
 
-    }
+	}
 </script>
 
 <style scoped>
@@ -191,7 +191,7 @@
         font-size: smaller;
     }
 
-    .pdfPreviewImage{
+    .pdfPreviewImage {
         min-height: 5em;
         min-width: 100%;
     }

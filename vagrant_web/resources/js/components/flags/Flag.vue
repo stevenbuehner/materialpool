@@ -21,59 +21,59 @@
 </template>
 
 <script>
-    import {flagColors} from './flagOptions.js';
-    import FlagItem from "./FlagItem";
+	import {flagColors} from './flagOptions.js';
+	import FlagItem     from "./FlagItem";
 
-    export default {
-        name: "Flag",
+	export default {
+		name: "Flag",
 
-        props: {
-            flagKey: {
-                required: true,
-                validator(value) {
-                    return value === null || (value <= 0 && value > flagColors.length);
-                }
-            },
-        },
+		props: {
+			flagKey: {
+				required: true,
+				validator(value) {
+					return value === null || (value <= 0 && value > flagColors.length);
+				}
+			},
+		},
 
 
-        data() {
-            return {
-                allFlags: flagColors.filter((c) => c !== 'gray'),
-                isHover: false
-            };
-        },
+		data() {
+			return {
+				allFlags: flagColors.filter((c) => c !== 'gray'),
+				isHover: false
+			};
+		},
 
-        methods: {
+		methods: {
 
-            flagColor(index) {
-                return flagColors[index];
-            },
+			flagColor(index) {
+				return flagColors[index];
+			},
 
-            onFlagSelected(flagColor) {
+			onFlagSelected(flagColor) {
 
-                const index = flagColors.indexOf(flagColor);
+				const index = flagColors.indexOf(flagColor);
 
-                if (index !== -1) {
-                    this._emitFlagUpdate(index);
-                }
-            },
+				if (index !== -1) {
+					this._emitFlagUpdate(index);
+				}
+			},
 
-            onFlagRemoved() {
-                this._emitFlagUpdate(null);
-            },
+			onFlagRemoved() {
+				this._emitFlagUpdate(null);
+			},
 
-            _emitFlagUpdate(value) {
-                this.$emit('flag-updated', value);
-            }
+			_emitFlagUpdate(value) {
+				this.$emit('flag-updated', value);
+			}
 
-        },
+		},
 
-        components: {
-            FlagItem,
-        }
+		components: {
+			FlagItem,
+		}
 
-    }
+	}
 </script>
 
 <style type="scss">

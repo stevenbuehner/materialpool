@@ -98,453 +98,454 @@ Events:
 */
 
 <script>
-    import BiblePopoverHeader from "./bible-popover-header";
-    import BiblePopoverContent from "./bible-popover-content";
-    import eventBus from './bible-popover-eventbus.js';
-    import BibleVerse from '../../../../vendor/stevenbuehner/bible-verse-bundle/js/in/BibleVerse.js';
-    import {BibleVerseService} from '../../../../vendor/stevenbuehner/bible-verse-bundle/js/out/BibleVerseService_de.js';
-    import doubleLeftIcon from './angle-double-left.svg';
-    import doubleRightIcon from './angle-double-right.svg';
-    import pinIcon from './pin.svg';
-    import pinRemoveIcon from './pin-remove.svg';
-    import closeIcon from './close.svg';
-    import cursorMoveIcon from './cursor-move.svg';
-    import {bibleverseToSearchItem, searchArrayObjectsToSearchQuery} from "../search/searchHelper";
-    import {fromRangeArrayToString} from "./../../apps/main/pages/ReadBible.vue";
-    import MaterialpoolSpinner from "../spinner/materialpool-spinner";
-
-
-    export default {
-        name: "bible-popover",
-        provide: {},
-
-        props: {
-            bibleverse: {
-                required: true,
-                validator: function (value) {
-                    return value instanceof BibleVerse || (value.from && value.to);
-                },
-            },
-            bibleUuid: {
-                type: String,
-                required: false,
-                default: null
-            },
-
-            position: {
-                required: false,
-                default: 'center',
-                validator(value) {
-                    return value instanceof Element || value === 'center';
-                }
-            },
-
-            enablePrevious: {
-                type: Boolean,
-                default: false,
-            },
-
-            enableNext: {
-                type: Boolean,
-                default: false,
-            },
-
-            maxHeight: {
-                type: Number,
-                default: 300
-            }
-        },
-
-        data() {
-            return {
-                isLoading: false, // True, wenn der Bibeltext noch vom Server geladen wird
-                isPinned: false, // Pinnnadel gesetzt => Drag and Drop aktiviert und Fenster schließt sich nicht selbst
-                originalX: null,
-                originalY: null,
-
-                isDragging: false,
-                dragOffsetX: 0,
-                dragOffsetY: 0,
-
-                width: 400,
-
-                minHeight: 200,
-
-                minMargin: {
-                    left: 5,
-                    top: 60,
-                    right: 5,
-                    bottom: 5
-                },
-
-                styleData: {
-                    left: 0,
-                    top: 0,
-                    height: 0,
-                    width: 0,
-                },
-                maxRequiredContentHeight: 100,
-            };
-        },
-
-        computed: {
-            normalizedBibleverse() {
-                if (this.bibleverse instanceof BibleVerse) {
-                    return this.bibleverse;
-                } else if (this.bibleverse.from && this.bibleverse.to) {
-                    return new BibleVerse(this.bibleverse.from, this.bibleverse.to);
-                } else {
-                    console.error('Could not normalize bibleverse!');
-                }
-            },
-            from() {
-                return this.normalizedBibleverse.getFrom();
-            },
-            to() {
-                return this.normalizedBibleverse.getTo();
-            },
-            bibleverseLabel() {
-                return BibleVerseService.bibleVerseToString(this.normalizedBibleverse, 'long');
-            },
-            usedBibleTranslationUuid() {
-                let bibleUuid = this.bibleUuid;
-
-                if (this.verses.length > 0 && this.verses[0].bibleUuid) {
-                    bibleUuid = this.verses[0].bibleUuid;
-                }
-
-                return bibleUuid;
-            },
-
-
-            style() {
-                return {
-                    minHeight: this.boxHeight + 'px',
-                    width: this.boxWidth + 'px',
-                    left: this.styleData.left + 'px',
-                    top: this.styleData.top + 'px'
-                };
-            },
-
-            isSingleVerse() {
-                return this.normalizedBibleverse.isSingleVerse();
-            },
-
-            boxHeight() {
-                return Math.max(
-                    Math.min(
-                        window.innerHeight - this.styleData.top - this.minMargin.bottom,
-                        this.maxRequiredContentHeight
-                    ),
-                    Math.min(
-                        this.minHeight,
-                        this.maxRequiredContentHeight
-                    )
-                );
-            },
-
-            boxWidth() {
-                return this.width;
-            },
-
-            bibleSourceDomain() {
-                if (this.bible && this.bible.source) {
-                    return this.bible.source.replace('http://', '').replace('https://', '').split(/[/?#]/)[0];
-                } else {
-                    return ';'
-                }
-            },
-
-            materialSearchParam() {
-                return searchArrayObjectsToSearchQuery([[this.bibleverse]]);
-            },
-
-            readBibleSearchParam() {
-                const context = new BibleVerse(this.from, this.to);
-                context.setFromVerse(1);
-                const book = BibleVerseService._getBibleBook(context.getFromBookId());
-                context.setToVerse(book.getVerseCountForChapter(context.getToChapter()));
-
-                return fromRangeArrayToString([context]);
-            }
-        },
-
-
-        asyncComputed: {
-            verses: {
-                get() {
-                    this.isLoading = true;
-
-                    return this.$store.dispatch('biblecontents/get', {
-                        from: this.from,
-                        to: this.to,
-                        bibleUuid: this.bibleUuid
-                    }).then((data) => {
-                        this.isLoading = false;
-
-
-                        return data.map((v) => {
-                            const {bookId, chapter, verse} = BibleVerse.explodeNumber(v.verse);
-
-                            return {
-                                bibleUuid: v.bibleUuid,
-                                text: v.text,
-                                vno: verse,
-                                cno: chapter,
-                                bno: bookId,
-                                no: v.verse
-                            };
-                        });
-
-                    });
-                },
-                default: [],
-                watch() {
-                    this.bibleverse;
-                    this.bibleUuid;
-                }
-            },
-
-            bible: {
-                get() {
-                    const bibleUuid = this.usedBibleTranslationUuid;
-
-                    if (bibleUuid !== null) {
-                        return this.$store.dispatch('bibles/get', bibleUuid)
-                    }
-                    return {};
-                },
-                default: {}
-            },
-
-            materialCount: {
-                get() {
-
-                    return this.$store.dispatch('search/materials', {
-                        query: {
-                            1:
-                                [{
-                                    type: 'b',
-                                    from: parseInt(this.from).toString(),
-                                    to: parseInt(this.to).toString()
-                                }]
-                        }
-                    }).then(({materials, paging}) => {
-                        return paging.total;
-                    })
-
-                },
-                default: null,
-                watch() {
-                }
-            },
-        },
-
-        watch: {
-            bibleverses() {
-                this._initPosition();
-            },
-            verses() {
-                this.$nextTick(() => {
-                    this._updateMaxRequiredContentHeight();
-                });
-            },
-            bible() {
-                this.$nextTick(() => {
-                    this._updateMaxRequiredContentHeight();
-                });
-            }
-        },
-
-
-        methods: {
-
-            _dragStart(event) {
-                this.isDragging = true;
-                this.isPinned   = true;
-                const rect      = this.$el.getBoundingClientRect();
-
-                if (event.type === "mousedown") {
-                    this.dragOffsetX = event.clientX - rect.left;
-                    this.dragOffsetY = event.clientY - rect.top;
-                    window.addEventListener("mousemove", this._dragMove, true);
-                    document.addEventListener("mouseup", this._dragStop, true);
-                } else if (event.type === "touchstart") {
-                    this.dragOffsetX = event.targetTouches[0].clientX - rect.left;
-                    this.dragOffsetY = event.targetTouches[0].clientY - rect.top;
-                    window.addEventListener("touchmove", this._dragMove, true);
-                    document.addEventListener("touchend", this._dragStop, true);
-                }
-
-            },
-
-            _dragMove(event) {
-                event.preventDefault();
-                event.stopPropagation();
-
-                if (!this.isDragging) {
-                    return;
-                }
-
-                if (event.type === "mousemove") {
-                    this.styleData.left = event.clientX - this.dragOffsetX;
-                    this.styleData.top  = event.clientY - this.dragOffsetY;
-                } else if (event.type === "touchmove") {
-                    this.styleData.left = event.targetTouches[0].clientX - this.dragOffsetX;
-                    this.styleData.top  = event.targetTouches[0].clientY - this.dragOffsetY;
-                }
-
-                this._checkSizeAndPositionRestrictions();
-
-            },
-            _dragStop(event) {
-                if (!this.isDragging) {
-                    return;
-                }
-
-                document.removeEventListener('mouseup', this._dragStop, true);
-                window.removeEventListener('mousemove', this._dragMove, true);
-                document.removeEventListener('touchend', this._dragStop, true);
-                window.removeEventListener('touchmove', this._dragMove, true);
-
-                this.isDragging = false;
-            },
-
-            _initPosition() {
-
-                if (this.position instanceof Element) {
-
-                    const rect = this.position.getBoundingClientRect();
-
-                    this.originalX = (rect.left + rect.width / 2) /* center pos of clicked button */;
-
-                    // if possible center the popup underneath the clicked button
-                    this.originalX = Math.max(this.originalX - this.boxWidth / 2, this.minMargin.left);
-
-                    this.originalY = rect.top + rect.height /* bottom pos of clicked button */;
-
-                } else if (this.position === 'center') {
-
-                    this.originalX = (window.innerWidth - this.boxWidth) / 2;
-                    this.originalY = (window.innerHeight - this.boxHeight) / 2
-
-                }
-
-
-                this.styleData.left = this.originalX;
-                this.styleData.top  = this.originalY;
-
-                this._checkSizeAndPositionRestrictions();
-
-            },
-
-            _checkSizeAndPositionRestrictions() {
-
-                // Check collision with browser-border
-                // TOP
-                if (this.styleData.top < this.minMargin.top) {
-                    this.styleData.top = this.minMargin.top;
-                }
-
-                // RIGHT
-                if (this.styleData.left + this.boxWidth + this.minMargin.right > window.innerWidth) {
-                    this.styleData.left = window.innerWidth - this.boxWidth - this.minMargin.right;
-                }
-
-                // BOTTOM
-                if (this.styleData.top + this.boxHeight + this.minMargin.bottom > window.innerHeight) {
-                    this.styleData.top = window.innerHeight - this.minMargin.bottom - this.boxHeight;
-                }
-
-                // LEFT
-                if (this.styleData.left < this.minMargin.left) {
-                    this.styleData.left = this.minMargin.left;
-                }
-
-                // Check height
-
-
-            },
-
-            _onMouseout(event) {
-
-                if (!this.isPinned) {
-                    // console.log(event);
-                    this._doClose();
-                }
-
-            },
-
-
-            _togglePin() {
-
-                if (this.isPinned) {
-                    this._initPosition();
-                }
-
-                this.isPinned = !this.isPinned;
-
-            },
-
-            _updateMaxRequiredContentHeight() {
-
-                const content = this.$refs.innercontent;
-
-                if (content !== undefined) {
-                    this.maxRequiredContentHeight = content.clientHeight /* height + padding */
-                        + content.parentElement.offsetTop /* header height */
-                        + 2 /* outer border */;
-                }
-
-            },
-
-
-            _doPrevious() {
-                eventBus.$emit('bible-popover-previous', this);
-            },
-
-            _doNext() {
-                eventBus.$emit('bible-popover-next', this);
-            },
-
-            _doClose() {
-                this.$emit('bible-popover-closerequest');
-            },
-
-            _incomingPopoverOpening(instance) {
-                if (instance !== this && !this.isPinned) {
-                    this._doClose();
-                }
-            },
-
-        },
-
-        created() {
-            eventBus.$on('bible-popover-opening', this._incomingPopoverOpening);
-
-            this._initPosition();
-        },
-
-        mounted() {
-            eventBus.$emit('bible-popover-opening', this);
-        },
-
-        destroyed() {
-            eventBus.$off('bible-popover-opening', this._incomingPopoverOpening);
-        },
-
-        components: {
-            MaterialpoolSpinner,
-            BiblePopoverContent,
-            BiblePopoverHeader,
-            doubleLeftIcon,
-            doubleRightIcon,
-            pinIcon, pinRemoveIcon,
-            closeIcon,
-            cursorMoveIcon
-        },
-
-    }
+	import BiblePopoverHeader                                        from "./bible-popover-header";
+	import BiblePopoverContent                                       from "./bible-popover-content";
+	import eventBus                                                  from './bible-popover-eventbus.js';
+	import BibleVerse
+	                                                                 from '../../../../vendor/stevenbuehner/bible-verse-bundle/js/in/BibleVerse.js';
+	import {BibleVerseService}                                       from '../../../../vendor/stevenbuehner/bible-verse-bundle/js/out/BibleVerseService_de.js';
+	import doubleLeftIcon                                            from './angle-double-left.svg';
+	import doubleRightIcon                                           from './angle-double-right.svg';
+	import pinIcon                                                   from './pin.svg';
+	import pinRemoveIcon                                             from './pin-remove.svg';
+	import closeIcon                                                 from './close.svg';
+	import cursorMoveIcon                                            from './cursor-move.svg';
+	import {bibleverseToSearchItem, searchArrayObjectsToSearchQuery} from "../search/searchHelper";
+	import {fromRangeArrayToString}                                  from "./../../apps/main/pages/ReadBible.vue";
+	import MaterialpoolSpinner                                       from "../spinner/materialpool-spinner";
+
+
+	export default {
+		name: "bible-popover",
+		provide: {},
+
+		props: {
+			bibleverse: {
+				required: true,
+				validator: function (value) {
+					return value instanceof BibleVerse || (value.from && value.to);
+				},
+			},
+			bibleUuid: {
+				type: String,
+				required: false,
+				default: null
+			},
+
+			position: {
+				required: false,
+				default: 'center',
+				validator(value) {
+					return value instanceof Element || value === 'center';
+				}
+			},
+
+			enablePrevious: {
+				type: Boolean,
+				default: false,
+			},
+
+			enableNext: {
+				type: Boolean,
+				default: false,
+			},
+
+			maxHeight: {
+				type: Number,
+				default: 300
+			}
+		},
+
+		data() {
+			return {
+				isLoading: false, // True, wenn der Bibeltext noch vom Server geladen wird
+				isPinned: false, // Pinnnadel gesetzt => Drag and Drop aktiviert und Fenster schließt sich nicht selbst
+				originalX: null,
+				originalY: null,
+
+				isDragging: false,
+				dragOffsetX: 0,
+				dragOffsetY: 0,
+
+				width: 400,
+
+				minHeight: 200,
+
+				minMargin: {
+					left: 5,
+					top: 60,
+					right: 5,
+					bottom: 5
+				},
+
+				styleData: {
+					left: 0,
+					top: 0,
+					height: 0,
+					width: 0,
+				},
+				maxRequiredContentHeight: 100,
+			};
+		},
+
+		computed: {
+			normalizedBibleverse() {
+				if (this.bibleverse instanceof BibleVerse) {
+					return this.bibleverse;
+				} else if (this.bibleverse.from && this.bibleverse.to) {
+					return new BibleVerse(this.bibleverse.from, this.bibleverse.to);
+				} else {
+					console.error('Could not normalize bibleverse!');
+				}
+			},
+			from() {
+				return this.normalizedBibleverse.getFrom();
+			},
+			to() {
+				return this.normalizedBibleverse.getTo();
+			},
+			bibleverseLabel() {
+				return BibleVerseService.bibleVerseToString(this.normalizedBibleverse, 'long');
+			},
+			usedBibleTranslationUuid() {
+				let bibleUuid = this.bibleUuid;
+
+				if (this.verses.length > 0 && this.verses[0].bibleUuid) {
+					bibleUuid = this.verses[0].bibleUuid;
+				}
+
+				return bibleUuid;
+			},
+
+
+			style() {
+				return {
+					minHeight: this.boxHeight + 'px',
+					width: this.boxWidth + 'px',
+					left: this.styleData.left + 'px',
+					top: this.styleData.top + 'px'
+				};
+			},
+
+			isSingleVerse() {
+				return this.normalizedBibleverse.isSingleVerse();
+			},
+
+			boxHeight() {
+				return Math.max(
+					Math.min(
+						window.innerHeight - this.styleData.top - this.minMargin.bottom,
+						this.maxRequiredContentHeight
+					),
+					Math.min(
+						this.minHeight,
+						this.maxRequiredContentHeight
+					)
+				);
+			},
+
+			boxWidth() {
+				return this.width;
+			},
+
+			bibleSourceDomain() {
+				if (this.bible && this.bible.source) {
+					return this.bible.source.replace('http://', '').replace('https://', '').split(/[/?#]/)[0];
+				} else {
+					return ';'
+				}
+			},
+
+			materialSearchParam() {
+				return searchArrayObjectsToSearchQuery([[this.bibleverse]]);
+			},
+
+			readBibleSearchParam() {
+				const context = new BibleVerse(this.from, this.to);
+				context.setFromVerse(1);
+				const book = BibleVerseService._getBibleBook(context.getFromBookId());
+				context.setToVerse(book.getVerseCountForChapter(context.getToChapter()));
+
+				return fromRangeArrayToString([context]);
+			}
+		},
+
+
+		asyncComputed: {
+			verses: {
+				get() {
+					this.isLoading = true;
+
+					return this.$store.dispatch('biblecontents/get', {
+						from: this.from,
+						to: this.to,
+						bibleUuid: this.bibleUuid
+					}).then((data) => {
+						this.isLoading = false;
+
+
+						return data.map((v) => {
+							const {bookId, chapter, verse} = BibleVerse.explodeNumber(v.verse);
+
+							return {
+								bibleUuid: v.bibleUuid,
+								text: v.text,
+								vno: verse,
+								cno: chapter,
+								bno: bookId,
+								no: v.verse
+							};
+						});
+
+					});
+				},
+				default: [],
+				watch() {
+					this.bibleverse;
+					this.bibleUuid;
+				}
+			},
+
+			bible: {
+				get() {
+					const bibleUuid = this.usedBibleTranslationUuid;
+
+					if (bibleUuid !== null) {
+						return this.$store.dispatch('bibles/get', bibleUuid)
+					}
+					return {};
+				},
+				default: {}
+			},
+
+			materialCount: {
+				get() {
+
+					return this.$store.dispatch('search/materials', {
+						query: {
+							1:
+								[{
+									type: 'b',
+									from: parseInt(this.from).toString(),
+									to: parseInt(this.to).toString()
+								}]
+						}
+					}).then(({materials, paging}) => {
+						return paging.total;
+					})
+
+				},
+				default: null,
+				watch() {
+				}
+			},
+		},
+
+		watch: {
+			bibleverses() {
+				this._initPosition();
+			},
+			verses() {
+				this.$nextTick(() => {
+					this._updateMaxRequiredContentHeight();
+				});
+			},
+			bible() {
+				this.$nextTick(() => {
+					this._updateMaxRequiredContentHeight();
+				});
+			}
+		},
+
+
+		methods: {
+
+			_dragStart(event) {
+				this.isDragging = true;
+				this.isPinned = true;
+				const rect = this.$el.getBoundingClientRect();
+
+				if (event.type === "mousedown") {
+					this.dragOffsetX = event.clientX - rect.left;
+					this.dragOffsetY = event.clientY - rect.top;
+					window.addEventListener("mousemove", this._dragMove, true);
+					document.addEventListener("mouseup", this._dragStop, true);
+				} else if (event.type === "touchstart") {
+					this.dragOffsetX = event.targetTouches[0].clientX - rect.left;
+					this.dragOffsetY = event.targetTouches[0].clientY - rect.top;
+					window.addEventListener("touchmove", this._dragMove, true);
+					document.addEventListener("touchend", this._dragStop, true);
+				}
+
+			},
+
+			_dragMove(event) {
+				event.preventDefault();
+				event.stopPropagation();
+
+				if (!this.isDragging) {
+					return;
+				}
+
+				if (event.type === "mousemove") {
+					this.styleData.left = event.clientX - this.dragOffsetX;
+					this.styleData.top = event.clientY - this.dragOffsetY;
+				} else if (event.type === "touchmove") {
+					this.styleData.left = event.targetTouches[0].clientX - this.dragOffsetX;
+					this.styleData.top = event.targetTouches[0].clientY - this.dragOffsetY;
+				}
+
+				this._checkSizeAndPositionRestrictions();
+
+			},
+			_dragStop(event) {
+				if (!this.isDragging) {
+					return;
+				}
+
+				document.removeEventListener('mouseup', this._dragStop, true);
+				window.removeEventListener('mousemove', this._dragMove, true);
+				document.removeEventListener('touchend', this._dragStop, true);
+				window.removeEventListener('touchmove', this._dragMove, true);
+
+				this.isDragging = false;
+			},
+
+			_initPosition() {
+
+				if (this.position instanceof Element) {
+
+					const rect = this.position.getBoundingClientRect();
+
+					this.originalX = (rect.left + rect.width / 2) /* center pos of clicked button */;
+
+					// if possible center the popup underneath the clicked button
+					this.originalX = Math.max(this.originalX - this.boxWidth / 2, this.minMargin.left);
+
+					this.originalY = rect.top + rect.height /* bottom pos of clicked button */;
+
+				} else if (this.position === 'center') {
+
+					this.originalX = (window.innerWidth - this.boxWidth) / 2;
+					this.originalY = (window.innerHeight - this.boxHeight) / 2
+
+				}
+
+
+				this.styleData.left = this.originalX;
+				this.styleData.top = this.originalY;
+
+				this._checkSizeAndPositionRestrictions();
+
+			},
+
+			_checkSizeAndPositionRestrictions() {
+
+				// Check collision with browser-border
+				// TOP
+				if (this.styleData.top < this.minMargin.top) {
+					this.styleData.top = this.minMargin.top;
+				}
+
+				// RIGHT
+				if (this.styleData.left + this.boxWidth + this.minMargin.right > window.innerWidth) {
+					this.styleData.left = window.innerWidth - this.boxWidth - this.minMargin.right;
+				}
+
+				// BOTTOM
+				if (this.styleData.top + this.boxHeight + this.minMargin.bottom > window.innerHeight) {
+					this.styleData.top = window.innerHeight - this.minMargin.bottom - this.boxHeight;
+				}
+
+				// LEFT
+				if (this.styleData.left < this.minMargin.left) {
+					this.styleData.left = this.minMargin.left;
+				}
+
+				// Check height
+
+
+			},
+
+			_onMouseout(event) {
+
+				if (!this.isPinned) {
+					// console.log(event);
+					this._doClose();
+				}
+
+			},
+
+
+			_togglePin() {
+
+				if (this.isPinned) {
+					this._initPosition();
+				}
+
+				this.isPinned = !this.isPinned;
+
+			},
+
+			_updateMaxRequiredContentHeight() {
+
+				const content = this.$refs.innercontent;
+
+				if (content !== undefined) {
+					this.maxRequiredContentHeight = content.clientHeight /* height + padding */
+					                                + content.parentElement.offsetTop /* header height */
+					                                + 2 /* outer border */;
+				}
+
+			},
+
+
+			_doPrevious() {
+				eventBus.$emit('bible-popover-previous', this);
+			},
+
+			_doNext() {
+				eventBus.$emit('bible-popover-next', this);
+			},
+
+			_doClose() {
+				this.$emit('bible-popover-closerequest');
+			},
+
+			_incomingPopoverOpening(instance) {
+				if (instance !== this && !this.isPinned) {
+					this._doClose();
+				}
+			},
+
+		},
+
+		created() {
+			eventBus.$on('bible-popover-opening', this._incomingPopoverOpening);
+
+			this._initPosition();
+		},
+
+		mounted() {
+			eventBus.$emit('bible-popover-opening', this);
+		},
+
+		destroyed() {
+			eventBus.$off('bible-popover-opening', this._incomingPopoverOpening);
+		},
+
+		components: {
+			MaterialpoolSpinner,
+			BiblePopoverContent,
+			BiblePopoverHeader,
+			doubleLeftIcon,
+			doubleRightIcon,
+			pinIcon, pinRemoveIcon,
+			closeIcon,
+			cursorMoveIcon
+		},
+
+	}
 </script>
 
 <style type="scss">

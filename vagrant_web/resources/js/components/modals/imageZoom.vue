@@ -9,8 +9,8 @@
     >
         <div class="zoomImageModal">
             <b-img :src="image"
-                     fluid
-                     @click="_hideZoom"></b-img>
+                   fluid
+                   @click="_hideZoom"></b-img>
             <span class="previous"
                   @click.prevent="btnPrevious"
                   v-show="hasPrevious"><</span>
@@ -22,113 +22,113 @@
 </template>
 
 <script>
-    import {BModal} from 'bootstrap-vue';
-    import {BImg} from 'bootstrap-vue'
+	import {BModal} from 'bootstrap-vue';
+	import {BImg}   from 'bootstrap-vue'
 
-    export default {
-        name: "imageZoom",
+	export default {
+		name: "imageZoom",
 
-        props: {
-            data: {
-                type: Array,
-                required: true
-            },
+		props: {
+			data: {
+				type: Array,
+				required: true
+			},
 
-            endless: {
-                type: Boolean,
-                required: false,
-                default: true
-            },
+			endless: {
+				type: Boolean,
+				required: false,
+				default: true
+			},
 
-            start: {
-                type: Number,
-                required: false,
-                default: 0
-            }
-        },
+			start: {
+				type: Number,
+				required: false,
+				default: 0
+			}
+		},
 
-        data() {
-            return {
-                currentIndex: Math.min(this.start, this.data.length),
-            };
-        },
+		data() {
+			return {
+				currentIndex: Math.min(this.start, this.data.length),
+			};
+		},
 
-        computed: {
+		computed: {
 
-            image() {
-                return this.data[this.currentIndex].src;
-            },
+			image() {
+				return this.data[this.currentIndex].src;
+			},
 
-            title() {
-                return this.data[this.currentIndex].title || '';
-            },
+			title() {
+				return this.data[this.currentIndex].title || '';
+			},
 
-            hasPrevious() {
-                return (this.currentIndex > 0 || this.endless && this.data.length > 1);
-            },
+			hasPrevious() {
+				return (this.currentIndex > 0 || this.endless && this.data.length > 1);
+			},
 
-            hasNext() {
-                return (this.currentIndex < this.data.length || this.endless && this.currentIndex === 0);
-            }
+			hasNext() {
+				return (this.currentIndex < this.data.length || this.endless && this.currentIndex === 0);
+			}
 
-        },
+		},
 
-        methods: {
+		methods: {
 
-            btnNext() {
+			btnNext() {
 
-                const nextIndex = this.currentIndex < (this.data.length - 1) ? this.currentIndex + 1 : 0;
-                this._showZoom(nextIndex);
+				const nextIndex = this.currentIndex < (this.data.length - 1) ? this.currentIndex + 1 : 0;
+				this._showZoom(nextIndex);
 
-            },
+			},
 
-            btnPrevious() {
+			btnPrevious() {
 
-                let prevIndex = this.currentIndex;
+				let prevIndex = this.currentIndex;
 
-                if (this.currentIndex > 0) {
-                    prevIndex = this.currentIndex - 1;
-                } else if (this.currentIndex === 0 && this.endless) {
-                    prevIndex = this.data.length - 1;
-                }
+				if (this.currentIndex > 0) {
+					prevIndex = this.currentIndex - 1;
+				} else if (this.currentIndex === 0 && this.endless) {
+					prevIndex = this.data.length - 1;
+				}
 
-                this._showZoom(prevIndex);
+				this._showZoom(prevIndex);
 
-            },
+			},
 
-            _showZoom(arrayIndex) {
+			_showZoom(arrayIndex) {
 
-                this.currentIndex = arrayIndex;
-                this.$refs.imageZoomModal.show();
+				this.currentIndex = arrayIndex;
+				this.$refs.imageZoomModal.show();
 
-            },
+			},
 
-            _hideZoom() {
+			_hideZoom() {
 
-                this.$refs.imageZoomModal.hide();
+				this.$refs.imageZoomModal.hide();
 
-            },
+			},
 
-            show(index) {
+			show(index) {
 
-                index = index || this.start;
-                this._showZoom(index);
+				index = index || this.start;
+				this._showZoom(index);
 
-            },
+			},
 
-            hide() {
+			hide() {
 
-                this._hideZoom();
+				this._hideZoom();
 
-            }
+			}
 
-        },
+		},
 
-        components: {
-            BModal,
-            BImg,
-        }
-    }
+		components: {
+			BModal,
+			BImg,
+		}
+	}
 </script>
 
 <style type="scss">

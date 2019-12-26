@@ -6,33 +6,33 @@
 </template>
 
 <script>
-    import {MENU_ITEM_CLICKED} from "./context-menu";
+	import {MENU_ITEM_CLICKED} from "./context-menu";
 
-    export default {
-        name: "context-menu-item",
+	export default {
+		name: "context-menu-item",
 
-        props: {
-            disabled: {
-                required: false,
-                type: Boolean,
-                default: false
-            },
+		props: {
+			disabled: {
+				required: false,
+				type: Boolean,
+				default: false
+			},
 
-            icon: {
-                required: false,
-                type: String,
-                default: ''
-            }
-        },
+			icon: {
+				required: false,
+				type: String,
+				default: ''
+			}
+		},
 
-        methods: {
-            menuItemClicked(event) {
-                this.$parent.$emit(MENU_ITEM_CLICKED, this);
-                this.$emit('click', event);
-            }
-        },
+		methods: {
+			menuItemClicked(event) {
+				this.$parent.$emit(MENU_ITEM_CLICKED, this);
+				this.$emit('click', event);
+			}
+		},
 
-    }
+	}
 </script>
 
 <style scoped>

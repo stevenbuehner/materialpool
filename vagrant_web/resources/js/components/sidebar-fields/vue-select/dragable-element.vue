@@ -24,63 +24,63 @@
 
 <script>
 
-    import {draggingSupport} from './../../keyword/dragging.mixin';
-    import {RELEVANCE_USER_MAX} from "../../../apps/config";
+	import {draggingSupport}    from './../../keyword/dragging.mixin';
+	import {RELEVANCE_USER_MAX} from "../../../apps/config";
 
-    export default {
-        name: "dragable-element",
+	export default {
+		name: "dragable-element",
 
-        mixins: [draggingSupport],
+		mixins: [draggingSupport],
 
-        props: {
-            maxRelevance: {
-                type: Number,
-                default: RELEVANCE_USER_MAX
-            },
-            relevance: {
-                type: Number,
-                default: 0
-            },
-            label: {
-                default: 'no label'
-            },
-            id: {
-                required: true
-            },
+		props: {
+			maxRelevance: {
+				type: Number,
+				default: RELEVANCE_USER_MAX
+			},
+			relevance: {
+				type: Number,
+				default: 0
+			},
+			label: {
+				default: 'no label'
+			},
+			id: {
+				required: true
+			},
 
-            disableRemoveElement: {
-                type: Boolean,
-                default: false
-            }
-        },
+			disableRemoveElement: {
+				type: Boolean,
+				default: false
+			}
+		},
 
-        computed: {
-            displayedRelevance() {
-                if (this.dragging.ongoing === true) {
-                    return this.dragPercentage * RELEVANCE_USER_MAX;
-                } else {
-                    return this.relevance;
-                }
-            }
-        },
+		computed: {
+			displayedRelevance() {
+				if (this.dragging.ongoing === true) {
+					return this.dragPercentage * RELEVANCE_USER_MAX;
+				} else {
+					return this.relevance;
+				}
+			}
+		},
 
-        created() {
-            this.$on('dragging-done', (dragPercentage) => {
-                this.requestUpdateRelevance(dragPercentage);
-            });
-        },
+		created() {
+			this.$on('dragging-done', (dragPercentage) => {
+				this.requestUpdateRelevance(dragPercentage);
+			});
+		},
 
-        methods: {
-            requestUpdateRelevance(dragPercentage) {
-                this.$emit('request-update-relevance', Math.round(dragPercentage * this.maxRelevance));
-            },
+		methods: {
+			requestUpdateRelevance(dragPercentage) {
+				this.$emit('request-update-relevance', Math.round(dragPercentage * this.maxRelevance));
+			},
 
-            keydownStartDrag(event) {
-                event.stopPropagation();
-                this.startDrag(event);
-            },
-        }
-    }
+			keydownStartDrag(event) {
+				event.stopPropagation();
+				this.startDrag(event);
+			},
+		}
+	}
 </script>
 
 <style type="scss">

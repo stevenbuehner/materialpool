@@ -1,86 +1,86 @@
 import {api_v1_general_options} from '../../../../components/serverRoutes';
-import axios from '../../axiosInstance';
+import axios                    from '../../axiosInstance';
 
 
 const state = {
-    options: null,
+	options: null,
 };
 
 const getters = {
 
-    getOptions: (state) => () => {
-        return state.options;
-    },
+	getOptions: (state) => () => {
+		return state.options;
+	},
 
 };
 
 const mutations = {
 
-    setOptions(state, options) {
-        state.options = options;
-    },
+	setOptions(state, options) {
+		state.options = options;
+	},
 
 };
 
 const actions = {
 
-    options: ({getters, commit}) => {
+	options: ({getters, commit}) => {
 
-        const opt = getters.getOptions();
+		const opt = getters.getOptions();
 
-        if (opt === null) {
-            const promise = axios.get(api_v1_general_options)
-                .then(({data}) => {
-                    return data;
-                })
-                .catch(({message}) => {
-                    throw message;
-                });
+		if (opt === null) {
+			const promise = axios.get(api_v1_general_options)
+			                     .then(({data}) => {
+				                     return data;
+			                     })
+			                     .catch(({message}) => {
+				                     throw message;
+			                     });
 
-            commit('setOptions', promise);
+			commit('setOptions', promise);
 
-            return promise;
+			return promise;
 
-        } else if (typeof opt.then === "function") {
-            return opt;
-        }
+		} else if (typeof opt.then === "function") {
+			return opt;
+		}
 
-        console.error('this should not happen in general.js');
+		console.error('this should not happen in general.js');
 
-    },
+	},
 
-    maxUploadSize: ({dispatch}) => {
-        return dispatch('options').then((allOptions) => {
-            return allOptions.server.max_upload;
-        });
-    },
+	maxUploadSize: ({dispatch}) => {
+		return dispatch('options').then((allOptions) => {
+			return allOptions.server.max_upload;
+		});
+	},
 
-    currentUser: ({dispatch}) => {
-        return dispatch('options').then((allOptions) => {
-            return allOptions.user;
-        });
-    },
+	currentUser: ({dispatch}) => {
+		return dispatch('options').then((allOptions) => {
+			return allOptions.user;
+		});
+	},
 
-    isAdmin: ({dispatch}) => {
-        return dispatch('currentUser').then(({is_admin}) => {
-            return is_admin || false;
-        });
+	isAdmin: ({dispatch}) => {
+		return dispatch('currentUser').then(({is_admin}) => {
+			return is_admin || false;
+		});
 
-    },
+	},
 
-    systemName: ({dispatch}) => {
-        return dispatch('options').then((allOptions) => {
-            return allOptions.systemname || 'MaterialPool Default';
-        });
-    }
+	systemName: ({dispatch}) => {
+		return dispatch('options').then((allOptions) => {
+			return allOptions.systemname || 'MaterialPool Default';
+		});
+	}
 
 
 };
 
 export default {
-    namespaced: true,
-    state,
-    getters,
-    actions,
-    mutations
+	namespaced: true,
+	state,
+	getters,
+	actions,
+	mutations
 };

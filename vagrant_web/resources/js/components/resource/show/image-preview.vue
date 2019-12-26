@@ -20,62 +20,62 @@
 
 <script>
 
-    import {BCard} from 'bootstrap-vue'
-    import {BButton} from 'bootstrap-vue'
-    import resourceLinks from '../resource-links.mixin';
-    import {previewImageFirstPage} from "../../serverRoutes";
+	import {BCard}                 from 'bootstrap-vue'
+	import {BButton}               from 'bootstrap-vue'
+	import resourceLinks           from '../resource-links.mixin';
+	import {previewImageFirstPage} from "../../serverRoutes";
 
-    export default {
+	export default {
 
-        mixins: [resourceLinks],
+		mixins: [resourceLinks],
 
-        props:
-            {
-                resource: {
-                    required: true,
-                    type: Object
-                },
-                width: {
-                    required: false,
-                    default: 300
-                },
-                height: {
-                    required: false,
-                    default: 300
-                }
-            },
+		props:
+			{
+				resource: {
+					required: true,
+					type: Object
+				},
+				width: {
+					required: false,
+					default: 300
+				},
+				height: {
+					required: false,
+					default: 300
+				}
+			},
 
-        computed: {
+		computed: {
 
-            title() {
-                let title = 'Resource';
+			title() {
+				let title = 'Resource';
 
-                if (this.resource.original_filename) {
-                    title = this.resource.original_filename;
-                }
+				if (this.resource.original_filename) {
+					title = this.resource.original_filename;
+				}
 
-                return title
-            },
+				return title
+			},
 
-            resourceImagePreviewUrl() {
-                return previewImageFirstPage(this.resource, this.width, this.height);
-            },
+			resourceImagePreviewUrl() {
+				return previewImageFirstPage(this.resource, this.width, this.height);
+			},
 
-        },
+		},
 
-        methods: {
-            goToResource() {
-                this.$router.push({
-                    name: 'resource-detail',
-                    params: {id: this.resource.id}
-                });
-            }
-        },
-        components: {
-            BCard,
-            BButton
-        }
-    }
+		methods: {
+			goToResource() {
+				this.$router.push({
+					name: 'resource-detail',
+					params: {id: this.resource.id}
+				});
+			}
+		},
+		components: {
+			BCard,
+			BButton
+		}
+	}
 </script>
 
 <style scoped>

@@ -10,46 +10,46 @@
 </template>
 
 <script>
-    export default {
-        name: "bibleTextVerse",
+	export default {
+		name: "bibleTextVerse",
 
-        props: {
-            verse: {
-                type: Object,
-                required: true
-            }
-        },
+		props: {
+			verse: {
+				type: Object,
+				required: true
+			}
+		},
 
-        data() {
-            return {
-                isSelected: false
-            };
-        },
+		data() {
+			return {
+				isSelected: false
+			};
+		},
 
-        computed: {
-            text() {
-                return this.verse.text;
-            },
-            verseNumber() {
-                return this.verse.verse % 1000;
-            },
-            bibleId() {
-                return this.verse.bible_id;
-            },
-        },
+		computed: {
+			text() {
+				return this.verse.text;
+			},
+			verseNumber() {
+				return this.verse.verse % 1000;
+			},
+			bibleId() {
+				return this.verse.bible_id;
+			},
+		},
 
-        methods: {
-            onClicked() {
+		methods: {
+			onClicked() {
 
-                this.$emit('verse-clicked', this.verse);
+				this.$emit('verse-clicked', this.verse);
 
-                this.isSelected = !this.isSelected;
+				this.isSelected = !this.isSelected;
 
-                this.$emit('verse-' + (this.isSelected === true ? 'selected' : 'deselected'), this.verse);
+				this.$emit('verse-' + (this.isSelected === true ? 'selected' : 'deselected'), this.verse);
 
-            }
-        }
-    }
+			}
+		}
+	}
 </script>
 
 

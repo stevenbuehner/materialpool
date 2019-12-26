@@ -31,185 +31,186 @@
 </template>
 
 <script>
-    import {searchArrayObjectsToSearchArrayItems} from "../../../components/search/searchHelper";
-    import {BFormInput} from "bootstrap-vue";
-    import {BInputGroup} from "bootstrap-vue"
-    import {BInputGroupText} from "bootstrap-vue"
-    import {BDropdown} from "bootstrap-vue"
-    import {BDropdownItem} from "bootstrap-vue"
-    import {BibleVerseService} from '../../../../../vendor/stevenbuehner/bible-verse-bundle/js/out/BibleVerseService_de.js';
-    import BibleVerse from '../../../../../vendor/stevenbuehner/bible-verse-bundle/js/in/BibleVerse.js';
-    import BibleText from "../../../components/biblecontents/bibleText";
+	import {searchArrayObjectsToSearchArrayItems} from "../../../components/search/searchHelper";
+	import {BFormInput}                           from "bootstrap-vue";
+	import {BInputGroup}                          from "bootstrap-vue"
+	import {BInputGroupText}                      from "bootstrap-vue"
+	import {BDropdown}                            from "bootstrap-vue"
+	import {BDropdownItem}                        from "bootstrap-vue"
+	import {BibleVerseService}                    from '../../../../../vendor/stevenbuehner/bible-verse-bundle/js/out/BibleVerseService_de.js';
+	import BibleVerse
+	                                              from '../../../../../vendor/stevenbuehner/bible-verse-bundle/js/in/BibleVerse.js';
+	import BibleText                              from "../../../components/biblecontents/bibleText";
 
-    export function fromRangeArrayToString(verseranges) {
-        return verseranges.map(bv => {
+	export function fromRangeArrayToString(verseranges) {
+		return verseranges.map(bv => {
 
-            if (bv instanceof BibleVerse) {
-                return bv.getFrom() + '-' + bv.getTo();
-            } else {
-                return bv.from + '-' + bv.to + (bv.bibleId ? '-' + bv.bibleId : '');
-            }
+			if (bv instanceof BibleVerse) {
+				return bv.getFrom() + '-' + bv.getTo();
+			} else {
+				return bv.from + '-' + bv.to + (bv.bibleId ? '-' + bv.bibleId : '');
+			}
 
-        }).join(',');
-    }
+		}).join(',');
+	}
 
-    export default {
-        name: "ReadBible",
+	export default {
+		name: "ReadBible",
 
-        data() {
-            return {
-                bibleUuid: null,
+		data() {
+			return {
+				bibleUuid: null,
 
-                bibleVerses: [],
-                searchInput: '',
-                bibleVerseContent: [],
+				bibleVerses: [],
+				searchInput: '',
+				bibleVerseContent: [],
 
-            };
-        },
+			};
+		},
 
-        asyncComputed: {
-            allBibles: {
-                get() {
-                    return this.$store.dispatch('bibles/getAll').then((bibles) => {
-                        return bibles;
-                    });
-                },
-                default: []
-            },
+		asyncComputed: {
+			allBibles: {
+				get() {
+					return this.$store.dispatch('bibles/getAll').then((bibles) => {
+						return bibles;
+					});
+				},
+				default: []
+			},
 
-            ranges: {
-                get() {
-                    return this.$store.dispatch('biblecontents/getMultiple', this.bibleVerses.map(bv => {
-                            return {
-                                from: bv.getFrom(),
-                                to: bv.getTo(),
-                                bibleUuid: this.bibleUuid
-                            };
-                        })
-                    );
-                },
-                default() {
-                    return [];
-                },
-                deep: true,
-                watch() {
-                    this.bibleVerses
-                }
-            },
+			ranges: {
+				get() {
+					return this.$store.dispatch('biblecontents/getMultiple', this.bibleVerses.map(bv => {
+							return {
+								from: bv.getFrom(),
+								to: bv.getTo(),
+								bibleUuid: this.bibleUuid
+							};
+						})
+					);
+				},
+				default() {
+					return [];
+				},
+				deep: true,
+				watch() {
+					this.bibleVerses
+				}
+			},
 
-            materials: {
-                get() {
-                    if (this.bibleVerses.length === 0) {
-                        return [];
-                    }
+			materials: {
+				get() {
+					if (this.bibleVerses.length === 0) {
+						return [];
+					}
 
-                    const searchData = searchArrayObjectsToSearchArrayItems([this.bibleVerses]);
+					const searchData = searchArrayObjectsToSearchArrayItems([this.bibleVerses]);
 
-                    return this.$store.dispatch('search/materials', {query: searchData});
-                },
-                default: null,
-                watch() {
-                    this.bibleVerses
-                }
-            }
-        },
+					return this.$store.dispatch('search/materials', {query: searchData});
+				},
+				default: null,
+				watch() {
+					this.bibleVerses
+				}
+			}
+		},
 
-        computed: {
-            selectableBibleOptions() {
-                return this.allBibles.map((b) => {
-                    return {
-                        value: b.uuid,
-                        text: b.title
-                    };
-                })
-            },
+		computed: {
+			selectableBibleOptions() {
+				return this.allBibles.map((b) => {
+					return {
+						value: b.uuid,
+						text: b.title
+					};
+				})
+			},
 
-            dropDownLabel() {
-                if (this.bibleUuid) {
-                    return this.allBibles.find(b => {
-                        return b.uuid === this.bibleUuid;
-                    }).title;
-                } else {
-                    return this.$t('pool.Translation');
-                }
-            }
-        },
+			dropDownLabel() {
+				if (this.bibleUuid) {
+					return this.allBibles.find(b => {
+						return b.uuid === this.bibleUuid;
+					}).title;
+				} else {
+					return this.$t('pool.Translation');
+				}
+			}
+		},
 
-        methods: {
-            initVerses(verses) {
+		methods: {
+			initVerses(verses) {
 
-                this.bibleVerses = verses.map((bv) => {
-                    return new BibleVerse(bv.from, bv.to);
-                });
+				this.bibleVerses = verses.map((bv) => {
+					return new BibleVerse(bv.from, bv.to);
+				});
 
-                this.searchInput = this.bibleVerses.map(bv => BibleVerseService.bibleVerseToString(bv)).join(', ')
+				this.searchInput = this.bibleVerses.map(bv => BibleVerseService.bibleVerseToString(bv)).join(', ')
 
-            },
+			},
 
-            analyseSearchInput() {
+			analyseSearchInput() {
 
-                this.$store.dispatch('bibleverses/search', this.searchInput)
-                    .then(bibleverses => {
-                        this.updateRoute(bibleverses)
-                    });
+				this.$store.dispatch('bibleverses/search', this.searchInput)
+				    .then(bibleverses => {
+					    this.updateRoute(bibleverses)
+				    });
 
-            },
+			},
 
-            updateRoute(verses) {
+			updateRoute(verses) {
 
-                this.$router.push({
-                    name: 'readbible',
-                    params: {
-                        searchquery: fromRangeArrayToString(verses)
-                    }
-                });
+				this.$router.push({
+					name: 'readbible',
+					params: {
+						searchquery: fromRangeArrayToString(verses)
+					}
+				});
 
-            },
+			},
 
-            fromStringToRangeArray(text) {
+			fromStringToRangeArray(text) {
 
-                const query       = text || '';
-                const verseranges = query.split(',');
+				const query = text || '';
+				const verseranges = query.split(',');
 
-                return verseranges
-                    .filter(text => text !== '')
-                    .map((range) => {
-                        const split = range.split('-');
+				return verseranges
+					.filter(text => text !== '')
+					.map((range) => {
+						const split = range.split('-');
 
-                        return {
-                            from: parseInt(split[0]),
-                            to: parseInt(split[1]),
-                            bibleId: split.length > 2 ? parseInt(split[2]) : null
-                        };
-                    });
-            },
+						return {
+							from: parseInt(split[0]),
+							to: parseInt(split[1]),
+							bibleId: split.length > 2 ? parseInt(split[2]) : null
+						};
+					});
+			},
 
-            toCaption(bibleverse, displayLength) {
-                return BibleVerseService.bibleVerseToString(bibleverse, displayLength);
-            }
-        },
+			toCaption(bibleverse, displayLength) {
+				return BibleVerseService.bibleVerseToString(bibleverse, displayLength);
+			}
+		},
 
-        beforeRouteEnter(to, from, next) {
-            next(vm => {
-                vm.initVerses(vm.fromStringToRangeArray(to.params.searchquery || ''));
-            });
-        },
+		beforeRouteEnter(to, from, next) {
+			next(vm => {
+				vm.initVerses(vm.fromStringToRangeArray(to.params.searchquery || ''));
+			});
+		},
 
-        beforeRouteUpdate(to, from, next) {
-            this.initVerses(this.fromStringToRangeArray(to.params.searchquery || ''));
-            next();
-        },
+		beforeRouteUpdate(to, from, next) {
+			this.initVerses(this.fromStringToRangeArray(to.params.searchquery || ''));
+			next();
+		},
 
-        components: {
-            BibleText,
-            BInputGroup,
-            BFormInput,
-            BInputGroupText,
-            BDropdown,
-            BDropdownItem,
-        },
+		components: {
+			BibleText,
+			BInputGroup,
+			BFormInput,
+			BInputGroupText,
+			BDropdown,
+			BDropdownItem,
+		},
 
-    }
+	}
 </script>
 
 <style scoped>

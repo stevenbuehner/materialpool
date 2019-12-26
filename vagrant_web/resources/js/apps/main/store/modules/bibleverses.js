@@ -1,159 +1,159 @@
 import axios from '../../axiosInstance';
 import {
-    api_v1_bibleverse_deleteassignment,
-    api_v1_bibleverse_updateassignment,
-    api_v1_bibleverses_create,
-    api_v1_bibleverses_show,
-    searchGuessBibleverses
-} from '../../../../components/serverRoutes'
+	api_v1_bibleverse_deleteassignment,
+	api_v1_bibleverse_updateassignment,
+	api_v1_bibleverses_create,
+	api_v1_bibleverses_show,
+	searchGuessBibleverses
+}            from '../../../../components/serverRoutes'
 
 import {queue} from "../networkQueue";
 
 const state = {
-    bibleverses: {},
+	bibleverses: {},
 };
 
 const getters = {
 
 
-    getBibleverse: (state) => (bibleverseId) => {
-        if (state.bibleverses[bibleverseId]) {
-            return state.bibleverses[bibleverseId];
-        } else {
-            return false;
-        }
-    }
+	getBibleverse: (state) => (bibleverseId) => {
+		if (state.bibleverses[bibleverseId]) {
+			return state.bibleverses[bibleverseId];
+		} else {
+			return false;
+		}
+	}
 };
 
 const mutations = {
 
 
-    clearBibleverse(state, bibleverseId) {
-        delete state.bibleverses[bibleverseId];
-    },
+	clearBibleverse(state, bibleverseId) {
+		delete state.bibleverses[bibleverseId];
+	},
 
-    setBibleverse(state, bibleverse) {
-        state.bibleverses[bibleverse.id] = bibleverse;
-    }
+	setBibleverse(state, bibleverse) {
+		state.bibleverses[bibleverse.id] = bibleverse;
+	}
 
 };
 
 const actions = {
-    get: ({getters, commit}, bibleverseId) => {
+	get: ({getters, commit}, bibleverseId) => {
 
-        const biblevers = getters.getBibleverse(bibleverseId);
+		const biblevers = getters.getBibleverse(bibleverseId);
 
-        if (biblevers) {
-            return new Promise((resolve, reject) => {
-                resolve(biblevers);
-            });
-        }
+		if (biblevers) {
+			return new Promise((resolve, reject) => {
+				resolve(biblevers);
+			});
+		}
 
-        return axios.get(api_v1_bibleverses_show(bibleverseId))
-            .then(({data}) => {
-                commit('setBibleverse', data);
-                return data;
-            });
-    },
+		return axios.get(api_v1_bibleverses_show(bibleverseId))
+		            .then(({data}) => {
+			            commit('setBibleverse', data);
+			            return data;
+		            });
+	},
 
-    getMultiple: async ({dispatch}, bibleverseIds) => {
-        // Not tested after changing - hopefully it works :-)
+	getMultiple: async ({dispatch}, bibleverseIds) => {
+		// Not tested after changing - hopefully it works :-)
 
-        return Promise.all(
-            bibleverseIds.map(
-                id => queue.add(
-                    () => dispatch('get', id)
-                )
-            )
-        );
+		return Promise.all(
+			bibleverseIds.map(
+				id => queue.add(
+					() => dispatch('get', id)
+				)
+			)
+		);
 
-    },
+	},
 
-    create: ({commit, getters, dispatch}, {from, to}) => {
+	create: ({commit, getters, dispatch}, {from, to}) => {
 
-        let params = {
-            from: from,
-            to: to,
-        };
+		let params = {
+			from: from,
+			to: to,
+		};
 
-        return axios.post(api_v1_bibleverses_create, params)
-            .then(({data}) => data);
-    },
+		return axios.post(api_v1_bibleverses_create, params)
+		            .then(({data}) => data);
+	},
 
-    createAndAssign: async ({commit, getters, dispatch}, {from, to, materialId, relevance}) => {
-        const bibleverse          = await dispatch('create', {from, to});
-        const bibleverseRelevance = await dispatch('updateRelevance', {
-            materialId,
-            bibleverseId: bibleverse.id,
-            relevance
-        });
+	createAndAssign: async ({commit, getters, dispatch}, {from, to, materialId, relevance}) => {
+		const bibleverse = await dispatch('create', {from, to});
+		const bibleverseRelevance = await dispatch('updateRelevance', {
+			materialId,
+			bibleverseId: bibleverse.id,
+			relevance
+		});
 
-        return bibleverseRelevance;
-    },
+		return bibleverseRelevance;
+	},
 
-    updateRelevance: ({commit, getters, dispatch}, {materialId, bibleverseId, relevance}) => {
+	updateRelevance: ({commit, getters, dispatch}, {materialId, bibleverseId, relevance}) => {
 
-        const data = {
-            _method: 'PUT',
-            relevance: relevance
-        };
+		const data = {
+			_method: 'PUT',
+			relevance: relevance
+		};
 
-        // Only assignment (without setting relevance)
-        if (!relevance) {
-            delete data.relevance;
-        }
+		// Only assignment (without setting relevance)
+		if (!relevance) {
+			delete data.relevance;
+		}
 
-        return axios.post(api_v1_bibleverse_updateassignment(materialId, bibleverseId), data)
-            .then(({data}) => {
-                return data;
-            });
-    },
+		return axios.post(api_v1_bibleverse_updateassignment(materialId, bibleverseId), data)
+		            .then(({data}) => {
+			            return data;
+		            });
+	},
 
-    deleteAssignment: ({commit, getters, dispatch}, {materialId, bibleverseId}) => {
+	deleteAssignment: ({commit, getters, dispatch}, {materialId, bibleverseId}) => {
 
-        let params = {
-            _method: 'DELETE'
-        };
+		let params = {
+			_method: 'DELETE'
+		};
 
-        return axios.post(api_v1_bibleverse_deleteassignment(materialId, bibleverseId), params)
-            .then(({data}) => {
-                    return data;
-                }
-            );
-    },
+		return axios.post(api_v1_bibleverse_deleteassignment(materialId, bibleverseId), params)
+		            .then(({data}) => {
+				            return data;
+			            }
+		            );
+	},
 
-    deleteMultipleAssignemts: async ({dispatch}, {bibleverseIds, materialId}) => {
+	deleteMultipleAssignemts: async ({dispatch}, {bibleverseIds, materialId}) => {
 
-        return Promise.all(
-            bibleverseIds.map(
-                id => queue.add(
-                    () => dispatch('deleteAssignment', {materialId, bibleverseId: id})
-                )
-            )
-        );
+		return Promise.all(
+			bibleverseIds.map(
+				id => queue.add(
+					() => dispatch('deleteAssignment', {materialId, bibleverseId: id})
+				)
+			)
+		);
 
-    },
+	},
 
-    search: ({commit, getters, dispatch}, searchText) => {
+	search: ({commit, getters, dispatch}, searchText) => {
 
-        const data = {q: searchText};
+		const data = {q: searchText};
 
-        return axios.post(searchGuessBibleverses, data)
-            .then(({data}) => {
-                return data;
-            }).catch((response) => {
-                throw response.data;
-            });
+		return axios.post(searchGuessBibleverses, data)
+		            .then(({data}) => {
+			            return data;
+		            }).catch((response) => {
+				throw response.data;
+			});
 
-    }
+	}
 
 
 };
 
 export default {
-    namespaced: true,
-    state,
-    getters,
-    actions,
-    mutations
+	namespaced: true,
+	state,
+	getters,
+	actions,
+	mutations
 };

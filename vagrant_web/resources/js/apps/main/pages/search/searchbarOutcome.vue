@@ -10,38 +10,38 @@
 
 <script>
 
-    import MaterialListing from '../../../../components/Material/MaterialListing.vue';
+	import MaterialListing from '../../../../components/Material/MaterialListing.vue';
 
-    export default {
+	export default {
 
-        props: {
-            materialIds: {
-                required: true,
-                type: Array
-            },
+		props: {
+			materialIds: {
+				required: true,
+				type: Array
+			},
 
-            highlightKeywords: {
-                type: Array,
-                required: false,
-                default() {
-                    return [];
-                }
-            },
+			highlightKeywords: {
+				type: Array,
+				required: false,
+				default() {
+					return [];
+				}
+			},
 
-            highlightBibleverses: {
-                type: Array,
-                required: false,
-                default() {
-                    return [];
-                }
-            },
+			highlightBibleverses: {
+				type: Array,
+				required: false,
+				default() {
+					return [];
+				}
+			},
 
-        },
+		},
 
-        components: {
-            MaterialListing
-        }
-    }
+		components: {
+			MaterialListing
+		}
+	}
 </script>
 
 <style scoped>

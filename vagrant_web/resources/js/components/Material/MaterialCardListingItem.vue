@@ -31,38 +31,38 @@
 </template>
 
 <script>
-    import Keyword from '../keyword/keyword.vue'
-    import Biblevers from "../bibleverse/biblevers.vue";
-    import {api_v1_materials_update} from '../serverRoutes';
+	import Keyword                   from '../keyword/keyword.vue'
+	import Biblevers                 from "../bibleverse/biblevers.vue";
+	import {api_v1_materials_update} from '../serverRoutes';
 
 
-    export default {
-        mounted() {
-        },
-        props: ['material'],
+	export default {
+		mounted() {
+		},
+		props: ['material'],
 
-        computed: {
-            materialDetailLink() {
-                return api_v1_materials_update(this.material.id);
-            }
-        },
+		computed: {
+			materialDetailLink() {
+				return api_v1_materials_update(this.material.id);
+			}
+		},
 
-        methods: {
+		methods: {
 
-            goToMaterial() {
-                this.$router.push({
-                    name: 'material-detail',
-                    params: {id: this.material.id}
-                });
+			goToMaterial() {
+				this.$router.push({
+					name: 'material-detail',
+					params: {id: this.material.id}
+				});
 //                window.location.href = materialShowRoute(this.material.id);
-            }
-        },
+			}
+		},
 
-        components: {
-            Biblevers,
-            Keyword,
-        }
-    }
+		components: {
+			Biblevers,
+			Keyword,
+		}
+	}
 </script>
 
 <style scoped>

@@ -106,293 +106,293 @@
 
 <script>
 
-    import PageList from '../../../components/assignment/pdfpages/pageList.vue'
-    import {BAlert} from 'bootstrap-vue';
-    import {BNavbar} from 'bootstrap-vue/';
-    import {BNavbarBrand} from 'bootstrap-vue';
-    import {BNavbarNav} from 'bootstrap-vue';
-    import {BNavItem} from 'bootstrap-vue';
-    import {BNavItemDropdown} from 'bootstrap-vue';
-    import {BDropdownItem} from 'bootstrap-vue';
-    import {BButton} from 'bootstrap-vue';
-    import {VBTooltip} from 'bootstrap-vue';
-    import materialSelector from '../../../components/modals/selectors/materialSelector.vue';
-    import materialCreator from '../../../components/modals/creators/materialCreator.vue';
-    import truncate from '../../../filters/truncate-filter.mixin'
-    import {uniqueArray} from "../../../helper/ArrayHelper";
-    import {api_v1_resource_pdf_tags} from "../../../components/serverRoutes";
-    import axios from '../axiosInstance';
+	import PageList                   from '../../../components/assignment/pdfpages/pageList.vue'
+	import {BAlert}                   from 'bootstrap-vue';
+	import {BNavbar}                  from 'bootstrap-vue/';
+	import {BNavbarBrand}             from 'bootstrap-vue';
+	import {BNavbarNav}               from 'bootstrap-vue';
+	import {BNavItem}                 from 'bootstrap-vue';
+	import {BNavItemDropdown}         from 'bootstrap-vue';
+	import {BDropdownItem}            from 'bootstrap-vue';
+	import {BButton}                  from 'bootstrap-vue';
+	import {VBTooltip}                from 'bootstrap-vue';
+	import materialSelector           from '../../../components/modals/selectors/materialSelector.vue';
+	import materialCreator            from '../../../components/modals/creators/materialCreator.vue';
+	import truncate                   from '../../../filters/truncate-filter.mixin'
+	import {uniqueArray}              from "../../../helper/ArrayHelper";
+	import {api_v1_resource_pdf_tags} from "../../../components/serverRoutes";
+	import axios                      from '../axiosInstance';
 
 
-    export default {
+	export default {
 
-        name: 'AssignApp',
+		name: 'AssignApp',
 
-        props: {
-            id: {
-                type: Number,
-                required: true
-            }
-        },
+		props: {
+			id: {
+				type: Number,
+				required: true
+			}
+		},
 
-        watch: {
-            '$route.params.id': (newVal, oldVal) => {
-                this.updateResource(newVal);
-            }
-        },
+		watch: {
+			'$route.params.id': (newVal, oldVal) => {
+				this.updateResource(newVal);
+			}
+		},
 
-        data() {
-            return {
-                resource: null,
-                loadingMsg: '',
-                loadingType: 'info',
-                selectedPages: [],
+		data() {
+			return {
+				resource: null,
+				loadingMsg: '',
+				loadingType: 'info',
+				selectedPages: [],
 
-                showMaterialSelector: false,
-                previewSize: 'sm',
-                materialCreationBibleverseSuggestions: []
-            }
-        },
+				showMaterialSelector: false,
+				previewSize: 'sm',
+				materialCreationBibleverseSuggestions: []
+			}
+		},
 
-        computed: {
+		computed: {
 
-            selectionMaterials() {
-                return this.resource.materials.filter((mat) => {
+			selectionMaterials() {
+				return this.resource.materials.filter((mat) => {
 
-                    const matPages = this.resourceLimitationPages(mat.id);
+					const matPages = this.resourceLimitationPages(mat.id);
 
-                    // Material gehört zu ALLEN Seiten => keine Limitation
-                    if (matPages.length === 0) {
-                        return true;
+					// Material gehört zu ALLEN Seiten => keine Limitation
+					if (matPages.length === 0) {
+						return true;
 
-                        // Material hat Limitation
-                    } else {
-                        return matPages.filter((matPage) => {
-                            return this.selectedPages.includes(matPage);
-                        }).length > 0;
-                    }
+						// Material hat Limitation
+					} else {
+						return matPages.filter((matPage) => {
+							return this.selectedPages.includes(matPage);
+						}).length > 0;
+					}
 
-                });
-            },
+				});
+			},
 
-            materialsNotInEverySelection() {
+			materialsNotInEverySelection() {
 
-                return this.resource.materials.filter((mat) => {
+				return this.resource.materials.filter((mat) => {
 
-                    const matPages = this.resourceLimitationPages(mat.id);
+					const matPages = this.resourceLimitationPages(mat.id);
 
-                    // Material gehört zu ALLEN Seiten => keine Limitation
-                    if (matPages.length === 0) {
-                        return false;
+					// Material gehört zu ALLEN Seiten => keine Limitation
+					if (matPages.length === 0) {
+						return false;
 
-                        // Material hat Limitation
-                    } else {
+						// Material hat Limitation
+					} else {
 
-                        return this.selectedPages.filter((page) => {
-                            return matPages.includes(page);
-                        }).length < this.selectedPages.length;
+						return this.selectedPages.filter((page) => {
+							return matPages.includes(page);
+						}).length < this.selectedPages.length;
 
-                    }
+					}
 
-                });
-            },
+				});
+			},
 
-        },
+		},
 
-        methods: {
+		methods: {
 
-            updateResource(id) {
+			updateResource(id) {
 
-                this.resource    = null;
-                this.loadingMsg  = this.$t('pool.Loading-resource');
-                this.loadingType = 'info';
+				this.resource = null;
+				this.loadingMsg = this.$t('pool.Loading-resource');
+				this.loadingType = 'info';
 
-                return this.$store.dispatch('resources/get', id)
-                    .then((resource) => {
-                        return this.resource = resource;
-                    }).catch(() => {
-                        this.loadingMsg  = this.$t('pool.Resource-loading-failed');
-                        this.loadingType = 'danger';
-                    });
+				return this.$store.dispatch('resources/get', id)
+				           .then((resource) => {
+					           return this.resource = resource;
+				           }).catch(() => {
+						this.loadingMsg = this.$t('pool.Resource-loading-failed');
+						this.loadingType = 'danger';
+					});
 
-            },
+			},
 
 
-            resourceLimitationPages(matId) {
+			resourceLimitationPages(matId) {
 
-                let resMat = this.resource.materials.find((mat) => mat.id === matId);
+				let resMat = this.resource.materials.find((mat) => mat.id === matId);
 
 
-                if (resMat && resMat.pivot && resMat.pivot.limitation && resMat.pivot.limitation.pages && Array.isArray(resMat.pivot.limitation.pages)) {
-                    return resMat.pivot.limitation.pages;
-                }
+				if (resMat && resMat.pivot && resMat.pivot.limitation && resMat.pivot.limitation.pages && Array.isArray(resMat.pivot.limitation.pages)) {
+					return resMat.pivot.limitation.pages;
+				}
 
-                return [];
-            },
+				return [];
+			},
 
 
-            btnAddPageSelectionToMaterial() {
+			btnAddPageSelectionToMaterial() {
 
-                this.$refs.materialSelector.showPromise().then((material) => {
+				this.$refs.materialSelector.showPromise().then((material) => {
 
-                    this.attachCurrentSelectionToMaterial(material.id);
+					this.attachCurrentSelectionToMaterial(material.id);
 
-                }).catch((error) => {
-                    console.info('Error while setting new Limitation: ', error)
-                })
+				}).catch((error) => {
+					console.info('Error while setting new Limitation: ', error)
+				})
 
-            },
+			},
 
-            btnRemoveSelectionFromMaterial(matId) {
+			btnRemoveSelectionFromMaterial(matId) {
 
-                let currentLimitPages = this.resourceLimitationPages(matId);
-                if (currentLimitPages.length === 0) {
-                    for (let i = 1; i <= this.resource.page_count; i++) {
-                        currentLimitPages.push(i);
-                    }
-                }
-                const removeLimitPages = this.selectedPages;
+				let currentLimitPages = this.resourceLimitationPages(matId);
+				if (currentLimitPages.length === 0) {
+					for (let i = 1; i <= this.resource.page_count; i++) {
+						currentLimitPages.push(i);
+					}
+				}
+				const removeLimitPages = this.selectedPages;
 
-                const newPageLimitation = currentLimitPages.filter((oldPage) => {
-                    return !removeLimitPages.includes(oldPage);
-                });
+				const newPageLimitation = currentLimitPages.filter((oldPage) => {
+					return !removeLimitPages.includes(oldPage);
+				});
 
 
-                if (newPageLimitation.length === 0) {
+				if (newPageLimitation.length === 0) {
 
-                    if (confirm('Wirklich Material komplett von dieser Datei lösen?') === true) {
-                        this.$store.dispatch('materials/detachResource', {materialId: matId, resourceId: this.id})
-                            .then(({resource}) => {
-                                this.resource = resource;
-                            });
-                    }
+					if (confirm('Wirklich Material komplett von dieser Datei lösen?') === true) {
+						this.$store.dispatch('materials/detachResource', {materialId: matId, resourceId: this.id})
+						    .then(({resource}) => {
+							    this.resource = resource;
+						    });
+					}
 
-                } else {
-                    this.serverDoResourceMaterialAttachment(matId, this.id, newPageLimitation);
-                }
+				} else {
+					this.serverDoResourceMaterialAttachment(matId, this.id, newPageLimitation);
+				}
 
 
-            },
+			},
 
-            btnCreateNewMaterialFromSelection() {
+			btnCreateNewMaterialFromSelection() {
 
-                if (this.selectedPages.length <= 0) {
-                    return;
-                }
+				if (this.selectedPages.length <= 0) {
+					return;
+				}
 
-                this.guessBibleversesFromSelection();
+				this.guessBibleversesFromSelection();
 
-                this.$refs.materialCreator
-                    .showPromise()
-                    .then((material) => {
-                        return this.attachCurrentSelectionToMaterial(material.id);
-                    }).catch((err) => {
-                    console.info('Closed Material-Creation with reason:', err);
-                })
-            },
+				this.$refs.materialCreator
+				    .showPromise()
+				    .then((material) => {
+					    return this.attachCurrentSelectionToMaterial(material.id);
+				    }).catch((err) => {
+					console.info('Closed Material-Creation with reason:', err);
+				})
+			},
 
-            guessBibleversesFromSelection() {
+			guessBibleversesFromSelection() {
 
-                this.materialCreationBibleverseSuggestions = [];
+				this.materialCreationBibleverseSuggestions = [];
 
-                axios.post(api_v1_resource_pdf_tags(this.id), {
-                    pages: this.selectedPages
-                }).then(({data}) => {
-                    this.materialCreationBibleverseSuggestions = data;
-                }).catch((response) => {
-                    console.error(response);
-                })
+				axios.post(api_v1_resource_pdf_tags(this.id), {
+					pages: this.selectedPages
+				}).then(({data}) => {
+					this.materialCreationBibleverseSuggestions = data;
+				}).catch((response) => {
+					console.error(response);
+				})
 
-            },
+			},
 
-            btnSelectAllPages() {
-                this.$refs.pagelist.selectAllPages();
-            },
+			btnSelectAllPages() {
+				this.$refs.pagelist.selectAllPages();
+			},
 
 
-            pageSelectionUpdated: function (selection) {
-                this.selectedPages = selection;
-            },
+			pageSelectionUpdated: function (selection) {
+				this.selectedPages = selection;
+			},
 
-            attachCurrentSelectionToMaterial(materialId) {
+			attachCurrentSelectionToMaterial(materialId) {
 
-                const currentLimitation = this.resourceLimitationPages(materialId);
-                const newPageLimitation = uniqueArray(currentLimitation.concat(this.selectedPages));
+				const currentLimitation = this.resourceLimitationPages(materialId);
+				const newPageLimitation = uniqueArray(currentLimitation.concat(this.selectedPages));
 
-                return this.serverDoResourceMaterialAttachment(materialId, this.id, newPageLimitation);
+				return this.serverDoResourceMaterialAttachment(materialId, this.id, newPageLimitation);
 
-            },
+			},
 
-            serverDoResourceMaterialAttachment(materialId, resourceId, pages) {
+			serverDoResourceMaterialAttachment(materialId, resourceId, pages) {
 
-                let limitation = undefined;
+				let limitation = undefined;
 
-                if (pages && Array.isArray(pages) && pages.length > 0 && pages.length < this.resource.page_count) {
-                    limitation = {
-                        type: 'page',
-                        value: pages.join(',')
-                    }
-                }
+				if (pages && Array.isArray(pages) && pages.length > 0 && pages.length < this.resource.page_count) {
+					limitation = {
+						type: 'page',
+						value: pages.join(',')
+					}
+				}
 
-                return this.$store.dispatch('materials/attachResource', {
-                    materialId,
-                    resourceId,
-                    limitation
-                }).then(({resource}) => {
-                    this.resource = resource;
-                });
+				return this.$store.dispatch('materials/attachResource', {
+					materialId,
+					resourceId,
+					limitation
+				}).then(({resource}) => {
+					this.resource = resource;
+				});
 
-            },
+			},
 
 
-        },
+		},
 
-        created() {
-            this.updateResource(this.id)
-                .then((resource) => {
-                    // Preselection of pages
+		created() {
+			this.updateResource(this.id)
+			    .then((resource) => {
+				    // Preselection of pages
 
-                    if (!resource)
-                        return;
+				    if (!resource)
+					    return;
 
-                    const preselection = this.$route.query.selection || '';
-                    const pages        = (preselection !== '') ? preselection.split(',') : [];
+				    const preselection = this.$route.query.selection || '';
+				    const pages = (preselection !== '') ? preselection.split(',') : [];
 
-                    if (pages.length > 0) {
-                        this.$refs.pagelist.clearAllPages();
+				    if (pages.length > 0) {
+					    this.$refs.pagelist.clearAllPages();
 
-                        pages.forEach((pageNo) => {
-                            this.$refs.pagelist.addPageSelection(pageNo);
-                        });
+					    pages.forEach((pageNo) => {
+						    this.$refs.pagelist.addPageSelection(pageNo);
+					    });
 
-                    }
+				    }
 
-                });
+			    });
 
 
-        },
+		},
 
 
-        components: {
-            PageList,
-            BAlert,
-            BNavbar,
-            BNavbarBrand,
-            BNavbarNav,
-            BNavItem,
-            BNavItemDropdown,
-            BDropdownItem,
-            BButton,
-            materialSelector,
-            materialCreator
-        },
+		components: {
+			PageList,
+			BAlert,
+			BNavbar,
+			BNavbarBrand,
+			BNavbarNav,
+			BNavItem,
+			BNavItemDropdown,
+			BDropdownItem,
+			BButton,
+			materialSelector,
+			materialCreator
+		},
 
-        directives: {
-            bTooltip : VBTooltip
-        },
+		directives: {
+			bTooltip: VBTooltip
+		},
 
-        mixins: [truncate]
-    }
+		mixins: [truncate]
+	}
 </script>
 
 <style scoped>

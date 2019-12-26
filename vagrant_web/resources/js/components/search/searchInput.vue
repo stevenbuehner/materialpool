@@ -42,65 +42,65 @@
 </template>
 
 <script>
-    import vueSelect from 'vue-select';
-    import _debounce from 'lodash/debounce';
+	import vueSelect from 'vue-select';
+	import _debounce from 'lodash/debounce';
 
-    export default {
+	export default {
 
-        props: {
-            lineValues: {
-                type: Array,
-                required: true,
-            }
-        },
+		props: {
+			lineValues: {
+				type: Array,
+				required: true,
+			}
+		},
 
-        data() {
-            return {
-                options: [],
-            };
-        },
-
-
-        model: {
-            prop: 'lineValues',
-            event: 'updated'
-        },
+		data() {
+			return {
+				options: [],
+			};
+		},
 
 
-        watch: {},
+		model: {
+			prop: 'lineValues',
+			event: 'updated'
+		},
 
 
-        methods: {
-            onSearch(search, loading) {
-                loading(true);
+		watch: {},
 
-                this.search(loading, search, this);
-            },
 
-            // _.debounce is a function provided by lodash to limit how
-            // often a particularly expensive operation can be run.
-            // To learn
-            // more about the _.debounce function (and its cousin
-            // _.throttle), visit: https://lodash.com/docs#debounce
-            search: _debounce((loading, search, vm) => {
+		methods: {
+			onSearch(search, loading) {
+				loading(true);
 
-                vm.$store.dispatch('tagsearch/searchTags', search)
-                    .then((data) => {
-                        vm.options = data.data;
-                        loading(false);
-                    });
+				this.search(loading, search, this);
+			},
 
-            }, 250),
+			// _.debounce is a function provided by lodash to limit how
+			// often a particularly expensive operation can be run.
+			// To learn
+			// more about the _.debounce function (and its cousin
+			// _.throttle), visit: https://lodash.com/docs#debounce
+			search: _debounce((loading, search, vm) => {
 
-        },
+				vm.$store.dispatch('tagsearch/searchTags', search)
+				  .then((data) => {
+					  vm.options = data.data;
+					  loading(false);
+				  });
 
-        created() {
-        },
+			}, 250),
 
-        components: {
-            vueSelect
-        },
-    }
+		},
+
+		created() {
+		},
+
+		components: {
+			vueSelect
+		},
+	}
 </script>
 
 
@@ -109,7 +109,7 @@
 
     .searchInputSelect {
 
-        .vs__selected-options{
+        .vs__selected-options {
             .selected .close {
                 margin-left: 0.25rem;
                 top: -.15rem;

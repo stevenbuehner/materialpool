@@ -76,90 +76,90 @@
 </template>
 
 <script>
-    import {BNavbar} from 'bootstrap-vue';
-    import {BNavbarToggle} from 'bootstrap-vue';
-    import {BNavbarBrand} from 'bootstrap-vue';
-    import {BNavbarNav} from 'bootstrap-vue';
-    import {BNavItem} from 'bootstrap-vue';
-    import {BNavItemDropdown} from 'bootstrap-vue';
-    import {BDropdownItem} from 'bootstrap-vue';
-    import {BDropdownDivider} from 'bootstrap-vue';
-    import {BNavForm} from 'bootstrap-vue';
-    import {BCollapse} from 'bootstrap-vue';
-    import {BFormInput} from 'bootstrap-vue';
-    import {BInputGroup} from 'bootstrap-vue';
-    import {BInputGroupAppend} from 'bootstrap-vue';
-    import {BButton} from 'bootstrap-vue';
-    import {searchArrayObjectsToSearchQuery} from "../search/searchHelper";
+	import {BNavbar}                         from 'bootstrap-vue';
+	import {BNavbarToggle}                   from 'bootstrap-vue';
+	import {BNavbarBrand}                    from 'bootstrap-vue';
+	import {BNavbarNav}                      from 'bootstrap-vue';
+	import {BNavItem}                        from 'bootstrap-vue';
+	import {BNavItemDropdown}                from 'bootstrap-vue';
+	import {BDropdownItem}                   from 'bootstrap-vue';
+	import {BDropdownDivider}                from 'bootstrap-vue';
+	import {BNavForm}                        from 'bootstrap-vue';
+	import {BCollapse}                       from 'bootstrap-vue';
+	import {BFormInput}                      from 'bootstrap-vue';
+	import {BInputGroup}                     from 'bootstrap-vue';
+	import {BInputGroupAppend}               from 'bootstrap-vue';
+	import {BButton}                         from 'bootstrap-vue';
+	import {searchArrayObjectsToSearchQuery} from "../search/searchHelper";
 
-    export default {
-        name: "mainNavbar",
+	export default {
+		name: "mainNavbar",
 
-        data() {
-            return {
-                schnellsuche: ''
+		data() {
+			return {
+				schnellsuche: ''
 
-            };
-        },
+			};
+		},
 
-        asyncComputed: {
-            username: {
-                get() {
-                    return this.$store.dispatch('general/currentUser')
-                        .then((user) => {
-                            return user.name;
-                        });
-                },
-                default: 'User',
-                /* watch() {
+		asyncComputed: {
+			username: {
+				get() {
+					return this.$store.dispatch('general/currentUser')
+					           .then((user) => {
+						           return user.name;
+					           });
+				},
+				default: 'User',
+				/* watch() {
                     this.forceReload
                 }*/
-            },
+			},
 
-            isAdmin: {
-                get() {
-                    return this.$store.dispatch('general/isAdmin')
-                        .then((isAdmin) => {
-                            return isAdmin;
-                        });
-                },
-                default: false,
-                /* watch() {
+			isAdmin: {
+				get() {
+					return this.$store.dispatch('general/isAdmin')
+					           .then((isAdmin) => {
+						           return isAdmin;
+					           });
+				},
+				default: false,
+				/* watch() {
                     this.forceReload
                 }*/
-            }
-        },
+			}
+		},
 
-        methods: {
-            goForSearch() {
-                this.$router.push({
-                    name: 'search',
-                    params: {
-                        search: searchArrayObjectsToSearchQuery([[this.schnellsuche]])
-                    }
-                });
-            },
+		methods: {
+			goForSearch() {
+				this.$router.push({
+					name: 'search',
+					params: {
+						search: searchArrayObjectsToSearchQuery([[this.schnellsuche]])
+					}
+				});
+			},
 
 
-        },
+		},
 
-        components: {
-            BNavbar,
-            BNavbarToggle,
-            BNavbarBrand,
-            BNavbarNav,
-            BNavItem,
-            BNavForm,
-            BNavItemDropdown,
-            BDropdownDivider,
-            BDropdownItem,
-            BCollapse,
-            BFormInput,
-            BButton,
-            BInputGroup,
-            BInputGroupAppend,
-        }
-    }
+		components: {
+			BNavbar,
+			BNavbarToggle,
+			BNavbarBrand,
+			BNavbarNav,
+			BNavItem,
+			BNavForm,
+			BNavItemDropdown,
+			BDropdownDivider,
+			BDropdownItem,
+			BCollapse,
+			BFormInput,
+			BButton,
+			BInputGroup,
+			BInputGroupAppend,
+		}
+	}
 </script>
 
 <style scoped>

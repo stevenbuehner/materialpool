@@ -47,157 +47,157 @@
 
 <script>
 
-    import VueSelect from 'vue-select';
-    import _debounce from 'lodash/debounce';
+	import VueSelect from 'vue-select';
+	import _debounce from 'lodash/debounce';
 
-    let myTimeout = null;
+	let myTimeout = null;
 
-    export default {
+	export default {
 
-        name: "keywordToggleTextSelect",
+		name: "keywordToggleTextSelect",
 
-        props: {
-            keyword: {
-                required: false,
-                default: null
-            },
+		props: {
+			keyword: {
+				required: false,
+				default: null
+			},
 
-            filterType: {
-                type: String,
-                required: false,
-                default: 'person'
-            },
+			filterType: {
+				type: String,
+				required: false,
+				default: 'person'
+			},
 
-            disabled: {
-                type: Boolean,
-                required: false,
-                default: false
-            },
+			disabled: {
+				type: Boolean,
+				required: false,
+				default: false
+			},
 
-            searchPlaceholder: {
-                type: String,
-                default() {
-                    return this.$t('pool.Enter-name-please');
-                },
-            },
+			searchPlaceholder: {
+				type: String,
+				default() {
+					return this.$t('pool.Enter-name-please');
+				},
+			},
 
-            emptyPlaceholder: {
-                type: String,
-                default() {
-                    return this.$t('pool.No-author-given')
-                }
-            },
+			emptyPlaceholder: {
+				type: String,
+				default() {
+					return this.$t('pool.No-author-given')
+				}
+			},
 
-            title: {
-                type: String,
-                default() {
-                    return this.$t('pool.Click-here-to-edit')
-                }
-            }
-        },
+			title: {
+				type: String,
+				default() {
+					return this.$t('pool.Click-here-to-edit')
+				}
+			}
+		},
 
-        data() {
-            return {
-                editModeActive: false,
+		data() {
+			return {
+				editModeActive: false,
 
-                options: [],
-                selection: this.keyword,
-            }
-        },
+				options: [],
+				selection: this.keyword,
+			}
+		},
 
-        methods: {
-            toggleEditModeClick() {
-                if (this.editModeActive === false) {
-                    this.editModeActive = true;
+		methods: {
+			toggleEditModeClick() {
+				if (this.editModeActive === false) {
+					this.editModeActive = true;
 
-                    this.$nextTick((test) => {
-                        try {
-                            this.$refs.mySelect.$refs.search.focus();
-                        } catch (e) {
-                        }
-                    })
-                }
-            },
+					this.$nextTick((test) => {
+						try {
+							this.$refs.mySelect.$refs.search.focus();
+						} catch (e) {
+						}
+					})
+				}
+			},
 
-            onSearch(search, loading) {
-                const type = this.filterType || false;
+			onSearch(search, loading) {
+				const type = this.filterType || false;
 
-                loading(true);
-                this.search(loading, search, type, this);
-            },
+				loading(true);
+				this.search(loading, search, type, this);
+			},
 
-            search: _debounce((loading, search, type, vm) => {
+			search: _debounce((loading, search, type, vm) => {
 
-                vm.$store.dispatch('keywords/search', {searchText: search, type})
-                    .then((keywords) => {
-                        keywords.push({
-                            title: search,
-                            type: type,
-                            new: true
-                        });
-                        vm.options = keywords;
-                        loading(false);
-                    });
+				vm.$store.dispatch('keywords/search', {searchText: search, type})
+				  .then((keywords) => {
+					  keywords.push({
+						  title: search,
+						  type: type,
+						  new: true
+					  });
+					  vm.options = keywords;
+					  loading(false);
+				  });
 
-            }, 250),
+			}, 250),
 
-            onFocus() {
-                clearTimeout(myTimeout);
-            },
+			onFocus() {
+				clearTimeout(myTimeout);
+			},
 
-            onBlur() {
+			onBlur() {
 
-                // Verstecke die Select-Box nach 4 Sekunden automatisch wieder.
-                // Bzw. lass sie noch 4 Sekunden sichtbar, so dass der Author auch "entfernt" / "x" werden kann
-                myTimeout = setTimeout(() => {
-                    // Warten bis input => onChange gefeuert wurde ...
-                    // this.$nextTick(() => {
-                    this.editModeActive = false;
-                    // })
-                }, 4000);
+				// Verstecke die Select-Box nach 4 Sekunden automatisch wieder.
+				// Bzw. lass sie noch 4 Sekunden sichtbar, so dass der Author auch "entfernt" / "x" werden kann
+				myTimeout = setTimeout(() => {
+					// Warten bis input => onChange gefeuert wurde ...
+					// this.$nextTick(() => {
+					this.editModeActive = false;
+					// })
+				}, 4000);
 
-            },
+			},
 
-            onChange(input) {
+			onChange(input) {
 
-                if ((input === null && this.keyword === null) || (input && this.keyword && input.id === this.keyword.id)) {
-                    return;
-                }
+				if ((input === null && this.keyword === null) || (input && this.keyword && input.id === this.keyword.id)) {
+					return;
+				}
 
-                if (input instanceof Object && input.id || input === null) {
-                    // is valid keyword
-                    this.emitNewKeywordSelection(input);
-                    this.editModeActive = false;
-                } else if (input && input.new === true) {
-                    // Keyword first has to be created
-                    this.$store.dispatch('keywords/create', {
-                        title: input.title,
-                        type: this.filterType
-                    }).then((keyword) => {
-                        this.selection = keyword;
-                        this.emitNewKeywordSelection(keyword);
-                    }).catch((errorMessage) => {
-                        alert(errorMessage);
-                    });
-                    this.editModeActive = false;
-                }
-            },
+				if (input instanceof Object && input.id || input === null) {
+					// is valid keyword
+					this.emitNewKeywordSelection(input);
+					this.editModeActive = false;
+				} else if (input && input.new === true) {
+					// Keyword first has to be created
+					this.$store.dispatch('keywords/create', {
+						title: input.title,
+						type: this.filterType
+					}).then((keyword) => {
+						this.selection = keyword;
+						this.emitNewKeywordSelection(keyword);
+					}).catch((errorMessage) => {
+						alert(errorMessage);
+					});
+					this.editModeActive = false;
+				}
+			},
 
-            emitNewKeywordSelection(keyword) {
-                this.$emit('newKeywordSelection', keyword);
-            }
-        },
+			emitNewKeywordSelection(keyword) {
+				this.$emit('newKeywordSelection', keyword);
+			}
+		},
 
-        components: {
-            VueSelect,
-        },
+		components: {
+			VueSelect,
+		},
 
-        beforeDestroy() {
-            clearTimeout(myTimeout);
-        }
+		beforeDestroy() {
+			clearTimeout(myTimeout);
+		}
 
 
-    }
+	}
 </script>
 
 <style type="scss">

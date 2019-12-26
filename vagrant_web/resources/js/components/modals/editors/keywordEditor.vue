@@ -24,50 +24,50 @@
 </template>
 
 <script>
-    import {BModal} from 'bootstrap-vue'
-    import KeywordEdit from "../../keyword/keywordEdit";
-    import {BButton} from 'bootstrap-vue';
+	import {BModal}    from 'bootstrap-vue'
+	import KeywordEdit from "../../keyword/keywordEdit";
+	import {BButton}   from 'bootstrap-vue';
 
 
-    export default {
-        name: "keywordEditor",
+	export default {
+		name: "keywordEditor",
 
-        props: {
-            id: {
-                type: Number,
-                required: true
-            },
-        },
+		props: {
+			id: {
+				type: Number,
+				required: true
+			},
+		},
 
-        data() {
-            return {
-                showEditor: false
-            }
-        },
+		data() {
+			return {
+				showEditor: false
+			}
+		},
 
-        computed: {},
+		computed: {},
 
-        methods: {
-            onSaved(e) {
-                this.hide();
-                this.$emit('saved', e);
-            },
+		methods: {
+			onSaved(e) {
+				this.hide();
+				this.$emit('saved', e);
+			},
 
-            show() {
-                this.showEditor = true;
-            },
-            hide() {
-                this.showEditor = false;
-            }
-        },
+			show() {
+				this.showEditor = true;
+			},
+			hide() {
+				this.showEditor = false;
+			}
+		},
 
 
-        components: {
-            KeywordEdit,
-            BModal,
-            BButton
-        }
-    }
+		components: {
+			KeywordEdit,
+			BModal,
+			BButton
+		}
+	}
 </script>
 
 <style scoped>

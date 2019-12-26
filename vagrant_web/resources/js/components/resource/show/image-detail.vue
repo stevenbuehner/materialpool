@@ -11,61 +11,61 @@
 
 <script>
 
-    import {BImgLazy} from 'bootstrap-vue';
-    import {BCard} from 'bootstrap-vue'
-    import {BButton} from 'bootstrap-vue'
-    import {previewImageFirstPage} from '../../serverRoutes';
-    import resourceLinks from '../resource-links.mixin';
+	import {BImgLazy}              from 'bootstrap-vue';
+	import {BCard}                 from 'bootstrap-vue'
+	import {BButton}               from 'bootstrap-vue'
+	import {previewImageFirstPage} from '../../serverRoutes';
+	import resourceLinks           from '../resource-links.mixin';
 
-    export default {
+	export default {
 
-        mixins: [resourceLinks],
+		mixins: [resourceLinks],
 
-        props:
-            {
-                resource: {
-                    required: true,
-                    type: Object
-                },
-                width: {
-                    required: false,
-                    default: 1024
-                },
-                height: {
-                    required: false,
-                    default: 1024
-                }
-            },
+		props:
+			{
+				resource: {
+					required: true,
+					type: Object
+				},
+				width: {
+					required: false,
+					default: 1024
+				},
+				height: {
+					required: false,
+					default: 1024
+				}
+			},
 
-        computed: {
+		computed: {
 
-            title() {
-                var title = 'Resource';
+			title() {
+				var title = 'Resource';
 
-                if (this.resource.original_filename) {
-                    title = this.resource.original_filename;
-                }
+				if (this.resource.original_filename) {
+					title = this.resource.original_filename;
+				}
 
-                return title
-            },
+				return title
+			},
 
-            resourceImagePreviewUrl() {
-                return previewImageFirstPage(this.resource, this.width, this.height);
-            },
+			resourceImagePreviewUrl() {
+				return previewImageFirstPage(this.resource, this.width, this.height);
+			},
 
-        },
+		},
 
-        methods: {
-            goToResource() {
-                window.location.href = this.resourceUrl;
-            }
-        },
-        components: {
-            BCard,
-            BButton,
-            BImgLazy
-        }
-    }
+		methods: {
+			goToResource() {
+				window.location.href = this.resourceUrl;
+			}
+		},
+		components: {
+			BCard,
+			BButton,
+			BImgLazy
+		}
+	}
 </script>
 
 <style scoped>

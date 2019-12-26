@@ -339,491 +339,491 @@
 </template>
 
 <script>
-    import Keyword from '../../../components/keyword/keyword.vue';
-    import keywordInput from '../../../components/keyword/keywordInput.vue';
-    import bibleverse from '../../../components/bibleverse/biblevers.vue';
-    import bibleverseInput from '../../../components/bibleverse/bibleverseInput.vue';
-    import resourcePreview from '../../../components/resource/show/resource-preview.vue';
-    import resourceDetail from '../../../components/resource/show/resource-detail.vue';
-    import editableText from '../../../components/general/edditable.vue';
-    import fromBot from '../../../components/fromBot.vue';
-    import starRating from 'vue-star-rating/src/star-rating';
-    import ResourceUploader from "../../../components/uploader/resourceUploader";
-    import {resourceDownloadLink} from "../../../components/serverRoutes";
-    import customDialog from '../../../components/modals/dialogs/customDialog';
-    import MaterialRating from "../../../components/Material/MaterialRating";
-    import Flag from "../../../components/flags/Flag";
-    import {flagColors} from "../../../components/flags/flagOptions";
-    import ResourceSelector from "../../../components/modals/selectors/resourceSelector";
-    import KeywordToggleTextSelect from "../../../components/keyword/keywordToggleTextSelect";
-    import {savingDialogs} from "../../../helper/flashMessages";
-    import PublicMaterialDownload from "../../../components/download/public-material-download";
-    import {formatLocalizedDate} from './../../../helper/datetime.mixin'
+	import Keyword                 from '../../../components/keyword/keyword.vue';
+	import keywordInput            from '../../../components/keyword/keywordInput.vue';
+	import bibleverse              from '../../../components/bibleverse/biblevers.vue';
+	import bibleverseInput         from '../../../components/bibleverse/bibleverseInput.vue';
+	import resourcePreview         from '../../../components/resource/show/resource-preview.vue';
+	import resourceDetail          from '../../../components/resource/show/resource-detail.vue';
+	import editableText            from '../../../components/general/edditable.vue';
+	import fromBot                 from '../../../components/fromBot.vue';
+	import starRating              from 'vue-star-rating/src/star-rating';
+	import ResourceUploader        from "../../../components/uploader/resourceUploader";
+	import {resourceDownloadLink}  from "../../../components/serverRoutes";
+	import customDialog            from '../../../components/modals/dialogs/customDialog';
+	import MaterialRating          from "../../../components/Material/MaterialRating";
+	import Flag                    from "../../../components/flags/Flag";
+	import {flagColors}            from "../../../components/flags/flagOptions";
+	import ResourceSelector        from "../../../components/modals/selectors/resourceSelector";
+	import KeywordToggleTextSelect from "../../../components/keyword/keywordToggleTextSelect";
+	import {savingDialogs}         from "../../../helper/flashMessages";
+	import PublicMaterialDownload  from "../../../components/download/public-material-download";
+	import {formatLocalizedDate}   from './../../../helper/datetime.mixin'
 
 
-    import cloneIcon from 'svg-icon/dist/svg/awesome/clone.svg';
-    import trashIcon from 'svg-icon/dist/svg/oct/trashcan.svg';
-    import titleIcon from 'svg-icon/dist/svg/material/title.svg';
-    import calendarIcon from 'svg-icon/dist/svg/material/today.svg';
-    import descriptionIcon from 'svg-icon/dist/svg/material/description.svg';
-    import placeIcon from 'svg-icon/dist/svg/material/place.svg';
-    import authorIcon from 'svg-icon/dist/svg/material/person.svg';
-    import personIcon from 'svg-icon/dist/svg/material/person.svg';
-    import languageIcon from 'svg-icon/dist/svg/material/language.svg';
-    import bibleverseIcon from '../../../../icons/bibleverse/bible.svg'
+	import cloneIcon       from 'svg-icon/dist/svg/awesome/clone.svg';
+	import trashIcon       from 'svg-icon/dist/svg/oct/trashcan.svg';
+	import titleIcon       from 'svg-icon/dist/svg/material/title.svg';
+	import calendarIcon    from 'svg-icon/dist/svg/material/today.svg';
+	import descriptionIcon from 'svg-icon/dist/svg/material/description.svg';
+	import placeIcon       from 'svg-icon/dist/svg/material/place.svg';
+	import authorIcon      from 'svg-icon/dist/svg/material/person.svg';
+	import personIcon      from 'svg-icon/dist/svg/material/person.svg';
+	import languageIcon    from 'svg-icon/dist/svg/material/language.svg';
+	import bibleverseIcon  from '../../../../icons/bibleverse/bible.svg'
 
 
-    import Vue from 'vue';
-    import {TabsPlugin} from 'bootstrap-vue';
-    import TextEditSidebarField from "../../../components/sidebar-fields/textEdit";
-    import BibleverseEditSidebarField from "../../../components/sidebar-fields/bibleverseEdit";
-    import dayjs from 'dayjs';
-    import TagEditSidebarField from "../../../components/sidebar-fields/tagEdit";
-    import {RELEVANCE_USER_MAX} from "../../config";
-    import RatingEdit from "../../../components/sidebar-fields/ratingEdit";
+	import Vue                        from 'vue';
+	import {TabsPlugin}               from 'bootstrap-vue';
+	import TextEditSidebarField       from "../../../components/sidebar-fields/textEdit";
+	import BibleverseEditSidebarField from "../../../components/sidebar-fields/bibleverseEdit";
+	import dayjs                      from 'dayjs';
+	import TagEditSidebarField        from "../../../components/sidebar-fields/tagEdit";
+	import {RELEVANCE_USER_MAX}       from "../../config";
+	import RatingEdit                 from "../../../components/sidebar-fields/ratingEdit";
 
-    Vue.use(TabsPlugin);
-
-
-    // https://github.com/craigh411/vue-star-rating/#props
-    export default {
-
-        name: 'MaterialDetail',
-
-        mixins: [savingDialogs, formatLocalizedDate],
-
-        props: {
-            id: {
-                required: true,
-                type: Number
-            },
-            editable: {
-                required: false,
-                type: Boolean,
-                default: true
-            },
+	Vue.use(TabsPlugin);
 
 
-        },
+	// https://github.com/craigh411/vue-star-rating/#props
+	export default {
 
-        data() {
-            return {
-                material: null,
-                editTagsModeEnabled: false,
-                errorOnLoadingMessage: null,
+		name: 'MaterialDetail',
 
-                currentRating: null,
-            };
-        },
+		mixins: [savingDialogs, formatLocalizedDate],
 
-        computed: {
+		props: {
+			id: {
+				required: true,
+				type: Number
+			},
+			editable: {
+				required: false,
+				type: Boolean,
+				default: true
+			},
 
-            keywordsAndBibleveres() {
 
-                this.material.keywords.forEach((kw) => {
-                    kw.is = 'keyword';
-                });
+		},
 
-                this.material.bibleverses.forEach((bv) => {
-                    bv.is = 'bibleverse';
-                });
+		data() {
+			return {
+				material: null,
+				editTagsModeEnabled: false,
+				errorOnLoadingMessage: null,
 
-                return this.material.keywords.concat(this.material.bibleverses);
+				currentRating: null,
+			};
+		},
 
-                /*.sort((k1, k2) => {
+		computed: {
+
+			keywordsAndBibleveres() {
+
+				this.material.keywords.forEach((kw) => {
+					kw.is = 'keyword';
+				});
+
+				this.material.bibleverses.forEach((bv) => {
+					bv.is = 'bibleverse';
+				});
+
+				return this.material.keywords.concat(this.material.bibleverses);
+
+				/*.sort((k1, k2) => {
                     return k1.pivot.relevance - k2.pivot.relevance;
                 }));
                 */
-            },
+			},
 
-            flagColor() {
+			flagColor() {
 
-                if (this.material.flag && this.material.flag <= flagColors.length) {
-                    return flagColors[this.material.flag - 1];
-                }
+				if (this.material.flag && this.material.flag <= flagColors.length) {
+					return flagColors[this.material.flag - 1];
+				}
 
-                return false;
-            },
+				return false;
+			},
 
-            createDate() {
-                return dayjs(this.material.created_at).format('YYYY-MM-DD');
-            }
-
-        },
-
-        asyncComputed: {},
-
-        watch: {
-            id(newValue) {
-                this.material = null;
-                this.getMaterial();
-            }
-        },
-
-        created() {
-            this.getMaterial();
-        },
-
-
-        methods: {
-
-            getMaterial() {
-                this.errorOnLoadingMessage = null;
-
-                this.$store.dispatch('materials/getMaterial', this.id).then((material) => {
-                    this.material = material;
-                    this.errorOnLoadingMessage = null;
-                }).catch((response) => {
-                    this.errorOnLoadingMessage = response;
-                });
-            },
-
-            submitFlag(newFlag) {
-                this.submitMaterialUpdate({flag: newFlag, from_bot: false}, 'Flag');
-            },
-
-            submitTitle(newTitle) {
-                this.submitMaterialUpdate({title: newTitle, from_bot: false}, 'Title');
-            },
-
-            submitDate(newDate) {
-                this.submitMaterialUpdate({
-                    created_at: dayjs(newDate).format('YYYY-MM-DD HH:mm:ss'),
-                    from_bot: false
-                }, 'Created at');
-
-            },
-
-            submitRating(newRating) {
-                this.currentRatingChanged(newRating);
-                this.submitMaterialUpdate({rating: newRating}, 'Rating');
-            },
-
-            currentRatingChanged(value) {
-                this.currentRating = value;
-            },
-
-            submitDescription(newDescription) {
-                this.submitMaterialUpdate({description: newDescription, from_bot: false}, 'Description');
-            },
-
-            submitFromBot(newValue) {
-                this.submitMaterialUpdate({'from_bot': newValue}, 'From bot');
-            },
-
-            submitAuthor(newKeyword) {
-                this.submitMaterialUpdate({'author': newKeyword}, 'Authors');
-            },
-
-            submitMaterialUpdate(data, propertyName) {
-
-                const result = this.$store.dispatch('materials/updateMaterial', {id: this.material.id, data});
-
-                if (propertyName) {
-                    const startSavingMessage = this.flashStartSaving(propertyName);
-
-                    result.then((response) => {
-                        // On Success
-                        this.flashSaved(propertyName);
-                    }).catch(() => {
-                        // On Error
-                        this.flashError(propertyName);
-                    }).then((data) => {
-                        // Always
-                        startSavingMessage.destroy();
-                        return data;
-                    });
-                }
-
-                result.then((data) => {
-                    this.getMaterial();
-                    return data;
-                });
-
-                return result;
-            },
-
-            uploadResourceToThisMaterial(resource) {
-                this.$store.dispatch('materials/attachResource',
-                    {materialId: this.id, resourceId: resource.id}
-                ).then(({material}) => {
-                    this.material = material;
-                }).catch(() => {
-                });
-            },
-
-            btnDetachResource(resource) {
-
-                this.$store.dispatch('materials/detachResource',
-                    {materialId: this.id, resourceId: resource.id}
-                ).then(({material, resource}) => {
-                    this.material = material;
-
-                    if (resource.materials && resource.materials.length === 0) {
-                        this.$refs.customDialog.show({
-                            title: 'Rückfrage',
-                            content: 'Diese Ressource ist jetzt keinem Material mehr zugeordnet.<br/>Soll ' + (resource.original_filename ? '"' + resource.original_filename + '"' : 'sie') + ' <b>jetzt komplett</b> gelöscht werden?',
-                            yesText: 'Ja, löschen',
-                            yesVariant: 'success',
-                            noText: 'Nein, so lassen',
-                            noVariant: 'warning',
-                            allowBackdrop: false
-                        }).then((answerPositive) => {
-
-                            if (answerPositive === true) {
-                                this.$refs.customDialog.show({
-                                    title: 'Lösche Resource',
-                                    content: 'Lösche ' + (resource.original_filename ? '"' + resource.original_filename + '"' : 'Ressource') + '...',
-                                    yesEnabled: false,
-                                    noEnabled: false,
-                                    allowBackdrop: false
-                                }).catch(() => {
-                                });
-
-                                this.$store.dispatch('resources/deleteResource', resource.id)
-                                    .then(() => {
-                                        this.$refs.customDialog.show({
-                                            title: 'Resource gelöscht',
-                                            content: 'Resource erfolgreich gelöscht!',
-                                            yesText: 'ok',
-                                            yesVariant: 'primary',
-                                            yesEnabled: true,
-                                            noEnabled: false,
-                                            allowBackdrop: true,
-                                        });
-                                    });
-                            }
-
-                        }).catch(({message}) => {
-                            this.$refs.customDialog.show({
-                                title: 'Warnung',
-                                content: message,
-                                yesText: 'ok',
-                                yesVariant: 'primary',
-                                yesEnabled: true,
-                                noEnabled: false,
-                                allowBackdrop: true,
-                            });
-                        });
-                    }
-
-                });
-            },
-
-            assignResourceToThisMaterial() {
-                this.$refs.resourceSelector.showPromise()
-                    .then((resource) => {
-
-                        if (this.material.resources.find(mr => mr.id == resource.id)) {
-                            alert('This resource exists already in this material');
-                        } else {
-                            this.$store.dispatch('materials/attachResource', {
-                                materialId: this.id,
-                                resourceId: resource.id
-                            }).then(({material}) => {
-                                this.material = material;
-                            })
-                        }
-                    })
-            },
-
-            btnDeleteMaterial() {
-
-                this.$store.dispatch('materials/deleteMaterial', this.id)
-                    .then(() => {
-                        this.$router.go(-1);
-                    });
-
-            },
-
-            addKeyword(keywordObject) {
-
-                if (keywordObject && (!keywordObject.pivot || !keywordObject.pivot.relevance)) {
-                    keywordObject.pivot = {
-                        relevance: RELEVANCE_USER_MAX,
-                    }
-                }
-
-                this.updateKeywordRelevance(keywordObject, keywordObject.pivot.relevance);
-
-            },
-
-            removeKeyword(keywordObject) {
-
-                const startFlash = this.flashStartRemoving(this.$t('pool.keyword'));
-
-                // Remove Element from array
-                const i = this.material.keywords.findIndex(el => el.id === keywordObject.id);
-                if (i !== -1) {
-                    this.material.keywords.splice(i, 1);
-                }
-
-                this.$store.dispatch('keywords/deleteAssignment', {
-                    materialId: this.id,
-                    keywordId: keywordObject.id
-                }).then((response) => {
-                    this.materialWasModified();
-                    startFlash.destroy();
-                    this.flashRemoved(this.$t('pool.keyword'));
-                }).catch((response) => {
-                    alert('Error: Not able to detach keyword');
-
-                    // Re-Insert element to array on error at last index (not tested yet)
-                    this.material.keywords.splice(Math.min(i, this.material.keywords.length - 1), 0, keywordObject);
-                });
-
-            },
-
-            updateKeywordRelevance(keywordObject, newRelevance) {
-                const startFlash = this.flashStartSaving(this.$t('pool.keyword'));
-
-                return this.$store.dispatch('keywords/updateRelevance', {
-                    materialId: this.id,
-                    keywordId: keywordObject.id,
-                    relevance: newRelevance
-                }).then((data) => {
-                    this.materialWasModified();
-
-                    const index = this.material.keywords.findIndex((el) => el.id === data.id);
-                    if (index === -1) {
-                        this.material.keywords.push(data);
-                    } else {
-                        this.$set(this.material.keywords, index, data);
-                    }
-
-                    startFlash.destroy();
-                    this.flashSaved(this.$t('pool.keyword'));
-
-                    return data;
-                }).catch((message) => {
-                    alert(message);
-                });
-
-            },
-
-            addBibleverse(bibleverseObject) {
-                const relevance = bibleverseObject && (!bibleverseObject.pivot || !bibleverseObject.pivot.relevance) ? RELEVANCE_USER_MAX : bibleverseObject.pivot.relevance;
-                this.updateBibleverseRelevance(bibleverseObject, relevance);
-            },
-
-            removeBibleverse(bibleVerseObject) {
-                const startFlash = this.flashStartRemoving(this.$t('pool.Bibleverse'));
-
-                // Remove element from array
-                const i = this.material.bibleverses.find((el) => el.id === bibleVerseObject.id);
-                if (i !== -1) {
-                    this.material.bibleverses.splice(i, 1);
-                }
-
-                this.$store.dispatch('bibleverses/deleteAssignment', {
-                    materialId: this.id,
-                    bibleverseId: bibleVerseObject.id
-                }).then((response) => {
-                    this.materialWasModified();
-                    startFlash.destroy();
-                    this.flashRemoved(this.$t('pool.Bibleverse'));
-                }).catch((response) => {
-                    alert('Error: Not able to detach bibleverse');
-
-                    // Re-Insert element to array on error at last index (not tested yet)
-                    this.material.bibleverses.splice(Math.min(i, this.material.bibleverses.length - 1), 0, bibleVerseObject);
-                });
-
-                this.materialWasModified();
-            },
-
-            updateBibleverseRelevance(bibleverseObject, newRelevance) {
-
-                const startFlash = this.flashStartSaving(this.$t('pool.Bibleverse'));
-
-                const promise = bibleverseObject.id === undefined ?
-                    this.$store.dispatch('bibleverses/createAndAssign', {
-                        from: bibleverseObject.from,
-                        to: bibleverseObject.to,
-                        materialId: this.id,
-                        relevance: newRelevance
-                    }) :
-                    this.$store.dispatch('bibleverses/updateRelevance', {
-                        materialId: this.id,
-                        bibleverseId: bibleverseObject.id,
-                        relevance: newRelevance
-                    });
-
-                promise.then((data) => {
-                    this.materialWasModified();
-
-                    const index = this.material.bibleverses.findIndex((el) => el.id === data.id);
-                    if (index === -1) {
-                        this.material.bibleverses.push(data);
-                    } else {
-                        this.$set(this.material.bibleverses, index, data);
-                    }
-
-                    startFlash.destroy();
-                    this.flashSaved(this.$t('pool.Bibleverse'));
-
-                    return data;
-                }).catch((message) => {
-                    alert(message);
-                });
-
-            },
-
-            materialWasModified() {
-                this.material.from_bot = false;
-            },
-
-            bibleverseUpdated({oldBibleverse, newBibleverse}) {
-
-                // Success
-                const index = this.material.bibleverses.findIndex((bv) => {
-                    return bv.id === oldBibleverse.id;
-                });
-
-                if (index !== -1) {
-                    this.material.bibleverses.splice(index, 1, newBibleverse); // https://vuejs.org/2016/02/06/common-gotchas/
-                    this.flashSaved('Bibleverse "' + newBibleverse.label + '"');
-                    this.materialWasModified();
-                } else {
-                    console.error('Changed bibleverse was not found in Array!');
-                }
-
-            },
-
-            downloadResourceLink(resource) {
-                window.location = resourceDownloadLink(resource);
-            },
-
-        },
-
-
-        components: {
-            RatingEdit,
-            TagEditSidebarField,
-            BibleverseEditSidebarField,
-            TextEditSidebarField,
-            PublicMaterialDownload,
-            KeywordToggleTextSelect,
-            ResourceSelector,
-            Flag,
-            MaterialRating,
-            ResourceUploader,
-            Keyword,
-            keywordInput,
-            bibleverse,
-            bibleverseInput,
-            resourcePreview,
-            resourceDetail,
-            edditableText: editableText,
-            starRating,
-            fromBot,
-            customDialog,
-            trashIcon,
-            cloneIcon,
-            calendarIcon, titleIcon, descriptionIcon, placeIcon, authorIcon, personIcon, languageIcon, bibleverseIcon
-        },
-
-    }
+			createDate() {
+				return dayjs(this.material.created_at).format('YYYY-MM-DD');
+			}
+
+		},
+
+		asyncComputed: {},
+
+		watch: {
+			id(newValue) {
+				this.material = null;
+				this.getMaterial();
+			}
+		},
+
+		created() {
+			this.getMaterial();
+		},
+
+
+		methods: {
+
+			getMaterial() {
+				this.errorOnLoadingMessage = null;
+
+				this.$store.dispatch('materials/getMaterial', this.id).then((material) => {
+					this.material = material;
+					this.errorOnLoadingMessage = null;
+				}).catch((response) => {
+					this.errorOnLoadingMessage = response;
+				});
+			},
+
+			submitFlag(newFlag) {
+				this.submitMaterialUpdate({flag: newFlag, from_bot: false}, 'Flag');
+			},
+
+			submitTitle(newTitle) {
+				this.submitMaterialUpdate({title: newTitle, from_bot: false}, 'Title');
+			},
+
+			submitDate(newDate) {
+				this.submitMaterialUpdate({
+					created_at: dayjs(newDate).format('YYYY-MM-DD HH:mm:ss'),
+					from_bot: false
+				}, 'Created at');
+
+			},
+
+			submitRating(newRating) {
+				this.currentRatingChanged(newRating);
+				this.submitMaterialUpdate({rating: newRating}, 'Rating');
+			},
+
+			currentRatingChanged(value) {
+				this.currentRating = value;
+			},
+
+			submitDescription(newDescription) {
+				this.submitMaterialUpdate({description: newDescription, from_bot: false}, 'Description');
+			},
+
+			submitFromBot(newValue) {
+				this.submitMaterialUpdate({'from_bot': newValue}, 'From bot');
+			},
+
+			submitAuthor(newKeyword) {
+				this.submitMaterialUpdate({'author': newKeyword}, 'Authors');
+			},
+
+			submitMaterialUpdate(data, propertyName) {
+
+				const result = this.$store.dispatch('materials/updateMaterial', {id: this.material.id, data});
+
+				if (propertyName) {
+					const startSavingMessage = this.flashStartSaving(propertyName);
+
+					result.then((response) => {
+						// On Success
+						this.flashSaved(propertyName);
+					}).catch(() => {
+						// On Error
+						this.flashError(propertyName);
+					}).then((data) => {
+						// Always
+						startSavingMessage.destroy();
+						return data;
+					});
+				}
+
+				result.then((data) => {
+					this.getMaterial();
+					return data;
+				});
+
+				return result;
+			},
+
+			uploadResourceToThisMaterial(resource) {
+				this.$store.dispatch('materials/attachResource',
+					{materialId: this.id, resourceId: resource.id}
+				).then(({material}) => {
+					this.material = material;
+				}).catch(() => {
+				});
+			},
+
+			btnDetachResource(resource) {
+
+				this.$store.dispatch('materials/detachResource',
+					{materialId: this.id, resourceId: resource.id}
+				).then(({material, resource}) => {
+					this.material = material;
+
+					if (resource.materials && resource.materials.length === 0) {
+						this.$refs.customDialog.show({
+							title: 'Rückfrage',
+							content: 'Diese Ressource ist jetzt keinem Material mehr zugeordnet.<br/>Soll ' + (resource.original_filename ? '"' + resource.original_filename + '"' : 'sie') + ' <b>jetzt komplett</b> gelöscht werden?',
+							yesText: 'Ja, löschen',
+							yesVariant: 'success',
+							noText: 'Nein, so lassen',
+							noVariant: 'warning',
+							allowBackdrop: false
+						}).then((answerPositive) => {
+
+							if (answerPositive === true) {
+								this.$refs.customDialog.show({
+									title: 'Lösche Resource',
+									content: 'Lösche ' + (resource.original_filename ? '"' + resource.original_filename + '"' : 'Ressource') + '...',
+									yesEnabled: false,
+									noEnabled: false,
+									allowBackdrop: false
+								}).catch(() => {
+								});
+
+								this.$store.dispatch('resources/deleteResource', resource.id)
+								    .then(() => {
+									    this.$refs.customDialog.show({
+										    title: 'Resource gelöscht',
+										    content: 'Resource erfolgreich gelöscht!',
+										    yesText: 'ok',
+										    yesVariant: 'primary',
+										    yesEnabled: true,
+										    noEnabled: false,
+										    allowBackdrop: true,
+									    });
+								    });
+							}
+
+						}).catch(({message}) => {
+							this.$refs.customDialog.show({
+								title: 'Warnung',
+								content: message,
+								yesText: 'ok',
+								yesVariant: 'primary',
+								yesEnabled: true,
+								noEnabled: false,
+								allowBackdrop: true,
+							});
+						});
+					}
+
+				});
+			},
+
+			assignResourceToThisMaterial() {
+				this.$refs.resourceSelector.showPromise()
+				    .then((resource) => {
+
+					    if (this.material.resources.find(mr => mr.id == resource.id)) {
+						    alert('This resource exists already in this material');
+					    } else {
+						    this.$store.dispatch('materials/attachResource', {
+							    materialId: this.id,
+							    resourceId: resource.id
+						    }).then(({material}) => {
+							    this.material = material;
+						    })
+					    }
+				    })
+			},
+
+			btnDeleteMaterial() {
+
+				this.$store.dispatch('materials/deleteMaterial', this.id)
+				    .then(() => {
+					    this.$router.go(-1);
+				    });
+
+			},
+
+			addKeyword(keywordObject) {
+
+				if (keywordObject && (!keywordObject.pivot || !keywordObject.pivot.relevance)) {
+					keywordObject.pivot = {
+						relevance: RELEVANCE_USER_MAX,
+					}
+				}
+
+				this.updateKeywordRelevance(keywordObject, keywordObject.pivot.relevance);
+
+			},
+
+			removeKeyword(keywordObject) {
+
+				const startFlash = this.flashStartRemoving(this.$t('pool.keyword'));
+
+				// Remove Element from array
+				const i = this.material.keywords.findIndex(el => el.id === keywordObject.id);
+				if (i !== -1) {
+					this.material.keywords.splice(i, 1);
+				}
+
+				this.$store.dispatch('keywords/deleteAssignment', {
+					materialId: this.id,
+					keywordId: keywordObject.id
+				}).then((response) => {
+					this.materialWasModified();
+					startFlash.destroy();
+					this.flashRemoved(this.$t('pool.keyword'));
+				}).catch((response) => {
+					alert('Error: Not able to detach keyword');
+
+					// Re-Insert element to array on error at last index (not tested yet)
+					this.material.keywords.splice(Math.min(i, this.material.keywords.length - 1), 0, keywordObject);
+				});
+
+			},
+
+			updateKeywordRelevance(keywordObject, newRelevance) {
+				const startFlash = this.flashStartSaving(this.$t('pool.keyword'));
+
+				return this.$store.dispatch('keywords/updateRelevance', {
+					materialId: this.id,
+					keywordId: keywordObject.id,
+					relevance: newRelevance
+				}).then((data) => {
+					this.materialWasModified();
+
+					const index = this.material.keywords.findIndex((el) => el.id === data.id);
+					if (index === -1) {
+						this.material.keywords.push(data);
+					} else {
+						this.$set(this.material.keywords, index, data);
+					}
+
+					startFlash.destroy();
+					this.flashSaved(this.$t('pool.keyword'));
+
+					return data;
+				}).catch((message) => {
+					alert(message);
+				});
+
+			},
+
+			addBibleverse(bibleverseObject) {
+				const relevance = bibleverseObject && (!bibleverseObject.pivot || !bibleverseObject.pivot.relevance) ? RELEVANCE_USER_MAX : bibleverseObject.pivot.relevance;
+				this.updateBibleverseRelevance(bibleverseObject, relevance);
+			},
+
+			removeBibleverse(bibleVerseObject) {
+				const startFlash = this.flashStartRemoving(this.$t('pool.Bibleverse'));
+
+				// Remove element from array
+				const i = this.material.bibleverses.find((el) => el.id === bibleVerseObject.id);
+				if (i !== -1) {
+					this.material.bibleverses.splice(i, 1);
+				}
+
+				this.$store.dispatch('bibleverses/deleteAssignment', {
+					materialId: this.id,
+					bibleverseId: bibleVerseObject.id
+				}).then((response) => {
+					this.materialWasModified();
+					startFlash.destroy();
+					this.flashRemoved(this.$t('pool.Bibleverse'));
+				}).catch((response) => {
+					alert('Error: Not able to detach bibleverse');
+
+					// Re-Insert element to array on error at last index (not tested yet)
+					this.material.bibleverses.splice(Math.min(i, this.material.bibleverses.length - 1), 0, bibleVerseObject);
+				});
+
+				this.materialWasModified();
+			},
+
+			updateBibleverseRelevance(bibleverseObject, newRelevance) {
+
+				const startFlash = this.flashStartSaving(this.$t('pool.Bibleverse'));
+
+				const promise = bibleverseObject.id === undefined ?
+				                this.$store.dispatch('bibleverses/createAndAssign', {
+					                from: bibleverseObject.from,
+					                to: bibleverseObject.to,
+					                materialId: this.id,
+					                relevance: newRelevance
+				                }) :
+				                this.$store.dispatch('bibleverses/updateRelevance', {
+					                materialId: this.id,
+					                bibleverseId: bibleverseObject.id,
+					                relevance: newRelevance
+				                });
+
+				promise.then((data) => {
+					this.materialWasModified();
+
+					const index = this.material.bibleverses.findIndex((el) => el.id === data.id);
+					if (index === -1) {
+						this.material.bibleverses.push(data);
+					} else {
+						this.$set(this.material.bibleverses, index, data);
+					}
+
+					startFlash.destroy();
+					this.flashSaved(this.$t('pool.Bibleverse'));
+
+					return data;
+				}).catch((message) => {
+					alert(message);
+				});
+
+			},
+
+			materialWasModified() {
+				this.material.from_bot = false;
+			},
+
+			bibleverseUpdated({oldBibleverse, newBibleverse}) {
+
+				// Success
+				const index = this.material.bibleverses.findIndex((bv) => {
+					return bv.id === oldBibleverse.id;
+				});
+
+				if (index !== -1) {
+					this.material.bibleverses.splice(index, 1, newBibleverse); // https://vuejs.org/2016/02/06/common-gotchas/
+					this.flashSaved('Bibleverse "' + newBibleverse.label + '"');
+					this.materialWasModified();
+				} else {
+					console.error('Changed bibleverse was not found in Array!');
+				}
+
+			},
+
+			downloadResourceLink(resource) {
+				window.location = resourceDownloadLink(resource);
+			},
+
+		},
+
+
+		components: {
+			RatingEdit,
+			TagEditSidebarField,
+			BibleverseEditSidebarField,
+			TextEditSidebarField,
+			PublicMaterialDownload,
+			KeywordToggleTextSelect,
+			ResourceSelector,
+			Flag,
+			MaterialRating,
+			ResourceUploader,
+			Keyword,
+			keywordInput,
+			bibleverse,
+			bibleverseInput,
+			resourcePreview,
+			resourceDetail,
+			edditableText: editableText,
+			starRating,
+			fromBot,
+			customDialog,
+			trashIcon,
+			cloneIcon,
+			calendarIcon, titleIcon, descriptionIcon, placeIcon, authorIcon, personIcon, languageIcon, bibleverseIcon
+		},
+
+	}
 </script>
 
 <style scoped>

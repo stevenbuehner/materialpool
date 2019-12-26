@@ -66,150 +66,150 @@
 </template>
 
 <script>
-    import generalMixin from './generalSidebarFields.mixin';
-    import VueSelect from 'vue-select';
-    import tagIcon from 'svg-icon/dist/svg/material/style.svg';
-    import {keywordTypes} from "../keyword/keywordDefaultIcons";
-    import {debounce as _debounce, differenceBy as _differenceBy} from 'lodash';
-    import DragableElement from "./vue-select/dragable-element";
+	import generalMixin                                           from './generalSidebarFields.mixin';
+	import VueSelect                                              from 'vue-select';
+	import tagIcon                                                from 'svg-icon/dist/svg/material/style.svg';
+	import {keywordTypes}                                         from "../keyword/keywordDefaultIcons";
+	import {debounce as _debounce, differenceBy as _differenceBy} from 'lodash';
+	import DragableElement                                        from "./vue-select/dragable-element";
 
-    export default {
-        name: "tagEdit",
+	export default {
+		name: "tagEdit",
 
-        mixins: [generalMixin],
+		mixins: [generalMixin],
 
-        props: {
-            typefilter: {
-                type: String,
-                required: false,
-                default: '',
-                validator(value) {
-                    return value === '' || keywordTypes.includes(value);
-                }
-            },
+		props: {
+			typefilter: {
+				type: String,
+				required: false,
+				default: '',
+				validator(value) {
+					return value === '' || keywordTypes.includes(value);
+				}
+			},
 
-            value: {
-                type: Array,
-                required: true
-            }
+			value: {
+				type: Array,
+				required: true
+			}
 
-        },
+		},
 
-        data() {
-            return {
-                suggestedTags: [],
-                clearOnSelect: false,
-            };
-        },
+		data() {
+			return {
+				suggestedTags: [],
+				clearOnSelect: false,
+			};
+		},
 
-        computed: {
-            validTypesValues() {
-                // About bind: https://stackoverflow.com/questions/49714015/why-does-this-inside-filter-gets-undefined-in-vuejs
-                return this.value.filter(function (el) {
-                        return el.type === this.typefilter || this.typefilter === '';
-                    }.bind(this)
-                );
-            },
+		computed: {
+			validTypesValues() {
+				// About bind: https://stackoverflow.com/questions/49714015/why-does-this-inside-filter-gets-undefined-in-vuejs
+				return this.value.filter(function (el) {
+						return el.type === this.typefilter || this.typefilter === '';
+					}.bind(this)
+				);
+			},
 
-            invalidTypesValues() {
-                return this.value.filter(function (el) {
-                        return el.type !== this.typefilter && this.typefilter !== '';
-                    }.bind(this)
-                );
-            }
-
-
-        },
-
-        methods: {
-            onInputChanged(currentValues) {
-
-                const newObjects = _differenceBy(currentValues, this.validTypesValues, (el) => el.id);
-                const removedObjects = _differenceBy(this.validTypesValues, currentValues, (el) => el.id);
-
-                // console.log(newObjects, removedObjects);
-
-                for (let i in newObjects) {
-                    this.$emit('input:added', newObjects[i]);
-                }
-
-                for (let i in removedObjects) {
-                    this.$emit('input:removed', removedObjects[i]);
-                }
-
-                this.$emit('input', this.invalidTypesValues.concat(currentValues));
-
-            },
+			invalidTypesValues() {
+				return this.value.filter(function (el) {
+						return el.type !== this.typefilter && this.typefilter !== '';
+					}.bind(this)
+				);
+			}
 
 
-            getTagLabelFromObject(value) {
-                if (typeof value === 'object') {
-                    if (!value.hasOwnProperty('title')) {
-                        return console.warn(
-                            `[vue-select warn]: Label key "option.title" does not` +
-                            ` exist in options object ${JSON.stringify(value)}.\n` +
-                            'http://sagalbot.github.io/vue-select/#ex-labels'
-                        )
-                    } else {
-                        return value.title;
-                    }
+		},
 
-                } else {
-                    return value;
-                }
-            },
+		methods: {
+			onInputChanged(currentValues) {
 
-            onSearch(search, loading) {
-                loading(true);
+				const newObjects = _differenceBy(currentValues, this.validTypesValues, (el) => el.id);
+				const removedObjects = _differenceBy(this.validTypesValues, currentValues, (el) => el.id);
 
-                this.suggestedTags = [];
+				// console.log(newObjects, removedObjects);
 
-                this.search(loading, search, this);
-            },
+				for (let i in newObjects) {
+					this.$emit('input:added', newObjects[i]);
+				}
 
-            // _.debounce is a function provided by lodash to limit how
-            // often a particularly expensive operation can be run.
-            // To learn
-            // more about the _.debounce function (and its cousin
-            // _.throttle), visit: https://lodash.com/docs#debounce
-            search: _debounce((loading, search, vm) => {
+				for (let i in removedObjects) {
+					this.$emit('input:removed', removedObjects[i]);
+				}
 
-                vm.$store.dispatch('keywords/search', {
-                    searchText: search,
-                    type: vm.typefilter || false,
-                    per_page: 40
-                })
-                    .then((keywords) => {
-                        // console.log(keywords);
-                        vm.suggestedTags = keywords;
-                        vm.suggestedTags.push({
-                            title: search,
-                            isNew: true,
-                            id: 'new Keyword: ' + search
-                        });
-                    })
-                    .catch((err) => {
-                        console.error(err);
-                    })
-                    .then(() => {
-                        // Always
-                        loading(false);
-                    });
+				this.$emit('input', this.invalidTypesValues.concat(currentValues));
 
-            }, 250),
+			},
 
-            filterSuggestionsBy(object) {
-                return this.value.find((el) => el.id === object.id) === undefined;
-            }
 
-        },
+			getTagLabelFromObject(value) {
+				if (typeof value === 'object') {
+					if (!value.hasOwnProperty('title')) {
+						return console.warn(
+							`[vue-select warn]: Label key "option.title" does not` +
+							` exist in options object ${JSON.stringify(value)}.\n` +
+							'http://sagalbot.github.io/vue-select/#ex-labels'
+						)
+					} else {
+						return value.title;
+					}
 
-        components: {
-            DragableElement,
-            tagIcon,
-            VueSelect
-        }
-    }
+				} else {
+					return value;
+				}
+			},
+
+			onSearch(search, loading) {
+				loading(true);
+
+				this.suggestedTags = [];
+
+				this.search(loading, search, this);
+			},
+
+			// _.debounce is a function provided by lodash to limit how
+			// often a particularly expensive operation can be run.
+			// To learn
+			// more about the _.debounce function (and its cousin
+			// _.throttle), visit: https://lodash.com/docs#debounce
+			search: _debounce((loading, search, vm) => {
+
+				vm.$store.dispatch('keywords/search', {
+					searchText: search,
+					type: vm.typefilter || false,
+					per_page: 40
+				})
+				  .then((keywords) => {
+					  // console.log(keywords);
+					  vm.suggestedTags = keywords;
+					  vm.suggestedTags.push({
+						  title: search,
+						  isNew: true,
+						  id: 'new Keyword: ' + search
+					  });
+				  })
+				  .catch((err) => {
+					  console.error(err);
+				  })
+				  .then(() => {
+					  // Always
+					  loading(false);
+				  });
+
+			}, 250),
+
+			filterSuggestionsBy(object) {
+				return this.value.find((el) => el.id === object.id) === undefined;
+			}
+
+		},
+
+		components: {
+			DragableElement,
+			tagIcon,
+			VueSelect
+		}
+	}
 </script>
 
 <style type="scss">
@@ -226,6 +226,7 @@
 
                 .vs__selected-options input {
                     min-width: 50%;
+
                     &::placeholder {
                         color: $sidebar-input-text-colour-placeholder;
                     }
@@ -259,7 +260,7 @@
 
                 padding-left: .5em;
 
-                .tagOptionIcon svg{
+                .tagOptionIcon svg {
                     width: 1em;
                     height: 1em;
                 }

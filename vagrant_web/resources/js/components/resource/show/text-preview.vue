@@ -5,20 +5,20 @@
 </template>
 
 <script>
-    import truncateFilter from '../../../filters/truncate-filter.mixin';
+	import truncateFilter from '../../../filters/truncate-filter.mixin';
 
-    export default {
-        mixins: [
-            truncateFilter,
-        ],
+	export default {
+		mixins: [
+			truncateFilter,
+		],
 
-        props: {
-            resource: {
-                required: true,
-                type: Object
-            }
-        },
-    }
+		props: {
+			resource: {
+				required: true,
+				type: Object
+			}
+		},
+	}
 </script>
 
 <style scoped>

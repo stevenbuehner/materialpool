@@ -3,9 +3,9 @@
 </template>
 
 <script>
-    export default {
-        name: "bible-popover-header"
-    }
+	export default {
+		name: "bible-popover-header"
+	}
 </script>
 
 <style type="scss">

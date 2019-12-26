@@ -30,126 +30,128 @@
 </template>
 
 <script>
-    import editIcon from 'svg-icon/dist/svg/ionic/edit.svg';
-    import singleDown from 'svg-icon/dist/trimmed-svg/awesome/angle-down.svg';
-    import doubleDown from 'svg-icon/dist/trimmed-svg/awesome/angle-double-down.svg';
-    import {ayceIcon, iconName, keyIcon, langIcon, personIcon, placeIcon} from '../keywordDefaultIcons';
+	import editIcon                                                       from 'svg-icon/dist/svg/ionic/edit.svg';
+	import singleDown
+	                                                                      from 'svg-icon/dist/trimmed-svg/awesome/angle-down.svg';
+	import doubleDown
+	                                                                      from 'svg-icon/dist/trimmed-svg/awesome/angle-double-down.svg';
+	import {ayceIcon, iconName, keyIcon, langIcon, personIcon, placeIcon} from '../keywordDefaultIcons';
 
-    export default {
-        name: "TreeNode",
+	export default {
+		name: "TreeNode",
 
-        props: {
-            node: {
-                type: Object,
-                required: true
-            },
-        },
+		props: {
+			node: {
+				type: Object,
+				required: true
+			},
+		},
 
-        data() {
-            return {
-                isOpen: false,
-                isDragged: false,
-                isDragover: false
-            }
-        },
+		data() {
+			return {
+				isOpen: false,
+				isDragged: false,
+				isDragover: false
+			}
+		},
 
-        computed: {
-            label() {
-                return this.node.title || '';
-            },
-            icon() {
-                return this.node.icon || null;
-            },
-            children() {
-                return Array.isArray(this.node.children) ? this.node.children : [];
-            },
-            hasChildren() {
-                return this.node.children && this.node.children instanceof Array && this.node.children.length > 0;
-            },
-            iconName() {
-                return iconName(this.node);
-            },
-        },
+		computed: {
+			label() {
+				return this.node.title || '';
+			},
+			icon() {
+				return this.node.icon || null;
+			},
+			children() {
+				return Array.isArray(this.node.children) ? this.node.children : [];
+			},
+			hasChildren() {
+				return this.node.children && this.node.children instanceof Array && this.node.children.length > 0;
+			},
+			iconName() {
+				return iconName(this.node);
+			},
+		},
 
-        methods: {
-            toggleOpen() {
-                this.isOpen = !this.isOpen && this.hasChildren;
-            },
+		methods: {
+			toggleOpen() {
+				this.isOpen = !this.isOpen && this.hasChildren;
+			},
 
-            open() {
-                this.isOpen = true; //  && this.hasChildren;
-            },
+			open() {
+				this.isOpen = true; //  && this.hasChildren;
+			},
 
-            close() {
-                this.isOpen = false;
-            },
+			close() {
+				this.isOpen = false;
+			},
 
-            openKeywordDetail() {
-                this.$router.push({name: 'keyword-detail', params: {id: this.node.id}});
-            },
+			openKeywordDetail() {
+				this.$router.push({name: 'keyword-detail', params: {id: this.node.id}});
+			},
 
-            onDragstart(event) {
-                this.isDragged = true;
+			onDragstart(event) {
+				this.isDragged = true;
 
-                if (event.dataTransfer) {
-                    event.dataTransfer.effectAllowed = 'move';
-                    event.dataTransfer.setData("text/plain", this.node.id);
-                }
-            },
+				if (event.dataTransfer) {
+					event.dataTransfer.effectAllowed = 'move';
+					event.dataTransfer.setData("text/plain", this.node.id);
+				}
+			},
 
-            onDragend(event) {
-                this.isDragged = false;
-            },
+			onDragend(event) {
+				this.isDragged = false;
+			},
 
-            onDragenter(event) {
-                this.isDragover = true;
-            },
+			onDragenter(event) {
+				this.isDragover = true;
+			},
 
-            onDragleave(event) {
-                this.isDragover = false;
-            },
+			onDragleave(event) {
+				this.isDragover = false;
+			},
 
-            onDragover(event) {
-                event.dataTransfer.dropEffect = 'move';
-            },
+			onDragover(event) {
+				event.dataTransfer.dropEffect = 'move';
+			},
 
-            onDrop(event) {
+			onDrop(event) {
 
-                if (event.dataTransfer) {
-                    const srcId = event.dataTransfer.getData("text/plain");
-                    console.log('Dropped ' + srcId + ' into ' + this.node.id);
-                    this.emitMove({sourceId: srcId, targetId: this.node.id});
-                }
+				if (event.dataTransfer) {
+					const srcId = event.dataTransfer.getData("text/plain");
+					console.log('Dropped ' + srcId + ' into ' + this.node.id);
+					this.emitMove({sourceId: srcId, targetId: this.node.id});
+				}
 
-                this.isDragover = false;
+				this.isDragover = false;
 
-                return false;
-            },
+				return false;
+			},
 
-            emitMove({sourceId, targetId}) {
-                this.$emit('move', {sourceId, targetId});
-            }
-        },
+			emitMove({sourceId, targetId}) {
+				this.$emit('move', {sourceId, targetId});
+			}
+		},
 
-        created() {
-            if (this.node.isOpen === true && this.hasChildren) {
-                this.isOpen = true;
-            }
-        },
+		created() {
+			if (this.node.isOpen === true && this.hasChildren) {
+				this.isOpen = true;
+			}
+		},
 
-        components: {
-            editIcon,
-            singleDown,
-            doubleDown,
-            ayceIcon,
-            keyIcon,
-            langIcon,
-            personIcon,
-            placeIcon
-        }
+		components: {
+			editIcon,
+			singleDown,
+			doubleDown,
+			ayceIcon,
+			keyIcon,
+			langIcon,
+			personIcon,
+			placeIcon
+		}
 
 
-    }
+	}
 </script>
 
 <style type="scss">

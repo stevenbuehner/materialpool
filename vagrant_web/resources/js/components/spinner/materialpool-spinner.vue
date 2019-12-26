@@ -7,12 +7,12 @@
 </template>
 
 <script>
-    import HollowDotsSpinner from "epic-spinners/src/components/lib/HollowDotsSpinner";
+	import HollowDotsSpinner from "epic-spinners/src/components/lib/HollowDotsSpinner";
 
-    export default {
-        name: "materialpool-spinner",
-        components: {HollowDotsSpinner}
-    }
+	export default {
+		name: "materialpool-spinner",
+		components: {HollowDotsSpinner}
+	}
 </script>
 
 <style type="scss">

@@ -13,39 +13,39 @@
 </template>
 
 <script>
-    import MaterialListingItem from './MaterialListingItem.vue';
+	import MaterialListingItem from './MaterialListingItem.vue';
 
-    export default {
-        mounted() {
-        },
+	export default {
+		mounted() {
+		},
 
-        props: {
-            materialIds: {
-                type: Array,
-                required: true,
-            },
+		props: {
+			materialIds: {
+				type: Array,
+				required: true,
+			},
 
-            highlightKeywords: {
-                type: Array,
-                required: false,
-                default() {
-                    return [];
-                }
-            },
+			highlightKeywords: {
+				type: Array,
+				required: false,
+				default() {
+					return [];
+				}
+			},
 
-            highlightBibleverses: {
-                type: Array,
-                required: false,
-                default() {
-                    return [];
-                }
-            },
-        },
+			highlightBibleverses: {
+				type: Array,
+				required: false,
+				default() {
+					return [];
+				}
+			},
+		},
 
-        components: {
-            material: MaterialListingItem,
-        }
-    }
+		components: {
+			material: MaterialListingItem,
+		}
+	}
 </script>
 
 <style scoped>

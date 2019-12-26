@@ -20,7 +20,8 @@
                         <router-link v-if="showOpen" :to="{name:'resource-detail', params: {id: resource.id}}"
                                      class="btn btn-sm btn-outline-primary mb-1">{{$t('pool.open')}}
                         </router-link>
-                        <router-link v-if="resource.type==='pdf' || resource.type==='doc'" :to="routerEditLimitationObject(resource)"
+                        <router-link v-if="resource.type==='pdf' || resource.type==='doc'"
+                                     :to="routerEditLimitationObject(resource)"
                                      class="btn btn-sm btn-outline-primary mb-1">{{$t('pool.page-assignments')}}
                         </router-link>
                     </slot>
@@ -34,68 +35,68 @@
 </template>
 
 <script>
-    import imagePreview from './image-preview.vue'
-    import textPreview from './text-preview.vue'
-    import pdfPreview from './pdf-preview.vue'
-    import audioPreview from './audio-preview.vue'
-    import videoPreview from './video-preview.vue'
-    import docPreview from './doc-preview.vue'
-    import filePreview from './file-preview.vue'
-    import resPreview from './res-preview.vue'
-    import resourceLinks from '../resource-links.mixin';
-    import UserName from "../../user/user-name";
+	import imagePreview  from './image-preview.vue'
+	import textPreview   from './text-preview.vue'
+	import pdfPreview    from './pdf-preview.vue'
+	import audioPreview  from './audio-preview.vue'
+	import videoPreview  from './video-preview.vue'
+	import docPreview    from './doc-preview.vue'
+	import filePreview   from './file-preview.vue'
+	import resPreview    from './res-preview.vue'
+	import resourceLinks from '../resource-links.mixin';
+	import UserName      from "../../user/user-name";
 
 
-    export default {
+	export default {
 
-        mixins: [resourceLinks],
+		mixins: [resourceLinks],
 
-        props: {
-            resource: {
-                required: true,
-                type: Object
-            },
+		props: {
+			resource: {
+				required: true,
+				type: Object
+			},
 
-            showDownload: {
-                type: Boolean,
-                required: false,
-                default: true
-            },
+			showDownload: {
+				type: Boolean,
+				required: false,
+				default: true
+			},
 
-            showOpen: {
-                type: Boolean,
-                required: false,
-                default: true
-            },
-        },
+			showOpen: {
+				type: Boolean,
+				required: false,
+				default: true
+			},
+		},
 
-        data() {
-            return {
-                hovered: false
-            }
-        },
+		data() {
+			return {
+				hovered: false
+			}
+		},
 
-        computed: {
-            previewComponent() {
-                return this.resource.type + '-preview';
-            }
-        },
+		computed: {
+			previewComponent() {
+				return this.resource.type + '-preview';
+			}
+		},
 
-        methods: {},
+		methods: {},
 
 
-        components: {
-            UserName,
-            imagePreview,
-            textPreview,
-            pdfPreview,
-            audioPreview,
-            videoPreview,
-            docPreview,
-            resPreview,
-            filePreview,
-        }
-    }
+		components: {
+			UserName,
+			imagePreview,
+			textPreview,
+			pdfPreview,
+			audioPreview,
+			videoPreview,
+			docPreview,
+			resPreview,
+			filePreview,
+		}
+	}
 </script>
 
 <style type="scss">

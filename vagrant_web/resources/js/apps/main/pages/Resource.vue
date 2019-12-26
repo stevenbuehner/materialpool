@@ -144,262 +144,262 @@
 </template>
 
 <script>
-    import resourceLinks from '../../../components/resource/resource-links.mixin';
-    import {BTabs} from 'bootstrap-vue';
-    import {BTab} from 'bootstrap-vue';
-    import {BListGroup} from 'bootstrap-vue';
-    import {BListGroupItem} from 'bootstrap-vue';
-    import pdfLimitation from '../../../components/resource/limitation/pdfLimitation.vue';
-    import audioLimitation from '../../../components/resource/limitation/audioLimitation.vue';
-    import {isResourceTypeLimitable} from "../../../components/resource/limitation/limitable";
-    import resourceDetail from '../../../components/resource/show/resource-detail'
-    import {formatLocalizedDate} from "../../../helper/datetime.mixin";
+	import resourceLinks             from '../../../components/resource/resource-links.mixin';
+	import {BTabs}                   from 'bootstrap-vue';
+	import {BTab}                    from 'bootstrap-vue';
+	import {BListGroup}              from 'bootstrap-vue';
+	import {BListGroupItem}          from 'bootstrap-vue';
+	import pdfLimitation             from '../../../components/resource/limitation/pdfLimitation.vue';
+	import audioLimitation           from '../../../components/resource/limitation/audioLimitation.vue';
+	import {isResourceTypeLimitable} from "../../../components/resource/limitation/limitable";
+	import resourceDetail            from '../../../components/resource/show/resource-detail'
+	import {formatLocalizedDate}     from "../../../helper/datetime.mixin";
 
-    import user from '../../../components/user/user-name';
-    import {BAlert} from 'bootstrap-vue';
-    import MaterialSelector from "../../../components/modals/selectors/materialSelector";
-    import CustomDialog from "../../../components/modals/dialogs/customDialog";
-    import MaterialCreator from "../../../components/modals/creators/materialCreator";
-    import Toggle from "../../../components/general/toggle";
-    import Edditable from "../../../components/general/edditable";
-
-
-    export default {
-
-        mixins: [resourceLinks, formatLocalizedDate],
-
-        props: {
-            id: {
-                required: true,
-                type: Number
-            }
-        },
-
-        data() {
-            return {
-                isLoading: false,
-                errorMsg: null,
-
-                forceReload: 0,
-            };
-        },
-
-        computed: {
-            limitationComponent() {
-                return this.resource ? this.resource.type + 'Limitation' : false;
-            },
-
-            isLimitable() {
-                return isResourceTypeLimitable(this.resource.type);
-            },
-
-            metaInfo() {
-
-                let info = {};
-
-                for (let i in this.resource) {
-                    if (i !== 'created_by' && this.resource[i] !== '' && i !== 'type') {
-                        info[i] = this.resource[i];
-                    }
-                }
-
-                return info;
-            }
-        },
-
-        asyncComputed: {
-            resource: {
-                get() {
-                    this.isLoading = true;
-
-                    return this.$store.dispatch('resources/get', this.id)
-                        .then((data) => {
-                            this.errorMsg  = null;
-                            this.isLoading = false;
-                            return data;
-                        })
-                        .catch((message) => {
-                            this.errorMsg  = message;
-                            this.isLoading = false;
-                        });
-                },
-                default: null,
-                watch() {
-                    this.forceReload
-                }
-            }
-        },
-
-        methods: {
-            btnAddMaterialToResource() {
-
-                this.$refs.materialSelector.showPromise().then((material) => {
-
-                    return this.$store.dispatch('materials/attachResource', {
-                        materialId: material.id,
-                        resourceId: this.id
-                    }).then(({resource}) => {
-                        this.resource = resource;
-                    }).catch((error) => {
-                        alert(error);
-                    });
-                }).catch(() => {
-                });
-
-            },
-
-            btnDetachMaterialFromResource(material) {
-
-                this.$store.dispatch('materials/detachResource',
-                    {materialId: material.id, resourceId: this.id}
-                ).then(({material, resource}) => {
-                    this.resource = resource;
-
-                    if (material.resources && material.resources.length === 0) {
-                        this.$refs.myDialog.show({
-                            title: 'Rückfrage',
-                            content: 'Das eben entfernte Material ist jetzt keiner weiteren Ressource mehr zugeordet<br/>Soll ' + (material.title ? '"' + material.title + '"' : 'es') + ' <b>jetzt komplett</b> gelöscht werden?',
-                            yesText: 'Ja, löschen',
-                            yesVariant: 'success',
-                            noText: 'Nein, so lassen',
-                            noVariant: 'warning',
-                            allowBackdrop: false
-                        }).then((answerPositive) => {
-
-                            if (answerPositive === true) {
-                                this.$refs.myDialog.show({
-                                    title: 'Lösche Material',
-                                    content: 'Lösche ' + (material.title ? '"' + material.title + '"' : 'Material') + '...',
-                                    yesEnabled: false,
-                                    noEnabled: false,
-                                    allowBackdrop: false
-                                }).catch(() => {
-                                });
-
-                                this.$store.dispatch('materials/deleteMaterial', material.id)
-                                    .then(() => {
-                                        this.$refs.myDialog.show({
-                                            title: 'Material gelöscht',
-                                            content: 'Material erfolgreich gelöscht!',
-                                            yesText: 'ok',
-                                            yesVariant: 'primary',
-                                            yesEnabled: true,
-                                            noEnabled: false,
-                                            allowBackdrop: true,
-                                        });
-                                    });
-                            }
-
-                        }).catch(({message}) => {
-                            this.$refs.myDialog.show({
-                                title: 'Warnung',
-                                content: message,
-                                yesText: 'ok',
-                                yesVariant: 'primary',
-                                yesEnabled: true,
-                                noEnabled: false,
-                                allowBackdrop: true,
-                            });
-                        });
-                    }
-
-                });
-            },
-
-            btnCreateAutoMaterialFromResource() {
-
-                this.$store.dispatch('resources/autoCreateMaterial', {resourceIds: [this.id]})
-                    .then((material) => {
-
-                        this.$router.push({
-                            name: 'material-detail',
-                            params: {
-                                id: material.id
-                            }
-                        });
-
-                    });
-
-            },
-
-            btnCreateAndAssignMaterialManually() {
-                this.$refs.materialCreator.showPromise()
-                    .then((material) => {
-                        return this.$store.dispatch('materials/attachResource', {
-                            materialId: material.id,
-                            resourceId: this.id,
-                        })
-                    })
-                    .then(({material, resource}) => {
-                        this.forceReload++;
-                    });
-            },
-
-            btnCopyMaterial(material) {
-                this.$store.dispatch('materials/copyMaterial', material.id)
-                    .then((material) => {
-                        this.forceReload++;
-                    });
-            },
-
-            updateRemotePath(value) {
-                this._updateResource({
-                    remote_path: value
-                }, this.$t('pool.Web-URL'));
-            },
-
-            updateNotes(value) {
-                this._updateResource({
-                    notes: value
-                }, this.$t('pool.Notes'));
-            },
-
-            updateIsPublic(value) {
-                this._updateResource({
-                    is_public: value
-                }, this.$t('pool.Publicity'));
-            },
-
-            _updateResource(data, flashLabel) {
-
-                this.flashInfo('Upading ' + flashLabel);
-
-                this.$store.dispatch('resources/update', {id: this.resource.id, data})
-                    .then((resource) => {
-                        this.forceReload++;
-                        this.flashSuccess(flashLabel + ' updated successful');
-                    })
-                    .catch((data) => {
-                        this.forceReload++;
-                        this.flash('Error while updating ' + flashLabel + "\n" + (data.message || ''));
-                    });
-
-            },
-
-            onResourceUpdated(resource) {
-                this.forceReload++;
-            }
+	import user             from '../../../components/user/user-name';
+	import {BAlert}         from 'bootstrap-vue';
+	import MaterialSelector from "../../../components/modals/selectors/materialSelector";
+	import CustomDialog     from "../../../components/modals/dialogs/customDialog";
+	import MaterialCreator  from "../../../components/modals/creators/materialCreator";
+	import Toggle           from "../../../components/general/toggle";
+	import Edditable        from "../../../components/general/edditable";
 
 
-        },
+	export default {
 
-        components: {
-            Edditable,
-            Toggle,
-            MaterialCreator,
-            CustomDialog,
-            MaterialSelector,
-            resourceDetail,
-            BTabs,
-            BTab,
-            BListGroup,
-            BListGroupItem,
-            pdfLimitation,
-            audioLimitation,
-            user,
-            BAlert
-        }
-    }
+		mixins: [resourceLinks, formatLocalizedDate],
+
+		props: {
+			id: {
+				required: true,
+				type: Number
+			}
+		},
+
+		data() {
+			return {
+				isLoading: false,
+				errorMsg: null,
+
+				forceReload: 0,
+			};
+		},
+
+		computed: {
+			limitationComponent() {
+				return this.resource ? this.resource.type + 'Limitation' : false;
+			},
+
+			isLimitable() {
+				return isResourceTypeLimitable(this.resource.type);
+			},
+
+			metaInfo() {
+
+				let info = {};
+
+				for (let i in this.resource) {
+					if (i !== 'created_by' && this.resource[i] !== '' && i !== 'type') {
+						info[i] = this.resource[i];
+					}
+				}
+
+				return info;
+			}
+		},
+
+		asyncComputed: {
+			resource: {
+				get() {
+					this.isLoading = true;
+
+					return this.$store.dispatch('resources/get', this.id)
+					           .then((data) => {
+						           this.errorMsg = null;
+						           this.isLoading = false;
+						           return data;
+					           })
+					           .catch((message) => {
+						           this.errorMsg = message;
+						           this.isLoading = false;
+					           });
+				},
+				default: null,
+				watch() {
+					this.forceReload
+				}
+			}
+		},
+
+		methods: {
+			btnAddMaterialToResource() {
+
+				this.$refs.materialSelector.showPromise().then((material) => {
+
+					return this.$store.dispatch('materials/attachResource', {
+						materialId: material.id,
+						resourceId: this.id
+					}).then(({resource}) => {
+						this.resource = resource;
+					}).catch((error) => {
+						alert(error);
+					});
+				}).catch(() => {
+				});
+
+			},
+
+			btnDetachMaterialFromResource(material) {
+
+				this.$store.dispatch('materials/detachResource',
+					{materialId: material.id, resourceId: this.id}
+				).then(({material, resource}) => {
+					this.resource = resource;
+
+					if (material.resources && material.resources.length === 0) {
+						this.$refs.myDialog.show({
+							title: 'Rückfrage',
+							content: 'Das eben entfernte Material ist jetzt keiner weiteren Ressource mehr zugeordet<br/>Soll ' + (material.title ? '"' + material.title + '"' : 'es') + ' <b>jetzt komplett</b> gelöscht werden?',
+							yesText: 'Ja, löschen',
+							yesVariant: 'success',
+							noText: 'Nein, so lassen',
+							noVariant: 'warning',
+							allowBackdrop: false
+						}).then((answerPositive) => {
+
+							if (answerPositive === true) {
+								this.$refs.myDialog.show({
+									title: 'Lösche Material',
+									content: 'Lösche ' + (material.title ? '"' + material.title + '"' : 'Material') + '...',
+									yesEnabled: false,
+									noEnabled: false,
+									allowBackdrop: false
+								}).catch(() => {
+								});
+
+								this.$store.dispatch('materials/deleteMaterial', material.id)
+								    .then(() => {
+									    this.$refs.myDialog.show({
+										    title: 'Material gelöscht',
+										    content: 'Material erfolgreich gelöscht!',
+										    yesText: 'ok',
+										    yesVariant: 'primary',
+										    yesEnabled: true,
+										    noEnabled: false,
+										    allowBackdrop: true,
+									    });
+								    });
+							}
+
+						}).catch(({message}) => {
+							this.$refs.myDialog.show({
+								title: 'Warnung',
+								content: message,
+								yesText: 'ok',
+								yesVariant: 'primary',
+								yesEnabled: true,
+								noEnabled: false,
+								allowBackdrop: true,
+							});
+						});
+					}
+
+				});
+			},
+
+			btnCreateAutoMaterialFromResource() {
+
+				this.$store.dispatch('resources/autoCreateMaterial', {resourceIds: [this.id]})
+				    .then((material) => {
+
+					    this.$router.push({
+						    name: 'material-detail',
+						    params: {
+							    id: material.id
+						    }
+					    });
+
+				    });
+
+			},
+
+			btnCreateAndAssignMaterialManually() {
+				this.$refs.materialCreator.showPromise()
+				    .then((material) => {
+					    return this.$store.dispatch('materials/attachResource', {
+						    materialId: material.id,
+						    resourceId: this.id,
+					    })
+				    })
+				    .then(({material, resource}) => {
+					    this.forceReload++;
+				    });
+			},
+
+			btnCopyMaterial(material) {
+				this.$store.dispatch('materials/copyMaterial', material.id)
+				    .then((material) => {
+					    this.forceReload++;
+				    });
+			},
+
+			updateRemotePath(value) {
+				this._updateResource({
+					remote_path: value
+				}, this.$t('pool.Web-URL'));
+			},
+
+			updateNotes(value) {
+				this._updateResource({
+					notes: value
+				}, this.$t('pool.Notes'));
+			},
+
+			updateIsPublic(value) {
+				this._updateResource({
+					is_public: value
+				}, this.$t('pool.Publicity'));
+			},
+
+			_updateResource(data, flashLabel) {
+
+				this.flashInfo('Upading ' + flashLabel);
+
+				this.$store.dispatch('resources/update', {id: this.resource.id, data})
+				    .then((resource) => {
+					    this.forceReload++;
+					    this.flashSuccess(flashLabel + ' updated successful');
+				    })
+				    .catch((data) => {
+					    this.forceReload++;
+					    this.flash('Error while updating ' + flashLabel + "\n" + (data.message || ''));
+				    });
+
+			},
+
+			onResourceUpdated(resource) {
+				this.forceReload++;
+			}
+
+
+		},
+
+		components: {
+			Edditable,
+			Toggle,
+			MaterialCreator,
+			CustomDialog,
+			MaterialSelector,
+			resourceDetail,
+			BTabs,
+			BTab,
+			BListGroup,
+			BListGroupItem,
+			pdfLimitation,
+			audioLimitation,
+			user,
+			BAlert
+		}
+	}
 </script>
 
 <style scoped>

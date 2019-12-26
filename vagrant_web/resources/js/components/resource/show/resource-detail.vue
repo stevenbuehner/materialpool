@@ -31,7 +31,8 @@
                     <router-link v-if="showOpen" :to="{name:'resource-detail', params: {id: resource.id}}"
                                  class="btn btn-outline-primary mb-1">{{$t('pool.open')}}
                     </router-link>
-                    <router-link v-if="resource.type==='pdf' || resource.type==='doc'" :to="routerEditLimitationObject(resource, resource.pivot)"
+                    <router-link v-if="resource.type==='pdf' || resource.type==='doc'"
+                                 :to="routerEditLimitationObject(resource, resource.pivot)"
                                  class="btn btn-outline-primary  mb-1">{{$t('pool.page-assignments')}}
                     </router-link>
                     <button v-if="showDelete"
@@ -48,86 +49,86 @@
 </template>
 
 <script>
-    import imageDetail from './image-detail.vue'
-    import textDetail from './text-detail.vue'
-    import pdfDetail from './pdf-detail.vue'
-    import audioDetail from './audio-detail.vue'
-    import videoDetail from './video-preview.vue'
-    import docDetail from './doc-detail.vue'
-    import resDetail from './res-preview.vue'
-    import fileDetail from './file-detail.vue'
-    import resourceLinks from '../resource-links.mixin';
+	import imageDetail   from './image-detail.vue'
+	import textDetail    from './text-detail.vue'
+	import pdfDetail     from './pdf-detail.vue'
+	import audioDetail   from './audio-detail.vue'
+	import videoDetail   from './video-preview.vue'
+	import docDetail     from './doc-detail.vue'
+	import resDetail     from './res-preview.vue'
+	import fileDetail    from './file-detail.vue'
+	import resourceLinks from '../resource-links.mixin';
 
 
-    export default {
+	export default {
 
-        mixins: [resourceLinks],
+		mixins: [resourceLinks],
 
-        props: {
-            resource: {
-                required: true,
-                type: Object
-            },
+		props: {
+			resource: {
+				required: true,
+				type: Object
+			},
 
-            showDownload: {
-                type: Boolean,
-                required: false,
-                default: true
-            },
+			showDownload: {
+				type: Boolean,
+				required: false,
+				default: true
+			},
 
-            showOpen: {
-                type: Boolean,
-                required: false,
-                default: true
-            },
+			showOpen: {
+				type: Boolean,
+				required: false,
+				default: true
+			},
 
-            showDelete: {
-                type: Boolean,
-                required: false,
-                default: true
-            },
-        },
+			showDelete: {
+				type: Boolean,
+				required: false,
+				default: true
+			},
+		},
 
-        computed: {
-            detailComponent() {
-                return this.resource.type + '-detail';
-            }
-        },
+		computed: {
+			detailComponent() {
+				return this.resource.type + '-detail';
+			}
+		},
 
-        methods: {
-            btnDeleteResource(resource) {
+		methods: {
+			btnDeleteResource(resource) {
 
-                resource = resource || this.resource;
+				resource = resource || this.resource;
 
-                if (resource.materials === undefined) {
-                    this.$store.dispatch('resources/get', this.resource.id)
-                        .then((resource) => {
-                            this.btnDeleteResource(resource);
-                        });
-                } else if (resource.materials.length > 0) {
-                    alert('Löschen nicht möglich. Materialien sind noch zugewwiesen!')
-                } else {
-                    this.$store.dispatch('resources/deleteResource', resource.id)
-                        .then(() => {
-                            this.$router.go(-1);
-                        });
-                }
+				if (resource.materials === undefined) {
+					this.$store.dispatch('resources/get', this.resource.id)
+					    .then((resource) => {
+						    this.btnDeleteResource(resource);
+					    });
+				} else if (resource.materials.length > 0) {
+					alert('Löschen nicht möglich. Materialien sind noch zugewwiesen!')
+				} else {
+					this.$store.dispatch('resources/deleteResource', resource.id)
+					    .then(() => {
+						    this.$router.go(-1);
+					    });
+				}
 
-            }
-        },
+			}
+		},
 
 
-        components: {
-            imageDetail,
-            textDetail,
-            pdfDetail,
-            audioDetail,
-            videoDetail,
-            docDetail,
-            resDetail,
-            fileDetail,
-        }
-    }
+		components: {
+			imageDetail,
+			textDetail,
+			pdfDetail,
+			audioDetail,
+			videoDetail,
+			docDetail,
+			resDetail,
+			fileDetail,
+		}
+	}
 </script>
 
 <style scoped>

@@ -7,82 +7,82 @@
 </template>
 
 <script>
-    import CustomDialog from "../../../components/modals/dialogs/customDialog";
-    import {api_v2_system_shutdown} from "../../../components/serverRoutes";
-    import axiosInstance from "../axiosInstance";
+	import CustomDialog             from "../../../components/modals/dialogs/customDialog";
+	import {api_v2_system_shutdown} from "../../../components/serverRoutes";
+	import axiosInstance            from "../axiosInstance";
 
-    export default {
-        name: "RequestShutdown",
+	export default {
+		name: "RequestShutdown",
 
-        data() {
-            return {};
-        },
+		data() {
+			return {};
+		},
 
-        asyncComputed: {
-            isAdmin: {
-                get() {
-                    return this.$store.dispatch('general/isAdmin')
-                        .then((isAdmin) => {
-                            return isAdmin;
-                        });
-                },
-                default: false,
-                /* watch() {
+		asyncComputed: {
+			isAdmin: {
+				get() {
+					return this.$store.dispatch('general/isAdmin')
+					           .then((isAdmin) => {
+						           return isAdmin;
+					           });
+				},
+				default: false,
+				/* watch() {
                     this.forceReload
                 }*/
-            }
-        },
+			}
+		},
 
-        computed: {},
+		computed: {},
 
-        methods: {
-            shutdownSystem() {
-                if (this.isAdmin === true) {
-                    return axiosInstance.get(api_v2_system_shutdown).then(response => {
-                        return true;
-                    });
-                } else {
-                    console.error("ONLY Admin-Users allowed!");
-                    return false;
-                }
-            }
-        },
+		methods: {
+			shutdownSystem() {
+				if (this.isAdmin === true) {
+					return axiosInstance.get(api_v2_system_shutdown).then(response => {
+						return true;
+					});
+				} else {
+					console.error("ONLY Admin-Users allowed!");
+					return false;
+				}
+			}
+		},
 
-        mounted() {
-            this.$refs.areyoushure.show({
-                title: this.$t('pool.attention'),
-                yesVariant: "danger",
-                noVariant: "success",
-                content: this.$t('pool.Realy-shutdown?'),
-                allowBackdrop: false
-            }).then((answer) => {
+		mounted() {
+			this.$refs.areyoushure.show({
+				title: this.$t('pool.attention'),
+				yesVariant: "danger",
+				noVariant: "success",
+				content: this.$t('pool.Realy-shutdown?'),
+				allowBackdrop: false
+			}).then((answer) => {
 
-                if (answer === true) {
-                    // Do System shutdown
-                    this.$refs.areyoushure.show({
-                        title: this.$t('pool.notice'),
-                        content: this.$t('pool.System-is-beeing-shutdown'),
-                        noEnabled: false,
-                        cancelEnabled: false,
-                        yesEnabled: false,
-                        yesText: this.$t('pool.Ok'),
-                        yesVariant: 'primary'
-                    }).then(() => {
-                        // Um keine Fehlermeldung in der Konsole zu haben
-                    });
+				if (answer === true) {
+					// Do System shutdown
+					this.$refs.areyoushure.show({
+						title: this.$t('pool.notice'),
+						content: this.$t('pool.System-is-beeing-shutdown'),
+						noEnabled: false,
+						cancelEnabled: false,
+						yesEnabled: false,
+						yesText: this.$t('pool.Ok'),
+						yesVariant: 'primary'
+					}).then(() => {
+						// Um keine Fehlermeldung in der Konsole zu haben
+					});
 
-                    this.shutdownSystem();
+					this.shutdownSystem();
 
-                } else {
-                    this.$router.back();
-                }
-            });
-        },
+				} else {
+					this.$router.back();
+				}
+			});
+		},
 
 
-        components: {CustomDialog},
+		components: {CustomDialog},
 
-    }
+	}
 </script>
 
 <style scoped>

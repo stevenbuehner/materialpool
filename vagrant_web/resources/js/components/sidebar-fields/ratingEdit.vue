@@ -28,42 +28,42 @@
 </template>
 
 <script>
-    import generalMixin from './generalSidebarFields.mixin';
-    import feedbackIcon from 'svg-icon/dist/svg/material/feedback.svg';
-    import FiveStarRating from "../Rating/FiveStarRating";
+	import generalMixin   from './generalSidebarFields.mixin';
+	import feedbackIcon   from 'svg-icon/dist/svg/material/feedback.svg';
+	import FiveStarRating from "../Rating/FiveStarRating";
 
 
-    export default {
-        name: "ratingEdit",
+	export default {
+		name: "ratingEdit",
 
-        mixins: [generalMixin],
+		mixins: [generalMixin],
 
-        props: {},
+		props: {},
 
-        watch: {},
+		watch: {},
 
-        data() {
-            return {};
-        },
+		data() {
+			return {};
+		},
 
-        computed: {},
+		computed: {},
 
-        methods: {
+		methods: {
 
-            formatRating(rating) {
-                return this.$t('pool.rating-' + rating);
-            },
+			formatRating(rating) {
+				return this.$t('pool.rating-' + rating);
+			},
 
-            onRatingSelected(rating) {
-                this.$emit('input', rating);
-            }
-        },
+			onRatingSelected(rating) {
+				this.$emit('input', rating);
+			}
+		},
 
-        components: {
-            FiveStarRating,
-            feedbackIcon,
-        }
-    }
+		components: {
+			FiveStarRating,
+			feedbackIcon,
+		}
+	}
 </script>
 
 <style type="scss">

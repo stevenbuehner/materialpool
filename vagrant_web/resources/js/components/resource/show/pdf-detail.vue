@@ -26,61 +26,61 @@
 
 <script>
 
-    import {previewImageFirstPage} from '../../serverRoutes';
-    import {BImg} from 'bootstrap-vue';
-    import {BImgLazy} from 'bootstrap-vue';
-    import pdfMixin from '../pdf-mixin';
-    import ImageZoom from "../../modals/imageZoom";
+	import {previewImageFirstPage} from '../../serverRoutes';
+	import {BImg}                  from 'bootstrap-vue';
+	import {BImgLazy}              from 'bootstrap-vue';
+	import pdfMixin                from '../pdf-mixin';
+	import ImageZoom               from "../../modals/imageZoom";
 
-    export default {
-        mixins: [pdfMixin],
+	export default {
+		mixins: [pdfMixin],
 
-        props: {
-            resource: {
-                required: true,
-                type: Object
-            },
-        },
+		props: {
+			resource: {
+				required: true,
+				type: Object
+			},
+		},
 
-        data() {
-            return {};
-        },
-        computed: {
+		data() {
+			return {};
+		},
+		computed: {
 
-            currentlyDisplayedImage() {
-                return this.previewImages[this.currentlyDisplayedPageIndex];
-            },
+			currentlyDisplayedImage() {
+				return this.previewImages[this.currentlyDisplayedPageIndex];
+			},
 
-            previewImages() {
+			previewImages() {
 
-                let urls = [];
+				let urls = [];
 
-                if (this.pageCount === 0) {
-                    urls.push({
-                        src: previewImageFirstPage(this.resource),
-                        title: 'Startseite',
-                        page_no: 1
-                    });
-                } else if (this.pageCount > 0) {
+				if (this.pageCount === 0) {
+					urls.push({
+						src: previewImageFirstPage(this.resource),
+						title: 'Startseite',
+						page_no: 1
+					});
+				} else if (this.pageCount > 0) {
 
-                    urls = this.previewablePages.map((pageNo) => {
-                        return this.generatePreviewObject(this.resource, pageNo);
-                    });
-                }
+					urls = this.previewablePages.map((pageNo) => {
+						return this.generatePreviewObject(this.resource, pageNo);
+					});
+				}
 
-                return urls;
-            }
-        },
+				return urls;
+			}
+		},
 
-        methods: {},
+		methods: {},
 
-        components: {
-            ImageZoom,
-            BImg,
-            BImgLazy
-        }
+		components: {
+			ImageZoom,
+			BImg,
+			BImgLazy
+		}
 
-    }
+	}
 </script>
 
 <style type="scss">

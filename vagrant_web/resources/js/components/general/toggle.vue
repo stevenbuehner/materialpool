@@ -7,81 +7,81 @@
 
 <script>
 
-    export default {
-        name: "toggle",
+	export default {
+		name: "toggle",
 
-        props: {
-            value: {
-                type: Boolean,
-                required: true
-            },
+		props: {
+			value: {
+				type: Boolean,
+				required: true
+			},
 
-            // Needs to be unique
-            id: {
-                type: String,
-                required: true
-            },
+			// Needs to be unique
+			id: {
+				type: String,
+				required: true
+			},
 
-            onLabel: {
-                type: String,
-                default: 'yes'
-            },
+			onLabel: {
+				type: String,
+				default: 'yes'
+			},
 
-            offLabel: {
-                type: String,
-                default: 'no'
-            },
+			offLabel: {
+				type: String,
+				default: 'no'
+			},
 
-            type: {
-                type: String,
-                default: 'light',
-                validator(value) {
-                    return ['light', 'ios', 'skewed', 'flat', 'flip'].indexOf(value) !== -1;
-                }
-            }
-        },
+			type: {
+				type: String,
+				default: 'light',
+				validator(value) {
+					return ['light', 'ios', 'skewed', 'flat', 'flip'].indexOf(value) !== -1;
+				}
+			}
+		},
 
-        model: {
-            prop: 'value',
-            event: 'isToggled'
-        },
+		model: {
+			prop: 'value',
+			event: 'isToggled'
+		},
 
-        data() {
-            return {
-                myValue: this.value
-            };
-        },
+		data() {
+			return {
+				myValue: this.value
+			};
+		},
 
-        computed: {
-            label() {
+		computed: {
+			label() {
 
-                if (['flip', 'skewed'].indexOf(this.type) !== -1) {
-                    return this.myValue ? this.onLabel : this.offLabel;
-                } else {
-                    return '';
-                }
+				if (['flip', 'skewed'].indexOf(this.type) !== -1) {
+					return this.myValue ? this.onLabel : this.offLabel;
+				} else {
+					return '';
+				}
 
-            }
-        },
+			}
+		},
 
-        watch: {
-            // Value changed by parent
-            value(newValue) {
-                this.myValue = newValue;
-            },
+		watch: {
+			// Value changed by parent
+			value(newValue) {
+				this.myValue = newValue;
+			},
 
-            myValue(newValue) {
-                this._emitToggled(newValue);
-            }
+			myValue(newValue) {
+				this._emitToggled(newValue);
+			}
 
-        },
+		},
 
-        methods: {
-            _emitToggled() {
-                this.$emit('isToggled', this.myValue);
-            },
-        }
-    }
+		methods: {
+			_emitToggled() {
+				this.$emit('isToggled', this.myValue);
+			},
+		}
+	}
 </script>
 
 
@@ -106,6 +106,7 @@
             & *:before,
             & + .tgl-btn {
                 box-sizing: border-box;
+
                 &::selection {
                     background: none;
                 }
@@ -119,6 +120,7 @@
                 cursor: pointer;
                 user-select: none;
                 margin: 0;
+
                 &:after,
                 &:before {
                     position: relative;
@@ -190,6 +192,7 @@
 
                 &:active {
                     box-shadow: inset 0 0 0 2em #e8eae9;
+
                     &:after {
                         padding-right: .8em;
                     }
@@ -198,8 +201,10 @@
 
             :checked + .tgl-btn {
                 background: $green;
+
                 &:active {
                     box-shadow: none;
+
                     &:after {
                         margin-left: -.8em;
                     }
@@ -245,6 +250,7 @@
 
                 &:active {
                     background: #888;
+
                     &:before {
                         left: -10%;
                     }
@@ -253,6 +259,7 @@
 
             :checked + .tgl-btn {
                 background: $green;
+
                 &:before {
                     left: -100%;
                 }
@@ -286,6 +293,7 @@
 
             :checked + .tgl-btn {
                 border: .25em solid $green;
+
                 &:after {
                     left: 50%;
                     background: $green;
@@ -301,6 +309,7 @@
                 font-family: sans-serif;
                 perspective: 100px;
                 color: transparent;
+
                 &:after,
                 &:before {
                     display: inline-block;

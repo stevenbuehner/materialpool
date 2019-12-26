@@ -31,46 +31,46 @@
 
                 <table class="table table-borderless m-b-none" v-if="clients.length > 0">
                     <thead>
-                        <tr>
-                            <th>Client ID</th>
-                            <th>Name</th>
-                            <th>Secret</th>
-                            <th></th>
-                            <th></th>
-                        </tr>
+                    <tr>
+                        <th>Client ID</th>
+                        <th>Name</th>
+                        <th>Secret</th>
+                        <th></th>
+                        <th></th>
+                    </tr>
                     </thead>
 
                     <tbody>
-                        <tr v-for="client in clients">
-                            <!-- ID -->
-                            <td style="vertical-align: middle;">
-                                {{ client.id }}
-                            </td>
+                    <tr v-for="client in clients">
+                        <!-- ID -->
+                        <td style="vertical-align: middle;">
+                            {{ client.id }}
+                        </td>
 
-                            <!-- Name -->
-                            <td style="vertical-align: middle;">
-                                {{ client.name }}
-                            </td>
+                        <!-- Name -->
+                        <td style="vertical-align: middle;">
+                            {{ client.name }}
+                        </td>
 
-                            <!-- Secret -->
-                            <td style="vertical-align: middle;">
-                                <code>{{ client.secret }}</code>
-                            </td>
+                        <!-- Secret -->
+                        <td style="vertical-align: middle;">
+                            <code>{{ client.secret }}</code>
+                        </td>
 
-                            <!-- Edit Button -->
-                            <td style="vertical-align: middle;">
-                                <a class="action-link" @click="edit(client)">
-                                    Edit
-                                </a>
-                            </td>
+                        <!-- Edit Button -->
+                        <td style="vertical-align: middle;">
+                            <a class="action-link" @click="edit(client)">
+                                Edit
+                            </a>
+                        </td>
 
-                            <!-- Delete Button -->
-                            <td style="vertical-align: middle;">
-                                <a class="action-link text-danger" @click="destroy(client)">
-                                    Delete
-                                </a>
-                            </td>
-                        </tr>
+                        <!-- Delete Button -->
+                        <td style="vertical-align: middle;">
+                            <a class="action-link text-danger" @click="destroy(client)">
+                                Delete
+                            </a>
+                        </td>
+                    </tr>
                     </tbody>
                 </table>
             </div>
@@ -108,7 +108,7 @@
 
                                 <div class="col-md-7">
                                     <input id="create-client-name" type="text" class="form-control"
-                                                                @keyup.enter="store" v-model="createForm.name">
+                                           @keyup.enter="store" v-model="createForm.name">
 
                                     <span class="help-block">
                                         Something your users will recognize and trust.
@@ -122,7 +122,7 @@
 
                                 <div class="col-md-7">
                                     <input type="text" class="form-control" name="redirect"
-                                                    @keyup.enter="store" v-model="createForm.redirect">
+                                           @keyup.enter="store" v-model="createForm.redirect">
 
                                     <span class="help-block">
                                         Your application's authorization callback URL.
@@ -176,7 +176,7 @@
 
                                 <div class="col-md-7">
                                     <input id="edit-client-name" type="text" class="form-control"
-                                                                @keyup.enter="update" v-model="editForm.name">
+                                           @keyup.enter="update" v-model="editForm.name">
 
                                     <span class="help-block">
                                         Something your users will recognize and trust.
@@ -190,7 +190,7 @@
 
                                 <div class="col-md-7">
                                     <input type="text" class="form-control" name="redirect"
-                                                    @keyup.enter="update" v-model="editForm.redirect">
+                                           @keyup.enter="update" v-model="editForm.redirect">
 
                                     <span class="help-block">
                                         Your application's authorization callback URL.
@@ -215,144 +215,144 @@
 </template>
 
 <script>
-    import axios from '../../apps/main/axiosInstance';
-    import _flatten from 'lodash/flatten';
-    import _toArray from 'lodash/toArray';
+	import axios    from '../../apps/main/axiosInstance';
+	import _flatten from 'lodash/flatten';
+	import _toArray from 'lodash/toArray';
 
-    export default {
-        /*
+	export default {
+		/*
          * The component's data.
          */
-        data() {
-            return {
-                clients: [],
+		data() {
+			return {
+				clients: [],
 
-                createForm: {
-                    errors: [],
-                    name: '',
-                    redirect: ''
-                },
+				createForm: {
+					errors: [],
+					name: '',
+					redirect: ''
+				},
 
-                editForm: {
-                    errors: [],
-                    name: '',
-                    redirect: ''
-                }
-            };
-        },
+				editForm: {
+					errors: [],
+					name: '',
+					redirect: ''
+				}
+			};
+		},
 
-        /**
-         * Prepare the component (Vue 1.x).
-         */
-        ready() {
-            this.prepareComponent();
-        },
+		/**
+		 * Prepare the component (Vue 1.x).
+		 */
+		ready() {
+			this.prepareComponent();
+		},
 
-        /**
-         * Prepare the component (Vue 2.x).
-         */
-        mounted() {
-            this.prepareComponent();
-        },
+		/**
+		 * Prepare the component (Vue 2.x).
+		 */
+		mounted() {
+			this.prepareComponent();
+		},
 
-        methods: {
-            /**
-             * Prepare the component.
-             */
-            prepareComponent() {
-                this.getClients();
+		methods: {
+			/**
+			 * Prepare the component.
+			 */
+			prepareComponent() {
+				this.getClients();
 
-                $('#modal-create-client').on('shown.bs.modal', () => {
-                    $('#create-client-name').focus();
-                });
+				$('#modal-create-client').on('shown.bs.modal', () => {
+					$('#create-client-name').focus();
+				});
 
-                $('#modal-edit-client').on('shown.bs.modal', () => {
-                    $('#edit-client-name').focus();
-                });
-            },
+				$('#modal-edit-client').on('shown.bs.modal', () => {
+					$('#edit-client-name').focus();
+				});
+			},
 
-            /**
-             * Get all of the OAuth clients for the user.
-             */
-            getClients() {
-                axios.get('/oauth/clients')
-                        .then(response => {
-                            this.clients = response.data;
-                        });
-            },
+			/**
+			 * Get all of the OAuth clients for the user.
+			 */
+			getClients() {
+				axios.get('/oauth/clients')
+				     .then(response => {
+					     this.clients = response.data;
+				     });
+			},
 
-            /**
-             * Show the form for creating new clients.
-             */
-            showCreateClientForm() {
-                $('#modal-create-client').modal('show');
-            },
+			/**
+			 * Show the form for creating new clients.
+			 */
+			showCreateClientForm() {
+				$('#modal-create-client').modal('show');
+			},
 
-            /**
-             * Create a new OAuth client for the user.
-             */
-            store() {
-                this.persistClient(
-                    'post', '/oauth/clients',
-                    this.createForm, '#modal-create-client'
-                );
-            },
+			/**
+			 * Create a new OAuth client for the user.
+			 */
+			store() {
+				this.persistClient(
+					'post', '/oauth/clients',
+					this.createForm, '#modal-create-client'
+				);
+			},
 
-            /**
-             * Edit the given client.
-             */
-            edit(client) {
-                this.editForm.id = client.id;
-                this.editForm.name = client.name;
-                this.editForm.redirect = client.redirect;
+			/**
+			 * Edit the given client.
+			 */
+			edit(client) {
+				this.editForm.id = client.id;
+				this.editForm.name = client.name;
+				this.editForm.redirect = client.redirect;
 
-                $('#modal-edit-client').modal('show');
-            },
+				$('#modal-edit-client').modal('show');
+			},
 
-            /**
-             * Update the client being edited.
-             */
-            update() {
-                this.persistClient(
-                    'put', '/oauth/clients/' + this.editForm.id,
-                    this.editForm, '#modal-edit-client'
-                );
-            },
+			/**
+			 * Update the client being edited.
+			 */
+			update() {
+				this.persistClient(
+					'put', '/oauth/clients/' + this.editForm.id,
+					this.editForm, '#modal-edit-client'
+				);
+			},
 
-            /**
-             * Persist the client to storage using the given form.
-             */
-            persistClient(method, uri, form, modal) {
-                form.errors = [];
+			/**
+			 * Persist the client to storage using the given form.
+			 */
+			persistClient(method, uri, form, modal) {
+				form.errors = [];
 
-                axios[method](uri, form)
-                    .then(response => {
-                        this.getClients();
+				axios[method](uri, form)
+					.then(response => {
+						this.getClients();
 
-                        form.name = '';
-                        form.redirect = '';
-                        form.errors = [];
+						form.name = '';
+						form.redirect = '';
+						form.errors = [];
 
-                        $(modal).modal('hide');
-                    })
-                    .catch(error => {
-                        if (typeof error.response.data === 'object') {
-                            form.errors = _flatten(_toArray(error.response.data));
-                        } else {
-                            form.errors = ['Something went wrong. Please try again.'];
-                        }
-                    });
-            },
+						$(modal).modal('hide');
+					})
+					.catch(error => {
+						if (typeof error.response.data === 'object') {
+							form.errors = _flatten(_toArray(error.response.data));
+						} else {
+							form.errors = ['Something went wrong. Please try again.'];
+						}
+					});
+			},
 
-            /**
-             * Destroy the given client.
-             */
-            destroy(client) {
-                axios.delete('/oauth/clients/' + client.id)
-                        .then(response => {
-                            this.getClients();
-                        });
-            }
-        }
-    }
+			/**
+			 * Destroy the given client.
+			 */
+			destroy(client) {
+				axios.delete('/oauth/clients/' + client.id)
+				     .then(response => {
+					     this.getClients();
+				     });
+			}
+		}
+	}
 </script>

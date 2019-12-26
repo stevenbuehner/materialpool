@@ -8,35 +8,35 @@
 </template>
 
 <script>
-    import {BibleVerseService} from '../../../../vendor/stevenbuehner/bible-verse-bundle/js/out/BibleVerseService_de.js';
-    import BibleVerse from '../../../../vendor/stevenbuehner/bible-verse-bundle/js/in/BibleVerse.js';
+	import {BibleVerseService} from '../../../../vendor/stevenbuehner/bible-verse-bundle/js/out/BibleVerseService_de.js';
+	import BibleVerse          from '../../../../vendor/stevenbuehner/bible-verse-bundle/js/in/BibleVerse.js';
 
-    export default {
-        name: "bibleTextCaption",
+	export default {
+		name: "bibleTextCaption",
 
-        props: {
-            bibleverse: {
-                validator: function (value) {
-                    return value instanceof BibleVerse;
-                },
-                required: true
-            },
+		props: {
+			bibleverse: {
+				validator: function (value) {
+					return value instanceof BibleVerse;
+				},
+				required: true
+			},
 
-            translation: {
-                type: String,
-                required: false,
-                default: ''
-            }
+			translation: {
+				type: String,
+				required: false,
+				default: ''
+			}
 
 
-        },
+		},
 
-        computed: {
-            bibleverseCaption() {
-                return BibleVerseService.bibleVerseToString(this.bibleverse, 'long');
-            }
-        }
-    }
+		computed: {
+			bibleverseCaption() {
+				return BibleVerseService.bibleVerseToString(this.bibleverse, 'long');
+			}
+		}
+	}
 </script>
 
 <style type="scss">

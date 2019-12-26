@@ -10,28 +10,28 @@
 
 <script>
 
-    export default {
-        name: "from-bot",
-        props: {
-            fromBot: {
-                type: Boolean,
-                required: true
-            }
-        },
+	export default {
+		name: "from-bot",
+		props: {
+			fromBot: {
+				type: Boolean,
+				required: true
+			}
+		},
 
-        computed: {
+		computed: {
 
-            label() {
-                return this.fromBot ? 'from bot' : 'by user';
-            }
-        },
+			label() {
+				return this.fromBot ? 'from bot' : 'by user';
+			}
+		},
 
-        methods: {
-            toggleRequest() {
-                this.$emit('toggleRequest');
-            }
-        }
-    }
+		methods: {
+			toggleRequest() {
+				this.$emit('toggleRequest');
+			}
+		}
+	}
 </script>
 
 <style scoped type="scss">

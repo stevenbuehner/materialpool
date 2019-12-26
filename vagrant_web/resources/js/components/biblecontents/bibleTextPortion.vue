@@ -7,30 +7,28 @@
 </template>
 
 <script>
-    import BibleTextVerse from "./bibleTextVerse";
+	import BibleTextVerse from "./bibleTextVerse";
 
-    export default {
-        name: "bibleTextPortion",
+	export default {
+		name: "bibleTextPortion",
 
-        props: {
-            verses: {
-                type: Array,
-                required: true
-            },
+		props: {
+			verses: {
+				type: Array,
+				required: true
+			},
 
-            bible: {
-                type: Object,
-                required: false,
-                default: null
-            }
-        },
+			bible: {
+				type: Object,
+				required: false,
+				default: null
+			}
+		},
 
-        computed:{
+		computed: {},
 
-        },
-
-        components: {BibleTextVerse}
-    }
+		components: {BibleTextVerse}
+	}
 </script>
 
 

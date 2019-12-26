@@ -1,7 +1,7 @@
-import Vue from 'vue';
+import Vue                     from 'vue';
 // @see https://github.com/martinlindhe/laravel-vue-i18n-generator
 import VueInternationalization from 'vue-i18n';
-import Locale from '../../vue-i18n-locales.generated';
+import Locale                  from '../../vue-i18n-locales.generated';
 
 
 Vue.use(VueInternationalization);
@@ -11,7 +11,7 @@ export const lang = document.documentElement.lang.substr(0, 2);
 
 
 export const i18n = new VueInternationalization({
-    locale: lang,
-    messages: Locale
+	locale: lang,
+	messages: Locale
 });
 

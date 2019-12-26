@@ -78,195 +78,195 @@
 </template>
 
 <script>
-    import {BCard} from 'bootstrap-vue'
-    import {BButton} from 'bootstrap-vue';
-    import {BListGroup} from 'bootstrap-vue'
-    import {BListGroupItem} from 'bootstrap-vue'
-    import {BProgress} from 'bootstrap-vue'
-    import {BProgressBar} from 'bootstrap-vue'
-    import {formatLocalizedDate} from "../../helper/datetime.mixin";
+	import {BCard}               from 'bootstrap-vue'
+	import {BButton}             from 'bootstrap-vue';
+	import {BListGroup}          from 'bootstrap-vue'
+	import {BListGroupItem}      from 'bootstrap-vue'
+	import {BProgress}           from 'bootstrap-vue'
+	import {BProgressBar}        from 'bootstrap-vue'
+	import {formatLocalizedDate} from "../../helper/datetime.mixin";
 
 
-    export default {
-        name: "bundle",
+	export default {
+		name: "bundle",
 
-        mixins: [formatLocalizedDate],
+		mixins: [formatLocalizedDate],
 
-        props: {
-            uuid: {
-                type: String,
-                required: true
-            }
-        },
+		props: {
+			uuid: {
+				type: String,
+				required: true
+			}
+		},
 
-        data() {
-            return {
+		data() {
+			return {
 
-                isRunning: false,
-                isInitializing: false,
-                cancelRequested: false,
-                current: 0,
-                max: 0,
+				isRunning: false,
+				isInitializing: false,
+				cancelRequested: false,
+				current: 0,
+				max: 0,
 
-                forceBundleUpdate: false,
+				forceBundleUpdate: false,
 
-            };
-        },
+			};
+		},
 
-        computed: {
-            installedVersion() {
+		computed: {
+			installedVersion() {
 
-                if (this.bundle) {
-                    if (!this.bundle.installed_version) {
-                        return this.$t('pool.not-installed');
+				if (this.bundle) {
+					if (!this.bundle.installed_version) {
+						return this.$t('pool.not-installed');
 
-                    } else {
-                        return 'Version ' + this.bundle.installed_version;
-                    }
-                }
+					} else {
+						return 'Version ' + this.bundle.installed_version;
+					}
+				}
 
-            },
-
-
-            installAvailable() {
-                return this.bundle && this.bundle.is_installed === false;
-
-            },
-
-            updateAvailable() {
-                return this.bundle && this.bundle.is_installed === true && this.bundle.update_available === true;
-            },
-
-            updateProgressPercentage() {
-                if (this.max === 0) {
-                    return 0;
-                } else {
-                    return Math.floor(this.current / this.max * 100);
-                }
-            },
-
-            updateProgressLabel() {
-
-                if (this.isInitializing) {
-                    return this.$t('pool.update-is-initializing');
-                }
-
-                return this.updateProgressPercentage + '%';
-
-            },
-        },
+			},
 
 
-        asyncComputed: {
-            bundle: {
-                get() {
+			installAvailable() {
+				return this.bundle && this.bundle.is_installed === false;
 
-                    if (this.forceBundleUpdate === true) {
-                        console.log('FORCE reloading bundle');
-                        this.$store.dispatch('bundles/allBundles', this.forceBundleUpdate)
-                            .then(() => {
-                                console.log('FORCE reloaded bundle');
-                                this.forceBundleUpdate = false;
-                            });
-                    }
+			},
 
-                    return this.$store.dispatch('bundles/getBundle', this.uuid);
-                },
-                default: null,
-                watch() {
-                    this.forceBundleUpdate
-                }
-            },
-            info: {
-                get() {
-                    return this.$store.dispatch('bundles/getBundleInfo', this.uuid);
-                },
-                default: null,
-                watch() {
-                    this.forceBundleUpdate
-                }
-            },
-        },
+			updateAvailable() {
+				return this.bundle && this.bundle.is_installed === true && this.bundle.update_available === true;
+			},
 
-        methods: {
-            btnStartUpdate() {
+			updateProgressPercentage() {
+				if (this.max === 0) {
+					return 0;
+				} else {
+					return Math.floor(this.current / this.max * 100);
+				}
+			},
 
-                if (this.isRunning === false) {
-                    this.isRunning      = true;
-                    this.max            = 100;
-                    this.current        = 100;
-                    this.isInitializing = true;
+			updateProgressLabel() {
 
-                    this.$store.dispatch('bundles/initUpdateJobs', this.bundle.id)
-                        .then(({deleteJobs, updateJobs, deletedJobs, openJobs, continueUpdate, updateAvailable}) => {
-                                this.isInitializing = false;
-                                this.max            = openJobs;
-                                // this.max            = (deleteJobs || 0) + (updateJobs || 0);
-                                this.current        = 0;
-                                this.runNextJobs();
-                            }
-                        )
-                        .catch((e) => {
-                            this.isRunning = false;
-                            this.flashError('Error while initializing Jobs!');
-                        });
-                }
+				if (this.isInitializing) {
+					return this.$t('pool.update-is-initializing');
+				}
+
+				return this.updateProgressPercentage + '%';
+
+			},
+		},
 
 
-            },
+		asyncComputed: {
+			bundle: {
+				get() {
 
-            runNextJobs() {
+					if (this.forceBundleUpdate === true) {
+						console.log('FORCE reloading bundle');
+						this.$store.dispatch('bundles/allBundles', this.forceBundleUpdate)
+						    .then(() => {
+							    console.log('FORCE reloaded bundle');
+							    this.forceBundleUpdate = false;
+						    });
+					}
 
-                if (this.cancelRequested === true) {
+					return this.$store.dispatch('bundles/getBundle', this.uuid);
+				},
+				default: null,
+				watch() {
+					this.forceBundleUpdate
+				}
+			},
+			info: {
+				get() {
+					return this.$store.dispatch('bundles/getBundleInfo', this.uuid);
+				},
+				default: null,
+				watch() {
+					this.forceBundleUpdate
+				}
+			},
+		},
 
-                    this.isRunning       = false;
-                    this.cancelRequested = false;
-                    return;
-                }
+		methods: {
+			btnStartUpdate() {
 
-                this.isRunning = true;
+				if (this.isRunning === false) {
+					this.isRunning = true;
+					this.max = 100;
+					this.current = 100;
+					this.isInitializing = true;
 
-                return this.$store.dispatch('bundles/runJobs', this.bundle.id)
-                    .then(({done, open}) => {
-                        this.max     = parseInt( Math.max(this.current + open + done, this.max));
-                        this.current = parseInt(this.max - open);
-
-                        if (this.current >= this.max) {
-                            this.isRunning = false;
-                        } else {
-                            this.runNextJobs();
-                        }
-
-                    }).catch(() => {
-                        this.isRunning = false;
-                        this.flashError('Error in job!');
-                    });
-
-            },
+					this.$store.dispatch('bundles/initUpdateJobs', this.bundle.id)
+					    .then(({deleteJobs, updateJobs, deletedJobs, openJobs, continueUpdate, updateAvailable}) => {
+							    this.isInitializing = false;
+							    this.max = openJobs;
+							    // this.max            = (deleteJobs || 0) + (updateJobs || 0);
+							    this.current = 0;
+							    this.runNextJobs();
+						    }
+					    )
+					    .catch((e) => {
+						    this.isRunning = false;
+						    this.flashError('Error while initializing Jobs!');
+					    });
+				}
 
 
-            btnStartInstallation() {
-                this.btnStartUpdate();
-            },
+			},
 
-            btnCancelProgress() {
-                this.cancelRequested = true;
-            },
+			runNextJobs() {
 
-            btnUninstall() {
-                alert('Not implemented yet');
-            }
-        },
+				if (this.cancelRequested === true) {
 
-        components: {
-            BCard,
-            BButton,
-            BListGroup,
-            BListGroupItem,
-            BProgress,
-            BProgressBar
-        }
-    }
+					this.isRunning = false;
+					this.cancelRequested = false;
+					return;
+				}
+
+				this.isRunning = true;
+
+				return this.$store.dispatch('bundles/runJobs', this.bundle.id)
+				           .then(({done, open}) => {
+					           this.max = parseInt(Math.max(this.current + open + done, this.max));
+					           this.current = parseInt(this.max - open);
+
+					           if (this.current >= this.max) {
+						           this.isRunning = false;
+					           } else {
+						           this.runNextJobs();
+					           }
+
+				           }).catch(() => {
+						this.isRunning = false;
+						this.flashError('Error in job!');
+					});
+
+			},
+
+
+			btnStartInstallation() {
+				this.btnStartUpdate();
+			},
+
+			btnCancelProgress() {
+				this.cancelRequested = true;
+			},
+
+			btnUninstall() {
+				alert('Not implemented yet');
+			}
+		},
+
+		components: {
+			BCard,
+			BButton,
+			BListGroup,
+			BListGroupItem,
+			BProgress,
+			BProgressBar
+		}
+	}
 </script>
 
 <style>

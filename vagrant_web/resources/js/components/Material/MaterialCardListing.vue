@@ -12,16 +12,16 @@
 </template>
 
 <script>
-    import MaterialCardListingItem from './MaterialCardListingItem.vue';
+	import MaterialCardListingItem from './MaterialCardListingItem.vue';
 
-    export default {
+	export default {
 
-        props: ['materials'],
+		props: ['materials'],
 
-        components: {
-            material: MaterialCardListingItem,
-        }
-    }
+		components: {
+			material: MaterialCardListingItem,
+		}
+	}
 </script>
 
 <style scoped>

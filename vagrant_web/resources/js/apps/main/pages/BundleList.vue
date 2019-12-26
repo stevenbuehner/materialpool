@@ -7,44 +7,44 @@
 </template>
 
 <script>
-    import Bundle from "../../../components/bundles/bundle.vue";
-    import {BCardGroup} from 'bootstrap-vue';
+	import Bundle       from "../../../components/bundles/bundle.vue";
+	import {BCardGroup} from 'bootstrap-vue';
 
 
-    export default {
-        name: "BundleOverview",
+	export default {
+		name: "BundleOverview",
 
-        data() {
-            return {
-                stillLoading: true,
-                errorMessage: ''
-            };
-        },
+		data() {
+			return {
+				stillLoading: true,
+				errorMessage: ''
+			};
+		},
 
 
-        asyncComputed: {
-            bundles: {
-                get() {
-                    return this.$store.dispatch('bundles/allBundles');
-                },
-                default: null,
-                /* watch() {
+		asyncComputed: {
+			bundles: {
+				get() {
+					return this.$store.dispatch('bundles/allBundles');
+				},
+				default: null,
+				/* watch() {
                     this.forceReload
                 }*/
-            }
-        },
+			}
+		},
 
-        created() {
-        },
+		created() {
+		},
 
-        components: {
-            Bundle,
-            BCardGroup
+		components: {
+			Bundle,
+			BCardGroup
 
-        }
+		}
 
 
-    }
+	}
 </script>
 
 <style scoped>

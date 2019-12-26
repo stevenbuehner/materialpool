@@ -13,47 +13,47 @@
 
 <script>
 
-    import {poolResourceVideostream, previewImageFirstPage} from "../../serverRoutes";
+	import {poolResourceVideostream, previewImageFirstPage} from "../../serverRoutes";
 
-    export default {
-        mixins: [],
+	export default {
+		mixins: [],
 
-        props: {
-            resource: {
-                required: true,
-                type: Object
-            },
-        },
-
-
-        computed: {
-            posterRoute() {
-                return previewImageFirstPage(this.resource);
-            },
-
-            videoRoute() {
-                return poolResourceVideostream(this.resource);
-            },
-
-            videoMimeType() {
-
-                let type = 'video';
-                switch (this.resource.mime_type) {
-                    case 'video/quicktime':
-                        type = 'video/mp4';
-                        break;
-                    case undefined:
-                        break;
-                    default:
-                        type = this.resource.mime_type;
-                }
-
-                return type;
-            }
-        }
+		props: {
+			resource: {
+				required: true,
+				type: Object
+			},
+		},
 
 
-    }
+		computed: {
+			posterRoute() {
+				return previewImageFirstPage(this.resource);
+			},
+
+			videoRoute() {
+				return poolResourceVideostream(this.resource);
+			},
+
+			videoMimeType() {
+
+				let type = 'video';
+				switch (this.resource.mime_type) {
+					case 'video/quicktime':
+						type = 'video/mp4';
+						break;
+					case undefined:
+						break;
+					default:
+						type = this.resource.mime_type;
+				}
+
+				return type;
+			}
+		}
+
+
+	}
 </script>
 
 <style scoped>

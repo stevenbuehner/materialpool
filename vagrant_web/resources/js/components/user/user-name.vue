@@ -3,16 +3,16 @@
 </template>
 
 <script>
-    export default {
-        name: "user-name",
+	export default {
+		name: "user-name",
 
-        props: {
-            user: {
-                type: Object,
-                required: true,
-            }
-        }
-    }
+		props: {
+			user: {
+				type: Object,
+				required: true,
+			}
+		}
+	}
 </script>
 
 <style scoped>

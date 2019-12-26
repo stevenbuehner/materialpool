@@ -3,98 +3,98 @@
 </template>
 
 <script>
-    import striptags from 'striptags';
+	import striptags from 'striptags';
 
-    export default {
+	export default {
 
-        props: {
-            text: {
-                required: true,
-                type: String
-            },
+		props: {
+			text: {
+				required: true,
+				type: String
+			},
 
-            component: {
-                required: false,
-                type: String,
-                default: 'div'
-            },
+			component: {
+				required: false,
+				type: String,
+				default: 'div'
+			},
 
-            htmlExceptions: {
-                required: false,
-                type: Array,
-                default() {
-                    return [];
-                }
-            }
-        },
+			htmlExceptions: {
+				required: false,
+				type: Array,
+				default() {
+					return [];
+				}
+			}
+		},
 
-        computed: {
-            myText() {
-                return this.renderMyStuff(this.striphtmltags(this.text));
-            }
+		computed: {
+			myText() {
+				return this.renderMyStuff(this.striphtmltags(this.text));
+			}
 
-        },
+		},
 
-        methods: {
-            striphtmltags(text) {
-                return striptags(text, this.htmlExceptions);
-            },
+		methods: {
+			striphtmltags(text) {
+				return striptags(text, this.htmlExceptions);
+			},
 
-            renderMyStuff(text) {
+			renderMyStuff(text) {
 
-                let rendered = this.renderLists(text);
-                rendered     = this.renderNewLines(rendered);
+				let rendered = this.renderLists(text);
+				rendered = this.renderNewLines(rendered);
 
-                return rendered;
+				return rendered;
 
-            },
+			},
 
-            renderLists(text) {
+			renderLists(text) {
 
-                let lines      = text.split("\n");
-                let resultText = '';
+				let lines = text.split("\n");
+				let resultText = '';
 
-                var lastIsList = false;
-                var listIsOpen = false;
+				var lastIsList = false;
+				var listIsOpen = false;
 
-                for (let i in lines) {
-                    lines[i].replace(/^\s*\-\s*(.*)\s*$/, function (match, p1) {
+				for (let i in lines) {
+					lines[i].replace(/^\s*\-\s*(.*)\s*$/, function (match, p1) {
 
 
-                        if (listIsOpen === false) {
-                            resultText += '<ul>';
-                            listIsOpen = true;
-                        }
+						if (listIsOpen === false) {
+							resultText += '<ul>';
+							listIsOpen = true;
+						}
 
-                        lastIsList = true;
+						lastIsList = true;
 
-                        resultText += '<li>' + p1 + '</li>';
+						resultText += '<li>' + p1 + '</li>';
 
-                        return '';
-                    });
+						return '';
+					});
 
-                    if (listIsOpen === true && !lastIsList) {
-                        resultText += '</ul>';
-                        listIsOpen = false;
-                    }
+					if (listIsOpen === true && !lastIsList) {
+						resultText += '</ul>';
+						listIsOpen = false;
+					}
 
-                    if(!listIsOpen){
-                        resultText += '<p>' + lines[i] +'</p>';
-                    }
+					if (!listIsOpen) {
+						resultText += '<p>' + lines[i] + '</p>';
+					}
 
-                    lastIsList = false;
-                }
+					lastIsList = false;
+				}
 
-                return resultText;
+				return resultText;
 
-            },
+			},
 
-            renderNewLines(text) {
-                return text;
-            }
-        }
+			renderNewLines(text) {
+				return text;
+			}
+		}
 
-    }
+	}
 </script>
 
 <style scoped>

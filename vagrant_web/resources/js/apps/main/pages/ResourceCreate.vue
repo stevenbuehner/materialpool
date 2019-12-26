@@ -27,53 +27,53 @@
 
 <script>
 
-    import ResourceUploader from "../../../components/uploader/resourceUploader";
-    import {BFormCheckbox} from 'bootstrap-vue';
-    import {BAlert} from 'bootstrap-vue';
+	import ResourceUploader from "../../../components/uploader/resourceUploader";
+	import {BFormCheckbox}  from 'bootstrap-vue';
+	import {BAlert}         from 'bootstrap-vue';
 
-    export default {
-        name: "resourceUpload",
+	export default {
+		name: "resourceUpload",
 
-        data() {
-            return {
-                autocreateMaterial: true,
-                materialCreationRunning: false,
-                error: null
-            };
-        },
+		data() {
+			return {
+				autocreateMaterial: true,
+				materialCreationRunning: false,
+				error: null
+			};
+		},
 
-        methods: {
+		methods: {
 
-            onMultipleResourcesUploaded(resources) {
+			onMultipleResourcesUploaded(resources) {
 
-                if (this.autocreateMaterial === true) {
+				if (this.autocreateMaterial === true) {
 
-                    this.materialCreationRunning = true;
+					this.materialCreationRunning = true;
 
-                    this.$store.dispatch('resources/autoCreateMaterial', {resourceIds: resources.map((r) => r.id)})
-                        .then((material) => {
+					this.$store.dispatch('resources/autoCreateMaterial', {resourceIds: resources.map((r) => r.id)})
+					    .then((material) => {
 
-                            this.$router.push({
-                                name: 'material-detail',
-                                params: {
-                                    id: material.id
-                                }
-                            });
+						    this.$router.push({
+							    name: 'material-detail',
+							    params: {
+								    id: material.id
+							    }
+						    });
 
-                        })
-                        .catch(({message}) => {
-                            this.error = message;
-                        });
-                }
-            },
+					    })
+					    .catch(({message}) => {
+						    this.error = message;
+					    });
+				}
+			},
 
-        },
-        components: {
-            ResourceUploader,
-            BFormCheckbox,
-            BAlert
-        }
-    }
+		},
+		components: {
+			ResourceUploader,
+			BFormCheckbox,
+			BAlert
+		}
+	}
 </script>
 
 <style type="scss">

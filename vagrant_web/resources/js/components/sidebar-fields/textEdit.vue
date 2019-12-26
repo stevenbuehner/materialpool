@@ -58,100 +58,100 @@
 </template>
 
 <script>
-    import Vue from 'vue';
-    import {FormInputPlugin, FormTextareaPlugin} from 'bootstrap-vue';
-    import textFieldIcon from 'svg-icon/dist/svg/material/text-fields.svg'
-    import generalMixin from './generalSidebarFields.mixin';
-    import {BButton} from 'bootstrap-vue';
+	import Vue                                   from 'vue';
+	import {FormInputPlugin, FormTextareaPlugin} from 'bootstrap-vue';
+	import textFieldIcon                         from 'svg-icon/dist/svg/material/text-fields.svg'
+	import generalMixin                          from './generalSidebarFields.mixin';
+	import {BButton}                             from 'bootstrap-vue';
 
-    Vue.use(FormTextareaPlugin);
-    Vue.use(FormInputPlugin);
+	Vue.use(FormTextareaPlugin);
+	Vue.use(FormInputPlugin);
 
-    export default {
-        name: "textEdit",
+	export default {
+		name: "textEdit",
 
-        mixins: [generalMixin],
+		mixins: [generalMixin],
 
-        props: {
-            type: {
-                type: String,
-                required: false,
-                default: 'text',
-                validator(value) {
+		props: {
+			type: {
+				type: String,
+				required: false,
+				default: 'text',
+				validator(value) {
 
-                    switch (value) {
-                        case 'text':
-                        case 'date':
-                        case 'textarea':
-                            return true;
-                        default:
-                            return false;
-                    }
+					switch (value) {
+						case 'text':
+						case 'date':
+						case 'textarea':
+							return true;
+						default:
+							return false;
+					}
 
-                }
-            },
+				}
+			},
 
-            enableSaveButton: {
-                type: Boolean,
-                required: false,
-                default: true
-            },
+			enableSaveButton: {
+				type: Boolean,
+				required: false,
+				default: true
+			},
 
-            /** Nur für type='textarea' */
-            rows: {
-                type: Number,
-                required: false,
-                default: 2
-            },
+			/** Nur für type='textarea' */
+			rows: {
+				type: Number,
+				required: false,
+				default: 2
+			},
 
-        },
+		},
 
-        data() {
-            return {
-                currentValue: ''
-            };
-        },
+		data() {
+			return {
+				currentValue: ''
+			};
+		},
 
-        watch: {
-            value: {
-                handler(newValue) {
-                    this.currentValue = newValue;
-                },
-                immediate: true
-            }
-        },
+		watch: {
+			value: {
+				handler(newValue) {
+					this.currentValue = newValue;
+				},
+				immediate: true
+			}
+		},
 
-        methods: {
-            onInputChanged(currentValue) {
-                this.currentValue = currentValue.trim();
+		methods: {
+			onInputChanged(currentValue) {
+				this.currentValue = currentValue.trim();
 
-                if (this.valueHasChanged) {
-                    this.$emit('input', currentValue.trim());
-                }
-            },
+				if (this.valueHasChanged) {
+					this.$emit('input', currentValue.trim());
+				}
+			},
 
-            onEnter(event) {
-                this.$emit('on-enter', this.currentValue);
-                this.sendSaveRequest();
-            },
+			onEnter(event) {
+				this.$emit('on-enter', this.currentValue);
+				this.sendSaveRequest();
+			},
 
-            sendSaveRequest() {
-                this.$emit('save-request', this.currentValue);
-            }
-        },
+			sendSaveRequest() {
+				this.$emit('save-request', this.currentValue);
+			}
+		},
 
-        computed: {
-            // Das funktioniert nur, wenn das Parent-Element kein v-model binding macht ... sonst wird die Änderung nicht erkannt!
-            valueHasChanged() {
-                return (this.value !== this.currentValue);
-            }
-        },
+		computed: {
+			// Das funktioniert nur, wenn das Parent-Element kein v-model binding macht ... sonst wird die Änderung nicht erkannt!
+			valueHasChanged() {
+				return (this.value !== this.currentValue);
+			}
+		},
 
-        components: {
-            textFieldIcon,
-            BButton
-        }
-    }
+		components: {
+			textFieldIcon,
+			BButton
+		}
+	}
 </script>
 
 <style type="scss">

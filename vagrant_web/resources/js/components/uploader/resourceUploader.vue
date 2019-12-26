@@ -43,141 +43,141 @@
 </template>
 
 <script>
-    import {VueTransmit} from "vue-transmit/dist/vue-transmit.esm.min";
-    import {api_v1_resources_store} from "../serverRoutes";
-    import {BAlert} from 'bootstrap-vue';
-    import {BButton} from 'bootstrap-vue';
+	import {VueTransmit}            from "vue-transmit/dist/vue-transmit.esm.min";
+	import {api_v1_resources_store} from "../serverRoutes";
+	import {BAlert}                 from 'bootstrap-vue';
+	import {BButton}                from 'bootstrap-vue';
 
 
-    export default {
-        name: "resourceUploader",
+	export default {
+		name: "resourceUploader",
 
-        props: {
-            styleObject: {
-                type: Object,
-                required: false,
-                default() {
-                    return {};
-                }
-            }
-        },
+		props: {
+			styleObject: {
+				type: Object,
+				required: false,
+				default() {
+					return {};
+				}
+			}
+		},
 
-        data() {
-            return {
-                options: {
-                    // acceptedFileTypes: ['image/*'],
-                    clickable: false,
-                    uploadMultiple: false,
-                    accept: this.acceptUploadFile,
-                    adapterOptions: {
-                        url: api_v1_resources_store,
-                        headers: {
-                            'X-CSRF-TOKEN': window.Laravel.csrfToken,
-                            'X-Requested-With': 'XMLHttpRequest'
-                        },
-                        responseType: 'json',
-                        responseParseFunc: this.responseParse,
-                    },
-                },
+		data() {
+			return {
+				options: {
+					// acceptedFileTypes: ['image/*'],
+					clickable: false,
+					uploadMultiple: false,
+					accept: this.acceptUploadFile,
+					adapterOptions: {
+						url: api_v1_resources_store,
+						headers: {
+							'X-CSRF-TOKEN': window.Laravel.csrfToken,
+							'X-Requested-With': 'XMLHttpRequest'
+						},
+						responseType: 'json',
+						responseParseFunc: this.responseParse,
+					},
+				},
 
-                uploadRunning: false,
-                errorMessage: null,
-                fileStatus: null,
+				uploadRunning: false,
+				errorMessage: null,
+				fileStatus: null,
 
-                createdResources: [],
+				createdResources: [],
 
-            }
-        },
+			}
+		},
 
 
-        computed: {
-            showError() {
-                return this.errorMessage !== null || this.fileStatus !== null;
-            },
-        },
+		computed: {
+			showError() {
+				return this.errorMessage !== null || this.fileStatus !== null;
+			},
+		},
 
-        created() {
-            // Get maxUploadSize from the server
-            this.$store.dispatch('general/maxUploadSize')
-                .then((maxUploadSize) => {
-                    this.$set(this.options, 'maxFileSize', Math.floor(maxUploadSize / 1024 / 1024));
-                });
-        },
+		created() {
+			// Get maxUploadSize from the server
+			this.$store.dispatch('general/maxUploadSize')
+			    .then((maxUploadSize) => {
+				    this.$set(this.options, 'maxFileSize', Math.floor(maxUploadSize / 1024 / 1024));
+			    });
+		},
 
-        methods: {
+		methods: {
 
-            triggerBrowse() {
-                this.$refs.uploader.triggerBrowseFiles()
-            },
+			triggerBrowse() {
+				this.$refs.uploader.triggerBrowseFiles()
+			},
 
-            acceptUploadFile(file, done) {
-                if (this.uploadRunning === false) {
-                    done();
-                }
-            },
+			acceptUploadFile(file, done) {
+				if (this.uploadRunning === false) {
+					done();
+				}
+			},
 
-            onProcessing(file) {
-                this.uploadRunning = true;
-            },
+			onProcessing(file) {
+				this.uploadRunning = true;
+			},
 
-            onSingleFileSuccessfullyUploaded(file, resource) {
-                this.createdResources.push(resource);
-                this.$emit('resource-created', resource);
-            },
+			onSingleFileSuccessfullyUploaded(file, resource) {
+				this.createdResources.push(resource);
+				this.$emit('resource-created', resource);
+			},
 
-            onQueueComplete(file, resource) {
-                this.$emit('multiple-resources-created', this.createdResources);
-                this.createdResources = [];
-                this.uploadRunning    = false;
-            },
+			onQueueComplete(file, resource) {
+				this.$emit('multiple-resources-created', this.createdResources);
+				this.createdResources = [];
+				this.uploadRunning = false;
+			},
 
-            onError(file, errorMsg, other) {
-                // console.error(errorMsg, file, other);
+			onError(file, errorMsg, other) {
+				// console.error(errorMsg, file, other);
 
-                if (errorMsg === undefined) {
+				if (errorMsg === undefined) {
 
-                    if (other && other.response) {
-                        if (other.response.error) {
-                            this.errorMessage = this.$t('pool.server-error-response') + ': ' + other.response.error;
-                        } else {
-                            this.errorMessage = other.response;
-                        }
+					if (other && other.response) {
+						if (other.response.error) {
+							this.errorMessage = this.$t('pool.server-error-response') + ': ' + other.response.error;
+						} else {
+							this.errorMessage = other.response;
+						}
 
-                    } else {
-                        this.errorMessage = 'Unknown error while uploading "' + file.name + '"';
-                    }
+					} else {
+						this.errorMessage = 'Unknown error while uploading "' + file.name + '"';
+					}
 
-                } else {
-                    this.errorMessage = errorMsg;
-                }
+				} else {
+					this.errorMessage = errorMsg;
+				}
 
-                if (other && other.status) {
-                    this.fileStatus = other.status + ' (' + other.statusText + ')';
-                }
+				if (other && other.status) {
+					this.fileStatus = other.status + ' (' + other.statusText + ')';
+				}
 
-                this.uploadRunning = false;
-            },
+				this.uploadRunning = false;
+			},
 
-            btnClearErrorAndTryAgain() {
-                this.errorMessage  = null;
-                this.fileStatus    = null;
-                this.uploadRunning = false;
+			btnClearErrorAndTryAgain() {
+				this.errorMessage = null;
+				this.fileStatus = null;
+				this.uploadRunning = false;
 
-            }
-        },
+			}
+		},
 
-        filters: {
-            json(value) {
-                return JSON.stringify(value, null, 2)
-            }
-        },
+		filters: {
+			json(value) {
+				return JSON.stringify(value, null, 2)
+			}
+		},
 
-        components: {
-            VueTransmit,
-            BAlert,
-            BButton
-        }
-    }
+		components: {
+			VueTransmit,
+			BAlert,
+			BButton
+		}
+	}
 </script>
 
 <style>
