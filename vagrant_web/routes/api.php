@@ -113,6 +113,9 @@ Route::group([
 	Route::get('keywords/{keyword}', 'KeywordController@show')
 		 ->where(['keyword' => '[0-9]+'])
 		 ->name('keywords.show');
+	Route::get('keywords/{keyword}/relations_count', 'KeywordController@relationsCount')
+        ->where(['keyword' => '[0-9]+'])
+        ->name('keywords.relations_count');
 	Route::post('keywords', 'KeywordController@create')
 		 ->name('keywords.create');
 	Route::put('keywords/{keyword}', 'KeywordController@update')

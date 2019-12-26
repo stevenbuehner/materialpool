@@ -127,6 +127,10 @@ export function api_v1_keywords_show(keywordId) {
     return '/api/v1/keywords/' + keywordId;
 }
 
+export function api_v1_keywords_relations_count(keywordId){
+    return '/api/v1/keywords/' + keywordId + '/relations_count';
+}
+
 export const api_v1_keywords_create = '/api/v1/keywords';
 
 export function api_v1_keywords_update(keywordId) {

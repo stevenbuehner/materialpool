@@ -7,6 +7,8 @@
                 :id="id"
         ></keyword-edit>
 
+        {{relationsCount}}
+
     </div>
 </template>
 
@@ -40,6 +42,13 @@
                 /* watch() {
                     this.forceReload
                 }*/
+            },
+
+            relationsCount: {
+                get() {
+                    return this.$store.dispatch('keywords/relationsCount', this.id);
+                },
+                default: null,
             }
         },
 

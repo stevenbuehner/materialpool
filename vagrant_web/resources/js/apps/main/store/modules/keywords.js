@@ -3,7 +3,7 @@ import {
     api_v1_keywords_create,
     api_v1_keywords_delete,
     api_v1_keywords_deleteassignment,
-    api_v1_keywords_index,
+    api_v1_keywords_index, api_v1_keywords_relations_count,
     api_v1_keywords_show,
     api_v1_keywords_update,
     api_v1_keywords_updateassignment,
@@ -130,6 +130,15 @@ const actions = {
 
     },
 
+    relationsCount: ({commit}, keywordsId) => {
+        return axios.get(api_v1_keywords_relations_count(keywordsId))
+            .then(({data}) => {
+                return data;
+            }).catch((response) => {
+                throw convertErrorResponseToMessage(response);
+            });
+    },
+
     /**
      *
      * @param state
@@ -164,7 +173,7 @@ const actions = {
     },
 
     createAndAssign: async ({commit, getters, dispatch}, {title, type, materialId, relevance}) => {
-        const keyword          = await dispatch('create', {title, type});
+        const keyword = await dispatch('create', {title, type});
         const keywordRelevance = await dispatch('updateRelevance', {materialId, keywordId: keyword.id, relevance});
 
         return keywordRelevance;
@@ -274,8 +283,8 @@ const actions = {
 
     search: ({commit, getters, dispatch}, {searchText, type, per_page, page}) => {
 
-        type     = type || false;
-        page     = page || 1;
+        type = type || false;
+        page = page || 1;
         per_page = per_page || 20;
 
         let data = {
