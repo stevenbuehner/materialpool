@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Keyword;
 use Illuminate\Database\Migrations\Migration;
 
 class AddDefaultTags extends Migration {
@@ -15,9 +16,8 @@ class AddDefaultTags extends Migration {
 
 		foreach (self::LANGS as $lang) {
 
-			\App\Models\Language::firstOrCreate(
-				['title' => $lang]
-			);
+			Keyword::firstOrCreateLang($lang);
+
 		}
 
 	}
@@ -31,7 +31,8 @@ class AddDefaultTags extends Migration {
 
 		// Todo: Nicht getestet bisher !
 		foreach (self::LANGS as $lang) {
-			$model = \App\Models\Language::where('title', '=', $lang);
+
+			$model = Keyword::firstOrCreatePerson($lang);
 
 			if (!$model->materials()->exists()) {
 				$model->delete();

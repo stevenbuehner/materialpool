@@ -75,7 +75,6 @@ npm run dev
 
 
 php artisan migrate
-php artisan module:migrate
 php artisan db:seed
 
 // API-Access
