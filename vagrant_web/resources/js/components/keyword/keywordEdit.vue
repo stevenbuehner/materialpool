@@ -57,6 +57,20 @@
 
             <div class="row mt-2">
                 <div class="col-sm-3">
+                    <label>{{$t('pool.Info')}}:</label>
+                </div>
+                <div class="col-sm-9">
+                    <materialpool-spinner class="align-self-center" v-if="relationsCount === null"/>
+
+                    <div v-if="relationsCount">
+                        {{$t('pool.Keyword_usage', relationsCount)}}
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="row mt-2">
+                <div class="col-sm-3">
                     <label>{{$t('pool.Direct-Parent')}}:</label>
                 </div>
                 <div class="col-sm-9" v-if="keyword && keyword.parent_id && !parent">
@@ -145,6 +159,13 @@
 				/* watch() {
                     this.forceReload
                 }*/
+			},
+
+			relationsCount: {
+				get() {
+					return this.$store.dispatch('keywords/relationsCount', this.id);
+				},
+				default: null,
 			}
 		},
 

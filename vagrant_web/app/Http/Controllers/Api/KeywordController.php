@@ -56,14 +56,12 @@ class KeywordController extends BaseController {
 
 	public function relationsCount(Keyword $keyword) {
 
-		// LoadCount funktioniert erst ab Laravel 6 :-(
-		$keyword->materials;
-		$keyword->loadCount('materials');
+		// LoadCount funktioniert erst ab Laravel 5.8
 		$keyword->loadCount(['materials', 'materialAuthors', 'children', 'descendants']);
 
 		$result = [
 			'materials_count'        => $keyword->materials_count,
-			'material_authors_count' => $keyword->materialAuthors_count,
+			'material_authors_count' => $keyword->material_authors_count,
 			'children_count'         => $keyword->children_count,
 			'descendants_count'      => $keyword->descendants_count,
 		];

@@ -7,8 +7,6 @@
                 :id="id"
         ></keyword-edit>
 
-        {{relationsCount}}
-
     </div>
 </template>
 
@@ -44,12 +42,6 @@
                 }*/
 			},
 
-			relationsCount: {
-				get() {
-					return this.$store.dispatch('keywords/relationsCount', this.id);
-				},
-				default: null,
-			}
 		},
 
 
