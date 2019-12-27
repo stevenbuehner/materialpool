@@ -33,6 +33,7 @@ class Kernel extends ConsoleKernel {
 		$schedule->command(CleanupCommand::class)
 			->daily();
 
+		// Jobs ausführen
 		$schedule->command(WorkCommand::class,
 			['database', '--queue=default', '--stop-when-empty', '--tries=50', '--timeout=120', '--no-interaction'])
 			->everyFiveMinutes();

@@ -167,11 +167,6 @@ return [
 
 
 		/*
-		 * Package Service Providers...
-		 */
-		Laravel\Tinker\TinkerServiceProvider::class,
-
-		/*
 		 * Application Service Providers...
 		 */
 		App\Providers\AppServiceProvider::class,
@@ -181,16 +176,14 @@ return [
 		App\Providers\RouteServiceProvider::class,
 
 
-		/*
-		 * oAuth Service Provider
-		 *
-		 */
-		Laravel\Passport\PassportServiceProvider::class,
+		// Laravel Tinker --> auto discovered
+		// Laravel\Tinker\TinkerServiceProvider::class,
 
+		// oAuth Service Provider --> auto discovered
+		// Laravel\Passport\PassportServiceProvider::class,
 
 		// Insert JavaScript via blade Helper --> auto discovered
 		// \Laracasts\Utilities\JavaScript\JavaScriptServiceProvider::class,
-
 
 		// Artisan Command to generate i18n files for JavaScript --> auto discovered
 		// \MartinLindhe\VueInternationalizationGenerator\GeneratorProvider::class,

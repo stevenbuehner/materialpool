@@ -2,6 +2,7 @@
 
 namespace App\Policies;
 
+use App\Models\ForeignResourceId;
 use App\Models\Material;
 use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
@@ -18,18 +19,18 @@ class MaterialPolicy {
 	/**
 	 * Determine whether the user can view the material.
 	 *
-	 * @param \App\Models\User $user
-	 * @param \App\Models\Material $material
+	 * @param User $user
+	 * @param Material $material
 	 * @return mixed
 	 */
 	public function view(User $user, Material $material) {
-		return ($material->created_by == $user->id);
+		return $this->matchOrDenyCreator($user, $material);
 	}
 
 	/**
 	 * Determine whether the user can create materials.
 	 *
-	 * @param \App\Models\User $user
+	 * @param User $user
 	 * @return mixed
 	 */
 	public function create(User $user) {
@@ -39,23 +40,31 @@ class MaterialPolicy {
 	/**
 	 * Determine whether the user can update the material.
 	 *
-	 * @param \App\Models\User $user
-	 * @param \App\Models\Material $material
+	 * @param User $user
+	 * @param Material $material
 	 * @return mixed
 	 */
 	public function update(User $user, Material $material) {
-		return ($material->created_by == $user->id);
+		return $this->matchOrDenyCreator($user, $material);
 	}
 
 	/**
 	 * Determine whether the user can delete the material.
 	 *
-	 * @param \App\Models\User $user
-	 * @param \App\Models\Material $material
+	 * @param User $user
+	 * @param Material $material
 	 * @return mixed
 	 */
 	public function delete(User $user, Material $material) {
-		return ($material->created_by == $user->id);
+		return $this->matchOrDenyCreator($user, $material);
+	}
+
+	protected function matchOrDenyCreator(User $user, Material $material) {
+		if ($user->id === $material->created_by) {
+			return TRUE;
+		} else {
+			$this->deny('The requested action is only allowed for the creator of this material.');
+		}
 	}
 
 

@@ -18,18 +18,22 @@ class ResourcePolicy {
 	/**
 	 * Determine whether the user can view the resource.
 	 *
-	 * @param \App\Models\User $user
-	 * @param \App\Models\Resource $resource
+	 * @param User $user
+	 * @param Resource $resource
 	 * @return mixed
 	 */
 	public function view(User $user, Resource $resource) {
-		return ($resource->is_public || $resource->created_by == $user->id);
+		if ($resource->is_public) {
+			return TRUE;
+		}
+
+		return $this->matchOrDenyCreator($user, $resource);
 	}
 
 	/**
 	 * Determine whether the user can create resources.
 	 *
-	 * @param \App\Models\User $user
+	 * @param User $user
 	 * @return mixed
 	 */
 	public function create(User $user) {
@@ -39,22 +43,30 @@ class ResourcePolicy {
 	/**
 	 * Determine whether the user can update the resource.
 	 *
-	 * @param \App\Models\User $user
-	 * @param \App\Models\Resource $resource
+	 * @param User $user
+	 * @param Resource $resource
 	 * @return mixed
 	 */
 	public function update(User $user, Resource $resource) {
-		return $resource->created_by == $user->id;
+		return $this->matchOrDenyCreator($user, $resource);
 	}
 
 	/**
 	 * Determine whether the user can delete the resource.
 	 *
-	 * @param \App\Models\User $user
-	 * @param \App\Models\Resource $resource
+	 * @param User $user
+	 * @param Resource $resource
 	 * @return mixed
 	 */
 	public function delete(User $user, Resource $resource) {
-		return $resource->created_by == $user->id;
+		return $this->matchOrDenyCreator($user, $resource);
+	}
+
+	protected function matchOrDenyCreator(User $user, Resource $resource) {
+		if ($user->id === $resource->created_by) {
+			return TRUE;
+		} else {
+			$this->deny('The requested action is only allowed for the creator of this resource.');
+		}
 	}
 }
