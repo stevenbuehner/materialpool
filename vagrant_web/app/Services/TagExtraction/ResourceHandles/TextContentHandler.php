@@ -11,6 +11,7 @@ use App\Services\TagExtraction\Properties\Property;
 use App\Services\TagExtraction\TagExtractionService;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 use StevenBuehner\BibleVerseBundle\Interfaces\BibleVerseInterface;
 use StevenBuehner\BibleVerseBundle\Service\BibleVerseService;
 
@@ -79,7 +80,7 @@ class TextContentHandler implements HandlerInterface {
 				// Use the whole Textfile as OCR-Information
 				$otherLines = trim($content);
 				if (strlen($otherLines) > 3) {
-					$ocrProperty = new OcrTextProperty(str_limit($content, 200),
+					$ocrProperty = new OcrTextProperty(Str::limit($content, 200),
 						RelevanceInterface::RELEVANCE_EXIF_MAX - 10);
 					$result->push($ocrProperty);
 				}
@@ -151,7 +152,7 @@ class TextContentHandler implements HandlerInterface {
 			});
 
 			// Use this Ocr-Text only (MIN-Relevance) if the searchInFirstLine got less than 3 Keywords => use whole text
-			$ocrProperty = new OcrTextProperty(str_limit($content, 200), RelevanceInterface::RELEVANCE_EXIF_MIN);
+			$ocrProperty = new OcrTextProperty(Str::limit($content, 200), RelevanceInterface::RELEVANCE_EXIF_MIN);
 			$result->push($ocrProperty);
 
 		} else {

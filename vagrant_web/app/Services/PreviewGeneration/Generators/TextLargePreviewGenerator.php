@@ -15,6 +15,7 @@ use App\Services\PreviewGeneration\Exceptions\NotPreviewAbleException;
 use App\Services\PreviewGeneration\Interfaces\PreviewGeneratorInterface;
 use App\Services\TagExtraction\ResourceHandles\TextContentInterface;
 use Illuminate\Support\Facades\View;
+use Illuminate\Support\Str;
 use Intervention\Image\AbstractFont;
 use Intervention\Image\ImageManager;
 use Intervention\Image\Size;
@@ -40,7 +41,7 @@ class TextLargePreviewGenerator implements PreviewGeneratorInterface {
 			throw new NotPreviewAbleException('Resource apparently has no content to preview');
 		}
 
-		$text  = trim(str_limit($resource->getContent(), 500));
+		$text  = trim(Str::limit($resource->getContent(), 500));
 		$image = $this->imageManager
 			->canvas($size->getWidth(), $size->getHeight(), '#fff')
 			->text(wordwrap($text, round($size->width / 10)), 5, 5, function ($font) {
@@ -69,7 +70,7 @@ class TextLargePreviewGenerator implements PreviewGeneratorInterface {
 
 		/*
 
-		$text      = str_limit($resource->content, 500);
+		$text      = Str::limit($resource->content, 500);
 		$hAlgin    = 'center';
 		$vAlign    = 'middle';
 		$fontSize  = 12;

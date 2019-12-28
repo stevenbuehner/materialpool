@@ -16,6 +16,7 @@ use App\Services\TagExtraction\Properties\RatingProperty;
 use App\Services\TagExtraction\Properties\TitleProperty;
 use App\Services\TagExtraction\ResourceHandles\HandlerInterface;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Str;
 use StevenBuehner\BibleVerseBundle\Service\BibleVerseService;
 
 class MaterialExtractionService {
@@ -134,7 +135,7 @@ class MaterialExtractionService {
 			});
 
 			if ($ocrTextProperties->count()) {
-				$defaultTitle = str_limit($ocrTextProperties->first()->getValue(), 60);
+				$defaultTitle = Str::limit($ocrTextProperties->first()->getValue(), 60);
 				$properties->push(new TitleProperty($defaultTitle, 0));
 			}
 		}
