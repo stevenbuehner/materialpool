@@ -1,10 +1,10 @@
 <template>
-    <div class="resourcePreview card mb-4" @mouseover="hovered = true" @mouseleave="hovered = false">
+    <div class="resourcePreview card" @mouseover="hovered = true" @mouseleave="hovered = false">
         <component :is="previewComponent" :resource="resource"></component>
 
-        <transition name="fade">
 
-            <div class="card-body resPrevMenu pt-0" v-if="hovered">
+        <transition name="fade">
+            <div class="card-body resourcePreviewMenu pt-0" v-if="hovered">
                 <div class="meta">
                     <div v-if="resource.creator">
                         {{$t('pool.Creator')}}:
@@ -109,6 +109,19 @@
         .fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */
         {
             opacity: 0;
+        }
+
+        .resourcePreviewMenu {
+            position: absolute;
+            margin-top: -5px;
+            top: 100%;
+            background: white;
+            z-index: 10;
+            border: 1px solid rgba(0, 0, 0, 0.125);
+            border-top: none;
+            border-radius: 0.25rem;
+            width: calc(100% + 2px);
+            margin-left: -1px;
         }
     }
 

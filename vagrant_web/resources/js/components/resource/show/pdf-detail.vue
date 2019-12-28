@@ -1,23 +1,25 @@
 <template>
-    <div class="row">
+    <div class="row m-n1 pdfDetailWrapper">
         <div v-for="(image, index) in previewImages"
-             class="col-lg-3 col-md-4 col-sm-6 col-12 imageContainer pdfDetail img-thumbnail"
+             class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-3 p-1 imageContainer"
              @click="$refs.imageZoom.show(index)"
              :key="image.src">
-            <b-img-lazy
-                    v-if="index > 12"
-                    :src="image.src"
-                    :alt="image.title"
-                    fluid
-            ></b-img-lazy>
-            <b-img
-                    v-if="index <= 12"
-                    :src="image.src"
-                    :alt="image.title"
-                    fluid
-            ></b-img>
+            <div class="oneImagePage">
+                <b-img-lazy
+                        v-if="index > 12"
+                        :src="image.src"
+                        :alt="image.title"
+                        fluid
+                ></b-img-lazy>
+                <b-img
+                        v-if="index <= 12"
+                        :src="image.src"
+                        :alt="image.title"
+                        fluid
+                ></b-img>
 
-            <div class="title text-center">{{image.title}}</div>
+                <div class="title text-center">{{image.title}}</div>
+            </div>
         </div>
 
         <image-zoom :data="previewImages" ref="imageZoom"></image-zoom>
@@ -85,14 +87,28 @@
 
 <style type="scss">
 
-    .pdfDetail.imageContainer {
+    @import "resources/sass/theme";
 
-        cursor: pointer;
+    .pdfDetailWrapper {
+        margin: 0;
 
-        .title {
-            font-size: 0.75em;
+        .imageContainer {
+
+            .oneImagePage {
+
+                background-color: $card-bg;
+                cursor: pointer;
+
+                border: $border-width solid $border-color;
+                border-radius: $card-border-radius;
+
+
+                .title {
+                    font-size: 0.75em;
+                }
+            }
+
         }
     }
-
 
 </style>

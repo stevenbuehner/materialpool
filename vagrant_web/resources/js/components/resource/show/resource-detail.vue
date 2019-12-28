@@ -1,14 +1,16 @@
 <template>
-    <div class="resourceDetail jumbotron">
-        <component :is="detailComponent" :resource="resource" class="lead"
+    <div class="resourceDetail">
+
+        <component :is="detailComponent" :resource="resource" class="detailContents"
                    @resource-updated="$emit('resource-updated', $event)"></component>
 
-        <hr>
 
-        <div>
-            <div class="meta mb-2">
+
+        <div class="row m-n0">
+
+            <div class="col-md-6 col-12 meta">
                 <div class="notes" v-if="resource.notes && resource.notes.length > 0">Notiz: {{resource.notes}}</div>
-                <div class="originalFilename" v-if="resource.original_filename !== undefined">
+                <div class="originalFilename" v-if="resource.original_filename">
                     {{$t('pool.Filename')}}: {{resource.original_filename}}
 
                     <span class="page_count" v-if="resource.page_count">
@@ -23,27 +25,33 @@
                 <div class="creator">{{$t('pool.Creator-ID')}}: {{resource.created_by}}</div>
                 <div class="resource-id">{{$t('pool.Resource-ID')}}: {{resource.id}}</div>
             </div>
-            <slot name="buttons">
-                <slot name="default-buttons">
-                    <a v-if="showDownload"
-                       class="btn btn-outline-primary mb-1"
-                       :href="downloadResourceLink(resource)">{{$t('pool.download')}}</a>
-                    <router-link v-if="showOpen" :to="{name:'resource-detail', params: {id: resource.id}}"
-                                 class="btn btn-outline-primary mb-1">{{$t('pool.open')}}
-                    </router-link>
-                    <router-link v-if="resource.type==='pdf' || resource.type==='doc'"
-                                 :to="routerEditLimitationObject(resource, resource.pivot)"
-                                 class="btn btn-outline-primary  mb-1">{{$t('pool.page-assignments')}}
-                    </router-link>
-                    <button v-if="showDelete"
-                            class="btn btn-outline-danger mb-1"
-                            @click="btnDeleteResource(resource)"
-                            :title="$t('pool.Delete-resource')">{{$t('pool.delete')}}
-                    </button>
+
+            <div class="col-md-6 col-12">
+                <slot name="buttons">
+                    <slot name="default-buttons">
+                        <a v-if="showDownload"
+                           class="btn btn-outline-primary mb-1"
+                           :href="downloadResourceLink(resource)">{{$t('pool.download')}}</a>
+                        <router-link v-if="showOpen" :to="{name:'resource-detail', params: {id: resource.id}}"
+                                     class="btn btn-outline-primary mb-1">{{$t('pool.open')}}
+                        </router-link>
+                        <router-link v-if="resource.type==='pdf' || resource.type==='doc'"
+                                     :to="routerEditLimitationObject(resource, resource.pivot)"
+                                     class="btn btn-outline-primary  mb-1">{{$t('pool.page-assignments')}}
+                        </router-link>
+                        <button v-if="showDelete"
+                                class="btn btn-outline-danger mb-1"
+                                @click="btnDeleteResource(resource)"
+                                :title="$t('pool.Delete-resource')">{{$t('pool.delete')}}
+                        </button>
+                    </slot>
+                    <slot name="additional-buttons"></slot>
                 </slot>
-                <slot name="additional-buttons"></slot>
-            </slot>
+            </div>
+
         </div>
+
+
 
     </div>
 </template>
@@ -131,14 +139,16 @@
 	}
 </script>
 
-<style scoped>
+<style type="text/scss">
 
     .resourceDetail {
-    }
 
-    .meta {
-        color: grey;
-        font-size: smaller;
-    }
+        .detailContents {
+        }
 
+        .meta {
+            color: grey;
+            font-size: smaller;
+        }
+    }
 </style>
