@@ -2,13 +2,13 @@
   "private": true,
   "scripts": {
     "dev": "npm run development",
-    "development": "php artisan vue-i18n:generate; cross-env NODE_ENV=development webpack-dev-server --hot --mode=development",
+    "development": "php73 artisan vue-i18n:generate; cross-env NODE_ENV=development webpack-dev-server --hot --mode=development",
     "watch": "cross-env NODE_ENV=development node_modules/webpack/bin/webpack.js --watch --progress --hide-modules --config=node_modules/laravel-mix/setup/webpack.config.js",
     "watch-poll": "npm run watch -- --watch-poll",
     "hot": "cross-env NODE_ENV=development node_modules/webpack-dev-server/bin/webpack-dev-server.js --inline --hot --config=node_modules/laravel-mix/setup/webpack.config.js",
     "prod": "npm run production",
     "production": "npm run build",
-    "build": "php artisan vue-i18n:generate; cross-env NODE_ENV=production webpack --progress --hide-modules --mode=production"
+    "build": "php73 artisan vue-i18n:generate; cross-env NODE_ENV=production webpack --progress --hide-modules --mode=production"
   },
   "dependencies": {
     "@babel/polyfill": "^7.7.0",
