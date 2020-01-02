@@ -26,7 +26,7 @@
                             <button class="btn btn-sm" :title="$t('pool.duplicate-material')">
                                 <clone-icon class="cloneIcon buttonIcon"></clone-icon>
                             </button>
-                            <div class="title">{{material.title}}</div>
+                            <div v-if="material" class="title">{{material.title}}</div>
                         </div>
                     </div>
 
@@ -527,7 +527,26 @@
 					}
 				}
 
-				this.updateKeywordRelevance(keywordObject, keywordObject.pivot.relevance);
+				const prm = new Promise((resolve, reject) => {
+
+					if (keywordObject.isNew === true) {
+
+						const startFlash = this.flashStartSaving(this.$t('pool.keyword'));
+
+						resolve(this.$store.dispatch('keywords/create', {
+							title: keywordObject.title,
+							type: keywordObject.type
+						}).then((keyword) => {
+							startFlash.destroy();
+							return keyword;
+						}));
+
+					} else {
+						resolve(keywordObject);
+					}
+				}).then((keyword) => {
+					return this.updateKeywordRelevance(keyword, keywordObject.pivot.relevance);
+				});
 
 			},
 

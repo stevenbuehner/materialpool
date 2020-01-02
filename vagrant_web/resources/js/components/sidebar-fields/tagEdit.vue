@@ -30,6 +30,7 @@
                         :getOptionLabel="getTagLabelFromObject"
                         @input="onInputChanged"
                         @search="onSearch"
+                        @search:blur=""
                 >
                     <template v-slot:selected-option-container="{option, disabled, multiple, deselect}">
                         <dragable-element
@@ -98,7 +99,7 @@
 		data() {
 			return {
 				suggestedTags: [],
-				clearOnSelect: false,
+				clearOnSelect: true,
 			};
 		},
 
@@ -182,11 +183,18 @@
 				  .then((keywords) => {
 					  // console.log(keywords);
 					  vm.suggestedTags = keywords;
-					  vm.suggestedTags.push({
+
+					  const newTag = {
 						  title: search,
 						  isNew: true,
-						  id: 'new Keyword: ' + search
-					  });
+						  id: 'new Keyword: ' + search,
+					  };
+
+					  if (vm.typefilter) {
+						  newTag.type = vm.typefilter;
+					  }
+
+					  vm.suggestedTags.push(newTag);
 				  })
 				  .catch((err) => {
 					  console.error(err);
