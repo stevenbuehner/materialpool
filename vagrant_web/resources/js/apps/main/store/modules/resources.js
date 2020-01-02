@@ -64,16 +64,17 @@ const actions = {
 				if (res) {
 					resolve(res);
 				} else {
-					axios.get(api_v1_resources_show(id), {
-						params: {
-							relations: ['materials', 'materials.keywords', 'materials.bibleverses', 'creator']
-						}
-					}).then((response) => {
-						dispatch('setResource', response.data);
-						resolve(getters.updateResource(id));
-					}).catch(() => {
-						reject('Could not find Resource');
-					});
+					axios
+						.get(api_v1_resources_show(id), {
+							params: {
+								relations: ['materials', 'materials.keywords', 'materials.bibleverses', 'creator']
+							}
+						})
+						.then((response) => {
+							dispatch('setResource', response.data);
+							resolve(getters.updateResource(id));
+						})
+						.catch((response) => throw convertErrorResponseToMessage(response));
 				}
 			});
 
@@ -106,19 +107,22 @@ const actions = {
 				}
 
 				return data;
-			});
+			})
+			.catch((response) => throw convertErrorResponseToMessage(response));
 
 	},
 
 	deleteResource: ({commit}, id) => {
 
-		return axios.delete(api_v1_resources_delete(id)).then(({data}) => {
+		return axios.delete(api_v1_resources_delete(id))
+		            .then(({data}) => {
 
-			commit('clearResource', id);
+			            commit('clearResource', id);
 
-			return (data.success && data.success === true);
+			            return (data.success && data.success === true);
 
-		});
+		            })
+		            .catch((response) => throw convertErrorResponseToMessage(response));
 
 	},
 
@@ -135,10 +139,7 @@ const actions = {
 			            return resource;
 		            })
 		            .catch((response) => {
-			            throw {
-				            errors: (response.data && response.data.errors) ? response.data.errors : '',
-				            message: (response.data && response.data.message) ? response.data.message : response.message
-			            };
+			            throw convertErrorResponseToMessage(response);
 		            });
 	},
 
@@ -160,14 +161,16 @@ const actions = {
 		meta = meta || '';
 		from_bot = from_bot || false;
 
-		const promise = axios.post(api_v1_resources_create_material, {
-			resourceIds: resourceIds,
-			from_bot,
-			meta
-		})
-		                     .then(({data}) => {
-			                     return data;
-		                     });
+		const promise = axios
+			.post(api_v1_resources_create_material, {
+				resourceIds: resourceIds,
+				from_bot,
+				meta
+			})
+			.then(({data}) => {
+				return data;
+			})
+			.catch((response) => throw convertErrorResponseToMessage(response));
 
 		promise.then((material) => {
 

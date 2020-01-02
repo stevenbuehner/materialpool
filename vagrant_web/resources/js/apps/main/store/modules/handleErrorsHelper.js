@@ -1,4 +1,6 @@
 export function convertErrorResponseToMessage(result) {
+	console.error(result);
+
 	if (result.response && result.response.data && result.response.data.message) {
 		return result.response.data.message;
 	} else if (result.response && result.response.message) {
