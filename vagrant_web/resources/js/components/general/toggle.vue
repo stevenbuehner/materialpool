@@ -1,6 +1,6 @@
 <template>
     <div :class="['sb-toggle', 'tgl-'+type]">
-        <input type="checkbox" :class="['tgl-input', 'tgl']" v-model="myValue" :id="id"/>
+        <input type="checkbox" :class="['tgl-input', 'tgl']" :checked="myValue" @change="_toggleValue" :id="id"/>
         <label class="text tgl-btn" :data-tg-off="offLabel" :data-tg-on="onLabel" :for="id">{{label}}</label>
     </div>
 </template>
@@ -69,14 +69,14 @@
 			value(newValue) {
 				this.myValue = newValue;
 			},
-
-			myValue(newValue) {
-				this._emitToggled(newValue);
-			}
-
 		},
 
 		methods: {
+			_toggleValue() {
+				this.myValue = !this.myValue;
+				this._emitToggled();
+			},
+
 			_emitToggled() {
 				this.$emit('isToggled', this.myValue);
 			},
