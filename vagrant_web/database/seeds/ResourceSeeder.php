@@ -30,11 +30,12 @@ class ResourceSeeder extends Seeder {
 
 		// Create Testadmin
 		factory(User::class)->create([
-										 'name'           => 'admin',
-										 'password'       => bcrypt('admin'),
-										 'email'          => 'admin@test.app',
-										 'remember_token' => 'i6VuECaXTUHgjHwvdVemEtyu6nPxx90y3Qva9eFNhMgDk5PSKMLrCuCBck4s'
-									 ]);
+			'name'           => 'admin',
+			'password'       => bcrypt('admin'),
+			'email'          => 'admin@test.app',
+			'remember_token' => 'i6VuECaXTUHgjHwvdVemEtyu6nPxx90y3Qva9eFNhMgDk5PSKMLrCuCBck4s',
+			'is_admin'       => TRUE
+		]);
 
 		factory(Keyword::class, 20)->create();
 		factory(User::class, 5)->create();
@@ -53,9 +54,9 @@ class ResourceSeeder extends Seeder {
 					->each(function (\App\Models\Bibleverse $b) use ($material) {
 						$bv = \App\Models\Bibleverse::firstOrCreate(['from' => $b->from, 'to' => $b->to]);
 						$material->bibleverses()
-								 ->attach($bv->id,
-										  ['relevance' => rand(1,
-															   64)]);
+							->attach($bv->id,
+								['relevance' => rand(1,
+									64)]);
 
 						return $bv;
 					});
@@ -67,18 +68,18 @@ class ResourceSeeder extends Seeder {
 
 		factory(AudioFile::class, 5)
 			->create(['created_by' => User::all()
-										  ->offsetGet(2)->id])
+				->offsetGet(2)->id])
 			->each(function (AudioFile $r) {
 
 				/** @var Material $material */
 				$material = self::makeMaterialWithRandomUser();
 				$material->save();
 				$material->resources()
-						 ->attach($r,
-								  ['limitation' => new \App\ResourceLimitations\TimeLimitation()]);
+					->attach($r,
+						['limitation' => new \App\ResourceLimitations\TimeLimitation()]);
 
 				$material->keywords()
-						 ->save(self::getRandomKeyword(), ['relevance' => rand(0, 255)]);
+					->save(self::getRandomKeyword(), ['relevance' => rand(0, 255)]);
 
 				self::addRandomMaterialUid($material, $material->creator);
 				self::addRandomResourceUid($r, $material->creator);
@@ -86,16 +87,16 @@ class ResourceSeeder extends Seeder {
 
 
 		factory(VideoFile::class, 5)
-			->create(['created_by' => User::all()
-										  ->offsetGet(3)->id, 'local_path' => 'resources::1/video/uAUN7GA7kZyTzfhoEcfKxApvzLGiPMbzdQi367LK.mp4'])
+			->create(['created_by'               => User::all()
+				->offsetGet(3)->id, 'local_path' => 'resources::1/video/uAUN7GA7kZyTzfhoEcfKxApvzLGiPMbzdQi367LK.mp4'])
 			->each(function (VideoFile $r) {
 				$material = self::makeMaterialWithRandomUser();
 				$material->save();
 				$material->resources()
-						 ->attach($r,
-								  ['limitation' => new \App\ResourceLimitations\TimeLimitation()]);
+					->attach($r,
+						['limitation' => new \App\ResourceLimitations\TimeLimitation()]);
 				$material->keywords()->save(self::getRandomKeyword(), ['relevance' => rand(0,
-																						   255)]);
+					255)]);
 
 				self::addRandomMaterialUid($material, $material->creator);
 				self::addRandomResourceUid($r, $material->creator);
@@ -108,7 +109,7 @@ class ResourceSeeder extends Seeder {
 				$material = self::makeMaterialWithRandomUser();
 				$material->save();
 				$material->keywords()
-						 ->save(self::getRandomKeyword(), ['relevance' => rand(0, 255)]);
+					->save(self::getRandomKeyword(), ['relevance' => rand(0, 255)]);
 
 				self::addRandomMaterialUid($material, $material->creator);
 				self::addRandomResourceUid($r, $material->creator);
@@ -123,7 +124,7 @@ class ResourceSeeder extends Seeder {
 				$limitation = new \App\ResourceLimitations\PageLimitation();
 				$limitation->setPages([1, 3, 4, 5]);
 				$material->resources()
-						 ->attach($r, ['limitation' => $limitation]);
+					->attach($r, ['limitation' => $limitation]);
 				$material->keywords()->save(self::getRandomKeyword(), ['relevance' => rand(0, 255)]);
 
 				self::addRandomMaterialUid($material, $material->creator);
@@ -131,15 +132,15 @@ class ResourceSeeder extends Seeder {
 			});
 
 		factory(PdfFile::class, 5)
-			->create(['created_by' => User::all()
-										  ->offsetGet(5)->id, 'local_path' => 'resources::1/pdf/4dt6tOhunfEwMMI1HFzeCVOKJW9GE1vOcZtjeuDy.pdf'])
+			->create(['created_by'               => User::all()
+				->offsetGet(5)->id, 'local_path' => 'resources::1/pdf/4dt6tOhunfEwMMI1HFzeCVOKJW9GE1vOcZtjeuDy.pdf'])
 			->each(function (PdfFile $r) {
 				$material = self::makeMaterialWithRandomUser();
 				$material->save();
 				$limitation = new \App\ResourceLimitations\PageLimitation();
 				$limitation->setPages([1, 3, 4, 5]);
 				$material->resources()
-						 ->attach($r, ['limitation' => $limitation]);
+					->attach($r, ['limitation' => $limitation]);
 				$material->keywords()->save(self::getRandomKeyword(), ['relevance' => rand(0, 255)]);
 
 				self::addRandomMaterialUid($material, $material->creator);
@@ -174,9 +175,9 @@ class ResourceSeeder extends Seeder {
 	public static function makeMaterialWithUserId($user_id) {
 		return factory(Material::class)
 			->make([
-					   'created_by'  => $user_id,
-					   'modified_by' => $user_id
-				   ]);
+				'created_by'  => $user_id,
+				'modified_by' => $user_id
+			]);
 	}
 
 	public static function addRandomMaterialUid(Material $material, User $user) {
@@ -190,7 +191,7 @@ class ResourceSeeder extends Seeder {
 
 	/**
 	 * @param Resource $resource
-	 * @param User     $user
+	 * @param User $user
 	 * @return ForeignResourceId
 	 */
 	public static function addRandomResourceUid(Resource $resource, User $user) {
