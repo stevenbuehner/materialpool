@@ -14,6 +14,7 @@ use App\Services\TagExtraction\MaterialExtractionService;
 use App\Services\TagExtraction\ResourceHandles\TextContentInterface;
 use Illuminate\Contracts\Bus\Dispatcher;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -258,7 +259,8 @@ trait ResourceHelperTrait {
 		$rules = $resourceClass::getValidationRules();
 
 		if ($partialUpdateAllowed === TRUE) {
-			$rules = array_only($rules, $request->keys());
+			// The Arr::only method returns only the specified key / value pairs from the given array:
+			$rules = Arr::only($rules, $request->keys());
 		}
 
 		$validator = \Validator::make($request->all(), $rules);
