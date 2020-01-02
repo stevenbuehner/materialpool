@@ -114,6 +114,7 @@
                             <b>{{$t('pool.Publicity')}}:</b>
                             <toggle :value="resource.is_public" id="is_public" type="light"
                                     style="font-size: .6em; position: relative; top: .4em;"
+                                    :key="forceReload"
                                     @isToggled="updateIsPublic"/>
                             {{resource.is_public ? $t('pool.Resource-is-public') : $t('pool.Resource-is-private')}}
                         </b-list-group-item>
@@ -371,7 +372,7 @@
 				    })
 				    .catch((data) => {
 					    this.forceReload++;
-					    this.flash('Error while updating ' + flashLabel + "\n" + (data.message || ''));
+					    this.flash('Error while updating ' + flashLabel + ": " + (data || ''));
 				    });
 
 			},
