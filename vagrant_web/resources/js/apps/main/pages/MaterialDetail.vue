@@ -126,7 +126,7 @@
 
                     {{$t('pool.edited')}} {{material.updated_at | dayjs | recentOrFormat }},
 
-                    <span v-if="material.creator !== undefined && material.creator.name !== undefined"
+                    <span v-if="material.creator && material.creator.name"
                           class="mr-0 pr-0">
                         {{$t('pool.by')}} {{material.creator.name}},
                     </span>
