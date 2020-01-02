@@ -26,6 +26,7 @@
                             <button class="btn btn-sm" :title="$t('pool.duplicate-material')">
                                 <clone-icon class="cloneIcon buttonIcon"></clone-icon>
                             </button>
+                            <div class="title">{{material.title}}</div>
                         </div>
                     </div>
 
@@ -33,8 +34,10 @@
                     <div class="contentContainer" v-if="material">
 
                         <!-- Auflistung bei mehr als einer Ressource -->
-                        <div class="row no-gutters pl-2 pt-2" v-if="material.resources && material.resources.length > 1">
-                            <div class="col-xl-3 col-lg-4 col-md-4 col-sm-6 col-xs-12 pr-2 pb-2" v-for="resource in material.resources">
+                        <div class="row no-gutters pl-2 pt-2"
+                             v-if="material.resources && material.resources.length > 1">
+                            <div class="col-xl-3 col-lg-4 col-md-4 col-sm-6 col-xs-12 pr-2 pb-2"
+                                 v-for="resource in material.resources">
                                 <resource-preview :resource="resource">
                                     <template slot="additional-buttons">
                                         <button class="btn btn-sm btn-outline-danger mb-1"
@@ -48,7 +51,8 @@
                         </div>
 
                         <!-- Detailierter bei nur einer Ressource -->
-                        <div class="row no-gutters pl-2 pt-2" v-if="material.resources && material.resources.length === 1">
+                        <div class="row no-gutters pl-2 pt-2"
+                             v-if="material.resources && material.resources.length === 1">
                             <div class="col-xl-12 col-12 pr-2 pb-2">
                                 <resource-detail :resource="material.resources[0]" :showDelete="false">
                                     <template slot="additional-buttons">
@@ -752,9 +756,24 @@
 
             .contentMenue {
                 border-bottom: 1px solid $gray-400;
+
+                .title {
+                    display: inline-block;
+                    padding: 0.25em 0.5em;
+                    font-weight: bold;
+                    text-overflow: ellipsis;
+                    overflow: hidden;
+                    white-space: nowrap;
+                    max-width: 100%;
+
+                    @media(min-width: map-get($grid-breakpoints, "sm")) {
+                        float: right;
+                        padding-left: 1em;
+                    }
+                }
             }
 
-            .contentContainer{
+            .contentContainer {
                 background-color: $jumbotron-bg;
             }
         }
