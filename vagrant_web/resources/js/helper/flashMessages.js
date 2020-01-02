@@ -3,10 +3,6 @@ import {timeout_flashErrorMessage} from "../apps/config";
 export const savingDialogs = {
 
 	methods: {
-		flashUpdateTagError({tag, msg}) {
-			this.flash(msg, 'error', {})
-		},
-
 
 		flashStartSaving(propertyName) {
 			return this.flash(this.$t('pool.saving-xy-now', {xy: propertyName[0].toUpperCase() + propertyName.substring(1).toLowerCase()}), 'warning', {
@@ -50,6 +46,14 @@ export const savingDialogs = {
 				timeout: timeout_flashErrorMessage,
 			});
 		},
+
+		flashUpdateTagError({tag, msg}) {
+			this.flash(msg, 'error', {
+				important: false,
+				timeout: timeout_flashErrorMessage,
+			})
+		},
+		
 	}
 
 };
