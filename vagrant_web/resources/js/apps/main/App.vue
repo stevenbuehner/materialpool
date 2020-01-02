@@ -9,14 +9,15 @@
 </template>
 
 <script>
-	import mainNavbar   from '../../components/navbar/mainNavbar.vue';
-	import flashMessage from 'vue-flash-message';
-	import Vue          from 'vue';
+	import mainNavbar                   from '../../components/navbar/mainNavbar.vue';
+	import flashMessage                 from 'vue-flash-message';
+	import Vue                          from 'vue';
+	import {timeout_flashSavingMessage} from "../config";
 
 	Vue.use(flashMessage, {
 		messageOptions: {
-			timeout: 3000,
-			important: false,
+			timeout: timeout_flashSavingMessage,
+			important: true,
 			pauseOnInteract: true
 		}
 	});

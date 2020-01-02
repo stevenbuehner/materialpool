@@ -164,11 +164,12 @@
 	import MaterialCreator  from "../../../components/modals/creators/materialCreator";
 	import Toggle           from "../../../components/general/toggle";
 	import Edditable        from "../../../components/general/edditable";
+	import {savingDialogs}  from "../../../helper/flashMessages";
 
 
 	export default {
 
-		mixins: [resourceLinks, formatLocalizedDate],
+		mixins: [resourceLinks, formatLocalizedDate, savingDialogs],
 
 		props: {
 			id: {
@@ -364,16 +365,19 @@
 
 			_updateResource(data, flashLabel) {
 
-				this.flashInfo('Upading ' + flashLabel);
+				const startDialog = this.flashStartSaving(flashLabel);
 
 				this.$store.dispatch('resources/update', {id: this.resource.id, data})
 				    .then((resource) => {
 					    this.forceReload++;
-					    this.flashSuccess(flashLabel + ' updated successful');
+					    this.flashSaved(flashLabel);
 				    })
 				    .catch((data) => {
 					    this.forceReload++;
-					    this.flash('Error while updating ' + flashLabel + ": " + (data || ''));
+					    this.flashError(flashLabel, data)
+				    })
+				    .then(() => {
+					    startDialog.destroy();
 				    });
 
 			},
