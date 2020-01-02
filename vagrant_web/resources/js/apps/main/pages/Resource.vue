@@ -108,6 +108,7 @@
                                        :value="resource.remote_path"
                                        @value-changed="updateRemotePath"
                                        :placeholder="$t('pool.Click-to-insert-an-URL')"
+                                       :key="forceReload"
                                        class="flex-grow-1 ml-1"/>
                         </b-list-group-item>
                         <b-list-group-item>
