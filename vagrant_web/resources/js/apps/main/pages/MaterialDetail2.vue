@@ -675,27 +675,6 @@
 				this.material.from_bot = false;
 			},
 
-			bibleverseUpdated({oldBibleverse, newBibleverse}) {
-
-				// Success
-				const index = this.material.bibleverses.findIndex((bv) => {
-					return bv.id === oldBibleverse.id;
-				});
-
-				if (index !== -1) {
-					this.material.bibleverses.splice(index, 1, newBibleverse); // https://vuejs.org/2016/02/06/common-gotchas/
-					this.flashSaved('Bibleverse "' + newBibleverse.label + '"');
-					this.materialWasModified();
-				} else {
-					console.error('Changed bibleverse was not found in Array!');
-				}
-
-			},
-
-			downloadResourceLink(resource) {
-				window.location = resourceDownloadLink(resource);
-			},
-
 		},
 
 
