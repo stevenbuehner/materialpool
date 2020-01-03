@@ -24,7 +24,8 @@ class MaterialRequest extends FormRequest {
 			'title'       => 'bail|string|min:3|max:255',
 			'description' => 'bail|nullable|string',
 			'rating'      => 'bail|nullable|integer|between:0,20',
-			'flag'        => 'bail|nullable|integer|min:0'
+			'flag'        => 'bail|nullable|integer|min:0',
+			'created_at'  => 'bail:'
 		];
 	}
 

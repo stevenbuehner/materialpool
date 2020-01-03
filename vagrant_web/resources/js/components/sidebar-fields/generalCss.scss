@@ -1,3 +1,5 @@
+@import "resources/sass/theme";
+
 .sideBarField {
 
   font-size: 0.8em;
@@ -22,20 +24,29 @@
 
   .editField {
 
-
-    .input {
+    input, textarea {
       font-size: 1em;
       border-radius: 0.25em;
+
+      &.valueChanged {
+        background-color: $sidebar-input-value-not-saved-yet-background-color;
+        border-color: $sidebar-input-value-not-saved-yet-border-color;
+      }
     }
 
   }
 
-  .save-button {
-    padding: 0.1rem 0.25rem;
-    font-size: 0.55rem;
+  .buttons {
     margin-left: auto; // Pull right
-    position: relative;
-    top: -0.25em;
+    padding-right: 0.25em;
+
+    .save-button, .cancel-button {
+      padding: 0.1rem 0.25rem;
+      font-size: 0.55rem;
+      position: relative;
+      top: -0.25em;
+      cursor: pointer;
+    }
   }
 
 }

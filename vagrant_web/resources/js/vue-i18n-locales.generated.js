@@ -258,9 +258,10 @@ export default {
             "duplicate": "duplizieren",
             "date": "Datum",
             "duplicate-material": "Material duplizieren",
-            "xy-saved": "{xy} gespeichert",
-            "saving-xy-now": "speichere {xy} jetzt",
-            "Keyword_usage": "Keyword ist verbunden mit {materials_count}x Material, {material_authors_count}x Material-Autor, {children_count}x direkten Keyword-Kindern und {descendants_count}x Keyword-Kindern in Summe."
+            "xy-saved": "\"{xy}\" gespeichert",
+            "saving-xy-now": "speichere \"{xy}\" jetzt",
+            "Keyword_usage": "Keyword ist verbunden mit {materials_count}x Material, {material_authors_count}x Material-Autor, {children_count}x direkten Keyword-Kindern und {descendants_count}x Keyword-Kindern in Summe.",
+            "Creation-date": "Erstellungsdatum"
         }
     },
     "en": {
@@ -544,9 +545,10 @@ export default {
             "name": "Name",
             "date": "Date",
             "duplicate-material": "Duplicate material",
-            "saving-xy-now": "saving {xy} now",
-            "xy-saved": "{xy} gespeichert",
-            "Keyword_usage": "Keyword ist verbunden mit {materials_count}x Material, {material_authors_count}x Material-Autor, {children_count}x direkten Keyword-Kindern und {descendants_count}x Keyword-Kindern in Summe."
+            "saving-xy-now": "saving \"{xy}\" now",
+            "xy-saved": "\"{xy}\" gespeichert",
+            "Keyword_usage": "Keyword ist verbunden mit {materials_count}x Material, {material_authors_count}x Material-Autor, {children_count}x direkten Keyword-Kindern und {descendants_count}x Keyword-Kindern in Summe.",
+            "Creation-date": "Date of Creation"
         },
         "validation": {
             "accepted": "The {attribute} must be accepted.",

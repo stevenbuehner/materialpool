@@ -87,8 +87,6 @@
 
                 <b-tabs small nav-class="sideTab" content-class="sideTabContent">
                     <b-tab :title="$tc('pool.material', 1)">
-                        <div class="title">{{material.title}}</div>
-
                         <text-edit-sidebar-field
                                 :value="material.title"
                                 :name="$t('pool.name')"
@@ -101,10 +99,10 @@
                         </text-edit-sidebar-field>
 
                         <text-edit-sidebar-field
-                                :value="createDate"
+                                :value="material.created_at"
                                 :name="$t('pool.date')"
+                                :required="true"
                                 type="date"
-                                :disabled="true"
                                 @save-request="submitDate"
                         >
                             <template slot="icon">
@@ -232,7 +230,6 @@
 	import fromBot                 from '../../../components/fromBot.vue';
 	import starRating              from 'vue-star-rating/src/star-rating';
 	import ResourceUploader        from "../../../components/uploader/resourceUploader";
-	import {resourceDownloadLink}  from "../../../components/serverRoutes";
 	import customDialog            from '../../../components/modals/dialogs/customDialog';
 	import MaterialRating          from "../../../components/Material/MaterialRating";
 	import Flag                    from "../../../components/flags/Flag";
@@ -328,10 +325,6 @@
 				return false;
 			},
 
-			createDate() {
-				return dayjs(this.material.created_at).format('YYYY-MM-DD');
-			}
-
 		},
 
 		asyncComputed: {},
@@ -366,20 +359,19 @@
 			},
 
 			submitTitle(newTitle) {
-				this.submitMaterialUpdate({title: newTitle, from_bot: false}, 'Title');
+				this.submitMaterialUpdate({title: newTitle, from_bot: false}, this.$t('pool.Title'));
 			},
 
 			submitDate(newDate) {
 				this.submitMaterialUpdate({
 					created_at: dayjs(newDate).format('YYYY-MM-DD HH:mm:ss'),
 					from_bot: false
-				}, 'Created at');
-
+				}, this.$t('pool.Creation-date'));
 			},
 
 			submitRating(newRating) {
 				this.currentRatingChanged(newRating);
-				this.submitMaterialUpdate({rating: newRating}, 'Rating');
+				this.submitMaterialUpdate({rating: newRating}, this.$t('pool.Rating'));
 			},
 
 			currentRatingChanged(value) {
@@ -387,7 +379,7 @@
 			},
 
 			submitDescription(newDescription) {
-				this.submitMaterialUpdate({description: newDescription, from_bot: false}, 'Description');
+				this.submitMaterialUpdate({description: newDescription, from_bot: false}, this.$t('pool.Description'));
 			},
 
 			submitFromBot(newValue) {
@@ -395,7 +387,7 @@
 			},
 
 			submitAuthor(newKeyword) {
-				this.submitMaterialUpdate({'author': newKeyword}, 'Authors');
+				this.submitMaterialUpdate({'author': newKeyword}, this.$t('pool.Author'));
 			},
 
 			submitMaterialUpdate(data, propertyName) {
@@ -701,7 +693,7 @@
 			customDialog,
 			trashIcon,
 			cloneIcon,
-			calendarIcon, titleIcon, descriptionIcon, placeIcon, authorIcon, personIcon, languageIcon, bibleverseIcon
+			calendarIcon, titleIcon, descriptionIcon, placeIcon, authorIcon, personIcon, languageIcon, bibleverseIcon,
 		},
 
 	}
@@ -804,7 +796,7 @@
             border-right-color: $gray-400;
             border-bottom-color: $gray-400;
             border-left-color: $gray-400;
-            padding: 1em 0.5em 1em 0.5em;
+            padding: 0.5em 0.5em 1em 0.5em;
             border-bottom-left-radius: $card-border-radius;
             border-bottom-right-radius: $card-border-radius;
         }

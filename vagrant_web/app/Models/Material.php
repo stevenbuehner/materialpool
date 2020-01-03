@@ -53,11 +53,11 @@ class Material extends Model {
 	];
 
 	protected $fillable = [
-		'title', 'description', 'rating', 'from_bot', 'flag', 'icon_of_bundle'
+		'title', 'description', 'rating', 'from_bot', 'flag', 'icon_of_bundle', 'created_at'
 	];
 
 	protected $guarded = [
-		'id', 'created_by', 'modified_by', 'created_at', 'updated_at'
+		'id', 'created_by', 'modified_by', 'updated_at'
 	];
 
 	protected $hidden = [

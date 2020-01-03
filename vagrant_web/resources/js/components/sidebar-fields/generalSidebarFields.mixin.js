@@ -23,6 +23,12 @@ export default {
 			default: false
 		},
 
+		required: {
+			type: Boolean,
+			required: false,
+			default: false
+		}
+
 	},
 
 

@@ -15,3 +15,16 @@ export const i18n = new VueInternationalization({
 	messages: Locale
 });
 
+
+import {en, de} from 'vuejs-datepicker/dist/locale';
+
+export const localisation = {
+	de: {
+		datepicker: de,
+		dateDisplayFormat: 'dd.MM.yyyy'
+	},
+	en: {
+		datepicker: en,
+		dateDisplayFormat: 'MM/dd/yyyy'
+	}
+};

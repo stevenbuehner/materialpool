@@ -6,3 +6,4 @@ export const RELEVANCE_USER_MAX = 300;
 
 export const timeout_flashSavingMessage = 3000;
 export const timeout_flashErrorMessage = 0;
+export const server_datetime_format = 'YYYY-MM-DD HH:mm:ss';

@@ -12,23 +12,36 @@
                 </span>
             </slot>
 
-            <b-button
-                    v-if="valueHasChanged && enableSaveButton"
-                    size="sm"
-                    class="save-button"
-                    @click="sendSaveRequest">
-                <slot name="save-button">{{$t('pool.save')}}</slot>
-            </b-button>
+            <div class="buttons">
+                <b-button
+                        v-if="valueHasChanged && enableSaveButton"
+                        size="sm"
+                        class="cancel-button"
+                        variant="danger"
+                        @click="cancelAndResetValue">
+                    <slot name="save-button">{{$t('pool.cancel')}}</slot>
+                </b-button>
+
+                <b-button
+                        v-if="valueHasChanged && enableSaveButton"
+                        size="sm"
+                        class="save-button"
+                        @click="sendSaveRequest">
+                    <slot name="save-button">{{$t('pool.save')}}</slot>
+                </b-button>
+            </div>
+
         </div>
 
         <div class="editField">
 
             <slot name="input">
                 <b-form-input
-                        v-if="type == 'text' || type == 'date'"
-                        class="input textInput"
+                        v-if="type == 'text'"
+                        :class="[{valueChanged : valueHasChanged}, 'textInput']"
                         @input="onInputChanged"
                         @keyup.enter="onEnter"
+                        @keyup.esc="cancelAndResetValue"
                         :value="currentValue"
                         :type="type"
                         :placeholder="getPlaceholder"
@@ -37,9 +50,26 @@
                         ref="input_field"
                 ></b-form-input>
 
+                <datepicker v-if="type == 'date'"
+                            class="dateInput"
+                            :disabled="disabled"
+                            :typeable="false"
+                            :bootstrap-styling="true"
+                            :language="dateLocalisation"
+                            v-model="currentValue"
+                            :key="value"
+                            :format="dateFormat"
+                            :monday-first="true"
+                            :disabled-dates="{from: new Date()}"
+                            :required="required"
+                            :input-class="{valueChanged : valueHasChanged}"
+                            :placeholder="getPlaceholder"
+                            @input="onDateInputChanged"
+                ></datepicker>
+
                 <b-form-textarea
                         v-if="type == 'textarea'"
-                        class="input textareaInput"
+                        :class="[{valueChanged : valueHasChanged}, 'textareaInput']"
                         :placeholder="getPlaceholder"
                         :rows="rows"
                         :value="currentValue"
@@ -47,6 +77,7 @@
                         :disabled="disabled"
                         @input="onInputChanged"
                         @keyup.enter="onEnter"
+                        @keyup.esc="cancelAndResetValue"
                         ref="input_field"
                 ></b-form-textarea>
 
@@ -63,6 +94,10 @@
 	import textFieldIcon                         from 'svg-icon/dist/svg/material/text-fields.svg'
 	import generalMixin                          from './generalSidebarFields.mixin';
 	import {BButton}                             from 'bootstrap-vue';
+	import Datepicker                            from 'vuejs-datepicker';
+	import {localisation, lang}                  from "../../apps/main/localisation";
+	import dayjs                                 from 'dayjs';
+	import {server_datetime_format}              from "../../apps/config";
 
 	Vue.use(FormTextareaPlugin);
 	Vue.use(FormInputPlugin);
@@ -108,7 +143,7 @@
 
 		data() {
 			return {
-				currentValue: ''
+				currentValue: '',
 			};
 		},
 
@@ -122,11 +157,32 @@
 		},
 
 		methods: {
+			/**
+			 * @param {null|String} currentValue
+			 * @returns {null|String}
+			 */
 			onInputChanged(currentValue) {
-				this.currentValue = currentValue.trim();
+				this.currentValue = currentValue.trim() || null;
 
 				if (this.valueHasChanged) {
-					this.$emit('input', currentValue.trim());
+					this.$emit('input', this.currentValue);
+				}
+			},
+
+			/**
+			 *
+			 * @param {null|Date} dateOrNullObject
+			 * @returns {null|String}
+			 */
+			onDateInputChanged(dateOrNullObject) {
+				if (dateOrNullObject === null) {
+					this.currentValue = null;
+				} else {
+					this.currentValue = dayjs(dateOrNullObject).format(server_datetime_format);
+				}
+
+				if (this.valueHasChanged) {
+					this.$emit('input', this.currentValue);
 				}
 			},
 
@@ -137,25 +193,45 @@
 
 			sendSaveRequest() {
 				this.$emit('save-request', this.currentValue);
+			},
+
+			cancelAndResetValue() {
+				// Reset
+				this.currentValue = this.value;
+				this.$emit('canceled', this.value);
 			}
+
+
 		},
 
 		computed: {
 			// Das funktioniert nur, wenn das Parent-Element kein v-model binding macht ... sonst wird die Änderung nicht erkannt!
 			valueHasChanged() {
-				return (this.value !== this.currentValue);
+				return (this.value != this.currentValue);
+			},
+
+			dateLocalisation() {
+				return localisation[lang].datepicker;
+			},
+
+			dateFormat() {
+				return localisation[lang].dateDisplayFormat;
 			}
 		},
 
 		components: {
 			textFieldIcon,
-			BButton
+			BButton,
+			Datepicker
 		}
 	}
 </script>
 
 <style type="scss">
     @import "generalCss";
+    //  @import '~vue-date-pick/src/vueDatePick.scss';
+
+    // DatePicker
 
 
 </style>

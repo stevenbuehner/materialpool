@@ -27,6 +27,9 @@ $sidebar-input-background-colour-active: white;
 $sidebar-input-background-colour-disabled: $gray-300;
 $sidebar-input-text-colour-placeholder: $gray-500;
 
+$sidebar-input-value-not-saved-yet-background-color: lighten($red, 35%);
+$sidebar-input-value-not-saved-yet-border-color: darken($input-border-color, 30%);
+
 // Sidebar-Tagging
 $sidebar-input-font-color-active: #333;
 $sidebar-tag-background-color-active: $gray-300;
