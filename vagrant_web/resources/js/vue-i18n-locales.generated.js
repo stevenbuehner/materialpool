@@ -177,7 +177,7 @@ export default {
             "Resource-is-public": "Resource ist öffentlich",
             "Original-Filename": "Ursprünglicher Dateiname",
             "Created-at": "Erstellt",
-            "Updated-at": "Bearbeitet",
+            "Updated-at": "Zuletzt bearbeitet am",
             "Page-Count": "Anzahl Seiten",
             "missing": "fehlt",
             "rating-missing": "Bewertung fehlt",

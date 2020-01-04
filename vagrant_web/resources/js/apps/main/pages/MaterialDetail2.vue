@@ -85,7 +85,11 @@
 
             <div class="col-12 col-sm-5 col-md-4 col-lg-4 px-0 px-sm-1 px-md-2 px-lg-3" v-if="material">
 
-                <b-tabs small nav-class="sideTab" content-class="sideTabContent">
+                <b-tabs small
+                        nav-class="sideTab"
+                        content-class="sideTabContent"
+                        :value="tabIndex"
+                        @activate-tab="onTabSwitch">
                     <b-tab :title="$tc('pool.material', 1)">
                         <text-edit-sidebar-field
                                 :value="material.title"
@@ -699,7 +703,8 @@
 				if (index === this.tabIndex)
 					return;
 
-				this.$router.push({
+				// Replace statt push
+				this.$router.replace({
 					name: this.$route.name,
 					params: this.$route.params,
 					query: {
