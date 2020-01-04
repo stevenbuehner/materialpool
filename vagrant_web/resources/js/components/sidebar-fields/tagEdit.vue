@@ -36,6 +36,8 @@
                         <dragable-element
                                 :id="option.id"
                                 :label="getTagLabelFromObject(option)"
+                                :disable-move-relevance="disabled"
+                                :disable-remove-element="disabled"
                                 :relevance="option.pivot.relevance"
                                 @deselect="deselect(option)"
                                 @request-update-relevance="$emit('request-update-relevance', {tag: option, relevance: $event});"
@@ -68,7 +70,7 @@
 
 <script>
 	import generalMixin                                           from './generalSidebarFields.mixin';
-	import VueSelect                                              from 'vue-select';
+	import VueSelect                                              from 'vue-select/src/components/Select';
 	import tagIcon                                                from 'svg-icon/dist/svg/material/style.svg';
 	import {keywordTypes}                                         from "../keyword/keywordDefaultIcons";
 	import {debounce as _debounce, differenceBy as _differenceBy} from 'lodash';
@@ -90,9 +92,14 @@
 			},
 
 			value: {
-				type: Array,
-				required: true
-			}
+				required: true,
+				validator(value) {
+
+					return typeof value === 'object';
+
+				}
+			},
+
 
 		},
 
@@ -222,14 +229,12 @@
 
 <style type="scss">
     @import "generalCss";
-    @import "~vue-select/src/scss/global/variables";
     @import "resources/sass/theme";
 
     .tagEditSidebarField {
         .editField {
 
             .vs__dropdown-toggle {
-                background: inherit;
                 background-color: $sidebar-input-background-colour-active;
 
                 .vs__selected-options input {
@@ -251,10 +256,6 @@
                     background-color: $sidebar-tag-relevance-colour-disabled;
                 }
 
-                .vs__dropdown-toggle {
-                    background-color: $sidebar-input-background-colour-disabled;
-                }
-
                 .vs__search {
                     display: none;
                 }
@@ -262,6 +263,12 @@
                 .vs__actions {
                     display: none;
                 }
+
+                .vs__dropdown-toggle {
+                    // background-color: $vs-state-disabled-bg;
+                    cursor: not-allowed;
+                }
+
             }
 
             .vs__dropdown-option {

@@ -1,7 +1,8 @@
 <template>
     <div class="selected-tag draggable-element"
+         :class="{draggable : !disableMoveRelevance}"
          v-bind:key="id"
-         @mousedown.left="keydownStartDrag">
+         @mousedown.left="!disableMoveRelevance && keydownStartDrag">
 
         <div class="selected-relevance"
              :class="{isDragging : dragging.ongoing}"
@@ -12,6 +13,7 @@
 
             <button :disabled="disableRemoveElement" @click="$emit('deselect')"
                     type="button"
+                    v-show="!disableRemoveElement"
                     class="vs__deselect"
                     aria-label="Remove option">
 
@@ -49,6 +51,10 @@
 			},
 
 			disableRemoveElement: {
+				type: Boolean,
+				default: false
+			},
+			disableMoveRelevance: {
 				type: Boolean,
 				default: false
 			}
@@ -99,7 +105,10 @@
         line-height: $vs-component-line-height;
         margin: .25em .25em 0 0;
         padding: 0 0.25em;
-        cursor: pointer;
+
+        &.draggable {
+            cursor: pointer;
+        }
 
         &:hover {
             background-color: $sidebar-tag-background-color-active-hover;
@@ -121,7 +130,6 @@
                 background-color: $sidebar-tag-relevance-colour-active-dragging;
             }
         }
-
 
         .text {
             display: inline;

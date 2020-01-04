@@ -33,7 +33,8 @@
 
         </div>
 
-        <div class="editField">
+        <div class="editField"
+        :class="{disabled}">
 
             <slot name="input">
                 <b-form-input
@@ -75,6 +76,7 @@
                         :value="currentValue"
                         :max-rows="8"
                         :disabled="disabled"
+                        :style="{overflowY : disabled ? 'hidden' : 'scroll'}"
                         @input="onInputChanged"
                         @keyup.enter="onEnter"
                         @keyup.esc="cancelAndResetValue"
@@ -230,8 +232,6 @@
 <style type="scss">
     @import "generalCss";
     //  @import '~vue-date-pick/src/vueDatePick.scss';
-
-    // DatePicker
 
 
 </style>

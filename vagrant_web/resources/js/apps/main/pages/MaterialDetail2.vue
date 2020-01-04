@@ -110,6 +110,19 @@
                             </template>
                         </text-edit-sidebar-field>
 
+                        <single-tag-select
+                                :value="material.author"
+                                :name="$t('pool.Author')"
+                                :placeholder="$t('pool.unknown')"
+                                typefilter="person"
+                                @input:associated="submitAuthor"
+                                @input:dissociated="submitAuthor"
+                        >
+                            <template slot="icon">
+                                <person-icon/>
+                            </template>
+                        </single-tag-select>
+
 
                         <text-edit-sidebar-field
                                 :value="material.description"
@@ -261,6 +274,7 @@
 	import TagEditSidebarField        from "../../../components/sidebar-fields/tagEdit";
 	import {RELEVANCE_USER_MAX}       from "../../config";
 	import RatingEdit                 from "../../../components/sidebar-fields/ratingEdit";
+	import SingleTagSelect            from "../../../components/sidebar-fields/singleTagSelect";
 
 	Vue.use(TabsPlugin);
 
@@ -671,6 +685,7 @@
 
 
 		components: {
+			SingleTagSelect,
 			RatingEdit,
 			TagEditSidebarField,
 			BibleverseEditSidebarField,

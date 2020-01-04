@@ -1,6 +1,12 @@
 @import "resources/sass/theme";
+@import "~vue-select/src/scss/global/variables";
+
+$vs-state-disabled-bg: $sidebar-input-background-colour-disabled;
+$vs-border-color: $input-border-color;
 
 .sideBarField {
+
+  @import "~vue-select/src/scss/vue-select.scss";
 
   font-size: 0.8em;
   margin-bottom: 1em;
@@ -27,12 +33,22 @@
     input, textarea {
       font-size: 1em;
       border-radius: 0.25em;
+      background-color: $sidebar-input-background-colour-active;
 
       &.valueChanged {
         background-color: $sidebar-input-value-not-saved-yet-background-color;
         border-color: $sidebar-input-value-not-saved-yet-border-color;
       }
     }
+
+
+    &.disabled {
+      input, textarea {
+        background-color: $sidebar-input-background-colour-disabled;
+        cursor: not-allowed;
+      }
+    }
+
 
   }
 
