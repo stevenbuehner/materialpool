@@ -51,7 +51,10 @@ export const routes = [
 	       },
 	       {
 		       path: '/material2/:id', component: MaterialDetail2, name: 'material-detail2', props: (route) => {
-			       return {id: parseInt(route.params.id)};
+			       return {
+				       id: parseInt(route.params.id),
+				       tabIndex: parseInt(route.query.tabIndex) || 0,
+			       };
 		       }
 	       },
 	       {

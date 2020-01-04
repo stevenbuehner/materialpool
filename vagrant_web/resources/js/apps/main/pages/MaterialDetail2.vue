@@ -221,7 +221,30 @@
                             </div>
                         </div>
                     </b-tab>
-                    <b-tab :title="$t('pool.meta')"></b-tab>
+                    <b-tab :title="$t('pool.meta')">
+                        <text-edit-sidebar-field
+                                v-if="material.creator"
+                                :disabled="true"
+                                :value="material.creator.title"
+                                :name="$t('pool.Creator')">
+                        </text-edit-sidebar-field>
+
+                        <text-edit-sidebar-field
+                                :disabled="true"
+                                :value="material.id"
+                                :name="$t('pool.Material-ID')">
+                        </text-edit-sidebar-field>
+
+                        <text-edit-sidebar-field
+                                :disabled="true"
+                                :value="material.updated_at"
+                                type="date"
+                                :name="$t('pool.Updated-at')">
+                            <template v-slot:icon>
+                                <calendar-icon/>
+                            </template>
+                        </text-edit-sidebar-field>
+                    </b-tab>
                 </b-tabs>
 
             </div>
@@ -291,22 +314,17 @@
 				required: true,
 				type: Number
 			},
-			editable: {
+			tabIndex: {
 				required: false,
-				type: Boolean,
-				default: true
+				type: Number,
+				default: 0
 			},
-
-
 		},
 
 		data() {
 			return {
 				material: null,
-				editTagsModeEnabled: false,
 				errorOnLoadingMessage: null,
-
-				currentRating: null,
 			};
 		},
 
@@ -384,12 +402,7 @@
 			},
 
 			submitRating(newRating) {
-				this.currentRatingChanged(newRating);
 				this.submitMaterialUpdate({rating: newRating}, this.$t('pool.Rating'));
-			},
-
-			currentRatingChanged(value) {
-				this.currentRating = value;
 			},
 
 			submitDescription(newDescription) {
@@ -680,6 +693,21 @@
 			materialWasModified() {
 				this.material.from_bot = false;
 			},
+
+			onTabSwitch(index) {
+
+				if (index === this.tabIndex)
+					return;
+
+				this.$router.push({
+					name: this.$route.name,
+					params: this.$route.params,
+					query: {
+						tabIndex: index
+					}
+				});
+				return false;
+			}
 
 		},
 
