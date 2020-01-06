@@ -138,7 +138,6 @@
 		watch: {
 			form: {
 				handler(newValue, oldValue) {
-					console.log('Watch handler fired');
 					this.debounceUpdateMaterialSuggestions();
 				},
 				deep: true,

@@ -23,7 +23,8 @@
                                 <trash-icon class="trashicon buttonIcon"></trash-icon>
                             </button>
 
-                            <button class="btn btn-sm" :title="$t('pool.duplicate-material')">
+                            <button class="btn btn-sm" :title="$t('pool.duplicate-material')"
+                                    @click="duplicateAndOpenMaterial">
                                 <clone-icon class="cloneIcon buttonIcon"></clone-icon>
                             </button>
                             <div v-if="material" class="title">{{material.title}}</div>
@@ -257,7 +258,8 @@
         </div>
 
         <custom-dialog ref="customDialog"/>
-        <resource-selector ref="resourceSelector"
+        <resource-selector v-if="material && material.resources"
+                           ref="resourceSelector"
                            :excluded-resource-id="material.resources.map(({id})=> id)"/>
     </div>
 </template>
@@ -728,6 +730,23 @@
 			},
 
 
+			duplicateAndOpenMaterial() {
+
+				const startFlash = this.flashActionStartedWaiting(this.$t('pool.Copying-material'));
+
+				this.$store.dispatch('materials/copyMaterial', this.material.id)
+				    .then((material) => {
+					    this.flashActionSuccessfullyFinished(this.$t('pool.Material-successfully-copied'), startFlash);
+
+					    this.$router.push({
+						    name: this.$route.name,
+						    params: {...this.$route.params, id: material.id}
+					    });
+				    })
+				    .catch((message) => {
+					    this.flashActionFailed(this.$t('pool.Copying-material', message), startFlash);
+				    });
+			}
 		},
 
 

@@ -7,8 +7,9 @@ import {
 	api_v2_materialresource_attach,
 	api_v2_materialresource_detach,
 	api_v2_materials_delete
-}            from '../../../../components/serverRoutes'
-import axios from '../../axiosInstance';
+}                                      from '../../../../components/serverRoutes'
+import axios                           from '../../axiosInstance';
+import {convertErrorResponseToMessage} from "./handleErrorsHelper";
 
 
 const state = {
@@ -90,9 +91,10 @@ const actions = {
 					     .then((response) => {
 						     dispatch('setMaterial', response.data);
 						     resolve(getters.getMaterial(id));
-					     }).catch(() => {
-						reject('Could not find Material with id ' + id);
-					});
+					     })
+					     .catch((response) => {
+						     throw convertErrorResponseToMessage(response)
+					     });
 				}
 			});
 
@@ -140,7 +142,10 @@ const actions = {
 		}
 
 		const result = axios.post(api_v1_materials_store, data)
-		                    .then((result) => result.data);
+		                    .then((result) => result.data)
+		                    .catch((response) => {
+			                    throw convertErrorResponseToMessage(response)
+		                    });
 
 		result.then((material) => {
 			commit('setMaterial', material);
@@ -160,8 +165,8 @@ const actions = {
 			dispatch('setMaterial', response.data);
 			return getters.getMaterial(id);
 
-		}).catch((er) => {
-			console.error(er);
+		}).catch((response) => {
+			throw convertErrorResponseToMessage(response)
 		});
 
 		return result;
@@ -259,12 +264,8 @@ const actions = {
 
 		const result = axios.post(url, data)
 		                    .then((result) => result.data)
-		                    .catch((err) => {
-			                    if (err.error) {
-				                    return err.error;
-			                    } else {
-				                    return err;
-			                    }
+		                    .catch((response) => {
+			                    throw convertErrorResponseToMessage(response)
 		                    });
 
 		// Update material-Cache
@@ -291,12 +292,8 @@ const actions = {
 
 		const result = axios.delete(url)
 		                    .then((result) => result.data)
-		                    .catch((err) => {
-			                    if (err.error) {
-				                    return err.error;
-			                    } else {
-				                    return err;
-			                    }
+		                    .catch((response) => {
+			                    throw convertErrorResponseToMessage(response)
 		                    });
 
 		// ALWAYS (!): Update material-Cache
@@ -320,46 +317,57 @@ const actions = {
 
 	deleteMaterial: ({commit, dispatch}, id) => {
 
-		return axios.delete(api_v2_materials_delete(id)).then(({data}) => {
+		return axios
+			.delete(api_v2_materials_delete(id)).then(({data}) => {
 
-			commit('clearMaterial', id);
+				commit('clearMaterial', id);
 
-			return (data.success && data.success === true);
+				return (data.success && data.success === true);
 
-		});
+			})
+			.catch((response) => {
+				throw convertErrorResponseToMessage(response)
+			});
+		;
 
 	},
 
 	copyMaterial: ({commit, dispatch}, id) => {
-		return axios.get(api_v1_materials_copy(id))
-		            .then(({data}) => {
-			            const material = data;
+		return axios
+			.get(api_v1_materials_copy(id))
+			.then(({data}) => {
+				const material = data;
 
-			            commit('setMaterial', material);
+				commit('setMaterial', material);
 
-			            if (material.resources && Array.isArray(material.resources)) {
-				            material.resources.forEach((el) => {
-					            dispatch('resources/clearResource', el.id, {root: true});
-				            });
-			            }
+				if (material.resources && Array.isArray(material.resources)) {
+					material.resources.forEach((el) => {
+						dispatch('resources/clearResource', el.id, {root: true});
+					});
+				}
 
-			            return material;
-		            }).catch(({message}) => {
-				throw message;
+				return material;
+			})
+			.catch((response) => {
+				throw convertErrorResponseToMessage(response)
 			});
 	},
 
 	createDownloadLink: ({commit, dispatch}, id) => {
-		return axios.get(api_v1_materials_create_download(id)).then(({data}) => {
-			if (data.success === false) {
-				throw('invalid download link');
-			} else {
-				return {
-					link: data.link,
-					until: data.until
-				};
-			}
-		});
+		return axios
+			.get(api_v1_materials_create_download(id)).then(({data}) => {
+				if (data.success === false) {
+					throw('invalid download link');
+				} else {
+					return {
+						link: data.link,
+						until: data.until
+					};
+				}
+			})
+			.catch((response) => {
+				throw convertErrorResponseToMessage(response)
+			});
 	}
 
 };

@@ -268,4 +268,6 @@ return [
 	'Ignoring-resource-ids-xy'                                 => 'Blende die Resourcen {xy} aus.',
 	'select-file'                                              => 'Datei auswählen',
 	'file-size-limitation-xy'                                  => 'Dateigröße ist limitiert auf {xy}.',
+	'Copying-material'                                         => 'kopiere Material',
+	'Material-successfully-copied'                             => 'Material kopiert und geöffnet',
 ];

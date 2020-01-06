@@ -266,7 +266,9 @@ export default {
             "Descending": "Absteigend",
             "Ignoring-resource-ids-xy": "Blende die Resourcen {xy} aus.",
             "select-file": "Datei auswählen",
-            "file-size-limitation-xy": "Dateigröße ist limitiert auf {xy}."
+            "file-size-limitation-xy": "Dateigröße ist limitiert auf {xy}.",
+            "Copying-material": "kopiere Material",
+            "Material-successfully-copied": "Material kopiert und geöffnet"
         }
     },
     "en": {
@@ -558,7 +560,9 @@ export default {
             "Descending": "Descending",
             "Ignoring-resource-ids-xy": "Hiding the resources {xy}",
             "select-file": "select file",
-            "file-size-limitation-xy": "Filesize is limited to {xy}."
+            "file-size-limitation-xy": "Filesize is limited to {xy}.",
+            "Copying-material": "Copying material",
+            "Material-successfully-copied": "Material successfully copied"
         },
         "validation": {
             "accepted": "The {attribute} must be accepted.",

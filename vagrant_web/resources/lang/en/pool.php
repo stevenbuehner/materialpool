@@ -275,4 +275,6 @@ return [
 	'Ignoring-resource-ids-xy'                                 => 'Hiding the resources {xy}',
 	'select-file'                                              => 'select file',
 	'file-size-limitation-xy'                                  => 'Filesize is limited to {xy}.',
+	'Copying-material'                                         => 'Copying material',
+	'Material-successfully-copied'                             => 'Material successfully copied',
 ];

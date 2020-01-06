@@ -21,6 +21,7 @@ use App\Services\ResourceHandling\Exceptions\LocalFileDoesNotExistException;
 use App\Services\ResourceHandling\Exceptions\RemoteFileDoesNotExistException;
 use App\Services\ResourceHandling\FileHandlingService;
 use App\Services\TagExtraction\ResourceHandles\TextContentInterface;
+use Illuminate\Support\Arr;
 
 class MaterialHandlingService {
 
@@ -123,7 +124,7 @@ class MaterialHandlingService {
 				// Now we get the extra attributes from the pivot tables, but
 				// we intentionally leave out the foreignKey, as we already
 				// have it in the newModel
-				$extra_attributes            = array_except($item->pivot->getAttributes(),
+				$extra_attributes            = Arr::except($item->pivot->getAttributes(),
 					[$item->pivot->getForeignKey(), $item->pivot->getRelatedKey()]);
 				$attachKeys[$item->getKey()] = $extra_attributes;
 			}

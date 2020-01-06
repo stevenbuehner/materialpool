@@ -1,57 +1,65 @@
-import {timeout_flashErrorMessage} from "../apps/config";
+import {timeout_flashErrorMessage, timeout_flashSavingMessage} from "../apps/config";
 
 export const savingDialogs = {
 
 	methods: {
 
-		flashStartSaving(propertyName) {
-			return this.flash(this.$t('pool.saving-xy-now', {xy: propertyName[0].toUpperCase() + propertyName.substring(1).toLowerCase()}), 'warning', {
+		flashActionStartedWaiting(message) {
+			return this.flash((message), 'warning', {
 				important: true,
-				timeout: 2500
+				timeout: timeout_flashSavingMessage,
 			});
 		},
 
-		flashSaved(propertyName) {
-			// console.debug('saved Flash: ', propertyName);
-			return this.flash(this.$t('pool.xy-saved', {xy: propertyName[0].toUpperCase() + propertyName.substring(1).toLowerCase()}), 'success', {
-				timeout: 1000,
-				important: true
+		flashActionSuccessfullyFinished(message, closeFlash) {
+			if (closeFlash) {
+				closeFlash.destroy();
+			}
+
+			return this.flash(message, 'success', {
+				important: true,
+				timeout: timeout_flashSavingMessage,
 			})
 		},
 
-		flashStartRemoving(propertyName) {
-			return this.flash(this.$t('pool.removing-xy-now', {xy: propertyName[0].toUpperCase() + propertyName.substring(1).toLowerCase()}), 'warning', {
-				important: true,
-				timeout: 2500
+		flashActionFailed(message, closeFlash) {
+			if (closeFlash) {
+				closeFlash.destroy();
+			}
+
+			return this.flash(message, 'error', {
+				important: false,
+				timeout: timeout_flashErrorMessage,
 			});
+		},
+
+		flashStartSaving(propertyName) {
+			return this.flashActionStartedWaiting(this.$t('pool.saving-xy-now', {xy: propertyName[0].toUpperCase() + propertyName.substring(1).toLowerCase()}));
+		},
+
+		flashSaved(propertyName) {
+			this.flashActionSuccessfullyFinished(this.$t('pool.xy-saved', {xy: propertyName[0].toUpperCase() + propertyName.substring(1).toLowerCase()}));
+		},
+
+		flashStartRemoving(propertyName) {
+			return this.flashActionStartedWaiting(this.$t('pool.removing-xy-now', {xy: propertyName[0].toUpperCase() + propertyName.substring(1).toLowerCase()}));
 		},
 
 		flashRemoved(propertyName) {
-			return this.flash(this.$t('pool.xy-removed', {xy: propertyName[0].toUpperCase() + propertyName.substring(1).toLowerCase()}), 'success', {
-				important: true,
-				timeout: 1000
-			});
+			return this.flashActionSuccessfullyFinished(this.$t('pool.xy-removed', {xy: propertyName[0].toUpperCase() + propertyName.substring(1).toLowerCase()}));
 		},
 
 		flashError(propertyName, msg) {
-			//  console.debug('Error Flash: ', propertyName);
-
 			if (msg) {
 				console.error(msg);
 				msg = ' (' + msg + ')';
 			}
 
-			return this.flash('An error accured while while saving ' + propertyName.toLowerCase() + (msg || ''), 'error', {
-				important: false,
-				timeout: timeout_flashErrorMessage,
-			});
+			this.flashActionFailed('An error accured while while saving ' + propertyName.toLowerCase() + (msg || ''));
 		},
 
 		flashUpdateTagError({tag, msg}) {
-			this.flash(msg, 'error', {
-				important: false,
-				timeout: timeout_flashErrorMessage,
-			})
+			this.flashActionFailed(msg);
 		},
 
 	}
