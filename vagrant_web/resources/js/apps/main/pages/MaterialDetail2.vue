@@ -766,28 +766,6 @@
     @import "resources/sass/theme";
 
     .materialDetail2 {
-        .meta {
-            font-size: smaller;
-        }
-
-        .icon {
-            background-repeat: no-repeat;
-            background-size: 0.8em;
-            display: inline-block;
-            width: 1em;
-            height: 1em;
-            position: relative;
-            top: 0.25em;
-            cursor: pointer;
-        }
-
-        .editIcon {
-            background-image: url("/img/icons/entypo-plus/lock.svg");
-        }
-
-        .doneIcon {
-            background-image: url("/img/icons/entypo-plus/lock-open.svg");
-        }
 
         .buttonIcon {
             width: 1.5em;
