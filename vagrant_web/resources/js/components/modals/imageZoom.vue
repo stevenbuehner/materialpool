@@ -13,19 +13,35 @@
             <b-img :src="image"
                    fluid
                    @click="_hideZoom"></b-img>
-            <span class="previous"
-                  @click.prevent="btnPrevious"
-                  v-show="hasPrevious"><</span>
-            <span class="next"
-                  @click.prevent="btnNext"
-                  v-show="hasNext >= 0">></span>
+
+            <div class="previous"
+                 @click.prevent="btnPrevious"
+                 v-show="hasPrevious">
+                <div class="circle">
+                    <back-arrow v-show="!isFirst"/>
+                    <redo-icon v-show="isFirst && endless"/>
+                </div>
+            </div>
+
+            <div class="next"
+                 @click.prevent="btnNext"
+                 v-show="hasNext >= 0">
+                <div class="circle">
+                    <forward-arrow v-show="!isLast"/>
+                    <undo-icon v-show="isLast && endless"/>
+                </div>
+            </div>
         </div>
     </b-modal>
 </template>
 
 <script>
-	import {BModal} from 'bootstrap-vue';
-	import {BImg}   from 'bootstrap-vue'
+	import {BModal}     from 'bootstrap-vue';
+	import {BImg}       from 'bootstrap-vue'
+	import undoIcon     from 'svg-icon/dist/svg/subway/undo-1.svg'
+	import redoIcon     from 'svg-icon/dist/svg/subway/redo-1.svg'
+	import backArrow    from 'svg-icon/dist/svg/typcn/arrow-back.svg'
+	import forwardArrow from 'svg-icon/dist/svg/typcn/arrow-forward.svg'
 
 	export default {
 		name: "imageZoom",
@@ -70,8 +86,16 @@
 			},
 
 			hasNext() {
-				return (this.currentIndex < this.data.length || this.endless && this.currentIndex === 0);
-			}
+				return (this.currentIndex < this.data.length || this.endless && this.isFirst);
+			},
+
+			isFirst() {
+				return this.currentIndex === 0;
+			},
+
+			isLast() {
+				return this.currentIndex === (this.data.length - 1);
+			},
 
 		},
 
@@ -129,6 +153,7 @@
 		components: {
 			BModal,
 			BImg,
+			redoIcon, undoIcon, backArrow, forwardArrow
 		}
 	}
 </script>
@@ -147,16 +172,46 @@
             display: flex;
             justify-content: center;
             flex-direction: column;
+            padding: 0;
+            overflow: hidden;
+
+            svg {
+                height: 1em;
+                width: 1em;
+            }
+
+            .circle {
+                width: 2em;
+                height: 2em;
+                background-color: white;
+                text-align: center;
+                box-shadow: 0 0 1em .5em rgba(0, 0, 0, 0.1);
+            }
+
+            &:hover .circle {
+                box-shadow: 0 0 1em .5em rgba(0, 0, 0, 0.2);
+            }
+
         }
 
         .previous {
             left: 0;
-            padding: 0 1em 0 .75em;
+
+            .circle {
+                margin-right: 1em;
+                border-top-right-radius: 50%;
+                border-bottom-right-radius: 50%;
+            }
         }
 
         .next {
             right: 0;
-            padding: 0 .75em 0 1em;
+
+            .circle {
+                margin-left: 1em;
+                border-top-left-radius: 50%;
+                border-bottom-left-radius: 50%;
+            }
         }
 
         .previous:hover {
