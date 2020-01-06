@@ -251,7 +251,7 @@
 
 				return new Promise((resolve, reject) => {
 					this.resolve = resolve;
-					this.reject = reject;
+					this.reject  = reject;
 
 					this.$refs.myModal.show();
 				});
@@ -264,7 +264,7 @@
 					this.reject('closed early');
 					// this.$refs.myModal.close();
 					this.resolve = null;
-					this.reject = null;
+					this.reject  = null;
 				}
 
 			},
@@ -281,7 +281,7 @@
 
 						    this.resolve(material);
 						    this.resolve = null; // already done during hide()
-						    this.reject = null; // already done during hide()
+						    this.reject  = null; // already done during hide()
 
 						    this.$refs.myModal.hide();
 
@@ -369,12 +369,12 @@
 			_onReset() {
 				this.formErrors = [];
 
-				this.form.title = (this.title !== '') ? this.title : this.$store.getters['materialcreator/getTitle'];
+				this.form.title       = (this.title !== '') ? this.title : this.$store.getters['materialcreator/getTitle'];
 				this.form.description = (this.description !== '') ? this.description : this.$store.getters['materialcreator/getDescription'];
-				this.form.rating = (this.rating !== -1) ? this.rating : this.$store.getters['materialcreator/getRating'];
-				this.form.from_bot = (this.from_bot === false) ? false : this.$store.getters['materialcreator/getFromBot'];
-				this.form.author = (this.author !== '') ? this.author : this.$store.getters['materialcreator/getAuthor'];
-				this.form.keywords = [];
+				this.form.rating      = (this.rating !== -1) ? this.rating : this.$store.getters['materialcreator/getRating'];
+				this.form.from_bot    = (this.from_bot === false) ? false : this.$store.getters['materialcreator/getFromBot'];
+				this.form.author      = (this.author !== '') ? this.author : this.$store.getters['materialcreator/getAuthor'];
+				this.form.keywords    = [];
 				this.form.bibleverses = [];
 
 

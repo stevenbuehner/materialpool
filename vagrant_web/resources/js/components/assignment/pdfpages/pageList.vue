@@ -210,8 +210,8 @@
 
 
 				const lastSelectedPage = pageIndex;
-				const min = Math.min(lastSelectedPage, firstSelectedPage);
-				const max = Math.max(lastSelectedPage, firstSelectedPage);
+				const min              = Math.min(lastSelectedPage, firstSelectedPage);
+				const max              = Math.max(lastSelectedPage, firstSelectedPage);
 
 				for (let i = min; i <= max; i++) {
 					this.$set(this.selectedPages, i, true);
@@ -246,7 +246,7 @@
 			showZoom(arrayIndex) {
 
 				if (this.pages[arrayIndex]) {
-					this.zoomedImage.src = this.pages[arrayIndex].image;
+					this.zoomedImage.src     = this.pages[arrayIndex].image;
 					this.zoomedImage.current = arrayIndex;
 
 					if (this.pages[arrayIndex + 1]) {

@@ -307,7 +307,7 @@
 						}
 					});
 					this.suggestedBibleverses = [];
-					this.searchInput = '';
+					this.searchInput          = '';
 				}
 
 			},

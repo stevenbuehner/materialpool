@@ -43,7 +43,7 @@
 			renderMyStuff(text) {
 
 				let rendered = this.renderLists(text);
-				rendered = this.renderNewLines(rendered);
+				rendered     = this.renderNewLines(rendered);
 
 				return rendered;
 
@@ -51,7 +51,7 @@
 
 			renderLists(text) {
 
-				let lines = text.split("\n");
+				let lines      = text.split("\n");
 				let resultText = '';
 
 				var lastIsList = false;

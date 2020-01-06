@@ -10,14 +10,14 @@ export default {
 		trim(text, length, clamp) {
 
 			// see: https://github.com/imcvampire/vue-truncate-filter/blob/master/vue-truncate.js
-			text = text || '';
+			text   = text || '';
 			length = length || 30;
-			clamp = clamp || '...'
+			clamp  = clamp || '...'
 
 			if (text.length <= length) return text;
 
 			let tcText = text.slice(0, length - clamp.length);
-			let last = tcText.length - 1;
+			let last   = tcText.length - 1;
 
 			while (last > 0 && tcText[last] !== ' ' && tcText[last] !== clamp[0]) last -= 1;
 

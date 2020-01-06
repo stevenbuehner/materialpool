@@ -74,7 +74,7 @@ var BibleTooltips = {
 				BibleTooltips._TooltipHeight = parseInt(e.data.substr('BibleTooltips:UpdateTooltipHeight:'.length));
 				BibleTooltips._PositionTooltipFrame();
 			} else if (e.data.substr(0, 'BibleTooltips:UpdateTitleWidth:'.length) === 'BibleTooltips:UpdateTitleWidth:') {
-				BibleTooltips._TitleWidth = parseInt(e.data.substr('BibleTooltips:UpdateTitleWidth:'.length));
+				BibleTooltips._TitleWidth        = parseInt(e.data.substr('BibleTooltips:UpdateTitleWidth:'.length));
 				BibleTooltips._Mover.style.width = BibleTooltips._TitleWidth + 'px';
 			} else if (e.data === 'BibleTooltips:ShowPrevious') {
 				BibleTooltips.ShowPreviousTooltip();
@@ -95,11 +95,11 @@ var BibleTooltips = {
 		var f = BibleTooltips._TooltipFrame;
 		var l = BibleTooltips._Loader;
 		if (event) {
-			BibleTooltips._OriginalX = event.pageX;
-			BibleTooltips._OriginalY = event.pageY;
+			BibleTooltips._OriginalX     = event.pageX;
+			BibleTooltips._OriginalY     = event.pageY;
 			BibleTooltips._OriginalEvent = event;
 		}
-		BibleTooltips._ActiveRef = el;
+		BibleTooltips._ActiveRef      = el;
 		BibleTooltips._ActiveRefIndex = index;
 		BibleTooltips._AddClass(el, BibleTooltips.ActiveClassName);
 		var ref = el.getAttribute('data-bible');
@@ -108,10 +108,10 @@ var BibleTooltips = {
 		if (!refLang) refLang = BibleTooltips.BibleRefsLanguage;
 		var version = el.getAttribute('version');
 		if (!version) version = BibleTooltips.BibleVersion;
-		var themeParam = BibleTooltips.Theme ? '&theme=' + encodeURIComponent(BibleTooltips.Theme) : '';
+		var themeParam   = BibleTooltips.Theme ? '&theme=' + encodeURIComponent(BibleTooltips.Theme) : '';
 		var refLangParam = refLang ? '&reflang=' + encodeURIComponent(refLang) : '';
 		var versionParam = version ? '&version=' + encodeURIComponent(version) : '';
-		var src = BibleTooltips._BaseUrl + 'tooltip.php?ref=' + encodeURIComponent(ref) + versionParam + refLangParam + themeParam;
+		var src          = BibleTooltips._BaseUrl + 'tooltip.php?ref=' + encodeURIComponent(ref) + versionParam + refLangParam + themeParam;
 		if (BibleTooltips.OldVerseCounting === true) src += '&old_vc=1';
 		if (BibleTooltips.PrimaryColor) src += '&primary=' + encodeURIComponent(BibleTooltips.PrimaryColor);
 		if (BibleTooltips.PrimaryForeColor) src += '&primaryfc=' + encodeURIComponent(BibleTooltips.PrimaryForeColor);
@@ -122,7 +122,7 @@ var BibleTooltips = {
 			l.style.display = 'block';
 			f.contentWindow.location.replace('about:blank');
 			BibleTooltips._TooltipHeight = 30;
-			f.onload = function () {
+			f.onload                     = function () {
 				BibleTooltips._TooltipFrame.contentWindow.postMessage('BibleTooltips:RequestHeight', '*');
 				BibleTooltips._PositionTooltipFrame();
 				BibleTooltips._UpdateTooltipButtons();
@@ -138,65 +138,65 @@ var BibleTooltips = {
 		BibleTooltips._Loader.style.display = 'none';
 		if (BibleTooltips._ActiveRef !== null) {
 			BibleTooltips._RemoveClass(BibleTooltips._ActiveRef, BibleTooltips.ActiveClassName);
-			BibleTooltips._ActiveRef = null;
+			BibleTooltips._ActiveRef      = null;
 			BibleTooltips._ActiveRefIndex = -1;
 		}
 		BibleTooltips._TooltipFrame.style.display = 'none';
-		BibleTooltips._Mover.style.display = 'none';
+		BibleTooltips._Mover.style.display        = 'none';
 		BibleTooltips.UnpinTooltip();
 	},
 	_EnsureTooltipFrame: function () {
 		if (BibleTooltips._TooltipFrame !== null) return;
-		var f = document.createElement('iframe');
-		f.className = 'bible-tooltip';
-		f.style.cssText = 'display: none; position: fixed; top: 0; left: 0; z-index: 1000; background: #fff; border: 0; box-shadow: 0 0 3px rgba(0,0,0,0.5);';
+		var f                       = document.createElement('iframe');
+		f.className                 = 'bible-tooltip';
+		f.style.cssText             = 'display: none; position: fixed; top: 0; left: 0; z-index: 1000; background: #fff; border: 0; box-shadow: 0 0 3px rgba(0,0,0,0.5);';
 		BibleTooltips._TooltipFrame = f;
 		document.body.appendChild(f);
-		var l = document.createElement('img');
-		l.className = 'bible-tooltip-loader';
-		l.style.cssText = 'display: none; position: fixed; top: 0; left: 0; z-index: 1001;';
-		l.src = BibleTooltips._BaseUrl + 'loader.gif';
+		var l                 = document.createElement('img');
+		l.className           = 'bible-tooltip-loader';
+		l.style.cssText       = 'display: none; position: fixed; top: 0; left: 0; z-index: 1001;';
+		l.src                 = BibleTooltips._BaseUrl + 'loader.gif';
 		BibleTooltips._Loader = l;
 		document.body.appendChild(l);
-		var m = document.createElement('div');
-		m.className = 'bible-tooltip-mover';
-		m.style.cssText = 'display: none; position: fixed; top: 0; left: 0; width: ' + BibleTooltips.MoverSize + 'px; height: ' + BibleTooltips.MoverSize + 'px; z-index: 1001; border: 0; cursor: move; background: #fff; opacity: 0;';
+		var m                = document.createElement('div');
+		m.className          = 'bible-tooltip-mover';
+		m.style.cssText      = 'display: none; position: fixed; top: 0; left: 0; width: ' + BibleTooltips.MoverSize + 'px; height: ' + BibleTooltips.MoverSize + 'px; z-index: 1001; border: 0; cursor: move; background: #fff; opacity: 0;';
 		BibleTooltips._Mover = m;
 		document.body.appendChild(m);
 		BibleTooltips._InitDragEvents();
 	},
 	_PositionLoader: function () {
-		var l = BibleTooltips._Loader;
-		var oldVisibility = l.style.visibility;
-		var oldDisplay = l.style.display;
+		var l              = BibleTooltips._Loader;
+		var oldVisibility  = l.style.visibility;
+		var oldDisplay     = l.style.display;
 		l.style.visibility = 'hidden';
-		l.style.display = '';
-		var box = BibleTooltips._GetClosestClientRect(BibleTooltips._OriginalEvent, BibleTooltips._ActiveRef);
-		var top = box.top + (box.height ? box.height : BibleTooltips._AssumedLineHeight);
-		var left = box.left;
+		l.style.display    = '';
+		var box            = BibleTooltips._GetClosestClientRect(BibleTooltips._OriginalEvent, BibleTooltips._ActiveRef);
+		var top            = box.top + (box.height ? box.height : BibleTooltips._AssumedLineHeight);
+		var left           = box.left;
 		if (box.width) {
 			left += box.width / 2;
 		}
 		var lr = l.getBoundingClientRect();
 		if (lr.width) left -= lr.width / 2;
 		l.style.visibility = oldVisibility;
-		l.style.display = oldDisplay;
-		l.style.top = (top + BibleTooltips.MinMargin) + 'px';
-		l.style.left = left + 'px';
+		l.style.display    = oldDisplay;
+		l.style.top        = (top + BibleTooltips.MinMargin) + 'px';
+		l.style.left       = left + 'px';
 	},
 	_PositionTooltipFrame: function () {
 		if (BibleTooltips._ActiveRef === null) return;
 		BibleTooltips._Loader.style.display = 'none';
-		var f = BibleTooltips._TooltipFrame;
-		f.style.visibility = 'hidden';
-		f.style.display = '';
-		f.style.width = '0px';
-		f.style.height = '0px';
-		var box = BibleTooltips._GetClosestClientRect(BibleTooltips._OriginalEvent, BibleTooltips._ActiveRef);
-		var ww = window.innerWidth - BibleTooltips._ScrollBarWidth;
-		var wh = window.innerHeight - BibleTooltips._ScrollBarWidth;
-		var fw = BibleTooltips.MaxWidth;
-		var fh = BibleTooltips._TooltipHeight;
+		var f                               = BibleTooltips._TooltipFrame;
+		f.style.visibility                  = 'hidden';
+		f.style.display                     = '';
+		f.style.width                       = '0px';
+		f.style.height                      = '0px';
+		var box                             = BibleTooltips._GetClosestClientRect(BibleTooltips._OriginalEvent, BibleTooltips._ActiveRef);
+		var ww                              = window.innerWidth - BibleTooltips._ScrollBarWidth;
+		var wh                              = window.innerHeight - BibleTooltips._ScrollBarWidth;
+		var fw                              = BibleTooltips.MaxWidth;
+		var fh                              = BibleTooltips._TooltipHeight;
 		if (fh > BibleTooltips.maxHeight) fh = BibleTooltips.maxHeight;
 		var top = box.top;
 		if (box.height) {
@@ -209,9 +209,9 @@ var BibleTooltips = {
 			fh = wh - top - BibleTooltips.MinMargin;
 			if (fh < BibleTooltips.MinHeight) fh = BibleTooltips.MinHeight;
 		}
-		f.style.top = top + 'px';
+		f.style.top    = top + 'px';
 		f.style.height = fh + 'px';
-		var left = BibleTooltips.MinMargin;
+		var left       = BibleTooltips.MinMargin;
 		if (ww > fw + BibleTooltips.MinMargin * 2) {
 			left = box.left;
 			if (box.width) {
@@ -227,12 +227,12 @@ var BibleTooltips = {
 		} else {
 			fw = ww - BibleTooltips.MinMargin * 2;
 		}
-		f.style.left = left + 'px';
-		f.style.width = fw + 'px';
+		f.style.left       = left + 'px';
+		f.style.width      = fw + 'px';
 		f.style.visibility = '';
-		var m = BibleTooltips._Mover;
-		m.style.top = f.style.top;
-		m.style.left = f.style.left;
+		var m              = BibleTooltips._Mover;
+		m.style.top        = f.style.top;
+		m.style.left       = f.style.left;
 		BibleTooltips._TooltipFrame.contentWindow.postMessage('BibleTooltips:RequestTitleWidth', '*');
 	},
 	_UpdateTooltipButtons: function () {
@@ -257,19 +257,19 @@ var BibleTooltips = {
 		BibleTooltips.ShowTooltip(false, el, true);
 		BibleTooltips.PinTooltip();
 		var bodyRect = document.body.getBoundingClientRect();
-		var elRect = el.getBoundingClientRect();
-		var height = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
-		var offset = elRect.top - bodyRect.top - height * 0.3;
+		var elRect   = el.getBoundingClientRect();
+		var height   = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
+		var offset   = elRect.top - bodyRect.top - height * 0.3;
 		BibleTooltips._ScrollTo(document.scrollingElement || document.documentElement, offset, 500);
 	},
 	PinTooltip: function () {
-		BibleTooltips._DisableMouseOut = true;
+		BibleTooltips._DisableMouseOut  = true;
 		BibleTooltips._DisableMouseOver = true;
 		BibleTooltips._TooltipFrame.contentWindow.postMessage('BibleTooltips:Pinned', '*');
 		BibleTooltips._Mover.style.display = '';
 	},
 	UnpinTooltip: function () {
-		BibleTooltips._DisableMouseOut = false;
+		BibleTooltips._DisableMouseOut  = false;
 		BibleTooltips._DisableMouseOver = false;
 		BibleTooltips._DisableDragging();
 		BibleTooltips._TooltipFrame.contentWindow.postMessage('BibleTooltips:Unpinned', '*');
@@ -278,14 +278,14 @@ var BibleTooltips = {
 	_CheckMousePosition: function (e) {
 		if (BibleTooltips._DisableMouseOut) return;
 		if (BibleTooltips._ActiveRef === null || BibleTooltips._TooltipFrame === null || BibleTooltips._TooltipFrame.style.display === 'none') return;
-		var f = BibleTooltips._TooltipFrame;
-		var fx = parseInt(f.style.left.substr(0, f.style.left.length - 2));
-		var fy = parseInt(f.style.top.substr(0, f.style.top.length - 2));
-		var fw = f.offsetWidth;
-		var fh = f.offsetHeight;
-		var mx = e.pageX;
-		var my = e.pageY;
-		var m = BibleTooltips.MouseMargin;
+		var f    = BibleTooltips._TooltipFrame;
+		var fx   = parseInt(f.style.left.substr(0, f.style.left.length - 2));
+		var fy   = parseInt(f.style.top.substr(0, f.style.top.length - 2));
+		var fw   = f.offsetWidth;
+		var fh   = f.offsetHeight;
+		var mx   = e.pageX;
+		var my   = e.pageY;
+		var m    = BibleTooltips.MouseMargin;
 		var hide = false;
 		if (my < BibleTooltips._OriginalY - m) {
 			hide = true;
@@ -307,7 +307,7 @@ var BibleTooltips = {
 		e.preventDefault();
 		e.stopPropagation();
 		BibleTooltips._EnableDragging();
-		var m = BibleTooltips._Mover;
+		var m    = BibleTooltips._Mover;
 		var rect = m.getBoundingClientRect();
 		if (e.type === "mousedown") {
 			BibleTooltips._DragOffsetX = e.clientX - rect.left;
@@ -320,9 +320,9 @@ var BibleTooltips = {
 			window.addEventListener('touchmove', BibleTooltips._DragMove, true);
 			document.addEventListener('touchend', BibleTooltips._StopDrag, true);
 		}
-		var f = BibleTooltips._TooltipFrame;
+		var f          = BibleTooltips._TooltipFrame;
 		m.style.height = f.style.height;
-		m.style.width = f.style.width;
+		m.style.width  = f.style.width;
 	},
 	_DragMove: function (e) {
 		e.preventDefault();
@@ -332,13 +332,13 @@ var BibleTooltips = {
 		var m = BibleTooltips._Mover;
 		if (e.type === "mousemove") {
 			m.style.left = e.clientX - BibleTooltips._DragOffsetX + "px";
-			m.style.top = e.clientY - BibleTooltips._DragOffsetY + "px";
+			m.style.top  = e.clientY - BibleTooltips._DragOffsetY + "px";
 		} else if (e.type === "touchmove") {
 			m.style.left = e.targetTouches[0].clientX - BibleTooltips._DragOffsetX + "px";
-			m.style.top = e.targetTouches[0].clientY - BibleTooltips._DragOffsetY + "px";
+			m.style.top  = e.targetTouches[0].clientY - BibleTooltips._DragOffsetY + "px";
 		}
 		f.style.left = m.style.left;
-		f.style.top = m.style.top;
+		f.style.top  = m.style.top;
 	},
 	_StopDrag: function (e) {
 		if (!BibleTooltips._Dragging) return;
@@ -346,9 +346,9 @@ var BibleTooltips = {
 		window.removeEventListener('mousemove', BibleTooltips._DragMove, true);
 		document.removeEventListener('touchend', BibleTooltips._DragMove, true);
 		window.removeEventListener('touchmove', BibleTooltips._DragMove, true);
-		var m = BibleTooltips._Mover;
+		var m          = BibleTooltips._Mover;
 		m.style.height = BibleTooltips.MoverSize + 'px';
-		m.style.width = BibleTooltips._TitleWidth + 'px';
+		m.style.width  = BibleTooltips._TitleWidth + 'px';
 		window.setTimeout(function () {
 			BibleTooltips._DisableDragging();
 		}, 1);
@@ -360,8 +360,8 @@ var BibleTooltips = {
 		BibleTooltips._Dragging = false;
 	},
 	_GetClosestClientRect: function (e, el) {
-		var rs = el.getClientRects();
-		var best = null;
+		var rs          = el.getClientRects();
+		var best        = null;
 		var minDistance = null;
 		for (var i = 0; i < rs.length; i++) {
 			var r = rs[i];
@@ -369,7 +369,7 @@ var BibleTooltips = {
 			var y = r.top + (r.height ? r.height / 2 : 0);
 			var d = Math.sqrt(Math.pow((e.pageX - x), 2) + Math.pow((e.pageY - y), 2));
 			if (minDistance === null || d < minDistance) {
-				best = r;
+				best        = r;
 				minDistance = d;
 			}
 		}
@@ -406,15 +406,15 @@ var BibleTooltips = {
 		};
 	}(),
 	_UpdateScrollBarWidth: function () {
-		var outer = document.createElement("div");
-		outer.style.visibility = "hidden";
-		outer.style.width = "100px";
+		var outer                   = document.createElement("div");
+		outer.style.visibility      = "hidden";
+		outer.style.width           = "100px";
 		outer.style.msOverflowStyle = "scrollbar";
 		document.body.appendChild(outer);
-		var widthNoScroll = outer.offsetWidth;
+		var widthNoScroll    = outer.offsetWidth;
 		outer.style.overflow = "scroll";
-		var inner = document.createElement("div");
-		inner.style.width = "100%";
+		var inner            = document.createElement("div");
+		inner.style.width    = "100%";
 		outer.appendChild(inner);
 		var widthWithScroll = inner.offsetWidth;
 		outer.parentNode.removeChild(outer);
@@ -436,8 +436,8 @@ var BibleTooltips = {
 	_ScrollTo: function (element, to, duration) {
 		if (duration <= 0) return;
 		var difference = to - element.scrollTop;
-		var interval = 20;
-		var perTick = difference / duration * interval;
+		var interval   = 20;
+		var perTick    = difference / duration * interval;
 		setTimeout(function () {
 			element.scrollTop = element.scrollTop + perTick;
 			if (element.scrollTop === to) return;

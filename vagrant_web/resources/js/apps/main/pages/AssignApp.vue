@@ -203,15 +203,15 @@
 
 			updateResource(id) {
 
-				this.resource = null;
-				this.loadingMsg = this.$t('pool.Loading-resource');
+				this.resource    = null;
+				this.loadingMsg  = this.$t('pool.Loading-resource');
 				this.loadingType = 'info';
 
 				return this.$store.dispatch('resources/get', id)
 				           .then((resource) => {
 					           return this.resource = resource;
 				           }).catch(() => {
-						this.loadingMsg = this.$t('pool.Resource-loading-failed');
+						this.loadingMsg  = this.$t('pool.Resource-loading-failed');
 						this.loadingType = 'danger';
 					});
 
@@ -356,7 +356,7 @@
 					    return;
 
 				    const preselection = this.$route.query.selection || '';
-				    const pages = (preselection !== '') ? preselection.split(',') : [];
+				    const pages        = (preselection !== '') ? preselection.split(',') : [];
 
 				    if (pages.length > 0) {
 					    this.$refs.pagelist.clearAllPages();

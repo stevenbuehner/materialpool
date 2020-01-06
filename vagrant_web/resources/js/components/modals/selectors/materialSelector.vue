@@ -127,7 +127,7 @@
 
 				return new Promise((resolve, reject) => {
 					this.resolve = resolve;
-					this.reject = reject;
+					this.reject  = reject;
 
 					this.$refs.myModal.show();
 
@@ -141,7 +141,7 @@
 					this.reject('closed early');
 					// this.$refs.myModal.close();
 					this.resolve = null;
-					this.reject = null;
+					this.reject  = null;
 				}
 
 			},
@@ -177,14 +177,14 @@
 			},
 
 			_materialSearchPositive(materials) {
-				this.searchOngoing = false;
-				this.searchErrorMessage = '';
+				this.searchOngoing       = false;
+				this.searchErrorMessage  = '';
 				this.materialSuggestions = materials;
 			},
 
 			_materialearchNegative(errorMessage) {
-				this.searchOngoing = false;
-				this.searchErrorMessage = errorMessage;
+				this.searchOngoing       = false;
+				this.searchErrorMessage  = errorMessage;
 				this.materialSuggestions = [];
 			},
 

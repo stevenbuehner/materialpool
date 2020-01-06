@@ -5,7 +5,7 @@ const state = {
 	pageMaterial: {},
 };
 
-const getters = {};
+const getters   = {};
 const mutations = {
 	setMaterialPage(state, {page, data}) {
 		state.pageMaterial[page] = data;

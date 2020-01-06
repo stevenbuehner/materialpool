@@ -60,8 +60,8 @@
 
 						    // paging
 						    this.paging.current_page = data.current_page;
-						    this.paging.last_page = data.last_page;
-						    this.per_page = data.per_page;
+						    this.paging.last_page    = data.last_page;
+						    this.per_page            = data.per_page;
 
 					    });
 				}

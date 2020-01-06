@@ -5,7 +5,6 @@
                    @resource-updated="$emit('resource-updated', $event)"></component>
 
 
-
         <div class="row m-n0">
 
             <div class="col-md-6 col-12 meta">
@@ -50,7 +49,6 @@
             </div>
 
         </div>
-
 
 
     </div>

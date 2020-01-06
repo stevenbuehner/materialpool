@@ -53,7 +53,7 @@ export const savingDialogs = {
 				timeout: timeout_flashErrorMessage,
 			})
 		},
-		
+
 	}
 
 };

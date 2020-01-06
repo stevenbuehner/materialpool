@@ -13,8 +13,8 @@
 <script>
 	import menuItem from './context-menu-item.vue';
 
-	const MENU_CLOSE_EVENT = 'context-menu:close';
-	const MENU_OPEN_EVENT = 'context-menu:open';
+	const MENU_CLOSE_EVENT         = 'context-menu:close';
+	const MENU_OPEN_EVENT          = 'context-menu:open';
 	export const MENU_ITEM_CLICKED = 'item-clicked';
 
 	export default {
@@ -34,27 +34,27 @@
 		methods: {
 			setMenu: function (top, left) {
 
-				const fensterHohe = window.innerHeight;
+				const fensterHohe   = window.innerHeight;
 				const fensterBreite = window.innerWidth;
 
 				const domRect = this.$el.getBoundingClientRect();
 
-				const menuHoehe = domRect.height;
+				const menuHoehe  = domRect.height;
 				const menuBreite = domRect.width;
-				const menuLeft = domRect.left;
-				const menuTop = domRect.top;
+				const menuLeft   = domRect.left;
+				const menuTop    = domRect.top;
 
 				const menuLeftOf = this.$el.offsetLeft;
-				const menuTopOf = this.$el.offsetTop;
+				const menuTopOf  = this.$el.offsetTop;
 
-				let moveTop = top - menuTop + menuTopOf;
+				let moveTop  = top - menuTop + menuTopOf;
 				let moveLeft = left - menuLeft + menuLeftOf;
 
 				if ((left + moveLeft + menuBreite) > fensterBreite) {
 					moveLeft = fensterBreite - menuBreite;
 				}
 
-				this.menuTop = moveTop + 'px';
+				this.menuTop  = moveTop + 'px';
 				this.menuLeft = moveLeft + 'px';
 			},
 
@@ -96,7 +96,7 @@
 
 				document.onmousedown = function (event) {
 
-					const target = event.target;
+					const target   = event.target;
 					const dropdown = target.closest('.sb-context-menu');
 
 					if (!dropdown) {

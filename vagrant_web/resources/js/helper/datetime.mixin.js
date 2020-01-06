@@ -42,7 +42,7 @@ export const formatLocalizedDate = {
 
 		recentOrFormat(dayjs, hours, format) {
 
-			hours = hours || 24 * 7;
+			hours  = hours || 24 * 7;
 			format = format || 'LLL';
 
 			if ((Math.abs(dayjs.clone().diff(dayJS(), 'hour'))) > hours) {

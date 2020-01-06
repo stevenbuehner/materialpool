@@ -4,7 +4,7 @@ import axios              from '../../axiosInstance';
 
 const state = {};
 
-const getters = {};
+const getters   = {};
 const mutations = {};
 
 const actions = {

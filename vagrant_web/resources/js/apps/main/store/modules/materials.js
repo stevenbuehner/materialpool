@@ -246,7 +246,7 @@ const actions = {
 	attachResource: ({commit, getters, dispatch}, {materialId, resourceId, limitation}) => {
 
 		const url = api_v2_materialresource_attach(materialId, resourceId);
-		let data = {};
+		let data  = {};
 
 		if (limitation && limitation.type && limitation.value) {
 			data = {

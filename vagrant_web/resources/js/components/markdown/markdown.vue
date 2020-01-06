@@ -25,7 +25,7 @@
 			myRenderedText() {
 
 				const renderer = new marked.Renderer();
-				const loadBVs = this.loadBibleverses;
+				const loadBVs  = this.loadBibleverses;
 
 				renderer.text = function (text) {
 					// console.log(text);

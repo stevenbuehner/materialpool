@@ -15,7 +15,7 @@ const state = {
 	loadingPromise: {}
 };
 
-const getters = {
+const getters   = {
 	updateResource: (state) => (id) => {
 		if (state.resources[id]) {
 			return state.resources[id];
@@ -90,7 +90,7 @@ const actions = {
 
 	createTextResource: ({commit}, {text, notes, is_public}) => {
 
-		notes = notes || '';
+		notes     = notes || '';
 		is_public = is_public || false;
 
 		return axios
@@ -158,7 +158,7 @@ const actions = {
 	 */
 	autoCreateMaterial: ({commit, dispatch}, {resourceIds, meta, from_bot}) => {
 
-		meta = meta || '';
+		meta     = meta || '';
 		from_bot = from_bot || false;
 
 		const promise = axios

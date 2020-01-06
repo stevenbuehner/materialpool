@@ -17,7 +17,7 @@ export function getAbsoluteElementCoordinates(elem) {
 
 	// Get document-relative position by adding viewport scroll to viewport-relative gBCR
 	rect = elem.getBoundingClientRect();
-	win = elem.ownerDocument.defaultView;
+	win  = elem.ownerDocument.defaultView;
 	return {
 		top: rect.top + win.pageYOffset,
 		left: rect.left + win.pageXOffset

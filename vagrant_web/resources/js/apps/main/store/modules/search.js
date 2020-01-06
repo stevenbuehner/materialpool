@@ -20,7 +20,7 @@ const getters = {
 	},
 
 	getCacheEntry: (state) => (query) => {
-		const json = JSON.stringify(query);
+		const json    = JSON.stringify(query);
 		const promise = state.searchCache[json];
 
 		let myIndex = null;
@@ -84,7 +84,7 @@ const actions = {
 
 	materials: ({commit, getters, dispatch}, {query, page, per_page}) => {
 
-		page = page || 1;
+		page     = page || 1;
 		per_page = per_page || 30;
 
 		var data = {
@@ -111,7 +111,7 @@ const actions = {
 
 				                     const materials = data.data;
 				                     // const materialIds = materials.map(m => m.id);
-				                     const paging = {
+				                     const paging    = {
 					                     current_page: data.current_page,
 					                     from: data.from,
 					                     last_page: data.last_page,

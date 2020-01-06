@@ -16,7 +16,7 @@ if (is_safari) {
 
 	// Add a request interceptor
 	axiosInstance.interceptors.request.use(function (config) {
-		config.params = config.params || {};
+		config.params             = config.params || {};
 		config.params.safariNervt = Math.random();
 		return config;
 	});

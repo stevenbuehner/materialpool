@@ -21,7 +21,7 @@ export const getPage = async (url, pageNo) => {
 export function getAllPages(url) {
 	return getPage(url, 1)
 		.then(data => {
-			const last_page = data.last_page;
+			const last_page    = data.last_page;
 			const current_page = data.current_page;
 
 			if (last_page !== current_page) {

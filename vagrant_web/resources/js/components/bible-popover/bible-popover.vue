@@ -362,8 +362,8 @@ Events:
 
 			_dragStart(event) {
 				this.isDragging = true;
-				this.isPinned = true;
-				const rect = this.$el.getBoundingClientRect();
+				this.isPinned   = true;
+				const rect      = this.$el.getBoundingClientRect();
 
 				if (event.type === "mousedown") {
 					this.dragOffsetX = event.clientX - rect.left;
@@ -389,10 +389,10 @@ Events:
 
 				if (event.type === "mousemove") {
 					this.styleData.left = event.clientX - this.dragOffsetX;
-					this.styleData.top = event.clientY - this.dragOffsetY;
+					this.styleData.top  = event.clientY - this.dragOffsetY;
 				} else if (event.type === "touchmove") {
 					this.styleData.left = event.targetTouches[0].clientX - this.dragOffsetX;
-					this.styleData.top = event.targetTouches[0].clientY - this.dragOffsetY;
+					this.styleData.top  = event.targetTouches[0].clientY - this.dragOffsetY;
 				}
 
 				this._checkSizeAndPositionRestrictions();
@@ -433,7 +433,7 @@ Events:
 
 
 				this.styleData.left = this.originalX;
-				this.styleData.top = this.originalY;
+				this.styleData.top  = this.originalY;
 
 				this._checkSizeAndPositionRestrictions();
 

@@ -163,19 +163,19 @@
 			updateMaterialList() {
 
 				const searchData = searchQueryStringToSearchQueryArray(this.query);
-				this.isLoading = true;
-				this.hasError = false;
+				this.isLoading   = true;
+				this.hasError    = false;
 
 				this.$store.dispatch('search/materials', {
 					query: searchData,
 					page: this.page
 				}).then(({materials, paging}) => {
-					this.paging = paging;
+					this.paging      = paging;
 					this.materialIds = materials.map(m => m.id);
 				}).catch((message) => {
-					this.hasError = true;
+					this.hasError     = true;
 					this.errorMessage = message;
-					this.materialIds = [];
+					this.materialIds  = [];
 				}).then(() => {
 					// Always
 					this.isLoading = false;

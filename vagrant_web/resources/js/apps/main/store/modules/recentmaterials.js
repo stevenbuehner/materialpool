@@ -6,7 +6,7 @@ const state = {
 	recentMaterialIds: []
 };
 
-const getters = {
+const getters   = {
 	getRecentMaterialIds: (state) => {
 		return state.recentMaterialIds;
 	},

@@ -173,7 +173,7 @@ const actions = {
 	},
 
 	createAndAssign: async ({commit, getters, dispatch}, {title, type, materialId, relevance}) => {
-		const keyword = await dispatch('create', {title, type});
+		const keyword          = await dispatch('create', {title, type});
 		const keywordRelevance = await dispatch('updateRelevance', {materialId, keywordId: keyword.id, relevance});
 
 		return keywordRelevance;
@@ -283,8 +283,8 @@ const actions = {
 
 	search: ({commit, getters, dispatch}, {searchText, type, per_page, page}) => {
 
-		type = type || false;
-		page = page || 1;
+		type     = type || false;
+		page     = page || 1;
 		per_page = per_page || 20;
 
 		let data = {

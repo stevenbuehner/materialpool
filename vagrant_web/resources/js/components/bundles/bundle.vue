@@ -192,17 +192,17 @@
 			btnStartUpdate() {
 
 				if (this.isRunning === false) {
-					this.isRunning = true;
-					this.max = 100;
-					this.current = 100;
+					this.isRunning      = true;
+					this.max            = 100;
+					this.current        = 100;
 					this.isInitializing = true;
 
 					this.$store.dispatch('bundles/initUpdateJobs', this.bundle.id)
 					    .then(({deleteJobs, updateJobs, deletedJobs, openJobs, continueUpdate, updateAvailable}) => {
 							    this.isInitializing = false;
-							    this.max = openJobs;
+							    this.max            = openJobs;
 							    // this.max            = (deleteJobs || 0) + (updateJobs || 0);
-							    this.current = 0;
+							    this.current        = 0;
 							    this.runNextJobs();
 						    }
 					    )
@@ -219,7 +219,7 @@
 
 				if (this.cancelRequested === true) {
 
-					this.isRunning = false;
+					this.isRunning       = false;
 					this.cancelRequested = false;
 					return;
 				}
@@ -228,7 +228,7 @@
 
 				return this.$store.dispatch('bundles/runJobs', this.bundle.id)
 				           .then(({done, open}) => {
-					           this.max = parseInt(Math.max(this.current + open + done, this.max));
+					           this.max     = parseInt(Math.max(this.current + open + done, this.max));
 					           this.current = parseInt(this.max - open);
 
 					           if (this.current >= this.max) {

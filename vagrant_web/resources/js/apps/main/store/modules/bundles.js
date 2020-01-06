@@ -105,7 +105,7 @@ const actions = {
 	getBundle: async ({commit, getters, dispatch}, uuid) => {
 
 		const allBundles = await dispatch('allBundles');
-		const bundle = allBundles.find((b) => b.uuid === uuid);
+		const bundle     = allBundles.find((b) => b.uuid === uuid);
 
 		if (!bundle) {
 			throw new Error('No bundle with the uuid ' + uuid + ' found');

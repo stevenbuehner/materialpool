@@ -132,7 +132,7 @@
 		methods: {
 			onInputChanged(currentValues) {
 
-				const newObjects = _differenceBy(currentValues, this.validTypesValues, (el) => el.id);
+				const newObjects     = _differenceBy(currentValues, this.validTypesValues, (el) => el.id);
 				const removedObjects = _differenceBy(this.validTypesValues, currentValues, (el) => el.id);
 
 				// console.log(newObjects, removedObjects);

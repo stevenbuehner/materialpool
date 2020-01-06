@@ -1,7 +1,7 @@
 // @see: https://techoverflow.net/2018/03/30/copying-strings-to-the-clipboard-using-pure-javascript/
 export function copyStringToClipboard(str) {
 	// Create new element
-	var el = document.createElement('textarea');
+	var el   = document.createElement('textarea');
 	// Set value (string to be copied)
 	el.value = str;
 	// Set non-editable to avoid focus and move outside of view

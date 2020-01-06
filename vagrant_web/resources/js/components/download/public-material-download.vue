@@ -68,7 +68,7 @@
 					setTimeout(() => {
 						this.linkGenerationIsRunning = false;
 						this.isLinkCopiedToClipboard = false;
-						this.link = null;
+						this.link                    = null;
 					}, 1000);
 
 				}
@@ -77,7 +77,7 @@
 			generateDownloadLink() {
 				this.$store.dispatch('materials/createDownloadLink', this.materialId)
 				    .then(({link, until}) => {
-					    this.link = link;
+					    this.link                    = link;
 					    this.linkGenerationIsRunning = false;
 				    })
 				    .catch(() => {

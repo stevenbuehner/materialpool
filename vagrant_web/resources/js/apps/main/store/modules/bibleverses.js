@@ -81,7 +81,7 @@ const actions = {
 	},
 
 	createAndAssign: async ({commit, getters, dispatch}, {from, to, materialId, relevance}) => {
-		const bibleverse = await dispatch('create', {from, to});
+		const bibleverse          = await dispatch('create', {from, to});
 		const bibleverseRelevance = await dispatch('updateRelevance', {
 			materialId,
 			bibleverseId: bibleverse.id,

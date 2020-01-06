@@ -217,12 +217,12 @@
 
 					return this.$store.dispatch('resources/get', this.id)
 					           .then((data) => {
-						           this.errorMsg = null;
+						           this.errorMsg  = null;
 						           this.isLoading = false;
 						           return data;
 					           })
 					           .catch((message) => {
-						           this.errorMsg = message;
+						           this.errorMsg  = message;
 						           this.isLoading = false;
 					           });
 				},

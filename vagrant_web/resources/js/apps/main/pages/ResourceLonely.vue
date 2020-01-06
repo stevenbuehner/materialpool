@@ -66,9 +66,9 @@
 
 					return this.$store.dispatch('resources/lonely', {page: this.page})
 					           .then(({data, current_page, last_page, total}) => {
-						           this.page = current_page;
-						           this.numPages = last_page;
-						           this.total = total;
+						           this.page      = current_page;
+						           this.numPages  = last_page;
+						           this.total     = total;
 						           this.isLoading = false;
 						           return data;
 					           }).catch((message) => {

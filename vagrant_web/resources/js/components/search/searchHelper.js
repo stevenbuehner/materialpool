@@ -9,7 +9,7 @@
  */
 export function searchArrayObjectsToSearchArrayItems(searchLines) {
 
-	let result = [];
+	let result  = [];
 	let counter = 1;
 
 	if (searchLines && searchLines instanceof Array) {
@@ -170,17 +170,17 @@ export function searchArrayItemsToSearchQuery(searchObjects) {
 
 export function searchQueryStringToSearchQueryArray(query) {
 
-	query = query || '';
+	query            = query || '';
 	const queryItems = query.split(QUERY_SEPARATOR);
-	let tempQuery = [];
-	const regExp = /([0-9]+)([kbt\*])(.*)/i;
+	let tempQuery    = [];
+	const regExp     = /([0-9]+)([kbt\*])(.*)/i;
 
 	queryItems.forEach((objStr) => {
 		const found = objStr.match(regExp);
 
 		if (found) {
 			const lineId = parseInt(found[1]);
-			const type = found[2];
+			const type   = found[2];
 			const search = found[3];
 
 			switch (type) {
@@ -240,7 +240,7 @@ function resolvedSearchParamsToValueObject(tempSearchParams) {
 	let searchParams = {};
 
 	tempSearchParams.forEach((qObj) => {
-		const line = qObj.line;
+		const line  = qObj.line;
 		const value = qObj.value;
 
 		if (searchParams[line] === undefined) {
@@ -271,17 +271,17 @@ import {BibleVerseService} from '../../../../vendor/stevenbuehner/bible-verse-bu
 
 export function searchQueryToSearchArrayObjects(query) {
 
-	query = query || '';
-	const queryItems = query.split(QUERY_SEPARATOR);
+	query              = query || '';
+	const queryItems   = query.split(QUERY_SEPARATOR);
 	let searchPromises = [];
-	const regExp = /([0-9]+)([kbt\*])(.*)/i;
+	const regExp       = /([0-9]+)([kbt\*])(.*)/i;
 
 	queryItems.forEach((objStr) => {
 		const found = objStr.match(regExp);
 
 		if (found) {
 			const lineId = parseInt(found[1]);
-			const type = found[2];
+			const type   = found[2];
 			const search = found[3];
 
 			switch (type) {

@@ -250,7 +250,7 @@
 
 				axios.post('/oauth/personal-access-tokens', this.form)
 				     .then(response => {
-					     this.form.name = '';
+					     this.form.name   = '';
 					     this.form.scopes = [];
 					     this.form.errors = [];
 

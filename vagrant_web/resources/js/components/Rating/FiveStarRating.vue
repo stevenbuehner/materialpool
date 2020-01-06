@@ -131,16 +131,16 @@
 
 		},
 		created() {
-			this.currentRating = this.rating;
+			this.currentRating  = this.rating;
 			this.selectedRating = this.currentRating
 			this.createStars(this.roundStartRating)
 		},
 		methods: {
 			setRating($event, persist) {
 				if (!this.readOnly) {
-					const position = (this.rtl) ? (100 - $event.position) / 100 : $event.position / 100;
+					const position       = (this.rtl) ? (100 - $event.position) / 100 : $event.position / 100;
 					const starPercentage = ($event.id + position).toFixed(2) / this.starCount;
-					this.currentRating = Math.round(starPercentage * this.maxRating);
+					this.currentRating   = Math.round(starPercentage * this.maxRating);
 
 					this.createStars();
 
@@ -166,7 +166,7 @@
 
 				const absoluteFillPercentage = (this.currentRating / this.maxRating).toFixed(2);
 				// const percentagePerStar      = 1 / this.starCount;
-				const relativeStarCount = absoluteFillPercentage * this.starCount;
+				const relativeStarCount      = absoluteFillPercentage * this.starCount;
 
 				for (var i = 0; i < this.starCount; i++) {
 					const level = Math.max(0, Math.min(1, relativeStarCount - i)) * 100;
@@ -187,7 +187,7 @@
 		},
 		watch: {
 			rating(val) {
-				this.currentRating = val;
+				this.currentRating  = val;
 				this.selectedRating = val;
 				this.createStars(this.shouldRound);
 			},

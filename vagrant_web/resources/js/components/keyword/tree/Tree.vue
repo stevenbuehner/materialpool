@@ -97,7 +97,7 @@
 			},
 
 			filter: function filter(tree) {
-				const copy = JSON.parse(JSON.stringify(tree));
+				const copy   = JSON.parse(JSON.stringify(tree));
 				const regExp = new RegExp(`.*(${this.searchRegexp}).*`, "gi");
 				console.log(regExp);
 

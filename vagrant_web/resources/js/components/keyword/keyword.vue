@@ -192,8 +192,8 @@
 
 					console.info('Relevance can only be changed in the backend when a material-id is given!');
 
-					let pivot = this.myKeyword.pivot || {};
-					pivot.relevance = relevance;
+					let pivot            = this.myKeyword.pivot || {};
+					pivot.relevance      = relevance;
 					this.myKeyword.pivot = pivot;
 
 					this.emitSaved(this.myKeyword);

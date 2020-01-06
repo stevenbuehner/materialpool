@@ -45,7 +45,7 @@
 	import {BibleVerseService} from '../../../../../vendor/stevenbuehner/bible-verse-bundle/js/out/BibleVerseService_de.js';
 	import Markdown            from "../../markdown/markdown";
 
-	const regexp = BibleVerseService.biblePattern;
+	const regexp     = BibleVerseService.biblePattern;
 	window.bibletest = regexp;
 
 	export default {
@@ -88,7 +88,7 @@
 		methods: {
 			btnCancel() {
 				this.editModeEnabled = false;
-				this.myTextContent = this.resource.content;
+				this.myTextContent   = this.resource.content;
 				this.flashInfo(this.$t('pool.Undo-changes'));
 			},
 
@@ -101,7 +101,7 @@
 			btnSave() {
 
 				this.editModeEnabled = false;
-				this.isSaving = true;
+				this.isSaving        = true;
 
 				this.flashInfo(this.$t('pool.Saving-content-changes'));
 

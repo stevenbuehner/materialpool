@@ -12,10 +12,10 @@ import SystemShutdown     from './pages/RequestShutdown';
 // import PassportAuthorizedClient from '../../components/passport/AuthorizedClients.vue';
 // import PassportPersonalAccessTokens from '../../components/passport/PersonalAccessTokens.vue';
 
-const KeywordList = () => import('./pages/KeywordList.vue');
-const ReadBible = () => import('./pages/ReadBible');
-const BundleList = () => import('./pages/BundleList.vue');
-const MaterialApp = () => import('./pages/MaterialList.vue');
+const KeywordList    = () => import('./pages/KeywordList.vue');
+const ReadBible      = () => import('./pages/ReadBible');
+const BundleList     = () => import('./pages/BundleList.vue');
+const MaterialApp    = () => import('./pages/MaterialList.vue');
 const ResourceLonely = () => import('./pages/ResourceLonely.vue');
 
 

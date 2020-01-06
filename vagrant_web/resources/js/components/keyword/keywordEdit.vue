@@ -201,7 +201,7 @@
 			},
 
 			setKeyword(keyword) {
-				this.keyword = keyword;
+				this.keyword           = keyword;
 				this.backupJsonKeyword = JSON.stringify(keyword);
 			},
 
@@ -218,7 +218,7 @@
 				}
 
 				this.disableForm = true;
-				const originalK = JSON.parse(this.backupJsonKeyword);
+				const originalK  = JSON.parse(this.backupJsonKeyword);
 				let modifiedData = {};
 
 				const mod = ['title', 'type', 'custom_icon'].filter((p) => {

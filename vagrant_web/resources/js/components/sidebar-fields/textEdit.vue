@@ -34,7 +34,7 @@
         </div>
 
         <div class="editField"
-        :class="{disabled}">
+             :class="{disabled}">
 
             <slot name="input">
                 <b-form-input

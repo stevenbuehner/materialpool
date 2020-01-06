@@ -173,8 +173,8 @@
 
 					console.info('Can not add bibleverse to material at the server because no materialId given', this.myBibleverse);
 
-					let pivot = this.myBibleverse.pivot || {};
-					pivot.relevance = relevance;
+					let pivot               = this.myBibleverse.pivot || {};
+					pivot.relevance         = relevance;
 					this.myBibleverse.pivot = pivot;
 
 					this.emitSaved(this.myBibleverse);

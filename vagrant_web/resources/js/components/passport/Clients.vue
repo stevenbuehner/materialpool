@@ -302,8 +302,8 @@
 			 * Edit the given client.
 			 */
 			edit(client) {
-				this.editForm.id = client.id;
-				this.editForm.name = client.name;
+				this.editForm.id       = client.id;
+				this.editForm.name     = client.name;
 				this.editForm.redirect = client.redirect;
 
 				$('#modal-edit-client').modal('show');
@@ -329,9 +329,9 @@
 					.then(response => {
 						this.getClients();
 
-						form.name = '';
+						form.name     = '';
 						form.redirect = '';
-						form.errors = [];
+						form.errors   = [];
 
 						$(modal).modal('hide');
 					})

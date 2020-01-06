@@ -306,7 +306,7 @@
 				this.errorOnLoadingMessage = null;
 
 				this.$store.dispatch('materials/getMaterial', this.id).then((material) => {
-					this.material = material;
+					this.material              = material;
 					this.errorOnLoadingMessage = null;
 				}).catch((response) => {
 					this.errorOnLoadingMessage = response;

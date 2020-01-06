@@ -64,7 +64,7 @@
 
 		watch: {
 			value(newVal, oldVal) {
-				this.text = newVal;
+				this.text     = newVal;
 				this.editText = newVal;
 			}
 		},
@@ -82,7 +82,7 @@
 		methods: {
 			startEdditing() {
 				this.editText = this.text;
-				this.editNow = true;
+				this.editNow  = true;
 
 				this.$nextTick(() => this.$refs.textInput.focus())
 			},
@@ -105,7 +105,7 @@
 		},
 
 		created() {
-			this.text = this.value;
+			this.text     = this.value;
 			this.editText = this.value;
 		},
 

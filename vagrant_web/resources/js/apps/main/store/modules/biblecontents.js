@@ -19,7 +19,7 @@ const actions = {
 
 	get: ({commit, getters, dispatch, state}, {from, to, bibleUuid}) => {
 
-		bibleUuid = bibleUuid || null;
+		bibleUuid      = bibleUuid || null;
 		const cacheKey = verseKey(from, to, bibleUuid);
 
 		if (state.cache[cacheKey]) {
@@ -35,7 +35,7 @@ const actions = {
 			return axios.get(route)
 			            .then(({data}) => {
 
-				            const bible = data.bible;
+				            const bible  = data.bible;
 				            const verses = data.verses;
 
 				            // Cache verses
@@ -83,7 +83,7 @@ const actions = {
 			            if (data.bibleverses.length === 1) {
 				            // All bibleverses belong to this one bibleverse
 				            const from = data.bibleverses[0].from;
-				            const to = data.bibleverses[0].to;
+				            const to   = data.bibleverses[0].to;
 
 				            state.cache[verseKey(from, to, bibleUuid)] = data.verses;
 

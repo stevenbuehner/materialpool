@@ -170,7 +170,7 @@
 
 				return this.promise = new Promise((resolve, reject) => {
 					this.resolve = resolve;
-					this.reject = reject;
+					this.reject  = reject;
 					this.$refs.myModal.show();
 
 					if (this.$refs.myModal.is_visible) {
@@ -228,7 +228,7 @@
 					this.resolve(data);
 
 					this.resolve = null;
-					this.reject = null;
+					this.reject  = null;
 					this.promise = null;
 				}
 
@@ -247,7 +247,7 @@
 					this.reject(data);
 
 					this.resolve = null;
-					this.reject = null;
+					this.reject  = null;
 					this.promise = null;
 				}
 

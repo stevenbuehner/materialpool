@@ -75,7 +75,7 @@
 
 			createModelFromKeywords(keywords) {
 
-				let ids = {};
+				let ids   = {};
 				let model = [];
 
 				const roots = {
@@ -123,9 +123,9 @@
 
 				for (let i in keywords) {
 
-					let k = keywords[i];
+					let k      = keywords[i];
 					k.children = [];
-					ids[k.id] = k;
+					ids[k.id]  = k;
 
 					if (k.parent_id) {
 
@@ -147,7 +147,7 @@
 					ids[k.parent_id].children.push(k);
 				}
 
-				this.treeModel = model;
+				this.treeModel    = model;
 				this.treeModelIds = ids;
 
 			},
@@ -161,7 +161,7 @@
 				}
 
 				// Detach from tree first
-				const backKW = this.getKeyword(sourceId);
+				const backKW       = this.getKeyword(sourceId);
 				const backParentId = backKW.parent_id;
 
 				this.detachKeyword(sourceId);
@@ -210,11 +210,11 @@
 
 			detachKeyword(keywordId) {
 
-				keywordId = parseInt(keywordId);
+				keywordId           = parseInt(keywordId);
 				const sourceKeyword = this.getKeyword(keywordId);
 
 				// Remove from Array
-				const parent = this.getKeyword(sourceKeyword.parent_id, sourceKeyword.type);
+				const parent    = this.getKeyword(sourceKeyword.parent_id, sourceKeyword.type);
 				parent.children = parent.children.filter(kw => {
 					return kw.id !== keywordId;
 				});
@@ -241,7 +241,7 @@
 
 				targetKeyword.children.push(sourceKeyword);
 
-				sourceKeyword.parent_id = targetId;
+				sourceKeyword.parent_id             = targetId;
 				this.treeModelIds[sourceKeyword.id] = sourceKeyword;
 
 			},

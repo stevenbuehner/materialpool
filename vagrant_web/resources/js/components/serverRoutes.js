@@ -1,4 +1,4 @@
-export const searchGuessRoute = '/pool/search/guess';
+export const searchGuessRoute  = '/pool/search/guess';
 export const searchGuessRoute2 = '/pool/search/guess2';
 
 
@@ -30,7 +30,7 @@ export function resourceDownloadLink(resource) {
 }
 
 export function previewImageFirstPage(resource, width, height) {
-	width = width || 1024;
+	width  = width || 1024;
 	height = height || 1024;
 	return '/resource/' + resource.id + '/image/' + width + '/' + height;
 }
@@ -65,8 +65,8 @@ export function api_v2_materialresource_detach(materialId, resourceId) {
 
 
 // Search
-export const searchUrl = '/pool/search/get';
-export const searchGuessKeywords = '/pool/search/guess/keywords';
+export const searchUrl              = '/pool/search/get';
+export const searchGuessKeywords    = '/pool/search/guess/keywords';
 export const searchGuessBibleverses = '/pool/search/guess/bibleverses';
 
 

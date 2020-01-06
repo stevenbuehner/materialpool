@@ -41,7 +41,7 @@ export const draggingSupport = {
 			elementWidth = this.$el.offsetWidth;
 
 			this.dragging.ongoing = true;
-			this.dragging.xEnd = this.dragging.xStart = getRelativeClickCoordinates(event, this.$el).x || 0;
+			this.dragging.xEnd    = this.dragging.xStart = getRelativeClickCoordinates(event, this.$el).x || 0;
 
 			window.addEventListener('mouseup', this.stopDrag);
 			window.addEventListener('mousemove', this.doDrag);

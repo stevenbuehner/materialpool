@@ -169,7 +169,7 @@
 
 			fromStringToRangeArray(text) {
 
-				const query = text || '';
+				const query       = text || '';
 				const verseranges = query.split(',');
 
 				return verseranges

@@ -152,7 +152,7 @@
 
 				return new Promise((resolve, reject) => {
 					this.resolve = resolve;
-					this.reject = reject;
+					this.reject  = reject;
 
 					this.$refs.myModal.show();
 				});
@@ -165,7 +165,7 @@
 					this.reject('closed early');
 					// this.$refs.myModal.close();
 					this.resolve = null;
-					this.reject = null;
+					this.reject  = null;
 				}
 
 			},
@@ -177,7 +177,7 @@
 			_updateResourceSuggestions() {
 
 				this.searchErrorMessage = '';
-				this.searchOngoing = true;
+				this.searchOngoing      = true;
 
 				this.$store.dispatch('resources/find', this.findResourceQuery)
 				    .then(({data}) => {
@@ -188,14 +188,14 @@
 			},
 
 			_resourceSearchPositive(resources) {
-				this.searchOngoing = false;
-				this.searchErrorMessage = '';
+				this.searchOngoing       = false;
+				this.searchErrorMessage  = '';
 				this.resourceSuggestions = resources;
 			},
 
 			_resourceSearchNegative(errorMessage) {
-				this.searchOngoing = false;
-				this.searchErrorMessage = errorMessage;
+				this.searchOngoing       = false;
+				this.searchErrorMessage  = errorMessage;
 				this.resourceSuggestions = [];
 			},
 
