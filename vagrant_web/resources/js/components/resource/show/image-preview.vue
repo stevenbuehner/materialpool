@@ -70,7 +70,7 @@
 			_getPreviewZoomImagesAndTitles() {
 				return [{
 					src: previewImageFirstPage(this.resource),
-					title: this.resource.notes || ''
+					title: this.resource.notes || this.resource.original_filename || ''
 				}];
 			},
 		},
