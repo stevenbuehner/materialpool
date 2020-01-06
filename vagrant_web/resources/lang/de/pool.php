@@ -69,7 +69,6 @@ return [
 	'Suggestions'                                              => 'Vorschläge',
 	'Insert-bibleverse-here'                                   => 'Bibelvers hier eingeben',
 	'Bibleversesuggestions'                                    => 'Bibelversvorschläge',
-	'Upload-resource-and-add-to-material'                      => 'Resource hochladen um sie diesem Material hinzuzufügen',
 	'Material-is-loading'                                      => 'Material lädt ...',
 	'Yes'                                                      => 'Ja',
 	'No'                                                       => 'Nein',
@@ -266,5 +265,7 @@ return [
 	'Order'                                                    => 'Sortierung',
 	'Ascending'                                                => 'Aufsteigend',
 	'Descending'                                               => 'Absteigend',
-	'Ignoring-resource-ids-xy'                                    => 'Blende die Resourcen {xy} aus.',
+	'Ignoring-resource-ids-xy'                                 => 'Blende die Resourcen {xy} aus.',
+	'select-file'                                              => 'Datei auswählen',
+	'file-size-limitation-xy'                                  => 'Dateigröße ist limitiert auf {xy}.',
 ];

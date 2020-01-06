@@ -11,11 +11,11 @@
                       @error="onError"
                       v-if="!showError"
         >
-            <div class="d-flex align-items-center justify-content-center w-100"
+            <div class="d-flex align-items-center justify-content-center w-100 p-2"
                  :style="styleObject">
                 <button class="btn btn-secondary" @click="triggerBrowse" v-if="!uploadRunning"
-                        :title="'Limited to ' + options.maxFileSize + 'MB'">
-                    <slot>{{$t('pool.Upload-resource-and-add-to-material')}}</slot>
+                        :title="$t('pool.file-size-limitation-xy', {xy: options.maxFileSize + 'MB'})">
+                    <slot>{{$t('pool.select-file')}}</slot>
                 </button>
                 <h4 v-if="uploadRunning">Upload is beeing processed</h4>
             </div>
@@ -128,7 +128,7 @@
 			onQueueComplete(file, resource) {
 				this.$emit('multiple-resources-created', this.createdResources);
 				this.createdResources = [];
-				this.uploadRunning = false;
+				this.uploadRunning    = false;
 			},
 
 			onError(file, errorMsg, other) {
@@ -159,8 +159,8 @@
 			},
 
 			btnClearErrorAndTryAgain() {
-				this.errorMessage = null;
-				this.fileStatus = null;
+				this.errorMessage  = null;
+				this.fileStatus    = null;
 				this.uploadRunning = false;
 
 			}

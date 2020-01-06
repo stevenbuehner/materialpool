@@ -68,7 +68,6 @@ export default {
             "Suggestions": "Vorschläge",
             "Insert-bibleverse-here": "Bibelvers hier eingeben",
             "Bibleversesuggestions": "Bibelversvorschläge",
-            "Upload-resource-and-add-to-material": "Resource hochladen um sie diesem Material hinzuzufügen",
             "Material-is-loading": "Material lädt ...",
             "Yes": "Ja",
             "No": "Nein",
@@ -265,7 +264,9 @@ export default {
             "Order": "Sortierung",
             "Ascending": "Aufsteigend",
             "Descending": "Absteigend",
-            "Ignoring-resource-ids-xy": "Blende die Resourcen {xy} aus."
+            "Ignoring-resource-ids-xy": "Blende die Resourcen {xy} aus.",
+            "select-file": "Datei auswählen",
+            "file-size-limitation-xy": "Dateigröße ist limitiert auf {xy}."
         }
     },
     "en": {
@@ -360,7 +361,6 @@ export default {
             "Suggestions": "Suggestions",
             "Insert-bibleverse-here": "Insert bibleverse here",
             "Bibleversesuggestions": "Bibleverse Suggestions",
-            "Upload-resource-and-add-to-material": "Upload resource and to add it to this material",
             "Material-is-loading": "Material is loading ...",
             "Yes": "Yes",
             "No": "No",
@@ -556,7 +556,9 @@ export default {
             "Order": "Order",
             "Ascending": "Ascending",
             "Descending": "Descending",
-            "Ignoring-resource-ids-xy": "Hiding the resources {xy}"
+            "Ignoring-resource-ids-xy": "Hiding the resources {xy}",
+            "select-file": "select file",
+            "file-size-limitation-xy": "Filesize is limited to {xy}."
         },
         "validation": {
             "accepted": "The {attribute} must be accepted.",

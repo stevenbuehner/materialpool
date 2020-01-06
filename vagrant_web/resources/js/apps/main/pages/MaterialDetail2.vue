@@ -216,7 +216,7 @@
                         <div class="row" v-if="material">
 
 
-                            <resource-uploader class="col-12 mb-3"
+                            <resource-uploader class="col-12 col-sm-6 col-mb-4 mb-2 mb-sm-0"
                                                @resource-created="uploadResourceToThisMaterial"></resource-uploader>
 
                             <div class="col-12 col-sm-6 col-mb-4">

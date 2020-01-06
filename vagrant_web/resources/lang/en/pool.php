@@ -77,7 +77,6 @@ return [
 	'Suggestions'                                              => 'Suggestions',
 	'Insert-bibleverse-here'                                   => 'Insert bibleverse here',
 	'Bibleversesuggestions'                                    => 'Bibleverse Suggestions',
-	'Upload-resource-and-add-to-material'                      => 'Upload resource and to add it to this material',
 	'Material-is-loading'                                      => 'Material is loading ...',
 	'Yes'                                                      => 'Yes',
 	'No'                                                       => 'No',
@@ -273,5 +272,7 @@ return [
 	'Order'                                                    => 'Order',
 	'Ascending'                                                => 'Ascending',
 	'Descending'                                               => 'Descending',
-	'Ignoring-resource-ids-xy'                                    => 'Hiding the resources {xy}',
+	'Ignoring-resource-ids-xy'                                 => 'Hiding the resources {xy}',
+	'select-file'                                              => 'select file',
+	'file-size-limitation-xy'                                  => 'Filesize is limited to {xy}.',
 ];
