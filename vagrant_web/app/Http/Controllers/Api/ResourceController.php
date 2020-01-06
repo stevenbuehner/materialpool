@@ -27,7 +27,7 @@ class ResourceController extends BaseController {
 	protected $fileHandlingService;
 
 	public function __construct(FileHandlingService $fileHandlingService) {
-		// $this->middleware(['auth:api']);
+		$this->middleware(['auth:api']);
 
 		$this->fileHandlingService = $fileHandlingService;
 	}
