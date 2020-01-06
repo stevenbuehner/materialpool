@@ -185,9 +185,13 @@ const actions = {
 		return promise;
 	},
 
-	find: ({dispatch}, {remote_path, is_public, content_hash, missing_materials, page}) => {
+	find: ({dispatch}, {id, remote_path, is_public, content_hash, missing_materials, ignore_ids, order_by, order_dir, page}) => {
 
 		let searchQuery = {};
+
+		if (id) {
+			searchQuery.id = id;
+		}
 
 		if (remote_path) {
 			searchQuery.remote_path = remote_path;
@@ -203,6 +207,18 @@ const actions = {
 
 		if (missing_materials === true) {
 			searchQuery.missing_materials = true;
+		}
+
+		if (ignore_ids) {
+			searchQuery.ignore_ids = ignore_ids;
+		}
+
+		if (order_by) {
+			searchQuery.order_by = order_by;
+		}
+
+		if (order_dir) {
+			searchQuery.order_dir = order_dir;
 		}
 
 		if (page) {

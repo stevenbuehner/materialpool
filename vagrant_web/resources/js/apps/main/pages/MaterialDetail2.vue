@@ -214,15 +214,17 @@
                     </b-tab>
                     <b-tab :title="$t('pool.assignments')">
                         <div class="row" v-if="material">
+
+
                             <resource-uploader class="col-12 mb-3"
                                                @resource-created="uploadResourceToThisMaterial"></resource-uploader>
-                            <div class="col-12 mb-3">
-                                <div class="d-flex align-items-center justify-content-center w-100 sbAssignResource">
-                                    <button class="btn btn-secondary"
-                                            @click="assignResourceToThisMaterial">{{$t('pool.Assign-resource')}}
-                                    </button>
-                                </div>
+
+                            <div class="col-12 col-sm-6 col-mb-4">
+                                <b-button @click="assignResourceToThisMaterial">
+                                    {{$t('pool.Assign-resource')}}
+                                </b-button>
                             </div>
+
                         </div>
                     </b-tab>
                     <b-tab :title="$t('pool.meta')">
@@ -255,7 +257,8 @@
         </div>
 
         <custom-dialog ref="customDialog"/>
-        <resource-selector ref="resourceSelector"/>
+        <resource-selector ref="resourceSelector"
+                           :excluded-resource-id="material.resources.map(({id})=> id)"/>
     </div>
 </template>
 
@@ -274,7 +277,6 @@
 	import MaterialRating          from "../../../components/Material/MaterialRating";
 	import Flag                    from "../../../components/flags/Flag";
 	import {flagColors}            from "../../../components/flags/flagOptions";
-	import ResourceSelector        from "../../../components/modals/selectors/resourceSelector";
 	import KeywordToggleTextSelect from "../../../components/keyword/keywordToggleTextSelect";
 	import {savingDialogs}         from "../../../helper/flashMessages";
 	import PublicMaterialDownload  from "../../../components/download/public-material-download";
@@ -294,7 +296,7 @@
 
 
 	import Vue                        from 'vue';
-	import {TabsPlugin}               from 'bootstrap-vue';
+	import {TabsPlugin, BButton}      from 'bootstrap-vue';
 	import TextEditSidebarField       from "../../../components/sidebar-fields/textEdit";
 	import BibleverseEditSidebarField from "../../../components/sidebar-fields/bibleverseEdit";
 	import dayjs                      from 'dayjs';
@@ -302,6 +304,7 @@
 	import {RELEVANCE_USER_MAX}       from "../../config";
 	import RatingEdit                 from "../../../components/sidebar-fields/ratingEdit";
 	import SingleTagSelect            from "../../../components/sidebar-fields/singleTagSelect";
+	import ResourceSelector           from "../../../components/modals/selectors/resourceSelector";
 
 	Vue.use(TabsPlugin);
 
@@ -309,7 +312,7 @@
 	// https://github.com/craigh411/vue-star-rating/#props
 	export default {
 
-		name: 'MaterialDetail',
+		name: 'MaterialDetail2',
 
 		mixins: [savingDialogs, formatLocalizedDate],
 
@@ -383,7 +386,7 @@
 				this.errorOnLoadingMessage = null;
 
 				this.$store.dispatch('materials/getMaterial', this.id).then((material) => {
-					this.material = material;
+					this.material              = material;
 					this.errorOnLoadingMessage = null;
 				}).catch((response) => {
 					this.errorOnLoadingMessage = response;
@@ -458,6 +461,23 @@
 				});
 			},
 
+			assignResourceToThisMaterial() {
+				this.$refs.resourceSelector.showPromise()
+				    .then((resource) => {
+
+					    if (this.material.resources.find(mr => mr.id == resource.id)) {
+						    alert('This resource exists already in this material');
+					    } else {
+						    this.$store.dispatch('materials/attachResource', {
+							    materialId: this.id,
+							    resourceId: resource.id
+						    }).then(({material}) => {
+							    this.material = material;
+						    })
+					    }
+				    });
+			},
+
 			btnDetachResource(resource) {
 
 				this.$store.dispatch('materials/detachResource',
@@ -516,22 +536,6 @@
 				});
 			},
 
-			assignResourceToThisMaterial() {
-				this.$refs.resourceSelector.showPromise()
-				    .then((resource) => {
-
-					    if (this.material.resources.find(mr => mr.id == resource.id)) {
-						    alert('This resource exists already in this material');
-					    } else {
-						    this.$store.dispatch('materials/attachResource', {
-							    materialId: this.id,
-							    resourceId: resource.id
-						    }).then(({material}) => {
-							    this.material = material;
-						    })
-					    }
-				    })
-			},
 
 			btnDeleteMaterial() {
 
@@ -694,6 +698,15 @@
 
 			},
 
+			attachResourceToMaterial(resource) {
+				this.$store.dispatch('materials/attachResource', {
+					materialId: this.id,
+					resourceId: resource.id
+				}).then(({material}) => {
+					this.material = material;
+				})
+			},
+
 			materialWasModified() {
 				this.material.from_bot = false;
 			},
@@ -712,12 +725,15 @@
 					}
 				});
 				return false;
-			}
+			},
+
 
 		},
 
 
 		components: {
+			ResourceSelector,
+			BButton,
 			SingleTagSelect,
 			RatingEdit,
 			TagEditSidebarField,
@@ -725,7 +741,6 @@
 			TextEditSidebarField,
 			PublicMaterialDownload,
 			KeywordToggleTextSelect,
-			ResourceSelector,
 			Flag,
 			MaterialRating,
 			ResourceUploader,
@@ -772,15 +787,6 @@
 
         .doneIcon {
             background-image: url("/img/icons/entypo-plus/lock-open.svg");
-        }
-
-        .sbAssignResource {
-            width: 100%;
-            border-radius: 0.3rem;
-            border: 1px dashed #bdbdbd;
-            background-color: #e9ecef;
-            min-height: 5rem;
-            display: flex;
         }
 
         .buttonIcon {

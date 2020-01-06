@@ -263,4 +263,8 @@ return [
 	'saving-xy-now'                                            => 'speichere "{xy}" jetzt',
 	'Keyword_usage'                                            => 'Keyword ist verbunden mit {materials_count}x Material, {material_authors_count}x Material-Autor, {children_count}x direkten Keyword-Kindern und {descendants_count}x Keyword-Kindern in Summe.',
 	'Creation-date'                                            => 'Erstellungsdatum',
+	'Order'                                                    => 'Sortierung',
+	'Ascending'                                                => 'Aufsteigend',
+	'Descending'                                               => 'Absteigend',
+	'Ignoring-resource-ids-xy'                                    => 'Blende die Resourcen {xy} aus.',
 ];

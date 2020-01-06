@@ -11,8 +11,12 @@ use App\Services\ResourceHandling\FileHandlingService;
 use App\Services\ResourceHandling\ResourceCleanupService;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Pagination\Paginator;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 
 class ResourceController extends BaseController {
 
@@ -23,7 +27,7 @@ class ResourceController extends BaseController {
 	protected $fileHandlingService;
 
 	public function __construct(FileHandlingService $fileHandlingService) {
-		$this->middleware(['auth:api']);
+		// $this->middleware(['auth:api']);
 
 		$this->fileHandlingService = $fileHandlingService;
 	}
@@ -62,13 +66,33 @@ class ResourceController extends BaseController {
 	}
 
 	public function find(Request $request) {
-		if (Auth::guest()) {
-			response('No user given', 404);
-		}
 
-		$resourceClass = Resource::getSingleTableClass($request->get('type', 'res'));
+		/** @var \Illuminate\Validation\Validator $validator */
+		$validator = Validator::make($request->all(), [
+			'id'           => 'bail|numeric|min:1',
+			'remote_path'  => 'bail|nullable|string',
+			'is_public'    => 'bail|boolean',
+			'content_hash' => 'bail|string|min:191|max:191',
+			'ignore_ids.*' => 'bail|numeric|distinct',
+			'order_by'     => 'bail|string|in:created_at,updated_at,id',
+			'order_dir'    => 'bail|string|in:asc,desc',
+		])->validate();
+
+
 		/** @var Builder $builder */
-		$builder = $resourceClass::where('created_by', Auth::id());
+		// $builder = Resource::query();
+		$builder = (new Resource())->newQueryWithoutScopes();
+
+		// DB::enableQueryLog();
+		// Check Authorisation
+		$builder->where(function ($q) {
+			$q->orWhere("created_by", Auth::id());
+			$q->orWhere('is_public', TRUE);
+		});
+
+		if ($request->has('id')) {
+			$builder->where('id', $request->get('id'));
+		}
 
 		if ($request->has('remote_path')) {
 			$builder->where('remote_path', $request->get('remote_path', NULL));
@@ -103,9 +127,20 @@ class ResourceController extends BaseController {
 			*/
 		}
 
-		return $builder->with(self::DEFAULT_RELATIONS)->paginate(25);
-	}
 
+		if ($request->has('ignore_ids')) {
+			$builder->whereNotIn('id', $request->get('ignore_ids', []));
+		}
+
+		$builder->orderBy($request->get('order_by', 'id'), $request->get('order_dir', 'asc'));
+
+
+		$blub = $builder->with(self::DEFAULT_RELATIONS)->paginate(25);
+
+		// $log = DB::getQueryLog();
+
+		return $blub;
+	}
 
 	public function store(Request $request) {
 

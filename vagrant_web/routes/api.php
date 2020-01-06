@@ -43,7 +43,6 @@ Route::group([
 		 ->middleware('can:update,material')
 		 ->name('api.v2.materialresources.sync');
 
-
 	// Neu: Material
 	Route::delete('materials/{material}',
 				  'MaterialController@destroy')
@@ -75,6 +74,8 @@ Route::group([
 	// Resources
 	Route::get('resources/find', 'ResourceController@find')
 		 ->name('resources.find');
+
+
 
 
 	// Materials

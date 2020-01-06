@@ -13,6 +13,9 @@
 
             <b-form-group horizontal
                           breakpoint="md"
+                          label-cols="3"
+                          label-cols-md="3"
+                          label-cols-lg="1"
                           :label="$t('pool.ID')"
                           label-for="resourceid"
             >
@@ -22,6 +25,48 @@
                               required
                               :placeholder="$t('pool.Resource-ID')">
                 </b-form-input>
+            </b-form-group>
+
+            <b-form-group horizontal
+                          breakpoint="md"
+                          label-cols="3"
+                          label-cols-md="3"
+                          label-cols-lg="1"
+                          :label="$t('pool.Order')"
+                          label-for="order_by"
+            >
+                <b-form-select id="order_by"
+                               name="order_by"
+                               class="col-6"
+                               v-model="form.order_by"
+                               :options="[
+                               	{value: 'updated_at', text: $t('pool.Updated-at')},
+                               	{value: 'created_at', text: $t('pool.Created-at')},
+                               	{value: 'id', text: $t('pool.ID')}
+                               ]">
+                </b-form-select>
+                <span class="mx-1 px-1"/>
+                <b-form-select id="order_dir"
+                               name="order_dir"
+                               class="col-5"
+                               v-model="form.order_dir"
+                               :options="[
+                               	{value: 'asc', text: $t('pool.Ascending')},
+                               	{value: 'desc', text: $t('pool.Descending')},
+                               ]">
+                </b-form-select>
+            </b-form-group>
+
+            <b-form-group
+                    v-if="excludedResourceId.length > 0"
+                    horizontal
+                    breakpoint="md"
+                    label-cols="3"
+                    label-cols-md="3"
+                    label-cols-lg="1"
+                    label-for="resourceid"
+            >
+                {{$t('pool.Ignoring-resource-ids-xy', {xy: excludedResourceId.join(', ')})}}
             </b-form-group>
 
         </b-form>
@@ -51,22 +96,35 @@
 
 <script>
 
-	import {BForm}             from 'bootstrap-vue';
-	import {BFormGroup}        from 'bootstrap-vue';
-	import {BFormInput}        from 'bootstrap-vue';
-	import {BModal}            from 'bootstrap-vue';
-	import {BButton}           from 'bootstrap-vue';
-	import {BAlert}            from 'bootstrap-vue';
-	import _debounce           from 'lodash/debounce';
-	import MaterialpoolSpinner from "../../spinner/materialpool-spinner";
+	import {BForm}                   from 'bootstrap-vue';
+	import {BFormGroup}              from 'bootstrap-vue';
+	import {BFormInput, BFormSelect} from 'bootstrap-vue';
+	import {BModal}                  from 'bootstrap-vue';
+	import {BButton, BFormCheckbox}  from 'bootstrap-vue';
+	import {BAlert}                  from 'bootstrap-vue';
+	import _debounce                 from 'lodash/debounce';
+	import MaterialpoolSpinner       from "../../spinner/materialpool-spinner";
 
 	export default {
 		name: "resourceSelector",
+
+		props: {
+			excludedResourceId: {
+				type: Array,
+				required: false,
+				default() {
+					return [];
+				}
+			}
+		},
 
 		data() {
 			return {
 				form: {
 					id: '',
+					recent: true,
+					order_by: 'updated_at',
+					order_dir: 'desc',
 				},
 				reject: null,
 				resolve: null,
@@ -77,12 +135,15 @@
 			};
 		},
 
-		props: {},
-
 		watch: {
-			'form.id': function () {
-				this.debounceUpdateMaterialSuggestions();
-			}
+			form: {
+				handler(newValue, oldValue) {
+					console.log('Watch handler fired');
+					this.debounceUpdateMaterialSuggestions();
+				},
+				deep: true,
+				immediate: true
+			},
 		},
 
 		methods: {
@@ -116,16 +177,14 @@
 			_updateResourceSuggestions() {
 
 				this.searchErrorMessage = '';
+				this.searchOngoing = true;
 
-				if (this.form.id) {
-					this.searchOngoing = true;
-					this.$store.dispatch('resources/get', this.form.id)
-					    .then((res) => {
-						    return [res];
-					    })
-					    .then(this._resourceSearchPositive)
-					    .catch(this._resourceSearchNegative);
-				}
+				this.$store.dispatch('resources/find', this.findResourceQuery)
+				    .then(({data}) => {
+					    return data;
+				    })
+				    .then(this._resourceSearchPositive)
+				    .catch(this._resourceSearchNegative);
 			},
 
 			_resourceSearchPositive(resources) {
@@ -161,14 +220,37 @@
 			}
 		},
 
+
+		computed: {
+
+			findResourceQuery() {
+				let search = {
+					order_by: this.form.order_by,
+					order_dir: this.form.order_dir
+				};
+
+				if (this.form.id) {
+					search.id = this.form.id;
+				}
+
+				if (this.excludedResourceId.length > 0) {
+					search.ignore_ids = this.excludedResourceId;
+				}
+
+				return search;
+			}
+		},
+
 		components: {
 			MaterialpoolSpinner,
 			BForm,
 			BFormGroup,
 			BFormInput,
+			BFormSelect,
 			BModal,
 			BButton,
-			BAlert
+			BAlert,
+			BFormCheckbox
 		}
 
 

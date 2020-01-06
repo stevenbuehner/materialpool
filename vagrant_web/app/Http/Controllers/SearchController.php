@@ -335,7 +335,7 @@ class SearchController extends Controller {
 					$matchAllStrings = $barGroupColl->get('*')->pluck('text');
 				}
 
-				DB::enableQueryLog();
+				// DB::enableQueryLog();
 				$matQuery->where(function ($q) use (&$keywordIds, &$bibleverseRanges, &$resourceTypes, &$matchAllStrings, $index) {
 					if (count($keywordIds) > 0) {
 						$q->orWhereIn("keyword_material{$index}.keyword_id", $keywordIds);

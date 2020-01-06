@@ -261,7 +261,11 @@ export default {
             "xy-saved": "\"{xy}\" gespeichert",
             "saving-xy-now": "speichere \"{xy}\" jetzt",
             "Keyword_usage": "Keyword ist verbunden mit {materials_count}x Material, {material_authors_count}x Material-Autor, {children_count}x direkten Keyword-Kindern und {descendants_count}x Keyword-Kindern in Summe.",
-            "Creation-date": "Erstellungsdatum"
+            "Creation-date": "Erstellungsdatum",
+            "Order": "Sortierung",
+            "Ascending": "Aufsteigend",
+            "Descending": "Absteigend",
+            "Ignoring-resource-ids-xy": "Blende die Resourcen {xy} aus."
         }
     },
     "en": {
@@ -548,7 +552,11 @@ export default {
             "saving-xy-now": "saving \"{xy}\" now",
             "xy-saved": "\"{xy}\" gespeichert",
             "Keyword_usage": "Keyword ist verbunden mit {materials_count}x Material, {material_authors_count}x Material-Autor, {children_count}x direkten Keyword-Kindern und {descendants_count}x Keyword-Kindern in Summe.",
-            "Creation-date": "Date of Creation"
+            "Creation-date": "Date of Creation",
+            "Order": "Order",
+            "Ascending": "Ascending",
+            "Descending": "Descending",
+            "Ignoring-resource-ids-xy": "Hiding the resources {xy}"
         },
         "validation": {
             "accepted": "The {attribute} must be accepted.",
