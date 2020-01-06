@@ -1,6 +1,6 @@
 <template>
     <div>
-        <div class="previewContainer" @click="$refs.imageZoom.show(currentlyDisplayedPageIndex)">
+        <div class="previewContainer" @click="_emitPreviewZoomRequest">
             <b-img :src="currentlyDisplayedImage.src"
                    :alt="currentlyDisplayedImage.title"
                    :key="currentlyDisplayedImage.src"
@@ -22,7 +22,6 @@
         </div>
         <span v-if="pageCount === 0">Seitenangabe fehlt</span>
 
-        <image-zoom :data="previewLimitedImages" ref="imageZoom"></image-zoom>
     </div>
 </template>
 
@@ -31,10 +30,10 @@
 	import {pdfPreviewImageForPage} from '../../serverRoutes';
 	import {BImg}                   from 'bootstrap-vue';
 	import pdfMixin                 from '../pdf-mixin';
-	import ImageZoom                from "../../modals/imageZoom";
+	import resourcePreviewZoom      from '../resource-preview-zoom';
 
 	export default {
-		mixins: [pdfMixin],
+		mixins: [pdfMixin, resourcePreviewZoom],
 
 		props: {
 			resource: {
@@ -44,7 +43,7 @@
 			maxPreviewPages: {
 				required: false,
 				type: Number,
-				default: 5
+				default: 15
 			}
 		},
 
@@ -137,11 +136,14 @@
 				} else {
 					this.currentlyDisplayedPageIndex++;
 				}
-			}
+			},
+
+			_getPreviewZoomImagesAndTitles() {
+				return this.previewLimitedImages;
+			},
 		},
 
 		components: {
-			ImageZoom,
 			BImg
 		}
 

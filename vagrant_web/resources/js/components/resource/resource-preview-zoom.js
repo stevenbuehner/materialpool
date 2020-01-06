@@ -1,62 +1,88 @@
-import {resourceDownloadLink, resourceLimitedPdfDownload} from '../serverRoutes'
+export const previewRegistrationContainer = [];
 
-export default {
-	methods: {
+export function getOrderedPreviewZoomImages(startComponent) {
 
-		downloadResourceLink(resource) {
+	let startIndex = 0;
+	let allImages  = [];
 
-
-			if (!this.hasLimitation(resource)) {
-				return resourceDownloadLink(resource);
-			}
-
-			switch (resource.type) {
-				case 'pdf':
-					return resourceLimitedPdfDownload(resource.pivot.resource_id, resource.pivot.material_id)
-				default:
-					return resourceDownloadLink(resource);
-			}
-
-		},
-
-		routerEditLimitationObject(resource, pivotOverride) {
-
-			switch (resource.type) {
-				case 'pdf':
-				case 'doc':
-
-					let query = {};
-					let pivot = undefined;
-
-
-					if (pivotOverride !== undefined) {
-						pivot = pivotOverride;
-					} else if (resource.pivot !== undefined) {
-						pivot = resource.pivot;
-					}
-
-					if (pivot && pivot.limitation && Array.isArray(pivot.limitation.pages)) {
-						query.selection = pivot.limitation.pages.join(',');
-					}
-
-					return {
-						name: 'resource-page-assign',
-						params: {
-							id: resource.id,
-						},
-						query: query
-					};
-				default:
-					return {};
-			}
-
-		},
-
-		hasLimitation(resource) {
-			return resource.pivot && resource.pivot.limitation;
+	previewRegistrationContainer.forEach((comp, ind) => {
+		if (comp === startComponent) {
+			startIndex = allImages.length;
 		}
 
+		const imgs = comp.getPreviewZoomImages();
+		allImages.push(...imgs);
+	});
+
+	return {
+		data: allImages,
+		start: startIndex
+	};
+
+}
+
+
+export default {
+	beforeMount() {
+		this._registerThisComponentForResourcePreview();
 	},
 
-	computed: {}
+	beforeDestroy() {
+		this._unregisterThisComponentForResourcePreview();
+	},
+
+	methods: {
+		_registerThisComponentForResourcePreview() {
+			previewRegistrationContainer.push(this);
+
+			// console.log('registered', previewRegistrationContainer);
+		},
+
+		_unregisterThisComponentForResourcePreview() {
+
+			// Remove Component
+			const ind = previewRegistrationContainer.findIndex((vueJsInstance) => vueJsInstance === this);
+			if (ind >= 0) {
+				previewRegistrationContainer.splice(ind, 1);
+			}
+
+			// console.log('unregistered', previewRegistrationContainer);
+
+		},
+
+		_emitPreviewZoomRequest() {
+			this.$emit('preview-zoom-request', this);
+		},
+
+		getPreviewZoomImages() {
+
+			const images = this._getPreviewZoomImagesAndTitles();
+
+			return images.map(({src, title}) => {
+
+				if (!title) {
+					title = '';
+				}
+
+				return {
+					src,
+					title,
+					resourceId: this.resource.id,
+					registeringComponent: this.$options.name
+				}
+
+			});
+		},
+
+		// OVERRIDE IN EACH Module
+		/*
+		_getPreviewZoomImagesAndTitles() {
+			return [{
+				src: '',
+				title: 'myTitle'
+			}];
+		},
+		*/
+
+	},
 }

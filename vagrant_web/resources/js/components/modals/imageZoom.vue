@@ -6,6 +6,8 @@
              :title="title"
              :hide-header-close="true"
              size="lg"
+             @show="$emit('image-zoom:showing')"
+             @hide="$emit('image-zoom:hiding')"
     >
         <div class="zoomImageModal">
             <b-img :src="image"

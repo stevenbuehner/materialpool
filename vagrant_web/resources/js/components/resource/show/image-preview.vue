@@ -1,7 +1,7 @@
 <template>
     <div class="mb-2 myCard" :title="title"
          :img-src="resourceImagePreviewUrl"
-         @click="goToResource">
+         @click="_emitPreviewZoomRequest">
 
         <img class="card-img-top" :src="resourceImagePreviewUrl" img-alt="Preview Image"/>
 
@@ -24,10 +24,13 @@
 	import {BButton}               from 'bootstrap-vue'
 	import resourceLinks           from '../resource-links.mixin';
 	import {previewImageFirstPage} from "../../serverRoutes";
+	import resourcePreviewZoom     from '../resource-preview-zoom';
 
 	export default {
 
-		mixins: [resourceLinks],
+		name: 'imagePreview',
+
+		mixins: [resourceLinks, resourcePreviewZoom],
 
 		props:
 			{
@@ -64,13 +67,14 @@
 		},
 
 		methods: {
-			goToResource() {
-				this.$router.push({
-					name: 'resource-detail',
-					params: {id: this.resource.id}
-				});
-			}
+			_getPreviewZoomImagesAndTitles() {
+				return [{
+					src: previewImageFirstPage(this.resource),
+					title: this.resource.notes || ''
+				}];
+			},
 		},
+
 		components: {
 			BCard,
 			BButton

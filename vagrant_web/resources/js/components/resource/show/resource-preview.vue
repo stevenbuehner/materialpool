@@ -1,14 +1,16 @@
 <template>
     <div class="resourcePreview card" @mouseover="hovered = true" @mouseleave="hovered = false">
-        <component :is="previewComponent" :resource="resource"></component>
-
+        <component
+                :is="previewComponent"
+                :resource="resource"
+                @preview-zoom-request="openImagePreviewZoomer"/>
 
         <transition name="fade">
             <div class="card-body resourcePreviewMenu pt-0" v-if="hovered">
                 <div class="meta">
                     <div v-if="resource.creator">
                         {{$t('pool.Creator')}}:
-                        <user-name :user="resource.creator"></user-name>
+                        <user-name :user="resource.creator"/>
                     </div>
                 </div>
 
@@ -25,29 +27,40 @@
                                      class="btn btn-sm btn-outline-primary mb-1">{{$t('pool.page-assignments')}}
                         </router-link>
                     </slot>
-                    <slot name="additional-buttons"></slot>
+                    <slot name="additional-buttons"/>
                 </slot>
             </div>
 
         </transition>
 
+        <image-zoom v-if="previewZoom.show"
+                    :data="previewZoom.data"
+                    :start="previewZoom.start"
+                    :endless="true"
+                    @image-zoom:hiding="resetImageZoom"
+                    ref="imageZoom"/>
+
     </div>
 </template>
 
 <script>
-	import imagePreview  from './image-preview.vue'
-	import textPreview   from './text-preview.vue'
-	import pdfPreview    from './pdf-preview.vue'
-	import audioPreview  from './audio-preview.vue'
-	import videoPreview  from './video-preview.vue'
-	import docPreview    from './doc-preview.vue'
-	import filePreview   from './file-preview.vue'
-	import resPreview    from './res-preview.vue'
-	import resourceLinks from '../resource-links.mixin';
-	import UserName      from "../../user/user-name";
+	import imagePreview                  from './image-preview.vue'
+	import textPreview                   from './text-preview.vue'
+	import pdfPreview                    from './pdf-preview.vue'
+	import audioPreview                  from './audio-preview.vue'
+	import videoPreview                  from './video-preview.vue'
+	import docPreview                    from './doc-preview.vue'
+	import filePreview                   from './file-preview.vue'
+	import resPreview                    from './res-preview.vue'
+	import resourceLinks                 from '../resource-links.mixin';
+	import UserName                      from "../../user/user-name";
+	import {getOrderedPreviewZoomImages} from "../resource-preview-zoom";
+	import ImageZoom                     from "../../modals/imageZoom";
 
 
 	export default {
+
+		name: 'resourcePreview',
 
 		mixins: [resourceLinks],
 
@@ -72,7 +85,12 @@
 
 		data() {
 			return {
-				hovered: false
+				hovered: false,
+				previewZoom: {
+					show: false,
+					data: [],
+					start: 0
+				}
 			}
 		},
 
@@ -82,10 +100,30 @@
 			}
 		},
 
-		methods: {},
+		methods: {
+			openImagePreviewZoomer(emittingComponent) {
+				const {data, start}    = getOrderedPreviewZoomImages(emittingComponent);
+				this.previewZoom.data  = data;
+				this.previewZoom.start = start;
+				this.previewZoom.show  = true;
+
+				this.$nextTick(() => {
+					this.$refs.imageZoom.show();
+				});
+			},
+
+			resetImageZoom() {
+				this.previewZoom = {
+					show: false,
+					data: [],
+					start: 0
+				};
+			}
+		},
 
 
 		components: {
+			ImageZoom,
 			UserName,
 			imagePreview,
 			textPreview,

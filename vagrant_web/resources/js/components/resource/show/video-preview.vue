@@ -14,9 +14,10 @@
 <script>
 
 	import {poolResourceVideostream, previewImageFirstPage} from "../../serverRoutes";
+	import resourcePreviewZoom                              from '../resource-preview-zoom';
 
 	export default {
-		mixins: [],
+		mixins: [resourcePreviewZoom],
 
 		props: {
 			resource: {
@@ -50,6 +51,15 @@
 
 				return type;
 			}
+		},
+
+		methods: {
+			_getPreviewZoomImagesAndTitles() {
+				return [{
+					title: this.resource.notes || 'Video',
+					src: this.posterRoute
+				}];
+			},
 		}
 
 
