@@ -1,13 +1,16 @@
 <template>
     <div class="resourceDetail">
 
-        <component :is="detailComponent" :resource="resource" class="detailContents"
-                   @resource-updated="$emit('resource-updated', $event)"></component>
+        <component
+                :is="detailComponent"
+                :resource="resource"
+                class="detailContents"
+                @resource-updated="$emit('resource-updated', $event)"/>
 
 
-        <div class="row m-n0">
+        <div class="row m-n0 pt-1 pt-sm-2 pt-md-3 mx-lg-2">
 
-            <div class="col-md-6 col-12 meta">
+            <div class="col-12 col-md-6 meta">
                 <div class="notes" v-if="resource.notes && resource.notes.length > 0">Notiz: {{resource.notes}}</div>
                 <div class="originalFilename" v-if="resource.original_filename">
                     {{$t('pool.Filename')}}: {{resource.original_filename}}
@@ -25,7 +28,7 @@
                 <div class="resource-id">{{$t('pool.Resource-ID')}}: {{resource.id}}</div>
             </div>
 
-            <div class="col-md-6 col-12">
+            <div class="col-12 col-md-6 pt-3 pt-md-0">
                 <slot name="buttons">
                     <slot name="default-buttons">
                         <a v-if="showDownload"
@@ -44,7 +47,7 @@
                                 :title="$t('pool.Delete-resource')">{{$t('pool.delete')}}
                         </button>
                     </slot>
-                    <slot name="additional-buttons"></slot>
+                    <slot name="additional-buttons"/>
                 </slot>
             </div>
 
