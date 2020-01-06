@@ -183,7 +183,7 @@ return [
 	'rating-missing'                                           => 'Bewertung fehlt',
 	'Enter-text'                                               => 'Text eingeben',
 	'Enter-Bibleverses'                                        => 'Bibelstellen eingeben',
-	'Read-bible'                                               => 'Bibel lesen',
+	'Bible'                                                    => 'Bibel',
 	'Create-entry'                                             => 'Eintrag anlegen',
 	'Metadata'                                                 => 'Metainformationen',
 	'metadata-exampes'                                         => 'Z.B. Tag1, Tag2, Person: Max Mustermann, Tag3',

@@ -192,7 +192,7 @@ return [
 	'Enter-text'                                               => 'Enter text',
 	'Enter-Bibleverses'                                        => 'Enter Bibleverses',
 	'Create-entry'                                             => 'Create entry',
-	'Read-bible'                                               => 'Read bible',
+	'Bible'                                                    => 'Bible',
 	'Metadata'                                                 => 'Metadata',
 	'metadata-exampes'                                         => 'I.e. Tag1, Tag2, Person: Name of Person, Tag3',
 	'Enter-metadata-here'                                      => 'Enter metadata here ...',
