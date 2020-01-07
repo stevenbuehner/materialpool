@@ -93,7 +93,7 @@ const actions = {
 						     resolve(getters.getMaterial(id));
 					     })
 					     .catch((response) => {
-						     throw convertErrorResponseToMessage(response)
+						     reject(convertErrorResponseToMessage(response));
 					     });
 				}
 			});
@@ -328,7 +328,6 @@ const actions = {
 			.catch((response) => {
 				throw convertErrorResponseToMessage(response)
 			});
-		;
 
 	},
 

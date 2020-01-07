@@ -10,7 +10,7 @@
             </div>
         </div>
 
-        <div class="row mx-0 mx-sm-n1 mx-lg-n3">
+        <div class="row mx-0 mx-sm-n1 mx-lg-n3" v-if="material">
             <div class="col-12 col-sm-7 col-md-8 col-lg-8 mb-3 px-0 px-sm-1 px-md-2 px-lg-3">
                 <div class="contentSideWrapper">
                     <div class="row no-gutters mx-0">
@@ -30,12 +30,12 @@
                                     :disabled="!material">
                                 <clone-icon class="cloneIcon buttonIcon"></clone-icon>
                             </button>
-                            <div v-if="material" class="title">{{material.title}}</div>
+                            <div class="title">{{material.title}}</div>
                         </div>
                     </div>
 
 
-                    <div class="contentContainer container-fluid" v-if="material">
+                    <div class="contentContainer container-fluid">
 
                         <!-- Auflistung bei mehr als einer Ressource -->
                         <div class="row"
@@ -218,7 +218,7 @@
 
                     </b-tab>
                     <b-tab :title="$t('pool.assignments')">
-                        <div class="row" v-if="material">
+                        <div class="row">
 
 
                             <resource-uploader class="col-12 col-sm-6 col-mb-4 mb-2 mb-sm-0"
@@ -381,13 +381,15 @@
 				get() {
 					this.errorOnLoadingMessage = null;
 
-					return this.$store.dispatch('materials/getMaterial', this.id).then((material) => {
-						this.errorOnLoadingMessage = null;
+					return this.$store.dispatch('materials/getMaterial', this.id)
+					           .then((material) => {
+						           this.errorOnLoadingMessage = null;
 
-						return material;
-					}).catch((response) => {
-						this.errorOnLoadingMessage = response;
-					});
+						           return material;
+					           })
+					           .catch((message) => {
+						           this.errorOnLoadingMessage = message;
+					           });
 				},
 				default: null
 			}

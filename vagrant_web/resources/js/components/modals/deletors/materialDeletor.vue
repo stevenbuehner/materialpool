@@ -6,7 +6,16 @@
              @hide="_cancelPromise"
     >
         <template slot="modal-footer">
-            <button type="button" class="btn btn-primary btn-sm" @click="hide">{{$t('pool.Ok')}}</button>
+
+            <b-button v-if="!materialIsReloading && material && material.resources.length === 0"
+                      variant="danger" size="sm" @click="_deleteThisMaterial">
+                {{$t('pool.material-delete')}}
+            </b-button>
+
+            <button type="button" class="btn btn-primary btn-sm" @click="hide">
+                {{$t('pool.Ok')}}
+            </button>
+
         </template>
 
         <b-alert fade
@@ -218,6 +227,27 @@
 				           });
 			},
 
+			_deleteThisMaterial() {
+				if (this.material === null) {
+					console.error('Material Information not loaded yet');
+				} else if (this.material.resources.length > 0) {
+					this.flashActionFailed(this.$tc('pool.material-cant-be-deleted-xy-resources-left', this.material.resources.length, {xy: this.material.resources.length}));
+				} else {
+					const deleteFlash = this.flashActionStartedWaiting(this.$t('pool.material-delete'));
+
+					this.$store.dispatch('materials/deleteMaterial', this.materialId)
+					    .then((message) => {
+						    this.flashActionSuccessfullyFinished(this.$t('pool.material-deleted'), deleteFlash);
+					    })
+					    .catch((message) => {
+						    this.flashActionFailed(this.$t('pool.material-delete-error') + ': ' + message, deleteFlash);
+					    })
+					    .then(() => {
+						    this._successfullPromise();
+					    });
+				}
+			},
+
 			showPromise() {
 
 				this._onReset();
@@ -229,6 +259,14 @@
 					this.$refs.myModal.show();
 				});
 
+			},
+
+			_successfullPromise() {
+				if (typeof this.resolve === 'function') {
+					this.resolve('material deleted');
+				}
+
+				this.$refs.myModal.close();
 			},
 
 			_cancelPromise() {

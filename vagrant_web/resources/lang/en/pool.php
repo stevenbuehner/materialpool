@@ -11,8 +11,9 @@ return [
 	'material-count'                                           => 'no materials|1 material|:COUNT materials',
 	'material-other-count'                                     => 'no other materials|1 othermaterial|:COUNT other materials',
 	'material-other-assigned-material-pl'                      => 'no other matierial is assigned to theese resoruces|1 other material is assigned to theese resources|:COUNT other materials are assigned to theese resources',
-	'material-deleted'                                         => 'Deleted material',
-	'material-delete-headline'                                 => 'Delete Material',
+	'material-deleted'                                         => 'Material deleted',
+	'material-delete'                                          => 'Delete material',
+	'material-delete-error'                                    => 'Error while deleting material',
 	'material-assigned-resources'                              => '{0}There are no assigned resources left.|{1}There is one left resource assigned.|{2,*}There are :COUNT left assigned resources.',
 	'material-delete-and-resources'                            => '{1} Delete material and 1 resource|{2,*}Delete material with :COUNT resources',
 	'material-delete-shure'                                    => 'Are you shure about deleting this material?',
@@ -281,4 +282,5 @@ return [
 	'Material-is-reloading'                                    => 'Material is reloading',
 	'detach-and-delete'                                        => 'detach and delete',
 	'Perfect'                                                  => 'Perfect',
+	'material-cant-be-deleted-xy-resources-left'               => '{1}This material can\'t be deleted. One resource is still assigned to it|{2,*}This material can\'t be deleted. {xy} resources are still assigned to it.',
 ];

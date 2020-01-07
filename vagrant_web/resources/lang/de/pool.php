@@ -11,7 +11,9 @@ return [
 	'material-count'                                           => 'keine Materialien|1 Material|:COUNT Materialien',
 	'material-other-count'                                     => 'kein anderes Material|1 anderes Material|:COUNT andere Materialien',
 	'material-other-assigned-material-pl'                      => 'kein anderes Material ist dieser Ressource zugewiesen|1 anderes Material ist dieser Ressource zugewiesen|:COUNT andere Materialien sind dieser Ressource zugewiesen',
-	'material-delete-headline'                                 => 'Lösche Material',
+	'material-delete'                                          => 'Lösche Material',
+	'material-deleted'                                         => 'Material gelöscht',
+	'material-delete-error'                                    => 'Fehler beim Löschen des Materials',
 	'show-materials'                                           => 'zeige Material',
 	'material-assigned-resources'                              => '{0}Es gibt keine zugewiesenen Resourcen.|{1}Eine zugewiesene Resource existiert noch.|{2,*}Es gibt noch :COUNT zugewiesene Resourcen.',
 	'resource-author-is'                                       => 'Original von :name',
@@ -276,4 +278,5 @@ return [
 	'Material-is-reloading'                                    => 'Material wird neu geladen',
 	'detach-and-delete'                                        => 'lösen und löschen',
 	'Perfect'                                                  => 'Perfekt',
+	'material-cant-be-deleted-xy-resources-left'               => '{1}Das Material kann nicht gelöscht werden, weil noch eine resource damit verknüpft ist.|{2,*}Das Material kann nicht gelöscht werden, weil noch {xy} Resourcen damit verknüpft sind.',
 ];

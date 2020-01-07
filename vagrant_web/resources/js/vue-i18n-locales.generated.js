@@ -10,7 +10,9 @@ export default {
             "material-count": "keine Materialien|1 Material|{COUNT} Materialien",
             "material-other-count": "kein anderes Material|1 anderes Material|{COUNT} andere Materialien",
             "material-other-assigned-material-pl": "kein anderes Material ist dieser Ressource zugewiesen|1 anderes Material ist dieser Ressource zugewiesen|{COUNT} andere Materialien sind dieser Ressource zugewiesen",
-            "material-delete-headline": "Lösche Material",
+            "material-delete": "Lösche Material",
+            "material-deleted": "Material gelöscht",
+            "material-delete-error": "Fehler beim Löschen des Materials",
             "show-materials": "zeige Material",
             "material-assigned-resources": "{0}Es gibt keine zugewiesenen Resourcen.|{1}Eine zugewiesene Resource existiert noch.|{2,*}Es gibt noch {COUNT} zugewiesene Resourcen.",
             "resource-author-is": "Original von {name}",
@@ -274,7 +276,8 @@ export default {
             "Material-successfully-copied": "Material kopiert und geöffnet",
             "Material-is-reloading": "Material wird neu geladen",
             "detach-and-delete": "lösen und löschen",
-            "Perfect": "Perfekt"
+            "Perfect": "Perfekt",
+            "material-cant-be-deleted-xy-resources-left": "{1}Das Material kann nicht gelöscht werden, weil noch eine resource damit verknüpft ist.|{2,*}Das Material kann nicht gelöscht werden, weil noch {xy} Resourcen damit verknüpft sind."
         }
     },
     "en": {
@@ -303,8 +306,9 @@ export default {
             "material-count": "no materials|1 material|{COUNT} materials",
             "material-other-count": "no other materials|1 othermaterial|{COUNT} other materials",
             "material-other-assigned-material-pl": "no other matierial is assigned to theese resoruces|1 other material is assigned to theese resources|{COUNT} other materials are assigned to theese resources",
-            "material-deleted": "Deleted material",
-            "material-delete-headline": "Delete Material",
+            "material-deleted": "Material deleted",
+            "material-delete": "Delete material",
+            "material-delete-error": "Error while deleting material",
             "material-assigned-resources": "{0}There are no assigned resources left.|{1}There is one left resource assigned.|{2,*}There are {COUNT} left assigned resources.",
             "material-delete-and-resources": "{1} Delete material and 1 resource|{2,*}Delete material with {COUNT} resources",
             "material-delete-shure": "Are you shure about deleting this material?",
@@ -572,7 +576,8 @@ export default {
             "Material-successfully-copied": "Material successfully copied",
             "Material-is-reloading": "Material is reloading",
             "detach-and-delete": "detach and delete",
-            "Perfect": "Perfect"
+            "Perfect": "Perfect",
+            "material-cant-be-deleted-xy-resources-left": "{1}This material can't be deleted. One resource is still assigned to it|{2,*}This material can't be deleted. {xy} resources are still assigned to it."
         },
         "validation": {
             "accepted": "The {attribute} must be accepted.",
