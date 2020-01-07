@@ -19,12 +19,15 @@
                                 <public-material-download :material-id="id"/>
                             </button>
 
-                            <button class="btn btn-sm" :title="$t('pool.Delete-material')">
+                            <button class="btn btn-sm" :title="$t('pool.Delete-material')"
+                                    @click="btnDeleteMaterial"
+                                    :disabled="!material">
                                 <trash-icon class="trashicon buttonIcon"></trash-icon>
                             </button>
 
                             <button class="btn btn-sm" :title="$t('pool.duplicate-material')"
-                                    @click="duplicateAndOpenMaterial">
+                                    @click="duplicateAndOpenMaterial"
+                                    :disabled="!material">
                                 <clone-icon class="cloneIcon buttonIcon"></clone-icon>
                             </button>
                             <div v-if="material" class="title">{{material.title}}</div>
@@ -259,6 +262,9 @@
         </div>
 
         <custom-dialog ref="customDialog"/>
+        <material-deletor v-if="material"
+                          ref="materialDeletor"
+                          :material-id="material.id"/>
         <resource-selector v-if="material && material.resources"
                            ref="resourceSelector"
                            :excluded-resource-id="material.resources.map(({id})=> id)"/>
@@ -308,6 +314,7 @@
 	import RatingEdit                 from "../../../components/sidebar-fields/ratingEdit";
 	import SingleTagSelect            from "../../../components/sidebar-fields/singleTagSelect";
 	import ResourceSelector           from "../../../components/modals/selectors/resourceSelector";
+	import MaterialDeletor            from "../../../components/modals/deletors/materialDeletor";
 
 	Vue.use(TabsPlugin);
 
@@ -369,32 +376,30 @@
 
 		},
 
-		asyncComputed: {},
+		asyncComputed: {
+			material: {
+				get() {
+					this.errorOnLoadingMessage = null;
 
-		watch: {
-			id(newValue) {
-				this.material = null;
-				this.getMaterial();
+					return this.$store.dispatch('materials/getMaterial', this.id).then((material) => {
+						this.errorOnLoadingMessage = null;
+
+						return material;
+					}).catch((response) => {
+						this.errorOnLoadingMessage = response;
+					});
+				},
+				default: null
 			}
 		},
 
+		watch: {},
+
 		created() {
-			this.getMaterial();
 		},
 
 
 		methods: {
-
-			getMaterial() {
-				this.errorOnLoadingMessage = null;
-
-				this.$store.dispatch('materials/getMaterial', this.id).then((material) => {
-					this.material              = material;
-					this.errorOnLoadingMessage = null;
-				}).catch((response) => {
-					this.errorOnLoadingMessage = response;
-				});
-			},
 
 			submitFlag(newFlag) {
 				this.submitMaterialUpdate({flag: newFlag, from_bot: false}, 'Flag');
@@ -448,7 +453,7 @@
 				}
 
 				result.then((data) => {
-					this.getMaterial();
+					this.$asyncComputed.material.update();
 					return data;
 				});
 
@@ -542,9 +547,16 @@
 
 			btnDeleteMaterial() {
 
-				this.$store.dispatch('materials/deleteMaterial', this.id)
-				    .then(() => {
+				this.$refs.materialDeletor.showPromise()
+				    .then((message) => {
+					    // Material was deleted - jump somewhere
 					    this.$router.go(-1);
+				    })
+				    .catch(() => {
+					    // Material was not deleted - show message
+				    })
+				    .then(() => {
+					    this.$asyncComputed.material.update();
 				    });
 
 			},
@@ -752,6 +764,7 @@
 
 
 		components: {
+			MaterialDeletor,
 			ResourceSelector,
 			BButton,
 			SingleTagSelect,

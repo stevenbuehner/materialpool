@@ -8,6 +8,7 @@ import {
 }                                      from '../../../../components/serverRoutes'
 import axios                           from '../../axiosInstance';
 import {convertErrorResponseToMessage} from "./handleErrorsHelper";
+import {queue}                         from "../networkQueue";
 
 
 const state = {
@@ -88,6 +89,26 @@ const actions = {
 
 	},
 
+	getMultiple: async ({dispatch, commit}, resourceIds) => {
+		// Not tested after changing - hopefully it works :-)
+
+		const response = Promise.all(
+			resourceIds.map(
+				id => queue.add(
+					() => dispatch('get', id)
+				)
+			)
+		);
+
+
+		response.then((resources) => {
+			dispatch('setMultipleResources', resources);
+		});
+
+		return response;
+
+	},
+
 	createTextResource: ({commit}, {text, notes, is_public}) => {
 
 		notes     = notes || '';
@@ -129,6 +150,17 @@ const actions = {
 	setResource: ({commit}, resource) => {
 		commit('clearResource', resource.id);
 		commit('setResource', resource);
+	},
+
+	/**
+	 *
+	 * @param state
+	 * @param allKeywords
+	 */
+	setMultipleResources: ({commit}, allKeywords) => {
+		for (let i in allKeywords) {
+			commit('setResource', allKeywords[i]);
+		}
 	},
 
 	update: ({commit, dispatch}, {id, data}) => {

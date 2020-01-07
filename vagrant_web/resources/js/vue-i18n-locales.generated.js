@@ -10,7 +10,9 @@ export default {
             "material-count": "keine Materialien|1 Material|{COUNT} Materialien",
             "material-other-count": "kein anderes Material|1 anderes Material|{COUNT} andere Materialien",
             "material-other-assigned-material-pl": "kein anderes Material ist dieser Ressource zugewiesen|1 anderes Material ist dieser Ressource zugewiesen|{COUNT} andere Materialien sind dieser Ressource zugewiesen",
+            "material-delete-headline": "Lösche Material",
             "show-materials": "zeige Material",
+            "material-assigned-resources": "{1}Eine zugewiesene Resource existiert noch|{2,*}Es gibt noch {COUNT} zugewiesene Resourcen",
             "resource-author-is": "Original von {name}",
             "Contains": "Enthält",
             "edited": "zuletzt bearbeitet",
@@ -174,6 +176,7 @@ export default {
             "Publicity": "Öffentlichkeit",
             "Resource-is-private": "Resource ist privat",
             "Resource-is-public": "Resource ist öffentlich",
+            "resource-deleted": "Resource gelöscht",
             "Original-Filename": "Ursprünglicher Dateiname",
             "Created-at": "Erstellt",
             "Updated-at": "Zuletzt bearbeitet am",
@@ -268,7 +271,9 @@ export default {
             "select-file": "Datei auswählen",
             "file-size-limitation-xy": "Dateigröße ist limitiert auf {xy}.",
             "Copying-material": "kopiere Material",
-            "Material-successfully-copied": "Material kopiert und geöffnet"
+            "Material-successfully-copied": "Material kopiert und geöffnet",
+            "Material-is-reloading": "Material wird neu geladen",
+            "detach-and-delete": "lösen und löschen"
         }
     },
     "en": {
@@ -299,7 +304,8 @@ export default {
             "material-other-assigned-material-pl": "no other matierial is assigned to theese resoruces|1 other material is assigned to theese resources|{COUNT} other materials are assigned to theese resources",
             "material-deleted": "Deleted material",
             "material-delete-headline": "Delete Material",
-            "material-delete-and-resources": "{1} Delete material and 1 resource|{2,*} Delete material with {COUNT} resources",
+            "material-assigned-resources": "{1}There is one left resource assigned|{2,*}There are {COUNT} left assigned resources",
+            "material-delete-and-resources": "{1} Delete material and 1 resource|{2,*}Delete material with {COUNT} resources",
             "material-delete-shure": "Are you shure about deleting this material?",
             "show-materials": "show materials",
             "resource-created-by": "Originally from {NAME}",
@@ -562,7 +568,9 @@ export default {
             "select-file": "select file",
             "file-size-limitation-xy": "Filesize is limited to {xy}.",
             "Copying-material": "Copying material",
-            "Material-successfully-copied": "Material successfully copied"
+            "Material-successfully-copied": "Material successfully copied",
+            "Material-is-reloading": "Material is reloading",
+            "detach-and-delete": "detach and delete"
         },
         "validation": {
             "accepted": "The {attribute} must be accepted.",

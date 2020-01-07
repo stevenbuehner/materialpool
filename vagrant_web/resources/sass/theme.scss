@@ -13,6 +13,10 @@ $green-hover: darken($green, 5%);
 $cyan-hover: darken($cyan, 5%);
 $dark-hover: darken($dark, 5%);
 
+// Notes
+
+$notes-font-color: lighten($body-color, 30%);
+
 // Tagging
 $tag-background-colour: $gray-700;
 $tag-background-colour-hover: darken($tag-background-colour, 5%);
