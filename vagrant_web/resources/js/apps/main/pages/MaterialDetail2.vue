@@ -32,12 +32,12 @@
                     </div>
 
 
-                    <div class="contentContainer" v-if="material">
+                    <div class="contentContainer container-fluid" v-if="material">
 
                         <!-- Auflistung bei mehr als einer Ressource -->
-                        <div class="row no-gutters pl-2 pt-2"
+                        <div class="row"
                              v-if="material.resources && material.resources.length > 1">
-                            <div class="col-xl-3 col-lg-4 col-md-4 col-sm-6 col-xs-12 pr-2 pb-2"
+                            <div class="col-xl-3 col-lg-4 col-md-4 col-sm-6 col-xs-1 p-2"
                                  v-for="resource in material.resources">
                                 <resource-preview :resource="resource">
                                     <template slot="additional-buttons">
@@ -52,9 +52,9 @@
                         </div>
 
                         <!-- Detailierter bei nur einer Ressource -->
-                        <div class="row no-gutters pl-2 pt-2"
+                        <div class="row"
                              v-if="material.resources && material.resources.length === 1">
-                            <div class="col-xl-12 col-12 pr-2 pb-2">
+                            <div class="col-xl-12 col-12 p-0">
                                 <resource-detail :resource="material.resources[0]" :showDelete="false">
                                     <template slot="additional-buttons">
                                         <button class="btn btn-outline-danger mb-1"
@@ -66,6 +66,7 @@
                                 </resource-detail>
                             </div>
                         </div>
+
 
                         <!-- Ohne eine Resource -->
                         <div class="row" v-if="material.resources && material.resources.length === 0">

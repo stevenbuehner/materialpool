@@ -8,64 +8,68 @@
                 @resource-updated="$emit('resource-updated', $event)"/>
 
 
-        <div class="row m-n0 pt-1 pt-sm-2 pt-md-3 mx-lg-2">
+        <div class="container-fluid p-2">
 
-            <div class="col-12 col-md-6 meta">
-                <div class="notes" v-if="resource.notes && resource.notes.length > 0">Notiz: {{resource.notes}}</div>
-                <div class="originalFilename" v-if="resource.original_filename">
-                    {{$t('pool.Filename')}}: {{resource.original_filename}}
+            <div class="row mx-n2">
 
-                    <span class="page_count" v-if="resource.page_count">
+                <div class="col-12 col-md-6 pb-2 meta">
+                    <div class="notes" v-if="resource.notes && resource.notes.length > 0">Notiz: {{resource.notes}}
+                    </div>
+                    <div class="originalFilename" v-if="resource.original_filename">
+                        {{$t('pool.Filename')}}: {{resource.original_filename}}
+
+                        <span class="page_count" v-if="resource.page_count">
                         ({{resource.page_count}} {{$tc('pool.Page', resource.page_count)}})
                     </span>
 
-                </div>
-                <div class="limitation" v-if="resource.pivot">
-                    {{$t('pool.Limitation')}}: {{resource.pivot.limitation || $t('pool.none')}}
+                    </div>
+                    <div class="limitation" v-if="resource.pivot">
+                        {{$t('pool.Limitation')}}: {{resource.pivot.limitation || $t('pool.none')}}
+                    </div>
+
+                    <div class="creator">{{$t('pool.Creator-ID')}}: {{resource.created_by}}</div>
+                    <div class="resource-id">{{$t('pool.Resource-ID')}}: {{resource.id}}</div>
                 </div>
 
-                <div class="creator">{{$t('pool.Creator-ID')}}: {{resource.created_by}}</div>
-                <div class="resource-id">{{$t('pool.Resource-ID')}}: {{resource.id}}</div>
-            </div>
-
-            <div class="col-12 col-md-6 pt-3 pt-md-0">
-                <slot name="buttons">
-                    <slot name="default-buttons">
-                        <a v-if="showDownload"
-                           class="btn btn-outline-primary mb-1"
-                           :href="downloadResourceLink(resource)">{{$t('pool.download')}}</a>
-                        <router-link v-if="showOpen" :to="{name:'resource-detail', params: {id: resource.id}}"
-                                     class="btn btn-outline-primary mb-1">{{$t('pool.open')}}
-                        </router-link>
-                        <router-link v-if="resource.type==='pdf' || resource.type==='doc'"
-                                     :to="routerEditLimitationObject(resource, resource.pivot)"
-                                     class="btn btn-outline-primary  mb-1">{{$t('pool.page-assignments')}}
-                        </router-link>
-                        <button v-if="showDelete"
-                                class="btn btn-outline-danger mb-1"
-                                @click="btnDeleteResource(resource)"
-                                :title="$t('pool.Delete-resource')">{{$t('pool.delete')}}
-                        </button>
+                <div class="col-12 col-md-6">
+                    <slot name="buttons">
+                        <slot name="default-buttons">
+                            <a v-if="showDownload"
+                               class="btn btn-outline-primary mb-1"
+                               :href="downloadResourceLink(resource)">{{$t('pool.download')}}</a>
+                            <router-link v-if="showOpen" :to="{name:'resource-detail', params: {id: resource.id}}"
+                                         class="btn btn-outline-primary mb-1">{{$t('pool.open')}}
+                            </router-link>
+                            <router-link v-if="resource.type==='pdf' || resource.type==='doc'"
+                                         :to="routerEditLimitationObject(resource, resource.pivot)"
+                                         class="btn btn-outline-primary  mb-1">{{$t('pool.page-assignments')}}
+                            </router-link>
+                            <button v-if="showDelete"
+                                    class="btn btn-outline-danger mb-1"
+                                    @click="btnDeleteResource(resource)"
+                                    :title="$t('pool.Delete-resource')">{{$t('pool.delete')}}
+                            </button>
+                        </slot>
+                        <slot name="additional-buttons"/>
                     </slot>
-                    <slot name="additional-buttons"/>
-                </slot>
+                </div>
+
             </div>
 
         </div>
-
 
     </div>
 </template>
 
 <script>
-	import imageDetail   from './image-detail.vue'
-	import textDetail    from './text-detail.vue'
-	import pdfDetail     from './pdf-detail.vue'
-	import audioDetail   from './audio-detail.vue'
-	import videoDetail   from './video-preview.vue'
-	import docDetail     from './doc-detail.vue'
-	import resDetail     from './res-preview.vue'
-	import fileDetail    from './file-detail.vue'
+	import imageDetail from './image-detail.vue'
+	import textDetail from './text-detail.vue'
+	import pdfDetail from './pdf-detail.vue'
+	import audioDetail from './audio-detail.vue'
+	import videoDetail from './video-preview.vue'
+	import docDetail from './doc-detail.vue'
+	import resDetail from './res-preview.vue'
+	import fileDetail from './file-detail.vue'
 	import resourceLinks from '../resource-links.mixin';
 
 
@@ -143,10 +147,6 @@
 <style type="text/scss">
 
     .resourceDetail {
-
-        .detailContents {
-        }
-
         .meta {
             color: grey;
             font-size: smaller;
