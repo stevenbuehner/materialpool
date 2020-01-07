@@ -73,7 +73,7 @@
 
                         <!-- Ohne eine Resource -->
                         <div class="row" v-if="material.resources && material.resources.length === 0">
-                            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 py-2">
                                 {{$t('pool.Material-without-resources')}}
                                 <button class="btn btn-sm btn-danger"
                                         @click="btnDeleteMaterial"

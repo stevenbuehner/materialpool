@@ -6,7 +6,7 @@
              @hide="_cancelPromise"
     >
         <template slot="modal-footer">
-            <button type="button" class="btn btn-danger btn-sm" @click="hide">{{$t('pool.Cancel')}}</button>
+            <button type="button" class="btn btn-primary btn-sm" @click="hide">{{$t('pool.Ok')}}</button>
         </template>
 
         <b-alert fade
@@ -16,8 +16,15 @@
             {{$t('pool.Material-is-reloading')}}
         </b-alert>
 
-        <div class="alert alert-warning" role="alert" v-if="!materialIsReloading && material">
+        <div class="alert alert-warning" role="alert"
+             v-if="!materialIsReloading && material && material.resources.length > 0">
             <strong>{{$t('pool.attention')}}!</strong><br/>
+            {{ $tc('pool.material-assigned-resources', material.resources.length, {COUNT: material.resources.length}) }}
+        </div>
+
+        <div class="alert alert-success" role="alert"
+             v-if="!materialIsReloading && material && material.resources.length === 0">
+            <strong>{{$t('pool.Perfect')}}!</strong><br/>
             {{ $tc('pool.material-assigned-resources', material.resources.length, {COUNT: material.resources.length}) }}
         </div>
 
@@ -234,24 +241,6 @@
 				this.resolve = null;
 				this.reject  = null;
 
-			},
-
-			_returnMaterialSuccessfullyDeleted(material) {
-				if (typeof this.resolve === 'function') {
-					this.resolve(this.$t('pool.Material-deleted'));
-					this.$refs.myModal.hide();
-					// this.resolve = null; // already done during hide()
-					// this.reject  = null; // already done during hide()
-				}
-			},
-
-			_returnMaterialNotDeleted(material) {
-				if (typeof this.resolve === 'function') {
-					this.reject(this.$t('pool.Material-was-not-deleted'));
-					this.$refs.myModal.hide();
-					// this.resolve = null; // already done during hide()
-					// this.reject  = null; // already done during hide()
-				}
 			},
 
 			hide() {

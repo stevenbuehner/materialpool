@@ -12,7 +12,7 @@ export default {
             "material-other-assigned-material-pl": "kein anderes Material ist dieser Ressource zugewiesen|1 anderes Material ist dieser Ressource zugewiesen|{COUNT} andere Materialien sind dieser Ressource zugewiesen",
             "material-delete-headline": "Lösche Material",
             "show-materials": "zeige Material",
-            "material-assigned-resources": "{1}Eine zugewiesene Resource existiert noch|{2,*}Es gibt noch {COUNT} zugewiesene Resourcen",
+            "material-assigned-resources": "{0}Es gibt keine zugewiesenen Resourcen.|{1}Eine zugewiesene Resource existiert noch.|{2,*}Es gibt noch {COUNT} zugewiesene Resourcen.",
             "resource-author-is": "Original von {name}",
             "Contains": "Enthält",
             "edited": "zuletzt bearbeitet",
@@ -273,7 +273,8 @@ export default {
             "Copying-material": "kopiere Material",
             "Material-successfully-copied": "Material kopiert und geöffnet",
             "Material-is-reloading": "Material wird neu geladen",
-            "detach-and-delete": "lösen und löschen"
+            "detach-and-delete": "lösen und löschen",
+            "Perfect": "Perfekt"
         }
     },
     "en": {
@@ -304,7 +305,7 @@ export default {
             "material-other-assigned-material-pl": "no other matierial is assigned to theese resoruces|1 other material is assigned to theese resources|{COUNT} other materials are assigned to theese resources",
             "material-deleted": "Deleted material",
             "material-delete-headline": "Delete Material",
-            "material-assigned-resources": "{1}There is one left resource assigned|{2,*}There are {COUNT} left assigned resources",
+            "material-assigned-resources": "{0}There are no assigned resources left.|{1}There is one left resource assigned.|{2,*}There are {COUNT} left assigned resources.",
             "material-delete-and-resources": "{1} Delete material and 1 resource|{2,*}Delete material with {COUNT} resources",
             "material-delete-shure": "Are you shure about deleting this material?",
             "show-materials": "show materials",
@@ -570,7 +571,8 @@ export default {
             "Copying-material": "Copying material",
             "Material-successfully-copied": "Material successfully copied",
             "Material-is-reloading": "Material is reloading",
-            "detach-and-delete": "detach and delete"
+            "detach-and-delete": "detach and delete",
+            "Perfect": "Perfect"
         },
         "validation": {
             "accepted": "The {attribute} must be accepted.",

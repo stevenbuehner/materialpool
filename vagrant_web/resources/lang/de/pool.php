@@ -13,7 +13,7 @@ return [
 	'material-other-assigned-material-pl'                      => 'kein anderes Material ist dieser Ressource zugewiesen|1 anderes Material ist dieser Ressource zugewiesen|:COUNT andere Materialien sind dieser Ressource zugewiesen',
 	'material-delete-headline'                                 => 'Lösche Material',
 	'show-materials'                                           => 'zeige Material',
-	'material-assigned-resources'                              => '{1}Eine zugewiesene Resource existiert noch|{2,*}Es gibt noch :COUNT zugewiesene Resourcen',
+	'material-assigned-resources'                              => '{0}Es gibt keine zugewiesenen Resourcen.|{1}Eine zugewiesene Resource existiert noch.|{2,*}Es gibt noch :COUNT zugewiesene Resourcen.',
 	'resource-author-is'                                       => 'Original von :name',
 	'Contains'                                                 => 'Enthält',
 	'edited'                                                   => 'zuletzt bearbeitet',
@@ -275,4 +275,5 @@ return [
 	'Material-successfully-copied'                             => 'Material kopiert und geöffnet',
 	'Material-is-reloading'                                    => 'Material wird neu geladen',
 	'detach-and-delete'                                        => 'lösen und löschen',
+	'Perfect'                                                  => 'Perfekt',
 ];
