@@ -75,7 +75,9 @@ const actions = {
 							dispatch('setResource', response.data);
 							resolve(getters.updateResource(id));
 						})
-						.catch((response) => throw convertErrorResponseToMessage(response));
+						.catch((response) => {
+							reject(convertErrorResponseToMessage(response));
+						});
 				}
 			});
 

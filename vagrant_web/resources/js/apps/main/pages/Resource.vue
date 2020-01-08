@@ -10,7 +10,7 @@
             <b-tabs card>
                 <b-tab title="Vorschau">
                     <resource-detail :resource="resource" v-if="resource" :showOpen="false"
-                                     @resource-updated="onResourceUpdated"></resource-detail>
+                                     @resource-updated="onResourceUpdated"/>
                 </b-tab>
 
                 <b-tab title="Materialien" v-if="resource">
@@ -55,17 +55,17 @@
                                 :title="$t('pool.auto-create-material')"
                                 v-if="resource.materials.length === 0"
                                 @click="btnCreateAutoMaterialFromResource">
-                            <span class="icon autocreation"></span>
+                            <span class="icon autocreation"/>
                         </button>
                         <button class="btn btn-outline-secondary m-1"
                                 :title="$t('pool.create-and-assign-material')"
                                 @click="btnCreateAndAssignMaterialManually">
-                            <span class="icon manualcreation"></span>
+                            <span class="icon manualcreation"/>
                         </button>
                         <button class="btn btn-outline-secondary m-1"
                                 :title="$t('pool.assign-material')"
                                 @click="btnAddMaterialToResource">
-                            <span class="icon assign"></span>
+                            <span class="icon assign"/>
                         </button>
                     </div>
                 </b-tab>
@@ -136,9 +136,9 @@
 
         <b-alert :show="!!errorMsg" variant="danger">{{$t('pool.Errormessage')}}: {{errorMsg}}</b-alert>
 
-        <material-selector ref="materialSelector"></material-selector>
+        <material-selector ref="materialSelector"/>
 
-        <material-creator ref="materialCreator"></material-creator>
+        <material-creator ref="materialCreator"/>
 
         <custom-dialog ref="myDialog"/>
 
@@ -168,6 +168,8 @@
 
 
 	export default {
+
+		name: "resourceApp",
 
 		mixins: [resourceLinks, formatLocalizedDate, savingDialogs],
 

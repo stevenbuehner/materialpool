@@ -72,8 +72,9 @@
 	import fileDetail from './file-detail.vue'
 	import resourceLinks from '../resource-links.mixin';
 
-
 	export default {
+
+		name: "resourceDetail",
 
 		mixins: [resourceLinks],
 
