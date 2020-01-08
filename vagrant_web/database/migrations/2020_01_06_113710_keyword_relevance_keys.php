@@ -22,8 +22,8 @@ class KeywordRelevanceKeys extends Migration {
 	 * @return void
 	 */
 	public function down() {
-		Schema::table('resources', function (\Illuminate\Database\Schema\Blueprint $table) {
-			$table->dropIndex('relevance');
+		Schema::table('keyword_material', function (\Illuminate\Database\Schema\Blueprint $table) {
+			$table->dropIndex('keyword_mat_relevance_ind');
 		});
 	}
 }
