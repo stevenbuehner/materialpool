@@ -68,7 +68,6 @@ class ResourceHandlingService {
 	public function isReplaceableChecks(Resource $oldResource, Resource $newResource, User $user) {
 
 		// Checks
-
 		if ($newResource->id === $oldResource->id) {
 			Log::warning('The resources are equal. --> do not replace it');
 			return FALSE;
@@ -122,10 +121,12 @@ class ResourceHandlingService {
 			Log::warning('The resource you want to replace is assigned to bundle --> do not replace it.');
 			return FALSE;
 		}
+		/*
 		if ($newResource->foreignIds->count() > 0) {
 			Log::warning('The resource you want to replace this one with is assigned to bundle --> do not use it as replacement.');
 			return FALSE;
 		}
+		*/
 
 		return TRUE;
 

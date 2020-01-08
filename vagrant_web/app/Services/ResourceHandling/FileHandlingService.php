@@ -127,9 +127,10 @@ class FileHandlingService extends ResourceHandlingService {
 		}
 
 		try {
-			$archiveDisc = Storage::disk('archive');
-			$stream      = $resource->getLocalFileStream();
-			$filePath    = strftime('%G/%m/%d/') . $resource->id . '.backup';
+			$archiveDisc       = Storage::disk('archive');
+			$original_filename = $resource->getOriginalFilenameAttribute();
+			$stream            = $resource->getLocalFileStream();
+			$filePath          = strftime('%G/%m/%d/') . $resource->id . '_' . $original_filename . '.backup';
 			$archiveDisc->writeStream($filePath, $stream);
 			fclose($stream);
 		} catch (FileNotFoundException $e) {

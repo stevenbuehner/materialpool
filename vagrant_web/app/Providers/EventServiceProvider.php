@@ -12,6 +12,7 @@ use App\Events\ResourceWasDeleted;
 use App\Events\ResourceWasDetached;
 use App\Listeners\CalculateDocPageSize;
 use App\Listeners\CalculatePdfPageSize;
+use App\Listeners\ClearResourcePreviewCache;
 use App\Listeners\Queued\CheckDuplicateResources;
 use App\Listeners\UpdateResourceHashes;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
@@ -65,8 +66,8 @@ class EventServiceProvider extends ServiceProvider {
 			//
 		],
 		ResourceWasDeleted::class => [
-			// Clear all Files
 			// Clear all Caches
+			ClearResourcePreviewCache::class,
 		],
 
 		ResourceWasAttached::class => [

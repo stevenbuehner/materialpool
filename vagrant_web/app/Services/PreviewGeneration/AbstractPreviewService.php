@@ -24,6 +24,11 @@ abstract class AbstractPreviewService {
 		return $model->getTable() . $model->getKey() . json_encode($additionalData);
 	}
 
+	public function clearImageCache(Model $model, $additionalData = NULL){
+		$key = $this->getCacheKey($model, $additionalData);
+		$this->clearCache($key);
+	}
+
 	/**
 	 * @param      $cacheKey
 	 * @param null $default
