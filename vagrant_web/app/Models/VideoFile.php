@@ -2,17 +2,22 @@
 
 namespace App\Models;
 
+use App\Models\Traits\TimeCountTrait;
 use App\Services\PreviewGeneration\Generators\VideoPreviewGenerator;
 use App\Services\PreviewGeneration\Interfaces\PreviewGeneratorInterface;
 use League\Flysystem\FileNotFoundException;
 
 class VideoFile extends File {
 
+	use TimeCountTrait;
+
 	protected static $singleTableType = 'video';
 
 	public function __construct(array $attributes = []) {
 		parent::__construct($attributes);
 		$this->appends[] = 'mime_type';
+
+		$this->setupTimeCountAttribute();
 	}
 
 	/**

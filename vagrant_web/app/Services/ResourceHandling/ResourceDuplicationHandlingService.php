@@ -20,6 +20,12 @@ use Illuminate\Support\Facades\Log;
 
 class ResourceDuplicationHandlingService {
 
+	protected $fileHandlingService;
+
+	public function __construct(FileHandlingService $fileHandlingService) {
+		$this->fileHandlingService = $fileHandlingService;
+	}
+
 	public function mergeAllDuplicates() {
 		DB::table('resources')
 			->select(['content_hash', DB::raw('COUNT(id) as count')])
@@ -64,14 +70,14 @@ class ResourceDuplicationHandlingService {
 
 	}
 
-	protected function migrateSlaveIntoMasterResource(Res $slaveResource, Res $masterResource) {
+	public function migrateSlaveIntoMasterResource(Res $slaveResource, Res $masterResource) {
 
 		// FixMe: Überarbeiten! Werfe die richtigen Events (ResourceModified, Deleted, Attached, Detached, ...)
 		DB::beginTransaction();
 
 		// Update material_resource
 		try {
-			DB::table('material_resource')
+ 			DB::table('material_resource')
 				->where('resource_id', '=', $slaveResource->id)
 				->update(['resource_id' => $masterResource->id]);
 		} catch (QueryException $e) {
@@ -100,13 +106,9 @@ class ResourceDuplicationHandlingService {
 
 		DB::commit();
 
-		if ($slaveResource instanceof File && $slaveResource->local_path !== $masterResource->local_path) {
-			Log::info('Deleting duplicate File of Resource: ' . $slaveResource->local_path);
-			$slaveResource->deleteLocalFile();
-		}
-
 		Log::info('Deleting duplicate resource entry in db ' . $slaveResource->id . ' in favor of ' . $masterResource->id);
-		$slaveResource->delete();
+		$this->fileHandlingService->deleteResourceCompletely($slaveResource);
+
 	}
 
 }

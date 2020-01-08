@@ -1,20 +1,16 @@
 <?php
-/**
- * This file was created by  steven
- * Created: 23.08.17 23:13
- * All Rights reserved. No usage without written permission allowed.
- */
 
 namespace App\Services\ResourceHandling;
-
 
 use App\Events\ResourceWasDeleted;
 use App\Models\File;
 use App\Models\Resource;
+use App\Services\ResourceHandling\Exceptions\InvalidResourceTypeException;
 use App\Services\ResourceHandling\Exceptions\LocalFileDoesNotExistException;
 use App\Services\ResourceHandling\Exceptions\RemoteFileDoesNotExistException;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use League\Flysystem\FileNotFoundException;
 
 class FileHandlingService extends ResourceHandlingService {
 
@@ -111,6 +107,39 @@ class FileHandlingService extends ResourceHandlingService {
 		}
 
 		throw new RemoteFileDoesNotExistException();
+	}
+
+	/**
+	 * @param Resource $resource
+	 * @return array|void
+	 * @throws InvalidResourceTypeException
+	 * @throws LocalFileDoesNotExistException
+	 * @throws \Illuminate\Contracts\Filesystem\FileExistsException
+	 */
+	public function archiveResource(Resource $resource) {
+
+		if (!$resource instanceof File) {
+			throw new InvalidResourceTypeException('Expected resource to be type of File');
+		}
+
+		if (!$resource->hasLocalFile() || !$resource->localFileExists()) {
+			throw new LocalFileDoesNotExistException();
+		}
+
+		try {
+			$archiveDisc = Storage::disk('archive');
+			$stream      = $resource->getLocalFileStream();
+			$filePath    = strftime('%G/%m/%d/') . $resource->id . '.backup';
+			$archiveDisc->writeStream($filePath, $stream);
+			fclose($stream);
+		} catch (FileNotFoundException $e) {
+			throw new LocalFileDoesNotExistException($e);
+		}
+
+		return [
+			$archiveDisc,
+			$filePath
+		];
 	}
 
 

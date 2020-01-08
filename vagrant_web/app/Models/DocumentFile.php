@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Traits\PageCountTrait;
 use App\Services\PreviewGeneration\Generators\DocumentPreviewGenerator;
 
 class DocumentFile extends File {

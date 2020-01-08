@@ -62,6 +62,12 @@ return [
 			'visibility' => 'private',
 		],
 
+		'archive' => [
+			'driver'     => 'local',
+			'root'       => storage_path('app/archived'),
+			'visibility' => 'private',
+		],
+
 		'bundles' => [
 			'driver'     => 'local',
 			'root'       => storage_path('app/bundles'),

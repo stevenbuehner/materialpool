@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\Traits;
 
 /**
  * Trait PageCountTrait
  *
- * @package App\Models
+ * @package App\Models\Traits
  * @property $page_count
  */
 trait PageCountTrait {

@@ -117,6 +117,10 @@ class File extends Resource {
 		return $path;
 	}
 
+	/**
+	 * @return false|resource
+	 * @throws \League\Flysystem\FileNotFoundException
+	 */
 	public function getLocalFileStream() {
 		$driver = $this->getLocalDisk()->getDriver();
 
@@ -132,7 +136,6 @@ class File extends Resource {
 
 		$this->setAttribute('local_path', NULL);
 		$this->setAttribute('original_filename', '');
-
 
 		return $result;
 	}

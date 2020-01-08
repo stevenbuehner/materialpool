@@ -23,7 +23,6 @@ use Nanigans\SingleTableInheritance\SingleTableInheritanceTrait;
  * @property bool $is_public
  * @property            $created_at
  * @property            $updated_at
- * @property int $user_id
  * @property User $creator
  * @property Collection $materials
  * @property Collection $foreignIds
