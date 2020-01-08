@@ -13,7 +13,7 @@ class TurnResourceOptionsToBlob extends Migration {
 	public function up() {
 		Schema::table('resources', function (Blueprint $table) {
 			// Typ Text hat Limitierungen in der Größe, bei JSON ist das nicht der Fall
-			$table->json('options')->nullable()->change();
+			$table->json('options')->charset(null)->nullable()->change();
 		});
 	}
 
