@@ -1,5 +1,6 @@
 <template>
-    <div class="container-fluid px-0 px-sm-1 px-md-2 px-lg-3 materialDetail2">
+    <div class="container-fluid px-0 px-sm-1 px-md-2 px-lg-3 materialDetail2"
+         :class="{materialEditLockActive}">
 
         <div class="row mx-0 errorMessages">
             <div v-if="!material && !errorOnLoadingMessage">{{$t('pool.Material-is-loading')}}</div>
@@ -46,6 +47,7 @@
                                     <template slot="additional-buttons">
                                         <button class="btn btn-sm btn-outline-danger mb-1"
                                                 @click.prevent="btnDetachResource(resource)"
+                                                v-if="!materialEditLockActive"
                                                 :title="$t('pool.Detach-resource')">
                                             {{$t('pool.detach')}}
                                         </button>
@@ -62,6 +64,7 @@
                                     <template slot="additional-buttons">
                                         <button class="btn btn-outline-danger mb-1"
                                                 @click.prevent="btnDetachResource(material.resources[0])"
+                                                v-if="!materialEditLockActive"
                                                 :title="$t('pool.Detach-resource')">
                                             {{$t('pool.detach')}}
                                         </button>
@@ -100,6 +103,7 @@
                                 :value="material.title"
                                 :name="$t('pool.name')"
                                 :placeholder="$t('pool.enter-name')"
+                                :disabled="materialEditLockActive"
                                 @save-request="submitTitle"
                         >
                             <template slot="icon">
@@ -111,6 +115,7 @@
                                 :value="material.created_at"
                                 :name="$t('pool.date')"
                                 :required="true"
+                                :disabled="materialEditLockActive"
                                 type="date"
                                 @save-request="submitDate"
                         >
@@ -123,6 +128,7 @@
                                 :value="material.author"
                                 :name="$t('pool.Author')"
                                 :placeholder="$t('pool.unknown')"
+                                :disabled="materialEditLockActive"
                                 typefilter="person"
                                 @input:associated="submitAuthor"
                                 @input:dissociated="submitAuthor"
@@ -137,6 +143,7 @@
                                 :value="material.description"
                                 :name="$t('pool.description')"
                                 :placeholder="$t('pool.enter-description')"
+                                :disabled="materialEditLockActive"
                                 type="textarea"
                                 @save-request="submitDescription"
                         />
@@ -145,6 +152,7 @@
                                 :value="material.bibleverses"
                                 :name="$t('pool.Bibleverses')"
                                 :placeholder="$t('pool.enter-bibleverse')"
+                                :disabled="materialEditLockActive"
                                 @input:added="addBibleverse"
                                 @input:removed="removeBibleverse"
                                 @request-update-relevance="updateBibleverseRelevance($event.tag, $event.relevance)"
@@ -159,6 +167,7 @@
                                 :value="material.keywords"
                                 :name="$t('pool.tags')"
                                 :placeholder="$t('pool.enter-tags')"
+                                :disabled="materialEditLockActive"
                                 typefilter="key"
                                 @input:added="addKeyword"
                                 @input:removed="removeKeyword"
@@ -170,6 +179,7 @@
                                 :value="material.keywords"
                                 :name="$t('pool.Persons')"
                                 :placeholder="$t('pool.enter-tags')"
+                                :disabled="materialEditLockActive"
                                 typefilter="person"
                                 @input:added="addKeyword"
                                 @input:removed="removeKeyword"
@@ -184,6 +194,7 @@
                                 :value="material.keywords"
                                 :name="$t('pool.Places')"
                                 :placeholder="$t('pool.enter-tags')"
+                                :disabled="materialEditLockActive"
                                 typefilter="place"
                                 @input:added="addKeyword"
                                 @input:removed="removeKeyword"
@@ -200,6 +211,7 @@
                                 :name="$t('pool.Languages')"
                                 :placeholder="$t('pool.enter-tags')"
                                 typefilter="lang"
+                                :disabled="materialEditLockActive"
                                 @input:added="addKeyword"
                                 @input:removed="removeKeyword"
                                 @request-update-relevance="updateKeywordRelevance($event.tag, $event.relevance)"
@@ -213,8 +225,7 @@
                         <rating-edit
                                 :value="material.rating"
                                 :name="$t('pool.Rating')"
-                                @input="submitRating"
-                        ></rating-edit>
+                                @input="submitRating"/>
 
                     </b-tab>
                     <b-tab :title="$t('pool.assignments')">
@@ -222,9 +233,11 @@
 
 
                             <resource-uploader class="col-12 col-sm-6 col-mb-4 mb-2 mb-sm-0"
-                                               @resource-created="uploadResourceToThisMaterial"></resource-uploader>
+                                               v-if="!materialEditLockActive"
+                                               @resource-created="uploadResourceToThisMaterial"/>
 
-                            <div class="col-12 col-sm-6 col-mb-4">
+                            <div class="col-12 col-sm-6 col-mb-4"
+                                 v-if="!materialEditLockActive">
                                 <b-button @click="assignResourceToThisMaterial">
                                     {{$t('pool.Assign-resource')}}
                                 </b-button>
@@ -373,6 +386,10 @@
 
 				return false;
 			},
+
+			materialEditLockActive() {
+				return this.material && this.material.from_bot === true;
+			}
 
 		},
 
@@ -835,7 +852,6 @@
             }
         }
 
-
         // Tab Navigation
         .sideTab {
             border-bottom-color: $gray-400;
@@ -866,6 +882,12 @@
             padding: 0.5em 0.5em 1em 0.5em;
             border-bottom-left-radius: $card-border-radius;
             border-bottom-right-radius: $card-border-radius;
+        }
+
+        &.materialEditLockActive {
+            .contentContainer {
+                background-color: mix($jumbotron-bg, $red, 70%);
+            }
         }
     }
 </style>

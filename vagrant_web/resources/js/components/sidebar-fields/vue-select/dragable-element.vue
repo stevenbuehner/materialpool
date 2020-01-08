@@ -11,9 +11,9 @@
         <div class="text">
             <slot name="label">{{label}}</slot>
 
-            <button :disabled="disableRemoveElement" @click="$emit('deselect')"
+            <button @click="$emit('deselect')"
                     type="button"
-                    v-show="!disableRemoveElement"
+                    v-if="!disableRemoveElement"
                     class="vs__deselect"
                     aria-label="Remove option">
 

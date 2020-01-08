@@ -1,5 +1,5 @@
 <template>
-    <div class="sideBarField tagEditSidebarField">
+    <div class="sideBarField singleTagEditSidebarField">
 
         <div class="label">
             <slot name="label">
@@ -189,4 +189,14 @@
 
 <style type="scss">
     @import "generalCss";
+    @import "resources/sass/theme";
+
+    .singleTagEditSidebarField {
+        .vs--disabled {
+            .vs__selected {
+                color: $sidebar-input-font-color-disabled;
+            }
+        }
+    }
+
 </style>
