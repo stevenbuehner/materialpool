@@ -10,6 +10,7 @@ use App\Events\ResourceWasChanged;
 use App\Events\ResourceWasCreated;
 use App\Events\ResourceWasDeleted;
 use App\Events\ResourceWasDetached;
+use App\Jobs\ClearMaterialPreviewCache;
 use App\Listeners\CalculateDocPageSize;
 use App\Listeners\CalculatePdfPageSize;
 use App\Listeners\ClearResourcePreviewCache;
@@ -36,8 +37,9 @@ class EventServiceProvider extends ServiceProvider {
 		],
 		MaterialWasDeleted::class => [
 			// Check all detached keywords and bibleverses for lonelyness
-			// Clear all material Caches
 
+			// Clear all material Caches
+			ClearMaterialPreviewCache::class,
 		],
 
 		ResourceWasCreated::class => [

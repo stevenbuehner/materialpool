@@ -115,14 +115,4 @@ class MaterialPreviewService extends AbstractPreviewService {
 
 	}
 
-	/**
-	 * @param Material $material
-	 */
-	public function clearCachedMaterialPreview(Material $material) {
-
-		$cacheKey = $this->getCacheKey($material);
-
-		$this->clearCache($cacheKey);
-
-	}
 }

@@ -2,26 +2,27 @@
 
 namespace App\Jobs;
 
-use App\Events\MaterialWasChanged;
+use App\Events\ContainsOneMaterial;
+use App\Services\PreviewGeneration\MaterialPreviewService;
+use Illuminate\Support\Facades\Log;
 
 class ClearMaterialPreviewCache {
 
-	/**
-	 * Create the event listener.
-	 *
-	 * @return void
-	 */
-	public function __construct() {
-		//
-	}
+	protected $materialPreviewService;
 
 	/**
-	 * Handle the event.
-	 *
-	 * @param MaterialWasChanged $event
-	 * @return void
+	 * ClearMaterialPreviewCache constructor.
+	 * @param MaterialPreviewService $materialPreviewService
 	 */
-	public function handle(MaterialWasChanged $event) {
-		//
+	public function __construct(MaterialPreviewService $materialPreviewService) {
+		$this->materialPreviewService = $materialPreviewService;
+	}
+
+	public function handle(ContainsOneMaterial $event) {
+		$material = $event->getMaterial();
+
+		$this->materialPreviewService->clearImageCache($material);
+
+		Log::info("Image cache cleared for material ({$material->id})");
 	}
 }
