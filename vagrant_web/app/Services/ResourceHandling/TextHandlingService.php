@@ -22,8 +22,8 @@ class TextHandlingService extends ResourceHandlingService {
 		}
 
 		$archiveDisc = Storage::disk('archive');
+		$filePath    = strftime('%G/%m/%d/') . $resource->id . '.backup_txt';
 
-		$filePath = strftime('%G/%m/%d/') . $resource->id . '.backup';
 		$archiveDisc->write($filePath, $resource->getContent());
 
 		return [
