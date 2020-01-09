@@ -119,7 +119,7 @@ class MaterialController extends Controller {
 		// Extract meta-data from string and assign it to material
 		/** @var TagExtractionService $tagExctractionService */
 		if ($request->get('meta', FALSE)) {
-			$tagExctractionService = resolve('app.resource.keyword.recognition');
+			$tagExctractionService = resolve(TagExtractionService::class);
 			$metaData              = $request->get('meta');
 			$properties            = $tagExctractionService->extractPartsFromStrings($metaData, 1);
 

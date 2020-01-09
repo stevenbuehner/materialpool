@@ -75,7 +75,7 @@ trait ResourceHelperTrait {
 
 		/** @var ResourceRecognitionService $recognitionService */
 		/** @var UploadedFile $file */
-		$recognitionService = resolve('app.resource.type.recognition');
+		$recognitionService = resolve(ResourceRecognitionService::class);
 
 		$resourceClass = $recognitionService->guessResourceFile($file);
 
@@ -202,7 +202,7 @@ trait ResourceHelperTrait {
 
 	protected function handleContentResourceUpload(Request $request, Resource $resource = NULL) {
 		/** @var ResourceRecognitionService $recognitionService */
-		$recognitionService = resolve('app.resource.type.recognition');
+		$recognitionService = resolve(ResourceRecognitionService::class);
 		$content            = $request->get('content',
 			$resource instanceof TextContentInterface ? $resource->getContent() : '');
 		$resourceClass      = $recognitionService->guessResourceContent($content);

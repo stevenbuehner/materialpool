@@ -206,7 +206,7 @@ class InsertOrUpdateResource implements ShouldQueue, VersionInterface {
 	protected function createResource(BundlesService $bundlesService) {
 
 		/** @var ResourceRecognitionService $recognitionService */
-		$recognitionService = resolve('app.resource.type.recognition');
+		$recognitionService = resolve(ResourceRecognitionService::class);
 
 		$resourceClass = $recognitionService->guessResourceFileFromMimeType($this->localFileInfo->mime_type);
 
