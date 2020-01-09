@@ -7,15 +7,13 @@ use App\Http\Controllers\ResourceHelperTrait;
 use App\Models\File;
 use App\Models\ForeignMaterialId;
 use App\Models\Resource;
+use App\Services\ResourceHandling\Exceptions\ResourceNotReplaceable;
 use App\Services\ResourceHandling\FileHandlingService;
-use App\Services\ResourceHandling\ResourceCleanupService;
+use App\Services\ResourceHandling\ResourceHandlingService;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
-use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Pagination\Paginator;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
 class ResourceController extends BaseController {
@@ -25,11 +23,13 @@ class ResourceController extends BaseController {
 	const DEFAULT_RELATIONS = ['materials', 'materials.keywords', 'materials.bibleverses', 'creator'];
 	protected $allowedAssociations = ['materials', 'materials.keywords', 'materials.bibleverses', 'creator'];
 	protected $fileHandlingService;
+	protected $resourceHandlingService;
 
-	public function __construct(FileHandlingService $fileHandlingService) {
+	public function __construct(FileHandlingService $fileHandlingService, ResourceHandlingService $resourceHandlingService) {
 		$this->middleware(['auth:api']);
 
-		$this->fileHandlingService = $fileHandlingService;
+		$this->fileHandlingService     = $fileHandlingService;
+		$this->resourceHandlingService = $resourceHandlingService;
 	}
 
 	/**
@@ -281,6 +281,19 @@ class ResourceController extends BaseController {
 
 		return ['success' => TRUE];
 	}
+
+	public function replace(Resource $oldResource, Resource $newResource) {
+
+		try {
+			$resource = $this->resourceHandlingService->replaceResource($oldResource, $newResource, Auth::user());
+		} catch (ResourceNotReplaceable $e) {
+			return response()->json(['success' => FALSE, 'message' => $e->getMessage()])->setStatusCode(500);
+		}
+
+		$resource->loadMissing(self::DEFAULT_RELATIONS);
+		return $resource;
+	}
+
 
 	/**
 	 * @param Request $request

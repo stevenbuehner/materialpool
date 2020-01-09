@@ -12,11 +12,12 @@ import SystemShutdown     from './pages/RequestShutdown';
 // import PassportAuthorizedClient from '../../components/passport/AuthorizedClients.vue';
 // import PassportPersonalAccessTokens from '../../components/passport/PersonalAccessTokens.vue';
 
-const KeywordList    = () => import('./pages/KeywordList.vue');
-const ReadBible      = () => import('./pages/ReadBible');
-const BundleList     = () => import('./pages/BundleList.vue');
-const MaterialApp    = () => import('./pages/MaterialList.vue');
-const ResourceLonely = () => import('./pages/ResourceLonely.vue');
+const KeywordList     = () => import('./pages/KeywordList.vue');
+const ReadBible       = () => import('./pages/ReadBible');
+const BundleList      = () => import('./pages/BundleList.vue');
+const MaterialApp     = () => import('./pages/MaterialList.vue');
+const ResourceLonely  = () => import('./pages/ResourceLonely.vue');
+const ResourceReplace = () => import('./pages/ResourceReplace.vue');
 
 
 export const routes = [
@@ -80,6 +81,19 @@ export const routes = [
 		       path: '/resource/:id/page-assign', name: 'resource-page-assign', component: AssignApp, props: (route) => {
 			       return {id: parseInt(route.params.id)};
 		       }
+	       },
+
+	       {
+		       path: '/resource/:r1/replace-with/:r2?',
+		       name: 'resource-replace',
+		       component: ResourceReplace,
+		       props: (route) => {
+			       return {
+				       r1: parseInt(route.params.r1),
+				       r2: route.params.r2 ? parseInt(route.params.r2) : null,
+			       };
+		       }
+
 	       },
 
 	       {

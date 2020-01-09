@@ -52,6 +52,11 @@ export function poolResourceVideostream(resource) {
 
 export const api_v1_resources_find = '/api/v1/resources/find';
 
+export function api_v1_resources_replace_with(oldResourceId, newResourceId) {
+	return '/api/v1/resources/replace/' + oldResourceId + '/with/' + newResourceId;
+}
+
+
 // GeneralOptions
 export const api_v1_general_options = '/api/v1/general/options';
 

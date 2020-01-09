@@ -277,7 +277,14 @@ export default {
             "Material-is-reloading": "Material wird neu geladen",
             "detach-and-delete": "lösen und löschen",
             "Perfect": "Perfekt",
-            "material-cant-be-deleted-xy-resources-left": "{1}Das Material kann nicht gelöscht werden, weil noch eine resource damit verknüpft ist.|{2,*}Das Material kann nicht gelöscht werden, weil noch {xy} Resourcen damit verknüpft sind."
+            "material-cant-be-deleted-xy-resources-left": "{1}Das Material kann nicht gelöscht werden, weil noch eine resource damit verknüpft ist.|{2,*}Das Material kann nicht gelöscht werden, weil noch {xy} Resourcen damit verknüpft sind.",
+            "insert-ID-here": "ID hier eingeben",
+            "with-this-resource": "mit dieser Resource",
+            "replace-this-resource": "Ersetze diese Resource",
+            "Preview": "Vorschau",
+            "replace-resource-now": "Resource jetzt ersetzen",
+            "start-replacing-resource": "Starte die Resource zu ersetzen",
+            "resource-successfully-replaced": "Resource erfolgreich ersetzt"
         }
     },
     "en": {
@@ -577,7 +584,14 @@ export default {
             "Material-is-reloading": "Material is reloading",
             "detach-and-delete": "detach and delete",
             "Perfect": "Perfect",
-            "material-cant-be-deleted-xy-resources-left": "{1}This material can't be deleted. One resource is still assigned to it|{2,*}This material can't be deleted. {xy} resources are still assigned to it."
+            "material-cant-be-deleted-xy-resources-left": "{1}This material can't be deleted. One resource is still assigned to it|{2,*}This material can't be deleted. {xy} resources are still assigned to it.",
+            "insert-ID-here": "Insert ID here",
+            "with-this-resource": "with this resource",
+            "replace-this-resource": "Replace this resource",
+            "Preview": "Preview",
+            "replace-resource-now": "replace resource now",
+            "start-replacing-resource": "Start replacing resource",
+            "resource-successfully-replaced": "Resource successfully replaced"
         },
         "validation": {
             "accepted": "The {attribute} must be accepted.",

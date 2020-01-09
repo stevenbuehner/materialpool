@@ -283,4 +283,12 @@ return [
 	'detach-and-delete'                                        => 'detach and delete',
 	'Perfect'                                                  => 'Perfect',
 	'material-cant-be-deleted-xy-resources-left'               => '{1}This material can\'t be deleted. One resource is still assigned to it|{2,*}This material can\'t be deleted. {xy} resources are still assigned to it.',
+	'insert-ID-here'                                           => "Insert ID here",
+	'with-this-resource'                                       => "with this resource",
+	'replace-this-resource'                                    => "Replace this resource",
+	'Preview'                                                  => "Preview",
+	'replace-resource-now'                                     => 'replace resource now',
+	'start-replacing-resource'                                 => 'Start replacing resource',
+	'resource-successfully-replaced'                           => 'Resource successfully replaced',
+
 ];

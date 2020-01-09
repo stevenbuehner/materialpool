@@ -1,7 +1,7 @@
 import {
 	api_v1_resources_create_material,
 	api_v1_resources_delete,
-	api_v1_resources_find,
+	api_v1_resources_find, api_v1_resources_replace_with,
 	api_v1_resources_show,
 	api_v1_resources_store,
 	api_v1_resources_update
@@ -275,7 +275,30 @@ const actions = {
 
 	lonely: ({dispatch}, {page}) => {
 		return dispatch('find', {missing_materials: true, page});
-	}
+	},
+
+	replaceResource: ({commit, dispatch}, {oldResourceId, newResourceId}) => {
+
+		const promise = axios
+			.post(api_v1_resources_replace_with(oldResourceId, newResourceId))
+			.then(({data}) => {
+				return data;
+			})
+			.catch((response) => throw convertErrorResponseToMessage(response));
+
+		promise.then((resource) => {
+			commit('clearResource', oldResourceId);
+			commit('clearResource', newResourceId);
+			commit('setResource', resource);
+
+			for (let i in resource.materials) {
+				// Clear, because the now assigned materials have all changed
+				dispatch('materials/clearMaterial', resource.materials[i], {root: true});
+			}
+		});
+
+		return promise;
+	},
 
 };
 

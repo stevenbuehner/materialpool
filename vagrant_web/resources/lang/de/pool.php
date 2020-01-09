@@ -279,4 +279,11 @@ return [
 	'detach-and-delete'                                        => 'lösen und löschen',
 	'Perfect'                                                  => 'Perfekt',
 	'material-cant-be-deleted-xy-resources-left'               => '{1}Das Material kann nicht gelöscht werden, weil noch eine resource damit verknüpft ist.|{2,*}Das Material kann nicht gelöscht werden, weil noch {xy} Resourcen damit verknüpft sind.',
+	'insert-ID-here'                                           => "ID hier eingeben",
+	'with-this-resource'                                       => "mit dieser Resource",
+	'replace-this-resource'                                    => "Ersetze diese Resource",
+	'Preview'                                                  => "Vorschau",
+	'replace-resource-now'                                     => 'Resource jetzt ersetzen',
+	'start-replacing-resource'                                 => 'Starte die Resource zu ersetzen',
+	'resource-successfully-replaced'                           => 'Resource erfolgreich ersetzt',
 ];
