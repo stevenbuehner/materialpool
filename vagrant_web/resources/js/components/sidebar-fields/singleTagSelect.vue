@@ -192,6 +192,13 @@
     @import "resources/sass/theme";
 
     .singleTagEditSidebarField {
+
+        .vs__selected-options {
+            ::placeholder {
+                color: $input-placeholder-color;
+            }
+        }
+
         .vs--disabled {
             .vs__selected {
                 color: $sidebar-input-font-color-disabled;
