@@ -8,6 +8,8 @@
 namespace App\Services\ResourceHandling;
 
 
+use App\Events\ResourceWasAttached;
+use App\Events\ResourceWasDetached;
 use App\Jobs\CheckDuplicateMaterials;
 use App\Models\File;
 use App\Models\Resource as Res;
@@ -72,12 +74,15 @@ class ResourceDuplicationHandlingService {
 
 	public function migrateSlaveIntoMasterResource(Res $slaveResource, Res $masterResource) {
 
-		// FixMe: Überarbeiten! Werfe die richtigen Events (ResourceModified, Deleted, Attached, Detached, ...)
+		// Relationen nachladen, um anschließend zu wissen, wo Events gefeuert werden müssen
+		$slaveResource->loadMissing('materials');
+		$masterResource->loadMissing('materials');
+
 		DB::beginTransaction();
 
 		// Update material_resource
 		try {
- 			DB::table('material_resource')
+			DB::table('material_resource')
 				->where('resource_id', '=', $slaveResource->id)
 				->update(['resource_id' => $masterResource->id]);
 		} catch (QueryException $e) {
@@ -92,6 +97,18 @@ class ResourceDuplicationHandlingService {
 				DB::rollBack();
 				throw($e);
 			}
+		}
+
+		// Werfe die detach Funktionen für alle losgelösten Resourcen
+		foreach ($slaveResource->materials as $m) {
+			event(new ResourceWasDetached($m, $slaveResource));
+		}
+
+		// Werfe die attach Funktionen für alle Materialien die eine Resource NEU/Zusätzlichcxl bekommen haben
+		// Ignoriere Materialien, die bereits davor mit der Resource verknüpft waren. Denn dort hat sich auch nichts geändert. Auch die Limitations nicht.
+		$newAttachedMaterials = $slaveResource->materials->except($masterResource->materials->modelKeys());
+		foreach ($newAttachedMaterials as $m) {
+			event(new ResourceWasAttached($m, $masterResource));
 		}
 
 		// Update resource_foreign_ids

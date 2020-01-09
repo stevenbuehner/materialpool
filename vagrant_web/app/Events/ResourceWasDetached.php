@@ -3,7 +3,7 @@
 namespace App\Events;
 
 use App\Models\Material;
-use App\Models\Resource;
+use App\Models\Resource as ResourceEntity;
 use Illuminate\Queue\SerializesModels;
 
 class ResourceWasDetached implements ContainsOneResource, ContainsOneMaterial {
@@ -18,15 +18,15 @@ class ResourceWasDetached implements ContainsOneResource, ContainsOneMaterial {
 	 * @param Material $material
 	 * @param Resource $resource
 	 */
-	public function __construct(Material $material, Resource $resource) {
+	public function __construct(Material $material, ResourceEntity $resource) {
 		$this->material = $material;
 		$this->resource = $resource;
 	}
 
 	/**
-	 * @return Resource
+	 * @return ResourceEntity
 	 */
-	public function getResource(): Resource {
+	public function getResource(): ResourceEntity {
 		return $this->resource;
 	}
 
