@@ -9,8 +9,10 @@ import '../../../sass/main.scss';
 // Localisation
 import {i18n}    from "./localisation";
 
-import ShortKey      from 'vue-shortkey'
-import AsyncComputed from 'vue-async-computed';
+import ShortKey                      from 'vue-shortkey'
+import AsyncComputed                 from 'vue-async-computed';
+import {sessionKeepAlive}            from "../../helper/keepAlive";
+import {keepalive_seconds_intervall} from "../config";
 
 
 Vue.use(ShortKey);
@@ -21,6 +23,7 @@ const router = new VueRouter({
 	mode: 'history',
 	base: '/vue',
 	scrollBehavior(to, from, savedPosition) {
+		console.info(to, from, savedPosition);
 		return {x: 0, y: 0}
 	},
 	routes
@@ -56,3 +59,7 @@ if (window.materialpool) {
 
 }
 
+// Session keepalive
+setInterval(() => {
+	sessionKeepAlive();
+}, keepalive_seconds_intervall * 1000);

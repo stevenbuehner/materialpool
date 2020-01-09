@@ -38,6 +38,9 @@ class AuthServiceProvider extends ServiceProvider {
 		Passport::routes();
 
 		// Expire tokens after one day
-		Passport::tokensExpireIn(Carbon::now()->addDays(1));
+		Passport::tokensExpireIn(Carbon::now()->addDays(5));
+		Passport::refreshTokensExpireIn(Carbon::now()->addDays(30));
+
+		Passport::cookie('materialpool_token');
 	}
 }

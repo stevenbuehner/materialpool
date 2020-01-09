@@ -1,6 +1,8 @@
 export const searchGuessRoute  = '/pool/search/guess';
 export const searchGuessRoute2 = '/pool/search/guess2';
 
+// Keepalive
+export const keepAliveRoute = '/keepalive';
 
 // Keyword
 export function keywordSearchLink(keyword) {

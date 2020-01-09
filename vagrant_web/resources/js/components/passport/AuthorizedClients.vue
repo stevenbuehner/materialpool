@@ -2,21 +2,17 @@
     .action-link {
         cursor: pointer;
     }
-
-    .m-b-none {
-        margin-bottom: 0;
-    }
 </style>
 
 <template>
     <div>
         <div v-if="tokens.length > 0">
-            <div class="panel panel-default">
-                <div class="panel-heading">Authorized Applications</div>
+            <div class="card card-default">
+                <div class="card-header">Authorized Applications</div>
 
-                <div class="panel-body">
+                <div class="card-body">
                     <!-- Authorized Tokens -->
-                    <table class="table table-borderless m-b-none">
+                    <table class="table table-borderless mb-0">
                         <thead>
                         <tr>
                             <th>Name</th>
@@ -55,8 +51,6 @@
 </template>
 
 <script>
-	import Axios from '../../apps/main/axiosInstance';
-
 	export default {
 		/*
          * The component's data.
@@ -93,7 +87,7 @@
 			 * Get all of the authorized tokens for the user.
 			 */
 			getTokens() {
-				Axios.get('/oauth/tokens')
+				axios.get('/oauth/tokens')
 				     .then(response => {
 					     this.tokens = response.data;
 				     });
@@ -103,7 +97,7 @@
 			 * Revoke the given token.
 			 */
 			revoke(token) {
-				Axios.delete('/oauth/tokens/' + token.id)
+				axios.delete('/oauth/tokens/' + token.id)
 				     .then(response => {
 					     this.getTokens();
 				     });
