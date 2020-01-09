@@ -1,5 +1,5 @@
-import MaterialDetail     from './pages/MaterialDetail.vue';
-import MaterialDetail2    from './pages/MaterialDetail2.vue';
+import MaterialDetail2     from './pages/MaterialDetail.vue';
+import MaterialDetail    from './pages/MaterialDetail2.vue';
 import SearchPage         from './pages/search/searchPage.vue';
 import ResourceDetail     from './pages/Resource.vue';
 import AssignApp          from './pages/AssignApp.vue';
