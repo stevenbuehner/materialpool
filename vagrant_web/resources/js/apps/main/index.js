@@ -11,7 +11,7 @@ import {i18n}    from "./localisation";
 
 import ShortKey                      from 'vue-shortkey'
 import AsyncComputed                 from 'vue-async-computed';
-import {sessionKeepAlive}            from "../../helper/keepAlive";
+import {sessionKeepAlive}            from "../../helper/sessionKeepAlive";
 import {keepalive_seconds_intervall} from "../config";
 
 
