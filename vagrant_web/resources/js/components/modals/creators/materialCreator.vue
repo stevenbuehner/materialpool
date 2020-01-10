@@ -1,11 +1,34 @@
 <template>
     <b-modal size="lg"
-             :title="headline || $t('pool.Create-a-material')"
              lazy
              ref="myModal"
              @hide="_cancelPromise"
              @shown="_selectFocus"
     >
+
+        <template slot="modal-header">
+            <div class="row">
+                <div class="col modal-title">
+                    <h5>
+                        {{headline || $t('pool.Create-a-material')}}
+                    </h5>
+                </div>
+                <div class="col">
+                    <b-input-group
+                            :prepend="$t('pool.Insert-Material-ID')"
+                            size="sm">
+                        <b-form-input
+                                type="number"
+                                v-model="preloadMaterialId"
+                                @keyup.native.enter="preloadWithMaterial"
+                        />
+                        <b-input-group-append>
+                            <b-button variant="primary" @click="preloadWithMaterial">{{$t('pool.preload')}}</b-button>
+                        </b-input-group-append>
+                    </b-input-group>
+                </div>
+            </div>
+        </template>
         <template slot="modal-footer">
 
             <slot name="all-buttons">
@@ -131,21 +154,24 @@
 
 <script>
 
-	import {BForm}                 from 'bootstrap-vue';
-	import {BAlert}                from 'bootstrap-vue';
-	import {BFormGroup}            from 'bootstrap-vue';
-	import {BFormInput}            from 'bootstrap-vue';
-	import {BModal}                from 'bootstrap-vue';
-	import {BButton}               from 'bootstrap-vue';
-	import starRating              from 'vue-star-rating';
-	import KeywordInput            from "../../keyword/keywordInput.vue";
-	import BibleverseInput         from "../../bibleverse/bibleverseInput";
-	import _debounce               from 'lodash/debounce';
-	import KeywordToggleTextSelect from "../../keyword/keywordToggleTextSelect";
-	import {RELEVANCE_USER_AVG}    from "../../../apps/config";
+	import {BForm}                                      from 'bootstrap-vue';
+	import {BAlert}                                     from 'bootstrap-vue';
+	import {BFormGroup, BInputGroup, BInputGroupAppend} from 'bootstrap-vue';
+	import {BFormInput}                                 from 'bootstrap-vue';
+	import {BModal}                                     from 'bootstrap-vue';
+	import {BButton}                                    from 'bootstrap-vue';
+	import starRating                                   from 'vue-star-rating';
+	import KeywordInput                                 from "../../keyword/keywordInput.vue";
+	import BibleverseInput                              from "../../bibleverse/bibleverseInput";
+	import _debounce                                    from 'lodash/debounce';
+	import KeywordToggleTextSelect                      from "../../keyword/keywordToggleTextSelect";
+	import {RELEVANCE_USER_AVG}                         from "../../../apps/config";
+	import {savingDialogs}                              from "../../../helper/flashMessages";
 
 	export default {
 		name: "materialCreator",
+
+		mixins: [savingDialogs],
 
 		data() {
 			return {
@@ -163,6 +189,8 @@
 				bibleverseInput: [],
 
 				labelCols: 2,
+
+				preloadMaterialId: '',
 
 				reject: null,
 				resolve: null,
@@ -456,6 +484,23 @@
 
 			},
 
+			preloadWithMaterial() {
+				this.$store.dispatch('materials/getMaterial', this.preloadMaterialId)
+				    .then((material) => {
+
+					    this.form.title       = material.title;
+					    this.form.description = material.description;
+					    this.form.rating      = material.rating;
+					    this.form.author      = (material.author) ? material.author.title : '';
+					    this.keywordInput     = JSON.parse(JSON.stringify(material.keywords));
+					    this.bibleverseInput  = JSON.parse(JSON.stringify(material.bibleverses));
+
+				    })
+				    .catch((message) => {
+					    this.flashActionFailed(message);
+				    })
+			}
+
 		},
 
 		components: {
@@ -464,7 +509,7 @@
 			KeywordInput,
 			BForm,
 			BAlert,
-			BFormGroup,
+			BFormGroup, BInputGroup, BInputGroupAppend,
 			BFormInput,
 			BModal,
 			BButton,

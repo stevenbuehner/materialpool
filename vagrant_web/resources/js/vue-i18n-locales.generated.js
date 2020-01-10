@@ -284,7 +284,9 @@ export default {
             "Preview": "Vorschau",
             "replace-resource-now": "Resource jetzt ersetzen",
             "start-replacing-resource": "Starte die Resource zu ersetzen",
-            "resource-successfully-replaced": "Resource erfolgreich ersetzt"
+            "resource-successfully-replaced": "Resource erfolgreich ersetzt",
+            "preload": "Vorladen",
+            "Insert-Material-ID": "Material-ID"
         }
     },
     "en": {
@@ -591,7 +593,9 @@ export default {
             "Preview": "Preview",
             "replace-resource-now": "replace resource now",
             "start-replacing-resource": "Start replacing resource",
-            "resource-successfully-replaced": "Resource successfully replaced"
+            "resource-successfully-replaced": "Resource successfully replaced",
+            "preload": "preload",
+            "Insert-Material-ID": "Insert material-ID"
         },
         "validation": {
             "accepted": "The {attribute} must be accepted.",

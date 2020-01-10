@@ -286,4 +286,5 @@ return [
 	'replace-resource-now'                                     => 'Resource jetzt ersetzen',
 	'start-replacing-resource'                                 => 'Starte die Resource zu ersetzen',
 	'resource-successfully-replaced'                           => 'Resource erfolgreich ersetzt',
-];
+	'preload'                                                  => 'Vorladen',
+	'Insert-Material-ID'                                       => 'Material-ID',];

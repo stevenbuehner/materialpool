@@ -290,5 +290,7 @@ return [
 	'replace-resource-now'                                     => 'replace resource now',
 	'start-replacing-resource'                                 => 'Start replacing resource',
 	'resource-successfully-replaced'                           => 'Resource successfully replaced',
+	'preload'                                                  => 'preload',
+	'Insert-Material-ID'                                       => 'Insert material-ID',
 
 ];
