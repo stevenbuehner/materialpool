@@ -20,11 +20,12 @@
 
 <script>
 
-	import {BCard}                 from 'bootstrap-vue'
-	import {BButton}               from 'bootstrap-vue'
-	import resourceLinks           from '../resource-links.mixin';
-	import {previewImageFirstPage} from "../../serverRoutes";
-	import resourcePreviewZoom     from '../resource-preview-zoom';
+	import {BCard}                                              from 'bootstrap-vue'
+	import {BButton}                                            from 'bootstrap-vue'
+	import resourceLinks                                        from '../resource-links.mixin';
+	import {previewImageFirstPage}                              from "../../serverRoutes";
+	import resourcePreviewZoom                                  from '../resource-preview-zoom';
+	import {max_preview_image_size_x, max_preview_image_size_y} from "../../../apps/config";
 
 	export default {
 
@@ -40,11 +41,11 @@
 				},
 				width: {
 					required: false,
-					default: 300
+					default: max_preview_image_size_x
 				},
 				height: {
 					required: false,
-					default: 300
+					default: max_preview_image_size_y
 				}
 			},
 

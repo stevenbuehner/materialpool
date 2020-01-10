@@ -5,7 +5,6 @@ namespace App\Models\Traits;
 /**
  * Trait PageCountTrait
  *
- * @package App\Models\Traits
  * @property $page_count
  */
 trait PageCountTrait {

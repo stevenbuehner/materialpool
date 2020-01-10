@@ -9,3 +9,6 @@ export const timeout_flashErrorMessage  = 0;
 export const server_datetime_format     = 'YYYY-MM-DD HH:mm:ss';
 
 export const keepalive_seconds_intervall = 60;
+
+export const max_preview_image_size_x = 1024;
+export const max_preview_image_size_y = 1024;

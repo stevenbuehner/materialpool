@@ -11,11 +11,12 @@
 
 <script>
 
-	import {BImgLazy}              from 'bootstrap-vue';
-	import {BCard}                 from 'bootstrap-vue'
-	import {BButton}               from 'bootstrap-vue'
-	import {previewImageFirstPage} from '../../serverRoutes';
-	import resourceLinks           from '../resource-links.mixin';
+	import {BImgLazy}                                           from 'bootstrap-vue';
+	import {BCard}                                              from 'bootstrap-vue'
+	import {BButton}                                            from 'bootstrap-vue'
+	import {previewImageFirstPage}                              from '../../serverRoutes';
+	import resourceLinks                                        from '../resource-links.mixin';
+	import {max_preview_image_size_x, max_preview_image_size_y} from "../../../apps/config";
 
 	export default {
 
@@ -29,11 +30,11 @@
 				},
 				width: {
 					required: false,
-					default: 1024
+					default: max_preview_image_size_x
 				},
 				height: {
 					required: false,
-					default: 1024
+					default: max_preview_image_size_y
 				}
 			},
 

@@ -1,3 +1,5 @@
+import {max_preview_image_size_x, max_preview_image_size_y} from "../apps/config";
+
 export const searchGuessRoute  = '/pool/search/guess';
 export const searchGuessRoute2 = '/pool/search/guess2';
 
@@ -32,8 +34,8 @@ export function resourceDownloadLink(resource) {
 }
 
 export function previewImageFirstPage(resource, width, height) {
-	width  = width || 1024;
-	height = height || 1024;
+	width  = width || max_preview_image_size_x;
+	height = height || max_preview_image_size_y;
 	return '/resource/' + resource.id + '/image/' + width + '/' + height;
 }
 

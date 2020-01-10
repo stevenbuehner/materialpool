@@ -105,16 +105,16 @@ class ResourceHandlingService {
 
 		if ($checkLimitationChanges instanceof PageLimitation) {
 
-			$pagesOld = ($oldResource instanceof PageCountTrait) ? $oldResource->getPageCountAttribute() : NULL;
-			$pagesNew = ($newResource instanceof PageCountTrait) ? $newResource->getPageCountAttribute() : NULL;
+			$pagesOld = in_array(PageCountTrait::class, class_uses_recursive($oldResource)) ? $oldResource->getPageCountAttribute() : NULL;
+			$pagesNew = in_array(PageCountTrait::class, class_uses_recursive($newResource)) ? $newResource->getPageCountAttribute() : NULL;
 
 			if ($pagesOld !== $pagesNew) {
 				throw new ResourceNotReplaceable('Resources have different page-sizes');
 			}
 		} else if ($checkLimitationChanges instanceof TimeLimitation) {
 
-			$timeOld = ($oldResource instanceof TimeCountTrait) ? $oldResource->getTimeCountAttribute() : NULL;
-			$timeNew = ($newResource instanceof TimeCountTrait) ? $newResource->getTimeCountAttribute() : NULL;
+			$timeOld = in_array(TimeCountTrait::class, class_uses_recursive($oldResource)) ? $oldResource->getTimeCountAttribute() : NULL;
+			$timeNew = in_array(TimeCountTrait::class, class_uses_recursive($newResource)) ? $newResource->getTimeCountAttribute() : NULL;
 
 			if ($timeOld !== $timeNew) {
 				throw new ResourceNotReplaceable('Resources have different time-length');

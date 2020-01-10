@@ -119,7 +119,7 @@ class ResourcePreviewService extends AbstractPreviewService {
 	 */
 	public function getCachedImage(ResourceEntity $resource, Size $size, $pageOrSeconds = NULL) {
 
-		$cacheKey = $this->getCacheKey($resource, [$size, $pageOrSeconds]);
+		$cacheKey = $this->getCacheKey($resource, [$size, (int) $pageOrSeconds]);
 
 		// Load the preview
 		if (NULL !== $encodedImage = $this->getImageObjectFromCache($cacheKey)) {
