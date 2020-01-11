@@ -292,5 +292,5 @@ return [
 	'resource-successfully-replaced'                           => 'Resource successfully replaced',
 	'preload'                                                  => 'preload',
 	'Insert-Material-ID'                                       => 'Insert material-ID',
-
+	'Info'                                                     => 'Info',
 ];

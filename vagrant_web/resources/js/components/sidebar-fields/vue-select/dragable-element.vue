@@ -1,8 +1,9 @@
 <template>
     <div class="selected-tag draggable-element"
          :class="{draggable : !disableMoveRelevance}"
-         v-bind:key="id"
-         @mousedown.left.stop="keydownStartDrag">
+         @mousedown.left.exact.stop="keydownStartDrag"
+         :key="id"
+         @click.right.stop.prevent="$emit('click:right', $event)">
 
         <div class="selected-relevance"
              :class="{isDragging : dragging.ongoing}"
@@ -11,7 +12,7 @@
         <div class="text">
             <slot name="label">{{label}}</slot>
 
-            <button @click="$emit('deselect')"
+            <button @click.left="$emit('deselect')"
                     type="button"
                     v-if="!disableRemoveElement"
                     class="vs__deselect"

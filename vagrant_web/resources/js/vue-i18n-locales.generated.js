@@ -286,7 +286,8 @@ export default {
             "start-replacing-resource": "Starte die Resource zu ersetzen",
             "resource-successfully-replaced": "Resource erfolgreich ersetzt",
             "preload": "Vorladen",
-            "Insert-Material-ID": "Material-ID"
+            "Insert-Material-ID": "Material-ID",
+            "Info": "Info"
         }
     },
     "en": {
@@ -595,7 +596,8 @@ export default {
             "start-replacing-resource": "Start replacing resource",
             "resource-successfully-replaced": "Resource successfully replaced",
             "preload": "preload",
-            "Insert-Material-ID": "Insert material-ID"
+            "Insert-Material-ID": "Insert material-ID",
+            "Info": "Info"
         },
         "validation": {
             "accepted": "The {attribute} must be accepted.",

@@ -7,7 +7,7 @@
              @dblclick.stop="openKeywordEditModal"
              role="button">
             <div class="sb-progress-bar" :class="{isDragging : dragging.ongoing}" :style="styleObject"></div>
-            <component :is="iconName" class="icon"></component>
+            <component :is="iconName" class="icon"/>
             <span class="text">{{ myKeyword.title }}</span>
             <span class="delete" v-if="removeable" @mousedown.left.stop @click.prevent.stop="removeKeyword">x</span>
         </div>

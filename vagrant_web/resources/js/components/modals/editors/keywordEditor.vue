@@ -6,7 +6,7 @@
             v-if="showEditor"
     >
         <keyword-edit
-                :id="id"
+                :id="keywordId"
                 @saved="onSaved"
                 @saving="$emit('saving', $event)"
                 @savingError="$emit('savingError', $event)"
@@ -41,19 +41,28 @@
 
 		data() {
 			return {
+				keywordId: this.id,
 				showEditor: false
 			}
 		},
 
+
 		computed: {},
 
 		methods: {
-			onSaved(e) {
+			onSaved(keyword) {
 				this.hide();
-				this.$emit('saved', e);
+				this.$emit('saved', keyword);
 			},
 
-			show() {
+			show(keywordId) {
+
+				if (keywordId) {
+					this.keywordId = keywordId;
+				} else {
+					this.keywordId = this.id;
+				}
+
 				this.showEditor = true;
 			},
 			hide() {

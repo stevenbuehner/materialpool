@@ -40,8 +40,8 @@
                                 :disable-remove-element="disabled"
                                 :relevance="option.pivot.relevance"
                                 @deselect="deselect(option)"
-                                @request-update-relevance="$emit('request-update-relevance', {tag: option, relevance: $event});"
-                        />
+                                @request-update-relevance="$emit('request-update-relevance', {tag: option, relevance: $event})"
+                                @click:right="openRightClickMenu($event, option)"/>
                     </template>
 
                     <template v-slot:option="option">
@@ -65,6 +65,20 @@
 
         </div>
 
+        <context-menu ref="menu" v-slot:default="{optionalData}">
+            <context-menu-item v-if="!disabled" @click.stop="$refs.keywordEditor.show(optionalData.id)">
+                {{$t('pool.edit')}}
+            </context-menu-item>
+        </context-menu>
+
+        <keyword-editor
+                ref="keywordEditor"
+                :id="0"
+                @saved="updateKeywordChanges"/>
+        <!--
+         @deleted="onDeleted"/>
+        @saved="onKeywordPropertiesChanged" -->
+
     </div>
 </template>
 
@@ -75,6 +89,9 @@
 	import {keywordTypes}                                         from "../keyword/keywordDefaultIcons";
 	import {debounce as _debounce, differenceBy as _differenceBy} from 'lodash';
 	import DragableElement                                        from "./vue-select/dragable-element";
+	import ContextMenu                                            from "../context-menu/context-menu";
+	import ContextMenuItem                                        from "../context-menu/context-menu-item";
+	import KeywordEditor                                          from "../modals/editors/keywordEditor";
 
 	export default {
 		name: "tagEdit",
@@ -215,11 +232,31 @@
 
 			filterSuggestionsBy(object) {
 				return this.value.find((el) => el.id === object.id) === undefined;
+			},
+
+			openRightClickMenu(event, keywordForEvent) {
+				this.$refs.menu.openMenu(event, keywordForEvent)
+			},
+
+			updateKeywordChanges(keyword) {
+				const valEl = this.value.find((el) => el.id = keyword.id);
+
+				if (valEl) {
+					for (let i in keyword) {
+						valEl[i] = keyword[i];
+					}
+				}
+
+				// this.$emit('input:data-changed', keyword);
 			}
+
 
 		},
 
 		components: {
+			KeywordEditor,
+			ContextMenuItem,
+			ContextMenu,
 			DragableElement,
 			tagIcon,
 			VueSelect
