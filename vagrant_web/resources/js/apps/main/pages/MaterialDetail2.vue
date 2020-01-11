@@ -172,8 +172,7 @@
                                 @input:added="addKeyword"
                                 @input:removed="removeKeyword"
                                 @request-update-relevance="updateKeywordRelevance($event.tag, $event.relevance)"
-                        >
-                        </tag-edit-sidebar-field>
+                        />
 
                         <tag-edit-sidebar-field
                                 :value="material.keywords"

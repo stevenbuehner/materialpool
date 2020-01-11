@@ -2,7 +2,7 @@
     <div class="selected-tag draggable-element"
          :class="{draggable : !disableMoveRelevance}"
          v-bind:key="id"
-         @mousedown.left="!disableMoveRelevance && keydownStartDrag">
+         @mousedown.left.stop="keydownStartDrag">
 
         <div class="selected-relevance"
              :class="{isDragging : dragging.ongoing}"
@@ -82,7 +82,9 @@
 			},
 
 			keydownStartDrag(event) {
-				event.stopPropagation();
+				if (this.disableMoveRelevance)
+					return;
+
 				this.startDrag(event);
 			},
 		}

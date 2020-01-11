@@ -41,7 +41,7 @@
                                 :relevance="option.pivot.relevance"
                                 @deselect="deselect(option)"
                                 @request-update-relevance="$emit('request-update-relevance', {tag: option, relevance: $event});"
-                        ></dragable-element>
+                        />
                     </template>
 
                     <template v-slot:option="option">
