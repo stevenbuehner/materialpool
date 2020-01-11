@@ -1,7 +1,7 @@
 <template>
     <li class="menuItem" @click="menuItemClicked" :class="{disabled: disabled, 'with-icon' : icon !== ''}">
-        <span class="icon" v-if="icon !== ''" :style="{backgroundImage : 'url(' + icon + ')'}"></span>
-        <slot></slot>
+        <span class="icon" v-if="icon !== ''" :style="{backgroundImage : 'url(' + icon + ')'}"/>
+        <slot :optional-data="optionalData"></slot>
     </li>
 </template>
 
@@ -22,6 +22,11 @@
 				required: false,
 				type: String,
 				default: ''
+			},
+
+			optionalData: {
+				required: false,
+				default: null
 			}
 		},
 

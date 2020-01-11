@@ -5,7 +5,7 @@
         v-on:blur="closeMenu"
         :style="{top:menuTop, left:menuLeft}">
 
-        <slot></slot>
+        <slot :optional-data="optionalData"></slot>
 
     </ul>
 </template>
@@ -23,19 +23,35 @@
 			menuItem
 		},
 
+		props: {
+			menuOffsetX: {
+				type: Number,
+				required: false,
+				default: 5
+			},
+			menuOffsetY: {
+				type: Number,
+				required: false,
+				default: -20
+			},
+		},
+
 		data() {
 			return {
 				menuOpen: false,
 				menuTop: '0px',
 				menuLeft: '0px',
+				optionalData: {},
 			};
 		},
 
 		methods: {
 			setMenu: function (top, left) {
 
-				const fensterHohe   = window.innerHeight;
-				const fensterBreite = window.innerWidth;
+				const fensterHohe = window.innerHeight;
+
+				// const fensterBreite = window.innerWidth;
+				const fensterBreite = document.documentElement.clientWidth || document.body.clientWidth; // El. width minus scrollbar width
 
 				const domRect = this.$el.getBoundingClientRect();
 
@@ -47,8 +63,8 @@
 				const menuLeftOf = this.$el.offsetLeft;
 				const menuTopOf  = this.$el.offsetTop;
 
-				let moveTop  = top - menuTop + menuTopOf;
-				let moveLeft = left - menuLeft + menuLeftOf;
+				let moveTop  = top - menuTop + menuTopOf + this.menuOffsetY;
+				let moveLeft = left - menuLeft + menuLeftOf + this.menuOffsetX;
 
 				if ((left + moveLeft + menuBreite) > fensterBreite) {
 					moveLeft = fensterBreite - menuBreite;
@@ -62,9 +78,13 @@
 				this.$root.$emit(MENU_CLOSE_EVENT);
 			},
 
-			openMenu: function (event) {
+			openMenu: function (event, optionalData) {
 				if (event) {
 					event.preventDefault();
+				}
+
+				if (optionalData) {
+					this.optionalData = optionalData;
 				}
 
 				this.$root.$emit(MENU_OPEN_EVENT, this);
