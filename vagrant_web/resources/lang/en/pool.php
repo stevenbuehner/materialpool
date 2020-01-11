@@ -178,7 +178,7 @@ return [
 	'Assign-resource'                                          => 'Assign resource',
 	'Nothing-found'                                            => 'Nothing found',
 	'author-is'                                                => 'author is',
-	'unknown'                                                  => 'unknown',
+	'Unknown'                                                  => 'Unknown',
 	'Web-URL'                                                  => 'Web URL',
 	'Click-to-insert-an-URL'                                   => 'Click here to insert a web source',
 	'Content-Hash'                                             => 'Content Hash',

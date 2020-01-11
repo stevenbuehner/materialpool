@@ -135,7 +135,7 @@
                     <keyword-toggle-text-select
                             :keyword="material.author"
                             @newKeywordSelection="submitAuthor"
-                            :emptyPlaceholder="$t('pool.unknown')"/>
+                            :emptyPlaceholder="$t('pool.Unknown')"/>
 
                     <public-material-download :material-id="id"/>
                 </div>

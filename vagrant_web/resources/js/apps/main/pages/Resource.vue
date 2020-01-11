@@ -79,7 +79,7 @@
                         <b-list-group-item>
                             <b>{{$t('pool.Creator')}}:</b>
                             <user v-if="resource.creator" :user="resource.creator"/>
-                            <span v-else>{{$t('pool.unknown')}}</span>
+                            <span v-else>{{$t('pool.Unknown')}}</span>
                         </b-list-group-item>
 
                         <b-list-group-item class="d-flex">

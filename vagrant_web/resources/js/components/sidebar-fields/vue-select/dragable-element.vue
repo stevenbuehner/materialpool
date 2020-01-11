@@ -90,8 +90,6 @@
 </script>
 
 <style type="scss">
-    @import "../generalCss";
-    @import "~vue-select/src/scss/global/variables";
     @import "../../../../sass/theme";
 
 

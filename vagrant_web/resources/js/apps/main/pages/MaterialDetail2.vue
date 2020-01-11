@@ -127,7 +127,7 @@
                         <single-tag-select
                                 :value="material.author"
                                 :name="$t('pool.Author')"
-                                :placeholder="$t('pool.unknown')"
+                                :placeholder="$t('pool.Unknown')"
                                 :disabled="materialEditLockActive"
                                 typefilter="person"
                                 @input:associated="submitAuthor"

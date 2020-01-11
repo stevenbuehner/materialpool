@@ -188,14 +188,19 @@
 </script>
 
 <style type="scss">
-    @import "generalCss";
     @import "resources/sass/theme";
 
     .singleTagEditSidebarField {
 
-        .vs__selected-options {
-            ::placeholder {
-                color: $input-placeholder-color;
+        .notDisabled {
+            .vs__dropdown-toggle {
+                background-color: $sidebar-input-background-colour-active;
+
+                .vs__selected-options {
+                    ::placeholder {
+                        color: $input-placeholder-color;
+                    }
+                }
             }
         }
 
@@ -203,6 +208,11 @@
             .vs__selected {
                 color: $sidebar-input-font-color-disabled;
             }
+        }
+
+        .tagOptionIcon svg {
+            height: 1em;
+            width: 1em;
         }
     }
 

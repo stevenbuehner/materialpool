@@ -67,7 +67,6 @@
 </script>
 
 <style type="scss">
-    //    @import "generalCss";
     //    @import "resources/sass/theme";
 
     .ratingEditSidebarField {

@@ -172,7 +172,7 @@ return [
 	'Assign-resource'                                          => 'Resource zuordnen',
 	'Nothing-found'                                            => 'Nichts gefunden',
 	'author-is'                                                => 'Author ist',
-	'unknown'                                                  => 'unbekannt',
+	'Unknown'                                                  => 'Unbekannt',
 	'Web-URL'                                                  => 'Internet URL',
 	'Click-to-insert-an-URL'                                   => 'Hier klicken um eine Internetquelle anzugeben',
 	'Content-Hash'                                             => 'Resource Hash',

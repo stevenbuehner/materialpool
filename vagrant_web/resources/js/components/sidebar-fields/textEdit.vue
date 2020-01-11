@@ -230,8 +230,6 @@
 </script>
 
 <style type="scss">
-    @import "generalCss";
     //  @import '~vue-date-pick/src/vueDatePick.scss';
-
 
 </style>
