@@ -63,16 +63,17 @@
 				const menuLeftOf = this.$el.offsetLeft;
 				const menuTopOf  = this.$el.offsetTop;
 
-				let moveTop  = top - menuTop + menuTopOf + this.menuOffsetY;
-				let moveLeft = left - menuLeft + menuLeftOf + this.menuOffsetX;
+				let moveTop  = top /* - menuTop + menuTopOf */ + this.menuOffsetY;
+				let moveLeft = left /* - menuLeft + menuLeftOf */ + this.menuOffsetX;
 
-				if ((left + moveLeft + menuBreite) > fensterBreite) {
+				if ((moveLeft + menuBreite) > fensterBreite) {
 					moveLeft = fensterBreite - menuBreite;
 				}
 
 				this.menuTop  = moveTop + 'px';
 				this.menuLeft = moveLeft + 'px';
 			},
+
 
 			closeMenu: function () {
 				this.$root.$emit(MENU_CLOSE_EVENT);
@@ -145,7 +146,7 @@
 <style scoped>
 
     .sb-context-menu {
-        position: absolute;
+        position: fixed;
         top: 100%;
         left: 0;
         z-index: 999999;
