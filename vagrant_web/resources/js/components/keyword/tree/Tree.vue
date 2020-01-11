@@ -1,7 +1,7 @@
 <template>
     <div class="sbTree">
         <ul>
-            <TreeNode v-for="c in displayedTree" :node="c" :key="c.id" @move="onMove"></TreeNode>
+            <TreeNode v-for="c in displayedTree" :node="c" :key="c.id" @move="onMove"/>
         </ul>
     </div>
 </template>

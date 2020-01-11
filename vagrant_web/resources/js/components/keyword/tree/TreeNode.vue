@@ -15,7 +15,7 @@
               @drop.stop="onDrop"
               @dragend="onDragend"
         >
-            <component :is="iconName" class="keywordIcon"></component>
+            <component :is="iconName" class="keywordIcon"/>
             {{label}}
         </span>
 
@@ -30,12 +30,17 @@
 </template>
 
 <script>
-	import editIcon                                                       from 'svg-icon/dist/svg/ionic/edit.svg';
-	import singleDown
-	                                                                      from 'svg-icon/dist/trimmed-svg/awesome/angle-down.svg';
-	import doubleDown
-	                                                                      from 'svg-icon/dist/trimmed-svg/awesome/angle-double-down.svg';
-	import {ayceIcon, iconName, keyIcon, langIcon, personIcon, placeIcon} from '../keywordDefaultIcons';
+	import editIcon   from 'svg-icon/dist/svg/ionic/edit.svg';
+	import singleDown from 'svg-icon/dist/trimmed-svg/awesome/angle-down.svg';
+	import doubleDown from 'svg-icon/dist/trimmed-svg/awesome/angle-double-down.svg';
+	import {
+		ayceIcon,
+		iconName,
+		keyIcon,
+		langIcon,
+		personIcon,
+		placeIcon
+	}                 from '../keywordDefaultIcons';
 
 	export default {
 		name: "TreeNode",

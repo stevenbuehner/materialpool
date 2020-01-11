@@ -1,8 +1,8 @@
 <template>
     <div class="selected-tag draggable-element"
          :class="{draggable : !disableMoveRelevance}"
-         @mousedown.left.exact.stop="keydownStartDrag"
          :key="id"
+         @mousedown.left.exact.stop="keydownStartDrag"
          @click.right.stop.prevent="$emit('click:right', $event)">
 
         <div class="selected-relevance"
@@ -56,6 +56,11 @@
 				default: false
 			},
 			disableMoveRelevance: {
+				type: Boolean,
+				default: false
+			},
+
+			dragableAcrossTags: {
 				type: Boolean,
 				default: false
 			}
