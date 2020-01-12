@@ -123,13 +123,13 @@
 			 */
 			resources() {
 				if (this.resourcesWithRelations !== null && this.resourcesAreReloading === false) {
-					console.log('1', this.resourcesWithRelations);
+					// console.log('1', this.resourcesWithRelations);
 					return this.resourcesWithRelations;
 				} else if (this.material !== null) {
-					console.log('2')
+					// console.log('2')
 					return this.material.resources;
 				} else {
-					console.log('3')
+					// console.log('3')
 					return [];
 				}
 			},
