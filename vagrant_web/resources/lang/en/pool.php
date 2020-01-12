@@ -174,6 +174,7 @@ return [
 	'canceling-update'                                         => 'canceling update ...',
 	'Keyword-saved'                                            => 'Keyword saved',
 	'Error-while-moving-keyword'                               => 'Error while moving keyword',
+	'Error-while-deleting-tag'                                 => 'Error while deleting tag',
 	'select-a-flag'                                            => 'Select a flag',
 	'Select-a-resource'                                        => 'Select a resource',
 	'Assign-resource'                                          => 'Assign resource',

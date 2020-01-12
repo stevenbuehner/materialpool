@@ -168,6 +168,7 @@ return [
 	'canceling-update'                                         => 'update wird abgebrochen ...',
 	'Keyword-saved'                                            => 'Tag gespeichert',
 	'Error-while-moving-keyword'                               => 'Es ist ein Fehler beim Bewegen des Tags aufgetreten',
+	'Error-while-deleting-tag'                                 => 'Fehler beim Löschen des Tags',
 	'select-a-flag'                                            => 'Wähle eine Flagge aus',
 	'Select-a-resource'                                        => 'Wähle eine Resource',
 	'Assign-resource'                                          => 'Resource zuordnen',

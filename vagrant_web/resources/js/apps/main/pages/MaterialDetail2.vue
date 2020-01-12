@@ -612,7 +612,7 @@
 
 			removeKeyword(keywordObject) {
 
-				const startFlash = this.flashStartRemoving(this.$t('pool.keyword'));
+				const startFlash = this.flashStartRemoving(this.$t('pool.keyword')) + ' ' + keywordObject.title;
 
 				// Remove Element from array
 				const i = this.material.keywords.findIndex(el => el.id === keywordObject.id);
@@ -626,9 +626,9 @@
 				}).then((response) => {
 					this.materialWasModified();
 					startFlash.destroy();
-					this.flashRemoved(this.$t('pool.keyword'));
+					this.flashRemoved(this.$t('pool.keyword') + ' ' + keywordObject.title);
 				}).catch((response) => {
-					alert('Error: Not able to detach keyword');
+					this.flashActionFailed(this.$t('pool.Error-while-deleting-tag') + ' ' + keywordObject.title, startFlash);
 
 					// Re-Insert element to array on error at last index (not tested yet)
 					this.material.keywords.splice(Math.min(i, this.material.keywords.length - 1), 0, keywordObject);
@@ -658,7 +658,7 @@
 
 					return data;
 				}).catch((message) => {
-					alert(message);
+					this.flashActionFailed(this.$t('pool.Error-while-moving-keyword') + ': ' + message, startFlash);
 				});
 
 			},
@@ -669,10 +669,10 @@
 			},
 
 			removeBibleverse(bibleVerseObject) {
-				const startFlash = this.flashStartRemoving(this.$t('pool.Bibleverse'));
+				const startFlash = this.flashStartRemoving(this.$t('pool.Bibleverse') + ' ' + bibleVerseObject.label);
 
 				// Remove element from array
-				const i = this.material.bibleverses.find((el) => el.id === bibleVerseObject.id);
+				const i = this.material.bibleverses.findIndex((el) => el.id === bibleVerseObject.id);
 				if (i !== -1) {
 					this.material.bibleverses.splice(i, 1);
 				}
@@ -683,9 +683,9 @@
 				}).then((response) => {
 					this.materialWasModified();
 					startFlash.destroy();
-					this.flashRemoved(this.$t('pool.Bibleverse'));
+					this.flashRemoved(this.$t('pool.Bibleverse') + ' ' + bibleVerseObject.label);
 				}).catch((response) => {
-					alert('Error: Not able to detach bibleverse');
+					this.flashActionFailed(this.$t('pool.Error-while-deleting-tag') + ' ' + bibleVerseObject.label, startFlash);
 
 					// Re-Insert element to array on error at last index (not tested yet)
 					this.material.bibleverses.splice(Math.min(i, this.material.bibleverses.length - 1), 0, bibleVerseObject);
@@ -726,6 +726,8 @@
 
 					return data;
 				}).catch((message) => {
+					this.flashActionFailed(this.$t('pool.Error-while-moving-keyword') + ': ' + message, startFlash);
+
 					alert(message);
 				});
 
