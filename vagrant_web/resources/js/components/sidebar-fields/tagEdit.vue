@@ -69,8 +69,8 @@
             <context-menu-item v-if="!disabled" @click.stop="$refs.keywordEditor.show(optionalData.id)">
                 {{$t('pool.edit')}}
             </context-menu-item>
-            <context-menu-item @click.stop="goToKeywordSearch(optionalData)">
-                {{$t('pool.search-for-xy', {xy: optionalData.title})}}
+            <context-menu-item @click.stop="doToTagSearch(optionalData)">
+                {{$t('pool.search-for-xy', {xy: getTagLabelFromObject(optionalData)})}}
             </context-menu-item>
         </context-menu>
 
@@ -254,7 +254,7 @@
 				// this.$emit('input:data-changed', keyword);
 			},
 
-			goToKeywordSearch(keyword) {
+			doToTagSearch(keyword) {
 				this.$router.push({
 					name: 'search',
 					params: {
