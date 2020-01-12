@@ -12,13 +12,14 @@
             <span class="next"
                   @click.stop="nextPreviewImage"
                   v-if="previewLimitedImages.length > 1">></span>
+
             <div class="label">
                 {{currentlyDisplayedImage.title}}
-                <div v-if="previewLimitedImages.length < pageCount"
-                     class="limitedPreview"
-                >({{previewPhrase}})
+                <div v-if="previewLimitedImages.length < pageCount" class="limitedPreview">
+                    ({{previewLimitationPhrase}})
                 </div>
             </div>
+
         </div>
         <span v-if="pageCount === 0">Seitenangabe fehlt</span>
 
@@ -94,7 +95,7 @@
 
 			},
 
-			previewPhrase() {
+			previewLimitationPhrase() {
 
 				if (this.previewPageNumbers.length > this.maxPreviewPages) {
 					return this.$t('pool.only-limited-pages', {
