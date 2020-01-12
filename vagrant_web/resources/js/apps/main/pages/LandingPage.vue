@@ -23,7 +23,7 @@
                     <router-link :to="{name: 'resource-text-create'}" v-if="currentUser">{{$t('pool.Create-text')}}
                     </router-link>
 
-                    <router-link :to="{name: 'readbible'}" v-if="currentUser">{{$t('pool.Read-bible')}}
+                    <router-link :to="{name: 'readbible'}" v-if="currentUser">{{$t('pool.Bible')}}
                     </router-link>
 
                     <router-link :to="{name: 'material'}" v-if="currentUser">{{$t('pool.Materiallist')}}
