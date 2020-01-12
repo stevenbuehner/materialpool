@@ -69,6 +69,9 @@
             <context-menu-item v-if="!disabled" @click.stop="$refs.keywordEditor.show(optionalData.id)">
                 {{$t('pool.edit')}}
             </context-menu-item>
+            <context-menu-item @click.stop="goToKeywordSearch(optionalData)">
+                {{$t('pool.search-for-xy', {xy: optionalData.title})}}
+            </context-menu-item>
         </context-menu>
 
         <keyword-editor
@@ -92,6 +95,7 @@
 	import ContextMenu                                            from "../context-menu/context-menu";
 	import ContextMenuItem                                        from "../context-menu/context-menu-item";
 	import KeywordEditor                                          from "../modals/editors/keywordEditor";
+	import {searchArrayObjectsToSearchQuery}                      from "../search/searchHelper";
 
 	export default {
 		name: "tagEdit",
@@ -248,7 +252,16 @@
 				}
 
 				// this.$emit('input:data-changed', keyword);
-			}
+			},
+
+			goToKeywordSearch(keyword) {
+				this.$router.push({
+					name: 'search',
+					params: {
+						search: searchArrayObjectsToSearchQuery([[keyword]])
+					}
+				});
+			},
 
 
 		},

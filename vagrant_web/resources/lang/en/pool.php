@@ -116,6 +116,7 @@ return [
 	'Creator'                                                  => 'Creator',
 	'Insert-search-phrase'                                     => 'Insert a searchphrase please',
 	'Insert-search-phrase-here'                                => 'Insert a searchphrase here',
+	'search-for-xy'                                            => 'search for "{xy}"',
 	'Display'                                                  => 'Display',
 	'New'                                                      => 'New',
 	'Searchmask'                                               => 'Searchmask',

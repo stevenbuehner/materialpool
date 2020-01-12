@@ -110,6 +110,7 @@ return [
 	'Creator'                                                  => 'Ersteller',
 	'Insert-search-phrase'                                     => 'Gib einen Suchbegriff ein',
 	'Insert-search-phrase-here'                                => 'Suchbegriff hier eingeben',
+	'search-for-xy'                                            => 'Suche nach "{xy}"',
 	'Display'                                                  => 'Ansicht',
 	'New'                                                      => 'Neu',
 	'Searchmask'                                               => 'Suchmaske',
