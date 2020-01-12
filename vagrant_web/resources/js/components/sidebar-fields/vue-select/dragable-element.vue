@@ -12,7 +12,7 @@
         <div class="text">
             <slot name="label">{{label}}</slot>
 
-            <button @click.left="$emit('deselect')"
+            <button @click.left.stop="$emit('deselect')"
                     type="button"
                     v-if="!disableRemoveElement"
                     class="vs__deselect"
