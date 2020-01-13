@@ -274,25 +274,14 @@ class SearchController extends Controller {
 		$query          = $this->turnRequestIntoQuery($request);
 		$paginationSize = min((int)$request->get('per_page', 30), 100);
 
-
-		/* Pagination funktioniert nur, wenn der Bugfix manuell eingespielt wird in der paginate() Funktion
-		$paginationColumns = $this->query->distinct ? $columns : ['*'];
-		$results = ($total = $this->toBase()->getCountForPagination($paginationColumns))
-			? $this->forPage($page, $perPage)->get($columns)
-			: $this->model->newCollection();
-
-		Das kommt hoffentlich in einem der nächsten Updates mit rein:
-		https://github.com/laravel/framework/pull/27107
-		*/
-
-		return $query->paginate($paginationSize, ['materials.id']);
+		return $query->paginate($paginationSize);
 	}
 
 	protected function turnRequestIntoQuery(Request $request) {
 		$searchBars = $request->get('q', []);
 		$matQuery   = Material::query()
 			->select('materials.*')
-			->distinct()
+			->distinct(['materials.id'])
 			->with(['author', 'keywords', 'bibleverses', 'resources'])
 			->orderBy('materials.rating', 'desc');
 
