@@ -326,6 +326,7 @@ class SearchController extends Controller {
 
 				// DB::enableQueryLog();
 				$matQuery->where(function ($q) use (&$keywordIds, &$bibleverseRanges, &$resourceTypes, &$matchAllStrings, $index) {
+					/** @var $q \Illuminate\Database\Query\Builder */
 					if (count($keywordIds) > 0) {
 						$q->orWhereIn("keyword_material{$index}.keyword_id", $keywordIds);
 						$q->orWhereIn('materials.author_id', $keywordIds->all());
@@ -338,12 +339,19 @@ class SearchController extends Controller {
 							$from = (int )$bv['from'];
 							$to   = (int)$bv['to'];
 
+							// simple, aber korrekte Range-Suche (genial!)
+							// https://stackoverflow.com/questions/2545947/check-overlap-of-date-ranges-in-mysql
+							$q->where("bibleverses{$index}.from", '<=', $to);
+							$q->where("bibleverses{$index}.to", '>=', $from);
+
+							/*
 							$q->orWhereBetween("bibleverses{$index}.from", [$from, $to]);
 							$q->orWhereBetween("bibleverses{$index}.to", [$from, $to]);
 							$q->orWhere(function ($q) use ($from, $to, $index) {
 								$q->where("bibleverses{$index}.from", '>', $from);
 								$q->where("bibleverses{$index}.to", '<', $to);
 							});
+							*/
 						}
 					}
 
