@@ -1,34 +1,37 @@
 <template>
-    <div class="container homeContainer">
+    <div class="container homeContainer d-flex">
 
-        <div class="flex-center position-ref full-height">
-            <div class="top-right links" v-show="false">
-                <router-link :to="{name: 'landingpage'}" v-if="currentUser">{{$t('pool.home')}}</router-link>
+        <div class="top-right links" v-show="false">
+            <router-link :to="{name: 'landingpage'}" v-if="currentUser">{{$t('pool.home')}}</router-link>
 
-                <a href='/login' v-if="!currentUser">{{$t('pool.login')}}</a>
-                <a href='/register' v-if="!currentUser">{{$t('pool.logout')}}</a>
-            </div>
+            <a href='/login' v-if="!currentUser">{{$t('pool.login')}}</a>
+            <a href='/register' v-if="!currentUser">{{$t('pool.logout')}}</a>
+        </div>
 
-            <div class="content">
-                <div class="title m-b-md">
-                    {{systemName}}
-                </div>
+        <div class="row align-items-center">
 
-                <div class="links">
-                    <router-link :to="{name: 'search'}">{{$t('pool.Search')}}</router-link>
+            <div class="col col-12">
+                <div class="row">
+                    <div class="col col-12 title text-center">
+                        {{systemName}}
+                    </div>
 
-                    <router-link :to="{name: 'resource-create'}" v-if="currentUser">{{$t('pool.Upload')}}
-                    </router-link>
+                    <div class="col col-12 links text-center">
+                        <router-link :to="{name: 'search'}">{{$t('pool.Search')}}</router-link>
 
-                    <router-link :to="{name: 'resource-text-create'}" v-if="currentUser">{{$t('pool.Create-text')}}
-                    </router-link>
+                        <router-link :to="{name: 'resource-create'}" v-if="currentUser">{{$t('pool.Upload')}}
+                        </router-link>
 
-                    <router-link :to="{name: 'readbible'}" v-if="currentUser">{{$t('pool.Bible')}}
-                    </router-link>
+                        <router-link :to="{name: 'resource-text-create'}" v-if="currentUser">{{$t('pool.Create-text')}}
+                        </router-link>
 
-                    <router-link :to="{name: 'material'}" v-if="currentUser">{{$t('pool.Materiallist')}}
-                    </router-link>
+                        <router-link :to="{name: 'readbible'}" v-if="currentUser">{{$t('pool.Bible')}}
+                        </router-link>
 
+                        <router-link :to="{name: 'material'}" v-if="currentUser">{{$t('pool.Materiallist')}}
+                        </router-link>
+
+                    </div>
                 </div>
             </div>
         </div>
@@ -77,16 +80,6 @@
         height: 100vh;
         margin: 0;
 
-        .full-height {
-            height: 100vh;
-        }
-
-        .flex-center {
-            align-items: center;
-            display: flex;
-            justify-content: center;
-        }
-
         .position-ref {
             position: relative;
         }
@@ -95,10 +88,6 @@
             position: absolute;
             right: 10px;
             top: 18px;
-        }
-
-        .content {
-            text-align: center;
         }
 
         .title {
@@ -115,9 +104,6 @@
             text-transform: uppercase;
         }
 
-        .m-b-md {
-            margin-bottom: 30px;
-        }
     }
 
 
