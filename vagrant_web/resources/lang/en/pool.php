@@ -204,6 +204,7 @@ return [
 	'Textinformation'                                          => 'Textinformation',
 	'Create-new-Material-from-Textinput'                       => 'Create new Material from Textinput',
 	'Create-text'                                              => 'Create Text',
+	'Text-created-and-assigned'                                => 'Text created and assigned',
 	'Please-enter-more-text'                                   => 'Please enter more text',
 	'Upload'                                                   => 'Upload',
 	'Undo-changes'                                             => 'Undo changes',

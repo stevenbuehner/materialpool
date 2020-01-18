@@ -230,16 +230,28 @@
                     <b-tab :title="$t('pool.assignments')">
                         <div class="row">
 
+                            <div class="col-12 col-sm-6 col-mb-4 mb-2 mb-sm-0 py-2">
+                                <resource-uploader
+                                        v-if="!materialEditLockActive"
+                                        @resource-created="uploadResourceToThisMaterial"/>
+                            </div>
 
-                            <resource-uploader class="col-12 col-sm-6 col-mb-4 mb-2 mb-sm-0"
-                                               v-if="!materialEditLockActive"
-                                               @resource-created="uploadResourceToThisMaterial"/>
-
-                            <div class="col-12 col-sm-6 col-mb-4"
+                            <div class="col-12 col-sm-6 col-mb-4 py-2"
                                  v-if="!materialEditLockActive">
-                                <b-button @click="assignResourceToThisMaterial">
-                                    {{$t('pool.Assign-resource')}}
-                                </b-button>
+                                <div class="dashedBorder p-2 d-flex align-items-center justify-content-center">
+                                    <b-button @click="assignResourceToThisMaterial">
+                                        {{$t('pool.Assign-resource')}}
+                                    </b-button>
+                                </div>
+                            </div>
+
+                            <div class="col-12 col-sm-6 col-mb-4 py-2"
+                                 v-if="!materialEditLockActive">
+                                <div class="dashedBorder p-2 d-flex align-items-center justify-content-center">
+                                    <b-button @click="createAndAttachTextResourceToThisMaterial">
+                                        {{$t('pool.Create-text')}}
+                                    </b-button>
+                                </div>
                             </div>
 
                         </div>
@@ -502,6 +514,24 @@
 						    })
 					    }
 				    });
+			},
+
+			createAndAttachTextResourceToThisMaterial() {
+
+				const flashMessage = this.flashActionStartedWaiting(this.$t('pool.Create-text'));
+
+				this.$store.dispatch('resources/createTextResource', {text: 'Lorem ipsum'})
+				    .then((resource) => {
+					    return this.$store.dispatch('materials/attachResource',
+						    {materialId: this.id, resourceId: resource.id})
+					               .then(() => {
+						               this.flashActionSuccessfullyFinished(this.$t('pool.Text-created-and-assigned'), flashMessage);
+						               this.$asyncComputed.material.update();
+					               })
+				    })
+				    .catch((message) => {
+					    this.flashActionFailed(message, flashMessage);
+				    })
 			},
 
 			btnDetachResource(resource) {
@@ -883,6 +913,13 @@
             padding: 0.5em 0.5em 1em 0.5em;
             border-bottom-left-radius: $card-border-radius;
             border-bottom-right-radius: $card-border-radius;
+
+            .dashedBorder {
+                width: 100%;
+                min-height: 5rem;
+                border: 1px dashed $gray-500;
+                border-radius: 0.3rem;
+            }
         }
 
         &.materialEditLockActive {

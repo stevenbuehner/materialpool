@@ -1,5 +1,5 @@
 <template>
-    <div class="">
+    <div class="resourceUploader">
         <vue-transmit tag="section"
                       v-bind="options"
                       upload-area-classes="bg-faded"
@@ -180,39 +180,42 @@
 	}
 </script>
 
-<style>
-    .v-transmit__upload-area {
-        width: 100%;
-        border-radius: 0.3rem;
-        border: 1px dashed #bdbdbd;
-        background-color: #e9ecef;
-        min-height: 5rem;
-        display: flex;
-    }
+<style type="text/scss">
+    @import "resources/sass/theme";
 
-    @media (min-height: 1000px) {
+    .resourceUploader {
         .v-transmit__upload-area {
-            min-height: 300px;
+            width: 100%;
+            border-radius: 0.3rem;
+            border: 1px dashed $gray-500;
+            background-color: $gray-200;
+            min-height: 5rem;
+            display: flex;
+        }
+
+        @media (min-height: 1000px) {
+            .v-transmit__upload-area {
+                min-height: 300px;
+            }
+        }
+
+        .v-transmit__upload-area--is-dragging {
+            background: #e1f5fe linear-gradient(
+                            -45deg,
+                            #fafafa 25%,
+                            transparent 25%,
+                            transparent 50%,
+                            #fafafa 50%,
+                            #fafafa 75%,
+                            transparent 75%,
+                            transparent
+            );
+            background-size: 40px 40px;
+        }
+
+        .errorStatusCode {
+            font-weight: bold;
         }
     }
-
-    .v-transmit__upload-area--is-dragging {
-        background: #e1f5fe linear-gradient(
-                -45deg,
-                #fafafa 25%,
-                transparent 25%,
-                transparent 50%,
-                #fafafa 50%,
-                #fafafa 75%,
-                transparent 75%,
-                transparent
-        );
-        background-size: 40px 40px;
-    }
-
-    .errorStatusCode {
-        font-weight: bold;
-    }
-
 
 </style>

@@ -199,6 +199,7 @@ return [
 	'Textinformation'                                          => 'Textinformation',
 	'Create-new-Material-from-Textinput'                       => 'Neues Material aus Text erstellen',
 	'Create-text'                                              => 'Text erstellen',
+	'Text-created-and-assigned'                                => 'Text erstellt und zugeordnet',
 	'Please-enter-more-text'                                   => 'Bitte mehr Text eingeben',
 	'Upload'                                                   => 'Hochladen',
 	'Undo-changes'                                             => 'Änderungen Rückgängig machen',
