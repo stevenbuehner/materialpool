@@ -46,12 +46,13 @@
 	import marked              from 'marked';
 	import {BibleVerseService} from '../../../../../vendor/stevenbuehner/bible-verse-bundle/js/out/BibleVerseService_de.js';
 	import Markdown            from "../../markdown/markdown";
+	import {savingDialogs}     from "../../../helper/flashMessages";
 
 	const regexp     = BibleVerseService.biblePattern;
 	window.bibletest = regexp;
 
 	export default {
-		mixins: [],
+		mixins: [savingDialogs],
 
 		props: {
 			resource: {
@@ -105,7 +106,7 @@
 				this.editModeEnabled = false;
 				this.isSaving        = true;
 
-				this.flashInfo(this.$t('pool.Saving-content-changes'));
+				const startFlash = this.flashActionStartedWaiting(this.$t('pool.Saving-content-changes'));
 
 				this.$store.dispatch('resources/update', {
 					id: this.resource.id,
@@ -114,11 +115,11 @@
 					}
 				}).then((resource) => {
 					this.$emit('resource-updated', resource);
+					this.flashActionSuccessfullyFinished(this.$t('pool.Content-saved'), startFlash);
 				}).catch(() => {
-					this.flash(this.$t('pool.Content-not-saved'), 'error', {timeout: 0});
+					this.flashActionFailed(this.$t('pool.Content-not-saved'), startFlash);
 				}).then(() => {
 					this.isSaving = false;
-					this.flashSuccess(this.$t('pool.Content-saved'));
 				});
 			}
 		},
