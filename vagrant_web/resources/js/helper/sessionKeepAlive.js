@@ -1,7 +1,9 @@
-import axiosInstance    from "../apps/main/axiosInstance";
-import {keepAliveRoute} from "../components/serverRoutes";
+import axiosInstance                   from "../apps/main/axiosInstance";
+import {keepAliveRoute}                from "../components/serverRoutes";
+import {convertErrorResponseToMessage} from "../apps/main/store/modules/handleErrorsHelper";
 
 export async function sessionKeepAlive() {
-	const response = await axiosInstance.get(keepAliveRoute);
-	return response.data && response.data.ok === true;
+	return await axiosInstance
+		.get(keepAliveRoute)
+		.catch((response) => throw convertErrorResponseToMessage(response));
 }

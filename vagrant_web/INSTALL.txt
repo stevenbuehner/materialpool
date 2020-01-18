@@ -222,6 +222,12 @@ php artisan import:zefaniabible /var/www/wissensbase/resources/bibles/Leonberger
 php artisan import:zefaniabible /var/www/wissensbase/resources/bibles/Volxbibel.xml
 ## Anschließend ggf. die Priorität in der Bibel-Verwendung in der DB von Hand anpassen
 
+# Dem ausführenden Webserver-Benutzer Shutdown-Rechte geben. Dazu Datei mit Root-Schreibrechten anlegen:
+sudo touch /etc/sudoers.d/10_materialpool
+sudo vi /etc/sudoers.d/10_materialpool
+# Der Inhalt ist dann: vagrant ALL=NOPASSWD: /sbin/shutdown
+# oder eben www-data ALL=NOPASSWD: /sbin/shutdown
+
 
 ## Cronjob einrichten
 sudo crontab -u www-data -e
@@ -233,11 +239,8 @@ sudo chown -R steven.www-data /var/www/wissensbase/public/downloads
 sudo chmod 770 /var/www/wissensbase/public/downloads
 
 
-# Dem ausführenden Webserver-Benutzer Shutdown-Rechte geben. Dazu Datei mit Root-Schreibrechten anlegen:
-sudo touch /etc/sudoers.d/10_materialpool
-sudo vi /etc/sudoers.d/10_materialpool
-# Der Inhalt ist dann: vagrant ALL=NOPASSWD: /sbin/shutdown
-# oder eben www-data ALL=NOPASSWD: /sbin/shutdown
+
+
 
 
 ## UPDATEs ###

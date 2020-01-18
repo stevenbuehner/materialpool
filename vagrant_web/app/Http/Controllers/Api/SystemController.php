@@ -2,18 +2,22 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Services\System\SystemShutdownService;
 use Illuminate\Routing\Controller as BaseController;
 
 class SystemController extends BaseController {
+
+	protected $systemShutdownService;
+
 	/**
 	 * Create a new controller instance.
 	 *
 	 * @return void
 	 */
-	public function __construct() {
+	public function __construct(SystemShutdownService $systemShutdownService) {
 		$this->middleware('auth');
 		$this->middleware('admin');
-
+		$this->systemShutdownService = $systemShutdownService;
 	}
 
 	/**
@@ -25,11 +29,13 @@ class SystemController extends BaseController {
 
 		// Erst wenn die Antwort an den Browser geschickt wurde
 		register_shutdown_function(function () {
-			$command = 'sudo /sbin/shutdown -h now';
 
+			$output = $this->systemShutdownService->shutdownSystemNow();
+
+			// $command = 'sudo /sbin/shutdown -h now';
 			// Benötigt den Eintrag in der Suduers Liste: www-data ALL=NOPASSWD: /sbin/shutdown oder wer auch immer den Webbrowser ausführt
 			// Bei Laravel-Testumgebung wäre es:  vagrant ALL=NOPASSWD: /sbin/shutdown
-			$output = shell_exec($command);
+			// $output = shell_exec($command);
 		});
 
 

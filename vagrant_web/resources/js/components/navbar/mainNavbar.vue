@@ -3,7 +3,7 @@
 
         <div class="container">
 
-            <b-navbar-toggle target="nav_collapse"></b-navbar-toggle>
+            <b-navbar-toggle target="nav_collapse"/>
 
             <b-navbar-brand :to="{name:'landingpage'}">MatPool</b-navbar-brand>
 
@@ -62,10 +62,10 @@
                         <b-dropdown-item href="/logout" class="dropdown-hover">{{$t('pool.Logout')}}</b-dropdown-item>
                         <b-dropdown-item disabled href="#" class="dropdown-hover">{{$t('pool.Settings')}}
                         </b-dropdown-item>
-                        <b-dropdown-item :to="{name: 'system-shutdown'}" class="dropdown-hover" v-if="isAdmin">
+                        <b-dropdown-item :to="{name: 'system-shutdown'}" class="dropdown-hover bg-danger"
+                                         v-if="isAdmin">
                             {{$t('pool.Shutdown')}}
                         </b-dropdown-item>
-
                     </b-nav-item-dropdown>
                 </b-navbar-nav>
 
@@ -163,7 +163,7 @@
 </script>
 
 <style scoped>
-    .dropdown-hover:hover {
+    .dropdown-hover:hover{
         background-color: lightgrey;
     }
 </style>
