@@ -1,5 +1,6 @@
-import {api_v1_general_options} from '../../../../components/serverRoutes';
-import axios                    from '../../axiosInstance';
+import {api_v1_general_options}        from '../../../../components/serverRoutes';
+import axios                           from '../../axiosInstance';
+import {convertErrorResponseToMessage} from "./handleErrorsHelper";
 
 
 const state = {
@@ -33,8 +34,8 @@ const actions = {
 			                     .then(({data}) => {
 				                     return data;
 			                     })
-			                     .catch(({message}) => {
-				                     throw message;
+			                     .catch((result) => {
+				                     return convertErrorResponseToMessage(result);
 			                     });
 
 			commit('setOptions', promise);

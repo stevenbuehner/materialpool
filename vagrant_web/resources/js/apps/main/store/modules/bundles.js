@@ -3,8 +3,9 @@ import {
 	api_v1_bundles_index,
 	api_v1_bundles_update_init,
 	api_v1_bundles_update_run
-}            from '../../../../components/serverRoutes';
-import axios from '../../axiosInstance';
+}                                      from '../../../../components/serverRoutes';
+import axios                           from '../../axiosInstance';
+import {convertErrorResponseToMessage} from "./handleErrorsHelper";
 
 
 const state = {
@@ -80,7 +81,7 @@ const actions = {
 					commit('allBundleInfos', infos);
 				})
 				.catch((response) => {
-					console.error(response);
+					return convertErrorResponseToMessage(response);
 				});
 
 		}
@@ -136,6 +137,9 @@ const actions = {
 
 		return axios.post(api_v1_bundles_update_init(id), {}, {timeout: 0})
 		            .then(({data}) => data)
+		            .catch((response) => {
+			            return convertErrorResponseToMessage(response);
+		            });
 
 	},
 
@@ -143,7 +147,10 @@ const actions = {
 
 
 		const response = axios.post(api_v1_bundles_update_run(bundleId), {}, {timeout: 0})
-		                      .then(({data}) => data);
+		                      .then(({data}) => data)
+		                      .catch((response) => {
+			                      return convertErrorResponseToMessage(response);
+		                      });
 
 		response.then(({bundle}) => {
 			if (bundle) {
@@ -164,7 +171,10 @@ const actions = {
 		}
 
 		state.bundleIcons[bundleId] = axios.get(api_v1_bundles_get_icon(bundleId))
-		                                   .then(({data}) => data);
+		                                   .then(({data}) => data)
+		                                   .catch((response) => {
+			                                   return convertErrorResponseToMessage(response);
+		                                   });
 
 		return state.bundleIcons[bundleId];
 	},

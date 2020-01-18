@@ -7,7 +7,8 @@ import {
 	searchGuessBibleverses
 }            from '../../../../components/serverRoutes'
 
-import {queue} from "../networkQueue";
+import {queue}                         from "../networkQueue";
+import {convertErrorResponseToMessage} from "./handleErrorsHelper";
 
 const state = {
 	bibleverses: {},
@@ -53,6 +54,9 @@ const actions = {
 		            .then(({data}) => {
 			            commit('setBibleverse', data);
 			            return data;
+		            })
+		            .catch((response) => {
+			            return convertErrorResponseToMessage(response);
 		            });
 	},
 
@@ -77,7 +81,10 @@ const actions = {
 		};
 
 		return axios.post(api_v1_bibleverses_create, params)
-		            .then(({data}) => data);
+		            .then(({data}) => data)
+		            .catch((response) => {
+			            return convertErrorResponseToMessage(response);
+		            });
 	},
 
 	createAndAssign: async ({commit, getters, dispatch}, {from, to, materialId, relevance}) => {
@@ -106,6 +113,9 @@ const actions = {
 		return axios.post(api_v1_bibleverse_updateassignment(materialId, bibleverseId), data)
 		            .then(({data}) => {
 			            return data;
+		            })
+		            .catch((response) => {
+			            return convertErrorResponseToMessage(response);
 		            });
 	},
 
@@ -119,7 +129,10 @@ const actions = {
 		            .then(({data}) => {
 				            return data;
 			            }
-		            );
+		            )
+		            .catch((response) => {
+			            return convertErrorResponseToMessage(response);
+		            });
 	},
 
 	deleteMultipleAssignemts: async ({dispatch}, {bibleverseIds, materialId}) => {
