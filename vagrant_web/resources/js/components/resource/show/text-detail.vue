@@ -1,41 +1,43 @@
 <template>
-
-    <div class="row" v-if="!editModeEnabled" @dblclick="editModeEnabled=true">
-        <div class="col-12">
-            <markdown :text="myTextContent" :load-bibleverses="true"/>
-            <button class="btn btn-sm btn-primary" @click.stop="editModeEnabled=true"
-                    v-if="almostNoContentToEditVisible">
-                {{$t('pool.Edit')}}
-            </button>
+    <div class="container-fluid py-2">
+        <div class="row" v-if="!editModeEnabled" @dblclick="editModeEnabled=true">
+            <div class="col-12">
+                <markdown :text="myTextContent" :load-bibleverses="true"/>
+                <button class="btn btn-sm btn-primary" @click.stop="editModeEnabled=true"
+                        v-if="almostNoContentToEditVisible">
+                    {{$t('pool.Edit')}}
+                </button>
+            </div>
         </div>
-    </div>
-    <div class="row" v-else>
-        <div class="col-6 p-0 liveEditorWrapper" :class="{savingNeccessary}">
+        <div class="row" v-else>
+            <div class="col-6 p-0 liveEditorWrapper" :class="{savingNeccessary}">
             <textarea
                     class="liveEditor p-3"
                     v-model="myTextContent"
                     @keydown.meta.enter.exact="btnSave"
-                    @keyup.esc.exact="btnCancelIfNothingChanged"></textarea>
-        </div>
-        <div class="col-6 p-0 livePreviewWrapper">
-            <markdown class="p-3" :text="myTextContent" :load-bibleverses="false"/>
-        </div>
-        <div class="col-12 p-3">
-            <button
-                    class="btn btn-sm btn-success float-right m-1"
-                    @click="btnSave"
-                    v-show="savingNeccessary"
-                    title="CMD + ENTER"
-            >{{$t('pool.Save')}}
-            </button>
-            <button
-                    class="btn btn-sm btn-danger float-right m-1"
-                    @click="btnCancel"
-                    title="ESC"
-            >{{$t('pool.Cancel')}}
-            </button>
+                    @keyup.esc.exact="btnCancelIfNothingChanged"/>
+            </div>
+            <div class="col-6 p-0 livePreviewWrapper">
+                <markdown class="p-3" :text="myTextContent" :load-bibleverses="false"/>
+            </div>
+            <div class="col-12 p-3">
+                <button
+                        class="btn btn-sm btn-success float-right m-1"
+                        @click="btnSave"
+                        v-show="savingNeccessary"
+                        title="CMD + ENTER"
+                >{{$t('pool.Save')}}
+                </button>
+                <button
+                        class="btn btn-sm btn-danger float-right m-1"
+                        @click="btnCancel"
+                        title="ESC"
+                >{{$t('pool.Cancel')}}
+                </button>
+            </div>
         </div>
     </div>
+
 </template>
 
 <script>
