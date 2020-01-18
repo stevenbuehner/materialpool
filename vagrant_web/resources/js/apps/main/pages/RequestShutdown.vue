@@ -39,9 +39,9 @@
 
 			resetTimer() {
 				this.stopTimer();
-				this.timer.timer       = null;
-				this.timer.show        = false;
-				this.timer.seconds     = 0;
+				this.timer.timer   = null;
+				this.timer.show    = false;
+				this.timer.seconds = 0;
 			},
 
 			startTimer() {
@@ -61,9 +61,9 @@
 			stopTimer() {
 				if (this.timer.timer !== null) {
 					clearInterval(this.timer.timer);
-					this.timer.timer       = null;
-					this.timer.show        = false;
-					this.modalContent      = "Server wurde heruntergefahen";
+					this.timer.timer  = null;
+					this.timer.show   = false;
+					this.modalContent = this.$t('pool.system-was-shutdown');
 				}
 			},
 		},

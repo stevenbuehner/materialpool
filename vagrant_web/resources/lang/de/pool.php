@@ -147,6 +147,7 @@ return [
 	'Really-delete-count-keywords'                             => 'Willst du wirklich :COUNT Tags auf einmal entfernen?',
 	'Realy-shutdown?'                                          => 'Willst du den Server wirklich unwiderruflich herunterfahren?',
 	'System-is-beeing-shutdown'                                => 'Das System wird heruntergefahren...',
+	'System-was-shutdown'                                      => 'Das System wurde heruntergefahren',
 	'use-this-as-template'                                     => 'als Vorlage verwenden',
 	'Filter-keywords'                                          => 'Filtere Tags ...',
 	'Keyword-is-beeing-loaded'                                 => 'Tag wid geladen ...',

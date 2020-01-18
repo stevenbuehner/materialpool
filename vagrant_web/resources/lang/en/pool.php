@@ -153,6 +153,7 @@ return [
 	'Really-delete-count-keywords'                             => 'Do you really want to remove :COUNT keywords at once?',
 	'Realy-shutdown?'                                          => 'Do you really want to shutdown the server?',
 	'System-is-beeing-shutdown'                                => 'System is beeing shutdown...',
+	'System-was-shutdown'                                      => 'System was shutdown',
 	'use-this-as-template'                                     => 'use as template',
 	'Filter-keywords'                                          => 'Filter keywords ...',
 	'Keyword-is-beeing-loaded'                                 => 'Keyword is beeing loaded...',
