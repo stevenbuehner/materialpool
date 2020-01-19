@@ -4,7 +4,7 @@
         <searchbar-header
                 @searchUpdated="searchInputChanged"
                 :searchObjects="searchObjects"
-        ></searchbar-header>
+        />
 
         <hr>
 
@@ -13,7 +13,7 @@
                 v-if="!isLoading"
                 :highlight-keywords="keywordIdToHighlight"
                 :highlight-bibleverses="bibleverseRangesToHighlight"
-        ></searchbar-outcome>
+        />
 
         <div class="d-flex justify-content-between align-items-center">
             <materialpool-spinner v-if="isLoading"/>

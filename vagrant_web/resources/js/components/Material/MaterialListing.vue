@@ -7,7 +7,7 @@
                       :key="id"
                       :highlight-keywords="highlightKeywords"
                       :highlight-bibleverses="highlightBibleverses"
-            ></material>
+            />
         </div>
     </div>
 </template>

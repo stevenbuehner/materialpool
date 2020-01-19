@@ -4,7 +4,7 @@
                 :materialIds="materialIds"
                 :highlight-keywords="highlightKeywords"
                 :highlight-bibleverses="highlightBibleverses"
-        ></material-listing>
+        />
     </div>
 </template>
 
