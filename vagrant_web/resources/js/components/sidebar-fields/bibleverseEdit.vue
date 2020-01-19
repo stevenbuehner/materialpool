@@ -44,6 +44,10 @@
 				}
 			},
 
+			filterSuggestionsBy(object) {
+				return this.value.find((el) => el.from === object.from && el.to === object.to) === undefined;
+			},
+
 			// _.debounce is a function provided by lodash to limit how
 			// often a particularly expensive operation can be run.
 			// To learn
