@@ -642,7 +642,7 @@
 
 			removeKeyword(keywordObject) {
 
-				const startFlash = this.flashStartRemoving(this.$t('pool.keyword')) + ' ' + keywordObject.title;
+				const startFlash = this.flashStartRemoving(this.$t('pool.keyword') + ' ' + keywordObject.title);
 
 				// Remove Element from array
 				const i = this.material.keywords.findIndex(el => el.id === keywordObject.id);
