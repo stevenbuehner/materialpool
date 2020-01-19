@@ -109,6 +109,7 @@ return [
 	'Material-without-resources'                               => 'Material without resources',
 	'Click-here-to-insert-description'                         => 'Click here to insert description ...',
 	'Add-tags'                                                 => 'Add tags|Add more tags',
+	'add-xy-tags'                                              => 'add {xy} tags',
 	'Filename'                                                 => 'Filename',
 	'Limitation'                                               => 'Limitation',
 	'Creator-ID'                                               => 'Creator-ID',

@@ -20,12 +20,12 @@
                         :placeholder="placeholder"
                         :disabled="disabled"
                         :value="validTypesValues"
-                        :options="suggestedTags"
+                        :options="suggestedFilteredTags"
                         :filterBy="filterSuggestionsBy"
                         :filterable="true"
                         :multiple="true"
-                        :clearSearchOnSelect="clearOnSelect"
-                        :close-on-select="false"
+                        :clearSearchOnSelect="suggestedFilteredTags.length <= 2"
+                        :close-on-select="suggestedFilteredTags.length <= 2"
                         :selectOnTab="true"
                         :getOptionLabel="getTagLabelFromObject"
                         @input="onInputChanged"
@@ -40,6 +40,7 @@
                                 :disable-remove-element="disabled"
                                 :relevance="option.pivot.relevance"
                                 @deselect="deselect(option)"
+                                @single-click="$emit('request-info', option)"
                                 @request-update-relevance="$emit('request-update-relevance', {tag: option, relevance: $event})"
                                 @click:right="openRightClickMenu($event, option)"/>
                     </template>
@@ -126,7 +127,7 @@
 
 		data() {
 			return {
-				suggestedTags: [],
+				suggestedFilteredTags: [],
 				clearOnSelect: true,
 			};
 		},
@@ -145,8 +146,7 @@
 						return el.type !== this.typefilter && this.typefilter !== '';
 					}.bind(this)
 				);
-			}
-
+			},
 
 		},
 
@@ -191,7 +191,7 @@
 			onSearch(search, loading) {
 				loading(true);
 
-				this.suggestedTags = [];
+				this.suggestedFilteredTags = [];
 
 				this.search(loading, search, this);
 			},
@@ -203,6 +203,12 @@
 			// _.throttle), visit: https://lodash.com/docs#debounce
 			search: _debounce((loading, search, vm) => {
 
+				if (search.length <= 2) {
+					vm.suggestedFilteredTags = [];
+					loading                  = false;
+					return;
+				}
+
 				vm.$store.dispatch('keywords/search', {
 					searchText: search,
 					type: vm.typefilter || false,
@@ -210,7 +216,7 @@
 				})
 				  .then((keywords) => {
 					  // console.log(keywords);
-					  vm.suggestedTags = keywords;
+					  vm.suggestedFilteredTags = keywords.filter(vm.filterSuggestionsBy.bind(vm));
 
 					  const newTag = {
 						  title: search,
@@ -222,7 +228,7 @@
 						  newTag.type = vm.typefilter;
 					  }
 
-					  vm.suggestedTags.push(newTag);
+					  vm.suggestedFilteredTags.push(newTag);
 				  })
 				  .catch((err) => {
 					  console.error(err);

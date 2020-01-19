@@ -57,7 +57,7 @@
 
 				vm.$store.dispatch('bibleverses/search', search)
 				  .then((bibleverses) => {
-					  vm.suggestedTags = bibleverses;
+					  vm.suggestedFilteredTags = bibleverses.filter(vm.filterSuggestionsBy.bind(vm));
 				  })
 				  .catch((data) => {
 					  alert(data);

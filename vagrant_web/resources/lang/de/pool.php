@@ -103,6 +103,7 @@ return [
 	'Material-without-resources'                               => 'Material ohne Resourcen',
 	'Click-here-to-insert-description'                         => 'Hier klicken um eine Materialbeschreibung einzufügen ...',
 	'Add-tags'                                                 => 'Tags hinzufügen|weitere Tags hinzufügen',
+	'add-xy-tags'                                              => 'alle {xy} Tags',
 	'Filename'                                                 => 'Dateiname',
 	'Limitation'                                               => 'Limitierung',
 	'Creator-ID'                                               => 'Ersteller-ID',
