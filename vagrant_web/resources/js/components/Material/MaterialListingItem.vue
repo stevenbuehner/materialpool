@@ -192,16 +192,9 @@
 		methods: {
 
 			isBibleverseHighlighted(from, to) {
-				return !!this.highlightBibleverses.find((el) => {
-
-					if (from >= el.from && from <= el.to) {
-						return true;
-					} else if (to >= el.from && to <= el.to) {
-						return true;
-					} else {
-						return false;
-					}
-				});
+				return this.highlightBibleverses.find((el) => {
+					return el.from <= to && el.to >= from;
+				}) !== undefined;
 
 			},
 
