@@ -24,7 +24,7 @@
             </div>
 
         </div>
-        <span v-if="pageCount === 0">Seitenangabe fehlt</span>
+        <span v-if="pageCount === 0">{{$t('pool.Page-Count-is-missing')}}</span>
 
     </div>
 </template>
@@ -100,12 +100,12 @@
 				if (this.previewPageNumbers.length > this.maxPreviewPages) {
 					return this.$t('pool.only-limited-pages', {
 						COUNT: this.previewLimitedImages.length,
-						SUM: this.previewPageNumbers.length
+						SUM: this.resource.page_count
 					})
 				} else {
 					return this.$t('pool.limited-pages', {
 						COUNT: this.previewLimitedImages.length,
-						SUM: this.previewPageNumbers.length
+						SUM: this.resource.page_count
 					})
 				}
 
