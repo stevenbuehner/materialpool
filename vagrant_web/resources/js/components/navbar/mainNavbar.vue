@@ -23,8 +23,7 @@
                         <b-dropdown-item :to="{name: 'resource-lonely'}" class="dropdown-hover">
                             {{$t('pool.Lonely-Resources')}}
                         </b-dropdown-item>
-                        <!-- Todo: Newest Resources Seite -->
-                        <b-dropdown-item :to="{name: 'newest-resources'}" class="dropdown-hover" :disabled="true">
+                        <b-dropdown-item :to="{name: 'resource-newest'}" class="dropdown-hover">
                             {{$t('pool.Newest-Resources')}}
                         </b-dropdown-item>
                         <!-- Todo: Newest Materials Seite -->
@@ -98,7 +97,6 @@
 		data() {
 			return {
 				schnellsuche: ''
-
 			};
 		},
 
@@ -163,7 +161,7 @@
 </script>
 
 <style scoped>
-    .dropdown-hover:hover{
+    .dropdown-hover:hover {
         background-color: lightgrey;
     }
 </style>

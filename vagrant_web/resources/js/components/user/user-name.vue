@@ -1,5 +1,5 @@
 <template>
-    <span>{{user.name}} (<a class="email" :href="'mailto:' + user.email">{{user.email}}</a>)</span>
+    <span class="userName">{{user.name}} (<a class="email" :href="'mailto:' + user.email">{{user.email}}</a>)</span>
 </template>
 
 <script>
@@ -15,6 +15,10 @@
 	}
 </script>
 
-<style scoped>
-
+<style type="text/scss">
+    .userName {
+        .email {
+            font-size: inherit;
+        }
+    }
 </style>

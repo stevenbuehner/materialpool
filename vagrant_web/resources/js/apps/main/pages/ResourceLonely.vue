@@ -1,6 +1,6 @@
 <template>
     <div class="container">
-        <div class="sbResourceList card-columns" v-if="resources.length > 0">
+        <div class="sbResourceLonelyList card-columns" v-if="resources.length > 0">
             <div class="card lonelyResource" v-for="r in resources">
                 <img :src="previewImage(r)" class="card-img-top" alt="No Resource Preview available">
                 <div class="card-body">

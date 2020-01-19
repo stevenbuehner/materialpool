@@ -9,7 +9,7 @@
         <transition name="fade">
             <div class="card-body resourcePreviewMenu pt-2" v-if="hovered">
                 <div class="meta">
-                    <div v-if="resource.creator">
+                    <div v-if="resource.creator" class="pb-2">
                         {{$t('pool.Creator')}}:
                         <user-name :user="resource.creator"/>
                     </div>

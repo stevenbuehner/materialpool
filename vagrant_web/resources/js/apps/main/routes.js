@@ -1,5 +1,5 @@
-import MaterialDetail2     from './pages/MaterialDetail.vue';
-import MaterialDetail    from './pages/MaterialDetail2.vue';
+import MaterialDetail2    from './pages/MaterialDetail.vue';
+import MaterialDetail     from './pages/MaterialDetail2.vue';
 import SearchPage         from './pages/search/searchPage.vue';
 import ResourceDetail     from './pages/Resource.vue';
 import AssignApp          from './pages/AssignApp.vue';
@@ -17,6 +17,7 @@ const ReadBible       = () => import('./pages/ReadBible');
 const BundleList      = () => import('./pages/BundleList.vue');
 const MaterialApp     = () => import('./pages/MaterialList.vue');
 const ResourceLonely  = () => import('./pages/ResourceLonely.vue');
+const ResourceNewest  = () => import('./pages/ResourceNewest.vue');
 const ResourceReplace = () => import('./pages/ResourceReplace.vue');
 
 
@@ -66,6 +67,9 @@ export const routes = [
 	       },
 	       {
 		       path: '/resource/lonely', component: ResourceLonely, name: 'resource-lonely', props: false
+	       },
+	       {
+		       path: '/resource/newest', component: ResourceNewest, name: 'resource-newest', props: false
 	       },
 	       {
 		       path: '/resource/:id', component: ResourceDetail, name: 'resource-detail', props: (route) => {
