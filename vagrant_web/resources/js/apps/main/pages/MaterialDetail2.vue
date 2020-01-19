@@ -655,8 +655,7 @@
 					keywordId: keywordObject.id
 				}).then((response) => {
 					this.materialWasModified();
-					startFlash.destroy();
-					this.flashRemoved(this.$t('pool.keyword') + ' ' + keywordObject.title);
+					this.flashRemoved(this.$t('pool.keyword') + ' ' + keywordObject.title, startFlash);
 				}).catch((response) => {
 					this.flashActionFailed(this.$t('pool.Error-while-deleting-tag') + ' ' + keywordObject.title, startFlash);
 
