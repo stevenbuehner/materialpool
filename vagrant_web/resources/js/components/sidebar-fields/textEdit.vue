@@ -57,7 +57,7 @@
                             :typeable="false"
                             :bootstrap-styling="true"
                             :language="dateLocalisation"
-                            v-model="currentValue"
+                            :value="currentValueInDayJsFormat"
                             :key="value"
                             :format="dateFormat"
                             :monday-first="true"
@@ -209,7 +209,7 @@
 		computed: {
 			// Das funktioniert nur, wenn das Parent-Element kein v-model binding macht ... sonst wird die Änderung nicht erkannt!
 			valueHasChanged() {
-				return (this.value != this.currentValue);
+				return (this.value !== this.currentValue);
 			},
 
 			dateLocalisation() {
@@ -218,6 +218,10 @@
 
 			dateFormat() {
 				return localisation[lang].dateDisplayFormat;
+			},
+
+			currentValueInDayJsFormat() {
+				return dayjs(this.value).toDate();
 			}
 		},
 
