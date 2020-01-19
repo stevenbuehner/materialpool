@@ -41,9 +41,8 @@
                 <b-navbar-nav class="ml-auto">
 
                     <b-nav-form @submit="goForSearch">
-                        <b-input-group>
-                            <b-form-input size="sm" c
-                                          lass="mr-sm-2"
+                        <b-input-group class="px-2">
+                            <b-form-input size="sm"
                                           type="text"
                                           :placeholder="$t('pool.Speedsearch')"
                                           required
