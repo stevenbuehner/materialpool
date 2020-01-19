@@ -110,7 +110,7 @@ class MaterialExtractionService {
 	}
 
 	protected function getDefaultProperties() {
-		return collect([new RatingProperty(10)]);
+		return collect([new RatingProperty(12)]);
 	}
 
 	public function extractPropertiesFromResources(Resource $resource) {
