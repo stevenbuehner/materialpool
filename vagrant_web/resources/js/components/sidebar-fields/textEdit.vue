@@ -38,7 +38,7 @@
 
             <slot name="input">
                 <b-form-input
-                        v-if="type == 'text'"
+                        v-if="type === 'text'"
                         :class="[{valueChanged : valueHasChanged}, 'textInput']"
                         @input="onInputChanged"
                         @keyup.enter="onEnter"
@@ -51,7 +51,7 @@
                         ref="input_field"
                 />
 
-                <datepicker v-if="type == 'date'"
+                <datepicker v-if="type === 'date'"
                             class="dateInput"
                             :disabled="disabled"
                             :typeable="false"
@@ -69,7 +69,7 @@
                 />
 
                 <b-form-textarea
-                        v-if="type == 'textarea'"
+                        v-if="type === 'textarea'"
                         :class="[{valueChanged : valueHasChanged}, 'textareaInput']"
                         :placeholder="getPlaceholder"
                         :rows="rows"
