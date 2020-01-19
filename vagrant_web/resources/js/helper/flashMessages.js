@@ -13,7 +13,7 @@ export const savingDialogs = {
 
 		flashActionSuccessfullyFinished(message, closeFlash) {
 			if (closeFlash) {
-				closeFlash.destroy();
+				this.flashCloseAndDestroy(closeFlash);
 			}
 
 			return this.flash(message, 'success', {
@@ -24,7 +24,7 @@ export const savingDialogs = {
 
 		flashActionFailed(message, closeFlash) {
 			if (closeFlash) {
-				closeFlash.destroy();
+				this.flashCloseAndDestroy(closeFlash);
 			}
 
 			return this.flash(message, 'error', {
@@ -37,7 +37,11 @@ export const savingDialogs = {
 			return this.flashActionStartedWaiting(this.$t('pool.saving-xy-now', {xy: propertyName[0].toUpperCase() + propertyName.substring(1).toLowerCase()}));
 		},
 
-		flashSaved(propertyName) {
+		flashSaved(propertyName, closeFlash) {
+			if (closeFlash) {
+				this.flashCloseAndDestroy(closeFlash);
+			}
+
 			this.flashActionSuccessfullyFinished(this.$t('pool.xy-saved', {xy: propertyName[0].toUpperCase() + propertyName.substring(1).toLowerCase()}));
 		},
 
@@ -45,7 +49,11 @@ export const savingDialogs = {
 			return this.flashActionStartedWaiting(this.$t('pool.removing-xy-now', {xy: propertyName[0].toUpperCase() + propertyName.substring(1).toLowerCase()}));
 		},
 
-		flashRemoved(propertyName) {
+		flashRemoved(propertyName, closeFlash) {
+			if (closeFlash) {
+				this.flashCloseAndDestroy(closeFlash);
+			}
+
 			return this.flashActionSuccessfullyFinished(this.$t('pool.xy-removed', {xy: propertyName[0].toUpperCase() + propertyName.substring(1).toLowerCase()}));
 		},
 
@@ -61,6 +69,14 @@ export const savingDialogs = {
 		flashUpdateTagError({tag, msg}) {
 			this.flashActionFailed(msg);
 		},
+
+		flashCloseAndDestroy(flashObject) {
+			if (typeof flashObject.destroy === 'function') {
+				flashObject.destroy();
+			} else {
+				console.error('Given Flash-Object has no destroy-function!', flashObject);
+			}
+		}
 
 	}
 
