@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div class="pdfPreview">
         <div class="previewContainer" @click="_emitPreviewZoomRequest">
             <b-img :src="currentlyDisplayedImage.src"
                    :alt="currentlyDisplayedImage.title"
@@ -17,6 +17,9 @@
                 {{currentlyDisplayedImage.title}}
                 <div v-if="previewLimitedImages.length < pageCount" class="limitedPreview">
                     ({{previewLimitationPhrase}})
+                </div>
+                <div v-if="hovered" class="additional-infos">
+                    {{resource.original_filename}}
                 </div>
             </div>
 
@@ -148,52 +151,61 @@
 	}
 </script>
 
-<style scoped>
+<style type="scss">
+    @import "resources/sass/theme";
 
-    .previewContainer {
-        position: relative;
-        overflow: hidden;
-        cursor: pointer;
+    .pdfPreview {
+        .previewContainer {
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        .previous, .next {
+            position: absolute;
+            background-color: rgba(255, 255, 255, 0.5);
+            color: black;
+            font-size: 2em;
+            top: 50%;
+            cursor: pointer;
+
+            &:hover {
+                background-color: rgba(255, 255, 255, 1);
+            }
+        }
+
+        .previous {
+            left: 0.25em;
+        }
+
+        .next {
+            right: 0.25em;
+        }
+
+        .label {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            text-align: center;
+            padding: .25em .5em .25em .5em;
+            background-image: linear-gradient(rgba(255, 255, 255, 0.85), #ffffff);
+
+            .additional-infos {
+                font-size: .8em;
+                color: $notes-font-color;
+            }
+        }
+
+        .limitedPreview {
+            font-size: smaller;
+        }
+
+        .pdfPreviewImage {
+            min-height: 5em;
+            min-width: 100%;
+        }
     }
 
-    .previous, .next {
-        position: absolute;
-        background-color: rgba(255, 255, 255, 0.5);
-        color: black;
-        font-size: 2em;
-        top: 50%;
-        cursor: pointer;
-    }
-
-    .previous:hover, .next:hover {
-        background-color: rgba(255, 255, 255, 1);
-    }
-
-    .previous {
-        left: 0.25em;
-    }
-
-    .next {
-        right: 0.25em;
-    }
-
-    .label {
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        text-align: center;
-        padding: .25em .5em .25em .5em;
-        background-image: linear-gradient(rgba(255, 255, 255, 0.85), #ffffff);
-    }
-
-    .limitedPreview {
-        font-size: smaller;
-    }
-
-    .pdfPreviewImage {
-        min-height: 5em;
-        min-width: 100%;
-    }
 
 </style>

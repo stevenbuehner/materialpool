@@ -7,7 +7,7 @@
                 @preview-zoom-request="openImagePreviewZoomer"/>
 
         <transition name="fade">
-            <div class="card-body resourcePreviewMenu pt-0" v-if="hovered">
+            <div class="card-body resourcePreviewMenu pt-2" v-if="hovered">
                 <div class="meta">
                     <div v-if="resource.creator">
                         {{$t('pool.Creator')}}:
