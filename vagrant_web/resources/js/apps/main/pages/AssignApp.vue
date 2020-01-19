@@ -86,7 +86,7 @@
                        :preview-size="previewSize"
                        :resource="resource"
                        @page-selection-updated="pageSelectionUpdated"
-            ></page-list>
+            />
 
         </div>
 
@@ -95,38 +95,42 @@
                 v-if="resource"
                 ref="materialSelector"
                 :last-materials="materialsNotInEverySelection"
-        ></material-selector>
+        />
 
         <material-creator
                 ref="materialCreator"
                 :external-bibleverse-suggestions="materialCreationBibleverseSuggestions"
-        ></material-creator>
+        />
     </div>
 </template>
 
 <script>
 
-	import PageList                   from '../../../components/assignment/pdfpages/pageList.vue'
-	import {BAlert}                   from 'bootstrap-vue';
-	import {BNavbar}                  from 'bootstrap-vue/';
-	import {BNavbarBrand}             from 'bootstrap-vue';
-	import {BNavbarNav}               from 'bootstrap-vue';
-	import {BNavItem}                 from 'bootstrap-vue';
-	import {BNavItemDropdown}         from 'bootstrap-vue';
-	import {BDropdownItem}            from 'bootstrap-vue';
-	import {BButton}                  from 'bootstrap-vue';
-	import {VBTooltip}                from 'bootstrap-vue';
-	import materialSelector           from '../../../components/modals/selectors/materialSelector.vue';
-	import materialCreator            from '../../../components/modals/creators/materialCreator.vue';
-	import truncate                   from '../../../filters/truncate-filter.mixin'
-	import {uniqueArray}              from "../../../helper/ArrayHelper";
-	import {api_v1_resource_pdf_tags} from "../../../components/serverRoutes";
-	import axios                      from '../axiosInstance';
+	import PageList                        from '../../../components/assignment/pdfpages/pageList.vue'
+	import {BAlert}                        from 'bootstrap-vue';
+	import {BNavbar}                       from 'bootstrap-vue/';
+	import {BNavbarBrand}                  from 'bootstrap-vue';
+	import {BNavbarNav}                    from 'bootstrap-vue';
+	import {BNavItem}                      from 'bootstrap-vue';
+	import {BNavItemDropdown}              from 'bootstrap-vue';
+	import {BDropdownItem}                 from 'bootstrap-vue';
+	import {BButton}                       from 'bootstrap-vue';
+	import {VBTooltip}                     from 'bootstrap-vue';
+	import materialSelector                from '../../../components/modals/selectors/materialSelector.vue';
+	import materialCreator                 from '../../../components/modals/creators/materialCreator.vue';
+	import truncate                        from '../../../filters/truncate-filter.mixin'
+	import {uniqueArray}                   from "../../../helper/ArrayHelper";
+	import {api_v1_resource_tags}          from "../../../components/serverRoutes";
+	import axios                           from '../axiosInstance';
+	import {savingDialogs}                 from "../../../helper/flashMessages";
+	import {convertErrorResponseToMessage} from "../store/modules/handleErrorsHelper";
 
 
 	export default {
 
 		name: 'AssignApp',
+
+		mixins: [truncate, savingDialogs],
 
 		props: {
 			id: {
@@ -286,22 +290,26 @@
 				    .showPromise()
 				    .then((material) => {
 					    return this.attachCurrentSelectionToMaterial(material.id);
-				    }).catch((err) => {
-					console.info('Closed Material-Creation with reason:', err);
-				})
+				    })
+				    .catch((err) => {
+					    console.info('Closed Material-Creation with reason:', err);
+				    })
 			},
 
 			guessBibleversesFromSelection() {
 
 				this.materialCreationBibleverseSuggestions = [];
 
-				axios.post(api_v1_resource_pdf_tags(this.id), {
-					pages: this.selectedPages
-				}).then(({data}) => {
-					this.materialCreationBibleverseSuggestions = data;
-				}).catch((response) => {
-					console.error(response);
-				})
+				axios
+					.post(api_v1_resource_tags(this.resource), {
+						pages: this.selectedPages
+					})
+					.then(({data}) => {
+						this.materialCreationBibleverseSuggestions = data;
+					})
+					.catch((response) => {
+						this.flashActionFailed(convertErrorResponseToMessage(response));
+					});
 
 			},
 
@@ -391,7 +399,6 @@
 			bTooltip: VBTooltip
 		},
 
-		mixins: [truncate]
 	}
 </script>
 

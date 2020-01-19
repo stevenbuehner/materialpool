@@ -149,22 +149,10 @@ class PdfHandlingService {
 		return $pdf;
 	}
 
-	public function pdfToText(PdfFile $resource, $fromPage = NULL, $toPage = NULL) {
+	public function pdfToText($pdfPath, $fromPage = NULL, $toPage = NULL) {
 
 		try {
-			$pdfSrcFilePath = $this->fileHandlingService->getLocalFilePath($resource);
-		} catch (LocalFileDoesNotExistException $e) {
-			Log::error('Local File does not exist', $e->getTraceAsString());
-
-			return '';
-		} catch (RemoteFileDoesNotExistException $e) {
-			Log::error('Remote File does not exist', $e->getTraceAsString());
-
-			return '';
-		}
-
-		try {
-			$pdfObject = resolve(Pdf::class)->setPdf($pdfSrcFilePath);
+			$pdfObject = resolve(Pdf::class)->setPdf($pdfPath);
 		} catch (PdfNotFound $e) {
 			Log::error('PDF-File not found!', $e->getTraceAsString());
 
@@ -184,6 +172,25 @@ class PdfHandlingService {
 		}
 
 		return $pdfObject->setOptions($options)->text();
+
+	}
+
+
+	public function pdfResourceToText(PdfFile $resource, $fromPage = NULL, $toPage = NULL) {
+
+		try {
+			$pdfSrcFilePath = $this->fileHandlingService->getLocalFilePath($resource);
+		} catch (LocalFileDoesNotExistException $e) {
+			Log::error('Local File does not exist', $e->getTraceAsString());
+
+			return '';
+		} catch (RemoteFileDoesNotExistException $e) {
+			Log::error('Remote File does not exist', $e->getTraceAsString());
+
+			return '';
+		}
+
+		return $this->pdfToText($pdfSrcFilePath, $fromPage, $toPage);
 
 	}
 

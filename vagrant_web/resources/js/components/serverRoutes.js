@@ -96,8 +96,21 @@ export const api_v1_resources_store = '/api/v1/resources';
 
 export const api_v1_resources_create_material = '/api/v1/resources/create-material';
 
-export function api_v1_resource_pdf_tags(resourceId) {
-	return '/api/v1/resources/' + resourceId + '/pdf-tags';
+export function api_v1_resource_tags(resource) {
+
+	let route = '/api/v1/resources/' + resource.id;
+	switch (resource.type) {
+		case 'pdf':
+			route = route + '/pdf-tags';
+			break;
+		case 'doc':
+			route = route + '/doc-tags';
+			break;
+		default:
+			route = '';
+	}
+
+	return route;
 }
 
 

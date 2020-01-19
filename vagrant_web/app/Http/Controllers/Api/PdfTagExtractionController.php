@@ -27,11 +27,11 @@ class PdfTagExtractionController extends BaseController {
 
 		$texts = [];
 		if (count($ranges) === 0) {
-			$texts[] = $this->pdfHandlingService->pdfToText($resource);
+			$texts[] = $this->pdfHandlingService->pdfResourceToText($resource);
 		} else {
 			foreach ($ranges as $range) {
 				list($from, $to) = $range;
-				$texts[] = $this->pdfHandlingService->pdfToText($resource, $from, $to);
+				$texts[] = $this->pdfHandlingService->pdfResourceToText($resource, $from, $to);
 			}
 		}
 

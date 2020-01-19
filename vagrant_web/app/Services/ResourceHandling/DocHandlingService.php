@@ -57,4 +57,23 @@ class DocHandlingService {
 		return $resource;
 	}
 
+
+	public function documentResourceToText(DocumentFile $resource, $fromPage = NULL, $toPage = NULL) {
+
+		$generator = $resource->getPreviewGenerator();
+
+		if ($generator instanceof DocumentPreviewGenerator) {
+			try {
+				$localPdfPath = $generator->getTemporaryPdfFromDocument($resource);
+				$text         = $this->pdfHandlingService->pdfToText($localPdfPath, $fromPage, $toPage);
+
+				return $text;
+			} catch (NotPreviewAbleException $e) {
+			}
+		}
+
+		return '';
+	}
+
+
 }

@@ -196,6 +196,10 @@ Route::group([
 		->where('resource', '[0-9]+')
 		->middleware('can:view,resource')
 		->name('resources.pdf-tags');
+	Route::post('resources/{resource}/doc-tags', 'DocTagExtractionController@extractDocumentTags')
+		->where('resource', '[0-9]+')
+		->middleware('can:view,resource')
+		->name('resources.doc-tags');
 
 
 	Route::put('resources/{resource}', 'ResourceController@update')
