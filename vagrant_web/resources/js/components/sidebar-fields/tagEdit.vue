@@ -24,8 +24,8 @@
                         :filterBy="filterSuggestionsBy"
                         :filterable="true"
                         :multiple="true"
-                        :clearSearchOnSelect="suggestedFilteredTags.length <= 2"
-                        :close-on-select="suggestedFilteredTags.length <= 2"
+                        :clearSearchOnSelect="clearAndCloseOnSelect"
+                        :close-on-select="clearAndCloseOnSelect"
                         :selectOnTab="true"
                         :getOptionLabel="getTagLabelFromObject"
                         @input="onInputChanged"
@@ -148,6 +148,10 @@
 				);
 			},
 
+			clearAndCloseOnSelect() {
+				return this.suggestedFilteredTags.filter((el) => el.isNew !== true).length <= 1;
+			}
+
 		},
 
 		methods: {
@@ -205,7 +209,7 @@
 
 				if (search.length <= 2) {
 					vm.suggestedFilteredTags = [];
-					loading                  = false;
+					loading(false);
 					return;
 				}
 
