@@ -5,19 +5,14 @@
 </template>
 
 <script>
-	import truncateFilter from '../../../filters/truncate-filter.mixin';
+	import truncateFilter  from '../../../filters/truncate-filter.mixin';
+	import resourcePreview from '../resource-preview.mixin';
 
 	export default {
 		mixins: [
 			truncateFilter,
+			resourcePreview
 		],
-
-		props: {
-			resource: {
-				required: true,
-				type: Object
-			}
-		},
 	}
 </script>
 

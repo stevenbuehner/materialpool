@@ -15,17 +15,10 @@
 
 	import {poolResourceVideostream, previewImageFirstPage} from "../../serverRoutes";
 	import resourcePreviewZoom                              from '../resource-preview-zoom';
+	import resourcePreview                                  from '../resource-preview.mixin';
 
 	export default {
-		mixins: [resourcePreviewZoom],
-
-		props: {
-			resource: {
-				required: true,
-				type: Object
-			},
-		},
-
+		mixins: [resourcePreviewZoom, resourcePreview],
 
 		computed: {
 			posterRoute() {

@@ -32,15 +32,12 @@
 	import {BImg}                   from 'bootstrap-vue';
 	import pdfMixin                 from '../pdf-mixin';
 	import resourcePreviewZoom      from '../resource-preview-zoom';
+	import resourcePreview          from '../resource-preview.mixin';
 
 	export default {
-		mixins: [pdfMixin, resourcePreviewZoom],
+		mixins: [pdfMixin, resourcePreviewZoom, resourcePreview],
 
 		props: {
-			resource: {
-				required: true,
-				type: Object
-			},
 			maxPreviewPages: {
 				required: false,
 				type: Number,

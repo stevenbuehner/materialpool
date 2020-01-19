@@ -3,6 +3,7 @@
         <component
                 :is="previewComponent"
                 :resource="resource"
+                :hovered="hovered"
                 @preview-zoom-request="openImagePreviewZoomer"/>
 
         <transition name="fade">

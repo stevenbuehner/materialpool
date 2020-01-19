@@ -5,15 +5,10 @@
 </template>
 
 <script>
-	export default {
-		mixins: [],
+	import resourcePreview from '../resource-preview.mixin';
 
-		props: {
-			resource: {
-				required: true,
-				type: Object
-			}
-		},
+	export default {
+		mixins: [resourcePreview],
 	}
 </script>
 

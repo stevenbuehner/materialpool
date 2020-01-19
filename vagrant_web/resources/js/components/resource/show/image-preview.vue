@@ -25,29 +25,25 @@
 	import resourceLinks                                        from '../resource-links.mixin';
 	import {previewImageFirstPage}                              from "../../serverRoutes";
 	import resourcePreviewZoom                                  from '../resource-preview-zoom';
+	import resourcePreview                                      from '../resource-preview.mixin';
 	import {max_preview_image_size_x, max_preview_image_size_y} from "../../../apps/config";
 
 	export default {
 
 		name: 'imagePreview',
 
-		mixins: [resourceLinks, resourcePreviewZoom],
+		mixins: [resourceLinks, resourcePreviewZoom, resourcePreview],
 
-		props:
-			{
-				resource: {
-					required: true,
-					type: Object
-				},
-				width: {
-					required: false,
-					default: max_preview_image_size_x
-				},
-				height: {
-					required: false,
-					default: max_preview_image_size_y
-				}
+		props: {
+			width: {
+				required: false,
+				default: max_preview_image_size_x
 			},
+			height: {
+				required: false,
+				default: max_preview_image_size_y
+			}
+		},
 
 		computed: {
 

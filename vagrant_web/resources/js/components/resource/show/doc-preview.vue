@@ -3,8 +3,5 @@
 
 	export default {
 		extends: PdfPreview,
-		mixins: [],
-
-		props: {},
 	}
 </script>
