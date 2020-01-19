@@ -49,7 +49,7 @@
                         :disabled="disabled"
                         size="sm"
                         ref="input_field"
-                ></b-form-input>
+                />
 
                 <datepicker v-if="type == 'date'"
                             class="dateInput"
@@ -66,7 +66,7 @@
                             :input-class="{valueChanged : valueHasChanged}"
                             :placeholder="getPlaceholder"
                             @input="onDateInputChanged"
-                ></datepicker>
+                />
 
                 <b-form-textarea
                         v-if="type == 'textarea'"
@@ -81,7 +81,7 @@
                         @keyup.enter="onEnter"
                         @keyup.esc="cancelAndResetValue"
                         ref="input_field"
-                ></b-form-textarea>
+                />
 
             </slot>
 
