@@ -21,8 +21,6 @@
 			invalidTypesValues() {
 				return [];
 			}
-
-
 		},
 
 		methods: {
@@ -54,6 +52,12 @@
 			// more about the _.debounce function (and its cousin
 			// _.throttle), visit: https://lodash.com/docs#debounce
 			search: _debounce((loading, search, vm) => {
+
+				if (search.length <= 2) {
+					vm.suggestedFilteredTags = [];
+					loading(false);
+					return;
+				}
 
 				vm.$store.dispatch('bibleverses/search', search)
 				  .then((bibleverses) => {
