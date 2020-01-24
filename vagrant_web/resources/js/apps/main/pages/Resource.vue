@@ -102,6 +102,10 @@
                             <b>{{$t('pool.Content-Hash')}}:</b> {{resource.content_hash || $t('pool.missing')}}
                         </b-list-group-item>
 
+                        <b-list-group-item v-if="resource.filesize">
+                            <b>{{$t('pool.Filesize')}}:</b> {{resource.filesize | readableBytes}}
+                        </b-list-group-item>
+
                         <b-list-group-item class="d-flex">
                             <b>{{$t('pool.Web-URL')}}: </b>
                             <edditable type="a"
@@ -146,7 +150,6 @@
 </template>
 
 <script>
-	import resourceLinks             from '../../../components/resource/resource-links.mixin';
 	import {BTabs}                   from 'bootstrap-vue';
 	import {BTab}                    from 'bootstrap-vue';
 	import {BListGroup}              from 'bootstrap-vue';
@@ -155,7 +158,6 @@
 	import audioLimitation           from '../../../components/resource/limitation/audioLimitation.vue';
 	import {isResourceTypeLimitable} from "../../../components/resource/limitation/limitable";
 	import resourceDetail            from '../../../components/resource/show/resource-detail'
-	import {formatLocalizedDate}     from "../../../helper/datetime.mixin";
 
 	import user             from '../../../components/user/user-name';
 	import {BAlert}         from 'bootstrap-vue';
@@ -164,14 +166,19 @@
 	import MaterialCreator  from "../../../components/modals/creators/materialCreator";
 	import Toggle           from "../../../components/general/toggle";
 	import Edditable        from "../../../components/general/edditable";
-	import {savingDialogs}  from "../../../helper/flashMessages";
+
+	// Mixins
+	import resourceLinks         from '../../../components/resource/resource-links.mixin';
+	import {formatLocalizedDate} from "../../../helper/datetime.mixin";
+	import {savingDialogs}       from "../../../helper/flashMessages";
+	import filesize              from "../../../helper/filesize.mixin";
 
 
 	export default {
 
 		name: "resourceApp",
 
-		mixins: [resourceLinks, formatLocalizedDate, savingDialogs],
+		mixins: [resourceLinks, formatLocalizedDate, savingDialogs, filesize],
 
 		props: {
 			id: {

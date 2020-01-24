@@ -94,6 +94,7 @@ return [
 	'medium'                                                   => 'medium',
 	'large'                                                    => 'large',
 	'preview-size'                                             => 'Preview Size',
+	'Filesize'                                                 => 'Filesize',
 	'create-new-resource'                                      => 'Create New Resource',
 	'drop-file-to-upload-resource'                             => 'Drop file to upload resource',
 	'auto-create-material'                                     => 'Automatically create material',

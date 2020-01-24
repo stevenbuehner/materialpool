@@ -45,7 +45,7 @@ class ResourceController extends BaseController {
 
 	protected function useRelations($resource, Request $request) {
 
-		if ($resource === NULL) {
+		if (!$resource instanceof Resource) {
 			return $resource;
 		}
 
@@ -133,7 +133,6 @@ class ResourceController extends BaseController {
 		}
 
 		$builder->orderBy($request->get('order_by', 'id'), $request->get('order_dir', 'asc'));
-
 
 		$blub = $builder->with(self::DEFAULT_RELATIONS)->paginate(25);
 
