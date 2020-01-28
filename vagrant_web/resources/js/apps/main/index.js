@@ -23,7 +23,7 @@ const router = new VueRouter({
 	mode: 'history',
 	base: '/vue',
 	scrollBehavior(to, from, savedPosition) {
-		console.info(to, from, savedPosition);
+		// console.info(to, from, savedPosition);
 		return {x: 0, y: 0}
 	},
 	routes
