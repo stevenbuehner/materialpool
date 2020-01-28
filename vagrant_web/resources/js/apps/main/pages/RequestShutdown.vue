@@ -63,7 +63,7 @@
 					clearInterval(this.timer.timer);
 					this.timer.timer  = null;
 					this.timer.show   = false;
-					this.modalContent = this.$t('pool.system-was-shutdown');
+					this.modalContent = this.$t('pool.System-was-shutdown');
 				}
 			},
 		},
