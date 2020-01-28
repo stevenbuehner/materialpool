@@ -53,7 +53,7 @@
 			// _.throttle), visit: https://lodash.com/docs#debounce
 			search: _debounce((loading, search, vm) => {
 
-				if (search.length <= 2) {
+				if (search.length < vm.minInput) {
 					vm.suggestedFilteredTags = [];
 					loading(false);
 					return;

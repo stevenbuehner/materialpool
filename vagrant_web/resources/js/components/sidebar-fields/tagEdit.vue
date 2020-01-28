@@ -122,6 +122,18 @@
 				}
 			},
 
+			minInput: {
+				type: Number,
+				required: false,
+				default: 3
+			},
+
+			newTagsEnabled: {
+				type: Boolean,
+				required: false,
+				default: true
+			}
+
 
 		},
 
@@ -152,6 +164,15 @@
 				return this.suggestedFilteredTags.filter((el) => el.isNew !== true).length <= 1;
 			}
 
+		},
+
+		created() {
+			if (this.minInput <= 0) {
+				// Init an empty search
+
+				this.onSearch('', function () {
+				});
+			}
 		},
 
 		methods: {
@@ -207,7 +228,7 @@
 			// _.throttle), visit: https://lodash.com/docs#debounce
 			search: _debounce((loading, search, vm) => {
 
-				if (search.length <= 2) {
+				if (search.length < vm.minInput) {
 					vm.suggestedFilteredTags = [];
 					loading(false);
 					return;
@@ -222,17 +243,20 @@
 					  // console.log(keywords);
 					  vm.suggestedFilteredTags = keywords.filter(vm.filterSuggestionsBy.bind(vm));
 
-					  const newTag = {
-						  title: search,
-						  isNew: true,
-						  id: 'new Keyword: ' + search,
-					  };
+					  if (vm.newTagsEnabled === true) {
+						  const newTag = {
+							  title: search,
+							  isNew: true,
+							  id: 'new Keyword: ' + search,
+						  };
 
-					  if (vm.typefilter) {
-						  newTag.type = vm.typefilter;
+						  if (vm.typefilter) {
+							  newTag.type = vm.typefilter;
+						  }
+
+						  vm.suggestedFilteredTags.push(newTag);
 					  }
 
-					  vm.suggestedFilteredTags.push(newTag);
 				  })
 				  .catch((err) => {
 					  console.error(err);

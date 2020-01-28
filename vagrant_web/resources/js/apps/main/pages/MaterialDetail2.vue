@@ -23,13 +23,13 @@
                             <button class="btn btn-sm" :title="$t('pool.Delete-material')"
                                     @click="btnDeleteMaterial"
                                     :disabled="!material">
-                                <trash-icon class="trashicon buttonIcon"></trash-icon>
+                                <trash-icon class="trashicon buttonIcon"/>
                             </button>
 
                             <button class="btn btn-sm" :title="$t('pool.duplicate-material')"
                                     @click="duplicateAndOpenMaterial"
                                     :disabled="!material">
-                                <clone-icon class="cloneIcon buttonIcon"></clone-icon>
+                                <clone-icon class="cloneIcon buttonIcon"/>
                             </button>
                             <div class="title">{{material.title}}</div>
                         </div>
@@ -210,6 +210,8 @@
                                 :name="$t('pool.Languages')"
                                 :placeholder="$t('pool.enter-tags')"
                                 typefilter="lang"
+                                :min-input="0"
+                                :new-tags-enabled="false"
                                 :disabled="materialEditLockActive"
                                 @input:added="addKeyword"
                                 @input:removed="removeKeyword"

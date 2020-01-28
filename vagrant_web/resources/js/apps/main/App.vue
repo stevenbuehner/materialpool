@@ -1,10 +1,10 @@
 <template>
     <div>
-        <main-navbar></main-navbar>
+        <main-navbar/>
 
         <flash-message class="flashMessageHolder"/>
 
-        <router-view class="main-area"></router-view>
+        <router-view class="main-area"/>
     </div>
 </template>
 
