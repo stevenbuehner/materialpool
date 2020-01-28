@@ -154,7 +154,7 @@ class FileHandlingService extends ResourceHandlingService {
 	public function makeLocalCopy(File $resource) {
 		// Make a local copy of the movie (copy to local, whereever it is)
 		$localDisk    = Storage::disk('local');
-		$relativePath = 'tmp/' . uniqid('temp_');
+		$relativePath = 'tmp/' . uniqid('temp_' . $resource->id . '_', TRUE);
 		$stream       = $resource->getLocalFileStream();
 		$localDisk->getDriver()->writeStream($relativePath, $stream);
 		fclose($stream);
