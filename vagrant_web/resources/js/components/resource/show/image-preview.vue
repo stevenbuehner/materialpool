@@ -3,7 +3,7 @@
          :img-src="resourceImagePreviewUrl"
          @click="_emitPreviewZoomRequest">
 
-        <img class="card-img-top" :src="resourceImagePreviewUrl" img-alt="Preview Image"/>
+        <img class="card-img-top" :src="resourceImagePreviewUrl" alt="Preview Image"/>
 
         <div class="card-body">
 
