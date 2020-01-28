@@ -8,6 +8,7 @@
 
             <source :src="videoRoute" :type="videoMimeType"/>
         </video>
+        <span v-if="resource.original_filename && hovered"><i>{{resource.original_filename}}</i></span>
     </div>
 </template>
 
