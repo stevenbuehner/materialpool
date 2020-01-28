@@ -1,15 +1,23 @@
 <template>
     <div class="card-header">
         <span v-if="resource.original_filename && hovered"><i>{{resource.original_filename}}</i></span>
-        No audio Preview (go to Audio Details)
+        <img class="card-img-top" :src="resourceImagePreviewUrl" img-alt="Preview Image"/>
     </div>
 </template>
 
 <script>
-	import resourcePreview from '../resource-preview.mixin';
+	import resourcePreview         from '../resource-preview.mixin';
+	import {previewImageFirstPage} from "../../serverRoutes";
 
 	export default {
 		mixins: [resourcePreview],
+
+		computed: {
+
+			resourceImagePreviewUrl() {
+				return previewImageFirstPage(this.resource, this.width, this.height);
+			},
+		}
 	}
 </script>
 

@@ -10,7 +10,9 @@ use App\Services\ResourceHandling\Exceptions\LocalFileDoesNotExistException;
 use App\Services\ResourceHandling\Exceptions\RemoteFileDoesNotExistException;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use League\Flysystem\Adapter\Local;
 use League\Flysystem\FileNotFoundException;
+use League\Flysystem\Filesystem;
 
 class FileHandlingService extends ResourceHandlingService {
 
@@ -130,7 +132,7 @@ class FileHandlingService extends ResourceHandlingService {
 			$archiveDisc       = Storage::disk('archive');
 			$original_filename = $resource->getOriginalFilenameAttribute();
 			$stream            = $resource->getLocalFileStream();
-			$filePath          = strftime('%G/%m/%d/') . $resource->id . '.backup_' . $original_filename ;
+			$filePath          = strftime('%G/%m/%d/') . $resource->id . '.backup_' . $original_filename;
 			$archiveDisc->writeStream($filePath, $stream);
 			fclose($stream);
 		} catch (FileNotFoundException $e) {
@@ -141,6 +143,38 @@ class FileHandlingService extends ResourceHandlingService {
 			$archiveDisc,
 			$filePath
 		];
+	}
+
+	/**
+	 * @param File $resource
+	 * @return string
+	 * @throws FileNotFoundException
+	 * @throws \League\Flysystem\FileExistsException
+	 */
+	public function makeLocalCopy(File $resource) {
+		// Make a local copy of the movie (copy to local, whereever it is)
+		$localDisk    = Storage::disk('local');
+		$relativePath = 'tmp/' . uniqid('temp_');
+		$stream       = $resource->getLocalFileStream();
+		$localDisk->getDriver()->writeStream($relativePath, $stream);
+		fclose($stream);
+
+		/** @var Filesystem $driver */
+		/** @var Local $adapter */
+		$driver    = $localDisk->getDriver();
+		$adapter   = $driver->getAdapter();
+		$prefix    = $adapter->getPathPrefix();
+		$localPath = $prefix . $relativePath;
+
+		return $localPath;
+	}
+
+	/**
+	 * @param $relativePath
+	 * @return bool
+	 */
+	public function cleanupLocalCopy($relativePath) {
+		return unlink($relativePath);
 	}
 
 
