@@ -2,7 +2,7 @@
 
 namespace App\Http\Video;
 
-class VideoFileStream extends AbstractVideoStream {
+class MediaFileStream extends AbstractMediaStream {
 	protected $path;
 
 	function __construct($filePath) {

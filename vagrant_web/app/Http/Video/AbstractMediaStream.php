@@ -3,12 +3,12 @@
 namespace App\Http\Video;
 
 /**
- * Description of VideoStream
+ * Description of MediaStream
  *
  * @author Rana
  * @link http://codesamplez.com/programming/php-html5-video-streaming-tutorial
  */
-abstract class AbstractVideoStream {
+abstract class AbstractMediaStream {
 	protected $stream           = NULL;
 	protected $fileModifiedTime = 0;
 	protected $fileSize         = 0;

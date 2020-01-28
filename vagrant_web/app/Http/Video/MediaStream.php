@@ -2,12 +2,12 @@
 
 namespace App\Http\Video;
 
-class VideoStream extends AbstractVideoStream {
+class MediaStream extends AbstractMediaStream {
 	protected $path;
 
 	/**
 	 * TODO: Not tested or used so far .... (Steven)
-	 * VideoStream constructor.
+	 * MediaStream constructor.
 	 *
 	 * @param $stream
 	 * @param $filesize

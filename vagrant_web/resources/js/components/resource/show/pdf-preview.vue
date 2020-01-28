@@ -18,9 +18,6 @@
                 <div v-if="previewLimitedImages.length < pageCount" class="limitedPreview">
                     ({{previewLimitationPhrase}})
                 </div>
-                <div v-if="hovered" class="additional-infos">
-                    {{resource.original_filename}}
-                </div>
             </div>
 
         </div>
@@ -190,11 +187,6 @@
             text-align: center;
             padding: .25em .5em .25em .5em;
             background-image: linear-gradient(rgba(255, 255, 255, 0.85), #ffffff);
-
-            .additional-infos {
-                font-size: .8em;
-                color: $notes-font-color;
-            }
         }
 
         .limitedPreview {

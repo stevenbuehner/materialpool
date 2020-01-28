@@ -72,7 +72,7 @@ class AudioPreviewGenerator implements PreviewGeneratorInterface {
 				unlink($framePath);
 
 			} else {
-				$frameImage = $this->imageManager->make(resource_path('icons/resources/camera.png'));
+				$frameImage = $this->imageManager->make(resource_path('icons/resources/headphones.png'));
 			}
 
 			$image = $frameImage->resize($size->getWidth(), $size->getHeight(), function (Constraint $constraint) {

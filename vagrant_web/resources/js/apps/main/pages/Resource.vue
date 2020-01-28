@@ -156,6 +156,7 @@
 	import {BListGroupItem}          from 'bootstrap-vue';
 	import pdfLimitation             from '../../../components/resource/limitation/pdfLimitation.vue';
 	import audioLimitation           from '../../../components/resource/limitation/audioLimitation.vue';
+	import videoLimitation           from '../../../components/resource/limitation/videoLimitation.vue';
 	import {isResourceTypeLimitable} from "../../../components/resource/limitation/limitable";
 	import resourceDetail            from '../../../components/resource/show/resource-detail'
 
@@ -409,8 +410,7 @@
 			BTab,
 			BListGroup,
 			BListGroupItem,
-			pdfLimitation,
-			audioLimitation,
+			pdfLimitation, audioLimitation, videoLimitation,
 			user,
 			BAlert
 		}

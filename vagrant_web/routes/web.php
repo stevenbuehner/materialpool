@@ -54,8 +54,8 @@ Route::group(['prefix' => 'pool', 'as' => 'pool.'], function () {
 	Route::resource('resource', 'ResourceController');
 	Route::get('resource/{resource}/download', 'ResourceController@download')
 		->name('resource.download');
-	Route::get('resource/{resource}/videostream', 'VideoStreamController@stream')
-		->name('resource.videostream');
+	Route::get('resource/{resource}/mediastream', 'MediaStreamController@stream')
+		->name('resource.mediastream');
 	Route::get('resource/{resource}/material/{material}/pdfdownload', 'PdfResourceController@downloadPages')
 		->where('resource', '[0-9]+')
 		->where('material', '[0-9]+')

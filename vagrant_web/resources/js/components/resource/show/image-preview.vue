@@ -1,16 +1,13 @@
 <template>
-    <div class="mb-2 myCard" :title="title"
+    <div class="myCard" :title="title"
+         :class="{'mb-2' : hovered}"
          :img-src="resourceImagePreviewUrl"
          @click="_emitPreviewZoomRequest">
 
         <img class="card-img-top" :src="resourceImagePreviewUrl" alt="Preview Image"/>
 
-        <div class="card-body">
-
-            <h4 class="card-title" v-if="resource.notes && resource.notes.length <= 3">{{title}}</h4>
-
+        <div class="card-body" v-if="resource.notes && resource.notes.length >= 3">
             {{resource.notes}}
-
         </div>
 
 

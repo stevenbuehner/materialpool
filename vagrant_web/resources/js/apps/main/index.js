@@ -29,7 +29,7 @@ const router = new VueRouter({
 	routes
 });
 
-let vueInstance = new Vue({
+const vueInstance = new Vue({
 	el: '#app',
 	i18n,
 	router: router,
@@ -59,7 +59,12 @@ if (window.materialpool) {
 
 }
 
+let sessionKeepAliveErrorCounter = 0;
+
 // Session keepalive
 setInterval(() => {
-	sessionKeepAlive();
+	sessionKeepAlive().catch((errorMessage) => {
+		sessionKeepAliveErrorCounter++;
+		console.error(errorMessage, sessionKeepAliveErrorCounter);
+	});
 }, keepalive_seconds_intervall * 1000);

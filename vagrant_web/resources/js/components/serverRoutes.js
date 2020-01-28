@@ -48,8 +48,8 @@ export function resourceLimitedPdfDownload(resourceId, materialId) {
 	return '/pool/resource/' + resourceId + '/material/' + materialId + '/pdfdownload';
 }
 
-export function poolResourceVideostream(resource) {
-	return '/pool/resource/' + resource.id + '/videostream';
+export function poolResourceMediastream(resource) {
+	return '/pool/resource/' + resource.id + '/mediastream';
 }
 
 export const api_v1_resources_find = '/api/v1/resources/find';

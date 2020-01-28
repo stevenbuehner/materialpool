@@ -9,10 +9,15 @@
         <transition name="fade">
             <div class="card-body resourcePreviewMenu pt-2" v-if="hovered">
                 <div class="meta">
+                    <div class="filename pb-2" v-if="resource.original_filename">
+                        {{resource.original_filename}}
+                    </div>
+
                     <div v-if="resource.creator" class="pb-2">
                         {{$t('pool.Creator')}}:
                         <user-name :user="resource.creator"/>
                     </div>
+
                 </div>
 
                 <slot name="buttons">
@@ -48,7 +53,7 @@
 	import imagePreview                  from './image-preview.vue'
 	import textPreview                   from './text-preview.vue'
 	import pdfPreview                    from './pdf-preview.vue'
-	import audioPreview                  from './audio-preview.vue'
+	import audioPreview                  from './video-preview.vue'
 	import videoPreview                  from './video-preview.vue'
 	import docPreview                    from './doc-preview.vue'
 	import filePreview                   from './file-preview.vue'
@@ -139,6 +144,7 @@
 </script>
 
 <style type="scss">
+    @import "resources/sass/theme";
 
     .resourcePreview {
         .fade-enter-active, .fade-leave-active {
@@ -161,6 +167,13 @@
             border-radius: 0.25rem;
             width: calc(100% + 2px);
             margin-left: -1px;
+        }
+
+        .meta{
+            .filename {
+                font-size: .8em;
+                color: $notes-font-color;
+            }
         }
     }
 
