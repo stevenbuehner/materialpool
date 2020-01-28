@@ -26,7 +26,7 @@ class MediaStreamController extends Controller {
 		$stream = $resource->getLocalFileStream();
 
 		if ($stream !== FALSE) {
-			$videoStream = new MediaStream($stream, $resource->getLocalSize(), $resource->getLocalLastModified());
+			$videoStream = new MediaStream($stream, $resource->getLocalSize(), $resource->getLocalLastModified(), $resource->mimeType);
 			$videoStream->start();
 		}
 

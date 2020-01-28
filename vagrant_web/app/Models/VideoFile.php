@@ -7,6 +7,11 @@ use App\Services\PreviewGeneration\Generators\VideoPreviewGenerator;
 use App\Services\PreviewGeneration\Interfaces\PreviewGeneratorInterface;
 use League\Flysystem\FileNotFoundException;
 
+/**
+ * Class VideoFile
+ * @package App\Models
+ * @property $mimeType
+ */
 class VideoFile extends File {
 
 	use TimeCountTrait;

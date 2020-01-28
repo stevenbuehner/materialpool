@@ -10,6 +10,7 @@ namespace App\Http\Video;
  */
 abstract class AbstractMediaStream {
 	protected $stream           = NULL;
+	protected $mimeType         = 'video/mp4';
 	protected $fileModifiedTime = 0;
 	protected $fileSize         = 0;
 
@@ -39,13 +40,16 @@ abstract class AbstractMediaStream {
 	 */
 	protected function setHeader() {
 		ob_get_clean();
-		header("Content-Type: video/mp4");
+
+		header("Content-Type: " . $this->mimeType);
 		header("Cache-Control: max-age=2592000, public");
 		header("Expires: " . gmdate('D, d M Y H:i:s', time() + 2592000) . ' GMT');
 		header("Last-Modified: " . gmdate('D, d M Y H:i:s', $this->fileModifiedTime) . ' GMT');
+
 		$this->start = 0;
 		$this->end   = $this->fileSize - 1;
-		header("Accept-Ranges: 0-" . $this->end);
+
+		header("Accept-Ranges: bytes");
 
 		if (isset($_SERVER['HTTP_RANGE'])) {
 
@@ -80,6 +84,7 @@ abstract class AbstractMediaStream {
 			header("Content-Length: " . $length);
 			header("Content-Range: bytes $this->start-$this->end/" . $this->fileSize);
 		} else {
+			header('HTTP/1.1 206 Partial Content');
 			header("Content-Length: " . $this->fileSize);
 		}
 

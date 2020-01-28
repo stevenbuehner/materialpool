@@ -7,6 +7,11 @@ use App\Services\PreviewGeneration\Generators\AudioPreviewGenerator;
 use App\Services\PreviewGeneration\Interfaces\PreviewGeneratorInterface;
 use League\Flysystem\FileNotFoundException;
 
+/**
+ * Class AudioFile
+ * @package App\Models
+ * @property $mimeType
+ */
 class AudioFile extends File {
 
 	use TimeCountTrait;

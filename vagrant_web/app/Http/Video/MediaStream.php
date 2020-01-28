@@ -14,7 +14,7 @@ class MediaStream extends AbstractMediaStream {
 	 * @param $lastModified
 	 * @throws \Exception
 	 */
-	function __construct($stream, $filesize, $lastModified) {
+	function __construct($stream, $filesize, $lastModified, $mimeType) {
 		if (!is_resource($stream)) {
 			throw new \Exception('Invalid Stream-Resource');
 		}
@@ -22,6 +22,7 @@ class MediaStream extends AbstractMediaStream {
 		$this->stream           = $stream;
 		$this->fileSize         = $filesize;
 		$this->fileModifiedTime = $lastModified;
+		$this->mimeType         = $mimeType;
 	}
 
 	/**
