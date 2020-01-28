@@ -68,20 +68,31 @@ class VideoPreviewGenerator implements PreviewGeneratorInterface {
 
 			$video            = $ffmpeg->open($localPath);
 			$firstVideoStream = $video->getStreams()->videos()->first();
-			$duration         = (float)$firstVideoStream->get('duration');
 
-			if ($seconds === NULL || $seconds < 0 || $seconds > $duration) {
-				$offset = TimeCode::fromSeconds(round($duration * 0.15, 2));
+			if ($firstVideoStream !== NULL) {
+				// Die Datei hat KEINEN Video-Stream - ungewöhnlich, aber möglich (z.B. nur Audio-Streams)
+				$duration = (float)$firstVideoStream->get('duration');
+
+				if ($seconds === NULL || $seconds < 0 || $seconds > $duration) {
+					$offset = TimeCode::fromSeconds(round($duration * 0.15, 2));
+				} else {
+					$offset = TimeCode::fromSeconds($seconds);
+				}
+
+				$frame     = $video->frame($offset);
+				$framePath = $localPath . '.jpg';
+				$frame->save($framePath);
+
+				$frameImage = $this->imageManager->make($framePath);
+				$localDisk->delete($relativePath . '.jpg');
+
+			} else if ($video->getStreams()->audios()->first() !== NULL) {
+				// Es gibt aber wenigstens einen Audio-Stream => Nimm ein Standard-Audio Icon
+				$frameImage = $this->imageManager->make(resource_path('icons/resources/headphones.png'));
 			} else {
-				$offset = TimeCode::fromSeconds($seconds);
+				$frameImage = $this->imageManager->make(resource_path('icons/resources/camera.png'));
 			}
 
-			$frame     = $video->frame($offset);
-			$framePath = $localPath . '.jpg';
-			$frame->save($framePath);
-
-			$frameImage = $this->imageManager->make($framePath);
-			$localDisk->delete($relativePath . '.jpg');
 			$image = $frameImage->resize($size->getWidth(), $size->getHeight(), function (Constraint $constraint) {
 				$constraint->aspectRatio();
 				$constraint->upsize();
