@@ -39,6 +39,12 @@ export function previewImageFirstPage(resource, width, height) {
 	return '/resource/' + resource.id + '/image/' + width + '/' + height;
 }
 
+/**
+ * Nimmt die maximal erlaubte Bildauflösung
+ * @param resource
+ * @param page
+ * @returns {string}
+ */
 export function pdfPreviewImageForPage(resource, page) {
 	page = page || 1;
 	return '/resource/' + resource.id + '/image/page-' + page;

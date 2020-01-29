@@ -30,7 +30,7 @@ class ResourcePreviewController {
 
 		$size = new Size(
 			min($width, config('app.resource.preview.maxWidth')),
-			min($height, config('app.resource.preview.maxWidth'))
+			min($height, config('app.resource.preview.maxHeight'))
 		);
 
 		$image = $this->previewService->getCachedImage($resource, $size);
@@ -47,7 +47,7 @@ class ResourcePreviewController {
 
 		$size = new Size(
 			config('app.resource.preview.maxWidth'),
-			config('app.resource.preview.maxWidth')
+			config('app.resource.preview.maxHeight')
 		);
 
 		$image = $this->previewService->getCachedImage($resource, $size, $page);
