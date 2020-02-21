@@ -256,8 +256,11 @@ class SearchController extends Controller {
 
 							// simple, aber korrekte Range-Suche (genial!)
 							// https://stackoverflow.com/questions/2545947/check-overlap-of-date-ranges-in-mysql
-							$q->where("bibleverses{$index}.from", '<=', $to);
-							$q->where("bibleverses{$index}.to", '>=', $from);
+
+							$q->orWhere(function ($q) use ($from, $to, $index) {
+								$q->where("bibleverses{$index}.from", '<=', $to);
+								$q->where("bibleverses{$index}.to", '>=', $from);
+							});
 
 							/*
 							$q->orWhereBetween("bibleverses{$index}.from", [$from, $to]);
