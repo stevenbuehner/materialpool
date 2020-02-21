@@ -92,7 +92,7 @@
 				} else {
 					_debounce((self) => {
 						self.displayedTree = self.filter(self.tree);
-					}, 50)(this);
+					}, 100)(this);
 				}
 			},
 
