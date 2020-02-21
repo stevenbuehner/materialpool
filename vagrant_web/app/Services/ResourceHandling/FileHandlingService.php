@@ -61,8 +61,10 @@ class FileHandlingService extends ResourceHandlingService {
 
 	/**
 	 * @param \App\Models\Resource $resource
+	 * @param bool $keepLocalFiles Die lokale Datei nicht löschen (nötig beim deinstallieren von Bundles)
+	 * @throws \Exception
 	 */
-	public function deleteResourceCompletely(Resource $resource) {
+	public function deleteResourceCompletely(Resource $resource, $keepLocalFiles = FALSE) {
 
 		$resource->load(['materials', 'foreignIds']);
 
@@ -70,7 +72,7 @@ class FileHandlingService extends ResourceHandlingService {
 		$this->detachAllForeignIds($resource);
 
 		// Delete Files from Disk
-		if ($resource instanceof File) {
+		if ($resource instanceof File && $keepLocalFiles === FALSE) {
 			$this->cleanUpFileResource($resource);
 		}
 

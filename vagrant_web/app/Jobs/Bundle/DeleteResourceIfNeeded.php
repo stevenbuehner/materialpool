@@ -24,8 +24,7 @@ class DeleteResourceIfNeeded implements ShouldQueue, VersionInterface {
 	protected $bundle;
 	protected $foreignResourceId;
 	protected $version;
-
-	protected $localResourceId;
+	protected $uninstall;
 
 	/**
 	 * Create a new job instance.
@@ -33,14 +32,15 @@ class DeleteResourceIfNeeded implements ShouldQueue, VersionInterface {
 	 * @param $resourceToCheck Resource
 	 *
 	 */
-	public function __construct(Bundle $bundle, ForeignResourceId $foreignResourceId, $version) {
+	public function __construct(Bundle $bundle, ForeignResourceId $foreignResourceId, $version, $uninstall = FALSE) {
 		$this->bundle            = $bundle;
 		$this->foreignResourceId = $foreignResourceId;
 		$this->version           = $version;
+		$this->uninstall         = $uninstall;
 	}
 
 	/**
-	 * Check if this resource does not exist anymore and needs to be deleted
+	 * Check if this resource does not exist anymore in the external bundle and therefore needs to be deleted locally as well
 	 *
 	 * @param BundlesService $bundlesService
 	 * @param ResourceHandlingService $resourceHandlingService
@@ -50,20 +50,17 @@ class DeleteResourceIfNeeded implements ShouldQueue, VersionInterface {
 
 		$uuid = $this->foreignResourceId->foreign_id;
 
-		if (!$bundlesService->hasFile($this->bundle, $uuid)) {
+		if (!$bundlesService->hasFile($this->bundle, $uuid) || $this->uninstall) {
 
 			/** @var File $resource */
 			$resource = $this->foreignResourceId->resource;
 
-			if ($resource && $resource->materials->count() == 0) {
-
-				$resource->deleteLocalFile();
-				$resource->delete();
-				event(new ResourceWasDeleted($resource));
-
+			if ($resource && $resource->materials->count() == 0 && $resource->foreignIds->count() === 1) {
+				$fileHandlingService->deleteResourceCompletely($resource, true);
+			}else{
+				// Resource nicht löschen, weil andere Materialien noch mit dieser Ressource verknüpft sind
+				$this->foreignResourceId->delete();
 			}
-
-			$this->foreignResourceId->delete();
 
 		} else {
 			// Resource still exists => Nothing to do
