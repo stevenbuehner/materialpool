@@ -23,7 +23,7 @@
     "lodash": "^4.17.15",
     "marked": "^0.7.0",
     "node-sass": "^4.13.1",
-    "octicons": "^8.5.0",
+    "@primer/octicons": "^9.4.0",
     "p-queue": "^6.2.1",
     "popper.js": "^1.16.0",
     "striptags": "^3.1.1",
