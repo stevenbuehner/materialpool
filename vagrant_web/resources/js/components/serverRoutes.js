@@ -211,6 +211,10 @@ export function api_v1_bundles_update_init(bundleId) {
 	return '/api/v1/bundles/' + bundleId + '/init-update';
 }
 
+export function api_v1_bundles_uninstall_init(bundleId) {
+	return '/api/v1/bundles/' + bundleId + '/init-uninstall';
+}
+
 export function api_v1_bundles_update_run(bundleId) {
 	return '/api/v1/bundles/' + bundleId + '/run-update';
 }

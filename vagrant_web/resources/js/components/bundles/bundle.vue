@@ -208,7 +208,7 @@
 					    )
 					    .catch((e) => {
 						    this.isRunning = false;
-						    this.flashError('Error while initializing Jobs!');
+						    this.flashError('Error while initializing Install-Jobs!');
 					    });
 				}
 
@@ -218,7 +218,6 @@
 			runNextJobs() {
 
 				if (this.cancelRequested === true) {
-
 					this.isRunning       = false;
 					this.cancelRequested = false;
 					return;
@@ -251,10 +250,31 @@
 
 			btnCancelProgress() {
 				this.cancelRequested = true;
+				this.$asyncComputed.bundle.update();
 			},
 
 			btnUninstall() {
-				alert('Not implemented yet');
+
+				if (this.isRunning === false) {
+					this.isRunning      = true;
+					this.max            = 100;
+					this.current        = 100;
+					this.isInitializing = true;
+
+					this.$store.dispatch('bundles/initUninstallJobs', this.bundle.id)
+					    .then(({deleteJobs, updateJobs, deletedJobs, openJobs, continueUpdate, updateAvailable}) => {
+							    this.isInitializing = false;
+							    this.max            = openJobs;
+							    this.current        = 0;
+							    this.runNextJobs();
+						    }
+					    )
+					    .catch((e) => {
+						    this.isRunning = false;
+						    this.flashError('Error while initializing Unintsall-Jobs!');
+					    });
+				}
+
 			}
 		},
 

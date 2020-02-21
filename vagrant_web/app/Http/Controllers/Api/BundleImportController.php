@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller as BaseController;
 use App\Jobs\Bundle\DeleteMaterialIfNeeded;
 use App\Jobs\Bundle\DeleteResourceIfNeeded;
+use App\Jobs\Bundle\FinishBundleUninstall;
 use App\Jobs\Bundle\FinishImportAfterUpdate;
 use App\Jobs\Bundle\InsertOrUpdateMaterial;
 use App\Jobs\Bundle\InsertOrUpdateResource;
@@ -87,6 +88,7 @@ class BundleImportController extends BaseController {
 		$deleteJobs          = 0;
 		$updateJobs          = 0;
 		$alreadyExistingJobs = 0;
+		$finishJobs          = 0;
 		// $updateAvailable  = FALSE;
 
 		try {
@@ -128,36 +130,59 @@ class BundleImportController extends BaseController {
 				$deleteJobs = $this->createDeleteJobs($bundle, $bundleInfo);
 				$updateJobs = $this->createInsertOrUpdateJobs($bundle, $bundleInfo);
 				$this->createFinishUpdateJob($bundle, $bundleInfo);
+				$finishJobs++;
 			}
 
 		}
 
 
 		// 4) Redirect to Processing the queue
+		return $this->redirectToProcessQueue($updateAvailable, $updateInProgress, $countDeletedJobs, $deleteJobs, $updateJobs, $alreadyExistingJobs + $deleteJobs + $updateJobs + $finishJobs);
+
+
+	}
+
+	public function initUninstall(Bundle $bundle) {
+
+		$bundleInfo       = $this->bundlesService->getLocalBundleData($bundle);
+		$countDeletedJobs = $this->bundleQueueService->deleteOldBundleJobs($bundle);
+		$deleteJobs       = $this->createDeleteJobs($bundle, $bundleInfo, TRUE);
+		$finishJobs       = 1;
+		$this->createFinishUninstallJob($bundle, $bundleInfo);
+
+		$bundle->installed_version = 'incomplete';
+		$bundle->save();
+
+		$test =  $this->redirectToProcessQueue(TRUE, FALSE, $countDeletedJobs, $deleteJobs, 0, $deleteJobs + $finishJobs);
+
+		return $test;
+	}
+
+	protected function redirectToProcessQueue($updateAvailable, $continueUpdate, $deletedJobs, $deleteJobs, $updateJobs, $openJobs) {
 		return [
 			// 'bundle'      => $bundle,
 			'updateAvailable' => $updateAvailable,
-			'continueUpdate'  => $updateInProgress,
-			'deletedJobs'     => $countDeletedJobs,
+			'continueUpdate'  => $continueUpdate,
+			'deletedJobs'     => $deletedJobs,
 			'deleteJobs'      => $deleteJobs,
 			'updateJobs'      => $updateJobs,
-			'openJobs'        => $alreadyExistingJobs + $deleteJobs + $updateJobs
+			'openJobs'        => $openJobs
 			// 'info'        => $info
 		];
 
 	}
 
-	protected function createDeleteJobs($bundle, &$bundleInfo) {
+	protected function createDeleteJobs($bundle, &$bundleInfo, $uninstall = FALSE) {
 
 		$queueName = $this->bundleQueueService->getQueueName($bundle);
 		$count     = 0;
 		$version   = $bundleInfo['version'];
 
 		ForeignMaterialId::where('bundle_id', $bundle->id)
-			->chunk(100, function (Collection $fmids) use ($bundle, $queueName, &$count, $version) {
+			->chunk(100, function (Collection $fmids) use ($bundle, $queueName, &$count, $version, $uninstall) {
 
 				foreach ($fmids as $fmid) {
-					DeleteMaterialIfNeeded::dispatch($bundle, $fmid, $version)
+					DeleteMaterialIfNeeded::dispatch($bundle, $fmid, $version, $uninstall)
 						->onQueue($queueName)
 						->onConnection('database');
 				}
@@ -167,10 +192,10 @@ class BundleImportController extends BaseController {
 			});
 
 		ForeignResourceId::where('bundle_id', $bundle->id)
-			->chunk(100, function (Collection $frids) use ($bundle, $queueName, &$count, $version) {
+			->chunk(100, function (Collection $frids) use ($bundle, $queueName, &$count, $version, $uninstall) {
 
 				foreach ($frids as $frid) {
-					DeleteResourceIfNeeded::dispatch($bundle, $frid, $version)
+					DeleteResourceIfNeeded::dispatch($bundle, $frid, $version, $uninstall)
 						->onQueue($queueName)
 						->onConnection('database');
 				}
@@ -227,6 +252,16 @@ class BundleImportController extends BaseController {
 		FinishImportAfterUpdate::dispatch($bundle, $bundleInfo['version'])
 			->onQueue($queueName)
 			->onConnection('database');
+
+	}
+
+	protected function createFinishUninstallJob($bundle, $bundleInfo) {
+
+		$queueName = $this->bundleQueueService->getQueueName($bundle);
+		FinishBundleUninstall::dispatch($bundle, $bundleInfo['version'])
+			->onQueue($queueName)
+			->onConnection('database');
+
 	}
 
 	public function runJobs(Bundle $bundle, Request $request) {
