@@ -149,6 +149,7 @@ return [
 	'Really-delete-count-bibleverses'                          => 'Willst du wirklich :COUNT Bibelverse auf einmal entfernen?',
 	'Really-delete-count-keywords'                             => 'Willst du wirklich :COUNT Tags auf einmal entfernen?',
 	'Realy-shutdown?'                                          => 'Willst du den Server wirklich unwiderruflich herunterfahren?',
+	'System-is-down'                                           => 'Server ist ausgeschaltet',
 	'System-is-beeing-shutdown'                                => 'Das System wird heruntergefahren...',
 	'System-was-shutdown'                                      => 'Das System wurde heruntergefahren',
 	'use-this-as-template'                                     => 'als Vorlage verwenden',

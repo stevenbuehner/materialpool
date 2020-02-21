@@ -155,6 +155,7 @@ return [
 	'Really-delete-count-bibleverses'                          => 'Do you really want to remove :COUNT bibleverses at once?',
 	'Really-delete-count-keywords'                             => 'Do you really want to remove :COUNT keywords at once?',
 	'Realy-shutdown?'                                          => 'Do you really want to shutdown the server?',
+	'System-is-down'                                           => 'System is down',
 	'System-is-beeing-shutdown'                                => 'System is beeing shutdown...',
 	'System-was-shutdown'                                      => 'System was shutdown',
 	'use-this-as-template'                                     => 'use as template',

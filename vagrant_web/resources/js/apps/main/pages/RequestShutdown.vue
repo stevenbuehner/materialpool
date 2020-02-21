@@ -1,10 +1,12 @@
 <template>
-    <div class="container">
+    <div class="systemDownContainer" :class="{systemIsDown}">
 
         <custom-dialog ref="areyoushure">
             {{modalContent}}
             <span v-if="timer.show">{{timer.seconds}}</span>
         </custom-dialog>
+
+        <div class="startAgain" v-if="systemIsDown">{{$t('pool.System-is-down')}}</div>
 
     </div>
 </template>
@@ -25,7 +27,9 @@
 					show: false,
 					seconds: 0,
 					timer: null,
-				}
+				},
+
+				systemIsDown: false,
 			};
 		},
 
@@ -63,7 +67,8 @@
 					clearInterval(this.timer.timer);
 					this.timer.timer  = null;
 					this.timer.show   = false;
-					this.modalContent = this.$t('pool.System-was-shutdown');
+					this.systemIsDown = true;
+					this.$refs.areyoushure.hide();
 				}
 			},
 		},
@@ -113,6 +118,28 @@
 	}
 </script>
 
-<style scoped>
+<style type="text/scss">
+    @import "resources/sass/theme";
 
+    .systemDownContainer {
+        position: absolute;
+        height: 100%;
+        width: 100%;
+    }
+
+    .systemIsDown {
+        background-color: $sidebar-input-background-colour-disabled;
+        color: #636b6f;
+        font-family: 'Raleway', sans-serif;
+        font-weight: 100;
+        height: 100vh;
+        margin: 0;
+        font-size: 84px;
+
+        .startAgain {
+            position: relative;
+            text-align: center;
+            top: 20%
+        }
+    }
 </style>
