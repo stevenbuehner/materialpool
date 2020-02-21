@@ -20,6 +20,7 @@
             <div class="d-center">
                 <span class="icon" :style="{backgroundImage: 'url('+ option.icon+')'}"></span>
                 {{ option.text }}
+                <span class="descendants" v-if="option.descendants && option.descendants > 0">({{$tc('pool.XY-subtopics', option.descendants, {XY:option.descendants})}})</span>
             </div>
         </template>
 
@@ -32,6 +33,9 @@
                         type="button"
                         class="vs__deselect"
                         aria-label="Remove option">
+
+                    <span v-if="showDescendants && option.descendants && option.descendants.length > 0"
+                          class="descendants">({{option.descendants.map(kw => kw.title).join(', ')}})</span>
 
                     <span aria-hidden="true"><slot name="label">&times;</slot></span>
                 </button>
@@ -51,6 +55,12 @@
 			lineValues: {
 				type: Array,
 				required: true,
+			},
+
+			showDescendants: {
+				type: Boolean,
+				required: false,
+				default: true
 			}
 		},
 
@@ -115,6 +125,11 @@
                 top: -.15rem;
                 position: relative;
             }
+
+            .descendants {
+                font-size: 0.8em;
+                padding: 0.2em 0.2em 0 0.2em;
+            }
         }
 
         .icon {
@@ -140,7 +155,13 @@
             display: inline-flex;
         }
 
+
         .vs__dropdown-menu {
+
+            .descendants {
+                font-size: 0.8em;
+                padding: 0.2em 0 0 0.5em;
+            }
 
             li {
                 border-bottom: 1px solid rgba(112, 128, 144, 0.1);

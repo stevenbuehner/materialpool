@@ -18,6 +18,10 @@ use Kalnoy\Nestedset\NodeTrait;
  * @property int $parent_id
  * @property string $custom_icon
  * @property Collection $materials
+ * @property int _lft
+ * @property int _rgt
+ * @property \DateTime created_at
+ * @property \DateTime updated_at
  */
 class Keyword extends Model {
 	use NodeTrait;

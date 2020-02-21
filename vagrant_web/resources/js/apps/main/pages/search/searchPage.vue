@@ -50,6 +50,8 @@
 
 	export default {
 
+		name: 'searchPage',
+
 		props: {
 			query: {
 				type: String,
@@ -92,6 +94,8 @@
 		},
 
 		computed: {
+
+			// Nur Helper-Variable zur Überwachung im Watch-Statement
 			queryAndPage() {
 				return this.query + 'p' + this.page;
 			},
@@ -102,7 +106,13 @@
 				for (let i in this.searchObjects) {
 					for (let j in this.searchObjects[i]) {
 						if (this.searchObjects[i][j].item.type === "k") {
-							kws.push(this.searchObjects[i][j].item.id,);
+							kws.push(this.searchObjects[i][j].item.id);
+
+							if (Array.isArray(this.searchObjects[i][j].descendants)) {
+								this.searchObjects[i][j].descendants.forEach(function (kw) {
+									kws.push(kw.id);
+								});
+							}
 						}
 
 					}

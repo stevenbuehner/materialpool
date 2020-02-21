@@ -51,7 +51,7 @@ class KeywordController extends BaseController {
 	}
 
 	public function show(Keyword $keyword) {
-		return $keyword;
+		return $keyword->load(['descendants', 'ancestors']);
 	}
 
 	public function relationsCount(Keyword $keyword) {

@@ -1,7 +1,6 @@
 import {max_preview_image_size_x, max_preview_image_size_y} from "../apps/config";
 
 export const searchGuessRoute  = '/pool/search/guess';
-export const searchGuessRoute2 = '/pool/search/guess2';
 
 // Keepalive
 export const keepAliveRoute = '/keepalive';
