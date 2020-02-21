@@ -206,6 +206,7 @@ return [
 	'Create-text'                                              => 'Text erstellen',
 	'Text-created-and-assigned'                                => 'Text erstellt und zugeordnet',
 	'Please-enter-more-text'                                   => 'Bitte mehr Text eingeben',
+	'more-pages-available'                                     => 'weitere Seiten verfügbar',
 	'Upload'                                                   => 'Hochladen',
 	'Undo-changes'                                             => 'Änderungen Rückgängig machen',
 	'Creating-Resource'                                        => 'Erstelle Resource',

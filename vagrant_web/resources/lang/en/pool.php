@@ -211,6 +211,7 @@ return [
 	'Create-text'                                              => 'Create Text',
 	'Text-created-and-assigned'                                => 'Text created and assigned',
 	'Please-enter-more-text'                                   => 'Please enter more text',
+	'more-pages-available'                                     => 'more pages available',
 	'Upload'                                                   => 'Upload',
 	'Undo-changes'                                             => 'Undo changes',
 	'Creating-Resource'                                        => 'Creating Resource',
