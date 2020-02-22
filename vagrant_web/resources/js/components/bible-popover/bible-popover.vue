@@ -55,17 +55,20 @@
                                      :title="$t('pool.show-materials')">
                             {{$tc('pool.material-count', materialCount, {COUNT: materialCount})}}
                         </router-link>
-                        <router-link class="action-button"
-                                     target="_blank"
-                                     :to="{name: 'readbible', params: {searchquery: readBibleSearchParam}}"
-                                     :title="$t('pool.lookup-in-context')">
-                            {{$t('pool.context', materialCount, {COUNT: materialCount})}}
-                        </router-link>
+
+                        <span class="action-button" :title="$t('pool.lookup-in-context')"
+                              @click.left.exact="_widenTheContext"
+                              @click.left.shift.exact="_narrowTheContext"
+                              @click.right.stop.prevent="_narrowTheContext">
+                            {{ $t('pool.context', materialCount, {COUNT: materialCount}) }}
+                        </span>
                     </span>
                 </h2>
 
                 <p>
-                    <span v-if="!isLoading" v-for="vers in verses" class="verse">
+                    <span v-if="!isLoading" v-for="vers in verses"
+                          class="verse"
+                          :class="{context: (contextOffsetFrom > 0 || contextOffsetTo > 0) && (vers.no < bibleverse.getFrom() || vers.no > bibleverse.getTo())}">
                         <span v-if="!isSingleVerse" class="vno">{{vers.vno}}</span>
                         <span class="text">{{vers.text}} </span>
                     </span>
@@ -74,8 +77,9 @@
                 <p></p>
                 <div class="version" v-if="bible.uuid">
                     <span>{{bible.title}} ({{bible.uuid}})</span><br>
-                    <span>{{$t('pool.Source')}}: <a :href="bible.source"
-                                                    target="_blank">{{bibleSourceDomain}}</a></span>
+                    <span>{{$t('pool.Source')}}:
+                        <a :href="bible.source" target="_blank">{{bibleSourceDomain}}</a>
+                    </span>
                 </div>
             </div>
         </article>
@@ -185,6 +189,9 @@ Events:
 					width: 0,
 				},
 				maxRequiredContentHeight: 100,
+
+				contextOffsetFrom: 0,
+				contextOffsetTo: 0,
 			};
 		},
 
@@ -228,7 +235,7 @@ Events:
 			},
 
 			isSingleVerse() {
-				return this.normalizedBibleverse.isSingleVerse();
+				return this.normalizedBibleverse.isSingleVerse() && this.contextOffsetTo === 0 && this.contextOffsetFrom === 0;
 			},
 
 			boxHeight() {
@@ -277,8 +284,8 @@ Events:
 					this.isLoading = true;
 
 					return this.$store.dispatch('biblecontents/get', {
-						from: this.from,
-						to: this.to,
+						from: this.from - this.contextOffsetFrom,
+						to: parseInt(this.to) + this.contextOffsetTo,
 						bibleUuid: this.bibleUuid
 					}).then((data) => {
 						this.isLoading = false;
@@ -342,8 +349,11 @@ Events:
 		},
 
 		watch: {
-			bibleverses() {
-				this._initPosition();
+			bibleverse() {
+				// Bei einem Update des Bibelverses den Text an der Stelle lassen
+				// this._initPosition();
+
+				this._initContextOffsets();
 			},
 			verses() {
 				this.$nextTick(() => {
@@ -409,6 +419,29 @@ Events:
 				window.removeEventListener('touchmove', this._dragMove, true);
 
 				this.isDragging = false;
+			},
+
+			_initContextOffsets() {
+				this.contextOffsetFrom = 0;
+				this.contextOffsetTo   = 0;
+			},
+
+			_widenTheContext() {
+				if (this.bibleverse.getFromVerse() - this.contextOffsetFrom >= 0) {
+					this.contextOffsetFrom++;
+				}
+
+				this.contextOffsetTo++;
+			},
+
+			_narrowTheContext() {
+				if (this.contextOffsetFrom > 0) {
+					this.contextOffsetFrom--;
+				}
+
+				if (this.contextOffsetTo > 0) {
+					this.contextOffsetTo--;
+				}
 			},
 
 			_initPosition() {
@@ -524,6 +557,7 @@ Events:
 			eventBus.$on('bible-popover-opening', this._incomingPopoverOpening);
 
 			this._initPosition();
+			this._initContextOffsets();
 		},
 
 		mounted() {
@@ -672,6 +706,16 @@ Events:
                 display: inline-block;
                 padding: 0 10px 10px 10px;
                 width: 100%;
+
+                .verse {
+                    &.context .text {
+                        color: $gray-500;
+
+                        &:hover {
+                            color: inherit;
+                        }
+                    }
+                }
             }
 
             .float-right {
@@ -703,6 +747,7 @@ Events:
             .action-button {
                 background: white;
                 color: black;
+                font-weight: normal;
                 border: 1px solid $bible-popover-theme-color;
                 border-radius: 0.3em;
                 text-decoration: none;
@@ -713,6 +758,7 @@ Events:
                 top: -1px;
                 opacity: 0.9;
                 transition: 0.2s;
+                cursor: pointer;
             }
 
             .action-button:hover {
