@@ -299,4 +299,5 @@ return [
 	'preload'                                                  => 'Vorladen',
 	'Insert-Material-ID'                                       => 'Material-ID',
 	'Info'                                                     => 'Info',
+	'Read-Bibleverse'                                          => 'Vers nachschlagen',
 ];

@@ -303,4 +303,5 @@ return [
 	'preload'                                                  => 'preload',
 	'Insert-Material-ID'                                       => 'Insert material-ID',
 	'Info'                                                     => 'Info',
+	'Read-Bibleverse'                                          => 'Read Bibleverse',
 ];

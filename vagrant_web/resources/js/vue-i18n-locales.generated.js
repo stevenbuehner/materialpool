@@ -297,7 +297,8 @@ export default {
             "resource-successfully-replaced": "Resource erfolgreich ersetzt",
             "preload": "Vorladen",
             "Insert-Material-ID": "Material-ID",
-            "Info": "Info"
+            "Info": "Info",
+            "Read-Bibleverse": "Vers nachschlagen"
         }
     },
     "en": {
@@ -617,7 +618,8 @@ export default {
             "resource-successfully-replaced": "Resource successfully replaced",
             "preload": "preload",
             "Insert-Material-ID": "Insert material-ID",
-            "Info": "Info"
+            "Info": "Info",
+            "Read-Bibleverse": "Read Bibleverse"
         },
         "validation": {
             "accepted": "The {attribute} must be accepted.",

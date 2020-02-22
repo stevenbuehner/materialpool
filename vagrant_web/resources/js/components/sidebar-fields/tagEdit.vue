@@ -75,7 +75,7 @@
             </context-menu-item>
             <context-menu-item v-if="optionalData.from && optionalData.to"
                                @click="displayBibleverse(optionalData.from, optionalData.to)">
-                Bibel lesen
+                {{$t('pool.Read-Bibleverse')}}
             </context-menu-item>
         </context-menu>
 
