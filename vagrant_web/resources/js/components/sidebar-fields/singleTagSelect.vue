@@ -59,16 +59,18 @@
 
 <script>
 
-	import generalMixin from './generalSidebarFields.mixin';
-	import VueSelect    from 'vue-select/src/components/Select';
-	import _debounce    from 'lodash/debounce';
-	import tagIcon      from 'svg-icon/dist/svg/material/style.svg';
+	import generalMixin    from './generalSidebarFields.mixin';
+	import VueSelect       from 'vue-select/src/components/Select';
+	import _debounce       from 'lodash/debounce';
+	import tagIcon         from 'svg-icon/dist/svg/material/style.svg';
+	import {savingDialogs} from "../../helper/flashMessages";
+
 
 	export default {
 
 		name: "singleTagSelect",
 
-		mixins: [generalMixin],
+		mixins: [generalMixin, savingDialogs],
 
 		props: {
 			filterType: {
@@ -158,8 +160,8 @@
 						type: this.filterType
 					}).then((keyword) => {
 						this.selection = keyword;
-						this.emitKeywordAssociated(keyword);
 						this.flashSaved(this.$t('pool.keyword'));
+						this.emitKeywordAssociated(keyword);
 					}).catch((errorMessage) => {
 						this.flashError(this.$t('pool.new-keyword') + ' ' + input.title, errorMessage);
 					}).then(() => {
