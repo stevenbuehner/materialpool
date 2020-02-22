@@ -1,6 +1,6 @@
 <template>
     <div>
-        <div class="row" v-if="maxPagesToDisplay < pageCount">
+        <div class="row" v-if="maxPagesToDisplay < pagePivotCount">
             <div class="col">
                 <b-form-select
                         v-model="maxPagesToDisplay"
@@ -32,7 +32,7 @@
             </div>
 
             <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-3 p-1 imageContainer "
-                 v-if="pageCount > maxPagesToDisplay">
+                 v-if="pagePivotCount > maxPagesToDisplay">
                 <div class="moreImages d-flex justify-content-center align-items-center">
                     <div>
                         <div class="moreDots">...</div>
@@ -81,13 +81,13 @@
 
 				let urls = [];
 
-				if (this.pageCount === 0) {
+				if (this.pagePivotCount === 0) {
 					urls.push({
 						src: previewImageFirstPage(this.resource),
 						title: 'Startseite',
 						page_no: 1
 					});
-				} else if (this.pageCount > 0) {
+				} else if (this.pagePivotCount > 0) {
 
 					urls = this.previewablePages.splice(0, Math.min(this.maxPagesToDisplay, this.previewablePages.length)).map((pageNo) => {
 						return this.generatePreviewObject(this.resource, pageNo);
@@ -106,11 +106,11 @@
 			displayPagesLimitOptions() {
 				// 50 ist Standard und sollte in jeder Auswahl vorhanden sein!
 
-				if (this.pageCount <= 100) {
+				if (this.pagePivotCount <= 100) {
 					return [20, 30, 40, 50, 70, 80, 100];
-				} else if (this.pageCount <= 500) {
+				} else if (this.pagePivotCount <= 500) {
 					return [20, 50, 100, 300, 500];
-				} else if (this.pageCount <= 1000) {
+				} else if (this.pagePivotCount <= 1000) {
 					return [20, 50, 200, 400, 600, 1000];
 				} else {
 					return [20, 50, 200, 400, 600, 1000, 10000];
