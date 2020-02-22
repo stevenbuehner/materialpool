@@ -1,5 +1,5 @@
 <template>
-    <div class="container-fluid py-2">
+    <div class="container-fluid pt-3 pb-2">
         <div class="row" v-if="!editModeEnabled" @dblclick="editModeEnabled=true">
             <div class="col-12">
                 <markdown :text="myTextContent" :load-bibleverses="true"/>
