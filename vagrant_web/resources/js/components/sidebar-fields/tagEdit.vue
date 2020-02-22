@@ -1,5 +1,5 @@
 <template>
-    <div class="sideBarField tagEditSidebarField">
+    <div class="sideBarField tagEditSidebarField" ref="sideBarField">
 
         <div class="label">
             <slot name="label">
@@ -73,12 +73,19 @@
             <context-menu-item @click.stop="doToTagSearch(optionalData)">
                 {{$t('pool.search-for-xy', {xy: getTagLabelFromObject(optionalData)})}}
             </context-menu-item>
+            <context-menu-item v-if="optionalData.from && optionalData.to"
+                               @click="displayBibleverse(optionalData.from, optionalData.to)">
+                Bibel lesen
+            </context-menu-item>
         </context-menu>
 
         <keyword-editor
                 ref="keywordEditor"
                 :id="0"
                 @saved="updateKeywordChanges"/>
+
+        <bible-popover :bibleverse="biblePopover.bibleverse" v-if="biblePopover.showMe" :position="$refs.sideBarField"
+                       @bible-popover-closerequest="biblePopover.showMe = false"/>
         <!--
          @deleted="onDeleted"/>
         @saved="onKeywordPropertiesChanged" -->
@@ -97,6 +104,9 @@
 	import ContextMenuItem                                        from "../context-menu/context-menu-item";
 	import KeywordEditor                                          from "../modals/editors/keywordEditor";
 	import {searchArrayObjectsToSearchQuery}                      from "../search/searchHelper";
+
+	import BiblePopover from "../bible-popover/bible-popover";
+	import BibleVerse   from '../../../../vendor/stevenbuehner/bible-verse-bundle/js/in/BibleVerse.js';
 
 	export default {
 		name: "tagEdit",
@@ -141,6 +151,11 @@
 			return {
 				suggestedFilteredTags: [],
 				clearOnSelect: true,
+
+				biblePopover: {
+					showMe: false,
+					bibleverse: null
+				}
 			};
 		},
 
@@ -211,6 +226,11 @@
 				} else {
 					return value;
 				}
+			},
+
+			displayBibleverse(from, to) {
+				this.biblePopover.bibleverse = new BibleVerse(from, to);
+				this.biblePopover.showMe     = true;
 			},
 
 			onSearch(search, loading) {
@@ -301,6 +321,7 @@
 		},
 
 		components: {
+			BiblePopover,
 			KeywordEditor,
 			ContextMenuItem,
 			ContextMenu,
