@@ -74,11 +74,17 @@
 		computed: {
 
 			image() {
-				return this.data[this.currentIndex].src;
+				if (this.data && this.data[this.currentIndex] && this.data[this.currentIndex].src)
+					return this.data[this.currentIndex].src;
+				else
+					return '';
 			},
 
 			title() {
-				return this.data[this.currentIndex].title || '';
+				if (this.data && this.data[this.currentIndex] && this.data[this.currentIndex].title) {
+					return this.data[this.currentIndex].title;
+				}
+				return '';
 			},
 
 			hasPrevious() {
