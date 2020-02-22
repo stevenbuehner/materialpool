@@ -65,11 +65,11 @@
                 </h2>
 
                 <p>
-                    <span v-for="vers in verses" class="verse">
+                    <span v-if="!isLoading" v-for="vers in verses" class="verse">
                         <span v-if="!isSingleVerse" class="vno">{{vers.vno}}</span>
                         <span class="text">{{vers.text}} </span>
                     </span>
-                    <materialpool-spinner v-if="verses.length === 0"/>
+                    <materialpool-spinner v-if="isLoading"/>
                 </p>
                 <p></p>
                 <div class="version" v-if="bible.uuid">
