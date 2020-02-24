@@ -81,14 +81,14 @@
 
 				let urls = [];
 
-				if (this.pagePivotCount === 0) {
+				if (this.pageCount === 0) {
+					// Die Seitenanzahl-Erkennung auf dem Server ist fehlgeschlagen => Zeige einfach nur die erste Seite an
 					urls.push({
 						src: previewImageFirstPage(this.resource),
 						title: 'Startseite',
 						page_no: 1
 					});
-				} else if (this.pagePivotCount > 0) {
-
+				} else {
 					urls = this.previewablePages.splice(0, Math.min(this.maxPagesToDisplay, this.previewablePages.length)).map((pageNo) => {
 						return this.generatePreviewObject(this.resource, pageNo);
 					});
