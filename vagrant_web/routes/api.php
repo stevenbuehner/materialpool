@@ -71,6 +71,15 @@ Route::group([
 	Route::get('general/options', 'GeneralOptionsController@index')
 		->name('general.options');
 
+	// User and usersettings
+	Route::get('users/{user}', 'UserSelfController@index')
+		->where('user', '[0-9]+')
+		->name('users.view');
+	Route::post('users/{user}', 'UserSelfController@storeSettings')
+		->where('user', '[0-9]+')
+		->name('users.store_settings');
+
+
 	// Resources
 	Route::get('resources/find', 'ResourceController@find')
 		->name('resources.find');

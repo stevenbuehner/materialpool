@@ -1,6 +1,6 @@
 import {max_preview_image_size_x, max_preview_image_size_y} from "../apps/config";
 
-export const searchGuessRoute  = '/pool/search/guess';
+export const searchGuessRoute = '/pool/search/guess';
 
 // Keepalive
 export const keepAliveRoute = '/keepalive';
@@ -64,8 +64,18 @@ export function api_v1_resources_replace_with(oldResourceId, newResourceId) {
 }
 
 
-// GeneralOptions
+// General Options
 export const api_v1_general_options = '/api/v1/general/options';
+
+
+// User settings
+export function api_v1_users_view(userId) {
+	return '/api/v1/users/' + userId;
+}
+
+export function api_v1_users_store_settings(userId) {
+	return api_v1_users_view(userId);
+}
 
 
 // Resource-Material Assignment
@@ -74,7 +84,7 @@ export function api_v2_materialresource_attach(materialId, resourceId) {
 }
 
 export function api_v2_materialresource_detach(materialId, resourceId) {
-	return '/api/v2/material/' + materialId + '/resource/' + resourceId + '/detach';
+	return api_v2_materialresource_attach(materialId, resourceId);
 }
 
 

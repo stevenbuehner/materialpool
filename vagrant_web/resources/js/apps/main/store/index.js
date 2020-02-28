@@ -11,7 +11,6 @@ import recentmaterials from './modules/recentmaterials';
 import bundles         from './modules/bundles';
 import biblecontents   from './modules/biblecontents';
 import general         from './modules/general';
-import materialcreator from './modules/materialCreator';
 import bibles          from './modules/bibles';
 
 Vue.use(VueX);
@@ -31,7 +30,6 @@ export const store = new VueX.Store({
 		bundles,
 		biblecontents,
 		general,
-		materialcreator,
 		bibles
 	}
 });

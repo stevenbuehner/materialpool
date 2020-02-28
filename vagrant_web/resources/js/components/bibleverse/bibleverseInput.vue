@@ -215,7 +215,7 @@
 
 			getBibleverseKey(bv) {
 
-				let k = bv.label;
+				let k = bv.label || bv.id;
 
 				if (bv.pivot !== undefined && bv.pivot.relevance !== undefined) {
 					k = k + 'r' + bv.pivot.relevance;

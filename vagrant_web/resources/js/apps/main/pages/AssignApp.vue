@@ -8,7 +8,7 @@
             <b-navbar-nav>
                 <b-button size="sm"
                           class="my-1 my-md-0 mx-1"
-                          :title="selectedPages.length > 0 ? $t('pool.create-material-selected-pages') : $t('pool.select-pages-first')"
+                          :title="selectedPages.length > 0 ? $t('pool.create-material-selected-pages') + ' (CTRL + N)': $t('pool.select-pages-first')"
                           :disabled="selectedPages.length === 0"
                           @click="btnCreateNewMaterialFromSelection"
                           v-shortkey="['ctrl', 'n']" @shortkey="btnCreateNewMaterialFromSelection"
@@ -203,6 +203,7 @@
 
 		},
 
+
 		methods: {
 
 			updateResource(id) {
@@ -289,6 +290,7 @@
 				this.$refs.materialCreator
 				    .showPromise()
 				    .then((material) => {
+
 					    return this.attachCurrentSelectionToMaterial(material.id);
 				    })
 				    .catch((err) => {
@@ -333,7 +335,9 @@
 
 			serverDoResourceMaterialAttachment(materialId, resourceId, pages) {
 
-				let limitation = undefined;
+				let limitation     = undefined;
+				const flashMessage = this.flashStartSaving(this.$t('pool.Resource-assignment'));
+
 
 				if (pages && Array.isArray(pages) && pages.length > 0 && pages.length < this.resource.page_count) {
 					limitation = {
@@ -348,6 +352,9 @@
 					limitation
 				}).then(({resource}) => {
 					this.resource = resource;
+					this.flashSaved(this.$t('pool.Resource-assignment'), flashMessage);
+				}).catch((message) => {
+					this.flashError(this.$t('pool.Resource-assignment'), message, flashMessage);
 				});
 
 			},
@@ -377,6 +384,11 @@
 
 			    });
 
+
+		},
+
+		updated() {
+//			this.$refs.materialCreator.showPromise().catch((t));
 
 		},
 

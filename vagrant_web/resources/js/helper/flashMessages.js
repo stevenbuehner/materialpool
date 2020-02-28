@@ -13,7 +13,7 @@ export const savingDialogs = {
 
 		flashActionSuccessfullyFinished(message, closeFlash) {
 			if (closeFlash) {
-				this.flashCloseAndDestroy(closeFlash);
+				this._flashCloseAndDestroy(closeFlash);
 			}
 
 			return this.flash(message, 'success', {
@@ -24,7 +24,7 @@ export const savingDialogs = {
 
 		flashActionFailed(message, closeFlash) {
 			if (closeFlash) {
-				this.flashCloseAndDestroy(closeFlash);
+				this._flashCloseAndDestroy(closeFlash);
 			}
 
 			return this.flash(message, 'error', {
@@ -39,7 +39,7 @@ export const savingDialogs = {
 
 		flashSaved(propertyName, closeFlash) {
 			if (closeFlash) {
-				this.flashCloseAndDestroy(closeFlash);
+				this._flashCloseAndDestroy(closeFlash);
 			}
 
 			this.flashActionSuccessfullyFinished(this.$t('pool.xy-saved', {xy: propertyName[0].toUpperCase() + propertyName.substring(1).toLowerCase()}));
@@ -51,16 +51,20 @@ export const savingDialogs = {
 
 		flashRemoved(propertyName, closeFlash) {
 			if (closeFlash) {
-				this.flashCloseAndDestroy(closeFlash);
+				this._flashCloseAndDestroy(closeFlash);
 			}
 
 			return this.flashActionSuccessfullyFinished(this.$t('pool.xy-removed', {xy: propertyName[0].toUpperCase() + propertyName.substring(1).toLowerCase()}));
 		},
 
-		flashError(propertyName, msg) {
+		flashError(propertyName, msg, closeFlash) {
 			if (msg) {
 				console.error(msg);
 				msg = ' (' + msg + ')';
+			}
+
+			if (closeFlash) {
+				this._flashCloseAndDestroy(closeFlash);
 			}
 
 			this.flashActionFailed('An error accured while while saving ' + propertyName.toLowerCase() + (msg || ''));
@@ -70,7 +74,7 @@ export const savingDialogs = {
 			this.flashActionFailed(msg);
 		},
 
-		flashCloseAndDestroy(flashObject) {
+		_flashCloseAndDestroy(flashObject) {
 			if (typeof flashObject.destroy === 'function') {
 				flashObject.destroy();
 			} else {
