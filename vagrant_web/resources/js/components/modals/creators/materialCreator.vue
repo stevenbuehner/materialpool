@@ -27,7 +27,7 @@
                                         role="menuitem"
                                         type="button"
                                         class="dropdown-item"
-                                        @click.prevent.stop="[preloadDropdown.loadFromMaterialFormActive = false, preloadDropdown.createNewTemplateFormActive = true]">
+                                        @click.prevent.stop="_btnCreatePreset">
                                     {{$t('pool.Create-new-template')}}
                                 </b-button>
                             </li>
@@ -37,6 +37,7 @@
                                     <b-form-input
                                             v-model="preloadDropdown.templateNameInput"
                                             :placeholder="$t('pool.Template-name')"
+                                            ref="templateNameInput"
                                     />
                                     <b-input-group-append>
                                         <b-button @click="_saveNewPreset"
@@ -58,8 +59,17 @@
                                                         @click="_loadPreset(i)">
                                     {{i}}
                                     <span class="sb_dropdown_icons_wrapper">
-                                        <repeat-icon class="sb_dropdown-icon"/>
-                                        <trash-icon class="sb_dropdown-icon" @click.stop="_deletePreset(i)"/>
+                                        <repeat-icon class="sb_dropdown-icon"
+                                                     v-if="i !== defaultPresetId"
+                                                     @click.stop="_saveDefaultPresetId(i)"
+                                                     :title="$t('pool.Select-as-default')"/>
+                                        <repeat-icon class="sb_dropdown-icon selected"
+                                                     v-if="i === defaultPresetId"
+                                                     @click.stop="_saveDefaultPresetId(null)"
+                                                     :title="$t('pool.Remove-default')"/>
+                                        <trash-icon class="sb_dropdown-icon"
+                                                    @click.stop="_deletePreset(i)"
+                                                    :title="$t('pool.Delete-Preset')"/>
                                     </span>
                                 </b-dropdown-item-button>
                             </b-dropdown-group>
@@ -73,7 +83,7 @@
                                         role="menuitem"
                                         type="button"
                                         class="dropdown-item"
-                                        @click.prevent.stop="[preloadDropdown.loadFromMaterialFormActive = true, preloadDropdown.createNewTemplateFormActive = false]">
+                                        @click.prevent.stop="_btnLoadMaterialId">
                                     {{$t('pool.Load-from-material-id')}}
                                 </b-button>
                             </li>
@@ -84,6 +94,7 @@
                                             type="number"
                                             v-model="preloadMaterialId"
                                             :placeholder="$t('pool.Material-ID')"
+                                            ref="preloadMaterialIdInput"
                                     />
                                     <b-input-group-append>
                                         <b-button variant="primary"
@@ -246,7 +257,8 @@
 	import repeatIcon from 'svg-icon/dist/svg/typcn/arrow-repeat.svg';
 
 
-	const USER_SETTINGS_MATERIAL_TEMPLATE_ID = 'assign.material.templates';
+	const USER_SETTINGS_MATERIAL_TEMPLATE_ID         = 'assign.material.templates';
+	const USER_SETTINGS_MATERIAL_DEFAULT_TEMPLATE_ID = 'assign.material.defaulttemplate';
 
 	export default {
 		name: "materialCreator",
@@ -292,40 +304,6 @@
 				type: String,
 				false: true,
 				default: ''
-			},
-			title: {
-				type: String,
-				required: false,
-				default: ''
-			},
-			description: {
-				type: String,
-				required: false,
-				default: ''
-			},
-			author: {
-				type: String,
-				required: false,
-				default: null
-			},
-			rating: {
-				type: Number,
-				required: false,
-				default: null
-			},
-			keywordIds: {
-				type: Array,
-				required: false,
-				default() {
-					return [];
-				}
-			},
-			bibleverseIds: {
-				type: Array,
-				required: false,
-				default() {
-					return [];
-				}
 			},
 
 			externalBibleverseSuggestions: {
@@ -403,6 +381,16 @@
 					});
 				},
 				default: {}
+			},
+
+			defaultPresetId: {
+				get() {
+					return this.$store.dispatch('general/currentUserSetting', {
+						settingId: USER_SETTINGS_MATERIAL_DEFAULT_TEMPLATE_ID,
+						defaultValue: null
+					})
+				},
+				default: null
 			}
 
 		},
@@ -423,12 +411,15 @@
 
 			showPromise() {
 
+				this._onReset();
+
 				return new Promise((resolve, reject) => {
 					this.resolve = resolve;
 					this.reject  = reject;
 
 					this.$refs.myModal.show();
 				});
+
 
 			},
 
@@ -511,60 +502,51 @@
 			},
 
 			_onReset() {
+
 				this.formErrors = [];
 
-				this.form.title       = this.title;
-				this.form.description = this.description;
-				this.form.rating      = this.rating;
+				console.log('_onReset');
+
+				this.form.title       = '';
+				this.form.description = '';
+				this.form.rating      = null;
 				this.form.from_bot    = false;
-				this.form.author      = this.author;
+				this.form.author      = null;
+				this.keywordInput     = [];
+				this.bibleverseInput  = [];
 
-				// Wenn nur die IDs gegeben sind, dann nimm die Standard-Relevanz
-				this.keywordInput    = [];
-				this.bibleverseInput = [];
+				// Lade DefaultPreset wenn vorhanden
+				this.$store.dispatch('general/currentUserSetting', {
+					settingId: USER_SETTINGS_MATERIAL_DEFAULT_TEMPLATE_ID,
+					defaultValue: null
+				}).then((templateID) => {
+					if (templateID !== null && this.presets[templateID]) {
+						this._loadPreset(templateID);
+					}
+				})
 
-				const kwIdsAndRelevance = this.keywordIds.length > 0 ? this.keywordIds.map((kw) => {
-					return {id: kw.id, relevance: RELEVANCE_USER_AVG}
-				}) : [];
+			},
 
-				// Wenn nur die IDs gegeben sind, dann nimm die Standard-Relevanz
-				const bvIdsAndRelevance = (this.bibleverseIds.length > 0) ? this.bibleverseIds.map((bv) => {
-					return {id: bv.id, relevance: RELEVANCE_USER_AVG}
-				}) : [];
+			/**
+			 *
+			 * @param templateID {string|null}
+			 * @private
+			 */
+			_saveDefaultPresetId(templateID) {
 
+				const flashMessage = this.flashStartSaving(this.$t('pool.Default-Preset'));
 
-				// Lade den Author anhand der zwischengespeicherten ID nach
-				if (this.form.author) {
-					this.$store.dispatch('keywords/get', this.form.author)
-					    .then((author) => {
-						    this.form.author = author;
-					    });
-				}
+				this.$store.dispatch('general/storeCurrentUserSetting', {
+					settingId: USER_SETTINGS_MATERIAL_DEFAULT_TEMPLATE_ID,
+					data: templateID
+				}).then(() => {
+					this.flashSaved(this.$t('pool.Default-Preset'), flashMessage)
+					this.$asyncComputed.defaultPresetId.update();
+				}).catch((msg) => {
+					this.flashError(this.$t('pool.Default-Preset'), msg, flashMessage);
+				});
 
-				// Lade die Keywords anhand der zwischengespeicherten IDs nach und füge die Relevanz hinzu
-				if (kwIdsAndRelevance.length > 0) {
-					this.$store.dispatch('keywords/getMultiple', kwIdsAndRelevance.map(kw => kw.id))
-					    .then((keywords) => {
-
-						    for (let i in keywords) {
-							    keywords[i].pivot = {relevance: kwIdsAndRelevance.find((el) => el.id === keywords[i].id).relevance}
-						    }
-
-						    this.keywordInput = keywords;
-					    });
-				}
-
-				if (bvIdsAndRelevance.length > 0) {
-					this.$store.dispatch('bibleverses/getMultiple', bvIdsAndRelevance.map(bv => bv.id))
-					    .then((bibleverses) => {
-
-						    for (let i in bibleverses) {
-							    bibleverses[i].pivot = {relevance: bvIdsAndRelevance.find((el) => el.id === bibleverses[i].id).relevance}
-						    }
-
-						    this.bibleverseInput = bibleverses;
-					    });
-				}
+				this._loadPreset(templateID);
 
 			},
 
@@ -583,6 +565,33 @@
 					range.collapse(false);
 					range.select();
 				}
+
+			},
+
+			_btnCreatePreset() {
+
+				this.preloadDropdown.loadFromMaterialFormActive  = false;
+				this.preloadDropdown.createNewTemplateFormActive = true;
+
+				this.$nextTick(() => {
+					this.$nextTick(() => {
+						this.$refs.templateNameInput.$el.focus();
+					});
+				})
+
+			},
+
+
+			_btnLoadMaterialId() {
+
+				this.preloadDropdown.loadFromMaterialFormActive  = true;
+				this.preloadDropdown.createNewTemplateFormActive = false;
+
+				this.$nextTick(() => {
+					this.$nextTick(() => {
+						this.$refs.preloadMaterialIdInput.$el.focus();
+					});
+				})
 
 			},
 
@@ -695,8 +704,8 @@
 					this.form.author = null;
 				}
 
-				const keywordInput    = JSON.parse(JSON.stringify(materialTemplate.keywords)) || [];
-				const bibleverseInput = JSON.parse(JSON.stringify(materialTemplate.bibleverses)) || [];
+				const keywordInput    = materialTemplate.keywords ? JSON.parse(JSON.stringify(materialTemplate.keywords)) : [];
+				const bibleverseInput = materialTemplate.bibleverses ? JSON.parse(JSON.stringify(materialTemplate.bibleverses)) : [];
 
 				function mapRelevance(el) {
 					if (el.relevance) {
@@ -741,6 +750,7 @@
 </script>
 
 <style type="text/scss">
+    @import "resources/sass/theme";
 
     .sb_materialcreator_header {
 
@@ -752,6 +762,14 @@
             .sb_dropdown-icon {
                 width: 1em;
                 height: 1em;
+
+                &.selected {
+                    fill: $success;
+
+                    &:hover {
+                        fill: $danger;
+                    }
+                }
             }
         }
 
