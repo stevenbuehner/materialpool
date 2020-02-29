@@ -84,7 +84,7 @@ export function api_v2_materialresource_attach(materialId, resourceId) {
 }
 
 export function api_v2_materialresource_detach(materialId, resourceId) {
-	return api_v2_materialresource_attach(materialId, resourceId);
+	return '/api/v2/material/' + materialId + '/resource/' + resourceId + '/detach';
 }
 
 
