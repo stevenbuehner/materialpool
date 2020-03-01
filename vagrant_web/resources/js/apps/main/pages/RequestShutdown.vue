@@ -134,7 +134,12 @@
         font-weight: 100;
         height: 100vh;
         margin: 0;
-        font-size: 84px;
+        font-size: 60px;
+
+        @media(min-width: map-get($grid-breakpoints, "sm")) {
+            font-size: 84px;
+        }
+
 
         .startAgain {
             position: relative;
