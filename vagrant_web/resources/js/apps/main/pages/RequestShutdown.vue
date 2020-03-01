@@ -123,6 +123,7 @@
 
     .systemDownContainer {
         position: absolute;
+        z-index: 100000;
         height: 100%;
         width: 100%;
     }
