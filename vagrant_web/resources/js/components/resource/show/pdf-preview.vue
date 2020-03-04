@@ -35,7 +35,9 @@
 	import resourcePreview          from '../resource-preview.mixin';
 
 	export default {
-		mixins: [pdfMixin, resourcePreviewZoom, resourcePreview],
+		name: 'PdfPreview',
+
+        mixins: [pdfMixin, resourcePreviewZoom, resourcePreview],
 
 		props: {
 			maxPreviewPages: {

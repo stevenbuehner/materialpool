@@ -1,28 +1,43 @@
 <template>
-    <div>{{formatedLimitation}}</div>
+    <span>{{formatedLimitation}}</span>
 </template>
 
 <script>
+
+	import {getLimitationRangeFromPages} from "./limitationHelper";
+
 	export default {
 
+
 		props: {
-			limitation: {
+			pivot: {
 				required: true
 			}
 		},
 
 		computed: {
+
+			pages() {
+				return this.pivot && this.pivot.limitation && this.pivot.limitation.pages ? this.pivot.limitation.pages : [];
+			},
+
+			pageRange() {
+				return getLimitationRangeFromPages(this.pages).map((r) => {
+					return r.from === r.to ? r.from : r.from + '-' + r.to
+				}).join(', ')
+			},
+
 			formatedLimitation() {
 
-				if (this.limitation === null) {
+				if (this.pivot === null) {
 					return '';
 				}
 
-				if (this.limitation && this.limitation.pages && this.limitation.pages.length > 0) {
-					return 'Limitiert auf die Seiten: ' + this.limitation.pages.join(', ');
+				if (this.pages.length === 1) {
+					return this.$tc('pool.Page', this.pages.length) + ' ' + this.pageRange
+				} else {
+					return this.pageRange + ' ' + this.$tc('pool.Page', this.pages.length);
 				}
-
-				return '';
 
 			}
 		}

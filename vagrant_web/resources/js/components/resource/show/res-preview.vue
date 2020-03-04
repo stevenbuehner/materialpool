@@ -8,7 +8,9 @@
 	import resourcePreview from '../resource-preview.mixin';
 
 	export default {
-		mixins: [resourcePreview],
+		name: 'ResPreview',
+
+        mixins: [resourcePreview],
 	}
 </script>
 

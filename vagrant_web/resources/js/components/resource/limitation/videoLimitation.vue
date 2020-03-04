@@ -8,7 +8,7 @@
 		name: "videoLimitation",
 
 		props: {
-			limitation: {
+			pivot: {
 				required: true
 			}
 		},

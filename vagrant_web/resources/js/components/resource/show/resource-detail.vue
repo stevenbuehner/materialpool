@@ -23,8 +23,12 @@
                         </span>
                     </div>
 
-                    <div class="limitation" v-if="resource.pivot">
-                        {{$t('pool.Limitation')}}: {{resource.pivot.limitation || $t('pool.none')}}
+                    <div class="limitation" v-if="resource.pivot && resource.pivot.limitation">
+                        {{$t('pool.Limitation')}}:
+                        <component :is="limitationComponent" :pivot="resource.pivot"/>
+                    </div>
+                    <div class="limitation" v-else>
+                        {{$t('pool.Limitation')}}: {{$t('pool.none')}}
                     </div>
 
                     <div class="creator">{{$t('pool.Creator-ID')}}: {{resource.created_by}}</div>
@@ -81,9 +85,11 @@
 	import fileDetail    from './file-detail.vue'
 	import resourceLinks from '../resource-links.mixin';
 
+	import pdfLimitation from "../limitation/pdfLimitation";
+
 	export default {
 
-		name: "resourceDetail",
+		name: "ResourceDetail",
 
 		mixins: [resourceLinks],
 
@@ -115,6 +121,10 @@
 		computed: {
 			detailComponent() {
 				return this.resource.type + '-detail';
+			},
+
+			limitationComponent() {
+				return this.resource.type + '-limitation';
 			}
 		},
 
@@ -150,6 +160,7 @@
 			docDetail,
 			resDetail,
 			fileDetail,
+			pdfLimitation, docLimitation: pdfLimitation
 		}
 	}
 </script>

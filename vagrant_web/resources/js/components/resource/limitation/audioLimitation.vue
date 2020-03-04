@@ -6,7 +6,7 @@
 	export default {
 
 		props: {
-			limitation: {
+			pivot: {
 				required: true
 			}
 		},

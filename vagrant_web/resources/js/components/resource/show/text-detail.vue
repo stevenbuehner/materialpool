@@ -52,7 +52,9 @@
 	window.bibletest = regexp;
 
 	export default {
-		mixins: [savingDialogs],
+		name: 'TextDetail',
+
+        mixins: [savingDialogs],
 
 		props: {
 			resource: {

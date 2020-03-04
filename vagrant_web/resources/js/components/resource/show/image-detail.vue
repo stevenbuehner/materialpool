@@ -20,6 +20,8 @@
 
 	export default {
 
+		name: 'ImageDetail',
+
 		mixins: [resourceLinks],
 
 		props:

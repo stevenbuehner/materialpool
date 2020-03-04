@@ -9,6 +9,8 @@
 
 
 	export default {
+		name: 'FileDetail',
+
 		mixins: [],
 
 		props: {

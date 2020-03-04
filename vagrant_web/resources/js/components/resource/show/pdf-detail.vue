@@ -57,6 +57,8 @@
 	import ImageZoom               from "../../modals/imageZoom";
 
 	export default {
+		name: 'PdfDetail',
+
 		mixins: [pdfMixin],
 
 		props: {

@@ -9,6 +9,8 @@
 	import resourcePreview from '../resource-preview.mixin';
 
 	export default {
+		name: 'FilePreview',
+
 		mixins: [resourcePreview],
 
 	}

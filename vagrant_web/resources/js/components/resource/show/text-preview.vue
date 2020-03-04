@@ -9,7 +9,9 @@
 	import resourcePreview from '../resource-preview.mixin';
 
 	export default {
-		mixins: [
+		name: 'TextPreview',
+
+        mixins: [
 			truncateFilter,
 			resourcePreview
 		],

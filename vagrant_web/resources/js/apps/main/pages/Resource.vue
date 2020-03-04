@@ -157,7 +157,7 @@
 	import pdfLimitation             from '../../../components/resource/limitation/pdfLimitation.vue';
 	import audioLimitation           from '../../../components/resource/limitation/audioLimitation.vue';
 	import videoLimitation           from '../../../components/resource/limitation/videoLimitation.vue';
-	import {isResourceTypeLimitable} from "../../../components/resource/limitation/limitable";
+	import {isResourceTypeLimitable} from "../../../components/resource/limitation/limitationHelper";
 	import resourceDetail            from '../../../components/resource/show/resource-detail'
 
 	import user             from '../../../components/user/user-name';

@@ -27,7 +27,7 @@
 
 	export default {
 
-		name: 'imagePreview',
+		name: 'ImagePreview',
 
 		mixins: [resourceLinks, resourcePreviewZoom, resourcePreview],
 

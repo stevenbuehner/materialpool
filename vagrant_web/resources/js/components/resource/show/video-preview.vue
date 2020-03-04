@@ -16,6 +16,8 @@
 	import videojs                                          from 'video.js';
 
 	export default {
+		name: 'VideoPreview',
+
 		mixins: [resourcePreviewZoom, resourcePreview, resourceLinks],
 
 		data() {
