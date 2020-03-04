@@ -67,7 +67,8 @@
         </div>
 
         <context-menu ref="menu" v-slot:default="{optionalData}">
-            <context-menu-item v-if="!disabled" @click.stop="$refs.keywordEditor.show(optionalData.id)">
+            <context-menu-item v-if="!disabled && !optionalData.from"
+                               @click.stop="$refs.keywordEditor.show(optionalData.id)">
                 {{$t('pool.edit')}}
             </context-menu-item>
             <context-menu-item @click.stop="doToTagSearch(optionalData)">
@@ -76,6 +77,9 @@
             <context-menu-item v-if="optionalData.from && optionalData.to"
                                @click="displayBibleverse(optionalData.from, optionalData.to)">
                 {{$t('pool.Read-Bibleverse')}}
+            </context-menu-item>
+            <context-menu-item @click="copyTagContent(getTagLabelFromObject(optionalData))">
+                {{$t('pool.Copy')}}
             </context-menu-item>
         </context-menu>
 
@@ -105,8 +109,9 @@
 	import KeywordEditor                                          from "../modals/editors/keywordEditor";
 	import {searchArrayObjectsToSearchQuery}                      from "../search/searchHelper";
 
-	import BiblePopover from "../bible-popover/bible-popover";
-	import BibleVerse   from '../../../../vendor/stevenbuehner/bible-verse-bundle/js/in/BibleVerse.js';
+	import BiblePopover            from "../bible-popover/bible-popover";
+	import BibleVerse              from '../../../../vendor/stevenbuehner/bible-verse-bundle/js/in/BibleVerse.js';
+	import {copyStringToClipboard} from "../../helper/copyToClipboard";
 
 	export default {
 		name: "tagEdit",
@@ -142,8 +147,7 @@
 				type: Boolean,
 				required: false,
 				default: true
-			}
-
+			},
 
 		},
 
@@ -231,6 +235,10 @@
 			displayBibleverse(from, to) {
 				this.biblePopover.bibleverse = new BibleVerse(from, to);
 				this.biblePopover.showMe     = true;
+			},
+
+			copyTagContent(label) {
+				copyStringToClipboard(label);
 			},
 
 			onSearch(search, loading) {

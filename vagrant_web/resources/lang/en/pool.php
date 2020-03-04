@@ -252,6 +252,7 @@ return [
 	'Edit-Limitation'                                          => 'Edit Limitation',
 	'Create-Limitation'                                        => 'Create Limitation',
 	'copy'                                                     => 'copy',
+	'Copy'                                                     => 'Copy',
 	'Copy-material'                                            => 'Copy material',
 	'copy-link'                                                => 'copy link',
 	'copy-link-again'                                          => 'copy link again',

@@ -15,10 +15,10 @@
 
         <context-menu ref="menu">
             <context-menu-item v-if="searchable" @click="goToBibleverseSearch">
-                Suche nach '{{ optimizedLabel }}'
+                {{$t('pool.search-for-xy', {xy : optimizedLabel})}}
             </context-menu-item>
             <context-menu-item @click="displayBibleversePopover=true">
-                lesen
+                {{$t('pool.Read-Bibleverse')}}
             </context-menu-item>
         </context-menu>
 

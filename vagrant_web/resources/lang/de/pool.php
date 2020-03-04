@@ -247,6 +247,7 @@ return [
 	'Edit-Limitation'                                          => 'Limitation bearbeiten',
 	'Create-Limitation'                                        => 'Limitation erstellen',
 	'copy'                                                     => 'kopieren',
+	'Copy'                                                     => 'Kopieren',
 	'Copy-material'                                            => 'Material kopieren',
 	'copy-link'                                                => 'Link kopieren',
 	'copy-link-again'                                          => 'Link erneut kopieren',
