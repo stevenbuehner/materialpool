@@ -18,7 +18,9 @@
                     <div class="originalFilename" v-if="resource.original_filename">
                         {{$t('pool.Filename')}}: {{resource.original_filename}}
 
-                        <span class="page_count" v-if="resource.page_count">
+                        <!-- Gesamtseitenanzahl des Dokuments nur anzeigen, wenn eine Limitierung existiert -->
+                        <span class="page_count"
+                              v-if="resource.page_count && (resource.pivot && resource.pivot.limitation && resource.pivot.limitation.pages)">
                             ({{resource.page_count}} {{$tc('pool.Page', resource.page_count)}})
                         </span>
                     </div>
@@ -31,7 +33,14 @@
                         {{$t('pool.Limitation')}}: {{$t('pool.none')}}
                     </div>
 
+                    <!--
                     <div class="creator">{{$t('pool.Creator-ID')}}: {{resource.created_by}}</div>
+                    -->
+
+                    <div class="filesize" v-if="resource.filesize">
+                        {{$t('pool.Filesize')}}: {{resource.filesize | readableBytes}}
+                    </div>
+
                     <div class="resource-id">{{$t('pool.Resource-ID')}}: {{resource.id}}</div>
                 </div>
 
@@ -86,12 +95,13 @@
 	import resourceLinks from '../resource-links.mixin';
 
 	import pdfLimitation from "../limitation/pdfLimitation";
+	import filesize      from "../../../helper/filesize.mixin";
 
 	export default {
 
 		name: "ResourceDetail",
 
-		mixins: [resourceLinks],
+		mixins: [resourceLinks, filesize],
 
 		props: {
 			resource: {
