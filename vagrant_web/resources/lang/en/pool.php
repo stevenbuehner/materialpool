@@ -255,6 +255,7 @@ return [
 	'Copy'                                                     => 'Copy',
 	'Copy-material'                                            => 'Copy material',
 	'copy-link'                                                => 'copy link',
+	'copy-text'                                                => 'copy text',
 	'copy-link-again'                                          => 'copy link again',
 	'Errormessage'                                             => 'Errormessage',
 	'no-resources-attached'                                    => 'No resources attached',

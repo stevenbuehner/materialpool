@@ -53,14 +53,20 @@
                                      v-if="materialCount"
                                      :to="{name: 'search', params: {search: materialSearchParam}}"
                                      :title="$t('pool.show-materials')">
-                            {{$tc('pool.material-count', materialCount, {COUNT: materialCount})}}
-                        </router-link>
+                            {{$tc('pool.material-count', materialCount, {COUNT: materialCount})}}<!--
+                        --></router-link>
 
                         <span class="action-button" :title="$t('pool.lookup-in-context')"
                               @click.left.exact="_widenTheContext"
                               @click.left.shift.exact="_narrowTheContext"
                               @click.right.stop.prevent="_narrowTheContext">
-                            {{ $t('pool.context', materialCount, {COUNT: materialCount}) }}
+                            {{ $t('pool.context')}}<!--
+                        --></span>
+
+                        <span class="action-button" :title="$t('pool.copy-text')"
+                              :class="{isCopied}"
+                              @click="_copyBibeltextToClipboard">
+                              <copy-icon class="copy-icon"/>
                         </span>
                     </span>
                 </h2>
@@ -112,11 +118,13 @@ Events:
 	import doubleRightIcon                                           from './angle-double-right.svg';
 	import pinIcon                                                   from './pin.svg';
 	import pinRemoveIcon                                             from './pin-remove.svg';
+	import copyIcon                                                  from 'svg-icon/dist/trimmed-svg/bootstrap/copy.svg'
 	import closeIcon                                                 from './close.svg';
 	import cursorMoveIcon                                            from './cursor-move.svg';
 	import {bibleverseToSearchItem, searchArrayObjectsToSearchQuery} from "../search/searchHelper";
 	import {fromRangeArrayToString}                                  from "./../../apps/main/pages/ReadBible.vue";
 	import MaterialpoolSpinner                                       from "../spinner/materialpool-spinner";
+	import {copyStringToClipboard}                                   from "../../helper/copyToClipboard";
 
 
 	export default {
@@ -192,6 +200,8 @@ Events:
 
 				contextOffsetFrom: 0,
 				contextOffsetTo: 0,
+
+				isCopied: false,
 			};
 		},
 
@@ -354,6 +364,7 @@ Events:
 				// this._initPosition();
 
 				this._initContextOffsets();
+				this._initBibeltextCopy();
 			},
 			verses() {
 				this.$nextTick(() => {
@@ -442,6 +453,25 @@ Events:
 				if (this.contextOffsetTo > 0) {
 					this.contextOffsetTo--;
 				}
+			},
+
+			_initBibeltextCopy() {
+				this.isCopied = false;
+			},
+
+			_copyBibeltextToClipboard() {
+
+				let copyText = (this.verses.map((v) => v.text)) + ' (' + this.bibleverseLabel;
+
+				if (this.bible.uuid) {
+					copyText = copyText + ', ' + this.bible.uuid;
+				}
+
+				copyText = copyText + ')';
+
+				copyStringToClipboard(copyText);
+
+				this.isCopied = true;
 			},
 
 			_initPosition() {
@@ -558,6 +588,8 @@ Events:
 
 			this._initPosition();
 			this._initContextOffsets();
+			this._initBibeltextCopy();
+
 		},
 
 		mounted() {
@@ -572,9 +604,9 @@ Events:
 			MaterialpoolSpinner,
 			BiblePopoverContent,
 			BiblePopoverHeader,
-			doubleLeftIcon,
-			doubleRightIcon,
+			doubleLeftIcon, doubleRightIcon,
 			pinIcon, pinRemoveIcon,
+			copyIcon,
 			closeIcon,
 			cursorMoveIcon
 		},
@@ -754,21 +786,39 @@ Events:
                 padding: 2px 4px 1px 4px;
                 font-size: 0.85em;
                 position: relative;
-                margin-right: 5px;
+                margin-right: 0.1em;
                 top: -1px;
                 opacity: 0.9;
                 transition: 0.2s;
                 cursor: pointer;
-            }
 
-            .action-button:hover {
-                background: $bible-popover-theme-color;
-                color: white;
-                opacity: 1;
-            }
+                .copy-icon {
+                    max-height: 2em;
+                    width: 1.2em;
+                    fill: black;
+                    top: -1px;
+                    position: relative;
+                    transition: 0.2s;
+                }
 
-            .action-button + .action-button {
-                margin-right: 0;
+                &.isCopied {
+                    border-color: $success;
+
+                    .copy-icon {
+                        fill: $bible-popover-theme-color;
+                    }
+                }
+
+                &:hover {
+                    background: $bible-popover-theme-color;
+                    color: white;
+                    opacity: 1;
+
+                    .copy-icon {
+                        fill: white;
+                    }
+                }
+
             }
 
             .ref-actions {

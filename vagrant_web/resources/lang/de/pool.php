@@ -250,6 +250,7 @@ return [
 	'Copy'                                                     => 'Kopieren',
 	'Copy-material'                                            => 'Material kopieren',
 	'copy-link'                                                => 'Link kopieren',
+	'copy-text'                                                => 'Text kopieren',
 	'copy-link-again'                                          => 'Link erneut kopieren',
 	'Errormessage'                                             => 'Fehlermeldung',
 	'no-resources-attached'                                    => 'Keine Resourcen zugeordnet',
