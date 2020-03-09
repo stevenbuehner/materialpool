@@ -122,10 +122,13 @@
     @import "resources/sass/theme";
 
     .systemDownContainer {
-        position: absolute;
-        z-index: 100000;
         height: 100%;
         width: 100%;
+
+        &.systemIsDown {
+            z-index: 100000;
+            position: absolute;
+        }
     }
 
     .systemIsDown {
