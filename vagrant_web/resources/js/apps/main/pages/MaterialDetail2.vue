@@ -471,21 +471,23 @@ export default {
       if (propertyName) {
         const startSavingMessage = this.flashStartSaving(propertyName);
 
-        result.then((response) => {
+        result.then(({response}) => {
           // On Success
           this.flashSaved(propertyName);
-        }).catch(({errors}) => {
+        }).catch(({response}) => {
           // On Error
-          let errorMessage = undefined;
 
-          if (errors && Object.keys(errors).length > 0) {
-            for (const keyName in Object.keys(errors)) {
+          // Wenn spezifische Fehler angegeben wurden
+          if (response.data.errors && Object.keys(response.data.errors).length > 0) {
+            const errors = response.data.errors;
+
+            for (const keyName in errors) {
               // Spezifische Fehlermeldung
               const message = Array.isArray(errors[keyName]) ? errors[keyName].join(', ') : undefined;
-              this.flashError(keyName, message)
+              this.flashError(keyName, message);
             }
           } else {
-            // Fehlermeldung ganz allgemein gehalten
+            // Fehlermeldung ganz allgemein halten und auf das bearbeitete Feld beziehen
             this.flashError(propertyName);
           }
         }).then((data) => {
