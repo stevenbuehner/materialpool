@@ -19,7 +19,7 @@ const state = {
 	// Da nur diese VueX-Datei die Detailierte Informationen lädt, wird das Flag nur gesetzt
 	// wenn hier direkt ein einzelnes Material geladen wurde.
 	materialDetailsLoaded: {}, // IDs der Materialien, von denen Details bekannt sind
-	loadingPromise: {}
+	loadingMaterialDetailsPromises: {}
 };
 
 const getters = {
@@ -47,17 +47,19 @@ const getters = {
 	 */
 	getMaterialLoadingPromise: (state) => (id) => {
 
-		if (state.loadingPromise.hasOwnProperty(id)) {
+		if (state.loadingMaterialDetailsPromises.hasOwnProperty(id)) {
 
-			return state.loadingPromise[id];
+			return state.loadingMaterialDetailsPromises[id];
 
+			/*
 		} else if (state.materials.hasOwnProperty(id)) {
 
-			state.loadingPromise[id] = new Promise(function (resolve, reject) {
+			state.loadingMaterialDetailsPromises[id] = new Promise(function (resolve, reject) {
 				resolve(state.materials[id]);
 			});
 
-			return state.loadingPromise[id];
+			return state.loadingMaterialDetailsPromises[id];
+			 */
 
 		} else {
 
@@ -82,12 +84,16 @@ const mutations = {
 	},
 
 	setMaterialLoadingPromise(state, {id, promise}) {
-		state.loadingPromise[id] = promise;
+		state.loadingMaterialDetailsPromises[id] = promise;
+	},
+
+	clearMaterialLoadingPromise(state, {id}) {
+		delete state.loadingMaterialDetailsPromises[id];
 	},
 
 	clearMaterial(state, id) {
 		delete state.materials[id];
-		delete state.loadingPromise[id];
+		delete state.loadingMaterialDetailsPromises[id];
 		delete state.materialDetailsLoaded[id];
 	}
 };
@@ -140,8 +146,8 @@ const actions = {
 				const mat = getters.getMaterial(id);
 				resolve(mat);
 			});
-		}else if (loadingPromise && typeof loadingPromise.then === 'function') {
-			// Es gibt bereits ein Promise
+		} else if (loadingPromise && typeof loadingPromise.then === 'function') {
+			// Es gibt bereits ein Promise für MaterialDetails
 			return loadingPromise;
 		} else {
 			// Es gibt weder ein detailiertes Material im Cache noch ein passendes Promise
@@ -152,9 +158,11 @@ const actions = {
 				axios.get(api_v1_materials_show(id), {})
 				     .then((response) => {
 					     dispatch('setMaterialDetailed', response.data);
+					     // commit('clearMaterialLoadingPromise', id); // Wird mit setMaterialDetailed bereits gemacht ... gehört der Vollständigkeit halberaber trotzdem hier hin ...
 					     resolve(getters.getMaterial(id));
 				     })
 				     .catch((response) => {
+					     getters.clearMaterialLoadingPromise(id);
 					     reject(convertErrorResponseToMessage(response));
 				     });
 
@@ -187,7 +195,7 @@ const actions = {
 	setMaterialDetailed: ({commit, dispatch}, material) => {
 		dispatch('clearMaterial', material.id);
 		commit('setMaterial', material);
-		commit('setMaterialDetailsLoaded', material);
+		commit('setMaterialDetailsLoaded', {id: material.id});
 	},
 
 
