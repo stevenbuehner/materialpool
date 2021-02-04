@@ -43,7 +43,7 @@ const mutations = {
 		// Aktualisiere auch den CurrentUser, wenn es sich um den selbigen handelt
 		if (state.options.user && state.options.user.id === data.id) {
 			state.options.user = data;
-			console.log('Options-User mitaktualisiert ...');
+			// console.log('Options-User mitaktualisiert ...');
 		}
 
 	},
