@@ -164,7 +164,7 @@
 			 * @returns {null|String}
 			 */
 			onInputChanged(currentValue) {
-				this.currentValue = currentValue.trim() || null;
+				this.currentValue = currentValue || null;
 
 				if (this.valueHasChanged) {
 					this.$emit('input', this.currentValue);
@@ -194,7 +194,7 @@
 			},
 
 			sendSaveRequest() {
-				this.$emit('save-request', this.currentValue);
+				this.$emit('save-request', this.currentValue.trim());
 			},
 
 			cancelAndResetValue() {
@@ -209,7 +209,7 @@
 		computed: {
 			// Das funktioniert nur, wenn das Parent-Element kein v-model binding macht ... sonst wird die Änderung nicht erkannt!
 			valueHasChanged() {
-				return (this.value !== this.currentValue);
+				return (this.value !== this.currentValue.trim());
 			},
 
 			dateLocalisation() {
