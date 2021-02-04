@@ -163,7 +163,7 @@ module.exports = {
 	performance: {
 		hints: false
 	},
-	devtool: '#eval-source-map', // For Debugging while using sourcemaps: https://medium.com/@BjornKrols/a-basic-introduction-to-debugging-vue-applications-using-breakpoints-2ef76ce419f2
+	devtool: 'eval-source-map', // For Debugging while using sourcemaps: https://medium.com/@BjornKrols/a-basic-introduction-to-debugging-vue-applications-using-breakpoints-2ef76ce419f2
 	optimization: {
 		splitChunks: {
 			cacheGroups: {},
