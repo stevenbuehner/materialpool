@@ -1,93 +1,93 @@
 <template>
-    <div class="sideBarField textEditSidebarField">
+  <div class="sideBarField textEditSidebarField">
 
-        <div class="label">
-            <slot name="label">
-                <slot name="icon">
-                    <text-field-icon/>
-                </slot>
+    <div class="label">
+      <slot name="label">
+        <slot name="icon">
+          <text-field-icon/>
+        </slot>
 
-                <span class="title">
-                    <slot name="title">{{name}}</slot>
-                </span>
-            </slot>
+        <span class="title">
+          <slot name="title">{{ name }}</slot>
+        </span>
+      </slot>
 
-            <div class="buttons">
-                <b-button
-                        v-if="valueHasChanged && enableSaveButton"
-                        size="sm"
-                        class="cancel-button"
-                        variant="danger"
-                        @click="cancelAndResetValue">
-                    <slot name="save-button">{{$t('pool.cancel')}}</slot>
-                </b-button>
+      <div class="buttons">
+        <b-button
+            v-if="valueHasChanged && enableSaveButton"
+            size="sm"
+            class="cancel-button"
+            variant="danger"
+            @click="cancelAndResetValue">
+          <slot name="save-button">{{ $t('pool.cancel') }}</slot>
+        </b-button>
 
-                <b-button
-                        v-if="valueHasChanged && enableSaveButton"
-                        size="sm"
-                        class="save-button"
-                        @click="sendSaveRequest">
-                    <slot name="save-button">{{$t('pool.save')}}</slot>
-                </b-button>
-            </div>
-
-        </div>
-
-        <div class="editField"
-             :class="{disabled}">
-
-            <slot name="input">
-                <b-form-input
-                        v-if="type === 'text'"
-                        :class="[{valueChanged : valueHasChanged}, 'textInput']"
-                        @input="onInputChanged"
-                        @keyup.enter="onEnter"
-                        @keyup.esc="cancelAndResetValue"
-                        :value="currentValue"
-                        :type="type"
-                        :placeholder="getPlaceholder"
-                        :disabled="disabled"
-                        size="sm"
-                        ref="input_field"
-                />
-
-                <datepicker v-if="type === 'date'"
-                            class="dateInput"
-                            :disabled="disabled"
-                            :typeable="false"
-                            :bootstrap-styling="true"
-                            :language="dateLocalisation"
-                            :value="currentValueInDayJsFormat"
-                            :key="value"
-                            :format="dateFormat"
-                            :monday-first="true"
-                            :disabled-dates="{from: new Date()}"
-                            :required="required"
-                            :input-class="{valueChanged : valueHasChanged}"
-                            :placeholder="getPlaceholder"
-                            @input="onDateInputChanged"
-                />
-
-                <b-form-textarea
-                        v-if="type === 'textarea'"
-                        :class="[{valueChanged : valueHasChanged}, 'textareaInput']"
-                        :placeholder="getPlaceholder"
-                        :rows="rows"
-                        :value="currentValue"
-                        :max-rows="8"
-                        :disabled="disabled"
-                        :style="{overflowY : disabled ? 'hidden' : 'scroll'}"
-                        @input="onInputChanged"
-                        @keyup.enter="onEnter"
-                        @keyup.esc="cancelAndResetValue"
-                        ref="input_field"
-                />
-
-            </slot>
-
-        </div>
+        <b-button
+            v-if="valueHasChanged && enableSaveButton"
+            size="sm"
+            class="save-button"
+            @click="sendSaveRequest">
+          <slot name="save-button">{{ $t('pool.save') }}</slot>
+        </b-button>
+      </div>
 
     </div>
+
+    <div class="editField"
+         :class="{disabled}">
+
+      <slot name="input">
+        <b-form-input
+            v-if="type === 'text'"
+            :class="[{valueChanged : valueHasChanged}, 'textInput']"
+            @input="onInputChanged"
+            @keyup.enter="onEnter"
+            @keyup.esc="cancelAndResetValue"
+            :value="currentValue"
+            :type="type"
+            :placeholder="getPlaceholder"
+            :disabled="disabled"
+            size="sm"
+            ref="input_field"
+        />
+
+        <datepicker v-if="type === 'date'"
+                    class="dateInput"
+                    :disabled="disabled"
+                    :typeable="false"
+                    :bootstrap-styling="true"
+                    :language="dateLocalisation"
+                    :value="currentValueInDayJsFormat"
+                    :key="value"
+                    :format="dateFormat"
+                    :monday-first="true"
+                    :disabled-dates="{from: new Date()}"
+                    :required="required"
+                    :input-class="{valueChanged : valueHasChanged}"
+                    :placeholder="getPlaceholder"
+                    @input="onDateInputChanged"
+        />
+
+        <b-form-textarea
+            v-if="type === 'textarea'"
+            :class="[{valueChanged : valueHasChanged}, 'textareaInput']"
+            :placeholder="getPlaceholder"
+            :rows="rows"
+            :value="currentValue"
+            :max-rows="8"
+            :disabled="disabled"
+            :style="{overflowY : disabled ? 'hidden' : 'scroll'}"
+            @input="onInputChanged"
+            @keyup.enter="onEnter"
+            @keyup.esc="cancelAndResetValue"
+            ref="input_field"
+        />
+
+      </slot>
+
+    </div>
+
+  </div>
 </template>
 
 <script>
@@ -193,7 +193,9 @@ export default {
     },
 
     sendSaveRequest() {
-      this.$emit('save-request', this.cleanedValue);
+      if (this.valueHasChanged) {
+        this.$emit('save-request', this.cleanedValue);
+      }
     },
 
     cancelAndResetValue() {
@@ -201,8 +203,7 @@ export default {
       this.currentValue = this.value;
       this.$emit('canceled', this.value);
     }
-
-
+    
   },
 
   computed: {
