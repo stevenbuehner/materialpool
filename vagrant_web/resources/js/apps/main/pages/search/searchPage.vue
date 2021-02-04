@@ -196,7 +196,7 @@ export default {
       return {
         name: 'search',
         params: {
-          search: this.query,
+          search: this.query === "" ? false : this.query,
         },
         query: {
           page: pageNum,
