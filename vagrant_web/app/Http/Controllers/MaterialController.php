@@ -30,8 +30,9 @@ class MaterialController extends Controller {
 				$q->orderBy('keyword_material.relevance', 'desc');
 			},
 			'bibleverses' => function ($q) {
-				// $q->orderBy('bibleverse_material.relevance', 'desc');
+				$q->orderBy('bibleverse_material.relevance', 'desc');
 			},
+			'foreignIds',
 			'resources',
 			'creator',
 			'author'];

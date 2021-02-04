@@ -99,9 +99,17 @@
                 :value="tabIndex"
                 @activate-tab="onTabSwitch">
           <b-tab :title="$tc('pool.material', 1)">
+
+            <bundle-list
+                v-if="bundleIds.length > 0"
+                :disabled="true"
+                :value="bundleIds"
+                :name="$t('pool.Assigned-Bundles')"
+            />
+
             <text-edit-sidebar-field
                 :value="material.title"
-                :name="$t('pool.name')"
+                :name="$t('pool.Title')"
                 :placeholder="$t('pool.enter-name')"
                 :disabled="materialEditLockActive"
                 @save-request="submitTitle"
@@ -315,10 +323,10 @@ import {flagColors}            from "../../../components/flags/flagOptions";
 import KeywordToggleTextSelect from "../../../components/keyword/keywordToggleTextSelect";
 import {savingDialogs}         from "../../../helper/flashMessages";
 import PublicMaterialDownload  from "../../../components/download/public-material-download";
-import {formatLocalizedDate}   from './../../../helper/datetime.mixin'
+import {formatLocalizedDate}   from '../../../helper/datetime.mixin'
+import cloneIcon               from 'svg-icon/dist/svg/awesome/clone.svg';
 
 
-import cloneIcon       from 'svg-icon/dist/svg/awesome/clone.svg';
 import trashIcon       from 'svg-icon/dist/svg/oct/trashcan.svg';
 import titleIcon       from 'svg-icon/dist/svg/material/title.svg';
 import calendarIcon    from 'svg-icon/dist/svg/material/today.svg';
@@ -328,9 +336,9 @@ import authorIcon      from 'svg-icon/dist/svg/material/person.svg';
 import personIcon      from 'svg-icon/dist/svg/material/person.svg';
 import languageIcon    from 'svg-icon/dist/svg/material/language.svg';
 import bibleverseIcon  from '../../../../icons/bibleverse/bible.svg'
+import Vue             from 'vue';
 
 
-import Vue                        from 'vue';
 import {BButton, TabsPlugin}      from 'bootstrap-vue';
 import TextEditSidebarField       from "../../../components/sidebar-fields/textEdit";
 import BibleverseEditSidebarField from "../../../components/sidebar-fields/bibleverseEdit";
@@ -338,9 +346,11 @@ import dayjs                      from 'dayjs';
 import TagEditSidebarField        from "../../../components/sidebar-fields/tagEdit";
 import {RELEVANCE_USER_MAX}       from "../../config";
 import RatingEdit                 from "../../../components/sidebar-fields/ratingEdit";
+import bundleList                 from '../../../components/sidebar-fields/bundleList';
 import SingleTagSelect            from "../../../components/sidebar-fields/singleTagSelect";
 import ResourceSelector           from "../../../components/modals/selectors/resourceSelector";
 import MaterialDeletor            from "../../../components/modals/deletors/materialDeletor";
+import Bundle                     from "../../../components/bundles/bundle";
 
 Vue.use(TabsPlugin);
 
@@ -367,6 +377,7 @@ export default {
   data() {
     return {
       material: null,
+      materialDetailsLoaded: false,
       errorOnLoadingMessage: null,
     };
   },
@@ -402,27 +413,57 @@ export default {
 
     materialEditLockActive() {
       return this.material && this.material.from_bot === true;
-    }
+    },
 
+    bundleIds() {
+      if (this.material && this.material.foreign_ids && Array.isArray(this.material.foreign_ids) && this.material.foreign_ids.length > 0) {
+        return this.material.foreign_ids.map((forId) => forId.bundle_id);
+      } else {
+        return [];
+      }
+    }
   },
 
   asyncComputed: {
     material: {
       get() {
         this.errorOnLoadingMessage = null;
+        this.materialDetailsLoaded = false;
 
-        return this.$store.dispatch('materials/getMaterial', this.id)
-                   .then((material) => {
-                     this.errorOnLoadingMessage = null;
+        const materialDetailPromise = this.$store.dispatch('materials/getMaterialDetailed', this.id)
+                                          .then((material) => {
+                                            this.errorOnLoadingMessage = null;
+                                            this.materialDetailsLoaded = true;
+                                            // console.log('Material angekommen: ', material);
 
-                     return material;
-                   })
-                   .catch((message) => {
-                     this.errorOnLoadingMessage = message;
-                   });
+                                            return material;
+                                          })
+                                          .catch((message) => {
+                                            this.errorOnLoadingMessage = message;
+                                          });
+
+        // Wenn die MaterialDetails noch nicht im Cache geladen sind aber Preview-Daten schon da sind
+        // ... dann zeige die schon mal an, bis der Rest geladen wurde
+        if (!this.$store.getters['materials/hasMaterialDetails'](this.id) && this.$store.getters['materials/hasMaterialPreview'](this.id)) {
+
+          // Stelle sicher, dass Material aus dem VueX-Store aktualisiert wird, sobald es geladen wurde
+          materialDetailPromise.then(() => {
+            // console.log("Detailiertes Material wurde nachgeladen");
+            this.$asyncComputed.material.update();
+          });
+
+          // console.log("Zeige erst mal Preview-Material an und beginne mit dem Nachladen der Details");
+          return this.$store.getters['materials/getMaterial'](this.id);
+        }
+
+        // Wenn weder Material-Preview noch Material-Detail zur Verfügung stehen, dann hilft alles nichts
+        // Gib das Material-Detail-Promise zurück und warte, bis alles geladen ist.
+        return materialDetailPromise;
+
+
       },
       default: null
-    }
+    },
   },
 
   watch: {},
@@ -828,6 +869,7 @@ export default {
 
 
   components: {
+    Bundle,
     MaterialDeletor,
     ResourceSelector,
     BButton,
@@ -848,6 +890,7 @@ export default {
     resourcePreview,
     resourceDetail,
     edditableText: editableText,
+    bundleList,
     starRating,
     fromBot,
     customDialog,

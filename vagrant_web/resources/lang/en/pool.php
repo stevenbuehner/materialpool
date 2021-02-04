@@ -177,6 +177,7 @@ return [
 	'install'                                                  => 'install',
 	'bundle'                                                   => 'bundle',
 	'Bundle'                                                   => 'Bundle',
+	'Assigned-Bundles'                                         => 'Assigned Bundles',
 	'export-date'                                              => 'export date',
 	'not-installed'                                            => 'not installed',
 	'please-run-update-for'                                    => 'update to V:VERSION',

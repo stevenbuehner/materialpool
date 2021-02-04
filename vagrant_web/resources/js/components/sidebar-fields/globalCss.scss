@@ -42,7 +42,7 @@ $vs-border-color: $input-border-color;
 
 
     &.disabled {
-      input, textarea {
+      input, textarea, .content-area {
         background-color: $sidebar-input-background-colour-disabled;
         cursor: not-allowed;
       }

@@ -11,6 +11,7 @@ namespace App\Services\MaterialHandling;
 use App\Events\MaterialWasCreated;
 use App\Events\MaterialWasDeleted;
 use App\Events\ResourceWasDetached;
+use App\Http\Controllers\Api\MaterialController;
 use App\Jobs\CheckLonelyBibleverse;
 use App\Jobs\CheckLonelyKeyword;
 use App\Jobs\CheckLonelyResource;
@@ -135,7 +136,7 @@ class MaterialHandlingService {
 
 		event(new MaterialWasCreated($clone));
 
-		return $clone->fresh($relationsToSync);
+		return $clone->fresh(\App\Http\Controllers\MaterialController::withAttributes());
 
 	}
 

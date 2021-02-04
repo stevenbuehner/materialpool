@@ -13,11 +13,25 @@ import {convertErrorResponseToMessage} from "./handleErrorsHelper";
 
 
 const state = {
-	materials: {},
+	materials: {}, // Hier werden die Materials gespeichert. Alle. Ob nur grob oder via Suche.
+	// Wenn das Material detailiert (also einzeln) geladen wurde, wird zusätzlich ein Flag bei
+	// state.materialDetailsLoaded auf true gesetzt
+	// Da nur diese VueX-Datei die Detailierte Informationen lädt, wird das Flag nur gesetzt
+	// wenn hier direkt ein einzelnes Material geladen wurde.
+	materialDetailsLoaded: {}, // IDs der Materialien, von denen Details bekannt sind
 	loadingPromise: {}
 };
 
 const getters = {
+
+	hasMaterialPreview: (state) => (id) => {
+		return state.materials.hasOwnProperty(id);
+	},
+
+	hasMaterialDetails: (state) => (id) => {
+		return state.materialDetailsLoaded.hasOwnProperty(id);
+	},
+
 	getMaterial: (state) => (id) => {
 		if (state.materials[id]) {
 			return state.materials[id];
@@ -26,13 +40,18 @@ const getters = {
 		return null;
 	},
 
+	/**
+	 * Gibt das Promise zurück oder FALSE, falls kein Promise existiert
+	 * @param state
+	 * @returns {function(*): (*|boolean)}
+	 */
 	getMaterialLoadingPromise: (state) => (id) => {
 
-		if (state.loadingPromise[id]) {
+		if (state.loadingPromise.hasOwnProperty(id)) {
 
 			return state.loadingPromise[id];
 
-		} else if (state.materials[id]) {
+		} else if (state.materials.hasOwnProperty(id)) {
 
 			state.loadingPromise[id] = new Promise(function (resolve, reject) {
 				resolve(state.materials[id]);
@@ -54,6 +73,14 @@ const mutations = {
 		state.materials[material.id] = material;
 	},
 
+	setMaterialDetailsLoaded(state, {id, loaded = true}) {
+		if (loaded) {
+			state.materialDetailsLoaded[id] = true;
+		} else if (state.materialDetailsLoaded.hasOwnProperty(id)) {
+			delete state.materialDetailsLoaded[id];
+		}
+	},
+
 	setMaterialLoadingPromise(state, {id, promise}) {
 		state.loadingPromise[id] = promise;
 	},
@@ -61,56 +88,122 @@ const mutations = {
 	clearMaterial(state, id) {
 		delete state.materials[id];
 		delete state.loadingPromise[id];
+		delete state.materialDetailsLoaded[id];
 	}
 };
 
 const actions = {
-	getMaterial: ({getters, commit, dispatch, state}, id) => {
+	hasMaterialPreviewCached: ({getters}, id) => {
+		return getters.hasMaterialPreview(id);
+	},
 
-		let loadingPromise = getters.getMaterialLoadingPromise(id);
+	hasMaterialDetailsCached: ({getters}, id) => {
+		return getters.hasMaterialDetails(id);
+	},
 
-		if (loadingPromise === false) {
+	/**
+	 * Gibt detailiertes oder Preview-Material als Promise zurück ... je nach dem, was da ist ...
+	 *
+	 * @param getters
+	 * @param dispatch
+	 * @param id
+	 * @returns {Promise<unknown>|(function(*): (*|boolean))}
+	 */
+	getMaterial: ({getters, dispatch}, id) => {
+
+		if (getters.hasMaterialPreview(id)) {
 			const mat = getters.getMaterial(id);
-
-			if (mat) {
-				return new Promise((resolve, reject) => {
-					resolve(mat);
-				});
-			}
-		}
-
-		if (loadingPromise === false) {
-			loadingPromise = new Promise((resolve, reject) => {
-
-				let res = getters.getMaterial(id);
-
-				if (res) {
-					resolve(res);
-				} else {
-					axios.get(api_v1_materials_show(id), {})
-					     .then((response) => {
-						     dispatch('setMaterial', response.data);
-						     resolve(getters.getMaterial(id));
-					     })
-					     .catch((response) => {
-						     reject(convertErrorResponseToMessage(response));
-					     });
-				}
+			return new Promise((resolve, reject) => {
+				resolve(mat);
 			});
-
-			commit('setMaterialLoadingPromise', {id: id, promise: loadingPromise});
+		} else {
+			return dispatch('getMaterialDetailed', id);
 		}
-
-		return loadingPromise;
 
 	},
 
+	/**
+	 * Gibt ein detailiertes Material zurück
+	 * @param commit
+	 * @param dispatch
+	 * @param getters
+	 * @param id
+	 * @returns {Promise<unknown>|(function(*): (*|boolean))}
+	 */
+	getMaterialDetailed: ({commit, dispatch, getters}, id) => {
+
+		const loadingPromise = getters.getMaterialLoadingPromise(id);
+
+		if (getters.hasMaterialDetails(id)) {
+			// Das Material wurde bereits detailiert geladen
+			return new Promise((resolve, reject) => {
+				const mat = getters.getMaterial(id);
+				resolve(mat);
+			});
+		}else if (loadingPromise && typeof loadingPromise.then === 'function') {
+			// Es gibt bereits ein Promise
+			return loadingPromise;
+		} else {
+			// Es gibt weder ein detailiertes Material im Cache noch ein passendes Promise
+			// => Material neu laden, Promise abspeichern und zurückgeben
+
+			const newLoadingPromise = new Promise((resolve, reject) => {
+
+				axios.get(api_v1_materials_show(id), {})
+				     .then((response) => {
+					     dispatch('setMaterialDetailed', response.data);
+					     resolve(getters.getMaterial(id));
+				     })
+				     .catch((response) => {
+					     reject(convertErrorResponseToMessage(response));
+				     });
+
+			});
+
+			commit('setMaterialLoadingPromise', {id: id, promise: newLoadingPromise});
+
+			return newLoadingPromise;
+		}
+
+	},
+
+	/**
+	 * Cache Material (als Preview)
+	 * @param commit
+	 * @param dispatch
+	 * @param material
+	 */
 	setMaterial: ({commit, dispatch}, material) => {
 		dispatch('clearMaterial', material.id);
 		commit('setMaterial', material);
 	},
 
+	/**
+	 * Cache Material (detailiert)
+	 * @param commit
+	 * @param dispatch
+	 * @param material
+	 */
+	setMaterialDetailed: ({commit, dispatch}, material) => {
+		dispatch('clearMaterial', material.id);
+		commit('setMaterial', material);
+		commit('setMaterialDetailsLoaded', material);
+	},
 
+
+	/**
+	 * Erstelle Material und Cache es (detailierte Version)
+	 * @param commit
+	 * @param dispatch
+	 * @param title
+	 * @param from_bot
+	 * @param description
+	 * @param rating
+	 * @param author
+	 * @param keywords
+	 * @param bibleverses
+	 * @returns {Promise<AxiosResponse<any> | void>}
+	 */
 	create: ({commit, dispatch}, {title, from_bot, description, rating, author, keywords, bibleverses}) => {
 
 		let data = {
@@ -148,12 +241,22 @@ const actions = {
 		                    });
 
 		result.then((material) => {
-			commit('setMaterial', material);
+			commit('setMaterialDetailed', material);
 		});
 
 		return result;
 	},
 
+
+	/**
+	 * Speichere Änderungen im Material und Cache sie (detailiert)
+	 * @param commit
+	 * @param getters
+	 * @param dispatch
+	 * @param id
+	 * @param data
+	 * @returns {Promise<AxiosResponse<any>>}
+	 */
 	updateMaterial: ({commit, getters, dispatch}, {id, data}) => {
 
 		data._method = 'PUT';
@@ -162,7 +265,7 @@ const actions = {
 
 		result.then((response) => {
 
-			dispatch('setMaterial', response.data);
+			dispatch('setMaterialDetailed', response.data);
 			return getters.getMaterial(id);
 
 		}).catch((response) => {
@@ -184,11 +287,11 @@ const actions = {
 	updateMaterialKeywords: ({commit, getters, dispatch}, {materialId, keyword, pivot}) => {
 
 		let mat = getters.getMaterial(materialId);
-		console.info('Received Update request');
+		// console.info('Received Update request');
 
 		if (mat && mat.keywords) {
 
-			let found = mat.keywords.find(kw => kw.id == keyword.id);
+			let found = mat.keywords.find(kw => kw.id === keyword.id);
 
 			if (!found) {
 				found = keyword;
@@ -201,12 +304,12 @@ const actions = {
 
 			}
 
-
 			// Update pivot
 			if (pivot) {
 				found.pivot = pivot;
 			}
 
+			// Ob das Material preview oder detailier ist, bleibt beim Setter unberührt
 			commit('setMaterial', mat);
 		}
 
@@ -217,7 +320,7 @@ const actions = {
 		let mat = getters.getMaterial(materialId);
 
 		if (mat) {
-			const found = mat.keywords.find(el => el.id == keyword.id);
+			const found = mat.keywords.find(el => el.id === keyword.id);
 
 			if (found === undefined) {
 				keyword.pivot = {relevance: relevance}
@@ -236,7 +339,7 @@ const actions = {
 
 		if (mat && mat.keywords) {
 			mat.keywords = mat.keywords.filter((el) => {
-				return el.id != keywordId
+				return el.id !== keywordId
 			});
 
 			commit('setMaterial', mat);
@@ -268,11 +371,10 @@ const actions = {
 			                    throw convertErrorResponseToMessage(response)
 		                    });
 
-		// Update material-Cache
+		// Update material-Cache (detailiert)
 		result.then(({material}) => {
 			if (material) {
-				commit('clearMaterial', material.id);
-				commit('setMaterial', material);
+				dispatch('setMaterialDetailed', material);
 			}
 		});
 
@@ -296,12 +398,10 @@ const actions = {
 			                    throw convertErrorResponseToMessage(response)
 		                    });
 
-		// ALWAYS (!): Update material-Cache
+		// ALWAYS (!): Update material-Cache (detailiert)
 		result.then(({material}) => {
-
 			if (material) {
-				commit('clearMaterial', material.id);
-				commit('setMaterial', material);
+				dispatch('setMaterialDetailed', material);
 			}
 		});
 
@@ -337,7 +437,7 @@ const actions = {
 			.then(({data}) => {
 				const material = data;
 
-				commit('setMaterial', material);
+				dispatch('setMaterialDetailed', material);
 
 				if (material.resources && Array.isArray(material.resources)) {
 					material.resources.forEach((el) => {

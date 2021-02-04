@@ -26,17 +26,7 @@ class MaterialController extends BaseController {
 
 		$this->bibleVerseService       = $bibleVerseService;
 		$this->materialHandlingService = $materialHandlingService;
-
-		$this->withAttributes = [
-			'keywords'    => function ($q) {
-				$q->orderBy('keyword_material.relevance', 'desc');
-			},
-			'bibleverses' => function ($q) {
-				$q->orderBy('bibleverse_material.relevance', 'desc');
-			},
-			'resources',
-			'creator',
-			'author'];
+		$this->withAttributes          = \App\Http\Controllers\MaterialController::withAttributes();
 
 		$this->middleware(['auth:api']);
 	}
