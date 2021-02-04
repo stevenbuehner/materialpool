@@ -1,32 +1,32 @@
 <template>
-    <div>{{formatedLimitation}}</div>
+  <div>{{ formatedLimitation }}</div>
 </template>
 
 <script>
-	export default {
+export default {
 
-		props: {
-			pivot: {
-				required: true
-			}
-		},
+  props: {
+    pivot: {
+      required: true
+    }
+  },
 
-		computed: {
-			formatedLimitation() {
+  computed: {
+    formatedLimitation() {
 
-				if (this.limitation === null) {
-					return '';
-				}
+      if (this.limitation === null) {
+        return '';
+      }
 
-				if (this.limitation && this.limitation.start && this.limitation.end) {
-					return 'Limitiert auf Sekunde ' + this.limitation.start + ' bis ' + this.limitation.end;
-				}
+      if (this.limitation && this.limitation.start && this.limitation.end) {
+        return 'Limitiert auf Sekunde ' + this.limitation.start + ' bis ' + this.limitation.end;
+      }
 
-				return '';
+      return '';
 
-			}
-		}
-	}
+    }
+  }
+}
 </script>
 
 <style scoped>

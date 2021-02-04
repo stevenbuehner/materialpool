@@ -1,17 +1,17 @@
 <template>
-    <div class="card-header">
-        General Resource-Preview missing
-    </div>
+  <div class="card-header">
+    General Resource-Preview missing
+  </div>
 </template>
 
 <script>
-	import resourcePreview from '../resource-preview.mixin';
+import resourcePreview from '../resource-preview.mixin';
 
-	export default {
-		name: 'ResPreview',
+export default {
+  name: 'ResPreview',
 
-        mixins: [resourcePreview],
-	}
+  mixins: [resourcePreview],
+}
 </script>
 
 <style scoped>

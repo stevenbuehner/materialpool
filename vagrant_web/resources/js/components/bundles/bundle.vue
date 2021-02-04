@@ -1,292 +1,288 @@
 <template>
-    <transition>
-        <b-card
-                class="mb-2"
-                :border-variant="updateAvailable || installAvailable ? 'warning' : 'success'"
-                v-if="bundle"
-                no-body
-        >
-            <template slot="header">
+  <transition>
+    <b-card
+        class="mb-2"
+        :border-variant="updateAvailable || installAvailable ? 'warning' : 'success'"
+        v-if="bundle"
+        no-body
+    >
+      <template slot="header">
 
-                <div class="d-flex justify-content-between bundleProgressFront">
-                    <div>
-                        <h4 class="card-title">{{bundle.name}}</h4>
-                        <h6 class="card-subtitle text-muted">{{installedVersion}},
-                            {{bundle.updated_at | dayjs | recentOrFormat }}</h6>
-                    </div>
+        <div class="d-flex justify-content-between bundleProgressFront">
+          <div>
+            <h4 class="card-title">{{ bundle.name }}</h4>
+            <h6 class="card-subtitle text-muted">{{ installedVersion }},
+              {{ bundle.updated_at | dayjs | recentOrFormat }}</h6>
+          </div>
 
-                    <div class="bundleTodoMenu">
-                        <b-button variant="warning"
-                                  v-if="updateAvailable && isRunning === false"
-                                  @click="btnStartUpdate">
-                            {{$t('pool.please-run-update-for', {VERSION : info.version})}}
-                        </b-button>
-                        <b-button variant="warning"
-                                  v-if="installAvailable && isRunning === false"
-                                  @click="btnStartInstallation">
-                            {{$t('pool.install')}}
-                        </b-button>
-                        <b-button variant="danger"
-                                  v-if="bundle.is_installed && isRunning === false"
-                                  @click="btnUninstall">
-                            {{$t('pool.uninstall')}}
-                        </b-button>
-                        <b-button variant="danger"
-                                  v-if="isRunning === true && cancelRequested === false"
-                                  @click="btnCancelProgress">
-                            {{$t('pool.cancel')}}
-                        </b-button>
-                        <b-button variant="danger"
-                                  v-if="isRunning === true && cancelRequested === true"
-                                  disabled>{{$t('pool.canceling-update')}}
-                        </b-button>
-                    </div>
-                </div>
+          <div class="bundleTodoMenu">
+            <b-button variant="warning"
+                      v-if="updateAvailable && isRunning === false"
+                      @click="btnStartUpdate">
+              {{ $t('pool.please-run-update-for', {VERSION: info.version}) }}
+            </b-button>
+            <b-button variant="warning"
+                      v-if="installAvailable && isRunning === false"
+                      @click="btnStartInstallation">
+              {{ $t('pool.install') }}
+            </b-button>
+            <b-button variant="danger"
+                      v-if="bundle.is_installed && isRunning === false"
+                      @click="btnUninstall">
+              {{ $t('pool.uninstall') }}
+            </b-button>
+            <b-button variant="danger"
+                      v-if="isRunning === true && cancelRequested === false"
+                      @click="btnCancelProgress">
+              {{ $t('pool.cancel') }}
+            </b-button>
+            <b-button variant="danger"
+                      v-if="isRunning === true && cancelRequested === true"
+                      disabled>{{ $t('pool.canceling-update') }}
+            </b-button>
+          </div>
+        </div>
 
-                <b-progress
-                        v-if="isRunning"
-                        :max="max"
-                        striped
-                        animated>
-                    <b-progress-bar :value="current" style="white-space: nowrap; overflow: visible;">
+        <b-progress
+            v-if="isRunning"
+            :max="max"
+            striped
+            animated>
+          <b-progress-bar :value="current" style="white-space: nowrap; overflow: visible;">
                         <span v-if="updateProgressPercentage >= 20">
-                            <span v-if="this.max > 1">({{current}} / {{max}})</span> {{updateProgressLabel}}
+                            <span v-if="this.max > 1">({{ current }} / {{ max }})</span> {{ updateProgressLabel }}
                         </span>
-                    </b-progress-bar>
-                    <span v-if="updateProgressPercentage <= 20" class="ml-2">
-                        <span v-if="this.max > 1">({{current}} / {{max}})</span> {{updateProgressLabel}}
+          </b-progress-bar>
+          <span v-if="updateProgressPercentage <= 20" class="ml-2">
+                        <span v-if="this.max > 1">({{ current }} / {{ max }})</span> {{ updateProgressLabel }}
                     </span>
-                </b-progress>
-            </template>
+        </b-progress>
+      </template>
 
-            <b-list-group flush>
-                <b-list-group-item><span class="text-muted">{{$tc('pool.Bundle')}} {{bundle.name}} {{$t('pool.by')}} {{bundle.author}} </span>
-                    <br>
-                    {{bundle.description}}
-                </b-list-group-item>
-                <b-list-group-item v-if="info">
-                    {{$tc('pool.material-count', info.count_materials, {COUNT : info.count_materials})}},
-                    {{$tc('pool.resource-count', info.count_files, {COUNT : info.count_files})}},
-                </b-list-group-item>
-                <b-list-group-item v-if="info">
-                    {{ $t('pool.export-date') }}: {{info.exportDate | dayjs | recentOrFormat }}
-                </b-list-group-item>
-            </b-list-group>
+      <b-list-group flush>
+        <b-list-group-item><span
+            class="text-muted">{{ $tc('pool.Bundle') }} {{ bundle.name }} {{ $t('pool.by') }} {{ bundle.author }} </span>
+          <br>
+          {{ bundle.description }}
+        </b-list-group-item>
+        <b-list-group-item v-if="info">
+          {{ $tc('pool.material-count', info.count_materials, {COUNT: info.count_materials}) }},
+          {{ $tc('pool.resource-count', info.count_files, {COUNT: info.count_files}) }},
+        </b-list-group-item>
+        <b-list-group-item v-if="info">
+          {{ $t('pool.export-date') }}: {{ info.exportDate | dayjs | recentOrFormat }}
+        </b-list-group-item>
+      </b-list-group>
 
-        </b-card>
-    </transition>
+    </b-card>
+  </transition>
 </template>
 
 <script>
-	import {BCard}               from 'bootstrap-vue'
-	import {BButton}             from 'bootstrap-vue';
-	import {BListGroup}          from 'bootstrap-vue'
-	import {BListGroupItem}      from 'bootstrap-vue'
-	import {BProgress}           from 'bootstrap-vue'
-	import {BProgressBar}        from 'bootstrap-vue'
-	import {formatLocalizedDate} from "../../helper/datetime.mixin";
+import {BButton, BCard, BListGroup, BListGroupItem, BProgress, BProgressBar} from 'bootstrap-vue'
+import {formatLocalizedDate}                                                 from "../../helper/datetime.mixin";
 
 
-	export default {
-		name: "bundle",
+export default {
+  name: "bundle",
 
-		mixins: [formatLocalizedDate],
+  mixins: [formatLocalizedDate],
 
-		props: {
-			uuid: {
-				type: String,
-				required: true
-			}
-		},
+  props: {
+    uuid: {
+      type: String,
+      required: true
+    }
+  },
 
-		data() {
-			return {
+  data() {
+    return {
 
-				isRunning: false,
-				isInitializing: false,
-				cancelRequested: false,
-				current: 0,
-				max: 0,
+      isRunning: false,
+      isInitializing: false,
+      cancelRequested: false,
+      current: 0,
+      max: 0,
 
-				forceBundleUpdate: false,
+      forceBundleUpdate: false,
 
-			};
-		},
+    };
+  },
 
-		computed: {
-			installedVersion() {
+  computed: {
+    installedVersion() {
 
-				if (this.bundle) {
-					if (!this.bundle.installed_version) {
-						return this.$t('pool.not-installed');
+      if (this.bundle) {
+        if (!this.bundle.installed_version) {
+          return this.$t('pool.not-installed');
 
-					} else {
-						return 'Version ' + this.bundle.installed_version;
-					}
-				}
+        } else {
+          return 'Version ' + this.bundle.installed_version;
+        }
+      }
 
-			},
-
-
-			installAvailable() {
-				return this.bundle && this.bundle.is_installed === false;
-
-			},
-
-			updateAvailable() {
-				return this.bundle && this.bundle.is_installed === true && this.bundle.update_available === true;
-			},
-
-			updateProgressPercentage() {
-				if (this.max === 0) {
-					return 0;
-				} else {
-					return Math.floor(this.current / this.max * 100);
-				}
-			},
-
-			updateProgressLabel() {
-
-				if (this.isInitializing) {
-					return this.$t('pool.update-is-initializing');
-				}
-
-				return this.updateProgressPercentage + '%';
-
-			},
-		},
+    },
 
 
-		asyncComputed: {
-			bundle: {
-				get() {
+    installAvailable() {
+      return this.bundle && this.bundle.is_installed === false;
 
-					if (this.forceBundleUpdate === true) {
-						console.log('FORCE reloading bundle');
-						this.$store.dispatch('bundles/allBundles', this.forceBundleUpdate)
-						    .then(() => {
-							    console.log('FORCE reloaded bundle');
-							    this.forceBundleUpdate = false;
-						    });
-					}
+    },
 
-					return this.$store.dispatch('bundles/getBundle', this.uuid);
-				},
-				default: null,
-				watch() {
-					this.forceBundleUpdate
-				}
-			},
-			info: {
-				get() {
-					return this.$store.dispatch('bundles/getBundleInfo', this.uuid);
-				},
-				default: null,
-				watch() {
-					this.forceBundleUpdate
-				}
-			},
-		},
+    updateAvailable() {
+      return this.bundle && this.bundle.is_installed === true && this.bundle.update_available === true;
+    },
 
-		methods: {
-			btnStartUpdate() {
+    updateProgressPercentage() {
+      if (this.max === 0) {
+        return 0;
+      } else {
+        return Math.floor(this.current / this.max * 100);
+      }
+    },
 
-				if (this.isRunning === false) {
-					this.isRunning      = true;
-					this.max            = 100;
-					this.current        = 100;
-					this.isInitializing = true;
+    updateProgressLabel() {
 
-					this.$store.dispatch('bundles/initUpdateJobs', this.bundle.id)
-					    .then(({deleteJobs, updateJobs, deletedJobs, openJobs, continueUpdate, updateAvailable}) => {
-							    this.isInitializing = false;
-							    this.max            = openJobs;
-							    // this.max            = (deleteJobs || 0) + (updateJobs || 0);
-							    this.current        = 0;
-							    this.runNextJobs();
-						    }
-					    )
-					    .catch((e) => {
-						    this.isRunning = false;
-						    this.flashError('Error while initializing Install-Jobs!');
-					    });
-				}
+      if (this.isInitializing) {
+        return this.$t('pool.update-is-initializing');
+      }
+
+      return this.updateProgressPercentage + '%';
+
+    },
+  },
 
 
-			},
+  asyncComputed: {
+    bundle: {
+      get() {
 
-			runNextJobs() {
+        if (this.forceBundleUpdate === true) {
+          console.log('FORCE reloading bundle');
+          this.$store.dispatch('bundles/allBundles', this.forceBundleUpdate)
+              .then(() => {
+                console.log('FORCE reloaded bundle');
+                this.forceBundleUpdate = false;
+              });
+        }
 
-				if (this.cancelRequested === true) {
-					this.isRunning       = false;
-					this.cancelRequested = false;
-					return;
-				}
+        return this.$store.dispatch('bundles/getBundle', this.uuid);
+      },
+      default: null,
+      watch() {
+        this.forceBundleUpdate
+      }
+    },
+    info: {
+      get() {
+        return this.$store.dispatch('bundles/getBundleInfo', this.uuid);
+      },
+      default: null,
+      watch() {
+        this.forceBundleUpdate
+      }
+    },
+  },
 
-				this.isRunning = true;
+  methods: {
+    btnStartUpdate() {
 
-				return this.$store.dispatch('bundles/runJobs', this.bundle.id)
-				           .then(({done, open}) => {
-					           this.max     = parseInt(Math.max(this.current + open + done, this.max));
-					           this.current = parseInt(this.max - open);
+      if (this.isRunning === false) {
+        this.isRunning      = true;
+        this.max            = 100;
+        this.current        = 100;
+        this.isInitializing = true;
 
-					           if (this.current >= this.max) {
-						           this.isRunning = false;
-					           } else {
-						           this.runNextJobs();
-					           }
+        this.$store.dispatch('bundles/initUpdateJobs', this.bundle.id)
+            .then(({deleteJobs, updateJobs, deletedJobs, openJobs, continueUpdate, updateAvailable}) => {
+                  this.isInitializing = false;
+                  this.max            = openJobs;
+                  // this.max            = (deleteJobs || 0) + (updateJobs || 0);
+                  this.current        = 0;
+                  this.runNextJobs();
+                }
+            )
+            .catch((e) => {
+              this.isRunning = false;
+              this.flashError('Error while initializing Install-Jobs!');
+            });
+      }
 
-				           }).catch(() => {
-						this.isRunning = false;
-						this.flashError('Error in job!');
-					});
 
-			},
+    },
+
+    runNextJobs() {
+
+      if (this.cancelRequested === true) {
+        this.isRunning       = false;
+        this.cancelRequested = false;
+        return;
+      }
+
+      this.isRunning = true;
+
+      return this.$store.dispatch('bundles/runJobs', this.bundle.id)
+                 .then(({done, open}) => {
+                   this.max     = parseInt(Math.max(this.current + open + done, this.max));
+                   this.current = parseInt(this.max - open);
+
+                   if (this.current >= this.max) {
+                     this.isRunning = false;
+                   } else {
+                     this.runNextJobs();
+                   }
+
+                 }).catch(() => {
+            this.isRunning = false;
+            this.flashError('Error in job!');
+          });
+
+    },
 
 
-			btnStartInstallation() {
-				this.btnStartUpdate();
-			},
+    btnStartInstallation() {
+      this.btnStartUpdate();
+    },
 
-			btnCancelProgress() {
-				this.cancelRequested = true;
-				this.$asyncComputed.bundle.update();
-			},
+    btnCancelProgress() {
+      this.cancelRequested = true;
+      this.$asyncComputed.bundle.update();
+    },
 
-			btnUninstall() {
+    btnUninstall() {
 
-				if (this.isRunning === false) {
-					this.isRunning      = true;
-					this.max            = 100;
-					this.current        = 100;
-					this.isInitializing = true;
+      if (this.isRunning === false) {
+        this.isRunning      = true;
+        this.max            = 100;
+        this.current        = 100;
+        this.isInitializing = true;
 
-					this.$store.dispatch('bundles/initUninstallJobs', this.bundle.id)
-					    .then(({deleteJobs, updateJobs, deletedJobs, openJobs, continueUpdate, updateAvailable}) => {
-							    this.isInitializing = false;
-							    this.max            = openJobs;
-							    this.current        = 0;
-							    this.runNextJobs();
-						    }
-					    )
-					    .catch((e) => {
-						    this.isRunning = false;
-						    this.flashError('Error while initializing Unintsall-Jobs!');
-					    });
-				}
+        this.$store.dispatch('bundles/initUninstallJobs', this.bundle.id)
+            .then(({deleteJobs, updateJobs, deletedJobs, openJobs, continueUpdate, updateAvailable}) => {
+                  this.isInitializing = false;
+                  this.max            = openJobs;
+                  this.current        = 0;
+                  this.runNextJobs();
+                }
+            )
+            .catch((e) => {
+              this.isRunning = false;
+              this.flashError('Error while initializing Unintsall-Jobs!');
+            });
+      }
 
-			}
-		},
+    }
+  },
 
-		components: {
-			BCard,
-			BButton,
-			BListGroup,
-			BListGroupItem,
-			BProgress,
-			BProgressBar
-		}
-	}
+  components: {
+    BCard,
+    BButton,
+    BListGroup,
+    BListGroupItem,
+    BProgress,
+    BProgressBar
+  }
+}
 </script>
 
 <style>

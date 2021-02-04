@@ -1,315 +1,313 @@
 <template>
-    <div class="container-fluid border rounded p-3">
+  <div class="container-fluid border rounded p-3">
 
-        <div class="beforeLoaded d-flex flex-column justify-content-around " v-if="!keyword">
+    <div class="beforeLoaded d-flex flex-column justify-content-around " v-if="!keyword">
             <span class="align-self-center d-flex flex-column justify-content-center">
                 <materialpool-spinner class="align-self-center"/>
-            {{$t('pool.Keyword-is-beeing-loaded')}}
+            {{ $t('pool.Keyword-is-beeing-loaded') }}
             </span>
 
-        </div>
-
-        <div class="form" v-if="keyword">
-            <div class="row">
-                <div class="col-sm-3">
-                    <label>{{$t('pool.Title')}}:</label>
-                </div>
-                <div class="col-sm-9">
-                    <b-form-input
-                            name="keywordText"
-                            id="keywordText"
-                            type="text"
-                            v-model="keyword.title"
-                            :disabled="disableForm"
-                            autofocus
-                    ></b-form-input>
-                    <div class="meta_data">ID: {{keyword.id}}, Key: {{keyword.lc_title}}</div>
-                </div>
-            </div>
-
-            <div class="row mt-2">
-                <div class="col-sm-3">
-                    <label>{{$t('pool.Select-Type')}}:</label>
-                </div>
-                <div class="col-sm-9">
-                    <b-form-select
-                            name="keywordType"
-                            id="keywordType"
-                            v-model="keyword.type"
-                            :disabled="disableForm"
-                    >
-                        <option value="key">Keyword</option>
-                        <option value="person">Person</option>
-                        <option value="place">Place</option>
-                        <option value="lang">Language</option>
-                    </b-form-select>
-                </div>
-            </div>
-
-            <div class="row mt-2">
-                <div class="col-sm-3">
-                    <label>{{$t('pool.Select-Icon')}}:</label>
-                </div>
-                <div class="col-sm-9">
-                    {{$t('pool.Coming-soon')}}
-                </div>
-            </div>
-
-            <div class="row mt-2">
-                <div class="col-sm-3">
-                    <label>{{$t('pool.Info')}}:</label>
-                </div>
-                <div class="col-sm-9">
-                    <materialpool-spinner class="align-self-center" v-if="relationsCount === null"/>
-
-                    <div v-if="relationsCount">
-                        {{$t('pool.Keyword_usage', relationsCount)}}
-                    </div>
-
-                </div>
-            </div>
-
-            <div class="row mt-2">
-                <div class="col-sm-3">
-                    <label>{{$t('pool.Direct-Parent')}}:</label>
-                </div>
-                <div class="col-sm-9" v-if="keyword && keyword.parent_id && !parent">
-                    {{$t('pool.Loading-parent-keyword')}}
-                </div>
-                <div class="col-sm-9" v-else-if="parent">
-                    <router-link
-                            :to="{name:'keyword-detail', params:{id: keyword.parent_id}}">
-                        <keyword
-                                :keyword="parent"
-                                :editable="false"
-                                :removeable="false"
-                        ></keyword>
-                    </router-link>
-                </div>
-                <div class="col-sm-9" v-else>
-                    {{$t('pool.none')}}
-                </div>
-            </div>
-
-            <div class="row mt-2">
-                <slot name="menu">
-                    <div class="col-sm-3">
-                    </div>
-                    <div class="col-sm-9 menu">
-                        <slot name="all-buttons">
-                            <b-button variant="primary"
-                                      :disabled="!keywordWasModified || disableForm"
-                                      @click.prevent="btnSave">{{$t('pool.save')}}
-                            </b-button>
-                            <slot name="additional-buttons"/>
-                            <b-button variant="danger"
-                                      :disabled="disableForm"
-                                      @click.prevent="btnDelete">{{$t('pool.delete')}}
-                            </b-button>
-                        </slot>
-                    </div>
-                </slot>
-            </div>
-        </div>
     </div>
+
+    <div class="form" v-if="keyword">
+      <div class="row">
+        <div class="col-sm-3">
+          <label>{{ $t('pool.Title') }}:</label>
+        </div>
+        <div class="col-sm-9">
+          <b-form-input
+              name="keywordText"
+              id="keywordText"
+              type="text"
+              v-model="keyword.title"
+              :disabled="disableForm"
+              autofocus
+          ></b-form-input>
+          <div class="meta_data">ID: {{ keyword.id }}, Key: {{ keyword.lc_title }}</div>
+        </div>
+      </div>
+
+      <div class="row mt-2">
+        <div class="col-sm-3">
+          <label>{{ $t('pool.Select-Type') }}:</label>
+        </div>
+        <div class="col-sm-9">
+          <b-form-select
+              name="keywordType"
+              id="keywordType"
+              v-model="keyword.type"
+              :disabled="disableForm"
+          >
+            <option value="key">Keyword</option>
+            <option value="person">Person</option>
+            <option value="place">Place</option>
+            <option value="lang">Language</option>
+          </b-form-select>
+        </div>
+      </div>
+
+      <div class="row mt-2">
+        <div class="col-sm-3">
+          <label>{{ $t('pool.Select-Icon') }}:</label>
+        </div>
+        <div class="col-sm-9">
+          {{ $t('pool.Coming-soon') }}
+        </div>
+      </div>
+
+      <div class="row mt-2">
+        <div class="col-sm-3">
+          <label>{{ $t('pool.Info') }}:</label>
+        </div>
+        <div class="col-sm-9">
+          <materialpool-spinner class="align-self-center" v-if="relationsCount === null"/>
+
+          <div v-if="relationsCount">
+            {{ $t('pool.Keyword_usage', relationsCount) }}
+          </div>
+
+        </div>
+      </div>
+
+      <div class="row mt-2">
+        <div class="col-sm-3">
+          <label>{{ $t('pool.Direct-Parent') }}:</label>
+        </div>
+        <div class="col-sm-9" v-if="keyword && keyword.parent_id && !parent">
+          {{ $t('pool.Loading-parent-keyword') }}
+        </div>
+        <div class="col-sm-9" v-else-if="parent">
+          <router-link
+              :to="{name:'keyword-detail', params:{id: keyword.parent_id}}">
+            <keyword
+                :keyword="parent"
+                :editable="false"
+                :removeable="false"
+            ></keyword>
+          </router-link>
+        </div>
+        <div class="col-sm-9" v-else>
+          {{ $t('pool.none') }}
+        </div>
+      </div>
+
+      <div class="row mt-2">
+        <slot name="menu">
+          <div class="col-sm-3">
+          </div>
+          <div class="col-sm-9 menu">
+            <slot name="all-buttons">
+              <b-button variant="primary"
+                        :disabled="!keywordWasModified || disableForm"
+                        @click.prevent="btnSave">{{ $t('pool.save') }}
+              </b-button>
+              <slot name="additional-buttons"/>
+              <b-button variant="danger"
+                        :disabled="disableForm"
+                        @click.prevent="btnDelete">{{ $t('pool.delete') }}
+              </b-button>
+            </slot>
+          </div>
+        </slot>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script>
-	import {BFormInput}        from 'bootstrap-vue';
-	import {BFormSelect}       from 'bootstrap-vue';
-	import {BButton}           from 'bootstrap-vue';
-	import Keyword             from "./keyword";
-	import MaterialpoolSpinner from "../spinner/materialpool-spinner";
+import {BButton, BFormInput, BFormSelect} from 'bootstrap-vue';
+import Keyword                            from "./keyword";
+import MaterialpoolSpinner                from "../spinner/materialpool-spinner";
 
 
-	export default {
+export default {
 
-		name: "keywordEdit",
+  name: "keywordEdit",
 
-		props: {
-			id: {
-				type: Number,
-				required: true
-			}
-		},
+  props: {
+    id: {
+      type: Number,
+      required: true
+    }
+  },
 
-		data() {
-			return {
-				keyword: null,
+  data() {
+    return {
+      keyword: null,
 
-				backupJsonKeyword: null,
-				errorOnLoadingMessage: null,
-				keywordWasModified: false,
+      backupJsonKeyword: null,
+      errorOnLoadingMessage: null,
+      keywordWasModified: false,
 
-				disableForm: false,
-			};
-		},
-
-
-		asyncComputed: {
-			parent: {
-				get() {
-					if (this.keyword && this.keyword.parent_id) {
-						return this.$store.dispatch('keywords/get', this.keyword.parent_id);
-					} else {
-						return null;
-					}
-				},
-				default: null,
-				/* watch() {
-                    this.forceReload
-                }*/
-			},
-
-			relationsCount: {
-				get() {
-					return this.$store.dispatch('keywords/relationsCount', this.id);
-				},
-				default: null,
-			}
-		},
-
-		watch: {
-			id(newValue) {
-				this.keyword = null;
-				this.getKeyword();
-			},
-			keyword: {
-				handler: function (newVal, oldVal) {
-					this.updateKeywordModified();
-				},
-				deep: true
-			}
-		},
-
-		created() {
-			this.getKeyword();
-		},
+      disableForm: false,
+    };
+  },
 
 
-		methods: {
+  asyncComputed: {
+    parent: {
+      get() {
+        if (this.keyword && this.keyword.parent_id) {
+          return this.$store.dispatch('keywords/get', this.keyword.parent_id);
+        } else {
+          return null;
+        }
+      },
+      default: null,
+      /* watch() {
+                  this.forceReload
+              }*/
+    },
 
-			getKeyword() {
-				this.errorOnLoadingMessage = null;
+    relationsCount: {
+      get() {
+        return this.$store.dispatch('keywords/relationsCount', this.id);
+      },
+      default: null,
+    }
+  },
 
-				this.$store.dispatch('keywords/get', this.id).then((keyword) => {
-					this.setKeyword(keyword);
-					this.errorOnLoadingMessage = null;
-				}).catch((response) => {
-					this.errorOnLoadingMessage = response;
-				});
-			},
+  watch: {
+    id(newValue) {
+      this.keyword = null;
+      this.getKeyword();
+    },
+    keyword: {
+      handler: function (newVal, oldVal) {
+        this.updateKeywordModified();
+      },
+      deep: true
+    }
+  },
 
-			setKeyword(keyword) {
-				this.keyword           = keyword;
-				this.backupJsonKeyword = JSON.stringify(keyword);
-			},
-
-			updateKeywordModified() {
-				this.keywordWasModified = JSON.stringify(this.keyword) !== this.backupJsonKeyword;
-			},
+  created() {
+    this.getKeyword();
+  },
 
 
-			btnSave() {
+  methods: {
 
-				// Ignore if nothing was changed
-				if (this.keywordWasModified === false) {
-					return;
-				}
+    getKeyword() {
+      this.errorOnLoadingMessage = null;
 
-				this.disableForm = true;
-				const originalK  = JSON.parse(this.backupJsonKeyword);
-				let modifiedData = {};
+      this.$store.dispatch('keywords/get', this.id).then((keyword) => {
+        this.setKeyword(keyword);
+        this.errorOnLoadingMessage = null;
+      }).catch((response) => {
+        this.errorOnLoadingMessage = response;
+      });
+    },
 
-				const mod = ['title', 'type', 'custom_icon'].filter((p) => {
-					return originalK[p] !== this.keyword[p]
-				}).forEach((p) => {
-					modifiedData[p] = this.keyword[p];
-				});
+    setKeyword(keyword) {
+      this.keyword           = keyword;
+      this.backupJsonKeyword = JSON.stringify(keyword);
+    },
 
-				this.updateKeywordData(modifiedData)
-				    .then(() => {
-					    // Always
-					    this.disableForm = false;
-				    });
+    updateKeywordModified() {
+      this.keywordWasModified = JSON.stringify(this.keyword) !== this.backupJsonKeyword;
+    },
 
-			},
 
-			btnDelete() {
+    btnSave() {
 
-				const answer = confirm(this.$t('pool.Are-you-shure-about-deleting-this-keyword-from-existance'));
+      // Ignore if nothing was changed
+      if (this.keywordWasModified === false) {
+        return;
+      }
 
-				if (answer === true) {
-					this.disableForm = true;
+      this.disableForm = true;
+      const originalK  = JSON.parse(this.backupJsonKeyword);
+      let modifiedData = {};
 
-					this.$store.dispatch('keywords/delete', this.id)
-					    .then((deletionConfirmed) => {
-						    this.$emit('deleted');
-					    })
-					    .catch((errorMessage) => {
-						    alert(errorMessage);
-						    this.disableForm = false;
-					    });
-				}
+      const mod = ['title', 'type', 'custom_icon'].filter((p) => {
+        return originalK[p] !== this.keyword[p]
+      }).forEach((p) => {
+        modifiedData[p] = this.keyword[p];
+      });
 
-			},
+      this.updateKeywordData(modifiedData)
+          .then(() => {
+            // Always
+            this.disableForm = false;
+          });
 
-			updateKeywordData(properties) {
+    },
 
-				this.$emit('saving', properties);
+    btnDelete() {
 
-				const promise = this.$store.dispatch('keywords/update', {id: this.id, data: properties});
+      const answer = confirm(this.$t('pool.Are-you-shure-about-deleting-this-keyword-from-existance'));
 
-				promise.then((keyword) => {
+      if (answer === true) {
+        this.disableForm = true;
 
-					this.setKeyword(keyword);
-					this.$emit('saved', keyword);
+        this.$store.dispatch('keywords/delete', this.id)
+            .then((deletionConfirmed) => {
+              this.$emit('deleted');
+            })
+            .catch((errorMessage) => {
+              alert(errorMessage);
+              this.disableForm = false;
+            });
+      }
 
-				}).catch((response) => {
+    },
 
-					// on failure
-					this.$emit('savingError', {
-						tag: this.keyword, // "Tag" is used for bibleverses and keywords
-						msg: this.parseResponseErrors(response.response)
-					});
-				});
+    updateKeywordData(properties) {
 
-				return promise;
+      this.$emit('saving', properties);
 
-			},
+      const promise = this.$store.dispatch('keywords/update', {id: this.id, data: properties});
 
-			parseResponseErrors(response) {
-				let msg = 'Error! ';
+      promise.then((keyword) => {
 
-				if (response.data && response.data.errors) {
-					for (let i in response.data.errors) {
-						msg += i + ': ' + response.data.errors[i] + '. ';
-					}
-				}
+        this.setKeyword(keyword);
+        this.$emit('saved', keyword);
 
-				return msg;
-			},
-		},
+      }).catch((response) => {
 
-		components: {
-			MaterialpoolSpinner,
-			Keyword,
-			BFormInput,
-			BFormSelect,
-			BButton
-		}
-	}
+        // on failure
+        this.$emit('savingError', {
+          tag: this.keyword, // "Tag" is used for bibleverses and keywords
+          msg: this.parseResponseErrors(response.response)
+        });
+      });
+
+      return promise;
+
+    },
+
+    parseResponseErrors(response) {
+      let msg = 'Error! ';
+
+      if (response.data && response.data.errors) {
+        for (let i in response.data.errors) {
+          msg += i + ': ' + response.data.errors[i] + '. ';
+        }
+      }
+
+      return msg;
+    },
+  },
+
+  components: {
+    MaterialpoolSpinner,
+    Keyword,
+    BFormInput,
+    BFormSelect,
+    BButton
+  }
+}
 </script>
 
 <style scoped>
-    .beforeLoaded {
-        min-height: 50vh;
-    }
+.beforeLoaded {
+  min-height: 50vh;
+}
 
-    .meta_data {
-        font-size: smaller;
-        color: #CCC;
-        margin-left: 1em;
-        margin-top: .25em;
-    }
+.meta_data {
+  font-size: smaller;
+  color: #CCC;
+  margin-left: 1em;
+  margin-top: .25em;
+}
 </style>

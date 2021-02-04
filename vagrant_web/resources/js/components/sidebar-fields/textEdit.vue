@@ -203,7 +203,7 @@ export default {
       this.currentValue = this.value;
       this.$emit('canceled', this.value);
     }
-    
+
   },
 
   computed: {

@@ -2,6 +2,7 @@ import Vue                     from 'vue';
 // @see https://github.com/martinlindhe/laravel-vue-i18n-generator
 import VueInternationalization from 'vue-i18n';
 import Locale                  from '../../vue-i18n-locales.generated';
+import {de, en}                from 'vuejs-datepicker/dist/locale';
 
 
 Vue.use(VueInternationalization);
@@ -15,8 +16,6 @@ export const i18n = new VueInternationalization({
 	messages: Locale
 });
 
-
-import {en, de} from 'vuejs-datepicker/dist/locale';
 
 export const localisation = {
 	de: {

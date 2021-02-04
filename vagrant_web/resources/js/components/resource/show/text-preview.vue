@@ -1,21 +1,21 @@
 <template>
-    <div class="card-header">
-        <div>{{resource.content | trim(300) }}</div>
-    </div>
+  <div class="card-header">
+    <div>{{ resource.content | trim(300) }}</div>
+  </div>
 </template>
 
 <script>
-	import truncateFilter  from '../../../filters/truncate-filter.mixin';
-	import resourcePreview from '../resource-preview.mixin';
+import truncateFilter  from '../../../filters/truncate-filter.mixin';
+import resourcePreview from '../resource-preview.mixin';
 
-	export default {
-		name: 'TextPreview',
+export default {
+  name: 'TextPreview',
 
-        mixins: [
-			truncateFilter,
-			resourcePreview
-		],
-	}
+  mixins: [
+    truncateFilter,
+    resourcePreview
+  ],
+}
 </script>
 
 <style scoped>

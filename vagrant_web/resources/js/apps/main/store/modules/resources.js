@@ -1,7 +1,8 @@
 import {
 	api_v1_resources_create_material,
 	api_v1_resources_delete,
-	api_v1_resources_find, api_v1_resources_replace_with,
+	api_v1_resources_find,
+	api_v1_resources_replace_with,
 	api_v1_resources_show,
 	api_v1_resources_store,
 	api_v1_resources_update
@@ -219,7 +220,17 @@ const actions = {
 		return promise;
 	},
 
-	find: ({dispatch}, {id, remote_path, is_public, content_hash, missing_materials, ignore_ids, order_by, order_dir, page}) => {
+	find: ({dispatch}, {
+		id,
+		remote_path,
+		is_public,
+		content_hash,
+		missing_materials,
+		ignore_ids,
+		order_by,
+		order_dir,
+		page
+	}) => {
 
 		let searchQuery = {};
 

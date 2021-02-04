@@ -1,6 +1,7 @@
 import {
 	api_v1_bundles_get_icon,
-	api_v1_bundles_index, api_v1_bundles_uninstall_init,
+	api_v1_bundles_index,
+	api_v1_bundles_uninstall_init,
 	api_v1_bundles_update_init,
 	api_v1_bundles_update_run
 }                                      from '../../../../components/serverRoutes';

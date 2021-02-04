@@ -1,337 +1,338 @@
 <template>
-    <b-modal size="lg"
-             :title="$t('pool.Delete-material')"
-             lazy
-             ref="myModal"
-             @hide="_cancelPromise"
-    >
-        <template slot="modal-footer">
+  <b-modal size="lg"
+           :title="$t('pool.Delete-material')"
+           lazy
+           ref="myModal"
+           @hide="_cancelPromise"
+  >
+    <template slot="modal-footer">
 
-            <b-button v-if="!materialIsReloading && material && material.resources.length === 0"
-                      variant="danger" size="sm" @click="_deleteThisMaterial">
-                {{$t('pool.material-delete')}}
-            </b-button>
+      <b-button v-if="!materialIsReloading && material && material.resources.length === 0"
+                variant="danger" size="sm" @click="_deleteThisMaterial">
+        {{ $t('pool.material-delete') }}
+      </b-button>
 
-            <button type="button" class="btn btn-primary btn-sm" @click="hide">
-                {{$t('pool.Ok')}}
-            </button>
+      <button type="button" class="btn btn-primary btn-sm" @click="hide">
+        {{ $t('pool.Ok') }}
+      </button>
 
-        </template>
+    </template>
 
-        <b-alert fade
-                 :show="materialIsReloading"
-                 variant="warning">
-            <materialpool-spinner/>
-            {{$t('pool.Material-is-reloading')}}
-        </b-alert>
+    <b-alert fade
+             :show="materialIsReloading"
+             variant="warning">
+      <materialpool-spinner/>
+      {{ $t('pool.Material-is-reloading') }}
+    </b-alert>
 
-        <div class="alert alert-warning" role="alert"
-             v-if="!materialIsReloading && material && material.resources.length > 0">
-            <strong>{{$t('pool.attention')}}!</strong><br/>
-            {{ $tc('pool.material-assigned-resources', material.resources.length, {COUNT: material.resources.length}) }}
+    <div class="alert alert-warning" role="alert"
+         v-if="!materialIsReloading && material && material.resources.length > 0">
+      <strong>{{ $t('pool.attention') }}!</strong><br/>
+      {{ $tc('pool.material-assigned-resources', material.resources.length, {COUNT: material.resources.length}) }}
+    </div>
+
+    <div class="alert alert-success" role="alert"
+         v-if="!materialIsReloading && material && material.resources.length === 0">
+      <strong>{{ $t('pool.Perfect') }}!</strong><br/>
+      {{ $tc('pool.material-assigned-resources', material.resources.length, {COUNT: material.resources.length}) }}
+    </div>
+
+    <div class="assignedResources">
+      <hr>
+
+      <div class="row resource py-2" v-for="r in resources">
+        <div class="col col-2 col-md-1">{{ r.id }}</div>
+        <div class="col col-4 col-md-5 ">
+          <div v-if="r.original_filename" class="filename">{{ r.original_filename }}</div>
+          <div v-if="r.notes" class="notes">{{ r.notes }}</div>
         </div>
+        <div class="col col-6" v-if="r.materials">
 
-        <div class="alert alert-success" role="alert"
-             v-if="!materialIsReloading && material && material.resources.length === 0">
-            <strong>{{$t('pool.Perfect')}}!</strong><br/>
-            {{ $tc('pool.material-assigned-resources', material.resources.length, {COUNT: material.resources.length}) }}
-        </div>
-
-        <div class="assignedResources">
-            <hr>
-
-            <div class="row resource py-2" v-for="r in resources">
-                <div class="col col-2 col-md-1">{{r.id}}</div>
-                <div class="col col-4 col-md-5 ">
-                    <div v-if="r.original_filename" class="filename">{{r.original_filename}}</div>
-                    <div v-if="r.notes" class="notes">{{r.notes}}</div>
-                </div>
-                <div class="col col-6" v-if="r.materials">
-
-                    <div class="alert mb-1" :class="{
+          <div class="alert mb-1" :class="{
                     	'alert-danger' : r.materials.length <= 1,
                     	'alert-success' : r.materials.length > 1
                     }" role="alert">
-                        {{$tc('pool.material-other-assigned-material-pl', r.materials.length-1, {COUNT:
-                        r.materials.length})}}
-                    </div>
+            {{
+              $tc('pool.material-other-assigned-material-pl', r.materials.length - 1, {
+                COUNT:
+                r.materials.length
+              })
+            }}
+          </div>
 
-                    <b-button variant="primary" size="sm" :to="{name: 'resource-detail', params:{id:r.id}}">
-                        {{$t('pool.open')}}
-                    </b-button>
+          <b-button variant="primary" size="sm" :to="{name: 'resource-detail', params:{id:r.id}}">
+            {{ $t('pool.open') }}
+          </b-button>
 
-                    <b-button variant="warning" size="sm"
-                              v-if="r.materials.length === 1"
-                              @click="_detachAndDeleteResource(r)"
-                    >{{$t('pool.detach-and-delete')}}
-                    </b-button>
+          <b-button variant="warning" size="sm"
+                    v-if="r.materials.length === 1"
+                    @click="_detachAndDeleteResource(r)"
+          >{{ $t('pool.detach-and-delete') }}
+          </b-button>
 
-                    <b-button :variant="r.materials.length === 1 ? 'danger' : 'warning'" size="sm"
-                              @click="_detachResourceFromMaterial(r)"
-                    >{{$t('pool.detach')}}
-                    </b-button>
-
-                </div>
-                <div class="col" v-if="resourcesAreReloading">
-                    <materialpool-spinner/>
-                </div>
-            </div>
+          <b-button :variant="r.materials.length === 1 ? 'danger' : 'warning'" size="sm"
+                    @click="_detachResourceFromMaterial(r)"
+          >{{ $t('pool.detach') }}
+          </b-button>
 
         </div>
+        <div class="col" v-if="resourcesAreReloading">
+          <materialpool-spinner/>
+        </div>
+      </div>
 
-    </b-modal>
+    </div>
+
+  </b-modal>
 </template>
 <script>
 
-	import {BFormGroup}        from 'bootstrap-vue';
-	import {BModal}            from 'bootstrap-vue';
-	import {BButton}           from 'bootstrap-vue';
-	import {BAlert}            from 'bootstrap-vue';
-	import MaterialpoolSpinner from "../../spinner/materialpool-spinner";
-	import {savingDialogs}     from "../../../helper/flashMessages";
+import {BAlert, BButton, BFormGroup, BModal} from 'bootstrap-vue';
+import MaterialpoolSpinner                   from "../../spinner/materialpool-spinner";
+import {savingDialogs}                       from "../../../helper/flashMessages";
 
-	export default {
-		name: "materialDeletor",
+export default {
+  name: "materialDeletor",
 
-		mixins: [savingDialogs],
+  mixins: [savingDialogs],
 
-		data() {
-			return {
-				reject: null,
-				resolve: null,
+  data() {
+    return {
+      reject: null,
+      resolve: null,
 
-				materialIsReloading: false,
-				resourcesAreReloading: false,
-				forceVueXUpdate: 0,
-			};
-		},
+      materialIsReloading: false,
+      resourcesAreReloading: false,
+      forceVueXUpdate: 0,
+    };
+  },
 
-		props: {
-			materialId: {
-				type: Number,
-				required: true,
-			}
-		},
+  props: {
+    materialId: {
+      type: Number,
+      required: true,
+    }
+  },
 
 
-		watch: {},
+  watch: {},
 
-		computed: {
+  computed: {
 
-			/**
-			 * Gibt im besten Fall die Resourcen mit Relations zurück, ansonsten nur die Material-Resourcen (ohne Relations) oder ein leeres Array
-			 */
-			resources() {
-				if (this.resourcesWithRelations !== null && this.resourcesAreReloading === false) {
-					// console.log('1', this.resourcesWithRelations);
-					return this.resourcesWithRelations;
-				} else if (this.material !== null) {
-					// console.log('2')
-					return this.material.resources;
-				} else {
-					// console.log('3')
-					return [];
-				}
-			},
+    /**
+     * Gibt im besten Fall die Resourcen mit Relations zurück, ansonsten nur die Material-Resourcen (ohne Relations) oder ein leeres Array
+     */
+    resources() {
+      if (this.resourcesWithRelations !== null && this.resourcesAreReloading === false) {
+        // console.log('1', this.resourcesWithRelations);
+        return this.resourcesWithRelations;
+      } else if (this.material !== null) {
+        // console.log('2')
+        return this.material.resources;
+      } else {
+        // console.log('3')
+        return [];
+      }
+    },
 
-			modalIsOpen() {
-				return this.reject !== null;
-			}
-		},
+    modalIsOpen() {
+      return this.reject !== null;
+    }
+  },
 
-		asyncComputed: {
+  asyncComputed: {
 
-			material: {
+    material: {
 
-				get() {
-					if (!this.modalIsOpen) {
-						return null;
-					}
+      get() {
+        if (!this.modalIsOpen) {
+          return null;
+        }
 
-					this.materialIsReloading = true;
+        this.materialIsReloading = true;
 
-					// Reload
-					return this.$store.dispatch('materials/getMaterial', this.materialId)
-					           .catch((message) => {
-						           this.flashActionFailed(message);
-					           })
-					           .then((material) => {
-						           this.materialIsReloading = false;
-						           return material;
-					           });
-				},
-				default: null,
-				lazy: true,
-			},
+        // Reload
+        return this.$store.dispatch('materials/getMaterial', this.materialId)
+                   .catch((message) => {
+                     this.flashActionFailed(message);
+                   })
+                   .then((material) => {
+                     this.materialIsReloading = false;
+                     return material;
+                   });
+      },
+      default: null,
+      lazy: true,
+    },
 
-			resourcesWithRelations: {
-				get() {
-					if (!this.modalIsOpen) {
-						return null;
-					}
+    resourcesWithRelations: {
+      get() {
+        if (!this.modalIsOpen) {
+          return null;
+        }
 
-					this.resourcesAreReloading = true;
+        this.resourcesAreReloading = true;
 
-					const materialIds = (this.material === null) ? [] : this.material.resources.map(({id}) => id);
-					return this.$store.dispatch('resources/getMultiple', materialIds)
-					           .catch((message) => {
-						           this.flashActionFailed(message);
-					           })
-					           .then((resources) => {
-						           this.resourcesAreReloading = false;
-						           return resources;
-					           });
-
-
-				},
-				default: null,
-				lazy: true,
-			}
-
-		},
-
-		methods: {
-
-			_detachAndDeleteResource(resource) {
-				this._detachResourceFromMaterial(resource)
-				    .then(({resource}) => {
-					    if (resource.materials.length > 9) {
-						    this.flashActionFailed(this.$t('pool.resource-can-not-be-deleted.'));
-					    } else {
-						    const deleteFlash = this.flashActionStartedWaiting(this.$t('pool.Delete-resource'));
-
-						    return this.$store.dispatch('resources/deleteResource', resource.id)
-						               .catch((message) => {
-							               this.flashActionFailed(message, deleteFlash);
-						               })
-						               .then(() => {
-							               this.flashActionSuccessfullyFinished(this.$t('pool.resource-deleted'), deleteFlash);
-						               });
-					    }
-				    });
-			},
-
-			_detachResourceFromMaterial(resource) {
-
-				const detachingFlash = this.flashActionStartedWaiting(this.$t('pool.Detach-resource'));
-
-				return this.$store.dispatch('materials/detachResource',
-					{materialId: this.materialId, resourceId: resource.id})
-				           .catch((message) => {
-					           this.flashActionFailed(message, detachingFlash);
-				           })
-				           .then((data) => {
-					           this.flashActionSuccessfullyFinished(this.$t('pool.Detach-resource'), detachingFlash);
-					           this.$asyncComputed.material.update();
-					           return data;
-				           });
-			},
-
-			_deleteThisMaterial() {
-				if (this.material === null) {
-					console.error('Material Information not loaded yet');
-				} else if (this.material.resources.length > 0) {
-					this.flashActionFailed(this.$tc('pool.material-cant-be-deleted-xy-resources-left', this.material.resources.length, {xy: this.material.resources.length}));
-				} else {
-					const deleteFlash = this.flashActionStartedWaiting(this.$t('pool.material-delete'));
-
-					this.$store.dispatch('materials/deleteMaterial', this.materialId)
-					    .then((message) => {
-						    this.flashActionSuccessfullyFinished(this.$t('pool.material-deleted'), deleteFlash);
-					    })
-					    .catch((message) => {
-						    this.flashActionFailed(this.$t('pool.material-delete-error') + ': ' + message, deleteFlash);
-					    })
-					    .then(() => {
-						    this._successfullPromise();
-					    });
-				}
-			},
-
-			showPromise() {
-
-				this._onReset();
-
-				return new Promise((resolve, reject) => {
-					this.resolve = resolve;
-					this.reject  = reject;
-
-					this.$refs.myModal.show();
-				});
-
-			},
-
-			_successfullPromise() {
-				if (typeof this.resolve === 'function') {
-					this.resolve('material deleted');
-				}
-
-				this.$refs.myModal.close();
-			},
-
-			_cancelPromise() {
-
-				if (typeof this.reject === 'function') {
-					this.reject('closed early');
-				}
-
-				// this.$refs.myModal.close();
-				this.resolve = null;
-				this.reject  = null;
-
-			},
-
-			hide() {
-				this.$refs.myModal.hide();
-			},
-
-			_onSubmit() {
-				this.$refs.myModal.hide();
-			},
-
-			_onReset() {
-				this.materialIsReloading   = false;
-				this.resourcesAreReloading = false;
-
-				// Clear Cache
-				this.$store.dispatch('materials/clearMaterial', this.materialId);
-			}
-		},
-
-		components: {
-			MaterialpoolSpinner,
-			BFormGroup,
-			BModal,
-			BButton,
-			BAlert
-		}
+        const materialIds = (this.material === null) ? [] : this.material.resources.map(({id}) => id);
+        return this.$store.dispatch('resources/getMultiple', materialIds)
+                   .catch((message) => {
+                     this.flashActionFailed(message);
+                   })
+                   .then((resources) => {
+                     this.resourcesAreReloading = false;
+                     return resources;
+                   });
 
 
-	}
+      },
+      default: null,
+      lazy: true,
+    }
+
+  },
+
+  methods: {
+
+    _detachAndDeleteResource(resource) {
+      this._detachResourceFromMaterial(resource)
+          .then(({resource}) => {
+            if (resource.materials.length > 9) {
+              this.flashActionFailed(this.$t('pool.resource-can-not-be-deleted.'));
+            } else {
+              const deleteFlash = this.flashActionStartedWaiting(this.$t('pool.Delete-resource'));
+
+              return this.$store.dispatch('resources/deleteResource', resource.id)
+                         .catch((message) => {
+                           this.flashActionFailed(message, deleteFlash);
+                         })
+                         .then(() => {
+                           this.flashActionSuccessfullyFinished(this.$t('pool.resource-deleted'), deleteFlash);
+                         });
+            }
+          });
+    },
+
+    _detachResourceFromMaterial(resource) {
+
+      const detachingFlash = this.flashActionStartedWaiting(this.$t('pool.Detach-resource'));
+
+      return this.$store.dispatch('materials/detachResource',
+          {materialId: this.materialId, resourceId: resource.id})
+                 .catch((message) => {
+                   this.flashActionFailed(message, detachingFlash);
+                 })
+                 .then((data) => {
+                   this.flashActionSuccessfullyFinished(this.$t('pool.Detach-resource'), detachingFlash);
+                   this.$asyncComputed.material.update();
+                   return data;
+                 });
+    },
+
+    _deleteThisMaterial() {
+      if (this.material === null) {
+        console.error('Material Information not loaded yet');
+      } else if (this.material.resources.length > 0) {
+        this.flashActionFailed(this.$tc('pool.material-cant-be-deleted-xy-resources-left', this.material.resources.length, {xy: this.material.resources.length}));
+      } else {
+        const deleteFlash = this.flashActionStartedWaiting(this.$t('pool.material-delete'));
+
+        this.$store.dispatch('materials/deleteMaterial', this.materialId)
+            .then((message) => {
+              this.flashActionSuccessfullyFinished(this.$t('pool.material-deleted'), deleteFlash);
+            })
+            .catch((message) => {
+              this.flashActionFailed(this.$t('pool.material-delete-error') + ': ' + message, deleteFlash);
+            })
+            .then(() => {
+              this._successfullPromise();
+            });
+      }
+    },
+
+    showPromise() {
+
+      this._onReset();
+
+      return new Promise((resolve, reject) => {
+        this.resolve = resolve;
+        this.reject  = reject;
+
+        this.$refs.myModal.show();
+      });
+
+    },
+
+    _successfullPromise() {
+      if (typeof this.resolve === 'function') {
+        this.resolve('material deleted');
+      }
+
+      this.$refs.myModal.close();
+    },
+
+    _cancelPromise() {
+
+      if (typeof this.reject === 'function') {
+        this.reject('closed early');
+      }
+
+      // this.$refs.myModal.close();
+      this.resolve = null;
+      this.reject  = null;
+
+    },
+
+    hide() {
+      this.$refs.myModal.hide();
+    },
+
+    _onSubmit() {
+      this.$refs.myModal.hide();
+    },
+
+    _onReset() {
+      this.materialIsReloading   = false;
+      this.resourcesAreReloading = false;
+
+      // Clear Cache
+      this.$store.dispatch('materials/clearMaterial', this.materialId);
+    }
+  },
+
+  components: {
+    MaterialpoolSpinner,
+    BFormGroup,
+    BModal,
+    BButton,
+    BAlert
+  }
+
+
+}
 </script>
 
-<style scoped type="scss">
-    @import "resources/sass/theme";
+<style scoped lang="scss">
+@import "resources/sass/theme";
 
-    .assignedResources {
-        .resource {
+.assignedResources {
+  .resource {
 
-            .filename {
-                font-weight: bold;
-            }
-
-            .notes {
-                font-size: 0.8em;
-                color: $notes-font-color;
-            }
-
-            &:hover {
-                background-color: $gray-200;
-            }
-        }
+    .filename {
+      font-weight: bold;
     }
 
-    ul {
-        padding-left: 0;
+    .notes {
+      font-size: 0.8em;
+      color: $notes-font-color;
     }
+
+    &:hover {
+      background-color: $gray-200;
+    }
+  }
+}
+
+ul {
+  padding-left: 0;
+}
 </style>
