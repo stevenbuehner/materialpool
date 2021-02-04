@@ -103,7 +103,7 @@
 	}
 </script>
 
-<style type="scss">
+<style lang="scss">
     @import "../../../sass/theme";
 
     .public-material-download {

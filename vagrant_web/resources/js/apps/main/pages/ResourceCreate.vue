@@ -76,7 +76,7 @@
 	}
 </script>
 
-<style type="scss">
+<style lang="scss">
 
     .resourceCreatePage {
         .options {

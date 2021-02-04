@@ -70,7 +70,7 @@
 	}
 </script>
 
-<style type="scss">
+<style lang="scss">
 
     .homeContainer {
         background-color: #fff;

@@ -91,149 +91,155 @@
 </template>
 
 <script>
-	import Vue                                   from 'vue';
-	import {FormInputPlugin, FormTextareaPlugin} from 'bootstrap-vue';
-	import textFieldIcon                         from 'svg-icon/dist/svg/material/text-fields.svg'
-	import generalMixin                          from './generalSidebarFields.mixin';
-	import {BButton}                             from 'bootstrap-vue';
-	import Datepicker                            from 'vuejs-datepicker';
-	import {localisation, lang}                  from "../../apps/main/localisation";
-	import dayjs                                 from 'dayjs';
-	import {server_datetime_format}              from "../../apps/config";
+import Vue                                            from 'vue';
+import {BButton, FormInputPlugin, FormTextareaPlugin} from 'bootstrap-vue';
+import textFieldIcon                                  from 'svg-icon/dist/svg/material/text-fields.svg'
+import generalMixin                                   from './generalSidebarFields.mixin';
+import Datepicker                                     from 'vuejs-datepicker';
+import {lang, localisation}                           from "../../apps/main/localisation";
+import dayjs                                          from 'dayjs';
+import {server_datetime_format}                       from "../../apps/config";
 
-	Vue.use(FormTextareaPlugin);
-	Vue.use(FormInputPlugin);
+Vue.use(FormTextareaPlugin);
+Vue.use(FormInputPlugin);
 
-	export default {
-		name: "textEdit",
+export default {
+  name: "textEdit",
 
-		mixins: [generalMixin],
+  mixins: [generalMixin],
 
-		props: {
-			type: {
-				type: String,
-				required: false,
-				default: 'text',
-				validator(value) {
+  props: {
+    type: {
+      type: String,
+      required: false,
+      default: 'text',
+      validator(value) {
 
-					switch (value) {
-						case 'text':
-						case 'date':
-						case 'textarea':
-							return true;
-						default:
-							return false;
-					}
+        switch (value) {
+          case 'text':
+          case 'date':
+          case 'textarea':
+            return true;
+          default:
+            return false;
+        }
 
-				}
-			},
+      }
+    },
 
-			enableSaveButton: {
-				type: Boolean,
-				required: false,
-				default: true
-			},
+    enableSaveButton: {
+      type: Boolean,
+      required: false,
+      default: true
+    },
 
-			/** Nur für type='textarea' */
-			rows: {
-				type: Number,
-				required: false,
-				default: 2
-			},
+    /** Nur für type='textarea' */
+    rows: {
+      type: Number,
+      required: false,
+      default: 2
+    },
 
-		},
+  },
 
-		data() {
-			return {
-				currentValue: '',
-			};
-		},
+  data() {
+    return {
+      currentValue: '',
+    };
+  },
 
-		watch: {
-			value: {
-				handler(newValue) {
-					this.currentValue = newValue;
-				},
-				immediate: true
-			}
-		},
+  watch: {
+    value: {
+      handler(newValue) {
+        this.currentValue = newValue;
+      },
+      immediate: true
+    }
+  },
 
-		methods: {
-			/**
-			 * @param {null|String} currentValue
-			 * @returns {null|String}
-			 */
-			onInputChanged(currentValue) {
-				this.currentValue = currentValue || null;
+  methods: {
+    /**
+     * @param {null|String} currentValue
+     * @returns {null|String}
+     */
+    onInputChanged(currentValue) {
+      this.currentValue = currentValue || null;
 
-				if (this.valueHasChanged) {
-					this.$emit('input', this.currentValue);
-				}
-			},
+      if (this.valueHasChanged) {
+        this.$emit('input', this.cleanedValue);
+      }
+    },
 
-			/**
-			 *
-			 * @param {null|Date} dateOrNullObject
-			 * @returns {null|String}
-			 */
-			onDateInputChanged(dateOrNullObject) {
-				if (dateOrNullObject === null) {
-					this.currentValue = null;
-				} else {
-					this.currentValue = dayjs(dateOrNullObject).format(server_datetime_format);
-				}
+    /**
+     *
+     * @param {null|Date} dateOrNullObject
+     * @returns {null|String}
+     */
+    onDateInputChanged(dateOrNullObject) {
+      if (dateOrNullObject === null) {
+        this.currentValue = null;
+      } else {
+        this.currentValue = dayjs(dateOrNullObject).format(server_datetime_format);
+      }
 
-				if (this.valueHasChanged) {
-					this.$emit('input', this.currentValue);
-				}
-			},
+      if (this.valueHasChanged) {
+        this.$emit('input', this.cleanedValue);
+      }
+    },
 
-			onEnter(event) {
-				this.$emit('on-enter', this.currentValue);
-				this.sendSaveRequest();
-			},
+    onEnter(event) {
+      this.$emit('on-enter', this.cleanedValue);
+      this.sendSaveRequest();
+    },
 
-			sendSaveRequest() {
-				this.$emit('save-request', this.currentValue.trim());
-			},
+    sendSaveRequest() {
+      this.$emit('save-request', this.cleanedValue);
+    },
 
-			cancelAndResetValue() {
-				// Reset
-				this.currentValue = this.value;
-				this.$emit('canceled', this.value);
-			}
+    cancelAndResetValue() {
+      // Reset
+      this.currentValue = this.value;
+      this.$emit('canceled', this.value);
+    }
 
 
-		},
+  },
 
-		computed: {
-			// Das funktioniert nur, wenn das Parent-Element kein v-model binding macht ... sonst wird die Änderung nicht erkannt!
-			valueHasChanged() {
-				return (this.value !== this.currentValue.trim());
-			},
+  computed: {
+    // Das funktioniert nur, wenn das Parent-Element kein v-model binding macht ... sonst wird die Änderung nicht erkannt!
+    valueHasChanged() {
+      return this.value !== this.cleanedValue;
+    },
 
-			dateLocalisation() {
-				return localisation[lang].datepicker;
-			},
+    cleanedValue() {
+      if (typeof this.currentValue === 'string') {
+        return this.currentValue.trim();
+      } else {
+        return this.currentValue;
+      }
+    },
 
-			dateFormat() {
-				return localisation[lang].dateDisplayFormat;
-			},
+    dateLocalisation() {
+      return localisation[lang].datepicker;
+    },
 
-			currentValueInDayJsFormat() {
-				return dayjs(this.value).toDate();
-			}
-		},
+    dateFormat() {
+      return localisation[lang].dateDisplayFormat;
+    },
 
-		components: {
-			textFieldIcon,
-			BButton,
-			Datepicker
-		}
-	}
+    currentValueInDayJsFormat() {
+      return dayjs(this.value).toDate();
+    }
+  },
+
+  components: {
+    textFieldIcon,
+    BButton,
+    Datepicker
+  }
+}
 </script>
 
-<style type="scss">
-    //  @import '~vue-date-pick/src/vueDatePick.scss';
-
+<style lang="scss">
+// @import '~vue-date-pick/src/vueDatePick.scss';
 </style>

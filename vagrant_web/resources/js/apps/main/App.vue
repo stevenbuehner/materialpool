@@ -31,7 +31,7 @@
 	}
 </script>
 
-<style type="scss">
+<style lang="scss">
     @import "../../../../node_modules/vue-flash-message/dist/vue-flash-message.min";
 
     .main-area {

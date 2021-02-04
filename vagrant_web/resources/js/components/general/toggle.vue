@@ -85,7 +85,7 @@
 </script>
 
 
-<style type="scss">
+<style lang="scss">
     @import "../../../sass/theme";
 
     // CSS Templates from: https://codepen.io/mallendeo/pen/eLIiG?editors=1100

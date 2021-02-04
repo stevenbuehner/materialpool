@@ -114,7 +114,7 @@
 </script>
 
 
-<style type="scss">
+<style lang="scss">
     @import "~vue-select/dist/vue-select.css";
 
     .searchInputSelect {

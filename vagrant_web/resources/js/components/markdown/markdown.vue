@@ -68,7 +68,7 @@
 	}
 </script>
 
-<style type="scss">
+<style lang="scss">
     .myMarkdown {
         border: solid red 1px;
     }

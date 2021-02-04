@@ -134,7 +134,7 @@
 	}
 </script>
 
-<style type="scss">
+<style lang="scss">
 
     @import "../../../../sass/theme";
 

@@ -15,7 +15,7 @@
 	}
 </script>
 
-<style type="scss">
+<style lang="scss">
     .materialpool-spinner {
         display: inline-block;
     }

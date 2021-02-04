@@ -189,7 +189,7 @@
 	}
 </script>
 
-<style type="scss">
+<style lang="scss">
     @import "resources/sass/theme";
 
     .singleTagEditSidebarField {

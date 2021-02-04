@@ -27,7 +27,7 @@
 
 <script>
 
-	import {draggingSupport}    from './../../keyword/dragging.mixin';
+	import {draggingSupport}    from '../../keyword/dragging.mixin';
 	import {RELEVANCE_USER_MAX} from "../../../apps/config";
 
 	export default {
@@ -97,7 +97,7 @@
 	}
 </script>
 
-<style type="scss">
+<style lang="scss">
     @import "../../../../sass/theme";
 
 
