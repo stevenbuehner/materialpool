@@ -28,6 +28,7 @@ class BundleImportController extends BaseController {
 	public function __construct(BundlesService $bundlesService, BundleQueueService $bundleQueueService) {
 		$this->bundlesService     = $bundlesService;
 		$this->bundleQueueService = $bundleQueueService;
+		$this->middleware('admin');
 	}
 
 	public function index() {

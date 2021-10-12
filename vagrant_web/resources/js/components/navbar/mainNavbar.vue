@@ -15,15 +15,15 @@
 
           <b-nav-item :to="{name: 'resource-text-create'}">{{ $t('pool.New') }}</b-nav-item>
 
-          <b-nav-item-dropdown right :text="$t('pool.Edit')">
-            <b-dropdown-item :to="{name: 'keyword-list'}" class="dropdown-hover">{{ $t('pool.Keywords') }}
+          <b-nav-item-dropdown right :text="$t('pool.Edit')" v-if="isAdmin">
+            <b-dropdown-item :to="{name: 'keyword-list'}" class="dropdown-hover" v-if="isAdmin">{{ $t('pool.Keywords') }}
             </b-dropdown-item>
-            <b-dropdown-item :to="{name: 'bundle-list'}" class="dropdown-hover">{{ $t('pool.Bundle') }}
+            <b-dropdown-item :to="{name: 'bundle-list'}" class="dropdown-hover" v-if="isAdmin">{{ $t('pool.Bundle') }}
             </b-dropdown-item>
-            <b-dropdown-item :to="{name: 'resource-lonely'}" class="dropdown-hover">
+            <b-dropdown-item :to="{name: 'resource-lonely'}" class="dropdown-hover" v-if="isAdmin">
               {{ $t('pool.Lonely-Resources') }}
             </b-dropdown-item>
-            <b-dropdown-item :to="{name: 'resource-newest'}" class="dropdown-hover">
+            <b-dropdown-item :to="{name: 'resource-newest'}" class="dropdown-hover" v-if="isAdmin">
               {{ $t('pool.Newest-Resources') }}
             </b-dropdown-item>
             <!-- Todo: Newest Materials Seite -->
