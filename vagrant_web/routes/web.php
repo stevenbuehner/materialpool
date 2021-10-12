@@ -106,5 +106,6 @@ Route::get('/bibleverse/{from}-{to}', 'Api\BibleverseController@show')
 
 
 Auth::routes();
+Route::get('/logout', 'Auth\LoginController@logout')->name('logout');
 
 Route::get('/home', 'HomeController@index');
