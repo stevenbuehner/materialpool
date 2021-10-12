@@ -105,7 +105,7 @@ Route::get('/bibleverse/{from}-{to}', 'Api\BibleverseController@show')
 	->name('bibleverse');
 
 
-Auth::routes();
+Auth::routes($options = ['register' => FALSE]);
 Route::get('/logout', 'Auth\LoginController@logout')->name('logout');
 
 Route::get('/home', 'HomeController@index');
