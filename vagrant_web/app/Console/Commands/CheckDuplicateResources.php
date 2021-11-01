@@ -39,5 +39,7 @@ class CheckDuplicateResources extends Command {
 	 */
 	public function handle() {
 		$this->service->mergeAllDuplicates();
+
+		return 0;
 	}
 }

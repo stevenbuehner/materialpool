@@ -50,5 +50,6 @@ class ImportZefaniaBible extends Command {
 
 		$result = $this->zefaniaImportService->import($xmlFile);
 
+		return 0;
 	}
 }

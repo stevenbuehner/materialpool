@@ -28,7 +28,8 @@ class BundleImportController extends BaseController {
 	public function __construct(BundlesService $bundlesService, BundleQueueService $bundleQueueService) {
 		$this->bundlesService     = $bundlesService;
 		$this->bundleQueueService = $bundleQueueService;
-		$this->middleware('admin');
+
+		$this->middleware(['auth:api']);
 	}
 
 	public function index() {
@@ -154,7 +155,7 @@ class BundleImportController extends BaseController {
 		$bundle->installed_version = 'incomplete';
 		$bundle->save();
 
-		$test =  $this->redirectToProcessQueue(TRUE, FALSE, $countDeletedJobs, $deleteJobs, 0, $deleteJobs + $finishJobs);
+		$test = $this->redirectToProcessQueue(TRUE, FALSE, $countDeletedJobs, $deleteJobs, 0, $deleteJobs + $finishJobs);
 
 		return $test;
 	}

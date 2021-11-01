@@ -5,6 +5,9 @@ namespace App\Providers;
 use App\ResourceLimitations\ResourceLimitationService;
 use App\Services\Bundles\BundleQueueService;
 use App\Services\Bundles\BundlesService;
+use App\Services\ExifReader\ExifMapper;
+use App\Services\ExifReader\ExifReader;
+use App\Services\ExifReader\ExifReaderInterface;
 use App\Services\KeywordHandling\KeywordHandlingService;
 use App\Services\MaterialHandling\MaterialDuplicationHandlingService;
 use App\Services\MaterialHandling\MaterialHandlingService;
@@ -36,6 +39,7 @@ use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Passport\Passport;
+use PHPExif\Adapter\Exiftool;
 use PHPExiftool\Reader;
 use Psr\Log\LoggerInterface;
 use StevenBuehner\BibleVerseBundle\Service\BibleVerseService;
@@ -137,12 +141,15 @@ class AppServiceProvider extends ServiceProvider {
 		$this->app->singleton(TagExtractionService::class);
 
 
+		$this->app->singleton(ExifReaderInterface::class, function ($app) {
+			/** @var $app App */
 
-		$this->app->singleton('PHPExiftool\Reader', function ($app) {
-			$logger = resolve(LoggerInterface::class);
-			$reader = Reader::create($logger);
+			$adapter = new Exiftool($options = [
+				'toolPath'  => realpath(base_path(). '/vendor/phpexiftool/exiftool/exiftool')
+			]);
+			$adapter->setMapper(new ExifMapper());
 
-			return $reader;
+			return new ExifReader($adapter);
 		});
 
 		Carbon::setLocale(config('app.locale'));

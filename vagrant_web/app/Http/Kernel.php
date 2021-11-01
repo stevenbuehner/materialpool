@@ -34,6 +34,9 @@ class Kernel extends HttpKernel {
 			\App\Http\Middleware\VerifyCsrfToken::class,
 			\Illuminate\Routing\Middleware\SubstituteBindings::class,
 			\Illuminate\Session\Middleware\AuthenticateSession::class,
+
+			// Damit ein Cookie für die API-Anfragen generiert wird und kein natives oAuth nötig wird
+			// You should ensure that the CreateFreshApiToken middleware is the last middleware listed in your middleware stack.
 			\Laravel\Passport\Http\Middleware\CreateFreshApiToken::class
 		],
 

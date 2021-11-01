@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller as BaseController;
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 
 
