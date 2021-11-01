@@ -154,7 +154,7 @@ class PdfHandlingService {
 		try {
 			$pdfObject = resolve(Pdf::class)->setPdf($pdfPath);
 		} catch (PdfNotFound $e) {
-			Log::error('PDF-File not found!', $e->getTraceAsString());
+			Log::error('PDF-File not found!', [$e->getTraceAsString()]);
 
 			return '';
 		}
@@ -181,11 +181,11 @@ class PdfHandlingService {
 		try {
 			$pdfSrcFilePath = $this->fileHandlingService->getLocalFilePath($resource);
 		} catch (LocalFileDoesNotExistException $e) {
-			Log::error('Local File does not exist', $e->getTraceAsString());
+			Log::error('Local File does not exist', [$e->getTraceAsString()]);
 
 			return '';
 		} catch (RemoteFileDoesNotExistException $e) {
-			Log::error('Remote File does not exist', $e->getTraceAsString());
+			Log::error('Remote File does not exist', [$e->getTraceAsString()]);
 
 			return '';
 		}

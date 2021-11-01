@@ -123,7 +123,7 @@ class File extends Resource {
 			return Storage::disk($storage);
 		} catch (\InvalidArgumentException $e) {
 			// Wenn der gegebene $storage-String nicht existiert
-			Log::error('Given Storage-Name in DB does not exist.', $this->id);
+			Log::error('Given Storage-Name in DB does not exist.', ['id' => $this->id]);
 			throw $e;
 		}
 
