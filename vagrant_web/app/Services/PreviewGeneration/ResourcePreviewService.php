@@ -70,7 +70,11 @@ class ResourcePreviewService extends AbstractPreviewService {
 
 		} catch (NotPreviewAbleException $e) {
 
-			Log::error($e->getMessage(), [$e->getTraceAsString()]);
+			$previous = $e->getPrevious() !== NULL ? $e->getPrevious()->getMessage() : NULL;
+			Log::error($e->getMessage(),
+				['trace'         => $e->getTraceAsString(),
+				 'previousError' => $previous]
+			);
 
 			if ($e->getPrevious() instanceof FileNotFoundException) {
 				return $this->getImageWithText('Resource missing', $size->getWidth(), $size->getHeight());
@@ -81,7 +85,10 @@ class ResourcePreviewService extends AbstractPreviewService {
 			try {
 				$image = $generator->getImagePreview($resource, $size, $pageOrSeconds);
 			} catch (NotPreviewAbleException $e) {
-				Log::error($e->getMessage(), [$e->getTraceAsString()]);
+				$previous = $e->getPrevious() !== NULL ? $e->getPrevious()->getMessage() : NULL;
+				Log::error($e->getMessage(),
+					['trace'         => $e->getTraceAsString(),
+					 'previousError' => $previous]);
 			}
 
 		}
@@ -119,7 +126,7 @@ class ResourcePreviewService extends AbstractPreviewService {
 	 */
 	public function getCachedImage(ResourceEntity $resource, Size $size, $pageOrSeconds = NULL) {
 
-		$cacheKey = $this->getCacheKey($resource, [$size, (int) $pageOrSeconds]);
+		$cacheKey = $this->getCacheKey($resource, [$size, (int)$pageOrSeconds]);
 
 		// Load the preview
 		if (NULL !== $encodedImage = $this->getImageObjectFromCache($cacheKey)) {

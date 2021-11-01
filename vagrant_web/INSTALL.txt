@@ -1,5 +1,4 @@
 run composer install
-set phpexiftool executeable (+x) for web-user in vendor/phpexiftool/exiftool/exiftool
 
 
 
@@ -204,8 +203,8 @@ sudo -u www-data php artisan route:clear
 sudo -u www-data php artisan route:cache
 sudo -u www-data php artisan optimize --force
 sudo -u www-data php artisan view:clear
-php artisan cache:clear
-php artisan cache:clear previewimages
+sudo -u www-data php /var/www/wissensbase/artisan cache:clear
+sudo -u www-data php /var/www/wissensbase/artisan cache:clear previewimages
 
 #Im www
 php artisan passport:keys --force
@@ -237,8 +236,6 @@ sudo crontab -u www-data -e
 # Download-Path writeable machen unter
 sudo chown -R steven.www-data /var/www/wissensbase/public/downloads
 sudo chmod 770 /var/www/wissensbase/public/downloads
-
-
 
 
 

@@ -58,6 +58,8 @@ class PdfPreviewGenerator implements PreviewGeneratorInterface {
 
 			$image = $this->getImagePreviewFromPdfPath($localPdfPath, $size, $page);
 
+		}catch (NotPreviewAbleException $e){
+			throw $e;
 		} catch (\Exception $e) {
 			throw new NotPreviewAbleException('Error when creating Preview', 0, $e);
 		}
