@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Models\Exceptions\InvalidKeywordTypeException;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Kalnoy\Nestedset\NodeTrait;
 
@@ -24,6 +25,7 @@ use Kalnoy\Nestedset\NodeTrait;
  * @property \DateTime updated_at
  */
 class Keyword extends Model {
+	use HasFactory;
 	use NodeTrait;
 
 	const AVAILABLE_TYPES = [

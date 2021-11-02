@@ -1,5 +1,7 @@
 <?php
 
+namespace Database\Seeders;
+
 use App\Models\AudioFile;
 use App\Models\DocumentFile;
 use App\Models\ForeignResourceId;
@@ -14,7 +16,6 @@ use App\Models\Resource;
 use App\Models\User;
 use App\Models\VideoFile;
 use Illuminate\Database\Seeder;
-
 
 class ResourceSeeder extends Seeder {
 

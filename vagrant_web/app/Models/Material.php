@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Support\Facades\DB;
@@ -36,6 +37,7 @@ use Illuminate\Support\Facades\DB;
  * @property            $created_at;
  */
 class Material extends Model {
+	use HasFactory;
 
 	const MAX_RATING = 20;
 

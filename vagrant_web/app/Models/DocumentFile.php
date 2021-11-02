@@ -4,8 +4,10 @@ namespace App\Models;
 
 use App\Models\Traits\PageCountTrait;
 use App\Services\PreviewGeneration\Generators\DocumentPreviewGenerator;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class DocumentFile extends File {
+	use HasFactory;
 
 	use PageCountTrait;
 
