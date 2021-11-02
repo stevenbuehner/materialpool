@@ -49,9 +49,7 @@ export function getLimitationRangeFromPages(pages) {
 		}
 	}
 
-	if (orderedPages.length === 0) {
-		ranges.push({from: lastStart, to: lastEnd});
-	}
+	ranges.push({from: lastStart, to: lastEnd});
 
 	return ranges;
 

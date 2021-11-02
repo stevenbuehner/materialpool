@@ -6,18 +6,23 @@ import {routes}  from './routes';
 import mainApp   from './App.vue';
 // Styling
 import '../../../sass/main.scss';
+
 // Localisation
-import {i18n}    from "./localisation";
+import {vueLangConfig} from './localisation';
 
 import ShortKey                      from 'vue-shortkey'
 import AsyncComputed                 from 'vue-async-computed';
 import {sessionKeepAlive}            from "../../helper/sessionKeepAlive";
 import {keepalive_seconds_intervall} from "../config";
-
+import VueLang                       from "@eli5/vue-lang-js";
 
 Vue.use(ShortKey);
 Vue.use(VueRouter);
 Vue.use(AsyncComputed);
+
+// Localisation
+Vue.use(VueLang, vueLangConfig);
+
 
 const router = new VueRouter({
 	mode: 'history',
@@ -31,7 +36,6 @@ const router = new VueRouter({
 
 const vueInstance = new Vue({
 	el: '#app',
-	i18n,
 	router: router,
 	render: h => h(mainApp),
 	components: {},

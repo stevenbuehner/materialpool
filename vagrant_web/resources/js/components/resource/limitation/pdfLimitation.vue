@@ -33,11 +33,9 @@ export default {
         return '';
       }
 
-      if (this.pages.length === 1) {
-        return this.$tc('pool.Page', this.pages.length) + ' ' + this.pageRange
-      } else {
-        return this.pageRange + ' ' + this.$tc('pool.Page', this.pages.length);
-      }
+      const limitCount = this.pages.length === 0 ? -1: this.pages.length;
+
+      return this.$tc('pool.Page-Range', limitCount, {COUNT: this.pageRange});
 
     }
   }

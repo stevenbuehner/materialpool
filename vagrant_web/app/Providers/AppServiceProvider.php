@@ -38,10 +38,9 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Translation\TranslationServiceProvider;
 use Laravel\Passport\Passport;
 use PHPExif\Adapter\Exiftool;
-use PHPExiftool\Reader;
-use Psr\Log\LoggerInterface;
 use StevenBuehner\BibleVerseBundle\Service\BibleVerseService;
 
 class AppServiceProvider extends ServiceProvider {
@@ -72,6 +71,8 @@ class AppServiceProvider extends ServiceProvider {
 			$this->app->register('Barryvdh\Debugbar\ServiceProvider');
 
 			$this->app->alias('Barryvdh\Debugbar\Facade', 'Debugbar');
+
+			$this->app->register('Illuminate\Translation\TranslationServiceProvider');
 		}
 
 		$this->app->singleton('BibleVerseService', function ($app) {
@@ -145,7 +146,7 @@ class AppServiceProvider extends ServiceProvider {
 			/** @var $app App */
 
 			$adapter = new Exiftool($options = [
-				'toolPath'  => realpath(base_path(). '/vendor/phpexiftool/exiftool/exiftool')
+				'toolPath' => realpath(base_path() . '/vendor/phpexiftool/exiftool/exiftool')
 			]);
 			$adapter->setMapper(new ExifMapper());
 
