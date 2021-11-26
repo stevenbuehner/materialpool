@@ -38,7 +38,6 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
-use Illuminate\Translation\TranslationServiceProvider;
 use Laravel\Passport\Passport;
 use PHPExif\Adapter\Exiftool;
 use StevenBuehner\BibleVerseBundle\Service\BibleVerseService;

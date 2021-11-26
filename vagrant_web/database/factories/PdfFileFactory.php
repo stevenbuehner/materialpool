@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Events\ResourceWasCreated;
 use App\Models\PdfFile;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Storage;
@@ -29,6 +30,12 @@ class PdfFileFactory extends Factory {
 			'notes'        => $this->faker->sentences(3, TRUE),
 			'is_public'    => $this->faker->boolean()
 		];
+	}
+
+	public function configure() {
+		return $this->afterCreating(function (PdfFile $resource) {
+			event(new ResourceWasCreated($resource));
+		});
 	}
 
 }

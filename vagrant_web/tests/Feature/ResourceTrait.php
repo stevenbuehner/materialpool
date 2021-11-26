@@ -3,7 +3,7 @@
 namespace Tests\Feature;
 
 
-use App\Jobs\UpdateResourceHashes;
+use App\Listeners\UpdateResourceHashes;
 use App\Models\ImageFile;
 use App\Models\Keyword;
 use App\Models\Material;

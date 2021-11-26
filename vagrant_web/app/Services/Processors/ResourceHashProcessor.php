@@ -4,6 +4,7 @@ namespace App\Services\Processors;
 
 use App\Models\File;
 use App\Models\Resource;
+use App\Services\Processors\Exceptions\ResourceNotHashable;
 
 class ResourceHashProcessor {
 

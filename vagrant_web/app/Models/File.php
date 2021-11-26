@@ -6,6 +6,7 @@ use App\Services\TagExtraction\ResourceHandles\FileExifHandler;
 use App\Services\TagExtraction\ResourceHandles\FileNameHandler;
 use App\Services\TagExtraction\ResourceHandles\HandlerInterface;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use League\Flysystem\Adapter\Local;
@@ -20,6 +21,7 @@ use League\Flysystem\Filesystem;
  * @property int $filesize
  */
 class File extends Resource {
+	use HasFactory;
 
 	protected static $singleTableSubclasses = [AudioFile::class, VideoFile::class, ImageFile::class, DocumentFile::class, PdfFile::class];
 	protected static $singleTableType       = 'file';
@@ -132,7 +134,16 @@ class File extends Resource {
 	public function getLocalStorageAndPath() {
 		if (!isset($this->cachedData['storage']) || !isset($this->cachedData['path'])) {
 			$local = $this->getAttribute('local_path');
-			list($storage, $path) = preg_split('~::~', $local, 2);
+
+			$split = preg_split('~::~', $local, 2);
+
+			if (count($split) === 2) {
+				list($storage, $path) = $split;
+			} else {
+				$storage = NULL;
+				$path    = $split[0];
+			}
+
 			$this->setDataCache('storage', $storage);
 			$this->setDataCache('path', $path);
 		}

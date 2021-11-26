@@ -28,6 +28,8 @@ Route::group(['prefix' => 'vue', 'as' => 'vue.'], function () {
 
 });
 
+Route::get('/home', 'HomeController@index');
+
 Route::get('/keepalive', 'HomeController@keepalive')
 	->name('token_keepalive')
 	->middleware(['auth']);
@@ -108,4 +110,3 @@ Route::get('/bibleverse/{from}-{to}', 'Api\BibleverseController@show')
 Auth::routes($options = ['register' => FALSE]);
 Route::get('/logout', 'Auth\LoginController@logout')->name('logout');
 
-Route::get('/home', 'HomeController@index');

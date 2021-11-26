@@ -35,11 +35,19 @@ class CalculateDocPageSize {
 
 		if ($resource instanceof DocumentFile) {
 
-			Log::info("Start job: " . self::class . " for Resource", $resource->toArray());
+			Log::info("Start job: " . self::class . " for Resource", ['id' => $resource->id, 'pageCount' => $resource->page_count]);
 
-			$resource = $this->processor->countDocPages($resource);
+			try {
+				$resource = $this->processor->countDocPages($resource);
+			} catch (\Exception $e) {
+				Log::error('Error when Counting Doc-Pages in Resource', [
+					'exception' => $e->getMessage(),
+					'trace'     => $e->getTraceAsString(),
+					'resource'  => ['id' => $resource->id, 'pageCount' => $resource->page_count]
+				]);
+			}
 
-			Log::info("End job: " . self::class . " for Resource", $resource->toArray());
+			Log::info("End job: " . self::class . " for Resource", ['id' => $resource->id, 'pageCount' => $resource->page_count]);
 
 		}
 

@@ -3,12 +3,12 @@
 namespace Database\Factories;
 
 use App\Events\ResourceWasCreated;
-use App\Models\ImageFile;
+use App\Models\File;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Storage;
 
-class ImageFileFactory extends Factory {
+class FileFactory extends Factory {
 
 	/**
 	 * Define the model's default state.
@@ -35,7 +35,7 @@ class ImageFileFactory extends Factory {
 	}
 
 	public function configure() {
-		return $this->afterCreating(function (ImageFile $resource) {
+		return $this->afterCreating(function (File $resource) {
 			event(new ResourceWasCreated($resource));
 		});
 	}

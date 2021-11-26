@@ -3,18 +3,19 @@
 namespace Database\Seeders;
 
 use App\Models\AudioFile;
+use App\Models\Bibleverse;
 use App\Models\DocumentFile;
+use App\Models\File;
+use App\Models\ForeignMaterialId;
 use App\Models\ForeignResourceId;
 use App\Models\ImageFile;
 use App\Models\Keyword;
-use App\Models\Language;
 use App\Models\Material;
 use App\Models\PdfFile;
-use App\Models\Person;
-use App\Models\Place;
 use App\Models\Resource;
 use App\Models\User;
 use App\Models\VideoFile;
+use FFMpeg\Media\Audio;
 use Illuminate\Database\Seeder;
 
 class ResourceSeeder extends Seeder {
@@ -30,49 +31,65 @@ class ResourceSeeder extends Seeder {
 		$tesKw->save();
 
 		// Create Testadmin
-		factory(User::class)->create([
+		User::factory([
 			'name'           => 'admin',
 			'password'       => bcrypt('admin'),
 			'email'          => 'admin@test.app',
 			'remember_token' => 'i6VuECaXTUHgjHwvdVemEtyu6nPxx90y3Qva9eFNhMgDk5PSKMLrCuCBck4s',
 			'is_admin'       => TRUE
-		]);
+		])
+			->count(1)
+			->create();
 
-		factory(Keyword::class, 20)->create();
-		factory(User::class, 5)->create();
+		User::factory()
+			->count(10)
+			->create();
 
-		factory(Resource::class, 2)
-			->create(['created_by' => User::all()->offsetGet(1)->id])
-			->each(function (Resource $r) use ($tesKw) {
-				/** @var Material $material */
+		Keyword::factory()
+			->count(20)
+			->create();
+
+
+		File::factory()
+			->count(2)
+			->afterCreating(function (Resource $r) {
+
 				$material = self::makeMaterialWithRandomUser();
 				$material->save();
 				$material = $r->materials()->save($material);
-				$material->keywords()->save($tesKw);
 
-				$bibleverses = factory(\App\Models\Bibleverse::class, 'Genesis', 5)
-					->make()
-					->each(function (\App\Models\Bibleverse $b) use ($material) {
-						$bv = \App\Models\Bibleverse::firstOrCreate(['from' => $b->from, 'to' => $b->to]);
-						$material->bibleverses()
-							->attach($bv->id,
-								['relevance' => rand(1,
-									64)]);
+				$material->keywords()->saveMany(Keyword::factory()->count(5)->create());
 
-						return $bv;
-					});
+				$bibleverses = Bibleverse::factory()
+					->count(5)
+					->create();
+
+				$bibleverses->each(function (Bibleverse $b) use ($material) {
+					$bv = \App\Models\Bibleverse::firstOrCreate(['from' => $b->from, 'to' => $b->to]);
+					$material->bibleverses()
+						->attach($bv->id,
+							['relevance' => rand(1,
+								64)]);
+
+					return $bv;
+				});
 
 				self::addRandomMaterialUid($material, $material->creator);
 				self::addRandomResourceUid($r, $material->creator);
-			});
 
+			})
+			->create();
 
-		factory(AudioFile::class, 5)
-			->create(['created_by' => User::all()
-				->offsetGet(2)->id])
+		// Resource wihtout material
+		File::factory()
+			->count(2)
+			->create();
+
+		AudioFile::factory()
+			->count(5)
+			->create()
 			->each(function (AudioFile $r) {
 
-				/** @var Material $material */
 				$material = self::makeMaterialWithRandomUser();
 				$material->save();
 				$material->resources()
@@ -84,12 +101,15 @@ class ResourceSeeder extends Seeder {
 
 				self::addRandomMaterialUid($material, $material->creator);
 				self::addRandomResourceUid($r, $material->creator);
+
 			});
 
 
-		factory(VideoFile::class, 5)
-			->create(['created_by'               => User::all()
-				->offsetGet(3)->id, 'local_path' => 'resources::1/video/uAUN7GA7kZyTzfhoEcfKxApvzLGiPMbzdQi367LK.mp4'])
+		VideoFile::factory()
+			->count(5)
+			->create([
+				'local_path' => 'resources::1/video/uAUN7GA7kZyTzfhoEcfKxApvzLGiPMbzdQi367LK.mp4'
+			])
 			->each(function (VideoFile $r) {
 				$material = self::makeMaterialWithRandomUser();
 				$material->save();
@@ -104,8 +124,9 @@ class ResourceSeeder extends Seeder {
 			});
 
 
-		factory(ImageFile::class, 5)
-			->create(['created_by' => User::all()->offsetGet(4)->id])
+		ImageFile::factory()
+			->count(5)
+			->create()
 			->each(function (ImageFile $r) {
 				$material = self::makeMaterialWithRandomUser();
 				$material->save();
@@ -117,7 +138,8 @@ class ResourceSeeder extends Seeder {
 			});
 
 
-		factory(DocumentFile::class, 5)
+		DocumentFile::factory()
+			->count(5)
 			->create(['created_by' => User::all()->offsetGet(5)->id])
 			->each(function (DocumentFile $r) {
 				$material = self::makeMaterialWithRandomUser();
@@ -132,9 +154,11 @@ class ResourceSeeder extends Seeder {
 				self::addRandomResourceUid($r, $material->creator);
 			});
 
-		factory(PdfFile::class, 5)
-			->create(['created_by'               => User::all()
-				->offsetGet(5)->id, 'local_path' => 'resources::1/pdf/4dt6tOhunfEwMMI1HFzeCVOKJW9GE1vOcZtjeuDy.pdf'])
+		PdfFile::factory()
+			->count(5)
+			->create([
+				'created_by' => User::all()->offsetGet(5)->id, 'local_path' => 'resources::1/pdf/4dt6tOhunfEwMMI1HFzeCVOKJW9GE1vOcZtjeuDy.pdf'
+			])
 			->each(function (PdfFile $r) {
 				$material = self::makeMaterialWithRandomUser();
 				$material->save();
@@ -174,7 +198,7 @@ class ResourceSeeder extends Seeder {
 	 * @return Material
 	 */
 	public static function makeMaterialWithUserId($user_id) {
-		return factory(Material::class)
+		return Material::factory()
 			->make([
 				'created_by'  => $user_id,
 				'modified_by' => $user_id
@@ -182,7 +206,8 @@ class ResourceSeeder extends Seeder {
 	}
 
 	public static function addRandomMaterialUid(Material $material, User $user) {
-		$fk = factory(\App\Models\ForeignMaterialId::class)->make();
+		$fk = ForeignMaterialId::factory()
+			->make();
 		$fk->material()->associate($material);
 		$fk->user()->associate($user);
 		$fk->save();
@@ -196,8 +221,8 @@ class ResourceSeeder extends Seeder {
 	 * @return ForeignResourceId
 	 */
 	public static function addRandomResourceUid(Resource $resource, User $user) {
-		/** @var \App\Models\ForeignResourceId $fk */
-		$fk = factory(\App\Models\ForeignResourceId::class)->make();
+		$fk = ForeignResourceId::factory()
+			->make();
 		$fk->resource()->associate($resource);
 		$fk->user()->associate($user);
 		$fk->save();

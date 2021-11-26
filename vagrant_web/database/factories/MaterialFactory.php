@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Events\MaterialWasCreated;
 use App\Models\Material;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -21,5 +22,13 @@ class MaterialFactory extends Factory {
 			'rating'      => rand(0, 20)
 		];
 	}
+
+
+	public function configure() {
+		return $this->afterCreating(function (Material $resource) {
+			event(new MaterialWasCreated($resource));
+		});
+	}
+
 
 }

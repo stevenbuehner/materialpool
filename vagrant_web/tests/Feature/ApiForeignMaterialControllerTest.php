@@ -2,8 +2,8 @@
 
 namespace Tests\Feature;
 
-use App\Jobs\CheckLonelyBibleverse;
-use App\Jobs\CheckLonelyKeyword;
+use App\Listeners\CheckLonelyBibleverse;
+use App\Listeners\CheckLonelyKeyword;
 use App\Models\ForeignMaterialId;
 use App\Models\Keyword;
 use App\Models\Material;

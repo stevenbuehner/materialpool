@@ -2,7 +2,9 @@
 
 namespace Database\Factories;
 
+use App\Events\ResourceWasCreated;
 use App\Models\Text;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class TextFactory extends Factory {
@@ -27,9 +29,18 @@ class TextFactory extends Factory {
 			'content_hash' => 'just a fake hash',
 			'content'      => $content,
 			'notes'        => $this->faker->text(),
-			'is_public'    => $this->faker->boolean()
+			'is_public'    => $this->faker->boolean(),
+			'created_by'   => User::all()->random()->id
 		];
 
 	}
+
+
+	public function configure() {
+		return $this->afterCreating(function (Text $resource) {
+			event(new ResourceWasCreated($resource));
+		});
+	}
+
 
 }

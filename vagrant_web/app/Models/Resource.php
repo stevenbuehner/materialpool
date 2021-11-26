@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use App\Jobs\UpdateResourceHashes;
+use App\Listeners\UpdateResourceHashes;
 use App\Services\PreviewGeneration\Generators\NoPreviewGenerator;
 use App\Services\PreviewGeneration\Interfaces\PreviewGeneratorInterface;
 use App\Services\TagExtraction\ResourceHandles\HandlerInterface;
