@@ -21,3 +21,12 @@ export const localisation = {
 		dateDisplayFormat: 'MM/dd/yyyy'
 	}
 };
+
+
+export function getDateLocalisation() {
+	return localisation[lang].datepicker;
+};
+
+export function getDateFormat() {
+	return localisation[lang].dateDisplayFormat;
+};

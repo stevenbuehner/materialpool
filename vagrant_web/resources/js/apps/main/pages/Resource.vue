@@ -30,7 +30,7 @@
                 </div>
               </div>
 
-              <span class="materialNavi">
+              <span class="materialNavi w-75 pl-lg-3 pl-1">
                 <router-link v-if="material.pivot.limitation && isLimitable"
                              class="btn btn-warning btn-sm mb-1 mr-1"
                              :to="routerEditLimitationObject(resource, material.pivot)">
@@ -423,10 +423,19 @@ export default {
 
 <style scoped lang="scss">
 
-.limitation {
-  font-size: smaller;
-  color: grey;
+.resource.container {
+  .card {
+    .materialData {
+
+
+      .limitation {
+        font-size: smaller;
+        color: grey;
+      }
+    }
+  }
 }
+
 
 .materialNavi {
 

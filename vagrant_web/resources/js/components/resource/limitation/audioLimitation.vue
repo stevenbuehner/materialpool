@@ -5,6 +5,8 @@
 <script>
 export default {
 
+  name: "audioLimitation",
+
   props: {
     pivot: {
       required: true
@@ -12,23 +14,24 @@ export default {
   },
 
   computed: {
+
+    start() {
+      return this.pivot?.limitation?.start;
+    },
+
+    end() {
+      return this.pivot?.limitation?.end;
+    },
+
     formatedLimitation() {
 
-      if (this.limitation === null) {
+      if (this.start === null || this.end === null) {
         return '';
       }
 
-      if (this.limitation && this.limitation.start && this.limitation.end) {
-        return 'Limitiert auf Sekunde ' + this.limitation.start + ' bis ' + this.limitation.end;
-      }
-
-      return '';
+      return 'Limitiert auf Sekunde ' + this.start + ' bis ' + this.end;
 
     }
   }
 }
 </script>
-
-<style scoped>
-
-</style>

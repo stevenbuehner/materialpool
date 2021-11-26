@@ -49,6 +49,7 @@
             :disabled="disabled"
             size="sm"
             ref="input_field"
+            autocorrect="off"
         />
 
         <datepicker v-if="type === 'date'"
@@ -66,6 +67,7 @@
                     :input-class="{valueChanged : valueHasChanged}"
                     :placeholder="getPlaceholder"
                     @input="onDateInputChanged"
+                    autocorrect="off"
         />
 
         <b-form-textarea
@@ -96,9 +98,9 @@ import {BButton, FormInputPlugin, FormTextareaPlugin} from 'bootstrap-vue';
 import textFieldIcon                                  from 'svg-icon/dist/svg/material/text-fields.svg'
 import generalMixin                                   from './generalSidebarFields.mixin';
 import Datepicker                                     from 'vuejs-datepicker';
-import {lang, localisation}                           from "../../apps/main/localisation";
 import dayjs                                          from 'dayjs';
-import {server_datetime_format}                       from "../../apps/config";
+import {server_datetime_format}             from "../../apps/config";
+import {getDateFormat, getDateLocalisation} from "../../apps/main/localisation";
 
 Vue.use(FormTextareaPlugin);
 Vue.use(FormInputPlugin);
@@ -221,11 +223,11 @@ export default {
     },
 
     dateLocalisation() {
-      return localisation[lang].datepicker;
+      return getDateLocalisation();
     },
 
     dateFormat() {
-      return localisation[lang].dateDisplayFormat;
+      return getDateFormat();
     },
 
     currentValueInDayJsFormat() {

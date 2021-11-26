@@ -99,7 +99,7 @@
 
 <script>
 	import generalMixin                                           from './generalSidebarFields.mixin';
-	import VueSelect                                              from 'vue-select/src/components/Select';
+	import VueSelect                                              from 'vue-select/dist/vue-select';
 	import tagIcon                                                from 'svg-icon/dist/svg/material/style.svg';
 	import {keywordTypes}                                         from "../keyword/keywordDefaultIcons";
 	import {debounce as _debounce, differenceBy as _differenceBy} from 'lodash';
