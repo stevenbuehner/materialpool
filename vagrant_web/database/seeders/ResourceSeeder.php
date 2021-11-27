@@ -15,7 +15,6 @@ use App\Models\PdfFile;
 use App\Models\Resource;
 use App\Models\User;
 use App\Models\VideoFile;
-use FFMpeg\Media\Audio;
 use Illuminate\Database\Seeder;
 
 class ResourceSeeder extends Seeder {
@@ -155,10 +154,14 @@ class ResourceSeeder extends Seeder {
 			});
 
 		PdfFile::factory()
-			->count(5)
+			->count(1)
 			->create([
-				'created_by' => User::all()->offsetGet(5)->id, 'local_path' => 'resources::1/pdf/4dt6tOhunfEwMMI1HFzeCVOKJW9GE1vOcZtjeuDy.pdf'
-			])
+				'local_path' => NULL
+			]);
+
+		PdfFile::factory()
+			->count(5)
+			->create()
 			->each(function (PdfFile $r) {
 				$material = self::makeMaterialWithRandomUser();
 				$material->save();
@@ -171,6 +174,7 @@ class ResourceSeeder extends Seeder {
 				self::addRandomMaterialUid($material, $material->creator);
 				self::addRandomResourceUid($r, $material->creator);
 			});
+
 
 		$counter = 100;
 	}

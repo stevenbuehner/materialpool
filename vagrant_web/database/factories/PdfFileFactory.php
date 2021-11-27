@@ -4,6 +4,7 @@ namespace Database\Factories;
 
 use App\Events\ResourceWasCreated;
 use App\Models\PdfFile;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Storage;
 
@@ -28,7 +29,8 @@ class PdfFileFactory extends Factory {
 			'local_path'   => config('app.disks.resources') . '::' . $targetPath,
 			'content_hash' => 'just a fake hash',
 			'notes'        => $this->faker->sentences(3, TRUE),
-			'is_public'    => $this->faker->boolean()
+			'is_public'    => $this->faker->boolean(),
+			'created_by' => User::all()->random()->id
 		];
 	}
 
