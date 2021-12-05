@@ -9,10 +9,10 @@
           <span class="content">
             <span class="reason">{{ reason }}</span>
             <template v-if="place !== ''">
-              (<span class="place">{{ place }}</span>, <span>{{ datetime | dateformat }}</span>)
+              (in <span class="place">{{ place }}</span>, am <span>{{ datetime | dateformat }}</span>)
             </template>
             <template v-if="place === ''">
-              (<span>{{ datetime | dateformat }}</span>)
+              (am <span>{{ datetime | dateformat }}</span>)
             </template>
           </span>
 
