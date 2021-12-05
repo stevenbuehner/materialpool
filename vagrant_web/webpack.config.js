@@ -151,7 +151,6 @@ module.exports = {
 		watchOptions: {
 			poll: false // needed for homestead/vagrant setup
 		},
-		historyApiFallback: false,
 		noInfo: false,
 		overlay: true,
 		disableHostCheck: true,
@@ -159,6 +158,7 @@ module.exports = {
 			'Access-Control-Allow-Origin': '*',
 		},
 		port: 8080,
+		host: '0.0.0.0', // Which hosts are allowed to access the served content
 	},
 	performance: {
 		hints: false
