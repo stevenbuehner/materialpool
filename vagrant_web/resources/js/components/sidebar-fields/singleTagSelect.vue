@@ -197,10 +197,25 @@ export default {
   .notDisabled {
     .vs__dropdown-toggle {
       background-color: $sidebar-input-background-colour-active;
+      padding: 0;
 
       .vs__selected-options {
+        padding: 0;
+
         ::placeholder {
           color: $input-placeholder-color;
+        }
+
+        .vs__search {
+          background-color: $sidebar-input-background-colour-active;
+          padding: $input-padding-y-sm $input-padding-x-sm;
+          margin: 0;
+          line-height: $input-line-height-sm;
+        }
+
+        .vs__selected{
+          padding: $input-padding-y-sm $input-padding-x-sm;
+          // margin: 0;
         }
       }
     }

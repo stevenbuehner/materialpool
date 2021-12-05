@@ -15,6 +15,19 @@ $green-hover: darken($green, 5%);
 $cyan-hover: darken($cyan, 5%);
 $dark-hover: darken($dark, 5%);
 
+// Input defaults
+$input-padding-top: 8px;
+$input-padding-right: 10px;
+$input-padding-bottom: 4px;
+$input-padding-left: 10px;
+
+$input-placeholder-color: $gray-500;
+$input-margin-top: 0;
+$input-margin-right: 0;
+$input-margin-bottom: 0;
+$input-margin-left: 0;
+
+
 // Notes
 
 $notes-font-color: lighten($body-color, 30%);
@@ -28,11 +41,10 @@ $tag-progressbar-dragging-colour: $orange;
 $tag-font-colour: white;
 
 
-
 // Sidebar
 $sidebar-input-background-colour-active: white;
 $sidebar-input-background-colour-disabled: $gray-400;
-$sidebar-input-text-colour-placeholder: $gray-500;
+$sidebar-input-text-colour-placeholder: $input-placeholder-color;
 
 $sidebar-input-value-not-saved-yet-background-color: lighten($red, 35%);
 $sidebar-input-value-not-saved-yet-border-color: darken($input-border-color, 30%);
@@ -51,3 +63,7 @@ $sidebar-input-font-color-disabled: $input-color;
 $sidebar-tag-background-color-disabled: $gray-300;
 $sidebar-tag-relevance-colour-disabled: $gray-400;
 
+$sidebar-input-padding-top: 1px;
+$sidebar-input-padding-right: $input-padding-right;
+$sidebar-input-padding-bottom: 1px;
+$sidebar-input-padding-left: $input-padding-left;

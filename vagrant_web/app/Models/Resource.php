@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Listeners\UpdateResourceHashes;
 use App\Services\PreviewGeneration\Generators\NoPreviewGenerator;
 use App\Services\PreviewGeneration\Interfaces\PreviewGeneratorInterface;
 use App\Services\TagExtraction\ResourceHandles\HandlerInterface;
@@ -21,6 +20,7 @@ use Nanigans\SingleTableInheritance\SingleTableInheritanceTrait;
  * @property string $local_path
  * @property string $content_hash
  * @property string $notes
+ * @property string $type
  * @property bool $is_public
  * @property            $created_at
  * @property            $updated_at

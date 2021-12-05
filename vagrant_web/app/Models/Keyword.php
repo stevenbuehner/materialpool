@@ -17,6 +17,8 @@ use Kalnoy\Nestedset\NodeTrait;
  * @property string $type
  * @property string $lc_title
  * @property int $parent_id
+ * @property Keyword $parent;
+ * @property  $children;
  * @property string $custom_icon
  * @property Collection $materials
  * @property int _lft

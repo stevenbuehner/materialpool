@@ -8,15 +8,15 @@
         </slot>
 
         <span class="title">
-                    <slot name="title">{{ name }}</slot>
-                </span>
+          <slot name="title">{{ name }}</slot>
+        </span>
       </slot>
     </div>
 
     <div class="editField" :class="{disabled}">
       <ol class="content-area">
         <li v-for="bundle in bundles">
-          {{ bundle.name }}
+          {{ bundle && bundle.name ? bundle.name : "Unknown bundle name" }}
         </li>
       </ol>
     </div>
@@ -32,8 +32,6 @@ export default {
   name: "bundleList",
 
   mixins: [generalMixin],
-
-  props: {},
 
   watch: {},
 
@@ -84,13 +82,14 @@ export default {
       border: $input-border-width solid $input-border-color;
       color: $sidebar-input-font-color-disabled;
       background-color: $sidebar-input-background-colour-active;
-      padding: $input-padding-y-sm $input-padding-x-sm;
+      padding: $input-padding-top $input-padding-right $input-padding-bottom $input-padding-left;
+
       @include border-radius($input-border-radius-sm);
 
       list-style-type: decimal;
       list-style-position: inside;
 
-      li{
+      li {
         padding: 0;
         margin: 0;
       }

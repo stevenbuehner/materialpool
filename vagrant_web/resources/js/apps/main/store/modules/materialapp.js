@@ -16,7 +16,6 @@ const actions = {
 
 	getMaterialPage: async ({commit, dispatch, state}, pageNo) => {
 
-
 		if (state.pageMaterial.hasOwnProperty(pageNo)) {
 			return state.pageMaterial[pageNo];
 		} else {

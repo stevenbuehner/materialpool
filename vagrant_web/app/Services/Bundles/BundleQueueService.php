@@ -2,8 +2,8 @@
 
 namespace App\Services\Bundles;
 
-use App\Listeners\Bundle\FinishImportAfterUpdate;
-use App\Listeners\Bundle\VersionInterface;
+use App\Jobs\Bundle\FinishImportAfterUpdate;
+use App\Jobs\Bundle\VersionInterface;
 use App\Models\Bundle;
 use Illuminate\Queue\Worker;
 use Illuminate\Support\Facades\DB;

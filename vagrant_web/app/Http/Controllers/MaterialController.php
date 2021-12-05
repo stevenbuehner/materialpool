@@ -129,11 +129,12 @@ class MaterialController extends Controller {
 			});
 		}
 
+		$resources = [];
+
 		// prepare resource assignment
 		$resourceIds = $request->get('resources', FALSE);
 		if ($resourceIds !== FALSE && is_array($resourceIds) && count($resourceIds) > 0) {
 
-			$resources = [];
 			foreach ($resourceIds as $id) {
 				// Todo Check Authors Resource-Priviledges
 				$resources[$id] = [];

@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Log;
 class CheckLonelyKeyword implements ShouldQueue {
 	use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
+	/** @var Keyword $keywordToCheck*/
 	protected $keywordToCheck;
 
 	/**

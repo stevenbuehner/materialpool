@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Requests\KeywordRequest;
-use App\Listeners\CheckLonelyBibleverse;
-use App\Listeners\CheckLonelyKeyword;
+use App\Jobs\CheckLonelyBibleverse;
+use App\Jobs\CheckLonelyKeyword;
 use App\Models\Bibleverse;
 use App\Models\Exceptions\InvalidKeywordTypeException;
 use App\Models\Keyword;

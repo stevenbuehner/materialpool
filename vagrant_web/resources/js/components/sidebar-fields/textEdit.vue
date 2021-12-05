@@ -36,57 +36,54 @@
     <div class="editField"
          :class="{disabled}">
 
-      <slot name="input">
-        <b-form-input
-            v-if="type === 'text'"
-            :class="[{valueChanged : valueHasChanged}, 'textInput']"
-            @input="onInputChanged"
-            @keyup.enter="onEnter"
-            @keyup.esc="cancelAndResetValue"
-            :value="currentValue"
-            :type="type"
-            :placeholder="getPlaceholder"
-            :disabled="disabled"
-            size="sm"
-            ref="input_field"
-            autocorrect="off"
-        />
+      <div class="inputWrapper">
 
-        <datepicker v-if="type === 'date'"
-                    class="dateInput"
-                    :disabled="disabled"
-                    :typeable="false"
-                    :bootstrap-styling="true"
-                    :language="dateLocalisation"
-                    :value="currentValueInDayJsFormat"
-                    :key="value"
-                    :format="dateFormat"
-                    :monday-first="true"
-                    :disabled-dates="{from: new Date()}"
-                    :required="required"
-                    :input-class="{valueChanged : valueHasChanged}"
-                    :placeholder="getPlaceholder"
-                    @input="onDateInputChanged"
-                    autocorrect="off"
-        />
+        <slot name="input">
+          <b-form-input
+              v-if="type === 'text'"
+              :class="[{valueChanged : valueHasChanged}, 'textInput']"
+              @input="onInputChanged"
+              @keyup.enter="onEnter"
+              @keyup.esc="cancelAndResetValue"
+              :value="currentValue"
+              :type="type"
+              :placeholder="getPlaceholder"
+              :disabled="disabled"
+              size="sm"
+              ref="input_field"
+              autocorrect="off"
+          />
 
-        <b-form-textarea
-            v-if="type === 'textarea'"
-            :class="[{valueChanged : valueHasChanged}, 'textareaInput']"
-            :placeholder="getPlaceholder"
-            :rows="rows"
-            :value="currentValue"
-            :max-rows="8"
-            :disabled="disabled"
-            :style="{overflowY : disabled ? 'hidden' : 'scroll'}"
-            @input="onInputChanged"
-            @keyup.enter="onEnter"
-            @keyup.esc="cancelAndResetValue"
-            ref="input_field"
-        />
+          <datepicker v-if="type === 'date'"
+                      :disabled="disabled"
+                      :typeable="true"
+                      :value="currentValueInDayJsFormat"
+                      :key="value"
+                      :disabled-dates="{from: new Date()}"
+                      :required="required"
+                      :input-class="{valueChanged : valueHasChanged}"
+                      :placeholder="getPlaceholder"
+                      @input="onDateInputChanged"
+          />
 
-      </slot>
+          <b-form-textarea
+              v-if="type === 'textarea'"
+              :class="[{valueChanged : valueHasChanged}, 'textareaInput']"
+              :placeholder="getPlaceholder"
+              :rows="rows"
+              :value="currentValue"
+              :max-rows="8"
+              :disabled="disabled"
+              :style="{overflowY : disabled ? 'hidden' : 'scroll'}"
+              @input="onInputChanged"
+              @keyup.enter="onEnter"
+              @keyup.esc="cancelAndResetValue"
+              ref="input_field"
+          />
 
+        </slot>
+
+      </div>
     </div>
 
   </div>
@@ -97,10 +94,9 @@ import Vue                                            from 'vue';
 import {BButton, FormInputPlugin, FormTextareaPlugin} from 'bootstrap-vue';
 import textFieldIcon                                  from 'svg-icon/dist/svg/material/text-fields.svg'
 import generalMixin                                   from './generalSidebarFields.mixin';
-import Datepicker                                     from 'vuejs-datepicker';
+import Datepicker                                     from '../datepicker/datepicker';
 import dayjs                                          from 'dayjs';
-import {server_datetime_format}             from "../../apps/config";
-import {getDateFormat, getDateLocalisation} from "../../apps/main/localisation";
+import {server_datetime_format}                       from "../../apps/config";
 
 Vue.use(FormTextareaPlugin);
 Vue.use(FormInputPlugin);
@@ -220,14 +216,6 @@ export default {
       } else {
         return this.currentValue;
       }
-    },
-
-    dateLocalisation() {
-      return getDateLocalisation();
-    },
-
-    dateFormat() {
-      return getDateFormat();
     },
 
     currentValueInDayJsFormat() {

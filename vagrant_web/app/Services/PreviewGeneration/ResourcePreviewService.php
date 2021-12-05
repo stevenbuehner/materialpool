@@ -63,6 +63,8 @@ class ResourcePreviewService extends AbstractPreviewService {
 	 */
 	public function getFreshImagePreview(ResourceEntity $resource, Size $size, $pageOrSeconds = NULL) {
 
+		$image = NULL;
+
 		try {
 			/** @var PreviewGeneratorInterface $generator */
 			$generator = $resource->getPreviewGenerator();
@@ -92,7 +94,6 @@ class ResourcePreviewService extends AbstractPreviewService {
 			}
 
 		}
-
 
 		return $image;
 

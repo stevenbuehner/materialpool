@@ -15,14 +15,10 @@ use App\Services\PreviewGeneration\Interfaces\PreviewGeneratorInterface;
 use App\Services\ResourceHandling\FileHandlingService;
 use FFMpeg\Coordinate\TimeCode;
 use FFMpeg\FFMpeg;
-use Illuminate\Support\Facades\Storage;
 use Intervention\Image\Constraint;
 use Intervention\Image\Image;
 use Intervention\Image\ImageManager;
 use Intervention\Image\Size;
-use League\Flysystem\Adapter\Local;
-use League\Flysystem\Filesystem;
-use PHPExiftool\Driver\Tag\DICOM\Time;
 
 class AudioPreviewGenerator implements PreviewGeneratorInterface {
 

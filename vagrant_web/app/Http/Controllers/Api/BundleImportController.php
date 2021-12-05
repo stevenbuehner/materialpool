@@ -3,12 +3,12 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller as BaseController;
-use App\Listeners\Bundle\DeleteMaterialIfNeeded;
-use App\Listeners\Bundle\DeleteResourceIfNeeded;
-use App\Listeners\Bundle\FinishBundleUninstall;
-use App\Listeners\Bundle\FinishImportAfterUpdate;
-use App\Listeners\Bundle\InsertOrUpdateMaterial;
-use App\Listeners\Bundle\InsertOrUpdateResource;
+use App\Jobs\Bundle\DeleteMaterialIfNeeded;
+use App\Jobs\Bundle\DeleteResourceIfNeeded;
+use App\Jobs\Bundle\FinishBundleUninstall;
+use App\Jobs\Bundle\FinishImportAfterUpdate;
+use App\Jobs\Bundle\InsertOrUpdateMaterial;
+use App\Jobs\Bundle\InsertOrUpdateResource;
 use App\Models\Bundle;
 use App\Models\ForeignMaterialId;
 use App\Models\ForeignResourceId;
