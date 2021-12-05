@@ -21,7 +21,9 @@
         <span class="icon" :style="{backgroundImage: 'url('+ option.icon+')'}"></span>
         {{ option.text }}
         <span class="descendants"
-              v-if="option.descendants && option.descendants > 0">({{ $tc('pool.XY-subtopics', option.descendants, {XY: option.descendants}) }})</span>
+              v-if="option.descendants && option.descendants > 0">({{
+            $tc('pool.XY-subtopics', option.descendants, {XY: option.descendants})
+          }})</span>
       </div>
     </template>
 
@@ -97,7 +99,17 @@ export default {
 
       vm.$store.dispatch('tagsearch/searchTags', search)
         .then((data) => {
-          vm.options = data.data;
+          vm.options = data.data.filter((el) => {
+            // Remove already displayed options
+
+            // Wenn es ein Tag ist mit ID, dann verhindere eine doppelte Auswahl
+            if (el?.item?.id) {
+              const found = vm.lineValues.find(lvEl => lvEl?.item?.id === el?.item?.id);
+              return found === undefined;
+            }
+
+            return true;
+          });
           loading(false);
         });
 
@@ -116,6 +128,7 @@ export default {
 
 
 <style lang="scss">
+@import "resources/sass/theme";
 @import "~vue-select/dist/vue-select.css";
 
 .searchInputSelect {
@@ -130,6 +143,10 @@ export default {
     .descendants {
       font-size: 0.8em;
       padding: 0.2em 0.2em 0 0.2em;
+    }
+
+    button.vs__deselect {
+      color: $sidebar-input-font-color-active-hover;
     }
   }
 
