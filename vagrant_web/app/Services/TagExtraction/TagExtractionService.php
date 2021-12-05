@@ -189,6 +189,11 @@ class TagExtractionService {
 				continue;
 			}
 
+			// Don't use too big tags
+			if(strlen($tagValue) > 190){
+				continue;
+			}
+
 			// Run a Check over each tagrecognition to get infos
 			foreach ($lib as $recognizer) {
 				/* @var $recognizer AbstractTagRecognition */
