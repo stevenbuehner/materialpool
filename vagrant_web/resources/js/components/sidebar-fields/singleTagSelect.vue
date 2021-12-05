@@ -14,41 +14,42 @@
     </div>
 
 
-    <div class="editField"
-         :class="[{disabled, notDisabled : !disabled}, {isEmpty:!value}]">
+    <div :class="[{disabled, notDisabled : !disabled}, {isEmpty:!value}]"
+         class="editField">
 
       <vue-select
           v-model="selection"
-          :placeholder="placeholder"
           :disabled="disabled"
-          :options="suggestedTags"
           :getOptionLabel="getTagLabelFromObject"
           :multiple="false"
+          :options="suggestedTags"
+          :placeholder="placeholder"
           language="de-DE"
           @input="onInputChanged"
           @search="onSearch"
       >
-        <template v-slot:option="option">
-                        <span class="suggested-option" :class="{'is-new' : option.isNew}">
-                            <span class="tagOptionIcon">
-                                <slot name="icon">
-                                    <span class="icon" :style="{backgroundImage: 'url(' + option.icon + ')'}"/>
-                                </slot>
-                            </span>
-                            <span class="suggested-text">
-                                {{ getTagLabelFromObject(option) }}
-                            </span>
-                            <span class="is-new badge badge-info" v-if="option.isNew">{{ $t('pool.new') }}</span>
-                        </span>
-        </template>
-
-        <template v-slot:no-options>{{ $t('pool.Nothing-found') }}</template>
 
         <template v-slot:selected-option="option">
           <div class="selected d-center">
             {{ getTagLabelFromObject(option) }}
           </div>
         </template>
+
+        <template v-slot:option="option">
+          <span :class="{'is-new' : option.isNew}" class="suggested-option">
+              <span class="tagOptionIcon">
+                  <slot name="icon">
+                      <span :style="{backgroundImage: 'url(' + option.icon + ')'}" class="icon"/>
+                  </slot>
+              </span>
+              <span class="suggested-text">
+                  {{ getTagLabelFromObject(option) }}
+              </span>
+              <span v-if="option.isNew" class="is-new badge badge-info">{{ $t('pool.new') }}</span>
+          </span>
+        </template>
+
+        <template v-slot:no-options>{{ $t('pool.Nothing-found') }}</template>
 
       </vue-select>
 
@@ -129,7 +130,7 @@ export default {
             keywords.push({
               title: search,
               type: type,
-              new: true
+              isNew: true
             });
           }
 
@@ -213,7 +214,7 @@ export default {
           line-height: $input-line-height-sm;
         }
 
-        .vs__selected{
+        .vs__selected {
           padding: $input-padding-y-sm $input-padding-x-sm;
           // margin: 0;
         }

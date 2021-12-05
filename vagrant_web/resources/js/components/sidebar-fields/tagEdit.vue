@@ -352,6 +352,8 @@ export default {
 
       .vs__selected-options {
 
+        margin-top: 3px;
+
         input {
           min-width: 50%;
 
@@ -359,18 +361,12 @@ export default {
             color: $sidebar-input-text-colour-placeholder;
           }
         }
-
-        .selected-tag {
-        }
-
-
       }
     }
 
     .hasElements {
       .vs__selected-options {
         padding: $sidebar-input-padding-top $sidebar-input-padding-right $sidebar-input-padding-bottom $sidebar-input-padding-left;
-        // margin: 0;
       }
     }
 
