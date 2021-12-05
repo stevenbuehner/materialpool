@@ -361,6 +361,10 @@ export default {
             color: $sidebar-input-text-colour-placeholder;
           }
         }
+
+        button.vs__deselect {
+          color: $sidebar-input-font-color-active-hover;
+        }
       }
     }
 
