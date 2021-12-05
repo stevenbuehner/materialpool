@@ -35,7 +35,9 @@ class MaterialController extends Controller {
 			'foreignIds',
 			'resources',
 			'creator',
-			'author'];
+			'usages.usedBy',
+			'author'
+		];
 	}
 
 	/**

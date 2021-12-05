@@ -236,6 +236,13 @@
                 :name="$t('pool.Rating')"
                 @input="submitRating"/>
 
+            <usage-edit
+                :material-id="material.id"
+                @input:add-usage=""
+                @input:update-usage=""
+                @input:remove-usage=""
+            />
+
           </b-tab>
           <b-tab :title="$t('pool.assignments')">
             <div class="row">
@@ -325,6 +332,7 @@ import {savingDialogs}         from "../../../helper/flashMessages";
 import PublicMaterialDownload  from "../../../components/download/public-material-download";
 import {formatLocalizedDate}   from '../../../helper/datetime.mixin'
 import cloneIcon               from 'svg-icon/dist/svg/awesome/clone.svg';
+import usageEdit               from "../../../components/sidebar-fields/usageEdit";
 
 
 import trashIcon       from 'svg-icon/dist/svg/oct/trashcan.svg';
@@ -503,6 +511,10 @@ export default {
 
     submitAuthor(newKeyword) {
       this.submitMaterialUpdate({'author': newKeyword}, this.$t('pool.Author'));
+    },
+
+    submitAddUsage(){
+
     },
 
     submitMaterialUpdate(data, propertyName) {
@@ -892,6 +904,7 @@ export default {
     edditableText: editableText,
     bundleList,
     starRating,
+    usageEdit,
     fromBot,
     customDialog,
     trashIcon,

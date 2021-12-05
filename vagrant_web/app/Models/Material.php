@@ -176,5 +176,9 @@ class Material extends Model {
 		return $this->hasMany(ForeignMaterialId::class);
 	}
 
+	public function usages() {
+		return $this->hasMany(MaterialUsage::class, 'material_id');
+	}
+
 
 }

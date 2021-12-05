@@ -2,6 +2,7 @@ import Vue             from 'vue';
 import VueX            from 'vuex';
 import resources       from './modules/resources';
 import materials       from './modules/materials';
+import materialusages  from './modules/materialusages';
 import keywords        from './modules/keywords';
 import bibleverses     from './modules/bibleverses';
 import search          from './modules/search';
@@ -21,6 +22,7 @@ export const store = new VueX.Store({
 	modules: {
 		resources,
 		materials,
+		materialusages,
 		materialapp,
 		keywords,
 		bibleverses,

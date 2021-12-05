@@ -6,12 +6,14 @@ use App\Models\Bundle;
 use App\Models\ForeignMaterialId;
 use App\Models\ForeignResourceId;
 use App\Models\Material;
+use App\Models\MaterialUsage;
 use App\Models\Resource;
 use App\Models\User;
 use App\Policies\BundlePolicy;
 use App\Policies\ForeignMaterialIdPolicy;
 use App\Policies\ForeignResourceIdPolicy;
 use App\Policies\MaterialPolicy;
+use App\Policies\MaterialUsagePolicy;
 use App\Policies\ResourcePolicy;
 use App\Policies\UserPolicy;
 use Carbon\Carbon;
@@ -30,6 +32,7 @@ class AuthServiceProvider extends ServiceProvider {
 		ForeignMaterialId::class => ForeignMaterialIdPolicy::class,
 		ForeignResourceId::class => ForeignResourceIdPolicy::class,
 		Material::class          => MaterialPolicy::class,
+		MaterialUsage::class     => MaterialUsagePolicy::class,
 		Resource::class          => ResourcePolicy::class,
 		User::class              => UserPolicy::class,
 	];

@@ -157,6 +157,23 @@ export function material_preview_image(materialId) {
 	return '/material/' + materialId + '/preview';
 }
 
+// API - MaterialUsage
+export function api_v2_materialusage_index(materialId) {
+	return '/api/v2/material/' + materialId + '/usage';
+}
+
+export function api_v2_materialusage_store(materialId) {
+	return '/api/v2/material/' + materialId + '/usage';
+}
+
+export function api_v2_materialusage_update(materialId, materialUsageId) {
+	return '/api/v2/material/' + materialId + '/usage/' + materialUsageId;
+}
+
+export function api_v2_materialusage_delete(materialId, materialUsageId) {
+	return '/api/v2/material/' + materialId + '/usage/' + materialUsageId;
+}
+
 // API - Keywords
 export const api_v1_keywords_index = '/api/v1/keywords/';
 
