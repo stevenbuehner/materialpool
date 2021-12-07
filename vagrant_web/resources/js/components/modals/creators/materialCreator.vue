@@ -491,9 +491,9 @@ export default {
       // Check title
       if (!this.form.title || this.form.title.trim().length < 3) {
         this.formErrors.push(this.$tc('pool.min-length', this.form.title.trim().length, {
-          COUNT: this.form.title.trim().length,
-          REQUIRED: 3,
-          FIELD: this.$t('pool.Title')
+          count: this.form.title.trim().length,
+          required: 3,
+          field: this.$t('pool.Title')
         }));
       }
 

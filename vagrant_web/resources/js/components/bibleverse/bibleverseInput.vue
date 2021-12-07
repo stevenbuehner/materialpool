@@ -345,7 +345,7 @@ export default {
       const count = this.myBibleverses.length;
 
       if (count > 3 && this.materialId) {
-        if (confirm(this.$t('pool.Really-delete-count-bibleverses', {COUNT: count})) === false) {
+        if (confirm(this.$t('pool.Really-delete-count-bibleverses', {count: count})) === false) {
           return;
         }
       }

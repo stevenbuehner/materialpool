@@ -53,7 +53,7 @@
                                      v-if="materialCount"
                                      :to="{name: 'search', params: {search: materialSearchParam}}"
                                      :title="$t('pool.show-materials')">
-                            {{$tc('pool.material-count', materialCount, {COUNT: materialCount})}}<!--
+                            {{$tc('pool.material-count', materialCount, {count: materialCount})}}<!--
                         --></router-link>
 
                         <span class="action-button" :title="$t('pool.lookup-in-context')"

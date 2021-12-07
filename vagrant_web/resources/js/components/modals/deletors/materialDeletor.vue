@@ -28,13 +28,13 @@
     <div class="alert alert-warning" role="alert"
          v-if="!materialIsReloading && material && material.resources.length > 0">
       <strong>{{ $t('pool.attention') }}!</strong><br/>
-      {{ $tc('pool.material-assigned-resources', material.resources.length, {COUNT: material.resources.length}) }}
+      {{ $tc('pool.material-assigned-resources', material.resources.length, {count: material.resources.length}) }}
     </div>
 
     <div class="alert alert-success" role="alert"
          v-if="!materialIsReloading && material && material.resources.length === 0">
       <strong>{{ $t('pool.Perfect') }}!</strong><br/>
-      {{ $tc('pool.material-assigned-resources', material.resources.length, {COUNT: material.resources.length}) }}
+      {{ $tc('pool.material-assigned-resources', material.resources.length, {count: material.resources.length}) }}
     </div>
 
     <div class="assignedResources">
@@ -54,7 +54,7 @@
                     }" role="alert">
             {{
               $tc('pool.material-other-assigned-material-pl', r.materials.length - 1, {
-                COUNT:
+                count:
                 r.materials.length
               })
             }}

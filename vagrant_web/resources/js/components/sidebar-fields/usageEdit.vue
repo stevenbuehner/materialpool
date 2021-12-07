@@ -91,8 +91,6 @@ export default {
     },
 
     displayedList() {
-      console.log('Recalculate displayed list');
-
       const orderedUsages = this.usages.sort((e1, e2) => {
         return moment(e1.datetime).unix() - moment(e2.datetime).unix();
       });

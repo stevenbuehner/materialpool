@@ -66,8 +66,8 @@
           {{ bundle.description }}
         </b-list-group-item>
         <b-list-group-item v-if="info">
-          {{ $tc('pool.material-count', info.count_materials, {COUNT: info.count_materials}) }},
-          {{ $tc('pool.resource-count', info.count_files, {COUNT: info.count_files}) }},
+          {{ $tc('pool.material-count', info.count_materials, {count: info.count_materials}) }},
+          {{ $tc('pool.resource-count', info.count_files, {count: info.count_files}) }},
         </b-list-group-item>
         <b-list-group-item v-if="info">
           {{ $t('pool.export-date') }}: {{ info.exportDate | dayjs | recentOrFormat }}

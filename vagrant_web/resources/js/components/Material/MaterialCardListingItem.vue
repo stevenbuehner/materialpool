@@ -7,7 +7,7 @@
       <small class="meta-info">
         <span class="info" v-if="material.author">von {{ material.author.title }}</span>
         <span class="ressourcen" v-if="material.resources !== undefined">
-                    ({{ $tc('pool.resource-count', material.resources.length, {COUNT: material.resources.length}) }})
+                    ({{ $tc('pool.resource-count', material.resources.length, {count: material.resources.length}) }})
                 </span>
       </small>
     </div>

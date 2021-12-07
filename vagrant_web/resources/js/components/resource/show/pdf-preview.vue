@@ -98,13 +98,13 @@ export default {
 
       if (this.previewPageNumbers.length > this.maxPreviewPages) {
         return this.$t('pool.only-limited-pages', {
-          COUNT: this.previewLimitedImages.length,
-          SUM: this.resource.page_count
+          count: this.previewLimitedImages.length,
+          sum: this.resource.page_count
         })
       } else {
         return this.$t('pool.limited-pages', {
-          COUNT: this.previewLimitedImages.length,
-          SUM: this.resource.page_count
+          count: this.previewLimitedImages.length,
+          sum: this.resource.page_count
         })
       }
 

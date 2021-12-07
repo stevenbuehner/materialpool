@@ -35,7 +35,7 @@ export default {
 
       const limitCount = this.pages.length === 0 ? -1: this.pages.length;
 
-      return this.$tc('pool.Page-Range', limitCount, {COUNT: this.pageRange});
+      return this.$tc('pool.Page-Range', limitCount, {count: this.pageRange});
 
     }
   }
