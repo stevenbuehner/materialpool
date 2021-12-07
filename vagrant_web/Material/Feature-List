@@ -1,11 +1,5 @@
-* Keywords auto-vervollständigung nachladen, wenn man nach unten scrollt ...
 * Datum ändern -> abbruch drücken => FALSCHES DATUM WIRD ANGEZEIGT
 
-Materialpool: Suchen nach „Anspiel“ funktioniert im iPad nicht
-Materialpool: Drag and drop von Keywords im iPad führt zu einem Redirect im Browser
-Materialpool Feature: Verbindung fehlt seit „xy“ Sekunden anzeigen … bzw. Verbindung ist wieder da einblenden …
 Materialpool Bug: Doppelklick auf Bibelstellenassistenten in einem Text-Material wird zum Parent gerubbelt und führt  in den Bearbeitungsmodus für den ganzen Text
 
-Siehe OmniFocus:
-Materialpool Bug: Fehler beim erstellen des Materials, wenn folgendes eingegeben wird:
-Marialpool bugs Aufgaben
+Limitiere Image-Preview Requests, so dass sie keine XHR Aufrufe blockieren
