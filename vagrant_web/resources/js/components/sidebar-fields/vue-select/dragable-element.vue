@@ -3,7 +3,8 @@
        :class="{draggable : !disableMoveRelevance}"
        :key="id"
        @mousedown.left.exact.stop="keydownStartDrag"
-       @click.right.stop.prevent="$emit('click:right', $event)">
+       @click.right.stop.prevent="$emit('click:right', $event)"
+       @touchstart="keydownStartDrag">
 
     <div class="selected-relevance"
          :class="{isDragging : dragging.ongoing}"
