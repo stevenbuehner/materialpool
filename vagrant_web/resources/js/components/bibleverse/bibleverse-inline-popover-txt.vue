@@ -1,11 +1,12 @@
 <template>
     <span class="sbTextBibleverse"
           @mouseover="showHovered = true"
-          @click="showClicked = true"
+          @click.stop="showClicked = true"
+          :title="showErrorMessage"
     >{{ text }}
 
         <bible-popover
-            v-if="showPopover"
+            v-if="showPopover && !showErrorMessage"
             :bibleverse="normalizedBibleverse"
             :position="$el"
             @bible-popover-closerequest="showHovered=false; showClicked=false"
@@ -38,6 +39,7 @@ export default {
     return {
       showHovered: false,
       showClicked: false,
+      showErrorMessage: null,
     };
   },
 
@@ -62,6 +64,9 @@ export default {
                        return new BibleVerse(bibleverses[0].from, bibleverses[0].to);
                      }
 
+                   })
+                   .catch((errorMessage) => {
+                     this.showErrorMessage = errorMessage;
                    });
       },
       default: null,

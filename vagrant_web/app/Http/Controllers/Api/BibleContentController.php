@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller as BaseController;
 use App\Models\Bible;
 use App\Models\BibleContent;
 use App\Models\Bibleverse;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use StevenBuehner\BibleVerseBundle\Service\BibleVerseService;
 
@@ -44,6 +45,7 @@ class BibleContentController extends BaseController {
 	/**
 	 * @param null|string $bibleUid
 	 * @return Bible
+	 * @throw Illuminate\Database\Eloquent\ModelNotFoundException;
 	 */
 	protected function getBibleFirstOrFail($bibleUid = NULL) {
 		if ($bibleUid !== NULL) {
@@ -79,17 +81,27 @@ class BibleContentController extends BaseController {
 			$query->whereBetween('verse', [$b2->from, $b2->to]);
 		}
 
-		$bible = $this->getBibleFirstOrFail($bibleUid);
+		$bible   = NULL;
+		$content = NULL;
+		$error   = NULL;
 
-		$query->where('bible_id', '=', $bible->id);
-		$content = $query->get();
+		try {
+			$bible = $this->getBibleFirstOrFail($bibleUid);
+
+			$query->where('bible_id', '=', $bible->id);
+			$content = $query->get();
+		} catch (ModelNotFoundException $e) {
+			$error = 'Server bibletexts have not been set up correctly yet. Please contant your administrator.';
+		}
+
 
 		return [
 			'bibleverses' => collect($searchBvs)->map(function (\StevenBuehner\BibleVerseBundle\Entity\BibleVerse $bv) {
 				return ['from' => $bv->getStart(), 'to' => $bv->getEnd()];
 			}),
 			'bible'       => $bible,
-			'verses'      => $content
+			'verses'      => $content,
+			'error'       => $error,
 		];
 
 	}

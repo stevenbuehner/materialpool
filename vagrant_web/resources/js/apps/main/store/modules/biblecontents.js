@@ -77,6 +77,12 @@ const actions = {
 
 		return axios.get(route, {params: {search}})
 		            .then(({data}) => {
+
+			            if (data.error) {
+							console.error(data.error);
+				            throw(data.error);
+			            }
+
 			            // data: {bible, bibleverses, verses}
 			            commit('bibles/addBible', data.bible, {root: true});
 
