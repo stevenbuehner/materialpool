@@ -1,5 +1,3 @@
-* Datum ändern -> abbruch drücken => FALSCHES DATUM WIRD ANGEZEIGT
-
-Materialpool Bug: Doppelklick auf Bibelstellenassistenten in einem Text-Material wird zum Parent gerubbelt und führt  in den Bearbeitungsmodus für den ganzen Text
-
 Limitiere Image-Preview Requests, so dass sie keine XHR Aufrufe blockieren
+
+Feature: BEi Doppelklick auf TextResource an die richtige Stelle im Edit-Text springen ...

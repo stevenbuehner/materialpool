@@ -58,7 +58,6 @@
                       :disabled="disabled"
                       :typeable="true"
                       :value="currentValueInDayJsFormat"
-                      :key="value"
                       :disabled-dates="{from: new Date()}"
                       :required="required"
                       :input-class="{valueChanged : valueHasChanged}"
@@ -95,8 +94,8 @@ import {BButton, FormInputPlugin, FormTextareaPlugin} from 'bootstrap-vue';
 import textFieldIcon                                  from 'svg-icon/dist/svg/material/text-fields.svg'
 import generalMixin                                   from './generalSidebarFields.mixin';
 import Datepicker                                     from '../datepicker/datepicker';
-import dayjs                                          from 'dayjs';
 import {server_datetime_format}                       from "../../apps/config";
+import moment                                         from "moment";
 
 Vue.use(FormTextareaPlugin);
 Vue.use(FormInputPlugin);
@@ -177,7 +176,7 @@ export default {
       if (dateOrNullObject === null) {
         this.currentValue = null;
       } else {
-        this.currentValue = dayjs(dateOrNullObject).format(server_datetime_format);
+        this.currentValue = moment(dateOrNullObject).format(server_datetime_format);
       }
 
       if (this.valueHasChanged) {
@@ -219,7 +218,7 @@ export default {
     },
 
     currentValueInDayJsFormat() {
-      return dayjs(this.value).toDate();
+      return moment(this.currentValue).toDate();
     }
   },
 
