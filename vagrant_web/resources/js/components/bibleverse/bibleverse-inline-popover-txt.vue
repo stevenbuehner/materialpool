@@ -2,15 +2,16 @@
     <span class="sbTextBibleverse"
           @mouseover="showHovered = true"
           @click.stop="showClicked = true"
+          @dblclick.stop="showClicked = true"
           :title="showErrorMessage"
-    >{{ text }}
-
-        <bible-popover
-            v-if="showPopover && !showErrorMessage"
-            :bibleverse="normalizedBibleverse"
-            :position="$el"
-            @bible-popover-closerequest="showHovered=false; showClicked=false"
-        />
+    >
+      {{ text }}
+      <bible-popover
+          v-if="showPopover && !showErrorMessage"
+          :bibleverse="normalizedBibleverse"
+          :position="$el"
+          @bible-popover-closerequest="showHovered=false; showClicked=false"
+      />
 
     </span>
 </template>
@@ -57,12 +58,15 @@ export default {
 
     normalizedBibleverse: {
       get() {
-        return this.$store.dispatch('biblecontents/searchAndGet', {search: this.text})
+        return this.$store
+                   .dispatch('biblecontents/searchAndGet', {search: this.text})
                    .then(({bible, bibleverses}) => {
 
                      if (Array.isArray(bibleverses) && bibleverses.length > 0) {
                        return new BibleVerse(bibleverses[0].from, bibleverses[0].to);
                      }
+
+                     throw ('Error: No Bibleverses found!');
 
                    })
                    .catch((errorMessage) => {
