@@ -122,7 +122,7 @@ Events:
 	import closeIcon                                                 from './close.svg';
 	import cursorMoveIcon                                            from './cursor-move.svg';
 	import {bibleverseToSearchItem, searchArrayObjectsToSearchQuery} from "../search/searchHelper";
-	import {fromRangeArrayToString}                                  from "./../../apps/main/pages/ReadBible.vue";
+	import {fromRangeArrayToString}                                  from "../../apps/main/pages/ReadBible";
 	import MaterialpoolSpinner                                       from "../spinner/materialpool-spinner";
 	import {copyStringToClipboard}                                   from "../../helper/copyToClipboard";
 
@@ -349,7 +349,7 @@ Events:
 						}
 					}).then(({materials, paging}) => {
 						return paging.total;
-					})
+					});
 
 				},
 				default: null,
