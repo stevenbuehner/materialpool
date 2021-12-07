@@ -331,4 +331,5 @@ return [
 	'Could-not-remove-Material-Usage'                          => 'Could not remove Usage',
 	'Show-hidden-usages'                                       => '{1} Show one hidden usage|[2,*] Show :count hidden usages',
 	'Could-not-load-Material-Usages'                           => 'Could not load Material Usages',
+	'Keywords-are-beeing-refreshed-from-server' => 'Keywords are beeing refreshed from the server. Please wait.',
 ];

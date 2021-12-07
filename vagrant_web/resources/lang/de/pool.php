@@ -327,5 +327,6 @@ return [
 	'Could-not-remove-Material-Usage'                          => 'Der Anlass konnte nicht gelöscht werden.',
 	'Show-hidden-usages'                                       => '{1} Zeige einen weiteren Anlass|[2,*] Blende weitere :count Anlässe ein',
 	'Could-not-load-Material-Usages'                           => 'Anlässe des Materials konnten nicht geladen werden',
+	'Keywords-are-beeing-refreshed-from-server'                => 'Schlagwörter werden gerade vom Server geladen. Bitte kurz warten.',
 
 ];

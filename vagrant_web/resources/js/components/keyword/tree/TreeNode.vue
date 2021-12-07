@@ -1,9 +1,9 @@
 <template>
   <li class="sbTreeNode" :class="{hasChildren, isOpen, isClosed: !isOpen, isDragged, isDragover, isTemp: node.temp}">
-        <span class="carret">
-            <single-down class="single" v-once/>
-            <double-down class="double" v-once/>
-        </span>
+    <span class="carret">
+        <single-down class="single" v-once/>
+        <double-down class="double" v-once/>
+    </span>
 
     <span v-once @click="toggleOpen"
           class="label"
@@ -12,16 +12,16 @@
           @dragenter="onDragenter"
           @dragleave="onDragleave"
           @dragover.prevent="onDragover"
-          @drop.stop="onDrop"
+          @drop.stop.prevent="onDrop"
           @dragend="onDragend"
     >
-            <component :is="iconName" class="keywordIcon"/>
-            {{ label }}
-        </span>
+      <component :is="iconName" class="keywordIcon"/>
+      {{ label }}
+    </span>
 
     <span @click="openKeywordDetail" v-once>
-            <edit-icon class="sbTreeEditIcon"/>
-        </span>
+      <edit-icon class="sbTreeEditIcon"/>
+    </span>
 
     <ul v-if="isOpen">
       <TreeNode v-for="c in children" :node="c" :key="c.id" @move="emitMove"/>

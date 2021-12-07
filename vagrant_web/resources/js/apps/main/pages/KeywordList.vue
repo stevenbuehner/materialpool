@@ -2,13 +2,11 @@
 
   <div class="container-fluid">
 
-
     <div class="waitmessage d-flex flex-column justify-content-around " v-if="treeStillLoading">
             <span class="align-self-center d-flex flex-column justify-content-center">
                 <materialpool-spinner class="align-self-center"/>
-                <span>Keywords are beeing refreshed from the server. Please wait.</span>
+                <span>{{ $t('pool.Keywords-are-beeing-refreshed-from-server') }}</span>
             </span>
-
     </div>
 
     <div class="row" v-if="!treeStillLoading">
@@ -24,7 +22,6 @@
                 :search-phrase="treeSearch"
                 ref="myTree"></Tree>
         </div>
-
       </div>
 
       <div class="col-6">
