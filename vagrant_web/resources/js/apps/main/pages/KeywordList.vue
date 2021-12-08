@@ -14,7 +14,11 @@
 
       <div class="col-6">
         <div class="mb-4">
-          <b-form-input v-model="treeSearch" :placeholder="$t('pool.Search')"/>
+          <b-form-input
+              v-model="treeSearch"
+              :placeholder="$t('pool.Search')"
+              autocorrect="off"
+          />
         </div>
         <div style="display: inline-block; width: 100%">
           <Tree :tree="this.treeModel"
