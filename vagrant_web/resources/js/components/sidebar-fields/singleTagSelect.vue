@@ -151,7 +151,7 @@ export default {
         this.emitKeywordDissociated();
       } else if (input instanceof Object && input.id) {
         this.emitKeywordAssociated(input);
-      } else if (input && input.new === true) {
+      } else if (input && input.isNew === true) {
 
         const statusFlash = this.flashStartSaving(this.$t('pool.new-keyword') + ' ' + input.title)
 
