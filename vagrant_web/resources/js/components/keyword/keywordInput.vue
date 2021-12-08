@@ -216,10 +216,9 @@ export default {
 
       vm.$store.dispatch('keywords/searchMultiple',
           multiKeywordParts.map((searchText) => {
-            return {searchText, per_page: 40};
+            return {searchText, limit: 40};
           }))
-        .then((keywords) => {
-          console.log(keywords);
+        .then(({keywords}) => {
           vm.suggestedKeywords = keywords;
         })
         .catch((err) => {

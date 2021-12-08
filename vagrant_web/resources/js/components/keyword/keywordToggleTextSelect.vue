@@ -129,7 +129,7 @@ export default {
     search: _debounce((loading, search, type, vm) => {
 
       vm.$store.dispatch('keywords/search', {searchText: search, type})
-        .then((keywords) => {
+        .then(({keywords}) => {
           keywords.push({
             title: search,
             type: type,

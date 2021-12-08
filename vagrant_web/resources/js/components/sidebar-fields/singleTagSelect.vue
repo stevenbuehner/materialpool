@@ -124,7 +124,7 @@ export default {
     search: _debounce((loading, search, type, vm) => {
 
       vm.$store.dispatch('keywords/search', {searchText: search, type})
-        .then((keywords) => {
+        .then(({keywords}) => {
 
           if (search.length > 2) {
             keywords.push({

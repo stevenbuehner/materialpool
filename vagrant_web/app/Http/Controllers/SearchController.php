@@ -10,7 +10,6 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\DB;
 use StevenBuehner\BibleVerseBundle\Service\BibleVerseService;
 
 class SearchController extends Controller {
@@ -141,7 +140,7 @@ class SearchController extends Controller {
 		$queryString    = str_replace('%', '*', $queryString);
 		$queryType      = $request->get('t', FALSE);
 		$queryPage      = $request->get('page', 1);
-		$paginationSize = min((int)$request->get('per_page', 15), 50);
+		$paginationSize = min((int)$request->get('limit', 15), 50);
 
 		if ($queryType && !in_array($queryType, array_keys(Keyword::AVAILABLE_TYPES))) {
 			$queryType = FALSE;
@@ -149,10 +148,12 @@ class SearchController extends Controller {
 
 		// Search for Keywords
 		$keywords = Keyword::searchQuery($queryString, $queryType)
-			->offset(($paginationSize) * ($queryPage - 1))
-			->limit($paginationSize)
+			// ->offset(($paginationSize) * ($queryPage - 1))
+			// ->limit($paginationSize)
 			->orderByRaw('LENGTH(title)')
-			->get();
+			->paginate($paginationSize)
+			->appends(['q' => $queryString, 't' => $queryType, 'limit' => $paginationSize]);
+//			->get();
 
 		return $keywords;
 	}
@@ -177,6 +178,12 @@ class SearchController extends Controller {
 		return $result;
 	}
 
+	/**
+	 * Suche
+	 *
+	 * @param Request $request
+	 * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
+	 */
 	public function get(Request $request) {
 		$query          = $this->turnRequestIntoQuery($request);
 		$paginationSize = min((int)$request->get('per_page', 30), 100);
