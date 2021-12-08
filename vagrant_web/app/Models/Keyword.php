@@ -77,18 +77,30 @@ class Keyword extends Model {
 	|--------------------------------------------------------------------------
 	*/
 
+	/**
+	 * @param string $name
+	 * @return Keyword
+	 */
 	public static function firstOrCreatePerson($name) {
 		return self::firstOrCreate(
 			['title' => $name, 'type' => 'person']
 		);
 	}
 
+	/**
+	 * @param string $name
+	 * @return Keyword
+	 */
 	public static function firstOrCreatePlace($name) {
 		return self::firstOrCreate(
 			['title' => $name, 'type' => 'place']
 		);
 	}
 
+	/**
+	 * @param string $name
+	 * @return Keyword
+	 */
 	public static function firstOrCreateLang($name) {
 		return self::firstOrCreate(
 			['title' => $name, 'type' => 'lang']
@@ -137,21 +149,25 @@ class Keyword extends Model {
 	 * @return Builder
 	 */
 	public static function searchQuery($text, $type = FALSE) {
+
 		//		$builder = (new static())->newQueryWithoutScopes();
 		$builder = (new self)->newQuery();
 
+
 		/** @var Builder $builder */
-		$query = $builder->where('title', 'like', '%' . $text . '%');
+		if (strlen(trim($text)) > 0) {
+			$builder->where('title', 'like', '%' . $text . '%');
+		}
 
 		if ($type !== FALSE) {
 			if (is_array($type)) {
-				$query = $query->whereIn('type', $type);
+				$builder->whereIn('type', $type);
 			} else {
-				$query = $query->where('type', '=', $type);
+				$builder->where('type', '=', $type);
 			}
 		}
 
-		return $query;
+		return $builder;
 	}
 
 
