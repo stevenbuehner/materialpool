@@ -62,6 +62,10 @@
 
           <template v-slot:no-options>{{ $t('pool.no-results') }}</template>
 
+          <template v-slot:list-footer="options">
+            Footer: {{ hasMoreResults ? 'hasMore' : 'done' }} - {{ options }}
+          </template>
+
         </vue-select>
       </slot>
 
@@ -157,6 +161,12 @@ export default {
       suggestedFilteredTags: [],
       clearOnSelect: true,
 
+      // Pagination
+      observer: null,
+      searchString: '', // Wenn der Suchstring noch der selbe ist, wird die pageZahl erhöht
+      hasMoreResults: false,
+      page: 1,
+
       biblePopover: {
         showMe: false,
         bibleverse: null
@@ -194,6 +204,7 @@ export default {
       });
     }
   },
+
 
   methods: {
     onInputChanged(currentValues) {
@@ -247,7 +258,15 @@ export default {
 
       this.suggestedFilteredTags = [];
 
-      this.search(loading, search, this);
+      // _debounce(this.default.methods.search2(search, loading).bind(this), 250);
+      console.log('onSearch', search);
+
+      _debounce(function () {
+        console.log('debounced');
+        // this.search(loading, search);
+      }, 250);
+
+      // this.search(loading, search);
     },
 
     // _.debounce is a function provided by lodash to limit how
@@ -255,47 +274,53 @@ export default {
     // To learn
     // more about the _.debounce function (and its cousin
     // _.throttle), visit: https://lodash.com/docs#debounce
-    search: _debounce((loading, search, vm) => {
+    // search: _debounce((loading, search, vm) => {
+    search(loading, search) {
 
-      if (search.length < vm.minInput) {
-        vm.suggestedFilteredTags = [];
+      if (search.length < this.minInput) {
+        this.suggestedFilteredTags = [];
         loading(false);
         return;
       }
 
-      vm.$store.dispatch('keywords/search', {
+      const vm = this;
+
+      this.$store.dispatch('keywords/search', {
         searchText: search,
-        type: vm.typefilter || false,
-        per_page: 40
+        type: this.typefilter || false,
+        limit: 2
       })
-        .then((keywords) => {
-          // console.log(keywords);
-          vm.suggestedFilteredTags = keywords.filter(vm.filterSuggestionsBy.bind(vm));
+          .then(({keywords, pagination}) => {
+            // console.log(keywords);
+            this.suggestedFilteredTags = keywords.filter(this.filterSuggestionsBy);
 
-          if (vm.newTagsEnabled === true) {
-            const newTag = {
-              title: search,
-              isNew: true,
-              id: 'new Keyword: ' + search,
-            };
+            if (this.newTagsEnabled === true) {
+              const newTag = {
+                title: search,
+                isNew: true,
+                id: 'new Keyword: ' + search,
+              };
 
-            if (vm.typefilter) {
-              newTag.type = vm.typefilter;
+              if (this.typefilter) {
+                newTag.type = this.typefilter;
+              }
+
+              this.hasMoreResults = pagination.hasMore;
+              this.page           = pagination.current_page;
+
+              this.suggestedFilteredTags.push(newTag);
             }
 
-            vm.suggestedFilteredTags.push(newTag);
-          }
+          })
+          .catch(function (err) {
+            console.error(err);
+          })
+          .then(function () {
+            // Always
+            loading(false);
+          });
 
-        })
-        .catch((err) => {
-          console.error(err);
-        })
-        .then(() => {
-          // Always
-          loading(false);
-        });
-
-    }, 250),
+    },
 
     filterSuggestionsBy(object) {
       return this.value.find((el) => el.id === object.id) === undefined;
