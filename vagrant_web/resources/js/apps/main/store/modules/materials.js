@@ -87,7 +87,7 @@ const mutations = {
 		state.loadingMaterialDetailsPromises[id] = promise;
 	},
 
-	clearMaterialLoadingPromise(state, {id}) {
+	clearMaterialLoadingPromise(state, id) {
 		delete state.loadingMaterialDetailsPromises[id];
 	},
 
@@ -162,7 +162,7 @@ const actions = {
 					     resolve(getters.getMaterial(id));
 				     })
 				     .catch((response) => {
-					     getters.clearMaterialLoadingPromise(id);
+					     commit('clearMaterialLoadingPromise', id);
 					     reject(convertErrorResponseToMessage(response));
 				     });
 
