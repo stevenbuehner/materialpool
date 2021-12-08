@@ -13,6 +13,7 @@ use App\Models\Keyword;
 use App\Models\Material;
 use App\Models\PdfFile;
 use App\Models\Resource;
+use App\Models\Text;
 use App\Models\User;
 use App\Models\VideoFile;
 use Illuminate\Database\Seeder;
@@ -175,8 +176,15 @@ class ResourceSeeder extends Seeder {
 				self::addRandomResourceUid($r, $material->creator);
 			});
 
+		Text::factory()
+			->count(5)
+			->create()
+			->each(function (Text $r) {
+				$material = Material::factory()->create();
+				$material->resources()->attach($r);
+				$material->keywords()->save(self::getRandomKeyword(), ['relevance' => rand(0, 255)]);
+			});
 
-		$counter = 100;
 	}
 
 	/**

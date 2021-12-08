@@ -4,6 +4,7 @@ namespace Database\Factories;
 
 use App\Events\MaterialWasCreated;
 use App\Models\Material;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class MaterialFactory extends Factory {
@@ -15,20 +16,21 @@ class MaterialFactory extends Factory {
 	 * @return array
 	 */
 	public function definition() {
+		$creatorId = User::all()->random()->id;
 		return [
 			'title'       => $this->faker->text(255),
 			'description' => $this->faker->sentences(2, TRUE),
 			'from_bot'    => $this->faker->boolean(),
-			'rating'      => rand(0, 20)
+			'rating'      => rand(0, 20),
+			'created_by'  => $creatorId,
+			'modified_by' => $creatorId,
 		];
 	}
-
 
 	public function configure() {
 		return $this->afterCreating(function (Material $resource) {
 			event(new MaterialWasCreated($resource));
 		});
 	}
-
 
 }

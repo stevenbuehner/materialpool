@@ -15,5 +15,6 @@ class DatabaseSeeder extends Seeder {
 		$this->call(ClearAllTablesSeeder::class);
 		$this->call(ResourceSeeder::class);
 		$this->call(ApiKeysSeeder::class);
+		$this->call(KeywordsSeeder::class);
 	}
 }
