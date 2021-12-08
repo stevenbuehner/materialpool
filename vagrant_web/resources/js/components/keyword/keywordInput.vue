@@ -46,6 +46,7 @@
                ref="myInput"
                :placeholder="$t('pool.Insert-keywordtext-here')"
                v-model="keywordInput"
+               autocorrect="off"
                @keyup.enter="requestCreateNewKeyword">
         <div class="input-group-append">
           <button class="btn btn-outline-secondary"
