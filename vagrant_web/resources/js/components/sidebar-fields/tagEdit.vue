@@ -23,6 +23,7 @@
             :disabled="disabled"
             :filterable="true"
             :getOptionLabel="getTagLabelFromObject"
+            :getOptionKey="_getOptionKey"
             :multiple="true"
             :options="optionsWithNewTag"
             :placeholder="placeholder"
@@ -490,11 +491,6 @@ export default {
 
     },
 
-
-    filterSuggestionsBy(object) {
-      return this.value.find((el) => el.id === object.id) === undefined;
-    },
-
     openRightClickMenu(event, keywordForEvent) {
       this.$refs.menu.openMenu(event, keywordForEvent)
     },
@@ -520,6 +516,9 @@ export default {
       });
     },
 
+    _getOptionKey(el){
+      return el.id;
+    }
 
   },
 
