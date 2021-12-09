@@ -22,7 +22,7 @@
             :close-on-select="clearAndCloseOnSelect"
             :disabled="disabled"
             :filterable="true"
-            :getOptionLabel="getTagLabelFromObject"
+            :getOptionLabel="_getTagLabelFromObject"
             :getOptionKey="_getOptionKey"
             :multiple="true"
             :options="optionsWithNewTag"
@@ -40,7 +40,7 @@
                 :id="option.id"
                 :disable-move-relevance="disabled"
                 :disable-remove-element="disabled"
-                :label="getTagLabelFromObject(option)"
+                :label="_getTagLabelFromObject(option)"
                 :relevance="option.pivot.relevance"
                 @deselect="deselect(option)"
                 @single-click="$emit('request-info', option)"
@@ -57,7 +57,7 @@
                 </slot>
               </span>
               <span class="suggested-text">
-                {{ getTagLabelFromObject(option) }}
+                {{ _getTagLabelFromObject(option) }}
               </span>
               <span v-if="option.isNew" class="is-new badge badge-info">{{ $t('pool.new') }}</span>
             </span>
@@ -94,13 +94,13 @@
         {{ $t('pool.edit') }}
       </context-menu-item>
       <context-menu-item @click.stop="doToTagSearch(optionalData)">
-        {{ $t('pool.search-for-xy', {xy: getTagLabelFromObject(optionalData)}) }}
+        {{ $t('pool.search-for-xy', {xy: _getTagLabelFromObject(optionalData)}) }}
       </context-menu-item>
       <context-menu-item v-if="optionalData.from && optionalData.to"
                          @click="displayBibleverse(optionalData.from, optionalData.to)">
         {{ $t('pool.Read-Bibleverse') }}
       </context-menu-item>
-      <context-menu-item @click="copyTagContent(getTagLabelFromObject(optionalData))">
+      <context-menu-item @click="copyTagContent(_getTagLabelFromObject(optionalData))">
         {{ $t('pool.Copy') }}
       </context-menu-item>
     </context-menu>
@@ -307,23 +307,6 @@ export default {
 
     },
 
-    getTagLabelFromObject(value) {
-      if (typeof value === 'object') {
-        if (!value.hasOwnProperty('title')) {
-          return console.warn(
-              `[vue-select warn]: Label key "option.title" does not` +
-              ` exist in options object ${JSON.stringify(value)}.\n` +
-              'http://sagalbot.github.io/vue-select/#ex-labels'
-          )
-        } else {
-          return value.title;
-        }
-
-      } else {
-        return value;
-      }
-    },
-
     displayBibleverse(from, to) {
       this.biblePopover.bibleverse = new BibleVerse(from, to);
       this.biblePopover.showMe     = true;
@@ -514,6 +497,23 @@ export default {
           search: searchArrayObjectsToSearchQuery([[keyword]])
         }
       });
+    },
+
+    _getTagLabelFromObject(value) {
+      if (typeof value === 'object') {
+        if (!value.hasOwnProperty('title')) {
+          return console.warn(
+              `[vue-select warn]: Label key "option.title" does not` +
+              ` exist in options object ${JSON.stringify(value)}.\n` +
+              'http://sagalbot.github.io/vue-select/#ex-labels'
+          )
+        } else {
+          return value.title;
+        }
+
+      } else {
+        return value;
+      }
     },
 
     _getOptionKey(el){

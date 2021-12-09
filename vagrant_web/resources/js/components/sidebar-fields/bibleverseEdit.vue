@@ -13,16 +13,18 @@ export default {
   },
 
   computed: {
+    // Override from tagEdit - all Types are valid
     validTypesValues() {
       return this.value;
     },
 
+    // Override from tagEdit - no Invalid Tags
     invalidTypesValues() {
       return [];
     },
 
+    // Override from tagEdit -> no new tags
     optionsWithNewTag() {
-      // Override
       return this.suggestedTags;
     }
   },
@@ -36,23 +38,7 @@ export default {
     async onClose() {
     },
 
-    getTagLabelFromObject(value) {
-      if (typeof value === 'object') {
-        if (!value.hasOwnProperty('label')) {
-          return console.warn(
-              `[vue-select warn]: Label key "option.label" does not` +
-              ` exist in options object ${JSON.stringify(value)}.\n` +
-              'http://sagalbot.github.io/vue-select/#ex-labels'
-          )
-        } else {
-          return value.label;
-        }
-
-      } else {
-        return value;
-      }
-    },
-
+    // Override from tagEdit
     doSearch(query, page) {
 
       const counter    = ++this.queryCounter;
@@ -63,8 +49,6 @@ export default {
       }
 
       this.queryHandler[counter] = queryCache;
-
-      // console.log('Loading No' + counter + '...: "' + query + '"', 'Page ' + page);
 
       queryCache.promise = this.$store.dispatch('bibleverses/search', query)
                                .then((bibleverses) => {
@@ -86,7 +70,25 @@ export default {
 
     },
 
-    // Override
+    // Override from tagEdit
+    _getTagLabelFromObject(value) {
+      if (typeof value === 'object') {
+        if (!value.hasOwnProperty('label')) {
+          return console.warn(
+              `[vue-select warn]: Label key "option.label" does not` +
+              ` exist in options object ${JSON.stringify(value)}.\n` +
+              'http://sagalbot.github.io/vue-select/#ex-labels'
+          )
+        } else {
+          return value.label;
+        }
+
+      } else {
+        return value;
+      }
+    },
+
+    // Override from tagEdit
     _getOptionKey(el) {
       return el.from + '-' + el.to;
     }
