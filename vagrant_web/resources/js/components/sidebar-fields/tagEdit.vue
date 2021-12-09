@@ -302,7 +302,7 @@ export default {
       this.$emit('input', allValues);
 
     },
-    
+
     getTagLabelFromObject(value) {
       if (typeof value === 'object') {
         if (!value.hasOwnProperty('title')) {
@@ -414,7 +414,7 @@ export default {
                                .dispatch('keywords/search', {
                                  searchText: query,
                                  type: this.typefilter || false,
-                                 limit: 5,
+                                 limit: 20,
                                  page: page,
                                })
                                .then(({keywords, pagination}) => {
