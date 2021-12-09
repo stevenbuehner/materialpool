@@ -302,8 +302,7 @@ export default {
       this.$emit('input', allValues);
 
     },
-
-
+    
     getTagLabelFromObject(value) {
       if (typeof value === 'object') {
         if (!value.hasOwnProperty('title')) {
@@ -354,7 +353,7 @@ export default {
 
         if (this.queryHandler.hasOwnProperty(this.queryCounter)) {
           if (this.queryHandler[this.queryCounter].isLoading === true) {
-            console.log('Cancel Infinite load before starting it - page one has not loaded yet');
+            // console.log('Cancel Infinite load before starting it - page one has not loaded yet');
             return;
           }
         }
@@ -382,25 +381,21 @@ export default {
 
     },
 
-    onSearchTermChanged(query, loadingCallback) {
+    onSearchTermChanged: _debounce(function (query, loadingCallback) {
 
       // Immer der aktuelle Such-Wert (ohne Debouncing
       this.searchTerm = query;
 
-      _debounce(function () {
+      // console.log('searchTerm Updated: ', query, this);
 
-        console.log('searchTerm Updated: ', query);
+      // do first search (=> page = 1)
+      const {queryCache, counter} = this.doSearch(query, 1);
 
-        // do first search (=> page = 1)
-        const {queryCache, counter} = this.doSearch(query, 1);
-
-        this.handleQueryResult(queryCache, counter);
-
-      }, 1000).bind(this)();
+      this.handleQueryResult(queryCache, counter);
 
       loadingCallback(false);
 
-    },
+    }, 250),
 
     doSearch(query, page) {
 
@@ -413,7 +408,7 @@ export default {
 
       this.queryHandler[counter] = queryCache;
 
-      console.log('LoadingNo' + counter + '...: "' + query + '"', 'Page ' + page);
+      // console.log('Loading No' + counter + '...: "' + query + '"', 'Page ' + page);
 
       queryCache.promise = this.$store
                                .dispatch('keywords/search', {
@@ -426,7 +421,7 @@ export default {
 
                                  queryCache.isLoading = false;
 
-                                 console.log('Loaded No' + counter + '...: ' + query, 'Page ' + page, queryCache);
+                                 // console.log('Loaded No' + counter + '...: ' + query, 'Page ' + page, queryCache);
 
                                  return {
                                    keywords,
@@ -463,9 +458,11 @@ export default {
       }
 
       // Das Ergebnis passt schon nicht mehr zur aktuellen Suchabfrage => behalte es trotzudem noch, weil noch keine anderen Debounced Werte da sind
+      /*
       if (queryCache.query !== this.searchTerm) {
         console.log('Suchergebnis passt schon nicht mehr zum aktuellen Suchbegriff - es wird trotzdem angezeigt. Macht das Sinn?');
       }
+       */
 
       // Deep Copy
       const tags = JSON.parse(JSON.stringify(keywords));
