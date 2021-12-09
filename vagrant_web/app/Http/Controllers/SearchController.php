@@ -151,7 +151,8 @@ class SearchController extends Controller {
 			// ->offset(($paginationSize) * ($queryPage - 1))
 			// ->limit($paginationSize)
 			->orderByRaw('LENGTH(title)')
-			->paginate($paginationSize)
+			->orderBy('_lft')
+			->paginate($paginationSize, ['*'], 'page', $queryPage)
 			->appends(['q' => $queryString, 't' => $queryType, 'limit' => $paginationSize]);
 //			->get();
 

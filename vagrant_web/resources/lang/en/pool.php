@@ -248,6 +248,9 @@ return [
 	'Edit-Keyword'                                             => 'Edit Keyword',
 	'none'                                                     => 'none',
 	'no-results'                                               => 'No results',
+	'no-more-results'                                          => 'No more results...',
+	'loading-more-results'                                     => 'Loading more...',
+	'insert-more-character'                                    => '{1} Please insert :character more character...|[2,*] Please insert :character more characters...',
 	'Loading-parent-keyword'                                   => 'Loading parent keyword ...',
 	'Are-you-shure-about-deleting-this-keyword-from-existance' => 'Are you shure about deleting this keyword from existance?',
 	'Enter-name-please'                                        => 'Enter name please',
@@ -331,5 +334,5 @@ return [
 	'Could-not-remove-Material-Usage'                          => 'Could not remove Usage',
 	'Show-hidden-usages'                                       => '{1} Show one hidden usage|[2,*] Show :count hidden usages',
 	'Could-not-load-Material-Usages'                           => 'Could not load Material Usages',
-	'Keywords-are-beeing-refreshed-from-server' => 'Keywords are beeing refreshed from the server. Please wait.',
+	'Keywords-are-beeing-refreshed-from-server'                => 'Keywords are beeing refreshed from the server. Please wait.',
 ];

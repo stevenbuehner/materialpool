@@ -312,7 +312,8 @@ const actions = {
 				            to: data.to,
 				            limit: data.per_page,
 				            total: data.total,
-				            hasMore: data.current_page < data.last_page
+				            hasMore: data.current_page < data.last_page,
+				            current_page: data.current_page,
 			            };
 
 			            if (keywords instanceof Array && keywords.length > 0) {

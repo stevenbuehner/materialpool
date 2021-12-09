@@ -17,21 +17,22 @@
 
       <slot name="input">
         <vue-select
+            :class="{hasElements : validTypesValues.length > 0 }"
             :clearSearchOnSelect="clearAndCloseOnSelect"
             :close-on-select="clearAndCloseOnSelect"
             :disabled="disabled"
-            :filterBy="filterSuggestionsBy"
             :filterable="true"
             :getOptionLabel="getTagLabelFromObject"
             :multiple="true"
-            :options="suggestedFilteredTags"
+            :options="optionsWithNewTag"
             :placeholder="placeholder"
             :selectOnTab="true"
             :value="validTypesValues"
+            @close="onClose"
             @input="onInputChanged"
-            @search="onSearch"
+            @open="onOpen"
+            @search="onSearchTermChanged"
             @search:blur=""
-            :class="{hasElements : validTypesValues.length > 0 }"
         >
           <template v-slot:selected-option-container="{option, disabled, multiple, deselect}">
             <dragable-element
@@ -48,22 +49,36 @@
 
           <template v-slot:option="option">
             <span :class="{'is-new' : option.isNew}" class="suggested-option">
-                <span class="tagOptionIcon">
-                    <slot name="icon">
-                        <tag-icon/>
-                    </slot>
-                </span>
-                <span class="suggested-text">
-                    {{ getTagLabelFromObject(option) }}
-                </span>
-                <span v-if="option.isNew" class="is-new badge badge-info">{{ $t('pool.new') }}</span>
+              <span class="tagOptionIcon">
+                <slot name="icon">
+                    <tag-icon/>
+                </slot>
+              </span>
+              <span class="suggested-text">
+                {{ getTagLabelFromObject(option) }}
+              </span>
+              <span v-if="option.isNew" class="is-new badge badge-info">{{ $t('pool.new') }}</span>
             </span>
           </template>
 
-          <template v-slot:no-options>{{ $t('pool.no-results') }}</template>
+          <template v-slot:no-options>
+            <template v-if="!isSearchTermValid">
+              {{
+                $tc('pool.insert-more-character', minInput - searchTerm.length, {character: minInput - searchTerm.length})
+              }}
+            </template>
+            <template v-else>
+              {{ $t('pool.no-results') }}
+            </template>
+          </template>
 
           <template v-slot:list-footer="options">
-            Footer: {{ hasMoreResults ? 'hasMore' : 'done' }} - {{ options }}
+            <li v-show="hasMoreResults && isSearchTermValid" ref="load" class="loader">
+              {{ $t('pool.loading-more-results') }}
+            </li>
+            <li v-show="!hasMoreResults && isSearchTermValid && options.filteredOptions.length > 0" class="loader">
+              {{ $t('pool.no-more-results') }}
+            </li>
           </template>
 
         </vue-select>
@@ -145,7 +160,7 @@ export default {
     minInput: {
       type: Number,
       required: false,
-      default: 3
+      default: 2
     },
 
     newTagsEnabled: {
@@ -158,14 +173,19 @@ export default {
 
   data() {
     return {
-      suggestedFilteredTags: [],
+      suggestedTags: [],
       clearOnSelect: true,
 
       // Pagination
-      observer: null,
-      searchString: '', // Wenn der Suchstring noch der selbe ist, wird die pageZahl erhöht
-      hasMoreResults: false,
+      observer: null, // Überwacht den Footer der Dropdown-Liste. Bei Sichtbarkeit werden ggf. weitere Elemente nachgeladen
+      searchTerm: '', // Entspricht der aktuellen Eingabe im Suchfeld (wird per event aktualisiert)
+      hasMoreResults: true,
       page: 1,
+
+      // Bei jeder Suche wird der Counter um eins erhöht und im queryHandler als Objekt sowohl die Suche, als auch das Ergebnis protokolliert
+      // Nach erfolgreichem Abschluss und Handling der Suche, wir das Objekt im queryHandler wieder aufgheräumt
+      queryCounter: 0,
+      queryHandler: {},
 
       biblePopover: {
         showMe: false,
@@ -191,7 +211,47 @@ export default {
     },
 
     clearAndCloseOnSelect() {
-      return this.suggestedFilteredTags.filter((el) => el.isNew !== true).length <= 1;
+      return this.suggestedTags.filter((el) => el.isNew !== true).length <= 1;
+    },
+
+
+    isSearchTermValid() {
+      // console.log('SearchTerm validation updated', this.searchTerm.length >= this.minInput);
+      return String(this.searchTerm).length >= this.minInput;
+    },
+
+
+    optionsWithNewTag() {
+
+      // Wenn der Suchstring zu kurz, gib ein leeres Ergebnis zurück
+      if (false === this.isSearchTermValid) {
+        return [];
+      }
+
+      const options = [...this.suggestedTags];
+
+      if (this.newTagsEnabled === true && this.searchTerm.length >= this.minInput) {
+
+        // Prüfe ob der Suchtext so schon vorkommt in einem der Values
+        if (this.suggestedTags.find((el) => el.title === this.searchTerm) === undefined) {
+
+          const newTag = {
+            title: this.searchTerm,
+            isNew: true,
+            id: 'new Keyword: ' + this.searchTerm,
+          };
+
+          if (this.typefilter) {
+            newTag.type = this.typefilter;
+          }
+
+          options.push(newTag);
+        }
+
+      }
+
+      return options;
+
     }
 
   },
@@ -199,10 +259,17 @@ export default {
   created() {
     if (this.minInput <= 0) {
       // Init an empty search
+      if (this.isSearchTermValid) {
+        const {queryCache, counter} = this.doSearch(this.searchTerm, 1);
+        this.handleQueryResult(queryCache, counter);
+      }
 
-      this.onSearch('', function () {
-      });
     }
+  },
+
+  mounted() {
+    // See https://vue-select.org/guide/infinite-scroll.html
+    this.observer = new IntersectionObserver(this.onInfiniteScrollReaced)
   },
 
 
@@ -214,15 +281,25 @@ export default {
 
       // console.log(newObjects, removedObjects);
 
+      if (removedObjects.length > 0) {
+        // Reset SearchResults
+        // Because: Removed Keywords might have been lonely and deleted at the server
+        // Therefore we MIGHT not be able to assign them anymore ... but have to create them first again
+        this.page           = 1;
+        this.hasMoreResults = true;
+        this.suggestedTags  = [];
+      }
+
       for (let i in newObjects) {
-        this.$emit('input:added', newObjects[i]);
+        this.$emit('input:added', (newObjects[i]));
       }
 
       for (let i in removedObjects) {
-        this.$emit('input:removed', removedObjects[i]);
+        this.$emit('input:removed', (removedObjects[i]));
       }
 
-      this.$emit('input', this.invalidTypesValues.concat(currentValues));
+      const allValues = this.invalidTypesValues.concat(currentValues);
+      this.$emit('input', allValues);
 
     },
 
@@ -253,74 +330,166 @@ export default {
       copyStringToClipboard(label);
     },
 
-    onSearch(search, loading) {
-      loading(true);
-
-      this.suggestedFilteredTags = [];
-
-      // _debounce(this.default.methods.search2(search, loading).bind(this), 250);
-      console.log('onSearch', search);
-
-      _debounce(function () {
-        console.log('debounced');
-        // this.search(loading, search);
-      }, 250);
-
-      // this.search(loading, search);
+    async onOpen() {
+      // Initialisiere den Observer, sobald es im DOM ist (nach dem nextTick)
+      // Der Observer wird ausgelöst, sobald das Element this.$refs.load (im Footer) sichtbar wird
+      // Dann werden weitere Ergebnisse nachgeladen
+      await this.$nextTick();
+      this.observer.observe(this.$refs.load)
     },
 
-    // _.debounce is a function provided by lodash to limit how
-    // often a particularly expensive operation can be run.
-    // To learn
-    // more about the _.debounce function (and its cousin
-    // _.throttle), visit: https://lodash.com/docs#debounce
-    // search: _debounce((loading, search, vm) => {
-    search(loading, search) {
+    onClose() {
+      this.observer.disconnect();
+    },
 
-      if (search.length < this.minInput) {
-        this.suggestedFilteredTags = [];
-        loading(false);
-        return;
+    async onInfiniteScrollReaced([{isIntersecting, target}]) {
+
+      if (isIntersecting) {
+
+        if (!this.isSearchTermValid || !this.hasMoreResults) {
+          return;
+        }
+
+        // console.log('is INTERSECTING', this, this.searchTerm, this.page);
+
+        if (this.queryHandler.hasOwnProperty(this.queryCounter)) {
+          if (this.queryHandler[this.queryCounter].isLoading === true) {
+            console.log('Cancel Infinite load before starting it - page one has not loaded yet');
+            return;
+          }
+        }
+
+        // do search next page
+        const {queryCache, counter} = this.doSearch(this.searchTerm, ++this.page);
+
+        const resultsApplied = await this.handleQueryResult(queryCache, counter);
+
+        if (true === resultsApplied) {
+
+          const ul        = target?.offsetParent;
+          const scrollTop = target?.offsetParent?.scrollTop;
+
+          if (ul && scrollTop) {
+            await this.$nextTick();
+            ul.scrollTop = scrollTop;
+          }
+
+        }
+
+      } else {
+        // console.log('is NOT intersecting', isIntersecting, target);
       }
 
-      const vm = this;
+    },
 
-      this.$store.dispatch('keywords/search', {
-        searchText: search,
-        type: this.typefilter || false,
-        limit: 2
-      })
-          .then(({keywords, pagination}) => {
-            // console.log(keywords);
-            this.suggestedFilteredTags = keywords.filter(this.filterSuggestionsBy);
+    onSearchTermChanged(query, loadingCallback) {
 
-            if (this.newTagsEnabled === true) {
-              const newTag = {
-                title: search,
-                isNew: true,
-                id: 'new Keyword: ' + search,
-              };
+      // Immer der aktuelle Such-Wert (ohne Debouncing
+      this.searchTerm = query;
 
-              if (this.typefilter) {
-                newTag.type = this.typefilter;
-              }
+      _debounce(function () {
 
-              this.hasMoreResults = pagination.hasMore;
-              this.page           = pagination.current_page;
+        console.log('searchTerm Updated: ', query);
 
-              this.suggestedFilteredTags.push(newTag);
-            }
+        // do first search (=> page = 1)
+        const {queryCache, counter} = this.doSearch(query, 1);
 
-          })
-          .catch(function (err) {
-            console.error(err);
-          })
-          .then(function () {
-            // Always
-            loading(false);
-          });
+        this.handleQueryResult(queryCache, counter);
+
+      }, 1000).bind(this)();
+
+      loadingCallback(false);
 
     },
+
+    doSearch(query, page) {
+
+      const counter    = ++this.queryCounter;
+      const queryCache = {
+        query,
+        page,
+        isLoading: true
+      }
+
+      this.queryHandler[counter] = queryCache;
+
+      console.log('LoadingNo' + counter + '...: "' + query + '"', 'Page ' + page);
+
+      queryCache.promise = this.$store
+                               .dispatch('keywords/search', {
+                                 searchText: query,
+                                 type: this.typefilter || false,
+                                 limit: 5,
+                                 page: page,
+                               })
+                               .then(({keywords, pagination}) => {
+
+                                 queryCache.isLoading = false;
+
+                                 console.log('Loaded No' + counter + '...: ' + query, 'Page ' + page, queryCache);
+
+                                 return {
+                                   keywords,
+                                   hasMore: pagination.hasMore,
+                                   current_page: pagination.current_page
+                                 };
+
+                               })
+                               .catch(function (err) {
+                                 console.error(err);
+                               });
+
+      return {queryCache, counter};
+
+    },
+
+
+    /**
+     *
+     * @param queryCache
+     * @param counter
+     * @returns {Promise<boolean>} True if the result was applied | false if the result was too old already
+     */
+    async handleQueryResult(queryCache, counter) {
+
+      // QueryCache includes: query, page, isLoading, promise
+
+      const {keywords, hasMore, current_page} = await queryCache.promise;
+
+      // Das Ergebnis ist schon nicht mehr die neuste Suche => wirf alles über den Haufen
+      if (counter !== this.queryCounter) {
+        delete this.queryHandler[counter];
+        return false;
+      }
+
+      // Das Ergebnis passt schon nicht mehr zur aktuellen Suchabfrage => behalte es trotzudem noch, weil noch keine anderen Debounced Werte da sind
+      if (queryCache.query !== this.searchTerm) {
+        console.log('Suchergebnis passt schon nicht mehr zum aktuellen Suchbegriff - es wird trotzdem angezeigt. Macht das Sinn?');
+      }
+
+      // Deep Copy
+      const tags = JSON.parse(JSON.stringify(keywords));
+
+      // Set or append tags
+      if (current_page > 1) {
+        this.suggestedTags.push(...tags);
+      } else {
+        this.suggestedTags = tags;
+      }
+
+      // Update Page
+      this.page = current_page;
+
+      // Update hasMore
+      this.hasMoreResults = hasMore;
+
+      // Cleanup
+      delete this.queryHandler[counter];
+
+      return true;
+
+    },
+
 
     filterSuggestionsBy(object) {
       return this.value.find((el) => el.id === object.id) === undefined;
@@ -432,6 +601,10 @@ export default {
         width: 1em;
         height: 1em;
       }
+    }
+
+    .loader {
+      text-align: center;
     }
   }
 
