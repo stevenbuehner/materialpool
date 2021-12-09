@@ -48,7 +48,8 @@
           </template>
 
           <template v-slot:option="option">
-            <span :class="{'is-new' : option.isNew}" class="suggested-option">
+            <span :class="{'is-new' : option.isNew}"
+                  class="suggested-option">
               <span class="tagOptionIcon">
                 <slot name="icon">
                     <tag-icon/>
@@ -288,6 +289,8 @@ export default {
         this.page           = 1;
         this.hasMoreResults = true;
         this.suggestedTags  = [];
+        this.onSearchTermChanged(this.searchTerm, () => {
+        });
       }
 
       for (let i in newObjects) {
@@ -598,10 +601,25 @@ export default {
         width: 1em;
         height: 1em;
       }
+
+      &.vs__dropdown-option--selected {
+        color: $sidebar-input-text-colour-placeholder;
+        cursor: default;
+
+        svg path {
+          fill: $sidebar-input-text-colour-placeholder;
+        }
+
+        &.vs__dropdown-option--highlight {
+          background-color: $sidebar-input-background-colour-disabled;
+        }
+
+      }
     }
 
     .loader {
       text-align: center;
+      color: $sidebar-input-text-colour-placeholder;
     }
   }
 
@@ -609,6 +627,7 @@ export default {
     text-decoration: underline;
     padding-right: .5em;
   }
+
 }
 
 </style>
