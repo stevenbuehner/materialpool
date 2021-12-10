@@ -2,11 +2,11 @@
   <div class="material-listing">
     <div class="material-listing-menue"></div>
     <div class="material-listing-data">
-      <material v-for="id in materialIds"
-                :id="id"
-                :key="id"
-                :highlight-keywords="highlightKeywords"
-                :highlight-bibleverses="highlightBibleverses"
+      <material-listing-item v-for="id in materialIds"
+                             :id="id"
+                             :key="id"
+                             :highlight-keywords="highlightKeywords"
+                             :highlight-bibleverses="highlightBibleverses"
       />
     </div>
   </div>
@@ -43,7 +43,7 @@ export default {
   },
 
   components: {
-    material: MaterialListingItem,
+    MaterialListingItem: MaterialListingItem,
   }
 }
 </script>
