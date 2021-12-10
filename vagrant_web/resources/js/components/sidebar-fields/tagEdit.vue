@@ -8,8 +8,8 @@
         </slot>
 
         <span class="title">
-                    <slot name="title">{{ name }}</slot>
-                </span>
+          <slot name="title">{{ name }}</slot>
+        </span>
       </slot>
     </div>
 
@@ -17,25 +17,26 @@
 
       <slot name="input">
         <vue-select
-            :class="{hasElements : validTypesValues.length > 0 }"
-            :clearSearchOnSelect="clearAndCloseOnSelect"
-            :close-on-select="clearAndCloseOnSelect"
+            :class="{hasElements : hasOneValueOrMore }"
+            :clearSearchOnSelect="_clearSearchOnSelect"
+            :close-on-select="_closeOnSelect"
             :disabled="disabled"
             :filterable="true"
             :getOptionLabel="_getTagLabelFromObject"
             :getOptionKey="_getOptionKey"
-            :multiple="true"
+            :multiple="multipleTags"
             :options="optionsWithNewTag"
             :placeholder="placeholder"
             :selectOnTab="true"
             :value="validTypesValues"
+            @open="onOpen"
             @close="onClose"
             @input="onInputChanged"
-            @open="onOpen"
             @search="onSearchTermChanged"
             @search:blur=""
         >
-          <template v-slot:selected-option-container="{option, disabled, multiple, deselect}">
+
+          <template v-if="multipleTags" v-slot:selected-option-container="{option, disabled, multiple, deselect}">
             <dragable-element
                 :id="option.id"
                 :disable-move-relevance="disabled"
@@ -131,14 +132,17 @@ import ContextMenuItem                                        from "../context-m
 import KeywordEditor                                          from "../modals/editors/keywordEditor";
 import {searchArrayObjectsToSearchQuery}                      from "../search/searchHelper";
 
-import BiblePopover            from "../bible-popover/bible-popover";
-import BibleVerse              from '../../../../vendor/stevenbuehner/bible-verse-bundle/js/in/BibleVerse.js';
-import {copyStringToClipboard} from "../../helper/copyToClipboard";
+import BiblePopover                                                  from "../bible-popover/bible-popover";
+import BibleVerse
+                                                                     from '../../../../vendor/stevenbuehner/bible-verse-bundle/js/in/BibleVerse.js';
+import {copyStringToClipboard}                                       from "../../helper/copyToClipboard";
+import {getOptionKeyFromKeywordObject, getTagLabelFromKeywordObject} from "./tagEdit_functions";
+import {savingDialogs}                                               from "../../helper/flashMessages";
 
 export default {
   name: "tagEdit",
 
-  mixins: [generalMixin],
+  mixins: [generalMixin, savingDialogs],
 
   props: {
     typefilter: {
@@ -153,9 +157,7 @@ export default {
     value: {
       required: true,
       validator(value) {
-
         return typeof value === 'object';
-
       }
     },
 
@@ -192,30 +194,52 @@ export default {
       biblePopover: {
         showMe: false,
         bibleverse: null
-      }
+      },
+
+      multipleTags: true,
+
     };
   },
 
   computed: {
     validTypesValues() {
       // About bind: https://stackoverflow.com/questions/49714015/why-does-this-inside-filter-gets-undefined-in-vuejs
-      return this.value.filter(function (el) {
-            return el.type === this.typefilter || this.typefilter === '';
-          }.bind(this)
-      );
+      if (this.multipleTags) {
+        return this.value.filter(function (el) {
+              return el.type === this.typefilter || this.typefilter === '';
+            }.bind(this)
+        );
+      } else {
+        return this.value;
+      }
+    },
+
+    hasOneValueOrMore() {
+      if (this.multipleTags) {
+        return this.validTypesValues.length > 0;
+      } else {
+        return this.validTypesValues !== null;
+      }
     },
 
     invalidTypesValues() {
-      return this.value.filter(function (el) {
-            return el.type !== this.typefilter && this.typefilter !== '';
-          }.bind(this)
-      );
+      if (this.multipleTags) {
+        return this.value.filter(function (el) {
+              return el.type !== this.typefilter && this.typefilter !== '';
+            }.bind(this)
+        );
+      } else {
+        return false;
+      }
     },
 
-    clearAndCloseOnSelect() {
-      return this.suggestedTags.filter((el) => el.isNew !== true).length <= 1;
+    _clearSearchOnSelect(input) {
+      return !this.multipleTags;
     },
 
+    _closeOnSelect() {
+      return !this.multipleTags;
+    },
 
     isSearchTermValid() {
       // console.log('SearchTerm validation updated', this.searchTerm.length >= this.minInput);
@@ -239,6 +263,7 @@ export default {
 
           const newTag = {
             title: this.searchTerm,
+            type: this.typefilter,
             isNew: true,
             id: 'new Keyword: ' + this.searchTerm,
           };
@@ -283,15 +308,19 @@ export default {
 
       // console.log(newObjects, removedObjects);
 
-      if (removedObjects.length > 0) {
+      if (removedObjects.length > 0 || newObjects.find((el) => el.isNew) !== undefined) {
         // Reset SearchResults
+
         // Because: Removed Keywords might have been lonely and deleted at the server
         // Therefore we MIGHT not be able to assign them anymore ... but have to create them first again
+
+        // Gleiches auch, wenn ein neues keyword erstellt werden musste ...
+        // Das kann in der Liste nur dann als hinzugefügt erkannt werden, wenn die ID dabei ist.
+        // Und die Id erfahren wir erst nach dem nächsten Ladevorgang
         this.page           = 1;
         this.hasMoreResults = true;
         this.suggestedTags  = [];
-        this.onSearchTermChanged(this.searchTerm, () => {
-        });
+        this.onSearchTermChanged(this.searchTerm, () => true);
       }
 
       for (let i in newObjects) {
@@ -499,26 +528,8 @@ export default {
       });
     },
 
-    _getTagLabelFromObject(value) {
-      if (typeof value === 'object') {
-        if (!value.hasOwnProperty('title')) {
-          return console.warn(
-              `[vue-select warn]: Label key "option.title" does not` +
-              ` exist in options object ${JSON.stringify(value)}.\n` +
-              'http://sagalbot.github.io/vue-select/#ex-labels'
-          )
-        } else {
-          return value.title;
-        }
-
-      } else {
-        return value;
-      }
-    },
-
-    _getOptionKey(el){
-      return el.id;
-    }
+    _getTagLabelFromObject: getTagLabelFromKeywordObject,
+    _getOptionKey: getOptionKeyFromKeywordObject,
 
   },
 
