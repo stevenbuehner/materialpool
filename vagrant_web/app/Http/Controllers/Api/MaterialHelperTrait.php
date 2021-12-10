@@ -18,35 +18,40 @@ trait MaterialHelperTrait {
 	protected $bibleVerseService;
 
 	/**
-	 * @param null|string|array $author
+	 * @param null|string|array $newAuthor
 	 * @param Material $material
 	 * @return Keyword|null
 	 * @throws InvalidKeywordTypeException
 	 */
-	protected function fillAuthor($author, Material $material) {
+	protected function fillAuthor($newAuthor, Material $material) {
 
-		if (is_array($author) && isset($author['id'])) {
-			$author = Keyword::find($author['id']);
+		$oldAuthor = $material->author;
 
-			if ($author->type !== 'person') {
+		if (is_array($newAuthor) && isset($newAuthor['id'])) {
+			$newAuthor = Keyword::find($newAuthor['id']);
+
+			if ($newAuthor->type !== 'person') {
 				throw new InvalidKeywordTypeException('Expected Keyword with type person here');
 			}
 
-		} else if (!empty($author)) {
-			$author = Keyword::firstOrCreatePerson($author);
+		} else if (!empty($newAuthor)) {
+			$newAuthor = Keyword::firstOrCreatePerson($newAuthor);
 
 		} else {
-			$author = NULL;
+			$newAuthor = NULL;
 		}
 
-		if ($author === NULL) {
+		if ($newAuthor === NULL && $oldAuthor instanceof Keyword) {
 			$material->author()->dissociate();
+
+			// Erst muss das Material gespeichert werden, danach kann geschaut werden, ob das Keyword ohne weitere Verbindugen ist und ggf gelöscht werden kann
+			CheckLonelyKeyword::dispatchAfterResponse($oldAuthor);
 		} else {
-			$material->author()->associate($author);
+			$material->author()->associate($newAuthor);
 		}
 
 
-		return $author;
+		return $newAuthor;
 	}
 
 	/**
