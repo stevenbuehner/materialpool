@@ -1,6 +1,6 @@
 <template>
   <div class="container-fluid pt-3 pb-2">
-    <div class="row" v-if="!editModeEnabled" @dblclick="editModeEnabled=true">
+    <div class="row" v-if="!editModeEnabled" @dblclick="editModeEnabled=!editDisabled">
       <div class="col-12">
         <markdown :text="myTextContent"/>
         <button class="btn btn-sm btn-primary" @click.stop="editModeEnabled=true"
@@ -57,8 +57,13 @@ export default {
 
   props: {
     resource: {
+      type: Object,
       required: true,
-      type: Object
+    },
+    editDisabled: {
+      type: Boolean,
+      required: false,
+      default: false
     }
   },
 

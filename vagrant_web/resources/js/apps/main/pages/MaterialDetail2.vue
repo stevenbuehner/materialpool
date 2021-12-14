@@ -3,16 +3,20 @@
        :class="{materialEditLockActive}">
 
     <div class="row mx-0 errorMessages">
+
       <div v-if="!material && !errorOnLoadingMessage">{{ $t('pool.Material-is-loading') }}</div>
       <div class="alert alert-warning"
            v-if="!material && errorOnLoadingMessage">
         {{ errorOnLoadingMessage }}
         <a href='#' class="btn btn-primary" @click="$router.go(-1)">{{ $t('pool.go-back') }}</a>
       </div>
+
     </div>
 
     <div class="row mx-0 mx-sm-n1 mx-lg-n3" v-if="material">
+
       <div class="col-12 col-sm-7 col-md-8 col-lg-8 mb-3 px-0 px-sm-1 px-md-2 px-lg-3">
+
         <div class="contentSideWrapper">
           <div class="row no-gutters mx-0">
             <div class="col-12 contentMenue">
@@ -43,7 +47,7 @@
                  v-if="material.resources && material.resources.length > 1">
               <div class="col-xl-3 col-lg-4 col-md-4 col-sm-6 col-xs-1 p-2"
                    v-for="resource in material.resources">
-                <resource-preview :resource="resource">
+                <resource-preview :resource="resource" :edit-disabled="material.from_bot">
                   <template slot="additional-buttons">
                     <button class="btn btn-sm btn-outline-danger mb-1"
                             @click.prevent="btnDetachResource(resource)"
@@ -60,7 +64,7 @@
             <div class="row"
                  v-if="material.resources && material.resources.length === 1">
               <div class="col-xl-12 col-12 p-0">
-                <resource-detail :resource="material.resources[0]" :showDelete="false">
+                <resource-detail :resource="material.resources[0]" :showDelete="false" :edit-disabled="material.from_bot">
                   <template slot="additional-buttons">
                     <button class="btn btn-outline-danger mb-1"
                             @click.prevent="btnDetachResource(material.resources[0])"
@@ -300,6 +304,7 @@
         </b-tabs>
 
       </div>
+
     </div>
 
     <custom-dialog ref="customDialog"/>
@@ -513,7 +518,7 @@ export default {
       this.submitMaterialUpdate({'author': newKeyword}, this.$t('pool.Author'));
     },
 
-    submitAddUsage(){
+    submitAddUsage() {
 
     },
 
