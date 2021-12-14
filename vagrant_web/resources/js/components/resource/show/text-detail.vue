@@ -113,8 +113,8 @@ export default {
       }).then((resource) => {
         this.$emit('resource-updated', resource);
         this.flashActionSuccessfullyFinished(this.$t('pool.Content-saved'), startFlash);
-      }).catch(() => {
-        this.flashActionFailed(this.$t('pool.Content-not-saved'), startFlash);
+      }).catch((msg) => {
+        this.flashActionFailed(this.$t('pool.Content-not-saved') + ' - ' + msg, startFlash);
       }).then(() => {
         this.isSaving = false;
       });
