@@ -4,15 +4,14 @@
           @click.stop="showClicked = true"
           @dblclick.stop="showClicked = true"
           :title="showErrorMessage"
-    >
-      {{ text }}
-      <bible-popover
-          v-if="showPopover && !showErrorMessage"
-          :bibleverse="normalizedBibleverse"
-          :position="$el"
-          @bible-popover-closerequest="showHovered=false; showClicked=false"
-      />
-
+    ><!--
+    -->{{ text }}<!--
+    --><bible-popover
+        v-if="showPopover && !showErrorMessage"
+        :bibleverse="normalizedBibleverse"
+        :position="$el"
+        @bible-popover-closerequest="showHovered=false; showClicked=false"
+    />
     </span>
 </template>
 

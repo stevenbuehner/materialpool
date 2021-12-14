@@ -24,7 +24,7 @@
     "epic-spinners": "^1.1.0",
     "is-url": "^1.2.4",
     "lodash": "^4.17.21",
-    "marked": "^0.8.2",
+    "marked": "^4.0.0",
     "moment": "^2.29.1",
     "node-sass": "^4.14.1",
     "p-queue": "^6.6.2",

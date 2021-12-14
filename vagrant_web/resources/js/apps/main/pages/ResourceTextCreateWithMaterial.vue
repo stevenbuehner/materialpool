@@ -40,7 +40,7 @@
       </div>
       <div class="col-6">
         <label></label>
-        <div class="markup" v-html="compiledMarkdown"/>
+        <compiled-markdown :text="textInput"/>
       </div>
 
 
@@ -63,8 +63,8 @@
 <script>
 
 import {BFormGroup, BFormInput, BFormTextarea} from 'bootstrap-vue';
-import marked                                  from 'marked';
 import CustomDialog                            from "../../../components/modals/dialogs/customDialog";
+import CompiledMarkdown                        from "../../../components/markdown/compiledMarkdown";
 
 export default {
   name: "ResourceTextCreateWithMaterial",
@@ -105,9 +105,6 @@ export default {
       return this.$t('pool.Please-enter-more-text');
     },
 
-    compiledMarkdown() {
-      return marked(this.textInput, {sanitize: true, gfm: false, smartLists: true, smartypants: true})
-    },
   },
 
   created() {
@@ -194,10 +191,12 @@ export default {
   },
 
   components: {
+    CompiledMarkdown,
     CustomDialog,
     BFormGroup,
     BFormTextarea,
-    BFormInput
+    BFormInput,
+
 
   }
 
