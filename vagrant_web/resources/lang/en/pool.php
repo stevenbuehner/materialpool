@@ -176,7 +176,7 @@ return [
 	'Select-Icon'                                              => 'Select Icon',
 	'Select-Type'                                              => 'Select Type',
 	'Parent-Keywords'                                          => 'Parent Keywords',
-	'XY-subtopics'                                             => '{0}no subtopics|{1}1 subtopic|[2,*]:XY subtopics',
+	'xy-subtopics'                                             => '{0} no subtopics|{1}1 subtopic|[2,*] :xy subtopics',
 	'Direct-Parent'                                            => 'Direct Parent',
 	'install'                                                  => 'install',
 	'bundle'                                                   => 'bundle',

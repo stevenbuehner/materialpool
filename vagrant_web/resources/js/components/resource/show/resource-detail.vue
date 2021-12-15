@@ -4,6 +4,7 @@
     <component
         :is="detailComponent"
         :resource="resource"
+        :edit-disabled="editDisabled"
         class="detailContents"
         @resource-updated="$emit('resource-updated', $event)"/>
 
@@ -117,6 +118,13 @@ export default {
       required: false,
       default: true
     },
+
+    editDisabled: {
+      type: Boolean,
+      required: false,
+      default: false
+    },
+
   },
 
   computed: {

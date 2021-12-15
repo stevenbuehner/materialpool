@@ -1,8 +1,8 @@
 <template>
   <div class="container-fluid pt-3 pb-2">
-    <div class="row" v-if="!editModeEnabled" @dblclick="editModeEnabled=true">
+    <div class="row" v-if="!editModeEnabled" @dblclick="editModeEnabled=!editDisabled">
       <div class="col-12">
-        <markdown :text="myTextContent" :load-bibleverses="true"/>
+        <markdown :text="myTextContent"/>
         <button class="btn btn-sm btn-primary" @click.stop="editModeEnabled=true"
                 v-if="almostNoContentToEditVisible">
           {{ $t('pool.Edit') }}
@@ -18,7 +18,7 @@
                 @keyup.esc.exact="btnCancelIfNothingChanged"/>
       </div>
       <div class="col-6 p-0 livePreviewWrapper">
-        <markdown class="p-3" :text="myTextContent" :load-bibleverses="false"/>
+        <markdown class="p-3" :text="myTextContent"/>
       </div>
       <div class="col-12 p-3">
         <button
@@ -43,9 +43,8 @@
 <script>
 
 import myTextBlock         from '../../my-text-block.vue';
-import marked              from 'marked';
 import {BibleVerseService} from '../../../../../vendor/stevenbuehner/bible-verse-bundle/js/out/BibleVerseService_de.js';
-import Markdown            from "../../markdown/markdown";
+import Markdown            from "../../markdown/compiledMarkdown";
 import {savingDialogs}     from "../../../helper/flashMessages";
 
 const regexp     = BibleVerseService.biblePattern;
@@ -58,8 +57,13 @@ export default {
 
   props: {
     resource: {
+      type: Object,
       required: true,
-      type: Object
+    },
+    editDisabled: {
+      type: Boolean,
+      required: false,
+      default: false
     }
   },
 
@@ -72,15 +76,6 @@ export default {
   },
 
   computed: {
-    compiledMarkdown() {
-      return marked(this.myTextContent, {
-        sanitize: true,
-        gfm: false,
-        smartLists: true,
-        smartypants: true,
-      })
-    },
-
     almostNoContentToEditVisible() {
       return this.myTextContent.length <= 5;
     },
@@ -118,8 +113,8 @@ export default {
       }).then((resource) => {
         this.$emit('resource-updated', resource);
         this.flashActionSuccessfullyFinished(this.$t('pool.Content-saved'), startFlash);
-      }).catch(() => {
-        this.flashActionFailed(this.$t('pool.Content-not-saved'), startFlash);
+      }).catch((msg) => {
+        this.flashActionFailed(this.$t('pool.Content-not-saved') + ' - ' + msg, startFlash);
       }).then(() => {
         this.isSaving = false;
       });

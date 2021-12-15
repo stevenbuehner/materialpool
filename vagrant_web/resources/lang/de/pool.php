@@ -170,7 +170,7 @@ return [
 	'Select-Icon'                                              => 'Icon auswählen',
 	'Select-Type'                                              => 'Typ auswählen',
 	'Parent-Keywords'                                          => 'Eltern Tags',
-	'XY-subtopics'                                             => '{0} kein Oberbegriff|{1}1 Unterbegriff|[2,*]:XY Unterbegriffe',
+	'xy-subtopics'                                             => '{0} kein Oberbegriff|{1}1 Unterbegriff|[2,*] :xy Unterbegriffe',
 	'Direct-Parent'                                            => 'Direkter Vorfahre',
 	'install'                                                  => 'installieren',
 	'bundle'                                                   => 'bundle',

@@ -249,8 +249,17 @@ $preview-background-color: #868E96;
 
     .image {
       position: absolute;
-      top: 0;
+      object-fit: cover;
       width: 100%;
+      height: 100%;
+
+      transition: all .6s ease;
+      -webkit-filter: brightness(1);
+    }
+
+    &:hover .image {
+      -webkit-transform: scale(1.3);
+      -webkit-filter: brightness(0.5);
     }
 
     .text {
