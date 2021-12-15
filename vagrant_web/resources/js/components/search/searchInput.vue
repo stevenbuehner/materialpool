@@ -22,7 +22,7 @@
         {{ option.text }}
         <span class="descendants"
               v-if="option.descendants && option.descendants > 0">({{
-            $tc('pool.XY-subtopics', option.descendants, {XY: option.descendants})
+            $tc('pool.xy-subtopics', option.descendants, {xy: option.descendants})
           }})</span>
       </div>
     </template>
