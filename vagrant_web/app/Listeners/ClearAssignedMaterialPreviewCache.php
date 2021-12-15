@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Jobs;
+namespace App\Listeners;
 
 use App\Events\ContainsOneResource;
 use App\Services\PreviewGeneration\MaterialPreviewService;

@@ -29,7 +29,7 @@
 
 <script>
 	import generalMixin   from './generalSidebarFields.mixin';
-	import feedbackIcon   from 'svg-icon/dist/svg/material/feedback.svg';
+	import feedbackIcon   from 'svg-icon/dist/svg/zero/oil-table-chart.svg';
 	import FiveStarRating from "../Rating/FiveStarRating";
 
 
@@ -66,7 +66,7 @@
 	}
 </script>
 
-<style type="scss">
+<style lang="scss">
     //    @import "resources/sass/theme";
 
     .ratingEditSidebarField {

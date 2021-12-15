@@ -49,7 +49,7 @@ abstract class AbstractPreviewService {
 	}
 
 	/**
-	 * @return \Illuminate\Cache\Repository
+	 * @return \Illuminate\Cache\Repository|\Illuminate\Contracts\Cache\Repository
 	 */
 	protected function getCacheStore() {
 		return Cache::store('previewimages');

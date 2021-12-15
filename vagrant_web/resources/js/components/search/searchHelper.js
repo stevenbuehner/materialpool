@@ -95,6 +95,8 @@ function keywordToSearchItem(keyword) {
 	return {
 		icon: keyword.icon || "/img/icons/tag.svg",
 		text: keyword.title,
+		descendants: keyword.descendants || [],
+		anecstors: keyword.ancestors || [],
 		item: {
 			id: keyword.id,
 			type: 'k'

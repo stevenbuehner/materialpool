@@ -7,7 +7,6 @@ use App\Models\DocumentFile;
 use App\Models\File;
 use App\Models\ImageFile;
 use App\Models\PdfFile;
-use App\Models\Resource;
 use App\Models\Text;
 use App\Models\Url;
 use App\Models\VideoFile;
@@ -29,7 +28,7 @@ class ResourceRecognitionService {
 
 		// Check for length (too big files are stored as file and not in DB)
 		if ($class == Text::class && $requestFile->getSize() > 1024 * 1024 /* 1 MB */) {
-			$class = Resource::class;
+			$class = File::class;
 		}
 
 		return $class;
@@ -41,7 +40,7 @@ class ResourceRecognitionService {
 	 */
 	public function guessResourceFileFromMimeType($mimeType) {
 
-		$class = Resource::class;
+		$class = File::class;
 
 		switch ($mimeType) {
 			case 'image/jpg':

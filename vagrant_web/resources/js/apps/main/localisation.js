@@ -1,30 +1,28 @@
-import Vue                     from 'vue';
 // @see https://github.com/martinlindhe/laravel-vue-i18n-generator
-import VueInternationalization from 'vue-i18n';
-import Locale                  from '../../vue-i18n-locales.generated';
+import translations from './../../lang-js-translation.js';
 
-
-Vue.use(VueInternationalization);
-
-export const lang = document.documentElement.lang.substr(0, 2);
 // or however you determine your current app locale
+export const lang = document.documentElement.lang.substr(0, 2);
 
-
-export const i18n = new VueInternationalization({
-	locale: lang,
-	messages: Locale
-});
-
-
-import {en, de} from 'vuejs-datepicker/dist/locale';
+export const vueLangConfig = {
+	messages: translations,
+	locale: 'de',
+	fallback: 'en'
+};
 
 export const localisation = {
 	de: {
-		datepicker: de,
-		dateDisplayFormat: 'dd.MM.yyyy'
+		dateDisplayFormat : 'DD.MM.YYYY'
 	},
 	en: {
-		datepicker: en,
-		dateDisplayFormat: 'MM/dd/yyyy'
+		dateDisplayFormat : 'MM/DD/YYYY'
 	}
+};
+
+export function getLocale(){
+	return lang;
+}
+
+export function getLocaleDateFormat() {
+	return localisation[lang].dateDisplayFormat;
 };

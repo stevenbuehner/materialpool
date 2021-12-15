@@ -10,11 +10,9 @@ namespace App\Services\ResourceHandling;
 
 use App\Events\ResourceWasAttached;
 use App\Events\ResourceWasDetached;
-use App\Jobs\CheckDuplicateMaterials;
-use App\Models\File;
+use App\Listeners\CheckDuplicateMaterials;
 use App\Models\Resource as Res;
 use App\Services\ResourceHandling\Exceptions\MissingResourceHashException;
-use Doctrine\DBAL\Driver\PDOException;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;

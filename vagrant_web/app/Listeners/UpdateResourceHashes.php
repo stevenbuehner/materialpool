@@ -3,6 +3,7 @@
 namespace App\Listeners;
 
 use App\Events\ContainsOneResource;
+use App\Services\Processors\Exceptions\ResourceNotHashable;
 use App\Services\Processors\ResourceHashProcessor;
 use Illuminate\Bus\Queueable;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -26,7 +27,13 @@ class UpdateResourceHashes {
 
 	public function handle(ContainsOneResource $event) {
 		$resource    = $event->getResource();
-		$hashChanged = $this->hashProcessor->updateResourceHash($resource);
+		$hashChanged = FALSE;
+
+		try {
+			$hashChanged = $this->hashProcessor->updateResourceHash($resource);
+		} catch (ResourceNotHashable $e) {
+			Log::error('Error when updating Resource-Hash', ['resource_id' => $resource->id]);
+		}
 
 		if ($hashChanged) {
 			// CheckDuplicateResources::dispatch($resource)->onConnection($this->connection)->onQueue($this->queue);

@@ -2,11 +2,11 @@
 
 namespace App\Models;
 
-use App\Jobs\UpdateResourceHashes;
 use App\Services\PreviewGeneration\Generators\NoPreviewGenerator;
 use App\Services\PreviewGeneration\Interfaces\PreviewGeneratorInterface;
 use App\Services\TagExtraction\ResourceHandles\HandlerInterface;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Nanigans\SingleTableInheritance\SingleTableInheritanceTrait;
 
@@ -20,6 +20,7 @@ use Nanigans\SingleTableInheritance\SingleTableInheritanceTrait;
  * @property string $local_path
  * @property string $content_hash
  * @property string $notes
+ * @property string $type
  * @property bool $is_public
  * @property            $created_at
  * @property            $updated_at
@@ -28,6 +29,7 @@ use Nanigans\SingleTableInheritance\SingleTableInheritanceTrait;
  * @property Collection $foreignIds
  */
 class Resource extends Model {
+	use HasFactory;
 	use SingleTableInheritanceTrait;
 
 	static           $allResourceTypeKeys   = ['res', 'link', 'file', 'text', 'book', 'audio', 'video', 'image', 'doc'];

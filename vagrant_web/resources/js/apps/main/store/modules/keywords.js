@@ -3,7 +3,8 @@ import {
 	api_v1_keywords_create,
 	api_v1_keywords_delete,
 	api_v1_keywords_deleteassignment,
-	api_v1_keywords_index, api_v1_keywords_relations_count,
+	api_v1_keywords_index,
+	api_v1_keywords_relations_count,
 	api_v1_keywords_show,
 	api_v1_keywords_update,
 	api_v1_keywords_updateassignment,
@@ -281,15 +282,15 @@ const actions = {
 	},
 
 
-	search: ({commit, getters, dispatch}, {searchText, type, per_page, page}) => {
+	search: ({commit, getters, dispatch}, {searchText, type, limit, page}) => {
 
-		type     = type || false;
-		page     = page || 1;
-		per_page = per_page || 20;
+		type  = type || false;
+		page  = page || 1;
+		limit = limit || 20;
 
 		let data = {
 			q: searchText,
-			per_page,
+			limit,
 		};
 
 		if (type) {
@@ -305,11 +306,21 @@ const actions = {
 		return axios.get(searchGuessKeywords, {params: data})
 		            .then(({data}) => {
 
-			            if (data instanceof Array && data.length > 0) {
-				            dispatch('setMultipleKeywords', data);
+			            const keywords   = data.data;
+			            const pagination = {
+				            from: data.from,
+				            to: data.to,
+				            limit: data.per_page,
+				            total: data.total,
+				            hasMore: data.current_page < data.last_page,
+				            current_page: data.current_page,
+			            };
+
+			            if (keywords instanceof Array && keywords.length > 0) {
+				            dispatch('setMultipleKeywords', keywords);
 			            }
 
-			            return data;
+			            return {keywords, pagination};
 		            });
 	},
 
@@ -328,9 +339,9 @@ const actions = {
 
 		return Promise
 			.all(
-				searchArray.map(({searchText, type, per_page}) => {
+				searchArray.map(({searchText, type, limit}) => {
 						return queue.add(() => {
-							return dispatch('search', {searchText, type, per_page});
+							return dispatch('search', {searchText, type, limit});
 						})
 					}
 				)

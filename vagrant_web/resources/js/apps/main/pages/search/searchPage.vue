@@ -1,210 +1,219 @@
 <template>
-    <div class="container">
+  <div class="container">
 
-        <searchbar-header
-                @searchUpdated="searchInputChanged"
-                :searchObjects="searchObjects"
-        />
+    <searchbar-header
+        @searchUpdated="searchInputChanged"
+        :searchObjects="searchObjects"
+    />
 
-        <hr>
+    <hr>
 
-        <searchbar-outcome
-                :materialIds="materialIds"
-                v-if="!isLoading"
-                :highlight-keywords="keywordIdToHighlight"
-                :highlight-bibleverses="bibleverseRangesToHighlight"
-        />
+    <searchbar-outcome
+        :materialIds="materialIds"
+        v-if="!isLoading"
+        :highlight-keywords="keywordIdToHighlight"
+        :highlight-bibleverses="bibleverseRangesToHighlight"
+    />
 
-        <div class="d-flex justify-content-between align-items-center">
-            <materialpool-spinner v-if="isLoading"/>
-        </div>
-
-        <b-alert variant="danger" :show="hasError">Error: {{errorMessage}}</b-alert>
-
-        <hr>
-
-        <b-pagination-nav
-                v-model="paging.current_page"
-                :limit="10"
-                :number-of-pages="paging.last_page"
-                use-router
-                :link-gen="linkGeneration"
-                align="center">
-        </b-pagination-nav>
-
+    <div class="d-flex justify-content-between align-items-center">
+      <materialpool-spinner v-if="isLoading"/>
     </div>
+
+    <b-alert variant="danger" :show="hasError">Error: {{ errorMessage }}</b-alert>
+
+    <hr>
+
+    <b-pagination-nav
+        v-model="paging.current_page"
+        :limit="10"
+        :number-of-pages="paging.last_page"
+        use-router
+        :link-gen="linkGeneration"
+        align="center">
+    </b-pagination-nav>
+
+  </div>
 </template>
 
 <script>
-	import searchbarHeader  from './searchbarHeader.vue';
-	import searchbarOutcome from './searchbarOutcome.vue';
-	import {BPaginationNav} from 'bootstrap-vue';
-	import {BAlert}         from 'bootstrap-vue'
+import searchbarHeader          from './searchbarHeader.vue';
+import searchbarOutcome         from './searchbarOutcome.vue';
+import {BAlert, BPaginationNav} from 'bootstrap-vue';
 
-	import {
-		searchArrayItemsToSearchQuery,
-		searchQueryStringToSearchQueryArray,
-		searchQueryToSearchArrayObjects
-	}                          from "../../../../components/search/searchHelper";
-	import MaterialpoolSpinner from "../../../../components/spinner/materialpool-spinner";
+import {
+  searchArrayItemsToSearchQuery,
+  searchQueryStringToSearchQueryArray,
+  searchQueryToSearchArrayObjects
+}                          from "../../../../components/search/searchHelper";
+import MaterialpoolSpinner from "../../../../components/spinner/materialpool-spinner";
 
-	export default {
+export default {
 
-		props: {
-			query: {
-				type: String,
-				default: ''
-			},
+  name: 'searchPage',
 
-			page: {
-				required: false,
-				default: 1,
-				type: Number
-			},
+  props: {
+    query: {
+      type: String,
+      default: ''
+    },
 
-			quicksearch: {
-				type: String,
-				required: false,
-				default: ''
-			}
-		},
+    page: {
+      required: false,
+      default: 1,
+      type: Number
+    },
 
-		data() {
-			return {
-				materialIds: [],
-				paging: {
-					current_page: 1,
-					from: 1,
-					last_page: 1,
-					next_page_url: null,
-					per_page: 20,
-					prev_page_url: null,
-					to: 3,
-					total: 3,
-				},
-				isLoading: false,
+    quicksearch: {
+      type: String,
+      required: false,
+      default: ''
+    }
+  },
 
-				searchObjects: {},
+  data() {
+    return {
+      materialIds: [],
+      paging: {
+        current_page: 1,
+        from: 1,
+        last_page: 1,
+        next_page_url: null,
+        per_page: 20,
+        prev_page_url: null,
+        to: 3,
+        total: 3,
+      },
+      isLoading: false,
 
-				hasError: false,
-				errorMessage: '',
-			};
-		},
+      searchObjects: {},
 
-		computed: {
-			queryAndPage() {
-				return this.query + 'p' + this.page;
-			},
+      hasError: false,
+      errorMessage: '',
+    };
+  },
 
-			keywordIdToHighlight() {
-				const kws = [];
+  computed: {
 
-				for (let i in this.searchObjects) {
-					for (let j in this.searchObjects[i]) {
-						if (this.searchObjects[i][j].item.type === "k") {
-							kws.push(this.searchObjects[i][j].item.id,);
-						}
+    // Nur Helper-Variable zur Überwachung im Watch-Statement
+    queryAndPage() {
+      return this.query + 'p' + this.page;
+    },
 
-					}
-				}
+    keywordIdToHighlight() {
+      const kws = [];
 
-				return kws;
-			},
+      for (let i in this.searchObjects) {
+        for (let j in this.searchObjects[i]) {
+          if (this.searchObjects[i][j].item.type === "k") {
+            kws.push(this.searchObjects[i][j].item.id);
 
-			bibleverseRangesToHighlight() {
+            if (Array.isArray(this.searchObjects[i][j].descendants)) {
+              this.searchObjects[i][j].descendants.forEach(function (kw) {
+                kws.push(kw.id);
+              });
+            }
+          }
 
-				const bvs = [];
+        }
+      }
 
-				for (let i in this.searchObjects) {
-					for (let j in this.searchObjects[i]) {
-						if (this.searchObjects[i][j].item.type === "b") {
-							bvs.push({
-								from: parseInt(this.searchObjects[i][j].item.from),
-								to: parseInt(this.searchObjects[i][j].item.to)
-							});
-						}
+      return kws;
+    },
 
-					}
-				}
+    bibleverseRangesToHighlight() {
 
-				return bvs;
-			}
-		},
+      const bvs = [];
 
-		watch: {
-			queryAndPage: {
-				handler() {
-					this.updateMaterialList();
-					searchQueryToSearchArrayObjects(this.query).then((searchObjects) => {
-							this.searchObjects = searchObjects;
-						}
-					);
-				},
-				immediate: true
-			}
-		},
+      for (let i in this.searchObjects) {
+        for (let j in this.searchObjects[i]) {
+          if (this.searchObjects[i][j].item.type === "b") {
+            bvs.push({
+              from: parseInt(this.searchObjects[i][j].item.from),
+              to: parseInt(this.searchObjects[i][j].item.to)
+            });
+          }
 
-		methods: {
+        }
+      }
 
-			searchInputChanged(searchLineItems) {
-				const query = searchArrayItemsToSearchQuery(searchLineItems);
+      return bvs;
+    }
+  },
 
-				if (query !== this.query) {
-					this.$router.push({
-						name: 'search',
-						params: {
-							search: query
-						}
-					});
-				}
+  watch: {
+    queryAndPage: {
+      handler() {
+        this.updateMaterialList();
+        searchQueryToSearchArrayObjects(this.query).then((searchObjects) => {
+              this.searchObjects = searchObjects;
+            }
+        );
+      },
+      immediate: true
+    }
+  },
 
-			},
+  methods: {
 
-			updateMaterialList() {
+    searchInputChanged(searchLineItems) {
+      const query = searchArrayItemsToSearchQuery(searchLineItems);
 
-				const searchData = searchQueryStringToSearchQueryArray(this.query);
-				this.isLoading   = true;
-				this.hasError    = false;
+      if (query !== this.query) {
+        this.$router.push({
+          name: 'search',
+          params: {
+            search: query
+          }
+        });
+      }
 
-				this.$store.dispatch('search/materials', {
-					query: searchData,
-					page: this.page
-				}).then(({materials, paging}) => {
-					this.paging      = paging;
-					this.materialIds = materials.map(m => m.id);
-				}).catch((message) => {
-					this.hasError     = true;
-					this.errorMessage = message;
-					this.materialIds  = [];
-				}).then(() => {
-					// Always
-					this.isLoading = false;
-				});
+    },
 
-			},
+    updateMaterialList() {
 
-			linkGeneration(pageNum) {
-				return {
-					name: 'search',
-					params: {
-						search: this.query,
-					},
-					query: {
-						page: pageNum,
-					}
-				}
-			}
+      const searchData = searchQueryStringToSearchQueryArray(this.query);
+      this.isLoading   = true;
+      this.hasError    = false;
 
-		},
+      this.$store.dispatch('search/materials', {
+        query: searchData,
+        page: this.page
+      }).then(({materials, paging}) => {
+        this.paging      = paging;
+        this.materialIds = materials.map(m => m.id);
+      }).catch((message) => {
+        this.hasError     = true;
+        this.errorMessage = message;
+        this.materialIds  = [];
+      }).then(() => {
+        // Always
+        this.isLoading = false;
+      });
 
-		components: {
-			MaterialpoolSpinner,
-			searchbarHeader,
-			searchbarOutcome,
-			BPaginationNav,
-			BAlert
-		}
-	}
+    },
+
+    linkGeneration(pageNum) {
+      return {
+        name: 'search',
+        params: {
+          search: this.query === "" ? false : this.query,
+        },
+        query: {
+          page: pageNum,
+        }
+      }
+    }
+
+  },
+
+  components: {
+    MaterialpoolSpinner,
+    searchbarHeader,
+    searchbarOutcome,
+    BPaginationNav,
+    BAlert
+  }
+}
 </script>
 
 <style scoped>

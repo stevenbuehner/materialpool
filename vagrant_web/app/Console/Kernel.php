@@ -4,7 +4,6 @@ namespace App\Console;
 
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
-use Illuminate\Queue\Console\WorkCommand;
 use Spatie\Backup\Commands\BackupCommand;
 use Spatie\Backup\Commands\CleanupCommand;
 
@@ -34,8 +33,7 @@ class Kernel extends ConsoleKernel {
 			->daily();
 
 		// Jobs ausführen
-		$schedule->command(WorkCommand::class,
-			['database', '--queue=default', '--stop-when-empty', '--tries=50', '--timeout=120', '--no-interaction'])
+		$schedule->command('queue:work database --queue=default --stop-when-empty --tries=50 --timeout=120 --no-interaction')
 			->everyFiveMinutes();
 
 	}

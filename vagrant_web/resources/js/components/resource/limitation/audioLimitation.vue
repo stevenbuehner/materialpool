@@ -1,34 +1,37 @@
 <template>
-    <div>{{formatedLimitation}}</div>
+  <div>{{ formatedLimitation }}</div>
 </template>
 
 <script>
-	export default {
+export default {
 
-		props: {
-			limitation: {
-				required: true
-			}
-		},
+  name: "audioLimitation",
 
-		computed: {
-			formatedLimitation() {
+  props: {
+    pivot: {
+      required: true
+    }
+  },
 
-				if (this.limitation === null) {
-					return '';
-				}
+  computed: {
 
-				if (this.limitation && this.limitation.start && this.limitation.end) {
-					return 'Limitiert auf Sekunde ' + this.limitation.start + ' bis ' + this.limitation.end;
-				}
+    start() {
+      return this.pivot?.limitation?.start;
+    },
 
-				return '';
+    end() {
+      return this.pivot?.limitation?.end;
+    },
 
-			}
-		}
-	}
+    formatedLimitation() {
+
+      if (this.start === null || this.end === null) {
+        return '';
+      }
+
+      return 'Limitiert auf Sekunde ' + this.start + ' bis ' + this.end;
+
+    }
+  }
+}
 </script>
-
-<style scoped>
-
-</style>

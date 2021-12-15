@@ -5,10 +5,16 @@ namespace App\Models;
 use App\Models\Traits\TimeCountTrait;
 use App\Services\PreviewGeneration\Generators\VideoPreviewGenerator;
 use App\Services\PreviewGeneration\Interfaces\PreviewGeneratorInterface;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use League\Flysystem\FileNotFoundException;
 
+/**
+ * Class VideoFile
+ * @package App\Models
+ * @property $mimeType
+ */
 class VideoFile extends File {
-
+	use HasFactory;
 	use TimeCountTrait;
 
 	protected static $singleTableType = 'video';

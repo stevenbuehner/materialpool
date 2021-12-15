@@ -1,10 +1,8 @@
 <script>
-	import DocDetail from './pdf-detail.vue';
+import PdfDetail from './pdf-detail.vue';
 
-	export default {
-		extends: DocDetail,
-		mixins: [],
-
-		props: {},
-	}
+export default {
+  name: 'DocDetail',
+  extends: PdfDetail,
+}
 </script>

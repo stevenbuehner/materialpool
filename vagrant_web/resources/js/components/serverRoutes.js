@@ -1,7 +1,6 @@
 import {max_preview_image_size_x, max_preview_image_size_y} from "../apps/config";
 
-export const searchGuessRoute  = '/pool/search/guess';
-export const searchGuessRoute2 = '/pool/search/guess2';
+export const searchGuessRoute = '/pool/search/guess';
 
 // Keepalive
 export const keepAliveRoute = '/keepalive';
@@ -39,6 +38,12 @@ export function previewImageFirstPage(resource, width, height) {
 	return '/resource/' + resource.id + '/image/' + width + '/' + height;
 }
 
+/**
+ * Nimmt die maximal erlaubte Bildauflösung
+ * @param resource
+ * @param page
+ * @returns {string}
+ */
 export function pdfPreviewImageForPage(resource, page) {
 	page = page || 1;
 	return '/resource/' + resource.id + '/image/page-' + page;
@@ -48,8 +53,8 @@ export function resourceLimitedPdfDownload(resourceId, materialId) {
 	return '/pool/resource/' + resourceId + '/material/' + materialId + '/pdfdownload';
 }
 
-export function poolResourceVideostream(resource) {
-	return '/pool/resource/' + resource.id + '/videostream';
+export function poolResourceMediastream(resource) {
+	return '/pool/resource/' + resource.id + '/mediastream';
 }
 
 export const api_v1_resources_find = '/api/v1/resources/find';
@@ -59,8 +64,18 @@ export function api_v1_resources_replace_with(oldResourceId, newResourceId) {
 }
 
 
-// GeneralOptions
+// General Options
 export const api_v1_general_options = '/api/v1/general/options';
+
+
+// User settings
+export function api_v1_users_view(userId) {
+	return '/api/v1/users/' + userId;
+}
+
+export function api_v1_users_store_settings(userId) {
+	return api_v1_users_view(userId);
+}
 
 
 // Resource-Material Assignment
@@ -142,6 +157,23 @@ export function material_preview_image(materialId) {
 	return '/material/' + materialId + '/preview';
 }
 
+// API - MaterialUsage
+export function api_v2_materialusage_index(materialId) {
+	return '/api/v2/material/' + materialId + '/usage';
+}
+
+export function api_v2_materialusage_store(materialId) {
+	return '/api/v2/material/' + materialId + '/usage';
+}
+
+export function api_v2_materialusage_update(materialId, materialUsageId) {
+	return '/api/v2/material/' + materialId + '/usage/' + materialUsageId;
+}
+
+export function api_v2_materialusage_delete(materialId, materialUsageId) {
+	return '/api/v2/material/' + materialId + '/usage/' + materialUsageId;
+}
+
 // API - Keywords
 export const api_v1_keywords_index = '/api/v1/keywords/';
 
@@ -203,6 +235,10 @@ export function api_v1_bundles_update_show(bundleId) {
 
 export function api_v1_bundles_update_init(bundleId) {
 	return '/api/v1/bundles/' + bundleId + '/init-update';
+}
+
+export function api_v1_bundles_uninstall_init(bundleId) {
+	return '/api/v1/bundles/' + bundleId + '/init-uninstall';
 }
 
 export function api_v1_bundles_update_run(bundleId) {

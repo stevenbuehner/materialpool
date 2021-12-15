@@ -1,4 +1,5 @@
 import {getRelativeClickCoordinates} from "../general/relativeElementPositions";
+import {isTouch}                     from "../../helper/mobileHelper";
 
 // Not "0" => naN
 let elementWidth = 1;
@@ -43,9 +44,16 @@ export const draggingSupport = {
 			this.dragging.ongoing = true;
 			this.dragging.xEnd    = this.dragging.xStart = getRelativeClickCoordinates(event, this.$el).x || 0;
 
+			// Mouse Events
 			window.addEventListener('mouseup', this.stopDrag);
 			window.addEventListener('mousemove', this.doDrag);
-			window.addEventListener('keydown', this.keydown)
+			window.addEventListener('keydown', this.keydown);
+
+			// Touch Events
+			if (isTouch) {
+				window.addEventListener('touchmove', this.doDrag);
+				window.addEventListener('touchend', this.stopDrag);
+			}
 
 		},
 		doDrag(event) {
@@ -58,6 +66,11 @@ export const draggingSupport = {
 			window.removeEventListener('mousemove', this.doDrag);
 			window.removeEventListener('keydown', this.keydown);
 
+			// Touch Events
+			if (isTouch) {
+				window.removeEventListener('touchmove', this.doDrag);
+				window.removeEventListener('touchend', this.stopDrag);
+			}
 
 			if (this.dragging.ongoing /* true if dragging was not canceled */
 			    && event /* Event exists when dragging was not canceled */

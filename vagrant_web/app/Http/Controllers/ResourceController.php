@@ -127,9 +127,7 @@ class ResourceController extends Controller {
 
 	public function download(ResourceEntity $resource) {
 
-		if ($resource->is_public && !empty($resource->remote_path)) {
-			return redirect()->to($resource->remote_path);
-		} else if ($resource instanceof \App\Models\File) {
+		if ($resource instanceof \App\Models\File && $resource->hasLocalFile()) {
 			$stream = $resource->getLocalFileStream();
 
 			return Response::stream(function () use ($stream) {
@@ -149,6 +147,9 @@ class ResourceController extends Controller {
 				'Content-Disposition' => "attachment; filename=\"$filename\"",
 				// 'Content-Length'      => strlen(utf8_decode($resource->content)) // FIxMe: Not working
 			]);
+		} else if ($resource->hasRemoteFile()) {
+			return redirect()->to($resource->remote_path);
 		}
+
 	}
 }

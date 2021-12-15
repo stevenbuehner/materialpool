@@ -37,7 +37,15 @@ class CalculatePdfPageSize {
 
 			Log::info("Start job: " . self::class . " for Resource", $resource->toArray());
 
-			$resource = $this->processor->countPdfPages($resource);
+			try {
+				$resource = $this->processor->countPdfPages($resource);
+			} catch (\Exception $e) {
+				Log::error('Error when Counting PDF-Pages in Resource', [
+						'exception' => $e->getMessage(),
+						'trace'     => $e->getTraceAsString(),
+						'resource'  => $resource->toArray()]
+				);
+			}
 
 			Log::info("End job: " . self::class . " for Resource", $resource->toArray());
 

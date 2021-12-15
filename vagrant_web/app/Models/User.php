@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Passport\HasApiTokens;
@@ -16,6 +17,7 @@ use Laravel\Passport\HasApiTokens;
  * @property string $email
  * @property string $password
  * @property string $remember_token
+ * @property array $frontend_user_settings
  * @property int $id
  * @property boolean $is_admin
  * @property Collection $foreignResourceIds
@@ -24,8 +26,9 @@ use Laravel\Passport\HasApiTokens;
  * @property Collection $resources
  */
 class User extends Authenticatable {
-	use Notifiable;
+	use HasFactory;
 	use HasApiTokens;
+	use Notifiable;
 
 	/**
 	 * The attributes that are mass assignable.
@@ -42,11 +45,18 @@ class User extends Authenticatable {
 	 * @var array
 	 */
 	protected $hidden = [
-		'password', 'remember_token',
+		'password',
+		'remember_token',
+		'created_at',
+		'updated_at',
+		'frontend_user_settings',
+		'email',
+		'is_admin'
 	];
 
 	protected $casts = [
-		'is_admin' => 'boolean'
+		'is_admin'               => 'boolean',
+		'frontend_user_settings' => 'array',
 	];
 
 	public function foreignMaterialIds() {

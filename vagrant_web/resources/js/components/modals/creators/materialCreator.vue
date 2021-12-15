@@ -1,528 +1,785 @@
 <template>
-    <b-modal size="lg"
-             lazy
-             ref="myModal"
-             @hide="_cancelPromise"
-             @shown="_selectFocus"
-    >
+  <b-modal size="lg"
+           lazy
+           ref="myModal"
+           @hide="_cancelPromise"
+           @shown="_selectFocus"
+  >
 
-        <template slot="modal-header">
-            <div class="row">
-                <div class="col modal-title">
-                    <h5>
-                        {{headline || $t('pool.Create-a-material')}}
-                    </h5>
-                </div>
-                <div class="col">
-                    <b-input-group
-                            :prepend="$t('pool.Insert-Material-ID')"
-                            size="sm">
-                        <b-form-input
-                                type="number"
-                                v-model="preloadMaterialId"
-                                @keyup.native.enter="preloadWithMaterial"
-                        />
-                        <b-input-group-append>
-                            <b-button variant="primary" @click="preloadWithMaterial">{{$t('pool.preload')}}</b-button>
-                        </b-input-group-append>
-                    </b-input-group>
-                </div>
-            </div>
-        </template>
-        <template slot="modal-footer">
+    <template slot="modal-header" class="">
+      <div class="row sb_materialcreator_header">
+        <div class="col col-9 col-md-10 modal-title">
+          <h5>
+            {{ headline || $t('pool.Create-a-material') }}
+          </h5>
+        </div>
 
-            <slot name="all-buttons">
-                <slot name="extra-buttons"></slot>
-                <button type="button" class="btn btn-primary btn-sm"
-                        @click="useCurrentSelectionAsDefault"
-                        :disabled="buttonsDisabled">
-                    {{$t('pool.use-this-as-template')}}
-                </button>
-                <button type="button" class="btn btn-secondary btn-sm" @click="hide" :disabled="buttonsDisabled">
-                    {{$t('pool.Cancel')}}
-                </button>
-                <button type="button" class="btn btn-secondary btn-sm" @click="_onReset" :disabled="buttonsDisabled">
-                    {{$t('pool.Reset')}}
-                </button>
-                <button type="button" class="btn btn-success btn-sm" @click="_onSubmit" :disabled="buttonsDisabled">
-                    {{$t('pool.Save')}}
-                </button>
-            </slot>
+        <div class="col col-3 col-md-2 ">
+          <b-button-group
+              size="sm">
+            <b-dropdown right size="sm" :text="$t('pool.templates')"
+                        ref="templateDropdown"
+                        @show="[preloadDropdown.loadFromMaterialFormActive = false, preloadDropdown.createNewTemplateFormActive = false]">
 
-        </template>
+              <!-- Aktuellen Zustand als Preload-Template abspeichern-->
+              <li v-if="!preloadDropdown.createNewTemplateFormActive">
+                <b-button
+                    role="menuitem"
+                    type="button"
+                    class="dropdown-item"
+                    @click.prevent.stop="_btnCreatePreset">
+                  {{ $t('pool.Create-new-template') }}
+                </b-button>
+              </li>
+              <b-dropdown-form @submit.stop.prevent="_saveNewPreset"
+                               v-if="preloadDropdown.createNewTemplateFormActive">
+                <b-input-group size="sm">
+                  <b-form-input
+                      v-model="preloadDropdown.templateNameInput"
+                      :placeholder="$t('pool.Template-name')"
+                      ref="templateNameInput"
+                  />
+                  <b-input-group-append>
+                    <b-button @click="_saveNewPreset"
+                              v-if="!preloadDropdown.presetIsSaving">
+                      {{ $t('pool.Save') }}
+                    </b-button>
+                    <b-button v-if="preloadDropdown.presetIsSaving"
+                              variant="outline-secondary">
+                      <materialpool-spinner/>
+                    </b-button>
+                  </b-input-group-append>
+                </b-input-group>
+              </b-dropdown-form>
 
-        <b-form
-                @submit.prevent="onSubmit"
-                @reset="_onReset">
-            <b-form-group horizontal
-                          breakpoint="md"
-                          :label="$t('pool.Title')"
-                          label-for="materialtitle"
-                          :label-cols="labelCols"
-            >
-                <b-form-input id="materialtitle"
-                              type="text"
-                              v-model.lazy="form.title"
-                              required
-                              :placeholder="$t('pool.Material-title')"
-                              :disabled="formDisabled"
-                              ref="titleInput"/>
-            </b-form-group>
+              <b-dropdown-divider/>
 
+              <b-dropdown-group :header="$t('pool.Existing-templates')">
+                <b-dropdown-item-button v-for="(temp, i) in presets" :key="i.title"
+                                        @click="_loadPreset(i)">
+                  {{ i }}
+                  <span class="sb_dropdown_icons_wrapper">
+                                        <repeat-icon class="sb_dropdown-icon"
+                                                     v-if="i !== defaultPresetId"
+                                                     @click.stop="_saveDefaultPresetId(i)"
+                                                     :title="$t('pool.Select-as-default')"/>
+                                        <repeat-icon class="sb_dropdown-icon selected"
+                                                     v-if="i === defaultPresetId"
+                                                     @click.stop="_saveDefaultPresetId(null)"
+                                                     :title="$t('pool.Remove-default')"/>
+                                        <trash-icon class="sb_dropdown-icon"
+                                                    @click.stop="_deletePreset(i)"
+                                                    :title="$t('pool.Delete-Preset')"/>
+                                    </span>
+                </b-dropdown-item-button>
+              </b-dropdown-group>
 
-            <b-form-group horizontal
-                          breakpoint="md"
-                          :label="$t('pool.Description')"
-                          label-for="materialdescription"
-                          :label-cols="labelCols"
-            >
-                <b-form-input id="materialdescription"
-                              type="text"
-                              v-model.lazy="form.description"
-                              required
-                              :placeholder="$t('pool.Add-description-here')"
-                              :disabled="formDisabled"/>
-            </b-form-group>
+              <b-dropdown-divider/>
 
 
-            <b-form-group horizontal
-                          breakpoint="md"
-                          :label="$t('pool.Author')"
-                          label-for="materialauthor"
-                          :label-cols="labelCols"
-            >
+              <!-- Material anhand einer ID preloaden -->
+              <li v-if="!preloadDropdown.loadFromMaterialFormActive">
+                <b-button
+                    role="menuitem"
+                    type="button"
+                    class="dropdown-item"
+                    @click.prevent.stop="_btnLoadMaterialId">
+                  {{ $t('pool.Load-from-material-id') }}
+                </b-button>
+              </li>
+              <b-dropdown-form @submit.stop.prevent="_selectMaterialId(preloadMaterialId)"
+                               v-if="preloadDropdown.loadFromMaterialFormActive">
+                <b-input-group size="sm">
+                  <b-form-input
+                      type="number"
+                      v-model="preloadMaterialId"
+                      :placeholder="$t('pool.Material-ID')"
+                      ref="preloadMaterialIdInput"
+                  />
+                  <b-input-group-append>
+                    <b-button variant="primary"
+                              @click="_selectMaterialId(preloadMaterialId)"
+                              v-if="!preloadDropdown.materialIdIsLoading">
+                      {{ $t('pool.Ok') }}
+                    </b-button>
+                    <b-button v-if="preloadDropdown.materialIdIsLoading"
+                              variant="outline-secondary">
+                      <materialpool-spinner/>
+                    </b-button>
+                  </b-input-group-append>
+                </b-input-group>
+              </b-dropdown-form>
+            </b-dropdown>
+          </b-button-group>
+        </div>
+      </div>
+    </template>
 
-                <keyword-toggle-text-select
-                        :keyword="form.author"
-                        @newKeywordSelection="form.author = $event"
-                        :disabled="formDisabled"
-                        :emptyPlaceholder="$t('pool.Name-of-material-author')"/>
+    <template slot="modal-footer">
 
-            </b-form-group>
+      <slot name="all-buttons">
+        <slot name="extra-buttons"></slot>
+        <button type="button" class="btn btn-secondary btn-sm" @click="hide" :disabled="buttonsDisabled">
+          {{ $t('pool.Cancel') }}
+        </button>
+        <button type="button" class="btn btn-secondary btn-sm" @click="_onReset" :disabled="buttonsDisabled">
+          {{ $t('pool.Reset') }}
+        </button>
+        <button type="button" class="btn btn-success btn-sm" @click="_onSubmit" :disabled="buttonsDisabled">
+          {{ $t('pool.Save') }}
+        </button>
+      </slot>
 
+    </template>
 
-            <b-form-group horizontal
-                          breakpoint="md"
-                          :label="$t('pool.Rating')"
-                          :label-cols="labelCols"
-            >
-                <star-rating
-                        :increment="1"
-                        :max-rating="20"
-                        inactive-color="lightgray"
-                        active-color="black"
-                        :star-size="15"
-                        :inline="true"
-                        text-class="starRatingText"
-                        v-model="form.rating"
-                        :read-only="formDisabled"/>
-            </b-form-group>
-
-
-            <div class="row">
-                <div class="col-6">
-                    <keyword-input
-                            v-model="keywordInput"
-                            @updated="updateKeywordForm"
-                            :disabled="formDisabled"/>
-                </div>
-                <div class="col-6">
-                    <bibleverse-input
-                            v-model="bibleverseInput"
-                            @updated="updateBibleverseForm"
-                            :disabled="formDisabled"
-                            :external-suggestions="externalBibleverseSuggestions"/>
-                </div>
-            </div>
+    <b-form
+        @submit.prevent="onSubmit"
+        @reset="_onReset">
+      <b-form-group horizontal
+                    breakpoint="md"
+                    :label="$t('pool.Title')"
+                    label-for="materialtitle"
+                    :label-cols="labelCols"
+      >
+        <b-form-input id="materialtitle"
+                      type="text"
+                      v-model.lazy="form.title"
+                      required
+                      :placeholder="$t('pool.Material-title')"
+                      :disabled="formDisabled"
+                      ref="titleInput"/>
+      </b-form-group>
 
 
-        </b-form>
+      <b-form-group horizontal
+                    breakpoint="md"
+                    :label="$t('pool.Description')"
+                    label-for="materialdescription"
+                    :label-cols="labelCols"
+      >
+        <b-form-input id="materialdescription"
+                      type="text"
+                      v-model.lazy="form.description"
+                      required
+                      :placeholder="$t('pool.Add-description-here')"
+                      :disabled="formDisabled"/>
+      </b-form-group>
 
 
-        <b-alert v-for="(alert, index) in formErrors"
-                 :variant="'danger'"
-                 class="mt-1 mb-1"
-                 :show="3"
-                 fade
-                 dismissible
-                 @dismissed="formErrors.splice(index,1)"
-                 :key="alert">{{alert}}
-        </b-alert>
+      <b-form-group horizontal
+                    breakpoint="md"
+                    :label="$t('pool.Author')"
+                    label-for="materialauthor"
+                    :label-cols="labelCols"
+      >
 
-    </b-modal>
+        <keyword-toggle-text-select
+            :keyword="form.author"
+            @newKeywordSelection="form.author = $event"
+            :disabled="formDisabled"
+            :emptyPlaceholder="$t('pool.Name-of-material-author')"/>
+
+      </b-form-group>
+
+
+      <b-form-group horizontal
+                    breakpoint="md"
+                    :label="$t('pool.Rating')"
+                    :label-cols="labelCols"
+      >
+        <star-rating
+            :increment="1"
+            :max-rating="20"
+            inactive-color="lightgray"
+            active-color="black"
+            :star-size="15"
+            :inline="true"
+            text-class="starRatingText"
+            v-model="form.rating"
+            :read-only="formDisabled"/>
+      </b-form-group>
+
+
+      <div class="row">
+        <div class="col-6">
+          <keyword-input
+              v-model="keywordInput"
+              :disabled="formDisabled"/>
+        </div>
+        <div class="col-6">
+          <bibleverse-input
+              v-model="bibleverseInput"
+              :disabled="formDisabled"
+              :external-suggestions="externalBibleverseSuggestions"/>
+        </div>
+      </div>
+
+
+    </b-form>
+
+
+    <b-alert v-for="(alert, index) in formErrors"
+             :variant="'danger'"
+             class="mt-1 mb-1"
+             :show="3"
+             fade
+             dismissible
+             @dismissed="formErrors.splice(index,1)"
+             :key="alert">{{ alert }}
+    </b-alert>
+
+  </b-modal>
 </template>
 
 <script>
 
-	import {BForm}                                      from 'bootstrap-vue';
-	import {BAlert}                                     from 'bootstrap-vue';
-	import {BFormGroup, BInputGroup, BInputGroupAppend} from 'bootstrap-vue';
-	import {BFormInput}                                 from 'bootstrap-vue';
-	import {BModal}                                     from 'bootstrap-vue';
-	import {BButton}                                    from 'bootstrap-vue';
-	import starRating                                   from 'vue-star-rating';
-	import KeywordInput                                 from "../../keyword/keywordInput.vue";
-	import BibleverseInput                              from "../../bibleverse/bibleverseInput";
-	import _debounce                                    from 'lodash/debounce';
-	import KeywordToggleTextSelect                      from "../../keyword/keywordToggleTextSelect";
-	import {RELEVANCE_USER_AVG}                         from "../../../apps/config";
-	import {savingDialogs}                              from "../../../helper/flashMessages";
-
-	export default {
-		name: "materialCreator",
-
-		mixins: [savingDialogs],
-
-		data() {
-			return {
-				form: {
-					title: '',
-					description: '',
-					rating: null,
-					from_bot: false,
-					author: '',
-					keywords: [],
-					bibleverses: [],
-				},
-
-				keywordInput: [],
-				bibleverseInput: [],
-
-				labelCols: 2,
-
-				preloadMaterialId: '',
-
-				reject: null,
-				resolve: null,
-
-				formErrors: [],
-				materialCreationRunning: false,
-			};
-		},
-
-		props: {
-			headline: {
-				type: String,
-				false: true,
-				default: ''
-			},
-			title: {
-				type: String,
-				required: false,
-				default: ''
-			},
-			description: {
-				type: String,
-				required: false,
-				default: ''
-			},
-			author: {
-				type: String,
-				required: false,
-				default: ''
-			},
-			rating: {
-				type: Number,
-				required: false,
-				default: -1
-			},
-			keywordIds: {
-				type: Array,
-				required: false,
-				default() {
-					return [];
-				}
-			},
-			bibleverseIds: {
-				type: Array,
-				required: false,
-				default() {
-					return [];
-				}
-			},
-
-			externalBibleverseSuggestions: {
-				type: Array,
-				required: false,
-				default() {
-					return [];
-				}
-			}
-
-		},
-
-		computed: {
-			formDisabled() {
-				return this.materialCreationRunning;
-			},
+import {
+  BAlert,
+  BButton,
+  BButtonGroup,
+  BDropdown,
+  BDropdownDivider,
+  BDropdownForm,
+  BDropdownGroup,
+  BDropdownItemButton,
+  BForm,
+  BFormGroup,
+  BFormInput,
+  BInputGroup,
+  BInputGroupAppend,
+  BModal
+}                              from 'bootstrap-vue';
+import starRating              from 'vue-star-rating';
+import KeywordInput            from "../../keyword/keywordInput.vue";
+import BibleverseInput         from "../../bibleverse/bibleverseInput";
+import _debounce               from 'lodash/debounce';
+import KeywordToggleTextSelect from "../../keyword/keywordToggleTextSelect";
+import {RELEVANCE_USER_AVG}    from "../../../apps/config";
+import {savingDialogs}         from "../../../helper/flashMessages";
+import MaterialpoolSpinner     from "../../spinner/materialpool-spinner";
+
+// Icons
+import trashIcon  from 'svg-icon/dist/svg/oct/trashcan.svg';
+import repeatIcon from 'svg-icon/dist/svg/typcn/arrow-repeat.svg';
+
+
+const USER_SETTINGS_MATERIAL_TEMPLATE_ID         = 'assign.material.templates';
+const USER_SETTINGS_MATERIAL_DEFAULT_TEMPLATE_ID = 'assign.material.defaulttemplate';
+
+export default {
+  name: "materialCreator",
+
+  mixins: [savingDialogs],
+
+  data() {
+    return {
+      form: {
+        title: '',
+        description: '',
+        rating: null,
+        from_bot: false,
+        author: null,
+      },
+
+      keywordInput: [],
+      bibleverseInput: [],
+
+      labelCols: 2,
+
+      preloadMaterialId: '',
+
+      reject: null,
+      resolve: null,
+
+      formErrors: [],
+      materialCreationRunning: false,
+
+      preloadDropdown: {
+        loadFromMaterialFormActive: false,
+        materialIdIsLoading: false,
+
+        createNewTemplateFormActive: false,
+        templateNameInput: '',
+        presetIsSaving: false,
+      }
+    };
+  },
+
+  props: {
+    headline: {
+      type: String,
+      false: true,
+      default: ''
+    },
+
+    externalBibleverseSuggestions: {
+      type: Array,
+      required: false,
+      default() {
+        return [];
+      }
+    }
+
+  },
+
+  computed: {
+    formDisabled() {
+      return this.materialCreationRunning;
+    },
+
+    buttonsDisabled() {
+      return this.materialCreationRunning;
+    },
+
+    formData() {
+
+      const data = Object.assign({}, this.form);
 
-			buttonsDisabled() {
-				return this.materialCreationRunning;
-			}
-		},
+      if (data.author) {
+        data.author = {
+          id: data.author.id,
+          title: data.author.title,
+          type: data.author.type
+        };
+      }
 
-		watch: {
-			authorSearch: _debounce(function (searchValue) {
-				this._getAuthorSuggestion(searchValue)
-			}, 300)
-		},
+      data.keywords = this.keywordInput.map((kw) => {
+        let response = {
+          type: kw.type,
+          title: kw.title,
+          id: kw.id,
+        };
 
-		created() {
+        if (kw.pivot && kw.pivot.relevance) {
+          response.relevance = kw.pivot.relevance;
+        }
 
-			this._onReset();
+        return response;
+      });
 
-		},
+      data.bibleverses = this.bibleverseInput.map((bv) => {
+        let response = {
+          from: bv.from,
+          to: bv.to,
+          id: bv.id,
+        };
 
-		methods: {
+        if (bv.pivot && bv.pivot.relevance) {
+          response.relevance = bv.pivot.relevance;
+        }
 
-			showPromise() {
+        return response;
+      });
 
-				return new Promise((resolve, reject) => {
-					this.resolve = resolve;
-					this.reject  = reject;
+      return data;
 
-					this.$refs.myModal.show();
-				});
+    },
 
-			},
+  },
 
-			_cancelPromise() {
+  asyncComputed: {
 
-				if (typeof this.reject === 'function') {
-					this.reject('closed early');
-					// this.$refs.myModal.close();
-					this.resolve = null;
-					this.reject  = null;
-				}
+    presets: {
+      get() {
+        return this.$store.dispatch('general/currentUserSetting', {
+          settingId: USER_SETTINGS_MATERIAL_TEMPLATE_ID,
+          defaultValue: {}
+        });
+      },
+      default: {}
+    },
 
-			},
+    defaultPresetId: {
+      get() {
+        return this.$store.dispatch('general/currentUserSetting', {
+          settingId: USER_SETTINGS_MATERIAL_DEFAULT_TEMPLATE_ID,
+          defaultValue: null
+        })
+      },
+      default: null
+    }
 
-			createAndReturnMaterial() {
+  },
 
-				if (typeof this.resolve === 'function') {
+  watch: {
+    authorSearch: _debounce(function (searchValue) {
+      this._getAuthorSuggestion(searchValue)
+    }, 300)
+  },
 
-					this.materialCreationRunning = true;
+  created() {
 
-					this.$store.dispatch('materials/create', this.form)
-					    .then((material) => {
-						    console.info('Created successfull: ', material);
+    this._onReset();
 
-						    this.resolve(material);
-						    this.resolve = null; // already done during hide()
-						    this.reject  = null; // already done during hide()
+  },
 
-						    this.$refs.myModal.hide();
+  methods: {
 
-						    this.$store.commit('recentmaterials/addRecentMaterialId', material.id);
-					    })
-					    .catch((response) => {
-						    console.error(response);
-					    })
-					    .then(() => {
-						    // Always
-						    this.materialCreationRunning = false;
-					    });
-				}
-			},
+    showPromise() {
 
-			updateBibleverseForm(bibleverses) {
-				this.form.bibleverses = bibleverses.map((bv) => {
-					let response = {
-						from: bv.from,
-						to: bv.to,
-						id: bv.id,
-					};
+      this._onReset();
 
-					if (bv.pivot && bv.pivot.relevance) {
-						response.relevance = bv.pivot.relevance;
-					}
+      return new Promise((resolve, reject) => {
+        this.resolve = resolve;
+        this.reject  = reject;
 
-					return response;
-				});
-			},
+        this.$refs.myModal.show();
+      });
 
-			updateKeywordForm(keywords) {
-				this.form.keywords = keywords.map((kw) => {
-					let response = {
-						type: kw.type,
-						title: kw.title,
-						id: kw.id,
-					};
 
-					if (kw.pivot && kw.pivot.relevance) {
-						response.relevance = kw.pivot.relevance;
-					}
+    },
 
-					return response;
-				});
-			},
+    _cancelPromise() {
 
-			hide() {
-				this.$refs.myModal.hide();
-			},
+      if (typeof this.reject === 'function') {
+        this.reject('closed early');
+        // this.$refs.myModal.close();
+        this.resolve = null;
+        this.reject  = null;
+      }
 
-			_onSubmit() {
+    },
 
-				this.checkRequirements();
+    createAndReturnMaterial() {
 
-				if (this.formErrors.length === 0) {
-					this.createAndReturnMaterial();
-				}
+      if (typeof this.resolve === 'function') {
 
-			},
+        this.materialCreationRunning = true;
+        const flashSave              = this.flashStartSaving(this.$t('pool.Material'));
 
-			checkRequirements() {
+        this.$store.dispatch('materials/create', this.formData)
+            .then((material) => {
 
-				this.formErrors = [];
+              this.flashSaved(this.$t('pool.Material'), flashSave);
 
-				// Check title
-				if (!this.form.title || this.form.title.trim().length < 3) {
-					this.formErrors.push(this.$tc('pool.min-length', this.form.title.trim().length, {
-						COUNT: this.form.title.trim().length,
-						REQUIRED: 3,
-						FIELD: this.$t('pool.Title')
-					}));
-				}
+              this.resolve(material);
+              this.resolve = null; // already done during hide()
+              this.reject  = null; // already done during hide()
 
-				if (!this.form.rating) {
-					this.formErrors.push(this.$tc('pool.rating-missing'));
-				}
+              this.$refs.myModal.hide();
 
-				if (this.form.keywords.length < 3) {
-					this.formErrors.push(this.$tc('pool.min-3-keywords'));
-				}
+              this.$store.commit('recentmaterials/addRecentMaterialId', material.id);
+            })
+            .catch((message) => {
+              this.flashError(this.$t('pool.Material'), message, flashSave);
+            })
+            .then(() => {
+              // Always
+              this.materialCreationRunning = false;
+            });
+      }
+    },
 
-			},
+    hide() {
+      this.$refs.myModal.hide();
+    },
 
-			_onReset() {
-				this.formErrors = [];
+    _onSubmit() {
 
-				this.form.title       = (this.title !== '') ? this.title : this.$store.getters['materialcreator/getTitle'];
-				this.form.description = (this.description !== '') ? this.description : this.$store.getters['materialcreator/getDescription'];
-				this.form.rating      = (this.rating !== -1) ? this.rating : this.$store.getters['materialcreator/getRating'];
-				this.form.from_bot    = (this.from_bot === false) ? false : this.$store.getters['materialcreator/getFromBot'];
-				this.form.author      = (this.author !== '') ? this.author : this.$store.getters['materialcreator/getAuthor'];
-				this.form.keywords    = [];
-				this.form.bibleverses = [];
+      this.checkRequirements();
 
+      if (this.formErrors.length === 0) {
+        this.createAndReturnMaterial();
+      }
 
-				// Wenn nur die IDs gegeben sind, dann nimm die Standard-Relevanz
-				const kwIdsAndRelevance = this.keywordIds.length > 0 ? this.keywordIds.map((kw) => {
-					return {id: kw.id, relevance: RELEVANCE_USER_AVG}
-				}) : this.$store.getters['materialcreator/getKeywordIds'];
+    },
 
-				// Wenn nur die IDs gegeben sind, dann nimm die Standard-Relevanz
-				const bvIdsAndRelevance = (this.bibleverseIds.length > 0) ? this.bibleverseIds.map((bv) => {
-					return {id: bv.id, relevance: RELEVANCE_USER_AVG}
-				}) : this.$store.getters['materialcreator/getBibleverseIds'];
-
-
-				// Lade den Author anhand der zwischengespeicherten ID nach
-				if (this.form.author) {
-					this.$store.dispatch('keywords/get', this.form.author)
-					    .then((author) => {
-						    this.form.author = author;
-					    });
-				}
+    checkRequirements() {
 
-				// Lade die Keywords anhand der zwischengespeicherten IDs nach und füge die Relevanz hinzu
-				if (kwIdsAndRelevance.length > 0) {
-					this.$store.dispatch('keywords/getMultiple', kwIdsAndRelevance.map(kw => kw.id))
-					    .then((keywords) => {
+      this.formErrors = [];
 
-						    for (let i in keywords) {
-							    keywords[i].pivot = {relevance: kwIdsAndRelevance.find((el) => el.id === keywords[i].id).relevance}
-						    }
+      // Check title
+      if (!this.form.title || this.form.title.trim().length < 3) {
+        this.formErrors.push(this.$tc('pool.min-length', this.form.title.trim().length, {
+          count: this.form.title.trim().length,
+          required: 3,
+          field: this.$t('pool.Title')
+        }));
+      }
 
-						    this.keywordInput = keywords;
-						    this.updateKeywordForm(keywords);
-					    });
-				}
+      if (!this.form.rating) {
+        this.formErrors.push(this.$tc('pool.rating-missing'));
+      }
 
-				if (bvIdsAndRelevance.length > 0) {
-					this.$store.dispatch('bibleverses/getMultiple', bvIdsAndRelevance.map(bv => bv.id))
-					    .then((bibleverses) => {
+      if (this.keywordInput.length < 1) {
+        this.formErrors.push(this.$tc('pool.min-3-keywords'));
+      }
 
-						    for (let i in bibleverses) {
-							    bibleverses[i].pivot = {relevance: bvIdsAndRelevance.find((el) => el.id === bibleverses[i].id).relevance}
-						    }
+    },
 
-						    this.bibleverseInput = bibleverses;
-						    this.updateBibleverseForm(bibleverses);
-					    });
-				}
+    _onReset() {
 
-			},
+      this.formErrors = [];
 
-			_selectFocus() {
+      console.log('_onReset');
 
-				const el = this.$refs.titleInput.$el;
+      this.form.title       = '';
+      this.form.description = '';
+      this.form.rating      = null;
+      this.form.from_bot    = false;
+      this.form.author      = null;
+      this.keywordInput     = [];
+      this.bibleverseInput  = [];
 
-				el.focus();
+      // Lade DefaultPreset wenn vorhanden
+      this.$store.dispatch('general/currentUserSetting', {
+        settingId: USER_SETTINGS_MATERIAL_DEFAULT_TEMPLATE_ID,
+        defaultValue: null
+      }).then((templateID) => {
+        if (templateID !== null && this.presets[templateID]) {
+          this._loadPreset(templateID);
+        }
+      })
 
-				// Move cursor to selection end
-				// see: https://css-tricks.com/snippets/javascript/move-cursor-to-end-of-input/
-				if (typeof el.selectionStart == "number") {
-					el.selectionStart = el.selectionEnd = el.value.length;
-				} else if (typeof el.createTextRange != "undefined") {
-					const range = el.createTextRange();
-					range.collapse(false);
-					range.select();
-				}
+    },
 
-			},
+    /**
+     *
+     * @param templateID {string|null}
+     * @private
+     */
+    _saveDefaultPresetId(templateID) {
 
-			useCurrentSelectionAsDefault() {
+      const flashMessage = this.flashStartSaving(this.$t('pool.Default-Preset'));
 
-				this.$store.commit('materialcreator/setTitle', this.form.title);
-				this.$store.commit('materialcreator/setDescription', this.form.description);
-				this.$store.commit('materialcreator/setRating', this.form.rating);
-				this.$store.commit('materialcreator/setFromBot', this.form.from_bot);
-				this.$store.commit('materialcreator/setAuthor', (this.form.author) ? this.form.author.id : null);
-				this.$store.commit('materialcreator/setKeywordIds', this.form.keywords);
-				this.$store.commit('materialcreator/setBibleverseIds', this.form.bibleverses);
+      this.$store.dispatch('general/storeCurrentUserSetting', {
+        settingId: USER_SETTINGS_MATERIAL_DEFAULT_TEMPLATE_ID,
+        data: templateID
+      }).then(() => {
+        this.flashSaved(this.$t('pool.Default-Preset'), flashMessage)
+        this.$asyncComputed.defaultPresetId.update();
+      }).catch((msg) => {
+        this.flashError(this.$t('pool.Default-Preset'), msg, flashMessage);
+      });
 
-			},
+      this._loadPreset(templateID);
 
-			preloadWithMaterial() {
-				this.$store.dispatch('materials/getMaterial', this.preloadMaterialId)
-				    .then((material) => {
+    },
 
-					    this.form.title       = material.title;
-					    this.form.description = material.description;
-					    this.form.rating      = material.rating;
-					    this.form.author      = (material.author) ? material.author.title : '';
-					    this.keywordInput     = JSON.parse(JSON.stringify(material.keywords));
-					    this.bibleverseInput  = JSON.parse(JSON.stringify(material.bibleverses));
+    _selectFocus() {
 
-				    })
-				    .catch((message) => {
-					    this.flashActionFailed(message);
-				    })
-			}
+      const el = this.$refs.titleInput.$el;
 
-		},
+      el.focus();
 
-		components: {
-			KeywordToggleTextSelect,
-			BibleverseInput,
-			KeywordInput,
-			BForm,
-			BAlert,
-			BFormGroup, BInputGroup, BInputGroupAppend,
-			BFormInput,
-			BModal,
-			BButton,
-			starRating
-		}
+      // Move cursor to selection end
+      // see: https://css-tricks.com/snippets/javascript/move-cursor-to-end-of-input/
+      if (typeof el.selectionStart == "number") {
+        el.selectionStart = el.selectionEnd = el.value.length;
+      } else if (typeof el.createTextRange != "undefined") {
+        const range = el.createTextRange();
+        range.collapse(false);
+        range.select();
+      }
 
+    },
 
-	}
+    _btnCreatePreset() {
+
+      this.preloadDropdown.loadFromMaterialFormActive  = false;
+      this.preloadDropdown.createNewTemplateFormActive = true;
+
+      this.$nextTick(() => {
+        this.$nextTick(() => {
+          this.$refs.templateNameInput.$el.focus();
+        });
+      })
+
+    },
+
+
+    _btnLoadMaterialId() {
+
+      this.preloadDropdown.loadFromMaterialFormActive  = true;
+      this.preloadDropdown.createNewTemplateFormActive = false;
+
+      this.$nextTick(() => {
+        this.$nextTick(() => {
+          this.$refs.preloadMaterialIdInput.$el.focus();
+        });
+      })
+
+    },
+
+    _saveNewPreset() {
+
+      const id                            = this._createTemplateId(this.preloadDropdown.templateNameInput);
+      const flashSave                     = this.flashStartSaving(this.$t('pool.template'));
+      this.preloadDropdown.presetIsSaving = true;
+
+      this.$store.dispatch('general/storeCurrentUserSetting', {
+        settingId: id,
+        data: JSON.parse(JSON.stringify(this.formData))
+      })
+          .then(() => {
+
+            this.flashSaved(this.$t('pool.template'), flashSave);
+
+            this.preloadDropdown.presetIsSaving = false;
+            this.$asyncComputed.presets.update();
+
+            // Close Dropdown on success
+            this.$refs.templateDropdown.hide(true);
+
+          })
+          .catch((message) => {
+            this.flashError(this.$t('pool.template'), message, flashSave);
+          });
+
+    },
+
+    _deletePreset(templateId) {
+
+      const settingId = this._createTemplateId(templateId);
+      const flashSave = this.flashStartRemoving(this.$t('pool.template'));
+
+      this.$store.dispatch('general/removeCurrentUserSetting', settingId)
+          .then(() => {
+            this.flashRemoved(this.$t('pool.template'), flashSave);
+          })
+          .catch((message) => {
+            this.flashError(this.$t('pool.template'), message, flashSave);
+          })
+          .then(() => {
+            // Always
+            this.$asyncComputed.presets.update();
+          });
+
+    },
+
+    _loadPreset(templateId) {
+
+      const data = this.presets[templateId] || {};
+
+      this._initMaterialFormWithTemplateData(data);
+
+    },
+
+    _selectMaterialId(materialId) {
+
+      this.preloadDropdown.materialIdIsLoading = true;
+
+      this.$store.dispatch('materials/getMaterial', materialId)
+          .then((material) => {
+
+            this._initMaterialFormWithTemplateData(material);
+
+            // Close Dropdown on success
+            this.$refs.templateDropdown.hide(true);
+          })
+          .catch((message) => {
+            this.flashActionFailed(message);
+          })
+          .then(() => {
+            // Always
+            this.preloadDropdown.materialIdIsLoading = false;
+          });
+
+    },
+
+    _createTemplateId(titleOrTempateId) {
+
+      let id = titleOrTempateId || 'no_title_default';
+      id     = id.trim();
+      id     = id.replace(/[+#,./\\!"§$%&\(\)=\?-]+/g, '_');
+      id     = USER_SETTINGS_MATERIAL_TEMPLATE_ID + '.' + id;
+
+      return id;
+    },
+
+    _initMaterialFormWithTemplateData(materialTemplate) {
+
+      this.form.title       = materialTemplate.title || '';
+      this.form.description = materialTemplate.description || '';
+      this.form.rating      = materialTemplate.rating || 10;
+
+      if (materialTemplate.author) {
+        this.form.author = materialTemplate.author;
+
+        if (materialTemplate.author.id) {
+          this.$store.dispatch('keywords/get', materialTemplate.author.id)
+              .then((keyword) => {
+                this.form.author = keyword;
+              })
+              .catch((message) => {
+                this.flashActionFailed(message);
+                this.form.author = null;
+              })
+        }
+      } else {
+        this.form.author = null;
+      }
+
+      const keywordInput    = materialTemplate.keywords ? JSON.parse(JSON.stringify(materialTemplate.keywords)) : [];
+      const bibleverseInput = materialTemplate.bibleverses ? JSON.parse(JSON.stringify(materialTemplate.bibleverses)) : [];
+
+      function mapRelevance(el) {
+        if (el.relevance) {
+          el.pivot = {
+            relevance: el.relevance
+          };
+          delete el.relevance;
+        } else {
+          el.pivot = {
+            relevance: RELEVANCE_USER_AVG
+          }
+        }
+
+        return el;
+      }
+
+      this.keywordInput    = keywordInput.map(mapRelevance);
+      this.bibleverseInput = bibleverseInput.map(mapRelevance);
+
+    },
+
+  },
+
+  components: {
+    MaterialpoolSpinner,
+    KeywordToggleTextSelect,
+    BibleverseInput,
+    KeywordInput,
+    BForm,
+    BAlert,
+    BDropdown, BDropdownItemButton, BDropdownDivider, BDropdownGroup, BDropdownForm,
+    BFormGroup, BInputGroup, BInputGroupAppend,
+    BFormInput,
+    BModal,
+    BButton, BButtonGroup,
+    starRating,
+    trashIcon, repeatIcon,
+  }
+
+
+}
 </script>
 
-<style scoped>
-    .starRatingText {
-        font-size: smaller;
+<style lang="scss">
+@import "resources/sass/theme";
+
+.sb_materialcreator_header {
+
+  width: 100%;
+
+  .sb_dropdown_icons_wrapper {
+    float: right;
+
+    .sb_dropdown-icon {
+      width: 1em;
+      height: 1em;
+
+      &.selected {
+        fill: $success;
+
+        &:hover {
+          fill: $danger;
+        }
+      }
     }
+  }
+
+
+}
 
 </style>

@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Models\Exceptions\InvalidKeywordTypeException;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Kalnoy\Nestedset\NodeTrait;
 
@@ -16,10 +17,17 @@ use Kalnoy\Nestedset\NodeTrait;
  * @property string $type
  * @property string $lc_title
  * @property int $parent_id
+ * @property Keyword $parent;
+ * @property  $children;
  * @property string $custom_icon
  * @property Collection $materials
+ * @property int _lft
+ * @property int _rgt
+ * @property \DateTime created_at
+ * @property \DateTime updated_at
  */
 class Keyword extends Model {
+	use HasFactory;
 	use NodeTrait;
 
 	const AVAILABLE_TYPES = [
@@ -69,18 +77,30 @@ class Keyword extends Model {
 	|--------------------------------------------------------------------------
 	*/
 
+	/**
+	 * @param string $name
+	 * @return Keyword
+	 */
 	public static function firstOrCreatePerson($name) {
 		return self::firstOrCreate(
 			['title' => $name, 'type' => 'person']
 		);
 	}
 
+	/**
+	 * @param string $name
+	 * @return Keyword
+	 */
 	public static function firstOrCreatePlace($name) {
 		return self::firstOrCreate(
 			['title' => $name, 'type' => 'place']
 		);
 	}
 
+	/**
+	 * @param string $name
+	 * @return Keyword
+	 */
 	public static function firstOrCreateLang($name) {
 		return self::firstOrCreate(
 			['title' => $name, 'type' => 'lang']
@@ -129,21 +149,25 @@ class Keyword extends Model {
 	 * @return Builder
 	 */
 	public static function searchQuery($text, $type = FALSE) {
+
 		//		$builder = (new static())->newQueryWithoutScopes();
 		$builder = (new self)->newQuery();
 
+
 		/** @var Builder $builder */
-		$query = $builder->where('title', 'like', '%' . $text . '%');
+		if (strlen(trim($text)) > 0) {
+			$builder->where('title', 'like', '%' . $text . '%');
+		}
 
 		if ($type !== FALSE) {
 			if (is_array($type)) {
-				$query = $query->whereIn('type', $type);
+				$builder->whereIn('type', $type);
 			} else {
-				$query = $query->where('type', '=', $type);
+				$builder->where('type', '=', $type);
 			}
 		}
 
-		return $query;
+		return $builder;
 	}
 
 

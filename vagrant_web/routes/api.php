@@ -52,6 +52,31 @@ Route::group([
 		->name('api.v2.material.delete');
 
 
+	// MaterialUsage
+	Route::get('material/{material}/usage', 'MaterialUsageController@index')
+		->where('material', '[0-9]+')
+		->middleware('can:view,material')
+		->name('api.v2.materialusage.index');
+
+	Route::post('material/{material}/usage', 'MaterialUsageController@store')
+		->where('material', '[0-9]+')
+		->middleware('can:create,App\Models\MaterialUsage')
+		->name('api.v2.materialusage.store');
+
+	Route::post('material/{material}/usage/{materialUsage}', 'MaterialUsageController@update')
+		->where('material', '[0-9]+')
+		->where('materialUsage', '[0-9]+')
+		->middleware('can:update,materialUsage')
+		->name('api.v2.materialusage.update');
+
+	Route::delete('material/{material}/usage/{materialUsage}',
+		'MaterialUsageController@destroy')
+		->where('material', '[0-9]+')
+		->where('materialUsage', '[0-9]+')
+		->middleware('can:delete,materialUsage')
+		->name('api.v2.materialusage.delete');
+
+
 	// Shutdown System
 	Route::get('system/shutdown', 'SystemController@shutdown')
 		->name('api.v2.system.shutdown');
@@ -70,6 +95,15 @@ Route::group([
 	// General
 	Route::get('general/options', 'GeneralOptionsController@index')
 		->name('general.options');
+
+	// User and usersettings
+	Route::get('users/{user}', 'UserSelfController@index')
+		->where('user', '[0-9]+')
+		->name('users.view');
+	Route::post('users/{user}', 'UserSelfController@storeSettings')
+		->where('user', '[0-9]+')
+		->name('users.store_settings');
+
 
 	// Resources
 	Route::get('resources/find', 'ResourceController@find')
@@ -250,6 +284,9 @@ Route::group([
 		->name('bundles.show');
 	Route::post('bundles/{bundle}/init-update', 'BundleImportController@initUpdate')
 		->name('bundles.update.init')
+		->where('bundle', '[0-9]+');
+	Route::post('bundles/{bundle}/init-uninstall', 'BundleImportController@initUninstall')
+		->name('bundles.uninstall.init')
 		->where('bundle', '[0-9]+');
 	Route::post('bundles/{bundle}/run-update', 'BundleImportController@runJobs')
 		->name('bundles.update.run')

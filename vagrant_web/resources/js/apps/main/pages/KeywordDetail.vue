@@ -1,51 +1,51 @@
 <template>
-    <div class="container-fluid">
+  <div class="container-fluid">
 
-        <h1>Keyword Detail</h1>
+    <h1>Keyword Detail</h1>
 
-        <keyword-edit
-                :id="id"
-        ></keyword-edit>
+    <keyword-edit
+        :id="id"
+    ></keyword-edit>
 
-    </div>
+  </div>
 </template>
 
 <script>
-	import KeywordEdit from "../../../components/keyword/keywordEdit";
+import KeywordEdit from "../../../components/keyword/keywordEdit";
 
 
-	export default {
-		name: "KeywordDetail",
-		components: {KeywordEdit},
+export default {
+  name: "KeywordDetail",
+  components: {KeywordEdit},
 
-		props: {
-			id: {
-				type: Number,
-				required: true
-			}
-		},
+  props: {
+    id: {
+      type: Number,
+      required: true
+    }
+  },
 
-		data() {
-			return {
-				forceReload: 0,
-			}
-		},
+  data() {
+    return {
+      forceReload: 0,
+    }
+  },
 
-		asyncComputed: {
-			keyword: {
-				get() {
-					return this.$store.dispatch('keywords/get', this.id);
-				},
-				default: null,
-				/* watch() {
-                    this.forceReload
-                }*/
-			},
+  asyncComputed: {
+    keyword: {
+      get() {
+        return this.$store.dispatch('keywords/get', this.id);
+      },
+      default: null,
+      /* watch() {
+                  this.forceReload
+              }*/
+    },
 
-		},
+  },
 
 
-	}
+}
 </script>
 
 <style scoped>

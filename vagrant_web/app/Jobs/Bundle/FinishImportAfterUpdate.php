@@ -28,13 +28,11 @@ class FinishImportAfterUpdate implements ShouldQueue, VersionInterface {
 	public function __construct(Bundle $bundle, $version) {
 		$this->bundle  = $bundle;
 		$this->version = $version;
-
 	}
 
 	public function handle(BundleQueueService $bundleQueueService, BundlesService $bundlesService) {
 
-		$queueName = $this->queue;
-		$countJobs = $bundleQueueService->countJobsInQueue($this->queue);
+		$countJobs = $bundleQueueService->countJobsInBundleQueue($this->bundle);
 
 		if ($countJobs > 1) {#
 			// Push Job to the end and increase attempts +1
@@ -42,12 +40,10 @@ class FinishImportAfterUpdate implements ShouldQueue, VersionInterface {
 
 			// $this->delay(now()->addSeconds(10));
 
-
 			return;
 		} else {
 
 			$bundleInfo = $bundlesService->getLocalBundleData($this->bundle);
-
 
 			$this->bundle->name              = $bundleInfo["name"];
 			$this->bundle->description       = $bundleInfo['description'];

@@ -1,0 +1,28 @@
+<?php
+
+namespace Database\Seeders;
+
+use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
+
+class ClearAllTablesSeeder extends Seeder {
+
+	/**
+	 * Run the database seeds.
+	 *
+	 * @return void
+	 */
+	public function run() {
+
+		DB::table('keywords')->delete();
+		DB::table('keyword_material')->delete();
+		DB::table('materials')->delete();
+		DB::table('material_resource')->delete();
+		DB::table('bibleverses')->delete();
+		DB::table('bibleverse_material')->delete();
+		DB::table('resources')->delete();
+		DB::table('users')->delete();
+		DB::table('password_resets')->delete();
+		DB::table('material_foreign_ids')->delete();
+	}
+}

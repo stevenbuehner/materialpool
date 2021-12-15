@@ -10,6 +10,7 @@ use App\Services\TagExtraction\ResourceHandles\FileNameHandler;
 use App\Services\TagExtraction\ResourceHandles\HandlerInterface;
 use App\Services\TagExtraction\ResourceHandles\TextContentHandler;
 use App\Services\TagExtraction\ResourceHandles\TextContentInterface;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 /**
  * Class Text
@@ -18,6 +19,7 @@ use App\Services\TagExtraction\ResourceHandles\TextContentInterface;
  * @property string $content
  */
 class Text extends Resource implements TextContentInterface, ContentHashProviderInterface {
+	use HasFactory;
 
 	protected static $singleTableType   = 'text';
 	protected static $CONTENT_OPTION    = 'c';

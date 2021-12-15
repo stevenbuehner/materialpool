@@ -1,10 +1,17 @@
 import {timeout_flashErrorMessage, timeout_flashSavingMessage} from "../apps/config";
 
+function propNameFormat(p) {
+	const s = String(p);
+	return s[0].toUpperCase() + s.substring(1).toLowerCase();
+}
+
 export const savingDialogs = {
 
 	methods: {
 
-		flashActionStartedWaiting(message) {
+		flashActionStartedWaiting(message, closeFlash) {
+			this._flashCloseAndDestroy(closeFlash);
+
 			return this.flash((message), 'warning', {
 				important: true,
 				timeout: timeout_flashSavingMessage,
@@ -12,9 +19,7 @@ export const savingDialogs = {
 		},
 
 		flashActionSuccessfullyFinished(message, closeFlash) {
-			if (closeFlash) {
-				this.flashCloseAndDestroy(closeFlash);
-			}
+			this._flashCloseAndDestroy(closeFlash);
 
 			return this.flash(message, 'success', {
 				important: true,
@@ -23,9 +28,7 @@ export const savingDialogs = {
 		},
 
 		flashActionFailed(message, closeFlash) {
-			if (closeFlash) {
-				this.flashCloseAndDestroy(closeFlash);
-			}
+			this._flashCloseAndDestroy(closeFlash);
 
 			return this.flash(message, 'error', {
 				important: false,
@@ -34,34 +37,36 @@ export const savingDialogs = {
 		},
 
 		flashStartSaving(propertyName) {
-			return this.flashActionStartedWaiting(this.$t('pool.saving-xy-now', {xy: propertyName[0].toUpperCase() + propertyName.substring(1).toLowerCase()}));
+			return this.flashActionStartedWaiting(this.$t('pool.saving-xy-now', {xy: propNameFormat(propertyName)}));
 		},
 
 		flashSaved(propertyName, closeFlash) {
-			if (closeFlash) {
-				this.flashCloseAndDestroy(closeFlash);
-			}
+			this.flashActionSuccessfullyFinished(this.$t('pool.xy-saved', {xy: propNameFormat(propertyName)}), closeFlash);
+		},
 
-			this.flashActionSuccessfullyFinished(this.$t('pool.xy-saved', {xy: propertyName[0].toUpperCase() + propertyName.substring(1).toLowerCase()}));
+		flashStartCreating(propertyName) {
+			return this.flashActionStartedWaiting(this.$t('pool.creating-xy-now', {xy: propNameFormat(propertyName)}));
+		},
+
+		flashCreated(propertyName, closeFlash) {
+			return this.flashActionSuccessfullyFinished(this.$t('pool.xy-created', {xy: propNameFormat(propertyName)}), closeFlash);
 		},
 
 		flashStartRemoving(propertyName) {
-			return this.flashActionStartedWaiting(this.$t('pool.removing-xy-now', {xy: propertyName[0].toUpperCase() + propertyName.substring(1).toLowerCase()}));
+			return this.flashActionStartedWaiting(this.$t('pool.removing-xy-now', {xy: propNameFormat(propertyName)}));
 		},
 
 		flashRemoved(propertyName, closeFlash) {
-			if (closeFlash) {
-				this.flashCloseAndDestroy(closeFlash);
-			}
-
-			return this.flashActionSuccessfullyFinished(this.$t('pool.xy-removed', {xy: propertyName[0].toUpperCase() + propertyName.substring(1).toLowerCase()}));
+			return this.flashActionSuccessfullyFinished(this.$t('pool.xy-removed', {xy: propNameFormat(propertyName)}), closeFlash);
 		},
 
-		flashError(propertyName, msg) {
+		flashError(propertyName, msg, closeFlash) {
 			if (msg) {
 				console.error(msg);
 				msg = ' (' + msg + ')';
 			}
+
+			this._flashCloseAndDestroy(closeFlash);
 
 			this.flashActionFailed('An error accured while while saving ' + propertyName.toLowerCase() + (msg || ''));
 		},
@@ -70,11 +75,9 @@ export const savingDialogs = {
 			this.flashActionFailed(msg);
 		},
 
-		flashCloseAndDestroy(flashObject) {
-			if (typeof flashObject.destroy === 'function') {
+		_flashCloseAndDestroy(flashObject) {
+			if (flashObject && typeof flashObject.destroy === 'function') {
 				flashObject.destroy();
-			} else {
-				console.error('Given Flash-Object has no destroy-function!', flashObject);
 			}
 		}
 

@@ -1,114 +1,172 @@
 <template>
-    <div class="row m-n1 pdfDetailWrapper">
-        <div v-for="(image, index) in previewImages"
-             class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-3 p-1 imageContainer"
-             @click="$refs.imageZoom.show(index)"
-             :key="image.src">
-            <div class="oneImagePage">
-                <b-img-lazy
-                        v-if="index > 12"
-                        :src="image.src"
-                        :alt="image.title"
-                        fluid
-                ></b-img-lazy>
-                <b-img
-                        v-if="index <= 12"
-                        :src="image.src"
-                        :alt="image.title"
-                        fluid
-                ></b-img>
-
-                <div class="title text-center">{{image.title}}</div>
-            </div>
-        </div>
-
-        <image-zoom :data="previewImages" ref="imageZoom"></image-zoom>
+  <div>
+    <div class="row" v-if="maxPagesToDisplay < pagePivotCount">
+      <div class="col">
+        <b-form-select
+            v-model="maxPagesToDisplay"
+            :options="displayPagesLimitOptionsFormated"
+        />
+      </div>
     </div>
+    <div class="row m-n1 pdfDetailWrapper">
+      <div v-for="(image, index) in previewImages"
+           class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-3 p-1 imageContainer"
+           @click="$refs.imageZoom.show(index)"
+           :key="image.src">
+        <div class="oneImagePage">
+          <b-img-lazy
+              v-if="index > 12"
+              :src="image.src"
+              :alt="image.title"
+              fluid
+          ></b-img-lazy>
+          <b-img
+              v-if="index <= 12"
+              :src="image.src"
+              :alt="image.title"
+              fluid
+          ></b-img>
+
+          <div class="title text-center">{{ image.title }}</div>
+        </div>
+      </div>
+
+      <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-3 p-1 imageContainer "
+           v-if="pagePivotCount > maxPagesToDisplay">
+        <div class="moreImages d-flex justify-content-center align-items-center">
+          <div>
+            <div class="moreDots">...</div>
+            <div class="title text-center">{{ $t('pool.more-pages-available') }}</div>
+          </div>
+        </div>
+      </div>
+
+      <image-zoom :data="previewImages" ref="imageZoom"></image-zoom>
+    </div>
+  </div>
+
 </template>
 
 <script>
 
-	import {previewImageFirstPage} from '../../serverRoutes';
-	import {BImg}                  from 'bootstrap-vue';
-	import {BImgLazy}              from 'bootstrap-vue';
-	import pdfMixin                from '../pdf-mixin';
-	import ImageZoom               from "../../modals/imageZoom";
+import {previewImageFirstPage}       from '../../serverRoutes';
+import {BFormSelect, BImg, BImgLazy} from 'bootstrap-vue';
+import pdfMixin                      from '../pdf-mixin';
+import ImageZoom                     from "../../modals/imageZoom";
 
-	export default {
-		mixins: [pdfMixin],
+export default {
+  name: 'PdfDetail',
 
-		props: {
-			resource: {
-				required: true,
-				type: Object
-			},
-		},
+  mixins: [pdfMixin],
 
-		data() {
-			return {};
-		},
-		computed: {
+  props: {
+    resource: {
+      required: true,
+      type: Object
+    },
+  },
 
-			currentlyDisplayedImage() {
-				return this.previewImages[this.currentlyDisplayedPageIndex];
-			},
+  data() {
+    return {
+      maxPagesToDisplay: 50,
+    };
+  },
+  computed: {
 
-			previewImages() {
+    currentlyDisplayedImage() {
+      return this.previewImages[this.currentlyDisplayedPageIndex];
+    },
 
-				let urls = [];
+    previewImages() {
 
-				if (this.pageCount === 0) {
-					urls.push({
-						src: previewImageFirstPage(this.resource),
-						title: 'Startseite',
-						page_no: 1
-					});
-				} else if (this.pageCount > 0) {
+      let urls = [];
 
-					urls = this.previewablePages.map((pageNo) => {
-						return this.generatePreviewObject(this.resource, pageNo);
-					});
-				}
+      if (this.pageCount === 0) {
+        // Die Seitenanzahl-Erkennung auf dem Server ist fehlgeschlagen => Zeige einfach nur die erste Seite an
+        urls.push({
+          src: previewImageFirstPage(this.resource),
+          title: 'Startseite',
+          page_no: 1
+        });
+      } else {
+        urls = this.previewablePages.splice(0, Math.min(this.maxPagesToDisplay, this.previewablePages.length)).map((pageNo) => {
+          return this.generatePreviewObject(this.resource, pageNo);
+        });
+      }
 
-				return urls;
-			}
-		},
+      return urls;
+    },
 
-		methods: {},
+    displayPagesLimitOptionsFormated() {
+      return this.displayPagesLimitOptions.map((el) => {
+        return {value: el, text: el};
+      })
+    },
 
-		components: {
-			ImageZoom,
-			BImg,
-			BImgLazy
-		}
+    displayPagesLimitOptions() {
+      // 50 ist Standard und sollte in jeder Auswahl vorhanden sein!
 
-	}
+      if (this.pagePivotCount <= 100) {
+        return [20, 30, 40, 50, 70, 80, 100];
+      } else if (this.pagePivotCount <= 500) {
+        return [20, 50, 100, 300, 500];
+      } else if (this.pagePivotCount <= 1000) {
+        return [20, 50, 200, 400, 600, 1000];
+      } else {
+        return [20, 50, 200, 400, 600, 1000, 10000];
+      }
+    }
+  },
+
+  methods: {},
+
+  components: {
+    ImageZoom,
+    BImg,
+    BImgLazy,
+    BFormSelect
+  }
+
+}
 </script>
 
-<style type="scss">
+<style lang="scss">
 
-    @import "resources/sass/theme";
+@import "resources/sass/theme";
 
-    .pdfDetailWrapper {
-        margin: 0;
+.pdfDetailWrapper {
+  margin: 0;
 
-        .imageContainer {
-
-            .oneImagePage {
-
-                background-color: $card-bg;
-                cursor: pointer;
-
-                border: $border-width solid $border-color;
-                border-radius: $card-border-radius;
+  .imageContainer {
 
 
-                .title {
-                    font-size: 0.75em;
-                }
-            }
+    .oneImagePage, .moreImages {
 
-        }
+      background-color: $card-bg;
+      cursor: pointer;
+
+      border: $border-width solid $border-color;
+      border-radius: $card-border-radius;
+
+      .title {
+        font-size: 0.75em;
+      }
+
+      .moreDots {
+        font-size: 5em;
+        line-height: 1em;
+        color: grey;
+      }
+
+      &.moreImages {
+        cursor: default;
+        text-align: center;
+        height: 100%;
+        background-color: $card-bg;
+      }
     }
+  }
+
+}
 
 </style>

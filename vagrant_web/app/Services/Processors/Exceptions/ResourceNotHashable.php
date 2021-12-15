@@ -5,7 +5,7 @@
  * All Rights reserved. No usage without written permission allowed.
  */
 
-namespace App\Services\Processors;
+namespace App\Services\Processors\Exceptions;
 
 use App\Models\Resource;
 use Throwable;

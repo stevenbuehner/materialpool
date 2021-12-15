@@ -1,405 +1,419 @@
 <template>
-    <div class="container-fluid">
+  <div class="container-fluid">
 
-        <b-navbar toggleable="sm" type="dark" variant="info" v-if="resource" fixed="top" class="sub-menu">
+    <b-navbar toggleable="sm" type="dark" variant="info" v-if="resource" fixed="top" class="sub-menu">
 
-            <b-navbar-brand :to="{name: 'resource-detail', params: {id: id}}">MatPool</b-navbar-brand>
+      <b-navbar-brand :to="{name: 'resource-detail', params: {id: id}}">MatPool</b-navbar-brand>
 
-            <b-navbar-nav>
-                <b-button size="sm"
-                          class="my-1 my-md-0 mx-1"
-                          :title="selectedPages.length > 0 ? $t('pool.create-material-selected-pages') : $t('pool.select-pages-first')"
-                          :disabled="selectedPages.length === 0"
-                          @click="btnCreateNewMaterialFromSelection"
-                          v-shortkey="['ctrl', 'n']" @shortkey="btnCreateNewMaterialFromSelection"
-                >{{$t('pool.new')}}
-                </b-button>
-                <b-button size="sm"
-                          class="my-1 my-md-0 mx-1"
-                          :title="selectedPages.length > 0 ? $t('pool.add-material-selected-pages') : $t('pool.select-pages-first')"
-                          :disabled="selectedPages.length === 0"
-                          @click="btnAddPageSelectionToMaterial">{{$t('pool.add')}}
-                </b-button>
+      <b-navbar-nav>
+        <b-button size="sm"
+                  class="my-1 my-md-0 mx-1"
+                  :title="selectedPages.length > 0 ? $t('pool.create-material-selected-pages') + ' (CTRL + N)': $t('pool.select-pages-first')"
+                  :disabled="selectedPages.length === 0"
+                  @click="btnCreateNewMaterialFromSelection"
+                  v-shortkey="['ctrl', 'n']" @shortkey="btnCreateNewMaterialFromSelection"
+        >{{ $t('pool.new') }}
+        </b-button>
+        <b-button size="sm"
+                  class="my-1 my-md-0 mx-1"
+                  :title="selectedPages.length > 0 ? $t('pool.add-material-selected-pages') : $t('pool.select-pages-first')"
+                  :disabled="selectedPages.length === 0"
+                  @click="btnAddPageSelectionToMaterial">{{ $t('pool.add') }}
+        </b-button>
 
-                <b-nav-item-dropdown :text="$tc('pool.material-selected', selectionMaterials.length, {COUNT :
+        <b-nav-item-dropdown :text="$tc('pool.material-selected', selectionMaterials.length, {COUNT :
                     selectionMaterials.length})" left>
-                    <b-dropdown-item v-for="mat in selectionMaterials" :key="'mat'+mat.id">
-                        <b-button
-                                variant="danger"
-                                size="sm"
-                                @click.prevent.default="btnRemoveSelectionFromMaterial(mat.id)"
-                        >{{$t('pool.delete')}}
-                        </b-button>
-                        <b-button
-                                variant="primary"
-                                size="sm"
-                                :to="{name:'material-detail', params: {id:mat.id}}"
-                        >{{$t('pool.open')}}
-                        </b-button>
-                        {{mat.title | trim(70) }}
-                    </b-dropdown-item>
-                </b-nav-item-dropdown>
-            </b-navbar-nav>
+          <b-dropdown-item v-for="mat in selectionMaterials" :key="'mat'+mat.id">
+            <b-button
+                variant="danger"
+                size="sm"
+                @click.prevent.default="btnRemoveSelectionFromMaterial(mat.id)"
+            >{{ $t('pool.delete') }}
+            </b-button>
+            <b-button
+                variant="primary"
+                size="sm"
+                :to="{name:'material-detail', params: {id:mat.id}}"
+            >{{ $t('pool.open') }}
+            </b-button>
+            {{ mat.title | trim(70) }}
+          </b-dropdown-item>
+        </b-nav-item-dropdown>
+      </b-navbar-nav>
 
-            <b-navbar-nav class="ml-auto">
-                <b-nav-item-dropdown :text="$t('pool.Display')" left>
-                    <b-dropdown-item @click="previewSize='lg'" :disabled="previewSize ==='lg'">
-                        {{$t('pool.large')}}
-                    </b-dropdown-item>
-                    <b-dropdown-item @click="previewSize='md'" :disabled="previewSize ==='md'">
-                        {{$t('pool.medium')}}
-                    </b-dropdown-item>
-                    <b-dropdown-item @click="previewSize='sm'" :disabled="previewSize ==='sm'">
-                        {{$t('pool.small')}}
-                    </b-dropdown-item>
-                </b-nav-item-dropdown>
+      <b-navbar-nav class="ml-auto">
+        <b-nav-item-dropdown :text="$t('pool.Display')" left>
+          <b-dropdown-item @click="previewSize='lg'" :disabled="previewSize ==='lg'">
+            {{ $t('pool.large') }}
+          </b-dropdown-item>
+          <b-dropdown-item @click="previewSize='md'" :disabled="previewSize ==='md'">
+            {{ $t('pool.medium') }}
+          </b-dropdown-item>
+          <b-dropdown-item @click="previewSize='sm'" :disabled="previewSize ==='sm'">
+            {{ $t('pool.small') }}
+          </b-dropdown-item>
+        </b-nav-item-dropdown>
 
-                <b-button size="sm"
-                          class="my-1 my-md-0 mx-1"
-                          v-if="resource.page_count !== selectedPages.length"
-                          @click="btnSelectAllPages">{{$t('pool.select-all')}}
-                </b-button>
-            </b-navbar-nav>
+        <b-button size="sm"
+                  class="my-1 my-md-0 mx-1"
+                  v-if="resource.page_count !== selectedPages.length"
+                  @click="btnSelectAllPages">{{ $t('pool.select-all') }}
+        </b-button>
+      </b-navbar-nav>
 
-        </b-navbar>
+    </b-navbar>
 
-        <div class="content">
+    <div class="content">
 
-            <b-alert
-                    :show="!resource"
-                    fade
-                    :variant="loadingType"
-            >{{loadingMsg}}
-            </b-alert>
+      <b-alert
+          :show="!resource"
+          fade
+          :variant="loadingType"
+      >{{ loadingMsg }}
+      </b-alert>
 
-            <b-alert
-                    :show="resource && !resource.page_count"
-                    fade
-                    variant="warning"
-                    class="mt-4 mb-4"
-            >Sorry, Page-Count is missing. I am unable to display PDF-Pages.
-            </b-alert>
+      <b-alert
+          :show="resource && !resource.page_count"
+          fade
+          variant="warning"
+          class="mt-4 mb-4"
+      >Sorry, Page-Count is missing. I am unable to display PDF-Pages.
+      </b-alert>
 
-            <page-list class=""
-                       v-if="resource"
-                       ref="pagelist"
-                       :preview-size="previewSize"
-                       :resource="resource"
-                       @page-selection-updated="pageSelectionUpdated"
-            />
+      <page-list class=""
+                 v-if="resource"
+                 ref="pagelist"
+                 :preview-size="previewSize"
+                 :resource="resource"
+                 @page-selection-updated="pageSelectionUpdated"
+      />
 
-        </div>
-
-
-        <material-selector
-                v-if="resource"
-                ref="materialSelector"
-                :last-materials="materialsNotInEverySelection"
-        />
-
-        <material-creator
-                ref="materialCreator"
-                :external-bibleverse-suggestions="materialCreationBibleverseSuggestions"
-        />
     </div>
+
+
+    <material-selector
+        v-if="resource"
+        ref="materialSelector"
+        :last-materials="materialsNotInEverySelection"
+    />
+
+    <material-creator
+        ref="materialCreator"
+        :external-bibleverse-suggestions="materialCreationBibleverseSuggestions"
+    />
+  </div>
 </template>
 
 <script>
 
-	import PageList                        from '../../../components/assignment/pdfpages/pageList.vue'
-	import {BAlert}                        from 'bootstrap-vue';
-	import {BNavbar}                       from 'bootstrap-vue/';
-	import {BNavbarBrand}                  from 'bootstrap-vue';
-	import {BNavbarNav}                    from 'bootstrap-vue';
-	import {BNavItem}                      from 'bootstrap-vue';
-	import {BNavItemDropdown}              from 'bootstrap-vue';
-	import {BDropdownItem}                 from 'bootstrap-vue';
-	import {BButton}                       from 'bootstrap-vue';
-	import {VBTooltip}                     from 'bootstrap-vue';
-	import materialSelector                from '../../../components/modals/selectors/materialSelector.vue';
-	import materialCreator                 from '../../../components/modals/creators/materialCreator.vue';
-	import truncate                        from '../../../filters/truncate-filter.mixin'
-	import {uniqueArray}                   from "../../../helper/ArrayHelper";
-	import {api_v1_resource_tags}          from "../../../components/serverRoutes";
-	import axios                           from '../axiosInstance';
-	import {savingDialogs}                 from "../../../helper/flashMessages";
-	import {convertErrorResponseToMessage} from "../store/modules/handleErrorsHelper";
+import PageList                        from '../../../components/assignment/pdfpages/pageList.vue'
+import {
+  BAlert,
+  BButton,
+  BDropdownItem,
+  BNavbarBrand,
+  BNavbarNav,
+  BNavItem,
+  BNavItemDropdown,
+  VBTooltip
+}                                      from 'bootstrap-vue';
+import {BNavbar}                       from 'bootstrap-vue/';
+import materialSelector                from '../../../components/modals/selectors/materialSelector.vue';
+import materialCreator                 from '../../../components/modals/creators/materialCreator.vue';
+import truncate                        from '../../../filters/truncate-filter.mixin'
+import {uniqueArray}                   from "../../../helper/ArrayHelper";
+import {api_v1_resource_tags}          from "../../../components/serverRoutes";
+import axios                           from '../axiosInstance';
+import {savingDialogs}                 from "../../../helper/flashMessages";
+import {convertErrorResponseToMessage} from "../store/modules/handleErrorsHelper";
 
 
-	export default {
+export default {
 
-		name: 'AssignApp',
+  name: 'AssignApp',
 
-		mixins: [truncate, savingDialogs],
+  mixins: [truncate, savingDialogs],
 
-		props: {
-			id: {
-				type: Number,
-				required: true
-			}
-		},
+  props: {
+    id: {
+      type: Number,
+      required: true
+    }
+  },
 
-		watch: {
-			'$route.params.id': (newVal, oldVal) => {
-				this.updateResource(newVal);
-			}
-		},
+  watch: {
+    '$route.params.id': (newVal, oldVal) => {
+      this.updateResource(newVal);
+    }
+  },
 
-		data() {
-			return {
-				resource: null,
-				loadingMsg: '',
-				loadingType: 'info',
-				selectedPages: [],
+  data() {
+    return {
+      resource: null,
+      loadingMsg: '',
+      loadingType: 'info',
+      selectedPages: [],
 
-				showMaterialSelector: false,
-				previewSize: 'sm',
-				materialCreationBibleverseSuggestions: []
-			}
-		},
+      showMaterialSelector: false,
+      previewSize: 'sm',
+      materialCreationBibleverseSuggestions: []
+    }
+  },
 
-		computed: {
+  computed: {
 
-			selectionMaterials() {
-				return this.resource.materials.filter((mat) => {
+    selectionMaterials() {
+      return this.resource.materials.filter((mat) => {
 
-					const matPages = this.resourceLimitationPages(mat.id);
+        const matPages = this.resourceLimitationPages(mat.id);
 
-					// Material gehört zu ALLEN Seiten => keine Limitation
-					if (matPages.length === 0) {
-						return true;
+        // Material gehört zu ALLEN Seiten => keine Limitation
+        if (matPages.length === 0) {
+          return true;
 
-						// Material hat Limitation
-					} else {
-						return matPages.filter((matPage) => {
-							return this.selectedPages.includes(matPage);
-						}).length > 0;
-					}
+          // Material hat Limitation
+        } else {
+          return matPages.filter((matPage) => {
+            return this.selectedPages.includes(matPage);
+          }).length > 0;
+        }
 
-				});
-			},
+      });
+    },
 
-			materialsNotInEverySelection() {
+    materialsNotInEverySelection() {
 
-				return this.resource.materials.filter((mat) => {
+      return this.resource.materials.filter((mat) => {
 
-					const matPages = this.resourceLimitationPages(mat.id);
+        const matPages = this.resourceLimitationPages(mat.id);
 
-					// Material gehört zu ALLEN Seiten => keine Limitation
-					if (matPages.length === 0) {
-						return false;
+        // Material gehört zu ALLEN Seiten => keine Limitation
+        if (matPages.length === 0) {
+          return false;
 
-						// Material hat Limitation
-					} else {
+          // Material hat Limitation
+        } else {
 
-						return this.selectedPages.filter((page) => {
-							return matPages.includes(page);
-						}).length < this.selectedPages.length;
+          return this.selectedPages.filter((page) => {
+            return matPages.includes(page);
+          }).length < this.selectedPages.length;
 
-					}
+        }
 
-				});
-			},
+      });
+    },
 
-		},
+  },
 
-		methods: {
 
-			updateResource(id) {
+  methods: {
 
-				this.resource    = null;
-				this.loadingMsg  = this.$t('pool.Loading-resource');
-				this.loadingType = 'info';
+    updateResource(id) {
 
-				return this.$store.dispatch('resources/get', id)
-				           .then((resource) => {
-					           return this.resource = resource;
-				           }).catch(() => {
-						this.loadingMsg  = this.$t('pool.Resource-loading-failed');
-						this.loadingType = 'danger';
-					});
+      this.resource    = null;
+      this.loadingMsg  = this.$t('pool.Loading-resource');
+      this.loadingType = 'info';
 
-			},
+      return this.$store.dispatch('resources/get', id)
+                 .then((resource) => {
+                   return this.resource = resource;
+                 }).catch(() => {
+            this.loadingMsg  = this.$t('pool.Resource-loading-failed');
+            this.loadingType = 'danger';
+          });
 
+    },
 
-			resourceLimitationPages(matId) {
 
-				let resMat = this.resource.materials.find((mat) => mat.id === matId);
+    resourceLimitationPages(matId) {
 
+      let resMat = this.resource.materials.find((mat) => mat.id === matId);
 
-				if (resMat && resMat.pivot && resMat.pivot.limitation && resMat.pivot.limitation.pages && Array.isArray(resMat.pivot.limitation.pages)) {
-					return resMat.pivot.limitation.pages;
-				}
 
-				return [];
-			},
+      if (resMat && resMat.pivot && resMat.pivot.limitation && resMat.pivot.limitation.pages && Array.isArray(resMat.pivot.limitation.pages)) {
+        return resMat.pivot.limitation.pages;
+      }
 
+      return [];
+    },
 
-			btnAddPageSelectionToMaterial() {
 
-				this.$refs.materialSelector.showPromise().then((material) => {
+    btnAddPageSelectionToMaterial() {
 
-					this.attachCurrentSelectionToMaterial(material.id);
+      this.$refs.materialSelector.showPromise().then((material) => {
 
-				}).catch((error) => {
-					console.info('Error while setting new Limitation: ', error)
-				})
+        this.attachCurrentSelectionToMaterial(material.id);
 
-			},
+      }).catch((error) => {
+        console.info('Error while setting new Limitation: ', error)
+      })
 
-			btnRemoveSelectionFromMaterial(matId) {
+    },
 
-				let currentLimitPages = this.resourceLimitationPages(matId);
-				if (currentLimitPages.length === 0) {
-					for (let i = 1; i <= this.resource.page_count; i++) {
-						currentLimitPages.push(i);
-					}
-				}
-				const removeLimitPages = this.selectedPages;
+    btnRemoveSelectionFromMaterial(matId) {
 
-				const newPageLimitation = currentLimitPages.filter((oldPage) => {
-					return !removeLimitPages.includes(oldPage);
-				});
+      let currentLimitPages = this.resourceLimitationPages(matId);
+      if (currentLimitPages.length === 0) {
+        for (let i = 1; i <= this.resource.page_count; i++) {
+          currentLimitPages.push(i);
+        }
+      }
+      const removeLimitPages = this.selectedPages;
 
+      const newPageLimitation = currentLimitPages.filter((oldPage) => {
+        return !removeLimitPages.includes(oldPage);
+      });
 
-				if (newPageLimitation.length === 0) {
 
-					if (confirm('Wirklich Material komplett von dieser Datei lösen?') === true) {
-						this.$store.dispatch('materials/detachResource', {materialId: matId, resourceId: this.id})
-						    .then(({resource}) => {
-							    this.resource = resource;
-						    });
-					}
+      if (newPageLimitation.length === 0) {
 
-				} else {
-					this.serverDoResourceMaterialAttachment(matId, this.id, newPageLimitation);
-				}
+        if (confirm('Wirklich Material komplett von dieser Datei lösen?') === true) {
+          this.$store.dispatch('materials/detachResource', {materialId: matId, resourceId: this.id})
+              .then(({resource}) => {
+                this.resource = resource;
+              });
+        }
 
+      } else {
+        this.serverDoResourceMaterialAttachment(matId, this.id, newPageLimitation);
+      }
 
-			},
 
-			btnCreateNewMaterialFromSelection() {
+    },
 
-				if (this.selectedPages.length <= 0) {
-					return;
-				}
+    btnCreateNewMaterialFromSelection() {
 
-				this.guessBibleversesFromSelection();
+      if (this.selectedPages.length <= 0) {
+        return;
+      }
 
-				this.$refs.materialCreator
-				    .showPromise()
-				    .then((material) => {
-					    return this.attachCurrentSelectionToMaterial(material.id);
-				    })
-				    .catch((err) => {
-					    console.info('Closed Material-Creation with reason:', err);
-				    })
-			},
+      this.guessBibleversesFromSelection();
 
-			guessBibleversesFromSelection() {
+      this.$refs.materialCreator
+          .showPromise()
+          .then((material) => {
 
-				this.materialCreationBibleverseSuggestions = [];
+            return this.attachCurrentSelectionToMaterial(material.id);
+          })
+          .catch((err) => {
+            console.info('Closed Material-Creation with reason:', err);
+          })
+    },
 
-				axios
-					.post(api_v1_resource_tags(this.resource), {
-						pages: this.selectedPages
-					})
-					.then(({data}) => {
-						this.materialCreationBibleverseSuggestions = data;
-					})
-					.catch((response) => {
-						this.flashActionFailed(convertErrorResponseToMessage(response));
-					});
+    guessBibleversesFromSelection() {
 
-			},
+      this.materialCreationBibleverseSuggestions = [];
 
-			btnSelectAllPages() {
-				this.$refs.pagelist.selectAllPages();
-			},
+      axios
+          .post(api_v1_resource_tags(this.resource), {
+            pages: this.selectedPages
+          })
+          .then(({data}) => {
+            this.materialCreationBibleverseSuggestions = data;
+          })
+          .catch((response) => {
+            this.flashActionFailed(convertErrorResponseToMessage(response));
+          });
 
+    },
 
-			pageSelectionUpdated: function (selection) {
-				this.selectedPages = selection;
-			},
+    btnSelectAllPages() {
+      this.$refs.pagelist.selectAllPages();
+    },
 
-			attachCurrentSelectionToMaterial(materialId) {
 
-				const currentLimitation = this.resourceLimitationPages(materialId);
-				const newPageLimitation = uniqueArray(currentLimitation.concat(this.selectedPages));
+    pageSelectionUpdated: function (selection) {
+      this.selectedPages = selection;
+    },
 
-				return this.serverDoResourceMaterialAttachment(materialId, this.id, newPageLimitation);
+    attachCurrentSelectionToMaterial(materialId) {
 
-			},
+      const currentLimitation = this.resourceLimitationPages(materialId);
+      const newPageLimitation = uniqueArray(currentLimitation.concat(this.selectedPages));
 
-			serverDoResourceMaterialAttachment(materialId, resourceId, pages) {
+      return this.serverDoResourceMaterialAttachment(materialId, this.id, newPageLimitation);
 
-				let limitation = undefined;
+    },
 
-				if (pages && Array.isArray(pages) && pages.length > 0 && pages.length < this.resource.page_count) {
-					limitation = {
-						type: 'page',
-						value: pages.join(',')
-					}
-				}
+    serverDoResourceMaterialAttachment(materialId, resourceId, pages) {
 
-				return this.$store.dispatch('materials/attachResource', {
-					materialId,
-					resourceId,
-					limitation
-				}).then(({resource}) => {
-					this.resource = resource;
-				});
+      let limitation     = undefined;
+      const flashMessage = this.flashStartSaving(this.$t('pool.Resource-assignment'));
 
-			},
 
+      if (pages && Array.isArray(pages) && pages.length > 0 && pages.length < this.resource.page_count) {
+        limitation = {
+          type: 'page',
+          value: pages.join(',')
+        }
+      }
 
-		},
+      return this.$store.dispatch('materials/attachResource', {
+        materialId,
+        resourceId,
+        limitation
+      }).then(({resource}) => {
+        this.resource = resource;
+        this.flashSaved(this.$t('pool.Resource-assignment'), flashMessage);
+      }).catch((message) => {
+        this.flashError(this.$t('pool.Resource-assignment'), message, flashMessage);
+      });
 
-		created() {
-			this.updateResource(this.id)
-			    .then((resource) => {
-				    // Preselection of pages
+    },
 
-				    if (!resource)
-					    return;
 
-				    const preselection = this.$route.query.selection || '';
-				    const pages        = (preselection !== '') ? preselection.split(',') : [];
+  },
 
-				    if (pages.length > 0) {
-					    this.$refs.pagelist.clearAllPages();
+  created() {
+    this.updateResource(this.id)
+        .then((resource) => {
+          // Preselection of pages
 
-					    pages.forEach((pageNo) => {
-						    this.$refs.pagelist.addPageSelection(pageNo);
-					    });
+          if (!resource)
+            return;
 
-				    }
+          const preselection = this.$route.query.selection || '';
+          const pages        = (preselection !== '') ? preselection.split(',') : [];
 
-			    });
+          if (pages.length > 0) {
+            this.$refs.pagelist.clearAllPages();
 
+            pages.forEach((pageNo) => {
+              this.$refs.pagelist.addPageSelection(pageNo);
+            });
 
-		},
+          }
 
+        });
 
-		components: {
-			PageList,
-			BAlert,
-			BNavbar,
-			BNavbarBrand,
-			BNavbarNav,
-			BNavItem,
-			BNavItemDropdown,
-			BDropdownItem,
-			BButton,
-			materialSelector,
-			materialCreator
-		},
 
-		directives: {
-			bTooltip: VBTooltip
-		},
+  },
 
-	}
+  updated() {
+//			this.$refs.materialCreator.showPromise().catch((t));
+
+  },
+
+
+  components: {
+    PageList,
+    BAlert,
+    BNavbar,
+    BNavbarBrand,
+    BNavbarNav,
+    BNavItem,
+    BNavItemDropdown,
+    BDropdownItem,
+    BButton,
+    materialSelector,
+    materialCreator
+  },
+
+  directives: {
+    bTooltip: VBTooltip
+  },
+
+}
 </script>
 
 <style scoped>

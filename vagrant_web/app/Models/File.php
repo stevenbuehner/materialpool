@@ -6,6 +6,8 @@ use App\Services\TagExtraction\ResourceHandles\FileExifHandler;
 use App\Services\TagExtraction\ResourceHandles\FileNameHandler;
 use App\Services\TagExtraction\ResourceHandles\HandlerInterface;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use League\Flysystem\Adapter\Local;
 use League\Flysystem\AdapterInterface;
@@ -16,8 +18,10 @@ use League\Flysystem\Filesystem;
  *
  * @package App\Models
  * @property string|null $original_filename
+ * @property int $filesize
  */
 class File extends Resource {
+	use HasFactory;
 
 	protected static $singleTableSubclasses = [AudioFile::class, VideoFile::class, ImageFile::class, DocumentFile::class, PdfFile::class];
 	protected static $singleTableType       = 'file';
@@ -31,6 +35,9 @@ class File extends Resource {
 		// Add Attribute
 		$this->appends[]  = 'original_filename';
 		$this->fillable[] = 'original_filename';
+
+		// Nicht automatisch bei JSON-Ausgabe hinzufügen
+		$this->appends[] = 'filesize';
 
 		$this->additionalEditViews[] = 'resources.files.edit-partial';
 	}
@@ -62,6 +69,27 @@ class File extends Resource {
 		return $this->getOption(self::$ORIGINAL_FILENAME, NULL);
 	}
 
+	/**
+	 * @param $filesize
+	 * @throws \Exception
+	 */
+	public function setFilesizeAttribute($filesize) {
+		throw  new \Exception('Filesize can not be set');
+	}
+
+	public function getFilesizeAttribute() {
+		$filesize = 0;
+
+		if ($this->hasLocalFile()) {
+			try {
+				$filesize = $this->getLocalDisk()->getSize($this->getLocalFilePath());
+			} catch (\League\Flysystem\FileNotFoundException $e) {
+			}
+		}
+
+		return $filesize;
+	}
+
 	public function setLocalStorageAndPath($storageName, $path) {
 		$this->setLocalPathAttribute($storageName . '::' . $path);
 	}
@@ -87,16 +115,35 @@ class File extends Resource {
 		return $this->getLocalDisk()->get($this->getLocalFilePath());
 	}
 
+	/**
+	 * @return \Illuminate\Contracts\Filesystem\Filesystem|\Illuminate\Filesystem\FilesystemAdapter
+	 */
 	public function getLocalDisk() {
 		list($storage, $path) = $this->getLocalStorageAndPath();
 
-		return Storage::disk($storage);
+		try {
+			return Storage::disk($storage);
+		} catch (\InvalidArgumentException $e) {
+			// Wenn der gegebene $storage-String nicht existiert
+			Log::error('Given Storage-Name in DB does not exist.', ['id' => $this->id]);
+			throw $e;
+		}
+
 	}
 
 	public function getLocalStorageAndPath() {
 		if (!isset($this->cachedData['storage']) || !isset($this->cachedData['path'])) {
 			$local = $this->getAttribute('local_path');
-			list($storage, $path) = preg_split('~::~', $local, 2);
+
+			$split = preg_split('~::~', $local, 2);
+
+			if (count($split) === 2) {
+				list($storage, $path) = $split;
+			} else {
+				$storage = NULL;
+				$path    = $split[0];
+			}
+
 			$this->setDataCache('storage', $storage);
 			$this->setDataCache('path', $path);
 		}

@@ -10,7 +10,9 @@ use App\Services\ResourceHandling\Exceptions\LocalFileDoesNotExistException;
 use App\Services\ResourceHandling\Exceptions\RemoteFileDoesNotExistException;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use League\Flysystem\Adapter\Local;
 use League\Flysystem\FileNotFoundException;
+use League\Flysystem\Filesystem;
 
 class FileHandlingService extends ResourceHandlingService {
 
@@ -59,8 +61,10 @@ class FileHandlingService extends ResourceHandlingService {
 
 	/**
 	 * @param \App\Models\Resource $resource
+	 * @param bool $keepLocalFiles Die lokale Datei nicht löschen (nötig beim deinstallieren von Bundles)
+	 * @throws \Exception
 	 */
-	public function deleteResourceCompletely(Resource $resource) {
+	public function deleteResourceCompletely(Resource $resource, $keepLocalFiles = FALSE) {
 
 		$resource->load(['materials', 'foreignIds']);
 
@@ -68,7 +72,7 @@ class FileHandlingService extends ResourceHandlingService {
 		$this->detachAllForeignIds($resource);
 
 		// Delete Files from Disk
-		if ($resource instanceof File) {
+		if ($resource instanceof File && $keepLocalFiles === FALSE) {
 			$this->cleanUpFileResource($resource);
 		}
 
@@ -130,7 +134,7 @@ class FileHandlingService extends ResourceHandlingService {
 			$archiveDisc       = Storage::disk('archive');
 			$original_filename = $resource->getOriginalFilenameAttribute();
 			$stream            = $resource->getLocalFileStream();
-			$filePath          = strftime('%G/%m/%d/') . $resource->id . '.backup_' . $original_filename ;
+			$filePath          = strftime('%G/%m/%d/') . $resource->id . '.backup_' . $original_filename;
 			$archiveDisc->writeStream($filePath, $stream);
 			fclose($stream);
 		} catch (FileNotFoundException $e) {
@@ -141,6 +145,38 @@ class FileHandlingService extends ResourceHandlingService {
 			$archiveDisc,
 			$filePath
 		];
+	}
+
+	/**
+	 * @param File $resource
+	 * @return string
+	 * @throws FileNotFoundException
+	 * @throws \League\Flysystem\FileExistsException
+	 */
+	public function makeLocalCopy(File $resource) {
+		// Make a local copy of the movie (copy to local, whereever it is)
+		$localDisk    = Storage::disk('local');
+		$relativePath = 'tmp/' . uniqid('temp_' . $resource->id . '_', TRUE);
+		$stream       = $resource->getLocalFileStream();
+		$localDisk->getDriver()->writeStream($relativePath, $stream);
+		fclose($stream);
+
+		/** @var Filesystem $driver */
+		/** @var Local $adapter */
+		$driver    = $localDisk->getDriver();
+		$adapter   = $driver->getAdapter();
+		$prefix    = $adapter->getPathPrefix();
+		$localPath = $prefix . $relativePath;
+
+		return $localPath;
+	}
+
+	/**
+	 * @param $relativePath
+	 * @return bool
+	 */
+	public function cleanupLocalCopy($relativePath) {
+		return unlink($relativePath);
 	}
 
 

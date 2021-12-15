@@ -1,32 +1,45 @@
 <template>
-    <div>{{formatedLimitation}}</div>
+  <span>{{ formatedLimitation }}</span>
 </template>
 
 <script>
-	export default {
 
-		props: {
-			limitation: {
-				required: true
-			}
-		},
+import {getLimitationRangeFromPages} from "./limitationHelper";
 
-		computed: {
-			formatedLimitation() {
+export default {
 
-				if (this.limitation === null) {
-					return '';
-				}
 
-				if (this.limitation && this.limitation.pages && this.limitation.pages.length > 0) {
-					return 'Limitiert auf die Seiten: ' + this.limitation.pages.join(', ');
-				}
+  props: {
+    pivot: {
+      required: true
+    }
+  },
 
-				return '';
+  computed: {
 
-			}
-		}
-	}
+    pages() {
+      return this.pivot && this.pivot.limitation && this.pivot.limitation.pages ? this.pivot.limitation.pages : [];
+    },
+
+    pageRange() {
+      return getLimitationRangeFromPages(this.pages).map((r) => {
+        return r.from === r.to ? r.from : r.from + '-' + r.to
+      }).join(', ')
+    },
+
+    formatedLimitation() {
+
+      if (this.pivot === null) {
+        return '';
+      }
+
+      const limitCount = this.pages.length === 0 ? -1: this.pages.length;
+
+      return this.$tc('pool.Page-Range', limitCount, {count: this.pageRange});
+
+    }
+  }
+}
 </script>
 
 <style scoped>

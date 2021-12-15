@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Models\Exceptions\InvalidParameterCombinationException;
 use App\Models\Exceptions\MultipleBooksExceptions;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use StevenBuehner\BibleVerseBundle\Exceptions\InvalidBibleVerseRangeException;
@@ -28,6 +29,7 @@ use StevenBuehner\BibleVerseBundle\Service\BibleVerseService;
  * @property int $icon
  */
 class Bibleverse extends Model implements BibleVerseInterface {
+	use HasFactory;
 
 	protected static $fromColumn        = 'from';
 	protected static $toColumn          = 'to';

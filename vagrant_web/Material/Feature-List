@@ -1,0 +1,9 @@
+Limitiere Image-Preview Requests, so dass sie keine XHR Aufrufe blockieren ...
+- am besten Client-Seitig ... das maximal 3 Bilder gleichzeitig geladen werden
+
+Feature: BEi Doppelklick auf TextResource an die richtige Stelle im Edit-Text springen ...
+
+Bug: Wenn eine Zeitüberschreibung bei der Suche (Tagerkennung) auftritt, wird keine Fehlermeldung angezeigt ...!
+Feature: Automatische Generierung von Vorschaubildern als Background-Prozess anstoßen nach dem Ändern von
+a) Ressourcen
+b) Material

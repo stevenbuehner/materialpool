@@ -12,6 +12,7 @@ use Howtomakeaturn\PDFInfo\Exceptions\OpenPDFException;
 use Howtomakeaturn\PDFInfo\Exceptions\OtherException;
 use Howtomakeaturn\PDFInfo\Exceptions\PDFPermissionException;
 use Howtomakeaturn\PDFInfo\PDFInfo;
+use Illuminate\Http\File;
 use Illuminate\Support\Facades\Log;
 use setasign\Fpdi\Fpdi;
 use Spatie\PdfToText\Exceptions\PdfNotFound;
@@ -35,18 +36,52 @@ class PdfHandlingService {
 
 		if ($resource->hasLocalFile() && $localPdfPath = $resource->getAbsoluteLocalPath()) {
 
+			$this->doPageCount($resource, $localPdfPath);
+
+		} else if ($resource->hasRemoteFile()) {
+
+			$tmpStorage = \Storage::disk('local_tmp');
+			$tmpDir     = 'dl_for_pdf_count';
+			$tmpName    = uniqid('tmp_dl_', TRUE);
+
 			try {
-				$count                = $this->countPdfPagesInFilepath($localPdfPath);
-				$resource->page_count = $count;
-			} catch (InvalidPageNoException $e) {
-				$resource->page_count = FALSE;
-				Log::error($e->getMessage(), [$e->getTraceAsString(), 'resource' => $resource->toArray()]);
+				// Download to temp
+				Log::info('Temporarily downloading PDF to create PDF-Count ', ['url' => $resource->remote_path, 'id' => $resource->id]);
+
+				if ($handle = fopen($resource->remote_path, "r")) {
+					$tmpStorage->putStream($tmpDir . '/' . $tmpName, $handle);
+					fclose($handle);
+				}
+
+				$localPdfPath = $tmpStorage->path($tmpDir . '/' . $tmpName);
+
+				$this->doPageCount($resource, $localPdfPath);
+
+			} catch (\Exception $e) {
+				Log::Error('Could not download and Count PDF-Pages from remoteFile', ['remote_path' => $resource->remote_path, 'tempPath' => $tmpDir . '/' . $tmpName, 'id' => $resource->id]);
+			} finally {
+				// Cleanup
+				Log::info('Cleaning up temporarily downloaded file', ['tempPath' => $tmpDir . '/' . $tmpName, 'id' => $resource->id]);
+				$tmpStorage->delete($tmpDir . '/' . $tmpName);
 			}
 
-			$resource->save();
 		}
 
 		return $resource;
+
+	}
+
+	protected function doPageCount(&$resource, &$localPdfPath) {
+
+		try {
+			$count                = $this->countPdfPagesInFilepath($localPdfPath);
+			$resource->page_count = $count;
+		} catch (InvalidPageNoException $e) {
+			$resource->page_count = FALSE;
+			Log::error($e->getMessage(), [$e->getTraceAsString(), 'resource' => $resource->toArray()]);
+		}
+
+		$resource->save();
 
 	}
 
@@ -154,7 +189,7 @@ class PdfHandlingService {
 		try {
 			$pdfObject = resolve(Pdf::class)->setPdf($pdfPath);
 		} catch (PdfNotFound $e) {
-			Log::error('PDF-File not found!', $e->getTraceAsString());
+			Log::error('PDF-File not found!', [$e->getTraceAsString()]);
 
 			return '';
 		}
@@ -181,11 +216,11 @@ class PdfHandlingService {
 		try {
 			$pdfSrcFilePath = $this->fileHandlingService->getLocalFilePath($resource);
 		} catch (LocalFileDoesNotExistException $e) {
-			Log::error('Local File does not exist', $e->getTraceAsString());
+			Log::error('Local File does not exist', [$e->getTraceAsString()]);
 
 			return '';
 		} catch (RemoteFileDoesNotExistException $e) {
-			Log::error('Remote File does not exist', $e->getTraceAsString());
+			Log::error('Remote File does not exist', [$e->getTraceAsString()]);
 
 			return '';
 		}

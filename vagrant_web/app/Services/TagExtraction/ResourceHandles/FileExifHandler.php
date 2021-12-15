@@ -4,29 +4,25 @@ namespace App\Services\TagExtraction\ResourceHandles;
 
 use App\Models\File;
 use App\Models\Resource;
+use App\Services\ExifReader\ExifReaderInterface;
 use App\Services\TagExtraction\Interfaces\PropertyInterface;
 use App\Services\TagExtraction\Interfaces\RelevanceInterface;
 use App\Services\TagExtraction\Properties\AuthorProperty;
+use App\Services\TagExtraction\Properties\CreateDateProperty;
 use App\Services\TagExtraction\Properties\KeywordProperty;
-use App\Services\TagExtraction\Properties\Property;
 use App\Services\TagExtraction\Properties\TitleProperty;
 use App\Services\TagExtraction\TagExtractionService;
-use App\Services\TagExtraction\TagRecognition\ExifDate;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
-use PHPExiftool\Driver\Metadata\Metadata;
-use PHPExiftool\Driver\Metadata\MetadataBag;
-use PHPExiftool\Driver\Value\ValueInterface;
-use PHPExiftool\Exception\RuntimeException;
-use PHPExiftool\Reader;
+use PHPExif\Exif;
 
 class FileExifHandler implements HandlerInterface {
 
 	protected $tagExtractionService;
 	protected $exifReader;
 
-	public function __construct(TagExtractionService $tagExtractionService, Reader $exifReader) {
+	public function __construct(TagExtractionService $tagExtractionService, ExifReaderInterface $exifReader) {
 		$this->tagExtractionService = $tagExtractionService;
 		$this->exifReader           = $exifReader;
 	}
@@ -56,11 +52,8 @@ class FileExifHandler implements HandlerInterface {
 		$localPathPrefix   = $localDisk->getDriver()->getAdapter()->getPathPrefix();
 		$localAbsolutePath = $localPathPrefix . $localRelativePath;
 
-
 		try {
-			$fileEntity = $this->exifReader->reset()->files($localAbsolutePath)->first();
-			/** @var MetadataBag $metaData */
-			$metaData = $fileEntity->getMetadatas();
+			$metaData = $this->exifReader->read($localAbsolutePath);
 
 			$allResultProperties = $this->getTagsFromExifTitle($metaData);
 			$result              = $result->merge($allResultProperties);
@@ -84,7 +77,8 @@ class FileExifHandler implements HandlerInterface {
 			$result->unique();
 
 			$result = $this->filterIgnorePatterns($result);
-		} catch (RuntimeException $e) {
+
+		} catch (\Exception $e) {
 			Log::error($e->getMessage());
 		}
 
@@ -93,24 +87,27 @@ class FileExifHandler implements HandlerInterface {
 
 
 	/**
-	 * @param MetadataBag $metaDataBag
+	 * @param Exif $exifData
 	 * @return Collection
 	 */
-	protected function getTagsFromExifTitle(MetadataBag $metaDataBag) {
+	protected function getTagsFromExifTitle(Exif $exifData): Collection {
 		$result = new Collection();
-		$titles = $this->allMatchesValuesForKeys($metaDataBag, ['title', 'Title', 'Subject']);
 
-		foreach ($titles as $title) {
+		$title = $exifData->getTitle();
+
+		if ($title !== FALSE) {
 			// Remove Endings with Filetype in the title (some Programms use the document-name as title, including suffix)
 			$title = preg_replace('~\s*\.(pdf|docx?|xml)$~i', '', $title);
 
-			$result->push(new TitleProperty($title, RelevanceInterface::RELEVANCE_EXIF_MIN));
+			$result->push(new TitleProperty($title, RelevanceInterface::RELEVANCE_EXIF_MAX));
 		}
 
 		// Sort by length (the longer the better ;-)
+		/*
 		$result = $result->sortByDesc(function (TitleProperty $tp) {
 			return strlen($tp->getValue());
 		});
+		*/
 
 		return $result;
 	}
@@ -118,43 +115,22 @@ class FileExifHandler implements HandlerInterface {
 	/**
 	 * All String-Values found for the given keys. Dublicate and empty values have been removed.
 	 *
-	 * @param MetadataBag $metaDataBag
+	 * @param Exif $exifData
 	 * @param string[] $keys
 	 * @return String[]
 	 */
-	protected function allMatchesValuesForKeys(MetadataBag $metaDataBag, $keys) {
+	protected function allMatchesValuesForKeys(Exif $exifData, $keys) {
 		$result = [];
 
-		/** @var Metadata $metadata */
-		foreach ($metaDataBag as $metadata) {
-			if (in_array($metadata->getTag()->getName(), $keys)) {
 
-				// Key found
-				switch ($metadata->getValue()->getType()) {
-					case ValueInterface::TYPE_MONO:
-						$value = trim($metadata->getValue()->asString());
+		foreach ($exifData->getRawData() as $exifName => $value) {
 
-						if (!empty($value) && !in_array($value, $result)) {
-							$result[] = $value;
-						}
+			if (in_array($exifName, $keys)) {
 
-						break;
+				$result[] = $value;
 
-					case ValueInterface::TYPE_MULTI:
-						// Use the whole string in Multi and Mono-Types (Bibleverses with comma would otherwise be split after chapter)
-						foreach ($metadata->getValue()->asArray() as $value) {
-							$value = trim($value);
+				continue;
 
-							if (!empty($value) && !in_array($value, $result)) {
-								$result[] = $value;
-							}
-						}
-
-						break;
-
-					case ValueInterface::TYPE_BINARY:
-					default:
-				}
 			}
 		}
 
@@ -176,13 +152,18 @@ class FileExifHandler implements HandlerInterface {
 	}
 
 	/**
-	 * @param MetadataBag $metaDataBag
+	 * @param Exif $exifData
 	 * @return Collection
 	 */
-	protected function getTagsFromExifComment(MetadataBag $metaDataBag) {
-		$allMatches = $this->allMatchesValuesForKeys($metaDataBag, ['Comments', 'comments']);
-		$tags       = $this->tagExtractionService->extractPartsFromStrings($allMatches, 2, $context = ['exif']);
-		$this->setRelevance($tags, RelevanceInterface::RELEVANCE_EXIF_MAX);
+	protected function getTagsFromExifComment(Exif $exifData): Collection {
+
+		$tags    = new Collection();
+		$caption = $exifData->getCaption();
+
+		if ($caption !== FALSE) {
+			$tags = $this->tagExtractionService->extractPartsFromStrings([$caption], 2, $context = ['exif']);
+			$this->setRelevance($tags, RelevanceInterface::RELEVANCE_EXIF_MAX);
+		}
 
 		return $tags;
 	}
@@ -203,51 +184,50 @@ class FileExifHandler implements HandlerInterface {
 	}
 
 	/**
-	 * @param MetadataBag $metaDataBag
+	 * @param Exif $exifData
 	 * @return Collection
 	 */
-	protected function getTagsFromExifKeywords(MetadataBag $metaDataBag) {
+	protected function getTagsFromExifKeywords(Exif $exifData): Collection {
+
+		$tags = new Collection();
 
 		// First try AppleKeywords. This will properly recognize commas in Keywords as one Keyword (i.e. with bibleverses)
 		// If nothing was found => use the normal Keywords
-		$allMatches = $this->allMatchesValuesForKeys($metaDataBag, ['AppleKeywords']);
-		if (count($allMatches) > 0) {
-			// Human Input Prio
-			$exifPrio = RelevanceInterface::RELEVANCE_USER_MIN;
-		} else {
-			$allMatches = $this->allMatchesValuesForKeys($metaDataBag, ['Keywords']);
+		$keywords = $exifData->getKeywords();
 
+		if ($keywords !== FALSE) {
 			// Default Exif-Prio
 			$exifPrio = RelevanceInterface::RELEVANCE_USER_MAX;
-		}
 
-		$tags = $this->tagExtractionService->extractPartsFromStrings($allMatches, 1, $context = ['exif']);
-		$this->setRelevance($tags, $exifPrio);
+			$tags = $this->tagExtractionService->extractPartsFromStrings([$keywords], 1, $context = ['exif']);
+			$this->setRelevance($tags, $exifPrio);
+		}
 
 		return $tags;
 	}
 
+
 	/**
-	 * @param MetadataBag $metaDataBag
+	 * @param Exif $exifData
 	 * @return Collection
 	 */
-	protected function getTagsFromExifAuthor(MetadataBag $metaDataBag) {
-		$result     = new Collection();
-		$allMatches = $this->allMatchesValuesForKeys($metaDataBag, ['Author', 'Creator', 'By-line']);
-		$allNames   = $this->getCombinedSplitValues($allMatches);
+	protected function getTagsFromExifAuthor(Exif $exifData): Collection {
 
-		$pattern = config('tagging.exif.author.ignore.patterns', []);
-		$values  = config('tagging.exif.author.ignore.values', []);
+		$result = new Collection();
 
-		foreach ($allNames as $authorName) {
+		$author = $exifData->getAuthor();
+
+		if ($author !== FALSE) {
+			$pattern = config('tagging.exif.author.ignore.patterns', []);
+			$values  = config('tagging.exif.author.ignore.values', []);
 
 			// Only add high quality names
 			if (
-				!$this->doesTagMatchIgnorePattern($authorName, $pattern) &&
-				!($this->doesTagMatchIgnoreValue($authorName, $values))
+				!$this->doesTagMatchIgnorePattern($author, $pattern) &&
+				!($this->doesTagMatchIgnoreValue($author, $values))
 			) {
-				$result->push(new AuthorProperty($authorName, RelevanceInterface::RELEVANCE_EXIF_MAX));
-				$result->push(new KeywordProperty($authorName, 'person', RelevanceInterface::RELEVANCE_EXIF_MAX));
+				$result->push(new AuthorProperty($author, RelevanceInterface::RELEVANCE_EXIF_MAX));
+				$result->push(new KeywordProperty($author, 'person', RelevanceInterface::RELEVANCE_EXIF_MAX));
 			}
 		}
 
@@ -297,23 +277,17 @@ class FileExifHandler implements HandlerInterface {
 	}
 
 	/**
-	 * @param MetadataBag $metaDataBag
+	 * @param Exif $exifData
 	 * @return Collection
 	 */
-	protected function getTagsFromExifCreateDate(MetadataBag $metaDataBag) {
-		$result            = new Collection();
-		$match             = $this->allMatchesValuesForKeys($metaDataBag, ['CreateDate']);
-		$exifDateExtractor = new ExifDate();
+	protected function getTagsFromExifCreateDate(Exif $exifData): Collection {
 
-		foreach ($match as $cDate) {
-			$tags = $exifDateExtractor->extractSpecializedTag('CreateDate: ' . $cDate);
+		$result = new Collection();
+		$match  = $exifData->getCreationDate();
 
-			if (count($tags) === 1) {
-				/** @var Property $createTag */
-				$createTag = array_shift($tags);
-				$createTag->setRelevance(RelevanceInterface::RELEVANCE_EXIF_MAX);
-				$result->push($createTag);
-			}
+		if ($match !== FALSE) {
+			$tag = new CreateDateProperty($match, RelevanceInterface::RELEVANCE_EXIF_MAX);
+			$result->push($tag);
 		}
 
 		return $result;
@@ -331,9 +305,8 @@ class FileExifHandler implements HandlerInterface {
 						$values);
 
 			} else if ($property instanceof AuthorProperty) {
-				return TRUE;
-
-				// THis has been done before already, hasn't it?
+				return FALSE;
+				// This has been done before already, hasn't it?
 
 				$value    = $property->getValue();
 				$patterns = config('tagging.exif.author.ignore.patterns', []);
@@ -351,14 +324,14 @@ class FileExifHandler implements HandlerInterface {
 	/**
 	 * Returns the best match of the requested keys ... currently the first found element or $default
 	 *
-	 * @param MetadataBag $metaDataBag
+	 * @param Exif $exifData
 	 * @param string[] $keys
 	 * @param mixed $default return value
 	 * @return mixed
 	 */
-	protected function bestMatchValueForKeys($metaDataBag, $keys, $default = '') {
+	protected function bestMatchValueForKeys($exifData, $keys, $default = '') {
 
-		$allResults = $this->allMatchesValuesForKeys($metaDataBag, $keys);
+		$allResults = $this->allMatchesValuesForKeys($exifData, $keys);
 
 		if (count($allResults) > 0) {
 			return array_shift($allResults);
@@ -366,5 +339,6 @@ class FileExifHandler implements HandlerInterface {
 			return $default;
 		}
 	}
+
 
 }

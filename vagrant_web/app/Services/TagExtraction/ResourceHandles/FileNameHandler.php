@@ -8,7 +8,7 @@ use App\Services\TagExtraction\Properties\KeywordProperty;
 use App\Services\TagExtraction\Properties\Property;
 use App\Services\TagExtraction\Properties\TitleProperty;
 use App\Services\TagExtraction\TagExtractionService;
-use Doctrine\Common\Collections\Collection;
+use Illuminate\Support\Collection;
 
 class FileNameHandler implements HandlerInterface {
 

@@ -1,210 +1,207 @@
 <template>
-    <div class="container">
+  <div class="container">
 
-        <h1>{{$t('pool.Create-new-Material-from-Textinput')}}</h1>
+    <h1>{{ $t('pool.Create-new-Material-from-Textinput') }}</h1>
 
+    <b-form-group
+        :label="$t('pool.Metadata')"
+        label-for="metaData"
+        :description="$t('pool.metadata-exampes')"
+        :state="metaInputValid"
+        :invalid-feedback="invalidMetaFedback"
+    >
+      <b-form-textarea
+          id="metaData"
+          v-model="metaData"
+          :placeholder="$t('pool.Enter-metadata-here')"
+          :rows="3"
+          :disabled="!editingEnabled"
+          :state="metaInputValid"
+      />
+    </b-form-group>
+
+    <div class="row">
+      <div class="col-6">
         <b-form-group
-                :label="$t('pool.Metadata')"
-                label-for="metaData"
-                :description="$t('pool.metadata-exampes')"
-                :state="metaInputValid"
-                :invalid-feedback="invalidMetaFedback"
+            :label="$t('pool.Textinformation')"
+            label-for="textInput"
+            :state="textInputValid"
+            :invalid-feedback="invalidTextFedback"
         >
-            <b-form-textarea
-                    id="metaData"
-                    v-model="metaData"
-                    :placeholder="$t('pool.Enter-metadata-here')"
-                    :rows="3"
-                    :disabled="!editingEnabled"
-                    :state="metaInputValid"
-            />
+          <b-form-textarea
+              id="textInput"
+              v-model="textInput"
+              :placeholder="$t('pool.Enter-text')"
+              :rows="10"
+              :disabled="!editingEnabled"
+              :state="textInputValid"
+          />
         </b-form-group>
-
-        <div class="row">
-            <div class="col-6">
-                <b-form-group
-                        :label="$t('pool.Textinformation')"
-                        label-for="textInput"
-                        :state="textInputValid"
-                        :invalid-feedback="invalidTextFedback"
-                >
-                    <b-form-textarea
-                            id="textInput"
-                            v-model="textInput"
-                            :placeholder="$t('pool.Enter-text')"
-                            :rows="10"
-                            :disabled="!editingEnabled"
-                            :state="textInputValid"
-                    />
-                </b-form-group>
-            </div>
-            <div class="col-6">
-                <label></label>
-                <div class="markup" v-html="compiledMarkdown"/>
-            </div>
+      </div>
+      <div class="col-6">
+        <label></label>
+        <compiled-markdown :text="textInput"/>
+      </div>
 
 
-            <button class="btn btn-success ml-3"
-                    @click="btnCreate"
-                    v-show="textInputValid"
-                    :disabled="!editingEnabled"
-            >
-                {{$t('pool.Create-entry')}}
-            </button>
-
-        </div>
-
-        <custom-dialog ref="myDialog"/>
-
+      <button class="btn btn-success ml-3"
+              @click="btnCreate"
+              v-show="textInputValid"
+              :disabled="!editingEnabled"
+      >
+        {{ $t('pool.Create-entry') }}
+      </button>
 
     </div>
+
+    <custom-dialog ref="myDialog"/>
+
+
+  </div>
 </template>
 
 <script>
 
-	import {BFormGroup}    from 'bootstrap-vue';
-	import {BFormInput}    from 'bootstrap-vue';
-	import {BFormTextarea} from 'bootstrap-vue';
-	import marked          from 'marked';
-	import CustomDialog    from "../../../components/modals/dialogs/customDialog";
+import {BFormGroup, BFormInput, BFormTextarea} from 'bootstrap-vue';
+import CustomDialog                            from "../../../components/modals/dialogs/customDialog";
+import CompiledMarkdown                        from "../../../components/markdown/compiledMarkdown";
 
-	export default {
-		name: "ResourceTextCreateWithMaterial",
+export default {
+  name: "ResourceTextCreateWithMaterial",
 
-		data() {
-			return {
-				metaData: '',
-				textInput: '',
+  data() {
+    return {
+      metaData: '',
+      textInput: '',
 
-				editingEnabled: true,
-			};
-		},
+      editingEnabled: true,
+    };
+  },
 
 
-		computed: {
+  computed: {
 
 
-			metaInputValid() {
+    metaInputValid() {
 
-				if (this.metaData.length > 0) {
-					// Mindestens ein Komma oder Semikolon muss dabei sein, damit die Tags richtig erkannt werden
-					return this.metaData.indexOf(',') !== -1 || this.metaData.indexOf(';') !== -1;
-				} else {
-					return true;
-				}
+      if (this.metaData.length > 0) {
+        // Mindestens ein Komma oder Semikolon muss dabei sein, damit die Tags richtig erkannt werden
+        return this.metaData.indexOf(',') !== -1 || this.metaData.indexOf(';') !== -1;
+      } else {
+        return true;
+      }
 
-			},
+    },
 
-			invalidMetaFedback() {
-				return this.$t('pool.At-least-one-comma-or-semikolon-required');
-			},
+    invalidMetaFedback() {
+      return this.$t('pool.At-least-one-comma-or-semikolon-required');
+    },
 
-			textInputValid() {
-				return this.textInput.length >= 10;
-			},
+    textInputValid() {
+      return this.textInput.length >= 10;
+    },
 
-			invalidTextFedback() {
-				return this.$t('pool.Please-enter-more-text');
-			},
+    invalidTextFedback() {
+      return this.$t('pool.Please-enter-more-text');
+    },
 
-			compiledMarkdown() {
-				return marked(this.textInput, {sanitize: true, gfm: false, smartLists: true, smartypants: true})
-			},
-		},
+  },
 
-		created() {
-		},
+  created() {
+  },
 
-		methods: {
-			btnCreate() {
-				this.editingEnabled = false;
+  methods: {
+    btnCreate() {
+      this.editingEnabled = false;
 
-				this.$refs.myDialog.show({
-					title: this.$t('pool.Creating-Resource'),
-					content: this.$t('pool.Please-wait'),
-					yesEnabled: false,
-					noEnabled: false,
-					allowBackdrop: false
-				}).catch(() => {
-				});
+      this.$refs.myDialog.show({
+        title: this.$t('pool.Creating-Resource'),
+        content: this.$t('pool.Please-wait'),
+        yesEnabled: false,
+        noEnabled: false,
+        allowBackdrop: false
+      }).catch(() => {
+      });
 
-				this.$store.dispatch('resources/createTextResource', {
-					text: this.textInput
-				})
-				    .then((resource) => {
-					    console.debug(resource);
-					    this.createMaterialFromResource(resource);
-				    })
-				    .catch(() => {
-					    this.$refs.myDialog.show({
-						    title: this.$t('pool.Error'),
-						    content: this.$t('pool.Error-while-creating-resource'),
-						    yesText: this.$t('pool.Ok'),
-						    yesEnabled: true,
-						    noEnabled: false,
-						    allowBackdrop: true
-					    }).catch(() => {
-					    });
-				    })
-				    .then(() => {
-					    // Always
-					    this.editingEnabled = true;
-				    })
-			},
+      this.$store.dispatch('resources/createTextResource', {
+        text: this.textInput
+      })
+          .then((resource) => {
+            console.debug(resource);
+            this.createMaterialFromResource(resource);
+          })
+          .catch(() => {
+            this.$refs.myDialog.show({
+              title: this.$t('pool.Error'),
+              content: this.$t('pool.Error-while-creating-resource'),
+              yesText: this.$t('pool.Ok'),
+              yesEnabled: true,
+              noEnabled: false,
+              allowBackdrop: true
+            }).catch(() => {
+            });
+          })
+          .then(() => {
+            // Always
+            this.editingEnabled = true;
+          })
+    },
 
-			createMaterialFromResource(resource) {
+    createMaterialFromResource(resource) {
 
-				this.$refs.myDialog.show({
-					title: this.$t('pool.Creating-Material-from-Resource'),
-					content: this.$t('pool.Please-wait'),
-					yesEnabled: false,
-					noEnabled: false,
-					allowBackdrop: false
-				}).catch(() => {
-				});
+      this.$refs.myDialog.show({
+        title: this.$t('pool.Creating-Material-from-Resource'),
+        content: this.$t('pool.Please-wait'),
+        yesEnabled: false,
+        noEnabled: false,
+        allowBackdrop: false
+      }).catch(() => {
+      });
 
-				this.$store.dispatch('resources/autoCreateMaterial', {
-					resourceIds: [resource.id],
-					meta: this.metaData,
-					from_bot: false
-				})
-				    .then((material) => {
+      this.$store.dispatch('resources/autoCreateMaterial', {
+        resourceIds: [resource.id],
+        meta: this.metaData,
+        from_bot: false
+      })
+          .then((material) => {
 
-					    this.$router.push({
-						    name: 'material-detail',
-						    params: {
-							    id: material.id
-						    }
-					    });
+            this.$router.push({
+              name: 'material-detail',
+              params: {
+                id: material.id
+              }
+            });
 
-				    })
-				    .catch(() => {
-					    this.$refs.myDialog.show({
-						    title: this.$t('pool.Error'),
-						    content: this.$t('pool.Error-while-creating-material'),
-						    yesText: this.$t('pool.Ok'),
-						    yesEnabled: true,
-						    noEnabled: false,
-						    allowBackdrop: true
-					    }).catch(() => {
-					    });
-				    });
+          })
+          .catch(() => {
+            this.$refs.myDialog.show({
+              title: this.$t('pool.Error'),
+              content: this.$t('pool.Error-while-creating-material'),
+              yesText: this.$t('pool.Ok'),
+              yesEnabled: true,
+              noEnabled: false,
+              allowBackdrop: true
+            }).catch(() => {
+            });
+          });
 
-			}
+    }
 
 
-		},
+  },
 
-		components: {
-			CustomDialog,
-			BFormGroup,
-			BFormTextarea,
-			BFormInput
+  components: {
+    CompiledMarkdown,
+    CustomDialog,
+    BFormGroup,
+    BFormTextarea,
+    BFormInput,
 
-		}
+
+  }
 
 
-	}
+}
 </script>
 
 <style scoped>

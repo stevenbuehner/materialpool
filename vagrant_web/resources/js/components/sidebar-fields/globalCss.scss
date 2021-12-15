@@ -27,27 +27,45 @@ $vs-border-color: $input-border-color;
 
   }
 
-  .editField {
+  .editField, .usageField {
 
-    input, textarea {
-      font-size: 1em;
-      border-radius: 0.25em;
+    .inputWrapper {
+      border-radius: $input-border-radius;
+      border: solid $input-border-color $input-border-width;
       background-color: $sidebar-input-background-colour-active;
 
-      &.valueChanged {
-        background-color: $sidebar-input-value-not-saved-yet-background-color;
-        border-color: $sidebar-input-value-not-saved-yet-border-color;
+      input, textarea {
+        font-size: 1em;
+        line-height: $input-line-height-sm;
+        background-color: $sidebar-input-background-colour-active;
+        padding: $input-padding-top $input-padding-right $input-padding-bottom $input-padding-left;
+        margin: $input-margin-top $input-margin-right $input-margin-bottom $input-margin-left;
+        height: auto;
+        border: none;
+
+        &.valueChanged {
+          background-color: $sidebar-input-value-not-saved-yet-background-color;
+          border-color: $sidebar-input-value-not-saved-yet-border-color;
+        }
+
+        ::placeholder {
+          color: $sidebar-input-text-colour-placeholder;
+        }
       }
     }
 
 
     &.disabled {
-      input, textarea {
+
+      .inputWrapper {
         background-color: $sidebar-input-background-colour-disabled;
-        cursor: not-allowed;
+
+        input, textarea, .content-area {
+          background-color: $sidebar-input-background-colour-disabled;
+          cursor: not-allowed;
+        }
       }
     }
-
 
   }
 

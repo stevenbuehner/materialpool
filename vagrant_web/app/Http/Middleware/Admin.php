@@ -12,9 +12,9 @@ class Admin {
 	 * @param \Closure $next
 	 * @return mixed
 	 */
-	public function handle($request, Closure $next) {
+	public function handle($request, Closure $next, $guard = NULL) {
 
-		if (auth()->user()->isSuperAdmin() === TRUE) {
+		if (request()->user()->isSuperAdmin() === TRUE) {
 			return $next($request);
 		} else {
 			return response(['error' => 'Only admins are allowed!'])->setStatusCode(404);

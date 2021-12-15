@@ -25,7 +25,7 @@ class GeneralOptionsController extends BaseController {
 	}
 
 	protected function getUserInformation() {
-		return Auth::user()->toArray();
+		return Auth::user()->makeVisible(['frontend_user_settings', 'email', 'is_admin'])->toArray();
 	}
 
 	// Returns a file size limit in bytes based on the PHP upload_max_filesize

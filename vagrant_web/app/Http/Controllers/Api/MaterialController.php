@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Events\MaterialWasChanged;
 use App\Events\MaterialWasCreated;
 use App\Http\Requests\MaterialRequest;
-use App\Jobs\DeletePublicDownloadFile;
+use App\Listeners\DeletePublicDownloadFile;
 use App\Models\Material;
 use App\Services\MaterialHandling\MaterialHandlingService;
 use Illuminate\Http\Request;
@@ -26,17 +26,7 @@ class MaterialController extends BaseController {
 
 		$this->bibleVerseService       = $bibleVerseService;
 		$this->materialHandlingService = $materialHandlingService;
-
-		$this->withAttributes = [
-			'keywords'    => function ($q) {
-				$q->orderBy('keyword_material.relevance', 'desc');
-			},
-			'bibleverses' => function ($q) {
-				$q->orderBy('bibleverse_material.relevance', 'desc');
-			},
-			'resources',
-			'creator',
-			'author'];
+		$this->withAttributes          = \App\Http\Controllers\MaterialController::withAttributes();
 
 		$this->middleware(['auth:api']);
 	}

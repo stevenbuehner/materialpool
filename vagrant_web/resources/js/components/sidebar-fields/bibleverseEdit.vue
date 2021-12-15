@@ -1,83 +1,102 @@
 <script>
-	import tagIcon                 from 'svg-icon/dist/svg/material/style.svg';
-	import {debounce as _debounce} from 'lodash';
-	import tagEdit                 from "./tagEdit";
+import tagIcon from 'svg-icon/dist/svg/material/style.svg';
+import tagEdit from "./tagEdit";
 
-	export default {
-		name: "bibleverseEdit",
-		extends: tagEdit,
+export default {
+  name: "bibleverseEdit",
+  extends: tagEdit,
 
-		data() {
-			return {
-				clearOnSelect: true, // Override
-			}
-		},
+  data() {
+    return {
+      clearOnSelect: true, // Override
+    }
+  },
 
-		computed: {
-			validTypesValues() {
-				return this.value;
-			},
+  computed: {
+    // Override from tagEdit - all Types are valid
+    validTypesValues() {
+      return this.value;
+    },
 
-			invalidTypesValues() {
-				return [];
-			}
-		},
+    // Override from tagEdit - no Invalid Tags
+    invalidTypesValues() {
+      return [];
+    },
 
-		methods: {
+    // Override from tagEdit -> no new tags
+    optionsWithNewTag() {
+      return this.suggestedTags;
+    }
+  },
 
-			getTagLabelFromObject(value) {
-				if (typeof value === 'object') {
-					if (!value.hasOwnProperty('label')) {
-						return console.warn(
-							`[vue-select warn]: Label key "option.label" does not` +
-							` exist in options object ${JSON.stringify(value)}.\n` +
-							'http://sagalbot.github.io/vue-select/#ex-labels'
-						)
-					} else {
-						return value.label;
-					}
+  methods: {
 
-				} else {
-					return value;
-				}
-			},
+    // Override => no Obeserver
+    async onOpen() {
+    },
+    // Override => no Obeserver
+    async onClose() {
+    },
 
-			filterSuggestionsBy(object) {
-				return this.value.find((el) => el.from === object.from && el.to === object.to) === undefined;
-			},
+    // Override from tagEdit
+    doSearch(query, page) {
 
-			// _.debounce is a function provided by lodash to limit how
-			// often a particularly expensive operation can be run.
-			// To learn
-			// more about the _.debounce function (and its cousin
-			// _.throttle), visit: https://lodash.com/docs#debounce
-			search: _debounce((loading, search, vm) => {
+      const counter    = ++this.queryCounter;
+      const queryCache = {
+        query,
+        page,
+        isLoading: true
+      }
 
-				if (search.length <= 2) {
-					vm.suggestedFilteredTags = [];
-					loading(false);
-					return;
-				}
+      this.queryHandler[counter] = queryCache;
 
-				vm.$store.dispatch('bibleverses/search', search)
-				  .then((bibleverses) => {
-					  vm.suggestedFilteredTags = bibleverses.filter(vm.filterSuggestionsBy.bind(vm));
-				  })
-				  .catch((data) => {
-					  alert(data);
-				  })
-				  .then(() => {
-					  // Always
-					  loading(false);
-				  });
+      queryCache.promise = this.$store.dispatch('bibleverses/search', query)
+                               .then((bibleverses) => {
 
-			}, 250),
+                                 queryCache.isLoading = false;
 
+                                 return {
+                                   keywords: bibleverses,
+                                   hasMore: false,
+                                   current_page: 1
+                                 };
 
-		},
+                               })
+                               .catch((err) => {
+                                 console.error(err);
+                               });
 
-		components: {
-			tagIcon
-		}
-	}
+      return {queryCache, counter};
+
+    },
+
+    // Override from tagEdit
+    _getTagLabelFromObject(value) {
+      if (typeof value === 'object') {
+        if (!value.hasOwnProperty('label')) {
+          return console.warn(
+              `[vue-select warn]: Label key "option.label" does not` +
+              ` exist in options object ${JSON.stringify(value)}.\n` +
+              'http://sagalbot.github.io/vue-select/#ex-labels'
+          )
+        } else {
+          return value.label;
+        }
+
+      } else {
+        return value;
+      }
+    },
+
+    // Override from tagEdit
+    _getOptionKey(el) {
+      return el.from + '-' + el.to;
+    }
+
+  },
+
+  components: {
+    tagIcon
+  }
+}
 </script>

@@ -249,8 +249,8 @@ return [
 
 	'resource' => [
 		'preview' => [
-			'maxWidth'  => 1024,
-			'maxHeight' => 1024,
+			'maxWidth'  => 1536,
+			'maxHeight' => 1536,
 			'cacheTime' => 60 * 24 * 30 // in Minutes
 		]
 

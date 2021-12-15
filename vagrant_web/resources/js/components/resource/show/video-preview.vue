@@ -1,66 +1,104 @@
 <template>
-    <div class="card-header">
-        <video
-                class="sbVideo "
-                controls preload="auto"
-                data-setup='{"fluid": true}'
-                :poster="posterRoute">
-
-            <source :src="videoRoute" :type="videoMimeType"/>
-        </video>
-    </div>
+  <div class="card-header sbVideo ">
+    <video ref="videoPlayer"
+           class="video-js vjs-theme-sea"
+           data-setup='{"fluid": true}'>
+    </video>
+  </div>
 </template>
 
 <script>
 
-	import {poolResourceVideostream, previewImageFirstPage} from "../../serverRoutes";
-	import resourcePreviewZoom                              from '../resource-preview-zoom';
-	import resourcePreview                                  from '../resource-preview.mixin';
+import {poolResourceMediastream, previewImageFirstPage} from "../../serverRoutes";
+import resourcePreviewZoom                              from '../resource-preview-zoom';
+import resourcePreview                                  from '../resource-preview.mixin';
+import resourceLinks                                    from "../resource-links.mixin";
+import videojs                                          from 'video.js';
 
-	export default {
-		mixins: [resourcePreviewZoom, resourcePreview],
+export default {
+  name: 'VideoPreview',
 
-		computed: {
-			posterRoute() {
-				return previewImageFirstPage(this.resource);
-			},
+  mixins: [resourcePreviewZoom, resourcePreview, resourceLinks],
 
-			videoRoute() {
-				return poolResourceVideostream(this.resource);
-			},
+  data() {
+    return {
+      player: null,
+    };
+  },
 
-			videoMimeType() {
+  computed: {
+    options() {
+      return {
+        autoplay: false,
+        controls: true,
+        sources: this.videoSources,
+        poster: this.posterRoute,
+      };
+    },
+    videoSources() {
+      return [
+        {
+          src: this.videoRoute,
+          type: this.videoMimeType
+        }
+      ];
+    },
 
-				let type = 'video';
-				switch (this.resource.mime_type) {
-					case 'video/quicktime':
-						type = 'video/mp4';
-						break;
-					case undefined:
-						break;
-					default:
-						type = this.resource.mime_type;
-				}
+    posterRoute() {
+      return previewImageFirstPage(this.resource);
+    },
 
-				return type;
-			}
-		},
+    videoRoute() {
+      return poolResourceMediastream(this.resource);
+    },
 
-		methods: {
-			_getPreviewZoomImagesAndTitles() {
-				return [{
-					title: this.resource.notes || 'Video',
-					src: this.posterRoute
-				}];
-			},
-		}
+    videoMimeType() {
+
+      let type = 'video';
+      switch (this.resource.mime_type) {
+        case 'video/quicktime':
+          type = 'video/mp4';
+          break;
+        case undefined:
+          break;
+        default:
+          type = this.resource.mime_type;
+      }
+
+      return type;
+    }
+  },
 
 
-	}
+  mounted() {
+    this.player = videojs(this.$refs.videoPlayer, this.options, function onPlayerReady() {
+      // console.log('onPlayerReady', this);
+    })
+  },
+
+  beforeDestroy() {
+    if (this.player) {
+      this.player.dispose()
+    }
+  },
+
+  methods: {
+    _getPreviewZoomImagesAndTitles() {
+      return [{
+        title: this.resource.notes || 'Video',
+        src: this.posterRoute
+      }];
+    },
+  }
+
+
+}
 </script>
 
-<style scoped>
-    .sbVideo {
-        max-width: 100%;
-    }
+<style lang="scss">
+@import "~video.js/dist/video-js.css";
+@import "~@videojs/themes/dist/sea/index.css";
+
+.sbVideo {
+}
 </style>

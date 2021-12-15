@@ -1,87 +1,83 @@
 <template>
-    <div class="mb-2 myCard" :title="title"
-         :img-src="resourceImagePreviewUrl"
-         @click="_emitPreviewZoomRequest">
+  <div class="myCard" :title="title"
+       :class="{'mb-2' : hovered}"
+       :img-src="resourceImagePreviewUrl"
+       @click="_emitPreviewZoomRequest">
 
-        <img class="card-img-top" :src="resourceImagePreviewUrl" img-alt="Preview Image"/>
+    <img class="card-img-top" :src="resourceImagePreviewUrl" alt="Preview Image"/>
 
-        <div class="card-body">
-
-            <h4 class="card-title" v-if="resource.notes && resource.notes.length <= 3">{{title}}</h4>
-
-            {{resource.notes}}
-
-        </div>
-
-
+    <div class="card-body" v-if="resource.notes && resource.notes.length >= 3">
+      {{ resource.notes }}
     </div>
+
+
+  </div>
 
 </template>
 
 <script>
 
-	import {BCard}                                              from 'bootstrap-vue'
-	import {BButton}                                            from 'bootstrap-vue'
-	import resourceLinks                                        from '../resource-links.mixin';
-	import {previewImageFirstPage}                              from "../../serverRoutes";
-	import resourcePreviewZoom                                  from '../resource-preview-zoom';
-	import resourcePreview                                      from '../resource-preview.mixin';
-	import {max_preview_image_size_x, max_preview_image_size_y} from "../../../apps/config";
+import {BButton, BCard}                                     from 'bootstrap-vue'
+import resourceLinks                                        from '../resource-links.mixin';
+import {previewImageFirstPage}                              from "../../serverRoutes";
+import resourcePreviewZoom                                  from '../resource-preview-zoom';
+import resourcePreview                                      from '../resource-preview.mixin';
+import {max_preview_image_size_x, max_preview_image_size_y} from "../../../apps/config";
 
-	export default {
+export default {
 
-		name: 'imagePreview',
+  name: 'ImagePreview',
 
-		mixins: [resourceLinks, resourcePreviewZoom, resourcePreview],
+  mixins: [resourceLinks, resourcePreviewZoom, resourcePreview],
 
-		props: {
-			width: {
-				required: false,
-				default: max_preview_image_size_x
-			},
-			height: {
-				required: false,
-				default: max_preview_image_size_y
-			}
-		},
+  props: {
+    width: {
+      required: false,
+      default: max_preview_image_size_x
+    },
+    height: {
+      required: false,
+      default: max_preview_image_size_y
+    }
+  },
 
-		computed: {
+  computed: {
 
-			title() {
-				let title = 'Resource';
+    title() {
+      let title = 'Resource';
 
-				if (this.resource.original_filename) {
-					title = this.resource.original_filename;
-				}
+      if (this.resource.original_filename) {
+        title = this.resource.original_filename;
+      }
 
-				return title
-			},
+      return title
+    },
 
-			resourceImagePreviewUrl() {
-				return previewImageFirstPage(this.resource, this.width, this.height);
-			},
+    resourceImagePreviewUrl() {
+      return previewImageFirstPage(this.resource, this.width, this.height);
+    },
 
-		},
+  },
 
-		methods: {
-			_getPreviewZoomImagesAndTitles() {
-				return [{
-					src: previewImageFirstPage(this.resource),
-					title: this.resource.notes || this.resource.original_filename || ''
-				}];
-			},
-		},
+  methods: {
+    _getPreviewZoomImagesAndTitles() {
+      return [{
+        src: previewImageFirstPage(this.resource),
+        title: this.resource.notes || this.resource.original_filename || ''
+      }];
+    },
+  },
 
-		components: {
-			BCard,
-			BButton
-		}
-	}
+  components: {
+    BCard,
+    BButton
+  }
+}
 </script>
 
 <style scoped>
-    .myCard {
-        max-width: 20rem;
-        cursor: pointer;
-    }
+.myCard {
+  max-width: 20rem;
+  cursor: pointer;
+}
 </style>

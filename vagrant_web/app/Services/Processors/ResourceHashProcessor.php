@@ -4,6 +4,7 @@ namespace App\Services\Processors;
 
 use App\Models\File;
 use App\Models\Resource;
+use App\Services\Processors\Exceptions\ResourceNotHashable;
 
 class ResourceHashProcessor {
 
@@ -21,6 +22,7 @@ class ResourceHashProcessor {
 		try {
 			if ($resource instanceof File) {
 
+				$stream = false;
 				if ($resource->hasLocalFile()) {
 					$stream = $resource->getLocalFileStream();
 				} else if ($resource->hasRemoteFile()) {
@@ -46,7 +48,7 @@ class ResourceHashProcessor {
 		}
 
 
-		if ($resource->content_hash != $sha1) {
+		if (isset($sha1) && $resource->content_hash != $sha1) {
 			$resource->content_hash = $sha1;
 			$resource->save();
 

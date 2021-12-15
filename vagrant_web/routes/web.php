@@ -28,6 +28,8 @@ Route::group(['prefix' => 'vue', 'as' => 'vue.'], function () {
 
 });
 
+Route::get('/home', 'HomeController@index');
+
 Route::get('/keepalive', 'HomeController@keepalive')
 	->name('token_keepalive')
 	->middleware(['auth']);
@@ -54,8 +56,8 @@ Route::group(['prefix' => 'pool', 'as' => 'pool.'], function () {
 	Route::resource('resource', 'ResourceController');
 	Route::get('resource/{resource}/download', 'ResourceController@download')
 		->name('resource.download');
-	Route::get('resource/{resource}/videostream', 'VideoStreamController@stream')
-		->name('resource.videostream');
+	Route::get('resource/{resource}/mediastream', 'MediaStreamController@stream')
+		->name('resource.mediastream');
 	Route::get('resource/{resource}/material/{material}/pdfdownload', 'PdfResourceController@downloadPages')
 		->where('resource', '[0-9]+')
 		->where('material', '[0-9]+')
@@ -105,6 +107,6 @@ Route::get('/bibleverse/{from}-{to}', 'Api\BibleverseController@show')
 	->name('bibleverse');
 
 
-Auth::routes();
+Auth::routes($options = ['register' => FALSE]);
+Route::get('/logout', 'Auth\LoginController@logout')->name('logout');
 
-Route::get('/home', 'HomeController@index');
