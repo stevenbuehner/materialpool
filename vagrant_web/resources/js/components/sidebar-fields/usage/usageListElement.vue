@@ -8,12 +8,14 @@
           <checkbox-icon class="checkbox"/>
           <span class="content">
             <span class="reason">{{ reason }}</span>
-            <template v-if="place !== ''">
-              (in <span class="place">{{ place }}</span>, am <span>{{ datetime | dateformat }}</span>)
-            </template>
-            <template v-if="place === ''">
-              (am <span>{{ datetime | dateformat }}</span>)
-            </template>
+              (<template v-if="used_by && used_by.name"><!--
+                --><span class="name">{{ used_by.name }}</span>,
+              </template><!--
+              --><template v-if="place !== ''"><!--
+                -->in <span class="place">{{ place }}</span>,
+              </template><!--
+            -->am <span>{{ datetime | dateformat }}</span><!--
+            -->)
           </span>
 
           <span :title="$t('pool.delete')" class="trash" @click.stop="onRequestDelete">
