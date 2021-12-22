@@ -31,63 +31,71 @@
             <div class="row">
 
               <div class="col col-6 pr-1 pb-1">
-                <b-form-input
-                    ref="reason_input_field"
-                    v-model="modifiedData.reason"
-                    :class="[{valueChanged : reasonChanged}, 'textInput']"
-                    :disabled="disabled"
-                    :placeholder="$t('pool.Reason')"
-                    autocorrect="off"
-                    class="dateInput"
-                    size="sm"
-                    type="text"
-                    @keyup.enter="onRequestSave"
-                    @keyup.esc="onRequestCancel"
-                />
+                <div class="inputWrapper">
+                  <b-form-input
+                      ref="reason_input_field"
+                      v-model="modifiedData.reason"
+                      :class="[{valueChanged : reasonChanged}, 'textInput']"
+                      :disabled="disabled"
+                      :placeholder="$t('pool.Reason')"
+                      autocorrect="off"
+                      class="dateInput"
+                      size="sm"
+                      type="text"
+                      @keyup.enter="onRequestSave"
+                      @keyup.esc="onRequestCancel"
+                  />
+                </div>
               </div>
 
               <div class="col col-6 pl-1 pb-1">
-                <b-form-input
-                    ref="place_input_field"
-                    v-model="modifiedData.place"
-                    :class="[{valueChanged : placeChanged}, 'textInput']"
-                    :disabled="disabled"
-                    :placeholder="$t('pool.Place')"
-                    autocorrect="off"
-                    size="sm"
-                    type="text"
-                    @keyup.enter="onRequestSave"
-                    @keyup.esc="onRequestCancel"
-                />
+                <div class="inputWrapper">
+                  <b-form-input
+                      ref="place_input_field"
+                      v-model="modifiedData.place"
+                      :class="[{valueChanged : placeChanged}, 'textInput']"
+                      :disabled="disabled"
+                      :placeholder="$t('pool.Place')"
+                      autocorrect="off"
+                      size="sm"
+                      type="text"
+                      @keyup.enter="onRequestSave"
+                      @keyup.esc="onRequestCancel"
+                  />
+                </div>
               </div>
 
               <div class="col col-6 pr-1 pb-1">
-                <datepicker
-                    ref="datepicker"
-                    v-model="modifiedData.datetime"
-                    :disabled="disabled"
-                    :disabled-dates="disabledDates"
-                    :input-class="{valueChanged : dateTimeChanged}"
-                    :placeholder="$t('pool.Appointment')"
-                    :required="true"
-                    :typeable="true"
-                />
+                <div class="inputWrapper">
+                  <datepicker
+                      ref="datepicker"
+                      v-model="modifiedData.datetime"
+                      :disabled="disabled"
+                      :disabled-dates="disabledDates"
+                      :input-class="{valueChanged : dateTimeChanged}"
+                      :placeholder="$t('pool.Appointment')"
+                      :required="true"
+                      :typeable="true"
+                  />
+                </div>
               </div>
 
               <div class="col col-6 pl-1 pb-1">
-                <vue-select
-                    v-model="modifiedData.used_by"
-                    :disabled="disabled"
-                    :filterable="true"
-                    :getOptionLabel="_getTagLabelFromUserObject"
-                    :multiple="false"
-                    :options="usageOptions"
-                    :placeholder="''"
-                    :selectOnTab="true"
-                    :class="[{valueChanged : usedByChanged}, 'used_by']"
-                    @search="onSearchTermChanged"
-                >
-                </vue-select>
+                <div class="inputWrapper">
+                  <vue-select
+                      v-model="modifiedData.used_by"
+                      :disabled="disabled"
+                      :filterable="true"
+                      :getOptionLabel="_getTagLabelFromUserObject"
+                      :multiple="false"
+                      :options="usageOptions"
+                      :placeholder="''"
+                      :selectOnTab="true"
+                      :class="[{valueChanged : usedByChanged}, 'used_by']"
+                      @search="onSearchTermChanged"
+                  >
+                  </vue-select>
+                </div>
               </div>
 
             </div>
@@ -496,8 +504,24 @@ li.usage-edit-list-el {
 
   }
 
-  .used_by.valueChanged {
-    background-color: $sidebar-input-value-not-saved-yet-background-color;
+  .used_by {
+    .vs__dropdown-toggle {
+      border: none;
+    }
+
+    .vs__search {
+      // Suchfeld verstecken, wenn nicht aktiv draufgeklickt wurde
+      display: none;
+    }
+
+    &.vs--open .vs__search {
+      // Suchfeld wieder einblenden, wenn das Feld aktiv aktiviert wurde
+      display: block;
+    }
+
+    &.valueChanged {
+      background-color: $sidebar-input-value-not-saved-yet-background-color;
+    }
   }
 
   &.isActive.isClosed {
