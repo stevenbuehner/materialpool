@@ -136,9 +136,9 @@ const actions = {
 
 	},
 
-	addMaterialUsage: ({getters, dispatch, commit}, material_id) => {
+	addMaterialUsage: ({getters, dispatch, commit}, {material_id, used_by_id}) => {
 
-		return dispatch('updateMaterialUsage', {material_id});
+		return dispatch('updateMaterialUsage', {material_id, used_by_id});
 
 	},
 

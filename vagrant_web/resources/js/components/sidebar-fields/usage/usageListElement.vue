@@ -263,7 +263,7 @@ export default {
     },
 
     usedByChanged() {
-      return this.modifiedData.used_by !== null && this.modifiedData.used_by?.id !== this.used_by?.id;
+      return this.modifiedData.used_by?.id !== this.used_by?.id || (typeof this.modifiedData.used_by !== typeof this.used_by);
     },
 
     hasChanged() {
@@ -279,7 +279,7 @@ export default {
       this.modifiedData.datetime = new Date(this.datetime);
       this.modifiedData.reason   = this.reason;
       this.modifiedData.place    = this.place;
-      this.modifiedData.used_by  = this.used_by === null ? null : Object.create(this.used_by); // Copy, not deep (because not neccessary)
+      this.modifiedData.used_by  = this.used_by === null ? null : JSON.parse(JSON.stringify(this.used_by)) // Copy deep - good practice
     },
 
     onClickListItem() {
@@ -356,7 +356,7 @@ export default {
             datetime: this.modifiedData.datetime,
             place: this.modifiedData.place,
             reason: this.modifiedData.reason,
-            used_by_id: this.modifiedData.used_by?.id
+            used_by_id: this.modifiedData.used_by?.id || null
           })
           .then(() => {
             this.flashActionSuccessfullyFinished(this.$t('pool.Usage-stored'), msg);

@@ -166,16 +166,21 @@ export default {
 
   methods: {
 
-    addUsageClick() {
+    async addUsageClick() {
 
       const message = this.flashActionStartedWaiting(this.$t('pool.Adding-Usage'));
 
+      const loggedInUserId = await this.$store.dispatch('general/currentUserId');
+
       this.$store
-          .dispatch('materialusages/addMaterialUsage', this.materialId)
+          .dispatch('materialusages/addMaterialUsage', {
+            material_id: this.materialId,
+            used_by_id: loggedInUserId || null
+          })
           .then((usage) => {
             this.flashActionSuccessfullyFinished(this.$t('pool.Usage-added'), message);
-            this.currentActiveUsageId = usage.id;
-            this.$asyncComputed.usages.update();
+            this.currentActiveUsageId = usage.id; // Open the new Usage-ID and make it active
+            this.$asyncComputed.usages.update(); // Force the async property usages to update from vuejs store
             return usage;
           })
           .catch((message) => {
