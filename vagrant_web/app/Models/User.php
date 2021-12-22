@@ -19,6 +19,7 @@ use Laravel\Passport\HasApiTokens;
  * @property string $remember_token
  * @property array $frontend_user_settings
  * @property int $id
+ * @property bool $use_for_mat_usage
  * @property boolean $is_admin
  * @property Collection $foreignResourceIds
  * @property Collection $foreignMaterialIds
@@ -51,12 +52,14 @@ class User extends Authenticatable {
 		'updated_at',
 		'frontend_user_settings',
 		'email',
+		'use_for_mat_usage',
 		'is_admin'
 	];
 
 	protected $casts = [
 		'is_admin'               => 'boolean',
 		'frontend_user_settings' => 'array',
+		'use_for_mat_usage'      => 'boolean'
 	];
 
 	public function foreignMaterialIds() {
