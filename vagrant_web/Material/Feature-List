@@ -20,8 +20,6 @@ Resourcen (in der MaterialDetail-Ansicht) ausklappen
 
 Material -> Keywords -> Edit Keyword -> (bearbeiten) onEnter ... gleich speichern
 
-Kein Auto-Correct in der Suchleiste
-UND Bei "neuem Material erstellen" - in den beiden Textboxen
 
 Speichern / Abbrechen Buttons werden bei einem Bot-Material angezeigt?!?
 http://192.168.3.3/vue/material/10473
@@ -57,17 +55,9 @@ Quelle: www.churchmail.de
 Auto-Überschrift Erkennung Aus einem Markup-Text
 => Verwende die erste Überschrift mit einem #
 
-
 Ich erwarte einen Suchtreffer bei der Suche nach "Micha *Prophet"
 
-
 Nach dem Ändern und Speichern einer Textdatei in einem Material .. .wenn ich dann zu einem anderen Material browse und zurück auf das Material wechsle, wird das falsche / veraltete Textmaterial angezeigt ...
-
-"Mt 13,11" wird in Js nicht als Bibelstelle erkannt
-
-Wenn ich "Kolosser 3,13" eingebe als Tag ... wird er zwar richtig erkannt, aber nicht zur Auswahl angeboten
-
-Bei der Eingabe von Bibelversen als Tag, macht mein Rechner noch Autocomplete in Safari :/
 
 Bei der automatischen Tag-Erkennung in der ersten Zeile:
 - Eine Zeile ist nur dann mit "Einzeltags" vertrauenswürdig. Wenn die einzelnen Tags maximal 2-3 Wörter jeweils haben ... wenn da längere dabei sind, sind es vermutlich ganze Sätze und keine nützlichen Tags!

@@ -12,6 +12,15 @@
               @search="onSearch"
   >
 
+    <template v-slot:search="{ attributes, events }">
+      <input
+          class="vs__search"
+          v-bind="attributes"
+          v-on="events"
+          autocorrect="off" autocapitalize="off" spellcheck="false"
+      /><!-- Hack für Safari -->
+    </template>
+
     <template v-slot:no-options>
       {{ $t('pool.Insert-search-phrase') }}
     </template>
