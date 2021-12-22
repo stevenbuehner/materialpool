@@ -5,7 +5,10 @@
 
       <template v-if="disabled || !isElementSelectedForEdit">
         <div class="list-mode" @click.stop="onClickListItem">
-          <checkbox-icon class="checkbox"/>
+          <span>
+            <checkbox-icon class="checkbox icon"/>
+          </span>
+
           <span class="content">
             <span class="reason">{{ reason }}</span>
               (<template v-if="used_by && used_by.name"><!--
