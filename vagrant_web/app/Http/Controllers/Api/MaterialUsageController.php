@@ -47,7 +47,7 @@ class MaterialUsageController extends BaseController {
 		// $relations = array_merge($this->usageRelationsToLoad, ['material']);
 		event(new MaterialWasChanged($material));
 
-		return $mUsage->load($this->usageRelationsToLoad);
+		return $mUsage->fresh($this->usageRelationsToLoad);;
 	}
 
 
@@ -71,11 +71,12 @@ class MaterialUsageController extends BaseController {
 			$materialUsage->updated_by = Auth::id();
 			$materialUsage->save();
 
+
 			// Reload from DB with Relations?
 			event(new MaterialWasChanged($material));
 		}
 
-		return $materialUsage->load($this->usageRelationsToLoad);
+		return $materialUsage->fresh($this->usageRelationsToLoad);;
 
 	}
 
