@@ -21,7 +21,7 @@
             :clearSearchOnSelect="_clearSearchOnSelect"
             :close-on-select="_closeOnSelect"
             :disabled="disabled"
-            :filterable="true"
+            :filterable="false"
             :getOptionLabel="_getTagLabelFromObject"
             :getOptionKey="_getOptionKey"
             :multiple="multipleTags"
@@ -407,9 +407,10 @@ export default {
       // do first search (=> page = 1)
       const {queryCache, counter} = this.doSearch(query, 1);
 
-      this.handleQueryResult(queryCache, counter);
-
-      loadingCallback(false);
+      this.handleQueryResult(queryCache, counter)
+          .then(() => {
+            loadingCallback(false);
+          });
 
     }, 250),
 
