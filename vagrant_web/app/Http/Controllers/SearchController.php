@@ -161,13 +161,26 @@ class SearchController extends Controller {
 
 	public function guessBibleverse(Request $request) {
 
-		$queryString          = $request->get('q', '');
+		$queryString = $request->get('q', '');
+
+		/** @var BibleVerseService $bibleVerseExtraction */
 		$bibleVerseExtraction = resolve('BibleVerseService');
 		$result               = collect();
 
 		// Search For Bibleverses
 		$verses = $bibleVerseExtraction->stringToBibleVerse($queryString);
 
+		// Remove duplicates:
+		$keys = [];
+		foreach ($verses as $key => $v) {
+			$s = $v->__toString();
+
+			if (isset($keys[$s])) {
+				unset($verses[$key]);
+			} else {
+				$keys[$s] = TRUE;
+			}
+		}
 
 		foreach ($verses as $verse) {
 			$temp = Bibleverse::makeFromBibleverseInterface($verse);
