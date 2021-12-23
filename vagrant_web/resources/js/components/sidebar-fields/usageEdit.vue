@@ -18,7 +18,7 @@
          :class="{disabled}">
 
       <slot name="input">
-        <ul :class="{isEmpty: listIsEmpty, disabled}" ref="usagelist">
+        <ul :class="{isEmpty: listIsEmpty, disabled}" class="p-2" ref="usagelist">
           <li v-if="hiddenUsagesCount > 0" class="displayHidden"
               @click="displayMax = usages.length">
             >> {{ $tc('pool.Show-hidden-usages', hiddenUsagesCount, {count: hiddenUsagesCount}) }}

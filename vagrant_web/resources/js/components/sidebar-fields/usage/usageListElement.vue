@@ -1,12 +1,12 @@
 <template>
   <li :class="{isActive : !disabled, isOpen: isElementSelectedForEdit, isClosed: !isElementSelectedForEdit}"
-      class="usage-edit-list-el">
+      class="usage-edit-list-el pb-1">
     <div class="wrapper">
 
       <template v-if="disabled || !isElementSelectedForEdit">
-        <div class="list-mode" @click.stop="onClickListItem">
+        <div class="read-mode" @click.stop="onClickListItem">
           <span>
-            <checkbox-icon class="checkbox icon"/>
+            <occasion-icon class="checkbox icon"/>
           </span>
 
           <span class="content">
@@ -30,12 +30,12 @@
 
       <template v-else>
 
-        <div class="row">
+        <div class="row m-n1">
 
-          <div class="col col-11">
-            <div class="row">
+          <div class="col col-11 p-1">
 
-              <div class="col col-6 pr-1 pb-1">
+            <div class="row m-n1">
+              <div class="col col-6 py-1 pl-1 pr-0">
                 <div class="inputWrapper">
                   <b-form-input
                       ref="reason_input_field"
@@ -53,7 +53,7 @@
                 </div>
               </div>
 
-              <div class="col col-6 pl-1 pb-1">
+              <div class="col col-6 p-1 pl-0">
                 <div class="inputWrapper">
                   <b-form-input
                       ref="place_input_field"
@@ -70,7 +70,7 @@
                 </div>
               </div>
 
-              <div class="col col-6 pr-1 pb-1">
+              <div class="col col-6 pl-1 pb-1 pr-0">
                 <div class="inputWrapper">
                   <datepicker
                       ref="datepicker"
@@ -85,7 +85,7 @@
                 </div>
               </div>
 
-              <div class="col col-6 pl-1 pb-1">
+              <div class="col col-6 px-1 pb-1">
                 <div class="inputWrapper">
                   <vue-select
                       v-model="modifiedData.used_by"
@@ -106,8 +106,8 @@
             </div>
           </div>
 
-          <div class="col col-1 buttons">
-            <span :title="$t('pool.Cancel')" @click.stop="onRequestCancel">
+          <div class="col col-1 p-1 buttons">
+            <span :title="$t('pool.Undo-changes')" @click.stop="onRequestCancel">
               <cancel-icon class="icon cancel-icon"/>
             </span>
             <span v-show="hasChanged" :title="$t('pool.Save')" @click.stop="onRequestSave">
@@ -126,16 +126,17 @@
 
 <script>
 import {getLocale, getLocaleDateFormat} from "../../../apps/main/localisation";
-import checkboxIcon                     from 'svg-icon/dist/svg/ionic/android-checkbox-outline.svg';
-import Datepicker                       from '../../datepicker/datepicker';
-import {BButton}                        from 'bootstrap-vue';
-import trashIcon                        from 'svg-icon/dist/svg/oct/trashcan.svg';
-import moment                           from "moment";
-import {savingDialogs}                  from "../../../helper/flashMessages";
-import cancelIcon                       from 'svg-icon/dist/svg/material/cancel.svg';
-import checkCircleIcon                  from 'svg-icon/dist/svg/material/check-circle.svg';
-import vueSelect                        from 'vue-select';
-import _debounce                        from "lodash/debounce";
+import OccasionIcon                     from 'svg-icon/dist/svg/icomoon/bubble2.svg';
+
+import Datepicker      from '../../datepicker/datepicker';
+import {BButton}       from 'bootstrap-vue';
+import trashIcon       from 'svg-icon/dist/svg/oct/trashcan.svg';
+import moment          from "moment";
+import {savingDialogs} from "../../../helper/flashMessages";
+import cancelIcon      from 'svg-icon/dist/svg/material/undo.svg';
+import checkCircleIcon from 'svg-icon/dist/svg/material/save.svg';
+import vueSelect       from 'vue-select';
+import _debounce       from "lodash/debounce";
 
 export default {
   name: "usageListElement",
@@ -442,7 +443,7 @@ export default {
   components: {
     Datepicker,
     vueSelect,
-    checkboxIcon,
+    OccasionIcon,
     trashIcon,
     cancelIcon,
     checkCircleIcon,
@@ -465,7 +466,9 @@ li.usage-edit-list-el {
   > .wrapper {
 
     .buttons {
-      display: inline-flex;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
       align-items: center;
       padding-left: $button-padding-left;
 
@@ -483,10 +486,9 @@ li.usage-edit-list-el {
       padding: 0 2px
     }
 
-    .list-mode {
+    .read-mode {
       display: flex;
       align-items: flex-start;
-      margin: .5em 0;
       width: 100%;
 
       .checkbox {
