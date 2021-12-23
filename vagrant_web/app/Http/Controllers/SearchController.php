@@ -25,7 +25,8 @@ class SearchController extends Controller {
 	public function guess(Request $request) {
 		/** @var BibleVerseService $bibleVerseExtraction */
 		$queryString          = $request->get('q', '');
-		$queryString          = str_replace('%', '*', $queryString);
+		$queryString          = str_replace('*', '%', $queryString);
+		$cleanedQueryString   = preg_replace('~[\%\*\'\"\\\]+~', '', $queryString);
 		$queryPage            = $request->get('page', 1);
 		$paginationSize       = 30;
 		$bibleVerseExtraction = resolve('BibleVerseService');
@@ -50,11 +51,11 @@ class SearchController extends Controller {
 		// Wildcard Search
 		$result->push(
 			[
-				'text' => $queryString,
+				'text' => $cleanedQueryString,
 				'icon' => '/img/icons/ayce.svg',
 				'item' => [
 					'type' => '*',
-					'text' => $queryString
+					'text' => $cleanedQueryString
 				]
 			]
 		);
@@ -161,13 +162,26 @@ class SearchController extends Controller {
 
 	public function guessBibleverse(Request $request) {
 
-		$queryString          = $request->get('q', '');
+		$queryString = $request->get('q', '');
+
+		/** @var BibleVerseService $bibleVerseExtraction */
 		$bibleVerseExtraction = resolve('BibleVerseService');
 		$result               = collect();
 
 		// Search For Bibleverses
 		$verses = $bibleVerseExtraction->stringToBibleVerse($queryString);
 
+		// Remove duplicates:
+		$keys = [];
+		foreach ($verses as $key => $v) {
+			$s = $v->__toString();
+
+			if (isset($keys[$s])) {
+				unset($verses[$key]);
+			} else {
+				$keys[$s] = TRUE;
+			}
+		}
 
 		foreach ($verses as $verse) {
 			$temp = Bibleverse::makeFromBibleverseInterface($verse);
