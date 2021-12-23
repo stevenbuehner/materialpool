@@ -44,3 +44,4 @@ Auto-Überschrift Erkennung Aus einem Markup-Text
 Bei der automatischen Tag-Erkennung in der ersten Zeile:
 - Eine Zeile ist nur dann mit "Einzeltags" vertrauenswürdig. Wenn die einzelnen Tags maximal 2-3 Wörter jeweils haben ... wenn da längere dabei sind, sind es vermutlich ganze Sätze und keine nützlichen Tags!
 
+DayJS durch Momentum ersetzen
