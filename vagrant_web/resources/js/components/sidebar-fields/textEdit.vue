@@ -95,7 +95,7 @@ import textFieldIcon                                  from 'svg-icon/dist/svg/ma
 import generalMixin                                   from './generalSidebarFields.mixin';
 import Datepicker                                     from '../datepicker/datepicker';
 import {server_datetime_format}                       from "../../apps/config";
-import moment                                         from "moment";
+import {moment}                                       from "../../apps/main/localisation";
 
 Vue.use(FormTextareaPlugin);
 Vue.use(FormInputPlugin);

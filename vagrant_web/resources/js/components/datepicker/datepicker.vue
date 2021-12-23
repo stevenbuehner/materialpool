@@ -29,7 +29,6 @@ export default {
       type: [String, Object, Array],
       default: 'dateInput'
     },
-
   }
 }
 </script>

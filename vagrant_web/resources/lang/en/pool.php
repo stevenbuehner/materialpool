@@ -337,4 +337,6 @@ return [
 	'Show-hidden-usages'                                       => '{1} Show one hidden usage|[2,*] Show :count hidden usages',
 	'Could-not-load-Material-Usages'                           => 'Could not load Material Usages',
 	'Keywords-are-beeing-refreshed-from-server'                => 'Keywords are beeing refreshed from the server. Please wait.',
+	'Required-datetime-is-invalid.Want-to-save-anyway?'        => 'Required datetime is invalid! Do you want to try saving anyways?',
+	'You-have-unsaved-data.-Do-you-want-to-continue-anyways?'  => 'You have unsaved data. Do you want to continue without saving?',
 ];

@@ -333,5 +333,6 @@ return [
 	'Show-hidden-usages'                                       => '{1} Zeige einen weiteren Anlass|[2,*] Blende weitere :count Anlässe ein',
 	'Could-not-load-Material-Usages'                           => 'Anlässe des Materials konnten nicht geladen werden',
 	'Keywords-are-beeing-refreshed-from-server'                => 'Schlagwörter werden gerade vom Server geladen. Bitte kurz warten.',
-
+	'Required-datetime-is-invalid.Want-to-save-anyway?'        => 'Das Pflichtfeld Datum ist ungültig. Möchtest Du trotdem versuchen forzufahren?',
+	'You-have-unsaved-data.-Do-you-want-to-continue-anyways?'  => 'Du hast die Felder noch nicht gespeichert? Willst du ohne zu speichern fortfahren?',
 ];

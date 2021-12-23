@@ -125,13 +125,13 @@
 </template>
 
 <script>
-import {getLocale, getLocaleDateFormat} from "../../../apps/main/localisation";
-import OccasionIcon                     from 'svg-icon/dist/svg/icomoon/bubble2.svg';
+import {getLocale, getLocaleDateFormat, moment} from "../../../apps/main/localisation";
+import OccasionIcon                             from 'svg-icon/dist/svg/icomoon/bubble2.svg';
 
-import Datepicker      from '../../datepicker/datepicker';
-import {BButton}       from 'bootstrap-vue';
-import trashIcon       from 'svg-icon/dist/svg/oct/trashcan.svg';
-import moment          from "moment";
+import Datepicker from '../../datepicker/datepicker';
+import {BButton}  from 'bootstrap-vue';
+import trashIcon  from 'svg-icon/dist/svg/oct/trashcan.svg';
+
 import {savingDialogs} from "../../../helper/flashMessages";
 import cancelIcon      from 'svg-icon/dist/svg/material/undo.svg';
 import checkCircleIcon from 'svg-icon/dist/svg/material/save.svg';
@@ -224,12 +224,13 @@ export default {
 
     datetime() {
       this.init();
-    }, reason() {
-      this.init();
-    }, place() {
+    },
+    reason() {
       this.init();
     },
-
+    place() {
+      this.init();
+    },
     used_by: {
       deep: true,
       handler() {
@@ -265,7 +266,7 @@ export default {
     },
 
     dateTimeChanged() {
-      return this.modifiedData.datetime?.getTime() !== new Date(this.datetime).getTime();
+      return !moment(this.modifiedData.datetime).isSame(this.datetime);
     },
 
     reasonChanged() {
@@ -290,7 +291,7 @@ export default {
   methods: {
     init() {
       // deep copy data
-      this.modifiedData.datetime = new Date(this.datetime);
+      this.modifiedData.datetime = this.datetime;
       this.modifiedData.reason   = this.reason;
       this.modifiedData.place    = this.place;
       this.modifiedData.used_by  = this.used_by === null ? null : JSON.parse(JSON.stringify(this.used_by)) // Copy deep - good practice
@@ -355,6 +356,12 @@ export default {
 
       if (this.updateInProgress === true) {
         return;
+      }
+
+      if(moment(this.modifiedData.datetime).isValid() === false){
+        if (confirm(this.$t('pool.Required-datetime-is-invalid.Want-to-save-anyway?')) === false) {
+          return;
+        }
       }
 
       this.updateInProgress = true;

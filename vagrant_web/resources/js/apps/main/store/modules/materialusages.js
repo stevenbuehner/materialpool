@@ -6,7 +6,7 @@ import {
 	api_v2_materialusage_store,
 	api_v2_materialusage_update
 }                                      from "../../../../components/serverRoutes";
-import moment                          from 'moment';
+import {moment}                        from "../../localisation";
 
 
 const state = {
