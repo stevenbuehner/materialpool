@@ -17,10 +17,11 @@ class UserFactory extends Factory {
 	public function definition() {
 
 		return [
-			'name'           => $this->faker->name,
-			'email'          => $this->faker->unique()->safeEmail(),
-			'password'       => bcrypt('secret'),
-			'remember_token' => Str::random(10),
+			'name'              => $this->faker->name,
+			'email'             => $this->faker->unique()->safeEmail(),
+			'password'          => bcrypt('secret'),
+			'remember_token'    => Str::random(10),
+			'use_for_mat_usage' => $this->faker->boolean
 		];
 	}
 

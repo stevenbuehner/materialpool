@@ -17,6 +17,7 @@
           :rows="3"
           :disabled="!editingEnabled"
           :state="metaInputValid"
+          autocomplete="off" autocorrect="off" autocapitalize="off"
       />
     </b-form-group>
 

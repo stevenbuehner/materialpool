@@ -25,6 +25,10 @@ use Kalnoy\Nestedset\NodeTrait;
  * @property int _rgt
  * @property \DateTime created_at
  * @property \DateTime updated_at
+ * @property int $descendants_count
+ * @property int $children_count
+ * @property int $materials_count
+ * @property int $material_authors_count
  */
 class Keyword extends Model {
 	use HasFactory;
