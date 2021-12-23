@@ -13,6 +13,7 @@ import bundles         from './modules/bundles';
 import biblecontents   from './modules/biblecontents';
 import general         from './modules/general';
 import bibles          from './modules/bibles';
+import users           from './modules/users';
 
 Vue.use(VueX);
 
@@ -32,6 +33,7 @@ export const store = new VueX.Store({
 		bundles,
 		biblecontents,
 		general,
-		bibles
+		bibles,
+		users
 	}
 });

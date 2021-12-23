@@ -272,6 +272,8 @@ export function api_v1_biblecontents_search_and_get(searchText, bibleUuid) {
 	return route;
 }
 
+// Users
+export const api_v2_users_find = '/api/v2/users/find';
 
 // System
 export const api_v2_system_shutdown = '/api/v2/system/shutdown';

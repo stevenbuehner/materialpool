@@ -1,22 +1,27 @@
 <template>
   <li :class="{isActive : !disabled, isOpen: isElementSelectedForEdit, isClosed: !isElementSelectedForEdit}"
-      class="usage-edit-list-el">
+      class="usage-edit-list-el pb-1">
     <div class="wrapper">
 
       <template v-if="disabled || !isElementSelectedForEdit">
-        <div class="list-mode" @click.stop="onClickListItem">
-          <checkbox-icon class="checkbox"/>
-          <span class="content">
-            <span class="reason">{{ reason }}</span>
-            <template v-if="place !== ''">
-              (in <span class="place">{{ place }}</span>, am <span>{{ datetime | dateformat }}</span>)
-            </template>
-            <template v-if="place === ''">
-              (am <span>{{ datetime | dateformat }}</span>)
-            </template>
+        <div class="read-mode" @click.stop="onClickListItem">
+          <span>
+            <occasion-icon class="checkbox icon"/>
           </span>
 
-          <span @click.stop="onRequestDelete" :title="$t('pool.delete')" class="trash">
+          <span class="content">
+            <span class="reason">{{ reason }}</span>
+              (<template v-if="used_by && used_by.name"><!--
+                --><span class="name">{{ used_by.name }}</span>,
+              </template><!--
+              --><template v-if="place !== ''"><!--
+                -->in <span class="place">{{ place }}</span>,
+              </template><!--
+            -->am <span>{{ datetime | dateformat }}</span><!--
+            -->)
+          </span>
+
+          <span :title="$t('pool.delete')" class="trash" @click.stop="onRequestDelete">
             <trash-icon class="trash-icon icon"/>
           </span>
         </div>
@@ -25,56 +30,93 @@
 
       <template v-else>
 
-        <span>
-          <b-form-input
-              ref="reason_input_field"
-              :class="[{valueChanged : reasonChanged}, 'textInput']"
-              :disabled="disabled"
-              :placeholder="$t('pool.Reason')"
-              v-model="modifiedData.reason"
-              autocorrect="off"
-              class="dateInput"
-              size="sm"
-              type="text"
-              @keyup.enter="onRequestSave"
-              @keyup.esc="onRequestCancel"
-          />
-        </span>
+        <div class="row m-n1">
 
-        <span>
-          <b-form-input
-              ref="place_input_field"
-              :class="[{valueChanged : placeChanged}, 'textInput']"
-              :disabled="disabled"
-              :placeholder="$t('pool.Place')"
-              v-model="modifiedData.place"
-              autocorrect="off"
-              size="sm"
-              type="text"
-              @keyup.enter="onRequestSave"
-              @keyup.esc="onRequestCancel"
-          />
-        </span>
+          <div class="col col-11 p-1">
 
-        <datepicker
-            ref="datepicker"
-            :disabled="disabled"
-            :disabled-dates="disabledDates"
-            :input-class="{valueChanged : dateTimeChanged}"
-            :placeholder="$t('pool.Appointment')"
-            :required="true"
-            :typeable="true"
-            v-model="modifiedData.datetime"
-        />
+            <div class="row m-n1">
+              <div class="col col-6 py-1 pl-1 pr-0">
+                <div class="inputWrapper">
+                  <b-form-input
+                      ref="reason_input_field"
+                      v-model="modifiedData.reason"
+                      :class="[{valueChanged : reasonChanged}, 'textInput']"
+                      :disabled="disabled"
+                      :placeholder="$t('pool.Reason')"
+                      autocorrect="off"
+                      class="dateInput"
+                      size="sm"
+                      type="text"
+                      @keyup.enter="onRequestSave"
+                      @keyup.esc="onRequestCancel"
+                  />
+                </div>
+              </div>
 
-        <span class="buttons">
-          <span @click.stop="onRequestCancel" :title="$t('pool.Cancel')">
-            <cancel-icon class="icon cancel-icon"/>
-          </span>
-          <span @click.stop="onRequestSave" :title="$t('pool.Save')" v-show="hasChanged">
-            <check-circle-icon class="icon check-icon"/>
-          </span>
-        </span>
+              <div class="col col-6 p-1 pl-0">
+                <div class="inputWrapper">
+                  <b-form-input
+                      ref="place_input_field"
+                      v-model="modifiedData.place"
+                      :class="[{valueChanged : placeChanged}, 'textInput']"
+                      :disabled="disabled"
+                      :placeholder="$t('pool.Place')"
+                      autocorrect="off"
+                      size="sm"
+                      type="text"
+                      @keyup.enter="onRequestSave"
+                      @keyup.esc="onRequestCancel"
+                  />
+                </div>
+              </div>
+
+              <div class="col col-6 pl-1 pb-1 pr-0">
+                <div class="inputWrapper">
+                  <datepicker
+                      ref="datepicker"
+                      v-model="modifiedData.datetime"
+                      :disabled="disabled"
+                      :disabled-dates="disabledDates"
+                      :input-class="{valueChanged : dateTimeChanged}"
+                      :placeholder="$t('pool.Appointment')"
+                      :required="true"
+                      :typeable="true"
+                  />
+                </div>
+              </div>
+
+              <div class="col col-6 px-1 pb-1">
+                <div class="inputWrapper">
+                  <vue-select
+                      v-model="modifiedData.used_by"
+                      :disabled="disabled"
+                      :filterable="true"
+                      :getOptionLabel="_getTagLabelFromUserObject"
+                      :multiple="false"
+                      :options="usageOptions"
+                      :placeholder="''"
+                      :selectOnTab="true"
+                      :class="[{valueChanged : usedByChanged}, 'used_by']"
+                      @search="onSearchTermChanged"
+                  >
+                  </vue-select>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <div class="col col-1 p-1 buttons">
+            <span :title="$t('pool.Undo-changes')" @click.stop="onRequestCancel">
+              <cancel-icon class="icon cancel-icon"/>
+            </span>
+            <span v-show="hasChanged" :title="$t('pool.Save')" @click.stop="onRequestSave">
+              <check-circle-icon class="icon check-icon"/>
+            </span>
+          </div>
+
+        </div>
+
 
       </template>
 
@@ -84,14 +126,17 @@
 
 <script>
 import {getLocale, getLocaleDateFormat} from "../../../apps/main/localisation";
-import checkboxIcon                     from 'svg-icon/dist/svg/ionic/android-checkbox-outline.svg';
-import Datepicker                       from '../../datepicker/datepicker';
-import {BButton}                        from 'bootstrap-vue';
-import trashIcon                        from 'svg-icon/dist/svg/oct/trashcan.svg';
-import moment                           from "moment";
-import {savingDialogs}                  from "../../../helper/flashMessages";
-import cancelIcon                       from 'svg-icon/dist/svg/material/cancel.svg';
-import checkCircleIcon                  from 'svg-icon/dist/svg/material/check-circle.svg';
+import OccasionIcon                     from 'svg-icon/dist/svg/icomoon/bubble2.svg';
+
+import Datepicker      from '../../datepicker/datepicker';
+import {BButton}       from 'bootstrap-vue';
+import trashIcon       from 'svg-icon/dist/svg/oct/trashcan.svg';
+import moment          from "moment";
+import {savingDialogs} from "../../../helper/flashMessages";
+import cancelIcon      from 'svg-icon/dist/svg/material/undo.svg';
+import checkCircleIcon from 'svg-icon/dist/svg/material/save.svg';
+import vueSelect       from 'vue-select';
+import _debounce       from "lodash/debounce";
 
 export default {
   name: "usageListElement",
@@ -143,6 +188,30 @@ export default {
     }
   },
 
+
+  mounted() {
+    this.init();
+  },
+
+  data() {
+    return {
+      modifiedData: {
+        datetime: null,
+        reason: null,
+        place: null,
+        used_by: null,
+      },
+
+      updateInProgress: false,
+
+      // used_by
+      usaageSearch: '',
+      usageOptions: []
+
+    };
+  },
+
+
   watch: {
     currentActiveUsageId(value, valueOld) {
       // Beim Anklicken gleich in das Feld Grund springen
@@ -160,29 +229,15 @@ export default {
     }, place() {
       this.init();
     },
-    used_by() {
-      // Fixme: Deep Objekt wird vermutlich problematisch
-      this.init();
+
+    used_by: {
+      deep: true,
+      handler() {
+        // Fixme: Deep Objekt wird vermutlich problematisch
+        this.init();
+      }
     },
 
-  },
-
-
-  mounted() {
-    this.init();
-  },
-
-  data() {
-    return {
-      modifiedData: {
-        datetime: null,
-        reason: null,
-        place: null,
-        used_by_id: null,
-      },
-
-      updateInProgress: false,
-    };
   },
 
   computed: {
@@ -222,7 +277,7 @@ export default {
     },
 
     usedByChanged() {
-      return this.modifiedData.used_by_id !== this.used_by?.id;
+      return this.modifiedData.used_by?.id !== this.used_by?.id || (typeof this.modifiedData.used_by !== typeof this.used_by);
     },
 
     hasChanged() {
@@ -235,15 +290,51 @@ export default {
   methods: {
     init() {
       // deep copy data
-      this.modifiedData.datetime   = new Date(this.datetime);
-      this.modifiedData.reason     = this.reason;
-      this.modifiedData.place      = this.place;
-      this.modifiedData.used_by_id = this.used_by?.id;
+      this.modifiedData.datetime = new Date(this.datetime);
+      this.modifiedData.reason   = this.reason;
+      this.modifiedData.place    = this.place;
+      this.modifiedData.used_by  = this.used_by === null ? null : JSON.parse(JSON.stringify(this.used_by)) // Copy deep - good practice
     },
 
     onClickListItem() {
       // Request parent to switch into edit-mode for this element and to close other elements
       this.$emit('element-clicked', this.id);
+    },
+
+    onSearchTermChanged: _debounce(function (query, loadingCallback) {
+
+      loadingCallback(true);
+
+      this.$store
+          .dispatch('users/search', {
+            search: query
+          })
+          .then((users) => {
+            this.usageOptions = users;
+          })
+          .catch(function (err) {
+            console.error(err);
+          })
+          .then(() => {
+            loadingCallback(false);
+          });
+
+    }, 250),
+
+    _getTagLabelFromUserObject(value) {
+      if (typeof value === 'object') {
+        if (!value.hasOwnProperty('name')) {
+          return console.warn(
+              `[vue-select warn]: Label key "option.name" does not` +
+              ` exist in options object ${JSON.stringify(value)}.\n` +
+              'http://sagalbot.github.io/vue-select/#ex-labels'
+          )
+        } else {
+          return value.name;
+        }
+      } else {
+        return value;
+      }
     },
 
     onRequestCancel() {
@@ -279,9 +370,9 @@ export default {
             datetime: this.modifiedData.datetime,
             place: this.modifiedData.place,
             reason: this.modifiedData.reason,
-            used_by_id: this.modifiedData.used_by_id
+            used_by_id: this.modifiedData.used_by?.id || null
           })
-          .then((data) => {
+          .then(() => {
             this.flashActionSuccessfullyFinished(this.$t('pool.Usage-stored'), msg);
             this.$emit('input:saved');
           })
@@ -351,7 +442,8 @@ export default {
 
   components: {
     Datepicker,
-    checkboxIcon,
+    vueSelect,
+    OccasionIcon,
     trashIcon,
     cancelIcon,
     checkCircleIcon,
@@ -372,10 +464,11 @@ li.usage-edit-list-el {
   padding: 0;
 
   > .wrapper {
-    display: flex;
 
     .buttons {
-      display: inline-flex;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
       align-items: center;
       padding-left: $button-padding-left;
 
@@ -393,10 +486,9 @@ li.usage-edit-list-el {
       padding: 0 2px
     }
 
-    .list-mode {
+    .read-mode {
       display: flex;
       align-items: flex-start;
-      margin: .5em 0;
       width: 100%;
 
       .checkbox {
@@ -417,6 +509,26 @@ li.usage-edit-list-el {
       }
     }
 
+  }
+
+  .used_by {
+    .vs__dropdown-toggle {
+      border: none;
+    }
+
+    .vs__search {
+      // Suchfeld verstecken, wenn nicht aktiv draufgeklickt wurde
+      display: none;
+    }
+
+    &.vs--open .vs__search {
+      // Suchfeld wieder einblenden, wenn das Feld aktiv aktiviert wurde
+      display: block;
+    }
+
+    &.valueChanged {
+      background-color: $sidebar-input-value-not-saved-yet-background-color;
+    }
   }
 
   &.isActive.isClosed {

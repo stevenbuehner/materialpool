@@ -77,6 +77,10 @@ Route::group([
 		->name('api.v2.materialusage.delete');
 
 
+	// Users
+	Route::get('users/find', 'UserController@find')
+		->name('api.v2.users.find');
+
 	// Shutdown System
 	Route::get('system/shutdown', 'SystemController@shutdown')
 		->name('api.v2.system.shutdown');

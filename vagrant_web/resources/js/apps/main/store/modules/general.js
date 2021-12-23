@@ -96,14 +96,19 @@ const actions = {
 
 	maxUploadSize: ({dispatch}) => {
 		return dispatch('options').then((allOptions) => {
-			return allOptions.server.max_upload;
+			return allOptions?.server?.max_upload;
 		});
 	},
 
 	currentUser: ({dispatch}) => {
 		return dispatch('options').then((allOptions) => {
-			return allOptions.user;
+			return allOptions?.user;
 		});
+	},
+
+	currentUserId: async ({dispatch}) => {
+		const currentUser = await dispatch('currentUser');
+		return currentUser?.id;
 	},
 
 	getUser: async ({dispatch, getters, commit}, id) => {
