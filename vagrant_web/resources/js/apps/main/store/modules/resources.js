@@ -84,8 +84,6 @@ const actions = {
 
 			commit('setResourceLoadingPromise', {id: id, promise: loadingPromise});
 
-		} else {
-			loadingPromise = loadingPromise;
 		}
 
 		return loadingPromise;
