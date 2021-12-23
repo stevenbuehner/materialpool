@@ -41,8 +41,6 @@ Server automatisch ausschalten nach einer gewissen Laufzeit (z.B. 2h)
 Auto-Überschrift Erkennung Aus einem Markup-Text
 => Verwende die erste Überschrift mit einem #
 
-Nach dem Ändern und Speichern einer Textdatei in einem Material ... wenn ich dann zu einem anderen Material browse und zurück auf das Material wechsle, wird das falsche / veraltete Textmaterial angezeigt ...
-
 Bei der automatischen Tag-Erkennung in der ersten Zeile:
 - Eine Zeile ist nur dann mit "Einzeltags" vertrauenswürdig. Wenn die einzelnen Tags maximal 2-3 Wörter jeweils haben ... wenn da längere dabei sind, sind es vermutlich ganze Sätze und keine nützlichen Tags!
 
