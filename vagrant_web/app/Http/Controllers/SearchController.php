@@ -25,7 +25,8 @@ class SearchController extends Controller {
 	public function guess(Request $request) {
 		/** @var BibleVerseService $bibleVerseExtraction */
 		$queryString          = $request->get('q', '');
-		$queryString          = str_replace('%', '*', $queryString);
+		$queryString          = str_replace('*', '%', $queryString);
+		$cleanedQueryString   = preg_replace('~[\%\*\'\"\\\]+~', '', $queryString);
 		$queryPage            = $request->get('page', 1);
 		$paginationSize       = 30;
 		$bibleVerseExtraction = resolve('BibleVerseService');
@@ -50,11 +51,11 @@ class SearchController extends Controller {
 		// Wildcard Search
 		$result->push(
 			[
-				'text' => $queryString,
+				'text' => $cleanedQueryString,
 				'icon' => '/img/icons/ayce.svg',
 				'item' => [
 					'type' => '*',
-					'text' => $queryString
+					'text' => $cleanedQueryString
 				]
 			]
 		);
