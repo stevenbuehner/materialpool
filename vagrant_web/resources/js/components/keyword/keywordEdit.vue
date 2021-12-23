@@ -37,6 +37,7 @@
               id="keywordType"
               v-model="keyword.type"
               :disabled="disableForm"
+              @keydown.enter.prevent="btnSave"
           >
             <option value="key">Keyword</option>
             <option value="person">Person</option>
@@ -206,7 +207,6 @@ export default {
     updateKeywordModified() {
       this.keywordWasModified = JSON.stringify(this.keyword) !== this.backupJsonKeyword;
     },
-
 
     btnSave() {
 
