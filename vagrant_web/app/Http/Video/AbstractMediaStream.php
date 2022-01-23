@@ -5,7 +5,7 @@ namespace App\Http\Video;
 /**
  * Description of MediaStream
  *
- * @author Rana
+ * @author Steven Bühner, Original from Rana
  * @link http://codesamplez.com/programming/php-html5-video-streaming-tutorial
  */
 abstract class AbstractMediaStream {
