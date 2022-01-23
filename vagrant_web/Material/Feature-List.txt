@@ -45,3 +45,10 @@ Bei der automatischen Tag-Erkennung in der ersten Zeile:
 - Eine Zeile ist nur dann mit "Einzeltags" vertrauenswürdig. Wenn die einzelnen Tags maximal 2-3 Wörter jeweils haben ... wenn da längere dabei sind, sind es vermutlich ganze Sätze und keine nützlichen Tags!
 
 DayJS durch Momentum ersetzen
+
+In Safari beim Löschen von Material
+-> erst zugeordnete Ressourcen löschen (funktioniert)
+-> Dann klick auf Material löschen -> schnelle Fehlermeldung, die man aber nicht sieht
+
+
+In der Suchleiste, bei Klick+Tab auf einen Link, das Ergebnis in einem neuen Tab/Fenster öffnen
