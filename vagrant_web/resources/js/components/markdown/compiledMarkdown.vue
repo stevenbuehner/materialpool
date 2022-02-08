@@ -2,6 +2,7 @@
 import marked       from './markdownSetup';
 import biblePopover from "./../bibleverse/bibleverse-inline-popover-txt";
 import _throttle    from 'lodash/throttle'
+import DOMPurify    from "dompurify";
 
 export default {
   name: "compiledMarkdown",
@@ -35,7 +36,8 @@ export default {
 
   methods: {
     debounceCompilation: _throttle(function () {
-      this.compiledText = marked.parse(this.text);
+      const dirty       = marked.parse(this.text);
+      this.compiledText = DOMPurify.sanitize(dirty);
     }, 200)
   },
 
@@ -86,7 +88,7 @@ export default {
     color: #777;
   }
 
-  .summary{
+  .summary {
     padding-left: 1em;
   }
 }
