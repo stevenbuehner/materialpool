@@ -25,10 +25,6 @@ Bibleverse-Select (wenn keines mehr zur Auswahl steht) -> Dropdown schließen un
 Suche auf Parallelstellen ausdehnen mit einem Klick
 
 
-Markdwown-Erkennung für:
-=>
-->
-
 Schöneres Styling für Markdown (gibt es da fertige CSS?)
 
 

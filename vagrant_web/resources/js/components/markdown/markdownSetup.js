@@ -1,6 +1,7 @@
 import {marked}                 from 'marked';
 
-import {getBibleverseTokenizer} from "./bibleverseRenderer";
+import {getBibleverseTokenizer}   from "./bibleverseRenderer";
+import {getArrowMarkdownRenderer} from "./arrowRenderer";
 
 
 marked.use({
@@ -14,6 +15,6 @@ marked.use({
 
 const loadBibleverses = true;
 
-marked.use({extensions: [getBibleverseTokenizer(loadBibleverses)]});
+marked.use({extensions: [getBibleverseTokenizer(loadBibleverses), getArrowMarkdownRenderer()]});
 
 export default marked;

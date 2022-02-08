@@ -85,6 +85,10 @@ export default {
     padding: 0 15px;
     color: #777;
   }
+
+  .summary{
+    padding-left: 1em;
+  }
 }
 
 </style>
