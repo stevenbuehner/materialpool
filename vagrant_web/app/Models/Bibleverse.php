@@ -185,7 +185,7 @@ class Bibleverse extends Model implements BibleVerseInterface {
 	}
 
 	public function setFromBookIdAttribute(int $fromBookId) {
-		return $this->setFromBookId($fromBookId);
+		$this->setFromBookId($fromBookId);
 	}
 
 	public function setFromBookId($fromBookId) {
@@ -274,7 +274,7 @@ class Bibleverse extends Model implements BibleVerseInterface {
 	}
 
 	public function setToBookIdAttribute(int $toBookId) {
-		return $this->setToBookId($toBookId);
+		$this->setToBookId($toBookId);
 	}
 
 	public function setToBookId($toBookId) {
@@ -305,7 +305,7 @@ class Bibleverse extends Model implements BibleVerseInterface {
 	}
 
 	public function setToChapterAttribute(int $toChapter) {
-		return $this->setToChapter($toChapter);
+		$this->setToChapter($toChapter);
 	}
 
 	/**
