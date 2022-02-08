@@ -5,6 +5,9 @@
        @click.prevent="goToMaterial(material.id)">
 
     <div class="preview" :class="{imageDisplayed: showImage}">
+      <div v-if="material.from_bot" class="is-bot-corner" :title="$t('pool.is-from-bot')">
+        <from-bot-icon class="from-bot-icon"/>
+      </div>
       <img class="image" v-show="showImage" :src="previewImageUrl" @load="showImage = true; imageIsLoading=false;"
            @error="showImage = false; imageIsLoading=false;" :alt="fileTypes">
       <play-icon class="playIcon" v-if="showImage && containsVideoResource"/>
@@ -73,6 +76,7 @@ import materialDetail           from '../../apps/main/pages/MaterialDetail.vue';
 import {material_preview_image} from '../serverRoutes';
 import materialStoreMixin       from './materialStore.mixin';
 import playIcon                 from 'svg-icon/dist/svg/icomoon/play2.svg'
+import fromBotIcon              from 'svg-icon/dist/svg/awesome/database.svg'
 
 
 function sortByRelevance(t1, t2) {
@@ -211,7 +215,8 @@ export default {
     Biblevers,
     Keyword,
     materialDetail,
-    playIcon
+    playIcon,
+    fromBotIcon
   }
 }
 </script>
@@ -238,6 +243,24 @@ $preview-background-color: #868E96;
     align-items: center;
     overflow: hidden;
     cursor: pointer;
+
+    .is-bot-corner {
+      position: absolute;
+      width: 3em;
+      height: 3em;
+      top: 0;
+      left: 0;
+      background: linear-gradient(to bottom right, rgba(0, 0, 0, 0.25) 50%, #0000 50%) no-repeat;
+
+      .from-bot-icon {
+        height: 1em;
+        width: 1em;
+        margin: .25em;
+        path{
+          fill: white;
+        }
+      }
+    }
 
     &:not(.imageDisplayed) {
       background-color: $preview-background-color;

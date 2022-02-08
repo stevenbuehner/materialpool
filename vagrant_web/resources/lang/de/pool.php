@@ -335,4 +335,5 @@ return [
 	'Keywords-are-beeing-refreshed-from-server'                => 'Schlagwörter werden gerade vom Server geladen. Bitte kurz warten.',
 	'Required-datetime-is-invalid.Want-to-save-anyway?'        => 'Das Pflichtfeld Datum ist ungültig. Möchtest Du trotdem versuchen forzufahren?',
 	'You-have-unsaved-data.-Do-you-want-to-continue-anyways?'  => 'Du hast die Felder noch nicht gespeichert? Willst du ohne zu speichern fortfahren?',
+	'is-from-bot'                                              => 'Material stammt von einer Bundle-Quelle',
 ];
