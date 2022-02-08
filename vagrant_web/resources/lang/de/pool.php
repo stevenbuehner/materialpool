@@ -81,7 +81,7 @@ return [
 	'resource-assignments'                                     => 'zuordnen',
 	'select-all'                                               => 'alles auswählen',
 	'only-limited-pages'                                       => 'zeige nur :count/::sum limitierter Seiten',
-	'limited-pages'                                            => 'limitiert auf :count/::sum Seiten',
+	'limited-pages'                                            => 'limitiert auf :count/:sum Seiten',
 	'Page'                                                     => '{1} Seite|[2,*] Seiten',
 	'Page-Range'                                               => '{-1} Alle Seiten|[1,*] Seite :count',
 	'Page-Count-is-missing'                                    => 'Angabe über Seitenanzahl fehlt',
