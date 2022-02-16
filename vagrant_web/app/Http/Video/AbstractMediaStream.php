@@ -7,6 +7,7 @@ namespace App\Http\Video;
  *
  * @author Steven Bühner, Original from Rana
  * @link http://codesamplez.com/programming/php-html5-video-streaming-tutorial
+ * Ich nutze diese Klasse in meinem Media-Pool als App\Http\Video\AbstractMediaStream;
  */
 abstract class AbstractMediaStream {
 	protected $stream           = NULL;
@@ -58,7 +59,8 @@ abstract class AbstractMediaStream {
 
 			list(, $range) = explode('=', $_SERVER['HTTP_RANGE'], 2);
 			if (strpos($range, ',') !== FALSE) {
-				header('HTTP/1.1 416 Requested Range Not Satisfiable');
+				// header('HTTP/1.1 416 Requested Range Not Satisfiable');
+				http_response_code(416);
 				header("Content-Range: bytes $this->start-$this->end/$this->fileSize");
 				exit;
 			}
@@ -72,7 +74,8 @@ abstract class AbstractMediaStream {
 			}
 			$c_end = ($c_end > $this->end) ? $this->end : $c_end;
 			if ($c_start > $c_end || $c_start > $this->fileSize - 1 || $c_end >= $this->fileSize) {
-				header('HTTP/1.1 416 Requested Range Not Satisfiable');
+				// header('HTTP/1.1 416 Requested Range Not Satisfiable');
+				http_response_code(416);
 				header("Content-Range: bytes $this->start-$this->end/$this->fileSize");
 				exit;
 			}
@@ -80,11 +83,15 @@ abstract class AbstractMediaStream {
 			$this->end   = $c_end;
 			$length      = $this->end - $this->start + 1;
 			fseek($this->stream, $this->start);
-			header('HTTP/1.1 206 Partial Content');
+			// header('HTTP/1.1 206 Partial Content');
+			http_response_code(206);
 			header("Content-Length: " . $length);
 			header("Content-Range: bytes $this->start-$this->end/" . $this->fileSize);
+
 		} else {
-			header('HTTP/1.1 206 Partial Content');
+			// Es handelt sich NICHT um eine Range Abfrage => Also den ganzen Content zurßckschicken
+			// header('HTTP/1.1 200 OK');
+			http_response_code(200);
 			header("Content-Length: " . $this->fileSize);
 		}
 
