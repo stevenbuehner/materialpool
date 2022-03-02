@@ -11,6 +11,12 @@
   white-space: pre-wrap;
 }
 
+.sb-icon {
+  height: 1em;
+  width: 1em;
+  display: inline-block;
+}
+
 
 // Popover (bibelstellen-Popup)
 @each $breakpoint in map-keys($grid-breakpoints) {

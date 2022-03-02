@@ -11,12 +11,16 @@
 
         <b-navbar-nav>
 
-          <b-nav-item :to="{name: 'resource-create'}">{{ $t('pool.Upload') }}</b-nav-item>
+          <b-nav-item :to="{name: 'resource-create'}" :title="$t('pool.Upload')">
+            <upload-icon class="sb-icon sb-upload-icon"/>
+          </b-nav-item>
 
           <b-nav-item :to="{name: 'resource-text-create'}">{{ $t('pool.New') }}</b-nav-item>
 
           <b-nav-item-dropdown right :text="$t('pool.Edit')" v-if="isAdmin">
-            <b-dropdown-item :to="{name: 'keyword-list'}" class="dropdown-hover" v-if="isAdmin">{{ $t('pool.Keywords') }}
+            <b-dropdown-item :to="{name: 'keyword-list'}" class="dropdown-hover" v-if="isAdmin">{{
+                $t('pool.Keywords')
+              }}
             </b-dropdown-item>
             <b-dropdown-item :to="{name: 'bundle-list'}" class="dropdown-hover" v-if="isAdmin">{{ $t('pool.Bundle') }}
             </b-dropdown-item>
@@ -91,6 +95,7 @@ import {
   BNavItemDropdown
 }                                        from 'bootstrap-vue';
 import {searchArrayObjectsToSearchQuery} from "../search/searchHelper";
+import uploadIcon                        from 'svg-icon/dist/svg/icomoon/cloud-upload.svg';
 
 export default {
   name: "mainNavbar",
@@ -157,12 +162,25 @@ export default {
     BButton,
     BInputGroup,
     BInputGroupAppend,
+    uploadIcon
   }
 }
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
+@import "resources/sass/theme.scss";
+
 .dropdown-hover:hover {
   background-color: lightgrey;
+}
+
+.sb-upload-icon path {
+  fill: $navbar-light-color;
+}
+
+.router-link-active {
+  .sb-upload-icon path {
+    fill: $navbar-light-active-color;
+  }
 }
 </style>
