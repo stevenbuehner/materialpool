@@ -17,6 +17,16 @@
   display: inline-block;
 }
 
+/*
+.sb-bg-icon {
+  display: inline-block;
+  background-size: contain;
+  background-repeat: no-repeat;
+  height: 1em;
+  width: 1em;
+}
+ */
+
 
 // Popover (bibelstellen-Popup)
 @each $breakpoint in map-keys($grid-breakpoints) {
