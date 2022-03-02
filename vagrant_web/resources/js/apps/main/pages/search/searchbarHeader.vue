@@ -142,6 +142,8 @@ export default {
           .then((resultValues) => {
             this.searchParams[id].values = resultValues;
             this.emitSearchUpdated(resultValues, id);
+          })
+          .catch(() => {
           });
 
     }
