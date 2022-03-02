@@ -44,5 +44,3 @@ In Safari beim Löschen von Material
 -> erst zugeordnete Ressourcen löschen (funktioniert)
 -> Dann klick auf Material löschen -> schnelle Fehlermeldung, die man aber nicht sieht
 
-
-In der Suchleiste, bei Klick+Command auf einen Link, das Ergebnis in einem neuen Tab/Fenster öffnen

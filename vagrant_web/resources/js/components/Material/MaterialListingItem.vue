@@ -1,8 +1,8 @@
 <template>
 
-  <div class="card mb-2 d-flex justify-content-start flex-row materialListingItem"
-       v-if="material"
-       @click.prevent="goToMaterial(material.id)">
+  <router-link class="card mb-2 d-flex justify-content-start flex-row materialListingItem"
+               v-if="material"
+               :to="{name: 'material-detail',params: {id: material.id}}">
 
     <div class="preview" :class="{imageDisplayed: showImage}">
       <div v-if="material.from_bot" class="is-bot-corner" :title="$t('pool.is-from-bot')">
@@ -64,7 +64,7 @@
       <span class="arrow" :class="{down:showMore, left: !showMore}"> < </span>
     </div>
 
-  </div>
+  </router-link>
 </template>
 
 <script>
@@ -229,6 +229,13 @@ $preview-background-color: #868E96;
 
 .materialListingItem {
   min-height: 8rem;
+  color: inherit;
+  text-decoration: inherit;
+
+  &:hover {
+    color: inherit;
+    text-decoration: inherit;
+  }
 
   .preview {
     min-height: 100%;
