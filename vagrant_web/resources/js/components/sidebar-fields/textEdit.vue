@@ -14,7 +14,7 @@
 
       <div class="buttons">
         <b-button
-            v-if="valueHasChanged && enableSaveButton"
+            v-if="valueHasChanged && enableSaveButton && !disabled"
             size="sm"
             class="cancel-button"
             variant="danger"
@@ -23,7 +23,7 @@
         </b-button>
 
         <b-button
-            v-if="valueHasChanged && enableSaveButton"
+            v-if="valueHasChanged && enableSaveButton && !disabled"
             size="sm"
             class="save-button"
             @click="sendSaveRequest">

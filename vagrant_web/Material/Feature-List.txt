@@ -19,10 +19,6 @@ Resourcen (in der MaterialDetail-Ansicht) ausklappen
 - So dass bei Bildern alle Bilder / Seiten angezeigt werden
 
 
-Speichern / Abbrechen Buttons werden bei einem Bot-Material angezeigt?!?
-http://192.168.3.3/vue/material/10473
-
-
 Schöneres Styling für Markdown (gibt es da fertige CSS?)
 
 
