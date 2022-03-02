@@ -37,9 +37,8 @@ import {bibleIcon}                       from '../keyword/keywordDefaultIcons';
 import {searchArrayObjectsToSearchQuery} from "../search/searchHelper";
 import {draggingSupport}                 from "../keyword/dragging.mixin";
 import {RELEVANCE_USER_MAX}              from "../../apps/config";
-import BibleVerse                        from '../../../../vendor/stevenbuehner/bible-verse-bundle/js/in/BibleVerse.js';
-import {BibleVerseService}               from '../../../../vendor/stevenbuehner/bible-verse-bundle/js/out/BibleVerseService_de.js';
-import BiblePopover                      from "./../bible-popover/bible-popover.vue";
+import BiblePopover                    from "./../bible-popover/bible-popover.vue";
+import {BibleVerse, BibleVerseService} from "../../helper/BibleverseHelper";
 
 export default {
 

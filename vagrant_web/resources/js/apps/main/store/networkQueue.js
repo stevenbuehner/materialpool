@@ -1,4 +1,4 @@
-import PQueue from 'p-queue';
+import PQueue from 'p-queue/dist';
 
 export const MAX_SIMULTANEOUS_DOWNLOADS = 6;
 

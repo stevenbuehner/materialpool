@@ -29,37 +29,26 @@
       <div class="d-center">
         <span class="icon" :style="{backgroundImage: 'url('+ option.icon+')'}"></span>
         {{ option.text }}
-        <span class="descendants"
-              v-if="option.descendants && option.descendants > 0">({{
-            $tc('pool.xy-subtopics', option.descendants, {xy: option.descendants})
-          }})</span>
+        <span class="descendants" v-if="option.descendants && option.descendants > 0">
+          ({{ $tc('pool.xy-subtopics', option.descendants, {xy: option.descendants}) }})
+        </span>
+        <button v-if="option.crossRefs && option.crossRefs >= 1">
+          ({{ option.crossRefs }})
+        </button>
       </div>
     </template>
 
     <template v-slot:selected-option-container="{option, disabled, multiple, deselect}">
-      <div class="vs__selected d-center">
-        <span class="icon" :style="{backgroundImage: 'url('+ option.icon+')'}"></span>
-        {{ option.text }}
-
-        <button v-if="!disabled" @click="deselect(option)"
-                type="button"
-                class="vs__deselect"
-                aria-label="Remove option">
-
-                    <span v-if="showDescendants && option.descendants && option.descendants.length > 0"
-                          class="descendants">({{ option.descendants.map(kw => kw.title).join(', ') }})</span>
-
-          <span aria-hidden="true"><slot name="label">&times;</slot></span>
-        </button>
-      </div>
+      <search-input-tag v-bind="{...option, disabled}" @deselect="deselect(option)"/>
     </template>
 
   </vue-select>
 </template>
 
 <script>
-import vueSelect from 'vue-select';
-import _debounce from 'lodash/debounce';
+import vueSelect      from 'vue-select';
+import _debounce      from 'lodash/debounce';
+import SearchInputTag from "./searchInputTag";
 
 export default {
 
@@ -119,6 +108,7 @@ export default {
 
             return true;
           });
+
           loading(false);
         });
 
@@ -130,6 +120,7 @@ export default {
   },
 
   components: {
+    SearchInputTag,
     vueSelect
   },
 }
@@ -149,26 +140,9 @@ export default {
       position: relative;
     }
 
-    .descendants {
-      font-size: 0.8em;
-      padding: 0.2em 0.2em 0 0.2em;
-    }
-
     button.vs__deselect {
       color: $sidebar-input-font-color-active-hover;
     }
-  }
-
-  .icon {
-    position: relative;
-    display: inline-block;
-    background-size: contain;
-    background-position: 0 0;
-    height: 1rem;
-    background-repeat: no-repeat;
-    width: 1rem;
-    margin-right: 0.25rem;
-    margin-left: 0;
   }
 
   img {

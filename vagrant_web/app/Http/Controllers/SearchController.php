@@ -65,16 +65,19 @@ class SearchController extends Controller {
 		$verses = $bibleVerseExtraction->stringToBibleVerse($queryString);
 
 		foreach ($verses as $b) {
-			$bModel = Bibleverse::findOrNewFromBibleverseInterface($b);
+			$bModel         = Bibleverse::findOrNewFromBibleverseInterface($b);
+			// $countCrossRefs = $bModel->bibleverseCrossReferencesQuery()->count();
+
 			$result->push(
 				[
-					'text' => $bModel->label,
-					'icon' => $bModel->icon,
-					'item' => [
+					'text'      => $bModel->label,
+					'icon'      => $bModel->icon,
+					// 'crossRefs' => $countCrossRefs,
+					'item'      => [
 						'type' => 'b',
 						// 'id'   => $bModel->id,
 						'from' => $bModel->from,
-						'to'   => $bModel->to
+						'to'   => $bModel->to,
 					]
 				]
 			);

@@ -33,11 +33,9 @@
 <script>
 import {searchArrayObjectsToSearchArrayItems}                               from "../../../components/search/searchHelper";
 import {BDropdown, BDropdownItem, BFormInput, BInputGroup, BInputGroupText} from "bootstrap-vue";
-import {BibleVerseService}                                                  from '../../../../../vendor/stevenbuehner/bible-verse-bundle/js/out/BibleVerseService_de.js';
-import BibleVerse
-                                                                            from '../../../../../vendor/stevenbuehner/bible-verse-bundle/js/in/BibleVerse.js';
 import BibleText
                                                                             from "../../../components/biblecontents/bibleText";
+import {BibleVerse, BibleVerseService}                                      from "../../../helper/BibleverseHelper";
 
 export function fromRangeArrayToString(verseranges) {
   return verseranges.map(bv => {

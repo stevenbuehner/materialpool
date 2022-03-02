@@ -7,6 +7,8 @@
  * ]
  * @param searchLines
  */
+import {BibleVerse, BibleVerseService} from "../../helper/BibleverseHelper";
+
 export function searchArrayObjectsToSearchArrayItems(searchLines) {
 
 	let result  = [];
@@ -57,7 +59,7 @@ function objectArrayToSearchItems(searchObjects) {
 
 }
 
-function objectToSearchItem(obj) {
+export function objectToSearchItem(obj) {
 
 	if (typeof obj === 'string') {
 		// Is freetext
@@ -267,9 +269,7 @@ export function searchArrayObjectsToSearchQuery(searchObjects) {
 }
 
 
-import {store}             from '../../apps/main/store/index.js';
-import BibleVerse          from '../../../../vendor/stevenbuehner/bible-verse-bundle/js/in/BibleVerse.js';
-import {BibleVerseService} from '../../../../vendor/stevenbuehner/bible-verse-bundle/js/out/BibleVerseService_de.js';
+import {store} from '../../apps/main/store';
 
 export function searchQueryToSearchArrayObjects(query) {
 

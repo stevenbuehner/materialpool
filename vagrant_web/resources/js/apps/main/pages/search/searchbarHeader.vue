@@ -7,6 +7,11 @@
       <div class="col-lg-1 col-lg-1 col-sm-1">
         <div class="btn-group">
           <button class="btn btn-default"
+                  v-if="sp.values.length>0"
+                  @click="optimizeKeywordSearch(sp.values, sp.id)">
+            <optimize-icon class="icon"/>
+          </button>
+          <button class="btn btn-default"
                   v-if="index > 0 || Object.keys(searchParams).length > 1"
                   :title="$t('pool.Remove-this-searchinput')"
                   @click="requestRemovingSarchInput(key)">-
@@ -19,13 +24,17 @@
         </div>
       </div>
     </div>
+
+    <optimize-keywords ref="optimizeKeywords"/>
+
   </div>
 </template>
 
 <script>
 
-import searchInput from '../../../../components/search/searchInput.vue';
-
+import searchInput      from '../../../../components/search/searchInput.vue';
+import OptimizeKeywords from "../../../../components/modals/selectors/optimizeKeywordSearch";
+import optimizeIcon     from 'svg-icon/dist/svg/icomoon/zoom-in.svg';
 
 function getNewSearchParam(id, values) {
   return {
@@ -125,6 +134,16 @@ export default {
 
       this.$emit('searchUpdated', searchLineItems);
 
+    },
+
+    optimizeKeywordSearch(values, id) {
+
+      this.$refs.optimizeKeywords.showPromise(values)
+          .then((resultValues) => {
+            this.searchParams[id].values = resultValues;
+            this.emitSearchUpdated(resultValues, id);
+          });
+
     }
 
   },
@@ -140,12 +159,17 @@ export default {
 
 
   components: {
+    OptimizeKeywords,
     searchInput,
+    optimizeIcon
   }
 }
 </script>
 
 <style scoped>
-
+.icon {
+  height: 1em;
+  width: 1em;
+}
 
 </style>

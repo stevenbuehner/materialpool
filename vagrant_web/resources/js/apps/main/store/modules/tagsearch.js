@@ -15,7 +15,6 @@ const actions = {
 
 		return axios.get(searchGuessRoute, {params: data})
 		            .then(({data}) => {
-
 			            return data;
 		            })
 		            .catch((response) => {

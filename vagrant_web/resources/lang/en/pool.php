@@ -155,6 +155,7 @@ return [
 	'Bibleverses'                                              => 'Bibleverses',
 	'Bibleverse'                                               => 'Bibleverse',
 	'Keywords'                                                 => 'Keywords',
+	'relevance'                                                => 'Relevance',
 	'remove-all'                                               => 'remove all',
 	'Really-delete-count-bibleverses'                          => 'Do you really want to remove :count bibleverses at once?',
 	'Really-delete-count-keywords'                             => 'Do you really want to remove :count keywords at once?',
@@ -234,6 +235,7 @@ return [
 	'Error-while-creating-material'                            => 'Error while creating material',
 	'Please-wait'                                              => 'Please wait',
 	'Ok'                                                       => 'Ok',
+	'Take-it'                                                  => 'Take it',
 	'At-least-one-comma-or-semikolon-required'                 => 'At least one comma (,) or semikolon (;) are required to recognize the metadata correctly',
 	'Notes'                                                    => 'Notes',
 	'Click-to-insert-a-note'                                   => 'Click here to insert a note',
@@ -340,4 +342,5 @@ return [
 	'Required-datetime-is-invalid.Want-to-save-anyway?'        => 'Required datetime is invalid! Do you want to try saving anyways?',
 	'You-have-unsaved-data.-Do-you-want-to-continue-anyways?'  => 'You have unsaved data. Do you want to continue without saving?',
 	'is-from-bot'                                              => 'Material originates from a remote database',
+	'Optimize-Keywords'                                        => 'Optimize Keywords',
 ];

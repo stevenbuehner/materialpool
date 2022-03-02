@@ -74,8 +74,8 @@ class Bibleverse extends Model implements BibleVerseInterface {
 	}
 
 	protected static function getBibleverseCreateData(BibleVerseInterface $bibleVerse, $bibleId = NULL) {
-		$from = self::getCombi($bibleVerse->getBookId(), $bibleVerse->getFromChapter(), $bibleVerse->getFromVerse());
-		$to   = self::getCombi($bibleVerse->getBookId(), $bibleVerse->getToChapter(), $bibleVerse->getToVerse());
+
+		list($from, $to) = self::getFromToCombi($bibleVerse);
 
 		return [
 			self::$fromColumn => $from,
@@ -84,7 +84,14 @@ class Bibleverse extends Model implements BibleVerseInterface {
 		];
 	}
 
-	protected static function getCombi($bookId, $chapter, $verse) {
+	public static function getFromToCombi(BibleVerseInterface $bibleVerse) {
+		$from = self::getCombi($bibleVerse->getBookId(), $bibleVerse->getFromChapter(), $bibleVerse->getFromVerse());
+		$to   = self::getCombi($bibleVerse->getBookId(), $bibleVerse->getToChapter(), $bibleVerse->getToVerse());
+
+		return [$from, $to];
+	}
+
+	public static function getCombi($bookId, $chapter, $verse) {
 		return (int)sprintf('%03d%03d%03d', $bookId, $chapter, $verse);
 	}
 
@@ -115,8 +122,7 @@ class Bibleverse extends Model implements BibleVerseInterface {
 		foreach ($bibleverses as $bv) {
 			/** @var BibleVerseInterface $bv */
 			/** @var Builder $query */
-			$from = self::getCombi($bv->getBookId(), $bv->getFromChapter(), $bv->getFromVerse());
-			$to   = self::getCombi($bv->getBookId(), $bv->getToChapter(), $bv->getToVerse());
+			list($from, $to) = self::getFromToCombi($bv);
 			$query->orWhereBetween('from', [$from, $to]);
 			$query->orWhereBetween('to', [$from, $to]);
 			$query->orWhere(function ($q) use ($from, $to) {
@@ -415,6 +421,10 @@ class Bibleverse extends Model implements BibleVerseInterface {
 		return $this->belongsToMany(Material::class)
 			->withPivot('relevance')
 			->using(MaterialBibleverse::class);
+	}
+
+	public function bibleverseCrossReferencesQuery() {
+		return BibleverseCrossReference::getCrossReferencesByBibleverseQuery($this);
 	}
 
 	public function __toString() {

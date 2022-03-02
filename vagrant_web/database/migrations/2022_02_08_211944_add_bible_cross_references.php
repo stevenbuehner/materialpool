@@ -28,6 +28,7 @@ class AddBibleCrossReferences extends Migration {
 
 				$table->unique(['source', 'target_from', 'target_to']);
 				$table->index('source');
+				$table->index('relevance');
 				$table->index(['source', 'relevance']);
 
 			});

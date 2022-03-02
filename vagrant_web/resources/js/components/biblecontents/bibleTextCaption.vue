@@ -8,10 +8,10 @@
 </template>
 
 <script>
-	import {BibleVerseService} from '../../../../vendor/stevenbuehner/bible-verse-bundle/js/out/BibleVerseService_de.js';
-	import BibleVerse          from '../../../../vendor/stevenbuehner/bible-verse-bundle/js/in/BibleVerse.js';
 
-	export default {
+import {BibleVerse, BibleVerseService} from "../../helper/BibleverseHelper";
+
+  export default {
 		name: "bibleTextCaption",
 
 		props: {

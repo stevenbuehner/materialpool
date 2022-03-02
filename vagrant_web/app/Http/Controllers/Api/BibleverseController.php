@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller as BaseController;
-use App\Listeners\CheckLonelyBibleverse;
+use App\Jobs\CheckLonelyBibleverse;
 use App\Models\Bibleverse;
 use App\Models\Material;
 use App\Services\TagExtraction\Interfaces\RelevanceInterface;

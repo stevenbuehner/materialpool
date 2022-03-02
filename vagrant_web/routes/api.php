@@ -76,6 +76,10 @@ Route::group([
 		->middleware('can:delete,materialUsage')
 		->name('api.v2.materialusage.delete');
 
+	// Bibleverse CrossReferences
+	Route::get('bibleverses/crossrefs/{from}-{to}', 'BibleverseCrossReferenceController@getCrossReferences')
+		->where(['from' => '[0-9]+', 'to' => '[0-9]+'])
+		->name('api.v2.users.find');
 
 	// Users
 	Route::get('users/find', 'UserController@find')
@@ -143,6 +147,7 @@ Route::group([
 	Route::get('bibleverses', 'BibleverseController@index')
 		->name('bibleverses.index');
 	Route::get('bibleverses/{bibleverse}', 'BibleverseController@show')
+		->where(['bibleverse' => '[0-9]+'])
 		->name('bibleverses.show');
 	Route::post('bibleverses', 'BibleverseController@store')
 		->name('bibleverses.store');

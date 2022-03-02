@@ -43,9 +43,9 @@
 <script>
 
 import myTextBlock         from '../../my-text-block.vue';
-import {BibleVerseService} from '../../../../../vendor/stevenbuehner/bible-verse-bundle/js/out/BibleVerseService_de.js';
 import Markdown            from "../../markdown/compiledMarkdown";
 import {savingDialogs}     from "../../../helper/flashMessages";
+import {BibleVerseService} from "../../../helper/BibleverseHelper";
 
 const regexp     = BibleVerseService.biblePattern;
 window.bibletest = regexp;

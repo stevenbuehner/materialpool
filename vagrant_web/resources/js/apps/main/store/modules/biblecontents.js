@@ -1,65 +1,80 @@
 import {api_v1_biblecontents_get, api_v1_biblecontents_search_and_get} from '../../../../components/serverRoutes';
 import axios                                                           from '../../axiosInstance';
 import {queue}                                                         from "../networkQueue";
+import {getRangeId}                                                    from "../helper/bibleverseHelper";
 
-function verseKey(from, to, bibleuuid) {
-	return from + '-' + to + '-' + bibleuuid;
-}
 
 const state = {
 	cache: {}
 };
 
-const getters = {};
+const getters = {
+	getBibleverse: (state) => (verseKey) => {
+		if (state.cache[verseKey]) {
+			return state.cache[verseKey];
+		}
 
-const mutations = {};
+		return false;
+	},
 
+};
+
+const mutations = {
+	setBibleverse(state, {verseKey, verses}) {
+		state.cache[verseKey] = verses;
+	},
+}
 
 const actions = {
 
-	get: ({commit, getters, dispatch, state}, {from, to, bibleUuid}) => {
+	get: async ({commit, getters, dispatch, state}, {from, to, bibleUuid}) => {
 
 		bibleUuid      = bibleUuid || null;
-		const cacheKey = verseKey(from, to, bibleUuid);
+		const cacheKey = getRangeId(from, to, bibleUuid);
+		const cache    = getters.getBibleverse(cacheKey);
 
-		if (state.cache[cacheKey]) {
-
-			return new Promise((resolve, reject) => {
-				resolve(state.cache[cacheKey]);
-			});
-
-		} else {
+		if (cache === false) {
+			// not loaded yet => load first time
 
 			const route = api_v1_biblecontents_get(from, to, bibleUuid);
 
-			return axios.get(route)
-			            .then(({data}) => {
+			const promise = queue.add(() => {
+				return axios.get(route);
+			});
 
-				            const bible  = data.bible;
-				            const verses = data.verses;
+			const {data} = await promise;
 
-				            // Cache verses
-				            state.cache[cacheKey] = verses;
+			// Cache Promise - falls gleichzeitig der gleiche Aufruf nochmal kommt
+			commit('setBibleverse', {verseKey: cacheKey, verses: promise});
 
-				            // Cache with bibleUuid if not done yet
-				            if (bibleUuid === null) {
-					            state.cache[verseKey(from, to, bible.uuid)] = verses;
-				            }
+			const bible  = data.bible;
+			const verses = data.verses;
 
-				            // Cache bible
-				            commit('bibles/addBible', bible, {root: true});
+			// Cache bible
+			commit('bibles/addBible', bible, {root: true});
 
-				            return verses;
+			// Cache verses ohne BibleUid
+			if (bibleUuid === null) {
+				commit('setBibleverse', {verseKey: cacheKey, verses});
+			}
 
-			            });
+			// Cache verses inklusive BibleUid
+			commit('setBibleverse', {verseKey: getRangeId(from, to, bible.uuid), verses});
 
+			return verses;
+		} else if (Array.isArray(cache)) {
+			// wurde bereits gecached
+			return cache;
+		} else {
+			// Anfrage läuft bereits => es handelt sich um ein Promise
+			return cache;
 		}
-
 
 	},
 
 	getMultiple: ({dispatch}, multipleQuerries) => {
 
+		/*
 		return Promise.all(
 			multipleQuerries.map(fromToBible => {
 					return queue.add(
@@ -67,6 +82,11 @@ const actions = {
 					)
 				}
 			)
+		);
+		*/
+
+		return Promise.all(
+			multipleQuerries.map(fromToBible => dispatch('get', fromToBible))
 		);
 
 	},
@@ -79,7 +99,7 @@ const actions = {
 		            .then(({data}) => {
 
 			            if (data.error) {
-							console.error(data.error);
+				            console.error(data.error);
 				            throw(data.error);
 			            }
 
@@ -91,10 +111,10 @@ const actions = {
 				            const from = data.bibleverses[0].from;
 				            const to   = data.bibleverses[0].to;
 
-				            state.cache[verseKey(from, to, bibleUuid)] = data.verses;
+				            state.cache[getRangeId(from, to, bibleUuid)] = data.verses;
 
 				            if (bibleUuid === null) {
-					            state.cache[verseKey(from, to, data.bible.uuid)] = data.verses;
+					            state.cache[getRangeId(from, to, data.bible.uuid)] = data.verses;
 				            }
 			            }
 

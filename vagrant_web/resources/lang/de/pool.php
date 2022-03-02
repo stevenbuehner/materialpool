@@ -229,6 +229,7 @@ return [
 	'Error-while-creating-material'                            => 'Fehler beim Erstellen des Materials',
 	'Please-wait'                                              => 'Bitte warten',
 	'Ok'                                                       => 'Ok',
+	'Take-it'                                                  => 'Übernehmen',
 	'At-least-one-comma-or-semikolon-required'                 => 'Mindestens ein Komma (,) oder ein Semikolon (;) werden benötigt, um die Metadaten richtig zu erkennen',
 	'Notes'                                                    => 'Notizen',
 	'Click-to-insert-a-note'                                   => 'Hier klicken um Notizen hinzuzufügen',
@@ -282,6 +283,7 @@ return [
 	'assignments'                                              => 'Zuordnungen',
 	'meta'                                                     => 'Meta',
 	'keyword'                                                  => 'Schlagwort',
+	'relevance'                                                => 'Relevanz',
 	'tags'                                                     => 'Tags',
 	'enter-tags'                                               => 'Tags eingeben',
 	'enter-description'                                        => 'Beschreibung eingeben',
@@ -336,4 +338,5 @@ return [
 	'Required-datetime-is-invalid.Want-to-save-anyway?'        => 'Das Pflichtfeld Datum ist ungültig. Möchtest Du trotdem versuchen forzufahren?',
 	'You-have-unsaved-data.-Do-you-want-to-continue-anyways?'  => 'Du hast die Felder noch nicht gespeichert? Willst du ohne zu speichern fortfahren?',
 	'is-from-bot'                                              => 'Material stammt von einer Bundle-Quelle',
+	'Optimize-Keywords'                                        => 'Schlagwortoptimierung',
 ];

@@ -23,6 +23,10 @@ export function bibleverseSearchLink(bibleverse) {
 	return '/pool/bibleverse/' + bibleverse.from + '-' + bibleverse.to;
 }
 
+export function api_v2_bibleverse_cross_references(from, to) {
+	return '/api/v2/bibleverses/crossrefs/' + from + '-' + to;
+}
+
 //Resources
 export function resourceEditLink(resource) {
 	return '/pool/resource/' + resource.id;

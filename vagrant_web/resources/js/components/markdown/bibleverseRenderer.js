@@ -1,4 +1,4 @@
-import {BibleVerseService} from '../../../../vendor/stevenbuehner/bible-verse-bundle/js/out/BibleVerseService_de.js';
+import {BibleVerseService} from "../../helper/BibleverseHelper";
 
 const startRegexp = /([1-5]\.?\s*)?[a-zäöü\.]{2,15}\s([1-9][0-9]{0,2}[,;\. 0-9-]*)/i;
 

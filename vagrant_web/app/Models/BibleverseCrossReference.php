@@ -4,7 +4,14 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use StevenBuehner\BibleVerseBundle\Interfaces\BibleVerseInterface;
 
+/**
+ * @property int source
+ * @property int target_from
+ * @property int target_to
+ * @property int relevance
+ */
 class BibleverseCrossReference extends Model {
 	use HasFactory;
 
@@ -29,5 +36,15 @@ class BibleverseCrossReference extends Model {
 		'target_to' => 0,
 		'relevance' => 0
 	];
+
+	public static function getCrossReferencesByBibleverseQuery(BibleVerseInterface $bibleVerse): \Illuminate\Database\Eloquent\Builder {
+
+		$fromToArray = Bibleverse::getFromToCombi($bibleVerse);
+
+		return self::query()
+			->whereBetween('source', $fromToArray)
+			->orderBy('relevance', 'desc');
+
+	}
 
 }

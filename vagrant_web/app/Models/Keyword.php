@@ -16,6 +16,7 @@ use Kalnoy\Nestedset\NodeTrait;
  * @property string $title
  * @property string $type
  * @property string $lc_title
+ * @property string $icon
  * @property int $parent_id
  * @property Keyword $parent;
  * @property  $children;

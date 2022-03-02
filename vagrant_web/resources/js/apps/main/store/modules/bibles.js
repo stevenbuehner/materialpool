@@ -1,6 +1,6 @@
-import {getAllPages}         from "../helper/paginationHelperQueued";
-import {api_v1_bibles_index} from "../../../../components/serverRoutes";
-import axiosInstance         from "../../axiosInstance";
+import {getAllPages}                             from "../helper/paginationHelperQueued";
+import {api_v1_bibles_index, api_v1_bibles_show} from "../../../../components/serverRoutes";
+import axiosInstance                             from "../../axiosInstance";
 
 const state = {
 	allBibles: {},
@@ -21,21 +21,19 @@ const mutations = {
 
 const actions = {
 
-	get: ({state, commit, getters}, uuid) => {
+	get: async ({state, commit, getters}, uuid) => {
 
-		const value = getters['getBible'](uuid);
+		const value = getters.getBible(uuid);
 
 		if (value === undefined) {
-			return axiosInstance.get(api_v1_bibles_show(uuid))
-			                    .then(({data}) => {
-				                    commit('addBible', data);
 
-				                    return data;
-			                    })
+			const {data} = await axiosInstance.get(api_v1_bibles_show(uuid));
+			commit('addBible', data);
+
+			return data;
+
 		} else {
-			return new Promise((resolve, reject) => {
-				resolve(value);
-			});
+			return value;
 		}
 
 	},

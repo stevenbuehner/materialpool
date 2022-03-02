@@ -1,5 +1,7 @@
 Limitiere Image-Preview Requests, so dass sie keine XHR Aufrufe blockieren ...
 - am besten Client-Seitig ... das maximal 3 Bilder gleichzeitig geladen werden
+- Besser noch: Im Hintergrundprozess neue Vorschaubilder generieren -> als Job anlegen
+-> Wie lange hält der Cache? (Kann man Hintergrundbilder auf einen anderem Speichersystem ablegen?
 
 Feature: BEi Doppelklick auf TextResource an die richtige Stelle im Edit-Text springen ...
 
@@ -20,6 +22,7 @@ Resourcen (in der MaterialDetail-Ansicht) ausklappen
 Speichern / Abbrechen Buttons werden bei einem Bot-Material angezeigt?!?
 http://192.168.3.3/vue/material/10473
 
+Beim Eingeben neuer Bibelverse. Wenn das letzte angeklickt wird, INPUT löschen
 Bibleverse-Select (wenn keines mehr zur Auswahl steht) -> Dropdown schließen und Input-Feld löschen
 
 Suche auf Parallelstellen ausdehnen mit einem Klick
@@ -47,4 +50,4 @@ In Safari beim Löschen von Material
 -> Dann klick auf Material löschen -> schnelle Fehlermeldung, die man aber nicht sieht
 
 
-In der Suchleiste, bei Klick+Tab auf einen Link, das Ergebnis in einem neuen Tab/Fenster öffnen
+In der Suchleiste, bei Klick+Command auf einen Link, das Ergebnis in einem neuen Tab/Fenster öffnen

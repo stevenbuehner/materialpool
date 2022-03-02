@@ -36,6 +36,7 @@ const router = new VueRouter({
 
 const vueInstance = new Vue({
 	el: '#app',
+	name: 'Materialpool',
 	router: router,
 	render: h => h(mainApp),
 	components: {},
