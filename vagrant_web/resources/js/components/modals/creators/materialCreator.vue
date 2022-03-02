@@ -259,8 +259,9 @@ import {savingDialogs}         from "../../../helper/flashMessages";
 import MaterialpoolSpinner     from "../../spinner/materialpool-spinner";
 
 // Icons
-import trashIcon  from 'svg-icon/dist/svg/oct/trashcan.svg';
-import repeatIcon from 'svg-icon/dist/svg/typcn/arrow-repeat.svg';
+import trashIcon   from 'svg-icon/dist/svg/oct/trashcan.svg';
+import repeatIcon  from 'svg-icon/dist/svg/typcn/arrow-repeat.svg';
+import {cloneDeep} from "lodash";
 
 
 const USER_SETTINGS_MATERIAL_TEMPLATE_ID         = 'assign.material.templates';
@@ -609,7 +610,7 @@ export default {
 
       this.$store.dispatch('general/storeCurrentUserSetting', {
         settingId: id,
-        data: JSON.parse(JSON.stringify(this.formData))
+        data: cloneDeep(this.formData) // JSON.parse(JSON.stringify(this.formData))
       })
           .then(() => {
 
@@ -710,8 +711,10 @@ export default {
         this.form.author = null;
       }
 
-      const keywordInput    = materialTemplate.keywords ? JSON.parse(JSON.stringify(materialTemplate.keywords)) : [];
-      const bibleverseInput = materialTemplate.bibleverses ? JSON.parse(JSON.stringify(materialTemplate.bibleverses)) : [];
+      // const keywordInput    = materialTemplate.keywords ? JSON.parse(JSON.stringify(materialTemplate.keywords)) : [];
+      const keywordInput    = materialTemplate.keywords ? cloneDeep(materialTemplate.keywords) : [];
+      // const bibleverseInput = materialTemplate.bibleverses ? JSON.parse(JSON.stringify(materialTemplate.bibleverses)) : [];
+      const bibleverseInput = materialTemplate.bibleverses ? cloneDeep(materialTemplate.bibleverses) : [];
 
       function mapRelevance(el) {
         if (el.relevance) {

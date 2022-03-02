@@ -137,6 +137,7 @@ import cancelIcon      from 'svg-icon/dist/svg/material/undo.svg';
 import checkCircleIcon from 'svg-icon/dist/svg/material/save.svg';
 import vueSelect       from 'vue-select';
 import _debounce       from "lodash/debounce";
+import {cloneDeep}     from "lodash";
 
 export default {
   name: "usageListElement",
@@ -294,7 +295,8 @@ export default {
       this.modifiedData.datetime = this.datetime;
       this.modifiedData.reason   = this.reason;
       this.modifiedData.place    = this.place;
-      this.modifiedData.used_by  = this.used_by === null ? null : JSON.parse(JSON.stringify(this.used_by)) // Copy deep - good practice
+      // this.modifiedData.used_by  = this.used_by === null ? null : JSON.parse(JSON.stringify(this.used_by)) // Copy deep - good practice
+      this.modifiedData.used_by  = this.used_by === null ? null : cloneDeep(this.used_by) // Copy deep - good practice
     },
 
     onClickListItem() {
@@ -358,7 +360,7 @@ export default {
         return;
       }
 
-      if(moment(this.modifiedData.datetime).isValid() === false){
+      if (moment(this.modifiedData.datetime).isValid() === false) {
         if (confirm(this.$t('pool.Required-datetime-is-invalid.Want-to-save-anyway?')) === false) {
           return;
         }

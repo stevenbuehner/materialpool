@@ -110,6 +110,7 @@ import {RELEVANCE_USER_MAX} from "../../apps/config";
 import _debounce            from 'lodash/debounce';
 import MaterialpoolSpinner  from "../spinner/materialpool-spinner";
 import {savingDialogs}      from "../../helper/flashMessages";
+import {cloneDeep}          from "lodash";
 
 export default {
 
@@ -389,7 +390,7 @@ export default {
     init() {
 
       // Deep Copy bibleverses
-      this.myBibleverses = JSON.parse(JSON.stringify(this.bibleverses));
+      this.myBibleverses = cloneDeep(this.bibleverses);//  JSON.parse(JSON.stringify(this.bibleverses));
     }
 
   },

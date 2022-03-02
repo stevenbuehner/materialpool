@@ -83,6 +83,7 @@ import SearchInputTag                                            from "../../sea
 import {objectToSearchItem}                                      from "../../search/searchHelper";
 import {BibleVerse, BibleVerseService}                           from "../../../helper/BibleverseHelper";
 import truncateFilterMixin                                       from "../../../filters/truncate-filter.mixin";
+import {cloneDeep}                                               from "lodash";
 
 export default {
   name: "optimizeKeywordSearch",
@@ -313,7 +314,7 @@ export default {
     },
 
     _initKeywordSelection(initKeywords) {
-      this.currentKeywordSelection = JSON.parse(JSON.stringify(initKeywords));
+      this.currentKeywordSelection = cloneDeep(initKeywords); // JSON.parse(JSON.stringify(initKeywords));
     },
 
     showPromise(startKeywords) {

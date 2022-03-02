@@ -96,6 +96,7 @@ import eraseSvg             from 'svg-icon/dist/svg/zero/clear.svg';
 import {RELEVANCE_USER_MAX} from "../../apps/config";
 import MaterialpoolSpinner  from "../spinner/materialpool-spinner";
 import {savingDialogs}      from "../../helper/flashMessages";
+import {cloneDeep}          from "lodash";
 
 
 export default {
@@ -389,7 +390,7 @@ export default {
     init() {
 
       // Deep Copy Keywords
-      this.myKeywords = JSON.parse(JSON.stringify(this.keywords));
+      this.myKeywords = cloneDeep(this.keywords); // JSON.parse(JSON.stringify(this.keywords));
 
     }
 

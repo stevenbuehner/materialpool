@@ -133,9 +133,9 @@
 import generalMixin                                           from './generalSidebarFields.mixin';
 import VueSelect                                              from 'vue-select/dist/vue-select';
 import tagIcon                                                from 'svg-icon/dist/svg/material/style.svg';
-import {keywordTypes}                                         from "../keyword/keywordDefaultIcons";
-import {debounce as _debounce, differenceBy as _differenceBy} from 'lodash';
-import DragableElement                                        from "./vue-select/dragable-element";
+import {keywordTypes}                                                    from "../keyword/keywordDefaultIcons";
+import {cloneDeep, debounce as _debounce, differenceBy as _differenceBy} from 'lodash';
+import DragableElement                                                   from "./vue-select/dragable-element";
 import ContextMenu                                            from "../context-menu/context-menu";
 import ContextMenuItem                                        from "../context-menu/context-menu-item";
 import KeywordEditor                                          from "../modals/editors/keywordEditor";
@@ -491,7 +491,7 @@ export default {
        */
 
       // Deep Copy
-      const tags = JSON.parse(JSON.stringify(keywords));
+      const tags = cloneDeep(keywords); // JSON.parse(JSON.stringify(keywords));
 
       // Set or append tags
       if (current_page > 1) {

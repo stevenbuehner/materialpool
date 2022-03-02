@@ -7,8 +7,9 @@
 </template>
 
 <script>
-import TreeNode  from './TreeNode.vue'
-import _debounce from 'lodash/debounce';
+import TreeNode    from './TreeNode.vue'
+import _debounce   from 'lodash/debounce';
+import {cloneDeep} from "lodash";
 
 export default {
   name: "Tree",
@@ -97,7 +98,7 @@ export default {
     },
 
     filter: function filter(tree) {
-      const copy   = JSON.parse(JSON.stringify(tree));
+      const copy   = cloneDeep(tree); // JSON.parse(JSON.stringify(tree));
       const regExp = new RegExp(`.*(${this.searchRegexp}).*`, "gi");
       console.log(regExp);
 

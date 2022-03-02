@@ -41,6 +41,7 @@ import {ayceIcon, iconName, keyIcon, langIcon, personIcon, placeIcon} from './ke
 import {searchArrayObjectsToSearchQuery}                              from "../search/searchHelper";
 import {draggingSupport}                                              from "./dragging.mixin";
 import {RELEVANCE_USER_MAX}                                           from "../../apps/config";
+import {cloneDeep}                                                    from "lodash";
 
 export default {
 
@@ -141,7 +142,7 @@ export default {
   created: function () {
 
     // Needs to be copied. Because any changes in properties are not recognized in computed properties
-    this.myKeyword = JSON.parse(JSON.stringify(this.keyword));
+    this.myKeyword = cloneDeep(this.keyword); // JSON.parse(JSON.stringify(this.keyword));
 
     this.$on('dragging-done', (dragPercentage) => {
       this.updateRelevance(dragPercentage * RELEVANCE_USER_MAX);

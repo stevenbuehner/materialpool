@@ -39,6 +39,7 @@ import {draggingSupport}                 from "../keyword/dragging.mixin";
 import {RELEVANCE_USER_MAX}              from "../../apps/config";
 import BiblePopover                    from "./../bible-popover/bible-popover.vue";
 import {BibleVerse, BibleVerseService} from "../../helper/BibleverseHelper";
+import {cloneDeep}                     from 'lodash';
 
 export default {
 
@@ -130,7 +131,7 @@ export default {
   created: function () {
 
     // Needs to be copied. Because any changes in properties are not recognized in computed properties
-    this.myBibleverse = JSON.parse(JSON.stringify(this.bibleverse));
+    this.myBibleverse =  cloneDeep(this.bibleverse);
 
     this.$on('dragging-done', (dragPercentage) => {
       this.updateRelevance(dragPercentage * RELEVANCE_USER_MAX);
