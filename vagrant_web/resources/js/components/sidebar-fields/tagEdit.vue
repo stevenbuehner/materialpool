@@ -34,6 +34,7 @@
             @input="onInputChanged"
             @search="onSearchTermChanged"
             @search:blur=""
+            ref="dropdown"
         >
 
           <template v-slot:search="{ attributes, events }">
@@ -130,16 +131,16 @@
 </template>
 
 <script>
-import generalMixin                                           from './generalSidebarFields.mixin';
-import VueSelect                                              from 'vue-select/dist/vue-select';
-import tagIcon                                                from 'svg-icon/dist/svg/material/style.svg';
+import generalMixin                                                      from './generalSidebarFields.mixin';
+import VueSelect                                                         from 'vue-select/dist/vue-select';
+import tagIcon                                                           from 'svg-icon/dist/svg/material/style.svg';
 import {keywordTypes}                                                    from "../keyword/keywordDefaultIcons";
 import {cloneDeep, debounce as _debounce, differenceBy as _differenceBy} from 'lodash';
 import DragableElement                                                   from "./vue-select/dragable-element";
-import ContextMenu                                            from "../context-menu/context-menu";
-import ContextMenuItem                                        from "../context-menu/context-menu-item";
-import KeywordEditor                                          from "../modals/editors/keywordEditor";
-import {searchArrayObjectsToSearchQuery}                      from "../search/searchHelper";
+import ContextMenu                                                       from "../context-menu/context-menu";
+import ContextMenuItem                                                   from "../context-menu/context-menu-item";
+import KeywordEditor                                                     from "../modals/editors/keywordEditor";
+import {searchArrayObjectsToSearchQuery}                                 from "../search/searchHelper";
 
 import BiblePopover                                                  from "../bible-popover/bible-popover";
 import BibleVerse
@@ -242,12 +243,15 @@ export default {
       }
     },
 
-    _clearSearchOnSelect(input) {
-      return !this.multipleTags;
+    _clearSearchOnSelect() {
+      // Texteingabe löschen, wenn nur noch eines Sichtbar war, oder wenn es eine Single-Seletct-Eingabe ist
+      return !this.multipleTags || this.suggestedTags.filter((opt) => {
+        return !this.$refs.dropdown.isOptionSelected(opt);
+      }).length <= 1;
     },
 
     _closeOnSelect() {
-      return !this.multipleTags;
+      return this._clearSearchOnSelect;
     },
 
     isSearchTermValid() {
