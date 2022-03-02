@@ -27,11 +27,16 @@
 
         <div class="ml-2">
           <h5>{{ $t('pool.Optimize-Keywords') }}</h5>
-          <b-form-input type="range"
-                        debounce="500"
-                        v-model="maxDisplayedSuggestions"
-                        :min="minDisplayedSuggestions" :max="tagSuggestionsCount" step="1"
-                        :disabled="tagSuggestionsCount <= 0"></b-form-input>
+          <div class="d-flex">
+            <small class="mr-1">{{ minDisplayedSuggestions }}</small>
+            <b-form-input type="range"
+                          debounce="500"
+                          v-model="numberOfDisplayedSuggestions"
+                          :min="minDisplayedSuggestions" :max="tagSuggestionsCount" step="1"
+                          :disabled="tagSuggestionsCount <= 0 || minDisplayedSuggestions === tagSuggestionsCount"></b-form-input>
+            <small class="ml-1">{{ tagSuggestionsCount }}</small>
+          </div>
+
         </div>
       </div>
 
@@ -93,7 +98,7 @@ export default {
       selectedTag: null,
       currentKeywordSelection: [],
 
-      maxDisplayedSuggestions: 1,
+      numberOfDisplayedSuggestions: 1,
       minDisplayedSuggestions: 1,
 
       searchOngoing: false,
@@ -101,9 +106,15 @@ export default {
   },
 
   computed: {
+
     selectedBibleveres() {
       return this.currentKeywordSelection.filter(el => el?.item?.type === 'b');
     },
+
+    selectedKeywords() {
+      return this.currentKeywordSelection.filter(el => el?.item?.type === 'k');
+    },
+
 
     // Filtere alle searchItems heraus, die bereits in der Liste enthalten sind
     tagSuggestionsFiltered() {
@@ -111,18 +122,26 @@ export default {
       const result = this.tagSuggestions.filter((el) => {
 
         const b1 = el?.searchItem;
+
         if (b1?.item?.type === 'b') {
           return !this.selectedBibleveres.some(b2 => {
             return b2?.item?.from === b1?.item?.from && b2?.item?.to === b1?.item?.to;
+          });
+        } else if (b1?.item?.type === 'k') {
+          return !this.selectedKeywords.some(b2 => {
+            return b2?.item?.id === b1?.item?.id;
           });
         }
 
         return true;
       });
 
-
       // Bereits angezeigte Bibelverse müssen abgezogen werden, da die ja nicht angezeigt werden
-      this.minDisplayedSuggestions = Math.max(1, this.tagSuggestions.length - result.length + 1);
+      this.minDisplayedSuggestions      = Math.max(1, this.tagSuggestions.length - result.length + 1);
+      this.minDisplayedSuggestions      = Math.min(this.minDisplayedSuggestions, this.tagSuggestionsCount);
+
+      this.numberOfDisplayedSuggestions = Math.max(this.numberOfDisplayedSuggestions, this.minDisplayedSuggestions);
+      this.numberOfDisplayedSuggestions = Math.min(this.numberOfDisplayedSuggestions, this.tagSuggestionsCount);
 
       return result;
 
@@ -158,10 +177,15 @@ export default {
             count = await this.$store.dispatch('bibleversecrossreferences/getCount',
                 {from: this.selectedTag?.item?.from, to: this.selectedTag?.item?.to}
             );
+
+          case 'k':
+            count = await this.$store.dispatch('keywordsSuggestions/getCount', this.selectedTag?.item?.id);
         }
 
-        // Aktualisiere die tatsächliche Auswahl abhängig von dem, was wirklich geht
-        this.maxDisplayedSuggestions = Math.min(this.maxDisplayedSuggestions, count);
+        // Korrigiere die tatsächliche Auswahl nach unten, abhängig von dem, was wirklich geht
+        this.numberOfDisplayedSuggestions = Math.min(this.numberOfDisplayedSuggestions, count);
+
+        // Erhöhe die minimale Standardauswahl auf mind 4 angezeigte Ergebnisse
 
         return count;
       },
@@ -190,20 +214,15 @@ export default {
                 {
                   from: this.selectedTag?.item?.from,
                   to: this.selectedTag?.item?.to,
-                  maximum: this.maxDisplayedSuggestions
+                  maximum: this.numberOfDisplayedSuggestions
                 }
             );
-
-            // Parse crossRefs to Bibleverses
-            let bibleverseCollection = []; // Collection of bibleverses to load the bibletext
 
             return crossRefs.map((crossRef) => {
 
               const from       = crossRef.target_from;
               const to         = crossRef.target_to !== 0 ? crossRef.target_to : crossRef.target_from;
               const bibleverse = new BibleVerse(from, to);
-
-              bibleverseCollection.push(bibleverse);
 
               const result = {
                 searchItem: objectToSearchItem(bibleverse),
@@ -236,7 +255,28 @@ export default {
             });
 
           case 'k':
-            return [];
+
+            const keywordSug = await this.$store.dispatch('keywordsSuggestions/get',
+                {
+                  id: this.selectedTag?.item?.id,
+                  maximum: this.numberOfDisplayedSuggestions
+                }
+            );
+
+            return keywordSug.map((keyword) => {
+
+              return {
+                searchItem: objectToSearchItem(keyword),
+                relevance: keyword.relevance || this.$t('pool.Unknown'),
+                headline: keyword.title,
+                bigText: '',
+                smallText: '',
+                key: 'k-' + keyword.id,
+
+                extra: {keyword}
+              }
+            });
+
           default:
             return [];
         }
@@ -260,19 +300,16 @@ export default {
     },
 
     _changeSelection(kw) {
-      if (this.selectedTag !== kw) {
-        this.selectedTag = kw;
+      this.selectedTag = kw;
 
-        this.$nextTick(() => {
-          this.maxDisplayedSuggestions = this.minDisplayedSuggestions + 5;
-        })
-
-      }
+      this.$nextTick(() => {
+        this.numberOfDisplayedSuggestions = Math.min(this.minDisplayedSuggestions + 5, this.tagSuggestionsCount);
+      });
     },
 
     _itemIsSelectable(item) {
       const type = item?.item?.type;
-      return type === 'b'; // || type === 'k'
+      return type === 'b' || type === 'k';
     },
 
     _initKeywordSelection(initKeywords) {
@@ -320,7 +357,7 @@ export default {
     _onShow() {
       // Wenn nur ein Bibelvers da ist, dann nimm gleich den als Auswahl
       if (this.currentKeywordSelection.length === 1) {
-        this.selectedTag = this.currentKeywordSelection[0];
+        this._changeSelection(this.currentKeywordSelection[0]);
       }
     },
 

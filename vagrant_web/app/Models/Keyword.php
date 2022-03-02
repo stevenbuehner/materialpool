@@ -30,6 +30,8 @@ use Kalnoy\Nestedset\NodeTrait;
  * @property int $children_count
  * @property int $materials_count
  * @property int $material_authors_count
+ *
+ * @property Collection $ancestors
  */
 class Keyword extends Model {
 	use HasFactory;

@@ -15,6 +15,7 @@ import biblecontents             from './modules/biblecontents';
 import general                   from './modules/general';
 import bibles                    from './modules/bibles';
 import users                     from './modules/users';
+import keywordsSuggestions       from './modules/keywordsSuggestions';
 
 Vue.use(VueX);
 
@@ -27,6 +28,7 @@ export const store = new VueX.Store({
 		materialusages,
 		materialapp,
 		keywords,
+		keywordsSuggestions,
 		bibleverses,
 		bibleversecrossreferences,
 		search,

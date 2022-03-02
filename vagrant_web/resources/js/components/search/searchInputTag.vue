@@ -103,14 +103,16 @@ export default {
   asyncComputed: {
     crossReferencesCount: {
       get() {
-        if (this.type !== 'b') {
-          return false;
+        if (this.type === 'b') {
+          return this.$store.dispatch('bibleversecrossreferences/getCount', {
+            from: this?.item?.from,
+            to: this?.item?.from
+          });
+        } else if (this.type === 'k') {
+          return this.$store.dispatch('keywordsSuggestions/getCount', this?.item?.id);
         }
 
-        return this.$store.dispatch('bibleversecrossreferences/getCount', {
-          from: this?.item?.from,
-          to: this?.item?.from
-        });
+        return false;
 
       },
       default: false,

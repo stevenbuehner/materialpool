@@ -79,7 +79,12 @@ Route::group([
 	// Bibleverse CrossReferences
 	Route::get('bibleverses/crossrefs/{from}-{to}', 'BibleverseCrossReferenceController@getCrossReferences')
 		->where(['from' => '[0-9]+', 'to' => '[0-9]+'])
-		->name('api.v2.users.find');
+		->name('api.v2.bibleverses.crossrefs');
+
+	// Keyword Suggestions
+	Route::get('keywords/suggestions/{keyword}', 'KeywordSuggestionsController@getKeywordSuggestions')
+		->where(['keyword' => '[0-9]+'])
+		->name('api.v2.keywords.suggestions');
 
 	// Users
 	Route::get('users/find', 'UserController@find')

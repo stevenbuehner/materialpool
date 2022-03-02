@@ -199,6 +199,10 @@ export function api_v1_keywords_delete(keywordId) {
 	return '/api/v1/keywords/' + keywordId;
 }
 
+export function api_v2_keywords_suggestions(keywordId) {
+	return '/api/v2/keywords/suggestions/' + keywordId;
+}
+
 export function api_v1_keywords_updateassignment(materialId, keywordId) {
 	return '/api/v1/material/' + materialId + '/keyword/' + keywordId;
 }
