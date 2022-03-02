@@ -160,5 +160,9 @@ export default {
     margin: 0 .25em;
   }
 
+  button.vs__deselect {
+    color: #3c3c3c;
+  }
+
 }
 </style>
