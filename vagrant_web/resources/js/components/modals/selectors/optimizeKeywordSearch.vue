@@ -4,6 +4,7 @@
       size="lg"
       ref="myModal"
       @hide="_cancelPromise"
+      @show="_onShow"
       dialog-class="sb-optimize-keywords"
       header-class="d-block"
   >
@@ -15,6 +16,7 @@
         <div class="keyword-listing mr-2">
           <search-input-tag v-for="(kw,index) in currentKeywordSelection"
                             v-bind="kw"
+                            :key="kw.text"
                             :class="{'is-selected' : kw === selectedTag}"
                             :show-cross-refs="true"
                             :is-selectable="_itemIsSelectable(kw)"
@@ -43,7 +45,7 @@
 
     <div class="main">
       <b-list-group class="suggestions">
-        <b-list-group-item v-for="sug in tagSuggestionsFiltered" class="flex-column align-items-start">
+        <b-list-group-item v-for="sug in tagSuggestionsFiltered" class="flex-column align-items-start" :key="sug.key">
           <div class="d-flex w-100 justify-content-between">
             <!--<h5 class="mb-1">{{ sug.headline }}</h5>-->
             <search-input-tag v-bind="sug.searchItem" :show-disable="false" :is-selectable="true"
@@ -176,7 +178,8 @@ export default {
         [{
         type: 'b',
         relevance: INT,
-        searchItem: {}
+        searchItem: {},
+        key: <unique-key>
         }]
          */
 
@@ -208,6 +211,7 @@ export default {
                 headline: BibleVerseService.bibleVerseToString(bibleverse, 'long'),
                 bigText: '',
                 smallText: 'is loading ...',
+                key: 'b-' + from + '-' + to,
 
                 extra: {bibleverse}
               }
@@ -311,6 +315,13 @@ export default {
 
     hide() {
       this.$refs.myModal.hide();
+    },
+
+    _onShow() {
+      // Wenn nur ein Bibelvers da ist, dann nimm gleich den als Auswahl
+      if (this.currentKeywordSelection.length === 1) {
+        this.selectedTag = this.currentKeywordSelection[0];
+      }
     },
 
 
