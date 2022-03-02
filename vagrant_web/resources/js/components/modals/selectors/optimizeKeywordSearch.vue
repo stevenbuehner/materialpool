@@ -106,6 +106,22 @@ export default {
     };
   },
 
+  watch: {
+    tagSuggestionsFiltered(newVal) {
+      // Bereits angezeigte Bibelverse müssen abgezogen werden, da die ja nicht angezeigt werden
+      this.minDisplayedSuggestions = Math.max(1, this.tagSuggestions.length - newVal.length + 1);
+      this.minDisplayedSuggestions = Math.min(this.minDisplayedSuggestions, this.tagSuggestionsCount);
+
+      // Das muss zwischengespeichert werden und darf nur bei bedarf geändert werden, sonst gibt es eine Endlos-Loop
+      let maximumVal = Math.max(this.numberOfDisplayedSuggestions, this.minDisplayedSuggestions + 5);
+      maximumVal     = Math.min(maximumVal, this.tagSuggestionsCount);
+      if (maximumVal !== this.numberOfDisplayedSuggestions) {
+        this.numberOfDisplayedSuggestions = maximumVal;
+      }
+    }
+
+  },
+
   computed: {
 
     selectedBibleveres() {
@@ -120,7 +136,7 @@ export default {
     // Filtere alle searchItems heraus, die bereits in der Liste enthalten sind
     tagSuggestionsFiltered() {
 
-      const result = this.tagSuggestions.filter((el) => {
+      return this.tagSuggestions.filter((el) => {
 
         const b1 = el?.searchItem;
 
@@ -136,16 +152,7 @@ export default {
 
         return true;
       });
-
-      // Bereits angezeigte Bibelverse müssen abgezogen werden, da die ja nicht angezeigt werden
-      this.minDisplayedSuggestions      = Math.max(1, this.tagSuggestions.length - result.length + 1);
-      this.minDisplayedSuggestions      = Math.min(this.minDisplayedSuggestions, this.tagSuggestionsCount);
-
-      this.numberOfDisplayedSuggestions = Math.max(this.numberOfDisplayedSuggestions, this.minDisplayedSuggestions);
-      this.numberOfDisplayedSuggestions = Math.min(this.numberOfDisplayedSuggestions, this.tagSuggestionsCount);
-
-      return result;
-
+      
     }
 
   },
@@ -167,7 +174,8 @@ export default {
         return result;
 
       },
-      default: ''
+      default: '',
+      lazy: true
     },
 
     tagSuggestionsCount: {
@@ -178,9 +186,11 @@ export default {
             count = await this.$store.dispatch('bibleverseCrossReferences/getCount',
                 {from: this.selectedTag?.item?.from, to: this.selectedTag?.item?.to}
             );
+            break;
 
           case 'k':
             count = await this.$store.dispatch('keywordsSuggestions/getCount', this.selectedTag?.item?.id);
+            break;
         }
 
         // Korrigiere die tatsächliche Auswahl nach unten, abhängig von dem, was wirklich geht
@@ -190,7 +200,7 @@ export default {
 
         return count;
       },
-
+      lazy: true,
       default: 1
     },
 
@@ -255,6 +265,7 @@ export default {
 
             });
 
+
           case 'k':
 
             const keywordSug = await this.$store.dispatch('keywordsSuggestions/get',
@@ -264,17 +275,17 @@ export default {
                 }
             );
 
-            return keywordSug.map((keyword) => {
+            return keywordSug.map((kw) => {
 
               return {
-                searchItem: objectToSearchItem(keyword),
-                relevance: keyword.relevance || this.$t('pool.Unknown'),
-                headline: keyword.title,
+                searchItem: objectToSearchItem(kw),
+                relevance: kw.relevance || this.$t('pool.Unknown'),
+                headline: kw.title,
                 bigText: '',
                 smallText: '',
-                key: 'k-' + keyword.id,
+                key: 'k-' + kw.id,
 
-                extra: {keyword}
+                extra: {kw}
               }
             });
 
@@ -283,6 +294,7 @@ export default {
         }
 
       },
+      lazy: true,
       default() {
         return [];
       }
@@ -302,10 +314,6 @@ export default {
 
     _changeSelection(kw) {
       this.selectedTag = kw;
-
-      this.$nextTick(() => {
-        this.numberOfDisplayedSuggestions = Math.min(this.minDisplayedSuggestions + 5, this.tagSuggestionsCount);
-      });
     },
 
     _itemIsSelectable(item) {
