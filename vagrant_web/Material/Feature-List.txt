@@ -22,11 +22,6 @@ Resourcen (in der MaterialDetail-Ansicht) ausklappen
 Speichern / Abbrechen Buttons werden bei einem Bot-Material angezeigt?!?
 http://192.168.3.3/vue/material/10473
 
-Beim Eingeben neuer Bibelverse. Wenn das letzte angeklickt wird, INPUT löschen
-Bibleverse-Select (wenn keines mehr zur Auswahl steht) -> Dropdown schließen und Input-Feld löschen
-
-Suche auf Parallelstellen ausdehnen mit einem Klick
-
 
 Schöneres Styling für Markdown (gibt es da fertige CSS?)
 
