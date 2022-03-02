@@ -5,12 +5,16 @@
                :to="{name: 'material-detail',params: {id: material.id}}">
 
     <div class="preview" :class="{imageDisplayed: showImage}">
+
+      <img class="image" v-show="showImage" :src="previewImageUrl" @load="showImage = true; imageIsLoading=false;"
+           @error="showImage = false; imageIsLoading=false;" :alt="fileTypes">
+
       <div v-if="material.from_bot" class="is-bot-corner" :title="$t('pool.is-from-bot')">
         <from-bot-icon class="from-bot-icon"/>
       </div>
-      <img class="image" v-show="showImage" :src="previewImageUrl" @load="showImage = true; imageIsLoading=false;"
-           @error="showImage = false; imageIsLoading=false;" :alt="fileTypes">
+
       <play-icon class="playIcon" v-if="showImage && containsVideoResource"/>
+
       <span class="text" v-if="!showImage">
                 <span>
                     {{ fileTypes }}
@@ -255,7 +259,7 @@ $preview-background-color: #868E96;
       height: 3em;
       top: 0;
       left: 0;
-      background: linear-gradient(to bottom right, rgba(0, 0, 0, 0.25) 50%, #0000 50%) no-repeat;
+      background: linear-gradient(to bottom right, rgba(74, 82, 90, 0.85) 50%, #0000 50%) no-repeat;
 
       .from-bot-icon {
         height: 1em;

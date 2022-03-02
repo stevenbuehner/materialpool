@@ -252,3 +252,6 @@ sudo -u www-data php /var/www/wissensbase/artisan backup:run
 # - Anschließend immer die Gruppenrechte für www-data setzen:
 sudo chown -R steven.www-data /var/www/bundles
 
+
+# Updates von BibleCrossReferences
+php artisan db:seed --class ImportBibleverseCrossReferences
