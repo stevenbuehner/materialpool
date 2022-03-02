@@ -33,7 +33,7 @@
 
       <p class="card-text">{{ material.description }}</p>
 
-      <div class="taglist">
+      <div class="taglist d-flex flex-wrap overflow-hidden" :style="{height: showMore ? 'auto' : '2em'}">
         <keyword v-for="keyword in highlightedKeywords"
                  :key="'k' + keyword.id"
                  :keyword="keyword"
@@ -49,15 +49,13 @@
                  :key="'k' + keyword.id"
                  :keyword="keyword"
                  :editable="false"
-                 :highlight="false"
-                 v-if="showMore"/>
+                 :highlight="false"/>
         <biblevers
             v-for="bibleverse in notHighlightedBibleverses"
             :key="'b' + bibleverse.id"
             :bibleverse="bibleverse"
             :editable="false"
-            :highlight="false"
-            v-if="showMore"/>
+            :highlight="false"/>
       </div>
 
     </div>
@@ -256,7 +254,8 @@ $preview-background-color: #868E96;
         height: 1em;
         width: 1em;
         margin: .25em;
-        path{
+
+        path {
           fill: white;
         }
       }

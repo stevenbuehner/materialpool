@@ -1,8 +1,9 @@
 <template>
-  <div class="bibleverse-wrapper" :class="[size]">
-    <div class="btn btn-sm btn-secondary sb-bibleverse"
+  <div class="bibleverse-wrapper text-nowrap" :class="[size]">
+    <div class="btn btn-sm btn-secondary sb-bibleverse position-relative"
          :class="{'tag-readonly' : !editable, 'tag-editable' : editable, highlighted : highlight}"
-         @mousedown.left="keydownStartDrag"
+         @mousedown.left.stop="keydownStartDrag"
+         @click.left.stop=""
          @mouseover.alt="displayBibleversePopover=true"
          @mouseout.alt="displayBibleversePopover=false"
          @click.right.stop="openRightClickMenu"
@@ -259,11 +260,9 @@ export default {
 @import "../../../sass/theme";
 
 .bibleverse-wrapper {
-  display: inline-block;
   position: relative;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.25rem;
   margin-right: 0.25rem;
-  line-height: 1em;
 
   &.mini {
     margin-bottom: .125rem;
@@ -283,8 +282,9 @@ export default {
     }
   }
 
-  .sb-bibleverse {
-    border: $tag-background-colour-hover solid 1px;
+  > .sb-bibleverse {
+    // border: $tag-background-colour-hover solid 1px;
+    border: none;
     background-color: $tag-background-colour;
     cursor: pointer;
 

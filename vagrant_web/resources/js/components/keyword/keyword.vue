@@ -1,8 +1,9 @@
 <template>
-  <div class="kw-wrapper" :class="[size]">
-    <div class="btn btn-sm btn-secondary sb-keyword"
+  <div class="kw-wrapper text-nowrap" :class="[size]">
+    <div class="btn btn-sm btn-secondary sb-keyword position-relative"
          :class="{'tag-readonly' : !editable, 'tag-editable' : editable, 'tag-searchable' : searchable, highlighted : highlight}"
-         @mousedown.left="keydownStartDrag"
+         @mousedown.left.stop="keydownStartDrag"
+         @click.left.stop=""
          @click.right.stop="openRightClickMenu"
          @dblclick.stop="openKeywordEditModal"
          role="button">
@@ -301,11 +302,9 @@ export default {
 @import "../../../sass/theme";
 
 .kw-wrapper {
-  display: inline-block;
   position: relative;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.25rem;
   margin-right: 0.25rem;
-  line-height: 1em;
 
   &.mini {
     margin-bottom: .125rem;
@@ -327,7 +326,8 @@ export default {
 
 
   > .sb-keyword {
-    border: $tag-background-colour-hover solid 1px;
+    // border: $tag-background-colour-hover solid 1px;
+    border: none;
     background-color: $tag-background-colour;
     cursor: pointer;
 
