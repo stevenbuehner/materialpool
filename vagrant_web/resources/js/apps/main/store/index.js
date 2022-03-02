@@ -5,7 +5,7 @@ import materials                 from './modules/materials';
 import materialusages            from './modules/materialusages';
 import keywords                  from './modules/keywords';
 import bibleverses               from './modules/bibleverses';
-import bibleversecrossreferences from './modules/bibleverseCrossReferences';
+import bibleverseCrossReferences from './modules/bibleverseCrossReferences';
 import search                    from './modules/search';
 import tagsearch                 from './modules/tagsearch';
 import materialapp               from './modules/materialapp';
@@ -30,7 +30,7 @@ export const store = new VueX.Store({
 		keywords,
 		keywordsSuggestions,
 		bibleverses,
-		bibleversecrossreferences,
+		bibleverseCrossReferences,
 		search,
 		tagsearch,
 		recentmaterials,

@@ -104,7 +104,7 @@ export default {
     crossReferencesCount: {
       get() {
         if (this.type === 'b') {
-          return this.$store.dispatch('bibleversecrossreferences/getCount', {
+          return this.$store.dispatch('bibleverseCrossReferences/getCount', {
             from: this?.item?.from,
             to: this?.item?.from
           });

@@ -175,7 +175,7 @@ export default {
         let count = 1;
         switch (this.selectedTag?.item?.type) {
           case 'b':
-            count = await this.$store.dispatch('bibleversecrossreferences/getCount',
+            count = await this.$store.dispatch('bibleverseCrossReferences/getCount',
                 {from: this.selectedTag?.item?.from, to: this.selectedTag?.item?.to}
             );
 
@@ -211,7 +211,7 @@ export default {
         switch (this.selectedTag?.item?.type) {
           case 'b':
 
-            const crossRefs = await this.$store.dispatch('bibleversecrossreferences/get',
+            const crossRefs = await this.$store.dispatch('bibleverseCrossReferences/get',
                 {
                   from: this.selectedTag?.item?.from,
                   to: this.selectedTag?.item?.to,
