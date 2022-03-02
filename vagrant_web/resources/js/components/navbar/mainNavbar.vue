@@ -12,10 +12,12 @@
         <b-navbar-nav>
 
           <b-nav-item :to="{name: 'resource-create'}" :title="$t('pool.Upload')">
-            <upload-icon class="sb-icon sb-upload-icon"/>
+            <upload-icon class="sb-icon sb-navbar-icon"/>
           </b-nav-item>
 
-          <b-nav-item :to="{name: 'resource-text-create'}">{{ $t('pool.New') }}</b-nav-item>
+          <b-nav-item :to="{name: 'resource-text-create'}" :title="$t('pool.New')">
+            <new-text-icon class="sb-icon sb-navbar-icon"/>
+          </b-nav-item>
 
           <b-nav-item-dropdown right :text="$t('pool.Edit')" v-if="isAdmin">
             <b-dropdown-item :to="{name: 'keyword-list'}" class="dropdown-hover" v-if="isAdmin">{{
@@ -96,6 +98,7 @@ import {
 }                                        from 'bootstrap-vue';
 import {searchArrayObjectsToSearchQuery} from "../search/searchHelper";
 import uploadIcon                        from 'svg-icon/dist/svg/icomoon/cloud-upload.svg';
+import newTextIcon                       from 'svg-icon/dist/svg/zero/custom-text.svg';
 
 export default {
   name: "mainNavbar",
@@ -162,7 +165,7 @@ export default {
     BButton,
     BInputGroup,
     BInputGroupAppend,
-    uploadIcon
+    uploadIcon, newTextIcon
   }
 }
 </script>
@@ -174,12 +177,21 @@ export default {
   background-color: lightgrey;
 }
 
-.sb-upload-icon path {
-  fill: $navbar-light-color;
+.sb-navbar-icon {
+  height: 1.5em;
+  width: 1.5em;
+
+  path {
+    fill: $navbar-light-color;
+  }
+
+  &:hover path {
+    fill: $navbar-light-hover-color
+  }
 }
 
 .router-link-active {
-  .sb-upload-icon path {
+  .sb-navbar-icon path {
     fill: $navbar-light-active-color;
   }
 }
