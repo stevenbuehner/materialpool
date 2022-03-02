@@ -27,8 +27,14 @@
 
     <template v-slot:option="option">
       <div class="d-center">
-        <span class="icon" :style="{backgroundImage: 'url('+ option.icon+')'}"></span>
+
+        <template v-if="preloadedIcon(option.icon) !== false">
+          <component :is="preloadedIcon(option.icon)" class="icon"/>
+        </template>
+        <span v-else class="icon" :style="{backgroundImage: 'url('+ option.icon+')'}"/>
+
         {{ option.text }}
+
         <span class="descendants" v-if="option.descendants && option.descendants > 0">
           ({{ $tc('pool.xy-subtopics', option.descendants, {xy: option.descendants}) }})
         </span>
@@ -46,9 +52,10 @@
 </template>
 
 <script>
-import vueSelect      from 'vue-select';
-import _debounce      from 'lodash/debounce';
-import SearchInputTag from "./searchInputTag";
+import vueSelect       from 'vue-select';
+import _debounce       from 'lodash/debounce';
+import SearchInputTag  from "./searchInputTag";
+import {preloadedIcon} from "../keyword/keywordDefaultIcons";
 
 export default {
 
@@ -114,6 +121,10 @@ export default {
 
     }, 250),
 
+    preloadedIcon(icon) {
+      return preloadedIcon(icon);
+    }
+
   },
 
   created() {
@@ -158,6 +169,15 @@ export default {
 
 
   .vs__dropdown-menu {
+
+    .icon {
+      display: inline-block;
+      background-size: contain;
+      height: 1em;
+      background-repeat: no-repeat;
+      width: 1em;
+      margin: 0 .25em 0 0;
+    }
 
     .descendants {
       font-size: 0.8em;

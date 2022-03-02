@@ -37,3 +37,22 @@ export function iconName(keyword) {
 	}
 
 }
+
+export function preloadedIcon(icon) {
+
+	switch (icon) {
+		case '/img/icons/bible.svg':
+			return bibleIcon;
+		case '/img/icons/ayce.svg':
+			return ayceIcon;
+		case null:
+		case '/img/icons/tag.svg':
+			return keyIcon;
+		case '/img/icons/place.svg':
+			return placeIcon;
+		case '/img/icons/person.svg':
+			return personIcon;
+	}
+
+	return false;
+}

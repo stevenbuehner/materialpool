@@ -37,9 +37,9 @@
 
 <script>
 
-import searchInputTag_include                                from "./searchInputTag_include";
-import {ayceIcon, bibleIcon, keyIcon, personIcon, placeIcon} from "../keyword/keywordDefaultIcons";
-import {BBadge}                                              from 'bootstrap-vue'
+import searchInputTag_include from "./searchInputTag_include";
+import {preloadedIcon}        from "../keyword/keywordDefaultIcons";
+import {BBadge}               from 'bootstrap-vue'
 
 export default {
   name: "searchInputTag",
@@ -69,27 +69,8 @@ export default {
       return this?.item?.type;
     },
 
-
     iconPreloaded() {
-      if (this.type === 'b') {
-        return bibleIcon;
-      } else if (this.type === '*') {
-        return ayceIcon;
-      } else if (this.type === 'k') {
-
-        switch (this.icon) {
-          case null:
-          case '/img/icons/tag.svg':
-            return keyIcon;
-          case '/img/icons/place.svg':
-            return placeIcon;
-          case '/img/icons/person.svg':
-            return personIcon;
-        }
-
-      }
-
-      return false;
+      return preloadedIcon(this.icon);
     },
 
     style() {
