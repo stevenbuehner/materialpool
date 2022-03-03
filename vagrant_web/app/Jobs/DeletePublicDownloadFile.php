@@ -11,7 +11,7 @@ use Illuminate\Queue\SerializesModels;
 class DeletePublicDownloadFile implements ShouldQueue {
 	use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-	protected $filePath;
+	protected string $filePath;
 
 	/**
 	 * CheckLonelyResource constructor.
@@ -19,7 +19,7 @@ class DeletePublicDownloadFile implements ShouldQueue {
 	 * @param String $filePath
 	 * @param \DateTimeInterface|\DateInterval|int|null $delay
 	 */
-	public function __construct($filePath, $delay) {
+	public function __construct(string $filePath, $delay) {
 
 		$this->filePath = $filePath;
 		$this->onConnection('database');
