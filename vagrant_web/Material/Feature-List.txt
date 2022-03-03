@@ -44,5 +44,3 @@ In Safari beim Löschen von Material
 
 In der Suchmaske brauche ich einen Haken, der standardmäßig aktiv ist: Bundles einbeziehen
 
-
-Sortiere Suchergebnisse nach Relevanz!

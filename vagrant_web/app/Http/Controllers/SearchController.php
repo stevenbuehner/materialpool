@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 use StevenBuehner\BibleVerseBundle\Service\BibleVerseService;
 
 class SearchController extends Controller {
@@ -65,15 +66,15 @@ class SearchController extends Controller {
 		$verses = $bibleVerseExtraction->stringToBibleVerse($queryString);
 
 		foreach ($verses as $b) {
-			$bModel         = Bibleverse::findOrNewFromBibleverseInterface($b);
+			$bModel = Bibleverse::findOrNewFromBibleverseInterface($b);
 			// $countCrossRefs = $bModel->bibleverseCrossReferencesQuery()->count();
 
 			$result->push(
 				[
-					'text'      => $bModel->label,
-					'icon'      => $bModel->icon,
+					'text' => $bModel->label,
+					'icon' => $bModel->icon,
 					// 'crossRefs' => $countCrossRefs,
-					'item'      => [
+					'item' => [
 						'type' => 'b',
 						// 'id'   => $bModel->id,
 						'from' => $bModel->from,
@@ -213,10 +214,10 @@ class SearchController extends Controller {
 		$searchBars = $request->get('q', []);
 		$matQuery   = Material::query()
 			->select('materials.*')
-			->distinct(['materials.id'])
 			->with(['author', 'keywords', 'bibleverses', 'resources'])
-			->orderBy('materials.rating', 'desc');
+			->groupBy(['materials.id']);
 
+		$sumUpQueryParts = [];
 
 		foreach ($searchBars as $index => $bar) {
 
@@ -317,6 +318,8 @@ class SearchController extends Controller {
 					/** @var Builder $matQuery */
 					$matQuery->leftJoin("keyword_material as keyword_material{$index}", 'materials.id', '=',
 						"keyword_material{$index}.material_id");
+
+					$sumUpQueryParts[] = "sum(keyword_material{$index}.relevance)";
 				}
 
 				if ($bibleversesAvailable === TRUE) {
@@ -327,6 +330,8 @@ class SearchController extends Controller {
 					$matQuery->join("bibleverses as bibleverses{$index}",
 						"bibleverse_material{$index}.bibleverse_id", '=',
 						"bibleverses{$index}.id");
+
+					$sumUpQueryParts[] = "sum(bibleverse_material{$index}.relevance)";
 				}
 
 				if (count($resourceTypes) > 0) {
@@ -339,6 +344,14 @@ class SearchController extends Controller {
 				}
 			}
 		}
+
+
+		if (count($sumUpQueryParts) > 0) {
+			// $matQuery->addSelect(DB::raw(join(' + ', $sumUpQueryParts) . ' as relevanceSum'));
+			$matQuery->orderByDesc(DB::raw(join(' + ', $sumUpQueryParts)));
+		}
+
+		$matQuery->orderByDesc('rating');
 
 		return $matQuery;
 	}
