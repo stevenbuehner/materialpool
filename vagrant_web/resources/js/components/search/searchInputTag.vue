@@ -13,8 +13,11 @@
       {{ text }}
     </slot>
 
-    <span v-if="descendants.length > 0" class="descendants">({{
+    <span v-if="Array.isArray(descendants) && descendants.length > 0" class="descendants">({{
         descendants.map(kw => kw.title).join(', ')
+      }})</span>
+    <span v-else-if="Number.isInteger(descendants) && descendants > 0" class="descendants">({{
+        $tc('pool.xy-subtopics', descendants, {xy: descendants})
       }})</span>
 
     <b-badge pill variant="secondary" v-if="showCrossRefs && crossReferencesCount !== false" class="cross-refs">

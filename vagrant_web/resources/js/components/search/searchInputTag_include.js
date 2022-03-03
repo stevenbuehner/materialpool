@@ -22,7 +22,7 @@ export default {
 		},
 
 		descendants: {
-			type: Array,
+			type: [Array, Number],
 			required: false,
 			default() {
 				return [];
