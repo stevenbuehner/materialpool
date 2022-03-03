@@ -1,91 +1,92 @@
 <template>
-  <div class="bible-popover"
-       :style="style"
+  <div :style="style"
+       class="bible-popover"
        @mouseover.stop
-       @mouseout.stop.self="_onMouseout($event)">
+       @mouseout.stop.self="_onMouseout($event)"
+       @click.prevent>
     <header>
       <h1 @mousedown.self.prevent.stop="_dragStart($event)"
           @touchstart.self.prevent.stop="_dragStart($event)">
                 <span class="header-left"
                       @mousedown.prevent.stop="_dragStart($event)"
                       @touchstart.prevent.stop="_dragStart($event)">
-                    <span class="action cursorMove" v-if="isPinned">
+                    <span v-if="isPinned" class="action cursorMove">
                         <cursor-move-icon/>
                     </span>
                     <span class="text">{{ $t('pool.Bible-reference') }}</span>
                 </span>
+
         <span class="header-actions">
-                    <span @click.stop="_togglePin"
-                          class="action pin enabled" :class="{isPinned}">
-                        <pin-icon class="icon" v-if="!isPinned"/>
-                        <pin-remove-icon v-if="isPinned"/>
-                    </span>
+          <span :class="{isPinned}"
+                class="action pin enabled" @click.prevent.stop="_togglePin">
+              <pin-icon v-if="!isPinned" class="icon"/>
+              <pin-remove-icon v-if="isPinned"/>
+          </span>
 
-                    <span @click.stop="_doPrevious"
-                          class="action previous" :class="{enabled: enablePrevious}"
-                          v-if="enablePrevious">
-                        <double-left-icon/>
-                    </span>
+          <span v-if="enablePrevious"
+                :class="{enabled: enablePrevious}" class="action previous"
+                @click.prevent.stop="_doPrevious">
+              <double-left-icon/>
+          </span>
 
-                    <span @click.stop="_doNext"
-                          class="action next" :class="{enabled: enableNext}"
-                          v-if="enableNext">
-                        <double-right-icon/>
-                    </span>
-                    
-                    <span class="space"></span>
+          <span v-if="enableNext"
+                :class="{enabled: enableNext}" class="action next"
+                @click.prevent.stop="_doNext">
+              <double-right-icon/>
+          </span>
 
-                    <span @click.stop="_doClose"
-                          class="action close enabled"
-                          :title="$t('pool.close')">
-                        <close-icon/>
-                    </span>
+          <span class="space"></span>
 
+          <span :title="$t('pool.close')"
+                class="action close enabled"
+                @click.prevent.stop="_doClose">
+              <close-icon/>
+          </span>
 				</span>
       </h1>
     </header>
 
     <article class="bible-popover-content">
-      <div class="article-inner" ref="innercontent">
+      <div ref="innercontent" class="article-inner">
         <h2>{{ bibleverseLabel }}
           <span class="ref-actions">
-                        <router-link class="action-button"
-                                     v-if="materialCount"
-                                     :to="{name: 'search', params: {search: materialSearchParam}}"
-                                     :title="$t('pool.show-materials')">
-                            {{ $tc('pool.material-count', materialCount, {count: materialCount}) }}<!--
-                        --></router-link>
+            <router-link v-if="materialCount"
+                         :title="$t('pool.show-materials')"
+                         :to="{name: 'search', params: {search: materialSearchParam}}"
+                         class="action-button">
+                {{ $tc('pool.material-count', materialCount, {count: materialCount}) }}<!--
+            --></router-link>
 
-                        <span class="action-button" :title="$t('pool.lookup-in-context')"
-                              @click.left.exact="_widenTheContext"
-                              @click.left.shift.exact="_narrowTheContext"
-                              @click.right.stop.prevent="_narrowTheContext">
-                            {{ $t('pool.context') }}<!--
-                        --></span>
+            <span :title="$t('pool.lookup-in-context')" class="action-button"
+                  @click.left.exact="_widenTheContext"
+                  @click.left.shift.exact="_narrowTheContext"
+                  @click.right.stop.prevent="_narrowTheContext">
+                {{ $t('pool.context') }}<!--
+            --></span>
 
-                        <span class="action-button" :title="$t('pool.copy-text')"
-                              :class="{isCopied}"
-                              @click="_copyBibeltextToClipboard">
-                              <copy-icon class="copy-icon"/>
-                        </span>
-                    </span>
+            <span :class="{isCopied}" :title="$t('pool.copy-text')"
+                  class="action-button"
+                  @click="_copyBibeltextToClipboard">
+                  <copy-icon class="copy-icon"/>
+            </span>
+        </span>
         </h2>
 
         <p>
-                    <span v-if="!isLoading" v-for="vers in verses"
-                          class="verse"
-                          :class="{context: (contextOffsetFrom > 0 || contextOffsetTo > 0) && (vers.no < bibleverse.getFrom() || vers.no > bibleverse.getTo())}">
-                        <span v-if="!isSingleVerse" class="vno">{{ vers.vno }}</span>
-                        <span class="text">{{ vers.text }} </span>
-                    </span>
+          <span v-for="vers in verses" v-if="!isLoading"
+                :class="{context: (contextOffsetFrom > 0 || contextOffsetTo > 0) && (vers.no < normalizedBibleverse.getFrom() || vers.no > normalizedBibleverse.getTo())}"
+                class="verse">
+              <span v-if="!isSingleVerse" class="vno">{{ vers.vno }}</span>
+              <span class="text">{{ vers.text }} </span>
+          </span>
           <materialpool-spinner v-if="isLoading"/>
         </p>
         <p></p>
-        <div class="version" v-if="bible.uuid">
-          <span>{{ bible.title }} ({{ bible.uuid }})</span><br>
+        <div v-if="bible.uuid" class="version">
+          <span>{{ bible.title }} ({{ bible.uuid }})</span><br/>
           <span>{{ $t('pool.Source') }}:
-                        <a :href="bible.source" target="_blank">{{ bibleSourceDomain }}</a>
-                    </span>
+              <a :href="bible.source" target="_blank">{{ bibleSourceDomain }}</a>
+          </span>
         </div>
       </div>
     </article>
@@ -95,7 +96,7 @@
 
 /*
 Beispiel-Einbettung:
-<bible-popover :bibleverse="bibleverse" v-if="showMe" :position="$refs.test"
+<bible-popover v-if="showMe" :bibleverse="bibleverse" :position="$refs.test"
                @bible-popover-closerequest="showMe = false"/>
 
 Parameter
@@ -436,7 +437,7 @@ export default {
     },
 
     _widenTheContext() {
-      if (this.bibleverse.getFromVerse() - this.contextOffsetFrom >= 0) {
+      if (this.normalizedBibleverse.getFromVerse() - this.contextOffsetFrom >= 0) {
         this.contextOffsetFrom++;
       }
 
@@ -617,19 +618,22 @@ export default {
 @import "../../../sass/theme";
 
 $bible-popover-theme-color: $gray-600;
+$bible-popover-text-color: $black;
+$bible-popover-context-color: $bible-popover-theme-color;
 
 .bible-popover {
   background: white;
-  font-family: Arial;
+  font-family: Arial, system-ui;
   position: fixed;
   line-height: 120%;
-  color: black;
+  color: $bible-popover-text-color;
   border: 1px solid $bible-popover-theme-color;
   font-size: 13px;
   z-index: 1000;
   border-radius: .5em;
   overflow: hidden;
   box-shadow: 0 0 3px rgba(0, 0, 0, 0.75);
+  white-space: normal;
 
   header {
     background: $bible-popover-theme-color;
@@ -739,7 +743,7 @@ $bible-popover-theme-color: $gray-600;
 
       .verse {
         &.context .text {
-          color: $gray-500;
+          color: $bible-popover-context-color;
 
           &:hover {
             color: inherit;
@@ -834,11 +838,7 @@ $bible-popover-theme-color: $gray-600;
     .version {
       margin: 10px 0 3px 0;
       font-size: 11px;
-      color: black;
-
-      & a, span {
-        opacity: 0.65;
-      }
+      color: $bible-popover-context-color;
 
       a {
         color: inherit;

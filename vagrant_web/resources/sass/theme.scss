@@ -28,16 +28,18 @@ $input-margin-bottom: 0;
 $input-margin-left: 0;
 
 
-// Notes
+// Jumbotron Color
+$jumbotron-bg: $gray-200 !default;
 
+// Notes
 $notes-font-color: lighten($body-color, 30%);
 
 // Tagging
-$tag-background-colour: $gray-700;
+$tag-background-colour: $gray-600;
 $tag-background-colour-hover: darken($tag-background-colour, 5%);
-$tag-progressbar-colour: $green;
-$tag-progressbar-colour-hover: $green-hover;
-$tag-progressbar-dragging-colour: $orange;
+$tag-progressbar-colour: $cyan-500;
+$tag-progressbar-colour-hover: $cyan-400;
+$tag-progressbar-dragging-colour: $orange-500;
 $tag-font-colour: white;
 
 
@@ -52,12 +54,12 @@ $sidebar-input-value-not-saved-yet-border-color: darken($input-border-color, 30%
 // Sidebar-Tagging
 $sidebar-input-font-color-active: #333;
 $sidebar-tag-background-color-active: $gray-300;
-$sidebar-tag-relevance-colour-active: lighten($blue, 35%);
+$sidebar-tag-relevance-colour-active: $tag-progressbar-colour;
 
 $sidebar-input-font-color-active-hover: darken($sidebar-input-font-color-active, 5%);
 $sidebar-tag-background-color-active-hover: darken($sidebar-tag-background-color-active, 5%);
 $sidebar-tag-relevance-colour-active-hover: darken($sidebar-tag-relevance-colour-active, 5%);
-$sidebar-tag-relevance-colour-active-dragging: $orange-hover;
+$sidebar-tag-relevance-colour-active-dragging: $tag-progressbar-dragging-colour;
 
 $sidebar-input-font-color-disabled: $input-color;
 $sidebar-tag-background-color-disabled: $gray-300;

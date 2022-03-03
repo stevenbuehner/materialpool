@@ -1,5 +1,5 @@
 <template>
-    <li class="menuItem" @click="menuItemClicked" :class="{disabled: disabled, 'with-icon' : icon !== ''}">
+    <li class="menuItem" @click.prevent.stop="menuItemClicked" :class="{disabled: disabled, 'with-icon' : icon !== ''}">
         <span class="icon" v-if="icon !== ''" :style="{backgroundImage : 'url(' + icon + ')'}"/>
         <slot :optional-data="optionalData"></slot>
     </li>

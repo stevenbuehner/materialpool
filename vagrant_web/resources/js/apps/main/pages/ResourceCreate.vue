@@ -10,7 +10,7 @@
         {{ $t('pool.drop-file-to-upload-resource') }}
       </resource-uploader>
 
-      <div class="options">{{ $t('pool.Additional-Options') }}:</div>
+      <div class="options mt-2">{{ $t('pool.Additional-Options') }}:</div>
       <b-form-checkbox v-model="autocreateMaterial">{{ $t('pool.auto-create-material') }}</b-form-checkbox>
     </div>
 

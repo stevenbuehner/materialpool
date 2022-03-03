@@ -1,5 +1,5 @@
 <template>
-  <div class="container homeContainer d-flex">
+  <div class="container homeContainer d-flex justify-content-center">
 
     <div class="top-right links" v-show="false">
       <router-link :to="{name: 'landingpage'}" v-if="currentUser">{{ $t('pool.home') }}</router-link>

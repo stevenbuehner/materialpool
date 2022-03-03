@@ -36,7 +36,7 @@ $vs-border-color: $input-border-color;
 
       input, textarea {
         font-size: 1em;
-        line-height: $input-line-height-sm;
+        line-height: $input-line-height;
         background-color: $sidebar-input-background-colour-active;
         padding: $input-padding-top $input-padding-right $input-padding-bottom $input-padding-left;
         margin: $input-margin-top $input-margin-right $input-margin-bottom $input-margin-left;
