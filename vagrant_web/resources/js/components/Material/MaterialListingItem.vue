@@ -64,7 +64,7 @@
 
     </div>
 
-    <div class="more" @click.stop="showMore = !showMore">
+    <div class="more" @click.prevent="showMore = !showMore">
       <span class="arrow" :class="{down:showMore, left: !showMore}"> < </span>
     </div>
 
