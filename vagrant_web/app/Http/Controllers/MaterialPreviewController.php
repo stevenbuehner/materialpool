@@ -8,7 +8,7 @@ use App\Services\PreviewGeneration\MaterialPreviewService;
 
 class MaterialPreviewController {
 
-	protected $materialPreviewService;
+	protected MaterialPreviewService $materialPreviewService;
 
 	public functioN __construct(MaterialPreviewService $materialPreviewService) {
 		$this->materialPreviewService = $materialPreviewService;

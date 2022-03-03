@@ -11,8 +11,8 @@ use Intervention\Image\ImageManager;
 abstract class AbstractPreviewService {
 
 	// Not implemented yet
-	protected $cacheLifeTimeInMinutes = NULL;
-	protected $imageManager;
+	protected ?int         $cacheLifeTimeInMinutes = NULL;
+	protected ImageManager $imageManager;
 
 
 	public function __construct(ImageManager $imageManager) {
@@ -24,7 +24,7 @@ abstract class AbstractPreviewService {
 		return $model->getTable() . $model->getKey() . json_encode($additionalData);
 	}
 
-	public function clearImageCache(Model $model, $additionalData = NULL){
+	public function clearImageCache(Model $model, $additionalData = NULL) {
 		$key = $this->getCacheKey($model, $additionalData);
 		$this->clearCache($key);
 	}

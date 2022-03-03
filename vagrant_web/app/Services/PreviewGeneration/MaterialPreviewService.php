@@ -13,7 +13,7 @@ use Intervention\Image\Size;
 
 class MaterialPreviewService extends AbstractPreviewService {
 
-	protected $resourcePreviewService;
+	protected ResourcePreviewService $resourcePreviewService;
 
 	public function __construct(ResourcePreviewService $resourcePreviewService, ImageManager $imageManager) {
 		parent::__construct($imageManager);
@@ -24,7 +24,7 @@ class MaterialPreviewService extends AbstractPreviewService {
 	 * @param Material $material
 	 * @return bool
 	 */
-	public function hasPreview(Material $material) {
+	public function hasPreview(Material $material): bool {
 
 		/** @var Resource $resource */
 		foreach ($material->resources as $resource) {
