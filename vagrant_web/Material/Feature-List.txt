@@ -40,3 +40,15 @@ In Safari beim Löschen von Material
 -> erst zugeordnete Ressourcen löschen (funktioniert)
 -> Dann klick auf Material löschen -> schnelle Fehlermeldung, die man aber nicht sieht
 
+
+
+In der Suchmaske brauche ich einen Haken, der standardmäßig aktiv ist: Bundles einbeziehen
+
+
+
+Bug: Beim klicken auf den "mehr" Button bei den Suchergebnissen, wird jetzt direkt zum Material weitergeleitet, anstatt "mehr anzuzeigen"
+
+
+
+Bug: Download-button bei Material produziert internal Server-Error
+z.B. bei http://192.168.3.3/vue/material/2034

@@ -111,7 +111,7 @@ trait ResourceHelperTrait {
 
 		} else if ($resource instanceof Text) {
 			$resource->content           = \File::get($file->getRealPath());
-			$resource->original_filename = $file->getClientOriginalName();
+			// $resource->original_filename = $file->getClientOriginalName();
 		}
 
 		if ($resource->isDirty()) {
