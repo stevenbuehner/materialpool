@@ -1,10 +1,10 @@
 <template>
-  <div v-if="!editNow" @dblclick.prevent="startEdditing" class="displayArea">
-    <component :is="type" :class="classes">
-      {{ text || '' }}
+  <div v-if="!editNow" @dblclick.prevent="startEdditing" class="displayArea d-flex align-items-baseline">
+    <component :is="type" :class="classes"><!--
+      -->{{ text || '' }}
       <div v-if="(text || '').length === 0" class="missingTextPlaceholder">{{ placeholder }}</div>
-      <a v-if="isLink" :href="text" class="btn btn-sm btn-primary">{{ $t('pool.open') }}</a>
     </component>
+    <a v-if="isLink" :href="text" class="btn btn-sm btn-primary mx-2">{{ $t('pool.open') }}</a>
   </div>
 
   <div v-else class="editArea">
@@ -19,8 +19,7 @@
              autofocus
              ref="textInput">
       <div class="input-group-append">
-        <button class="btn btn-outline-secondary" type="button" @click="saveEdit" :disabled="!enableSave">save
-        </button>
+        <button class="btn btn-outline-secondary" type="button" @click="saveEdit" :disabled="!enableSave">save</button>
         <button class="btn btn-outline-secondary" type="button" @click="cancedlEdit">cancel</button>
       </div>
     </div>

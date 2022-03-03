@@ -66,7 +66,7 @@
               <div class="col-xl-12 col-12 p-0">
                 <resource-detail :resource="material.resources[0]" :showDelete="false" :edit-disabled="material.from_bot">
                   <template slot="additional-buttons">
-                    <button class="btn btn-outline-danger mb-1"
+                    <button class="btn btn-outline-danger mb-1 btn-sm"
                             @click.prevent="btnDetachResource(material.resources[0])"
                             v-if="!materialEditLockActive"
                             :title="$t('pool.Detach-resource')">
@@ -82,7 +82,7 @@
             <div class="row" v-if="material.resources && material.resources.length === 0">
               <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 py-2">
                 {{ $t('pool.Material-without-resources') }}
-                <button class="btn btn-sm btn-danger"
+                <button class="btn btn-sm btn-danger btn-sm"
                         @click="btnDeleteMaterial"
                         :title="$t('pool.Delete-resource')">{{ $t('pool.delete') }}
                 </button>

@@ -8,6 +8,7 @@
 
     <transition name="fade">
       <div class="card-body resourcePreviewMenu pt-2" v-if="hovered">
+
         <div class="meta">
           <div class="filename pb-2" v-if="resource.original_filename">
             {{ resource.original_filename }}
@@ -17,7 +18,6 @@
             {{ $t('pool.Creator') }}:
             <user-name :user="resource.creator"/>
           </div>
-
         </div>
 
         <slot name="buttons">

@@ -3,7 +3,7 @@
 
     <b-navbar toggleable="sm" type="dark" variant="info" v-if="resource" fixed="top" class="sub-menu">
 
-      <b-navbar-brand :to="{name: 'resource-detail', params: {id: id}}">MatPool</b-navbar-brand>
+      <b-navbar-brand :to="{name: 'resource-detail', params: {id: id}}" class="ps-3">MatPool</b-navbar-brand>
 
       <b-navbar-nav>
         <b-button size="sm"
@@ -106,7 +106,7 @@
 
 <script>
 
-import PageList                        from '../../../components/assignment/pdfpages/pageList.vue'
+import PageList         from '../../../components/assignment/pdfpages/pageList.vue'
 import {
   BAlert,
   BButton,
@@ -116,16 +116,26 @@ import {
   BNavItem,
   BNavItemDropdown,
   VBTooltip
-}                                      from 'bootstrap-vue';
-import {BNavbar}                       from 'bootstrap-vue/';
-import materialSelector                from '../../../components/modals/selectors/materialSelector.vue';
-import materialCreator                 from '../../../components/modals/creators/materialCreator.vue';
-import truncate                        from '../../../filters/truncate-filter.mixin'
-import {uniqueArray}                   from "../../../helper/ArrayHelper";
-import {api_v1_resource_tags}          from "../../../components/serverRoutes";
-import axios                           from '../axiosInstance';
-import {savingDialogs}                 from "../../../helper/flashMessages";
-import {convertErrorResponseToMessage} from "../store/modules/handleErrorsHelper";
+}                       from 'bootstrap-vue';
+import {
+  BNavbar
+}                       from 'bootstrap-vue/';
+import materialSelector from '../../../components/modals/selectors/materialSelector.vue';
+import materialCreator  from '../../../components/modals/creators/materialCreator.vue';
+import truncate         from '../../../filters/truncate-filter.mixin'
+import {
+  uniqueArray
+}                       from "../../../helper/ArrayHelper";
+import {
+  api_v1_resource_tags
+}                       from "../../../components/serverRoutes";
+import axios            from '../axiosInstance';
+import {
+  savingDialogs
+}                       from "../../../helper/flashMessages";
+import {
+  convertErrorResponseToMessage
+}                       from "../store/modules/handleErrorsHelper";
 
 
 export default {

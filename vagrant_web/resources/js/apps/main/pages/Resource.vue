@@ -30,24 +30,24 @@
                 </div>
               </div>
 
-              <span class="materialNavi w-75 pl-lg-3 pl-1">
+              <span class="materialNavi w-75 ps-lg-3 ps-1">
                 <router-link v-if="material.pivot.limitation && isLimitable"
-                             class="btn btn-warning btn-sm mb-1 mr-1"
+                             class="btn btn-warning btn-sm mb-1 me-1"
                              :to="routerEditLimitationObject(resource, material.pivot)">
                   {{ $t('pool.Edit-Limitation') }}</router-link>
                 <router-link
                     v-if="!material.pivot.limitation && isLimitable"
-                    class="btn btn-success btn-sm mb-1 mr-1"
+                    class="btn btn-success btn-sm mb-1 me-1"
                     :to="routerEditLimitationObject(resource, material.pivot)">
                   {{ $t('pool.Create-Limitation') }}
                 </router-link>
                 <button @click="btnDetachMaterialFromResource(material)"
-                        class="btn btn-outline-danger btn-sm mb-1 mr-1">{{ $t('pool.remove') }}</button>
+                        class="btn btn-outline-danger btn-sm mb-1 me-1">{{ $t('pool.remove') }}</button>
                 <button @click="btnCopyMaterial(material)"
                         :title="$t('pool.Copy-material')"
-                        class="btn btn-outline-danger btn-sm mb-1 mr-1">{{ $t('pool.copy') }}</button>
+                        class="btn btn-outline-danger btn-sm mb-1 me-1">{{ $t('pool.copy') }}</button>
                 <router-link :to="{name: 'material-detail', params: {id: material.id}}"
-                             class="btn btn-primary btn-sm mb-1 mr-1">
+                             class="btn btn-primary btn-sm mb-1 me-1">
                   {{ $t('pool.open') }}
                 </router-link>
             </span>
@@ -88,12 +88,12 @@
             </b-list-group-item>
 
             <b-list-group-item class="d-flex">
-              <b>{{ $t('pool.Notes') }}: </b>
+              <b>{{ $t('pool.Notes') }}:</b>&nbsp;
               <edditable type="span"
                          :value="resource.notes"
                          @value-changed="updateNotes"
                          :placeholder="$t('pool.Click-to-insert-a-note')"
-                         class="flex-grow-1 ml-1"/>
+                         class="flex-grow-1 ms-1"/>
             </b-list-group-item>
 
             <b-list-group-item>
@@ -112,13 +112,13 @@
             </b-list-group-item>
 
             <b-list-group-item class="d-flex">
-              <b>{{ $t('pool.Web-URL') }}: </b>
+              <b>{{ $t('pool.Web-URL') }}:</b>&nbsp;
               <edditable type="a"
                          :value="resource.remote_path"
                          @value-changed="updateRemotePath"
                          :placeholder="$t('pool.Click-to-insert-an-URL')"
                          :key="forceReload"
-                         class="flex-grow-1 ml-1"/>
+                         class="flex-grow-1 ms-1"/>
             </b-list-group-item>
             <b-list-group-item>
               <b>{{ $t('pool.Publicity') }}:</b>

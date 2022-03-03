@@ -11,7 +11,7 @@
 
 
       <div class="d-flex justify-content-start align-items-center pb-2">
-        <flag class="pl-1 pr-1 mr-2" :flagKey="material.flag" @flag-updated="submitFlag"></flag>
+        <flag class="px-1 me-2" :flagKey="material.flag" @flag-updated="submitFlag"></flag>
         <edditable-text
             type="h1"
             :value="material.title"
@@ -127,7 +127,7 @@
           {{ $t('pool.edited') }} {{ material.updated_at | dayjs | recentOrFormat }},
 
           <span v-if="material.creator && material.creator.name"
-                class="mr-0 pr-0">
+                class="me-0 pe-0">
                         {{ $t('pool.by') }} {{ material.creator.name }},
                     </span>
 

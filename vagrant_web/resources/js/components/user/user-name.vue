@@ -1,5 +1,9 @@
 <template>
-  <span class="userName">{{ user.name }} (<a class="email" :href="'mailto:' + user.email">{{ user.email }}</a>)</span>
+  <span class="userName">{{ user.name }}
+    <template v-if="user.email">
+       (<a class="email" :href="'mailto:' + user.email">{{ user.email }}</a>)
+    </template>
+  </span>
 </template>
 
 <script>

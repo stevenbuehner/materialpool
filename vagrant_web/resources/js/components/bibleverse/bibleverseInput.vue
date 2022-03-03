@@ -71,7 +71,7 @@
       <transition-group name="fade">
         <button type="button"
                 v-if="!stillLoading"
-                class="btn btn-outline-secondary btn-sm mr-1 mb-1"
+                class="btn btn-outline-secondary btn-sm me-1 mb-1"
                 v-for="bv in displayableSuggestedBibleverses"
                 :key="'s' + getBibleverseKey(bv)"
                 @click="addBibleverseClick(bv)"
@@ -88,7 +88,7 @@
 
       <transition-group name="fade">
         <button type="button"
-                class="btn btn-outline-secondary btn-sm mr-1 mb-1"
+                class="btn btn-outline-secondary btn-sm me-1 mb-1"
                 v-for="bv in displayableExternalSuggestions"
                 :key="'es' + getBibleverseKey(bv)"
                 @click="addBibleverseClick(bv)"

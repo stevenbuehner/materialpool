@@ -42,25 +42,25 @@
             <slot name="default-buttons">
 
               <a v-if="showDownload"
-                 class="btn btn-outline-primary mb-1"
+                 class="btn btn-sm btn-outline-primary mb-1"
                  :href="downloadResourceLink(resource)">{{ $t('pool.download') }}</a>
 
               <router-link v-if="showOpen" :to="{name:'resource-detail', params: {id: resource.id}}"
-                           class="btn btn-outline-primary mb-1">{{ $t('pool.open') }}
+                           class="btn btn-sm btn-outline-primary mb-1">{{ $t('pool.open') }}
               </router-link>
 
               <router-link v-if="resource.type==='pdf' || resource.type==='doc'"
                            :to="routerEditLimitationObject(resource, resource.pivot)"
-                           class="btn btn-outline-primary  mb-1">{{ $t('pool.page-assignments') }}
+                           class="btn btn-sm btn-outline-primary  mb-1">{{ $t('pool.page-assignments') }}
               </router-link>
 
               <router-link :to="{name:'resource-replace', params: {r1 : resource.id, r2 : null}}"
-                           class="btn btn-outline-danger  mb-1">
+                           class="btn btn-sm btn-outline-danger  mb-1">
                 {{ $t('pool.replace-this-resource') }}
               </router-link>
 
               <button v-if="showDelete"
-                      class="btn btn-outline-danger mb-1"
+                      class="btn btn-sm btn-outline-danger mb-1"
                       @click="btnDeleteResource(resource)"
                       :title="$t('pool.Delete-resource')">{{ $t('pool.delete') }}
               </button>
