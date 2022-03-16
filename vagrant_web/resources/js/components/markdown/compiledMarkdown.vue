@@ -1,8 +1,8 @@
 <script>
-import marked       from './markdownSetup';
-import biblePopover from "./../bibleverse/bibleverse-inline-popover-txt";
-import _throttle    from 'lodash/throttle'
-import DOMPurify    from "dompurify";
+import marked                     from './markdownSetup';
+import bibleverseInlinePopoverTxt from "./../bibleverse/bibleverse-inline-popover-txt";
+import _throttle                  from 'lodash/throttle'
+import {sanitizeTextMarkup}       from "./sanitizeSetup";
 
 export default {
   name: "compiledMarkdown",
@@ -37,7 +37,8 @@ export default {
   methods: {
     debounceCompilation: _throttle(function () {
       const dirty       = marked.parse(this.text);
-      this.compiledText = DOMPurify.sanitize(dirty);
+      console.log(dirty);
+      this.compiledText = sanitizeTextMarkup(dirty);
     }, 200)
   },
 
@@ -45,7 +46,7 @@ export default {
     // See: npm v-runtime-template
     const dynamic = {
       template: '<div class=\'compiledMarkdown\'>' + this.compiledText + '</div>',
-      components: {biblePopover}
+      components: {bibleverseInlinePopoverTxt}
     };
 
     return h(dynamic, {});

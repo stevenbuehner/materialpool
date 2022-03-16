@@ -36,7 +36,7 @@ export function getBibleverseTokenizer(doAutoload) {
 			}
 		},
 		renderer(token) {
-			return `<bible-popover :text="'${token.bibleverse}'" :load-contents="${token.doAutoload}"/>`
+			return `<bibleverse-inline-popover-txt :text="'${token.bibleverse}'" :load-contents="${token.doAutoload}">${token.bibleverse}</bibleverse-inline-popover-txt>`
 		},
 		childTokens: [],                 // Any child tokens to be visited by walkTokens
 	};

@@ -5,7 +5,7 @@
           @dblclick.stop="showClicked = true"
           :title="showErrorMessage"
     ><!--
-    -->{{ text }}<!--
+    --><slot>{{ text }}</slot><!--
     --><bible-popover
         v-if="showPopover && !showErrorMessage"
         :bibleverse="normalizedBibleverse"
