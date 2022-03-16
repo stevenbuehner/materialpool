@@ -16,13 +16,13 @@
       <play-icon class="playIcon" v-if="showImage && containsVideoResource"/>
 
       <span class="text" v-if="!showImage">
-                <span>
-                    {{ fileTypes }}
-                </span>
-                <span class="spinner-border" role="status" v-if="imageIsLoading">
-                    <span class="sr-only">Loading...</span>
-                </span>
-            </span>
+        <span>
+            {{ fileTypes }}
+        </span>
+        <span class="spinner-border" role="status" v-if="imageIsLoading">
+          <span class="visually-hidden ">Loading...</span>
+        </span>
+      </span>
 
     </div>
 
