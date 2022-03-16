@@ -44,3 +44,14 @@ In Safari beim Löschen von Material
 
 In der Suchmaske brauche ich einen Haken, der standardmäßig aktiv ist: Bundles einbeziehen
 
+
+
+Bug: Diese Bibelstellenerkennung im Markup funktioniert nicht:
+Genesis 27,18f: „Wie ist dein Name?“ „Ich bin Esau“ (bei der ersten Begegnung versucht er jemand anderes zu sein). In Genesis 32: „Was ist dein Name“ „Jacob“
+-	Er ist endlich dort angekommen, der zu sein, der er ist
+-	Hier passiert eine Bewegung die passiert – eine Veränderung
+
+
+
+Bug: Tags endless-scrolling in der Seitenleiste ... da springt die Liste jedes Mal wieder nach oben (sie sollte gleich unten bleiben)
+

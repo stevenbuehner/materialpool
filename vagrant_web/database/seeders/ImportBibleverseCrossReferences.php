@@ -16,6 +16,7 @@ class ImportBibleverseCrossReferences extends Seeder {
 	 */
 	public function run() {
 
+		// From: https://github.com/scrollmapper/bible_databases
 		$filePath = realpath(__DIR__ . '/../../resources/cross_references/cross_reference-mysql.sql');
 
 		$output = new ConsoleOutput();
