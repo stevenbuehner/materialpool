@@ -4,7 +4,8 @@
       <b-img :src="currentlyDisplayedImage.src"
              :alt="currentlyDisplayedImage.title"
              :key="currentlyDisplayedImage.src"
-             class="card-img-top pdfPreviewImage"/>
+             class="card-img-top pdfPreviewImage"
+             v-image-queue/>
 
       <span class="previous"
             @click.stop="previousPreviewImage"

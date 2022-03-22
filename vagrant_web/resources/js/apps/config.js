@@ -12,3 +12,6 @@ export const keepalive_seconds_intervall = 60;
 
 export const max_preview_image_size_x = 1536;
 export const max_preview_image_size_y = 1536;
+
+// Image Loading Queue
+export const MAX_SIMULTANEOUS_IMAGES_LOADING = 4;

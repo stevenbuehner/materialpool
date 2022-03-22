@@ -25,6 +25,7 @@
               :src="image.src"
               :alt="image.title"
               fluid
+              v-image-queue="10+index"
           ></b-img>
 
           <div class="title text-center">{{ image.title }}</div>

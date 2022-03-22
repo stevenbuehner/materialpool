@@ -16,6 +16,9 @@ import {sessionKeepAlive}            from "../../helper/sessionKeepAlive";
 import {keepalive_seconds_intervall} from "../config";
 import VueLang                       from "@eli5/vue-lang-js";
 
+// Directives
+import queuedImagesLoader from "../../directives/queued-images-loader";
+
 Vue.use(ShortKey);
 Vue.use(VueRouter);
 Vue.use(AsyncComputed);
@@ -33,6 +36,8 @@ const router = new VueRouter({
 	},
 	routes
 });
+
+Vue.directive('image-queue', queuedImagesLoader);
 
 const vueInstance = new Vue({
 	el: '#app',

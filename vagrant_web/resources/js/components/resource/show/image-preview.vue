@@ -4,7 +4,7 @@
        :img-src="resourceImagePreviewUrl"
        @click="_emitPreviewZoomRequest">
 
-    <img class="card-img-top" :src="resourceImagePreviewUrl" alt="Preview Image"/>
+    <img class="card-img-top" :src="resourceImagePreviewUrl" alt="Preview Image" v-image-queue/>
 
     <div class="card-body" v-if="resource.notes && resource.notes.length >= 3">
       {{ resource.notes }}

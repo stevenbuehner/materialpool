@@ -6,8 +6,12 @@
 
     <div class="preview" :class="{imageDisplayed: showImage}">
 
-      <img class="image" v-show="showImage" :src="previewImageUrl" @load="showImage = true; imageIsLoading=false;"
-           @error="showImage = false; imageIsLoading=false;" :alt="fileTypes">
+      <img class="image"
+           :src="previewImageUrl"
+           @q-queued="showImage=false; imageIsLoading=true"
+           @q-loading="showImage=false; imageIsLoading=true"
+           @q-loaded="showImage=true; imageIsLoading=false"
+           @q-error="showImage=false; imageIsLoading=false" :alt="fileTypes" v-image-queue.hide>
 
       <div v-if="material.from_bot" class="is-bot-corner" :title="$t('pool.is-from-bot')">
         <from-bot-icon class="from-bot-icon"/>

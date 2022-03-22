@@ -5,6 +5,7 @@
       fluid
       :alt="resource.notes"
       center
+      v-image-queue
       @click="goToResource"></b-img-lazy>
 
 </template>
