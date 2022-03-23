@@ -39,7 +39,14 @@ class ResourcePreviewController {
 
 	}
 
-	public function getPageImage(Resource $resource, $page) {
+	/**
+	 * @param Resource $resource
+	 * @param $page
+	 * @param NULL|'refresh' $clearCache
+	 * @return mixed
+	 * @throws InvalidResourceTypeException
+	 */
+	public function getPageImage(Resource $resource, $page, $clearCache = NULL) {
 
 		if (!$resource instanceof PdfFile && !$resource instanceof DocumentFile) {
 			throw new InvalidResourceTypeException('Only PDF and DOC resources can have page-preview images');
@@ -50,9 +57,11 @@ class ResourcePreviewController {
 			config('app.resource.preview.maxHeight')
 		);
 
-		$image = $this->previewService->getCachedImage($resource, $size, $page);
+		$image = $this->previewService->getCachedImage($resource, $size, $page, $clearCache === 'refresh');
 
 		return $image->response(config('app.preview.outputFormat'));
 
 	}
+
+
 }

@@ -16,8 +16,10 @@ abstract class AbstractPreviewService {
 
 
 	public function __construct(ImageManager $imageManager) {
-		$this->cacheLifeTimeInMinutes = config('app.resource.preview.cacheTime');
-		$this->imageManager           = $imageManager;
+		$cacheTime                    = config('app.resource.preview.cacheTime', NULL);
+		$this->cacheLifeTimeInMinutes = $cacheTime < 0 ? NULL : $cacheTime;
+
+		$this->imageManager = $imageManager;
 	}
 
 	protected function getCacheKey(Model $model, $additionalData = NULL) {

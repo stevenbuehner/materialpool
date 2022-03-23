@@ -83,12 +83,13 @@ Route::get('/resource/{resource}/image/{width?}/{height?}', 'ResourcePreviewCont
 	->where('width', '[0-9]+')
 	->where('height', '[0-9]+')
 	->middleware('auth')
-	->middleware(\App\Http\Middleware\CacheControlHeaders::class)// Tell browser to keep cache for one week
+	->middleware(\App\Http\Middleware\CacheControlHeaders::class) // Tell browser to keep cache for one week
 	->name('resource.image.preview');
 
-Route::get('/resource/{resource}/image/page-{page}', 'ResourcePreviewController@getPageImage')
+Route::get('/resource/{resource}/image/page-{page}/{clearCache?}', 'ResourcePreviewController@getPageImage')
 	->where('resource', '[0-9]+')
 	->where('page', '[0-9]+')
+	->where('clearCache', 'refresh')
 	->name('PdfPreview/ImagePreview')
 	->middleware('auth')
 	->middleware(\App\Http\Middleware\CacheControlHeaders::class); // Tell browser to keep cache for one week

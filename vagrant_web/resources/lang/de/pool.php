@@ -339,4 +339,6 @@ return [
 	'You-have-unsaved-data.-Do-you-want-to-continue-anyways?'  => 'Du hast die Felder noch nicht gespeichert? Willst du ohne zu speichern fortfahren?',
 	'is-from-bot'                                              => 'Material stammt von einer Bundle-Quelle',
 	'Optimize-Keywords'                                        => 'Schlagwortoptimierung',
+	'refresh-image'                                            => 'Bild neu laden',
+	'open-image'                                               => 'Bild öffnen',
 ];

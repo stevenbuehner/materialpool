@@ -99,42 +99,18 @@ import {
 import {searchArrayObjectsToSearchQuery} from "../search/searchHelper";
 import uploadIcon                        from 'svg-icon/dist/svg/icomoon/cloud-upload.svg';
 import newTextIcon                       from 'svg-icon/dist/svg/zero/custom-text.svg';
+import asyncIsAdminMixin                 from "../general/async-isAdmin-mixin";
+import asyncUsernameMixin                from "../general/async-username-mixin";
 
 export default {
   name: "mainNavbar",
+
+  mixins: [asyncIsAdminMixin, asyncUsernameMixin],
 
   data() {
     return {
       schnellsuche: ''
     };
-  },
-
-  asyncComputed: {
-    username: {
-      get() {
-        return this.$store.dispatch('general/currentUser')
-                   .then((user) => {
-                     return user.name;
-                   });
-      },
-      default: 'User',
-      /* watch() {
-                  this.forceReload
-              }*/
-    },
-
-    isAdmin: {
-      get() {
-        return this.$store.dispatch('general/isAdmin')
-                   .then((isAdmin) => {
-                     return isAdmin;
-                   });
-      },
-      default: false,
-      /* watch() {
-                  this.forceReload
-              }*/
-    }
   },
 
   methods: {

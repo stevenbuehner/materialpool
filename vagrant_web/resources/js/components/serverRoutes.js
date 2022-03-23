@@ -53,6 +53,10 @@ export function pdfPreviewImageForPage(resource, page) {
 	return '/resource/' + resource.id + '/image/page-' + page;
 }
 
+export function pdfPreviewImageForPageRefresh(resource, page) {
+	return pdfPreviewImageForPage(resource, page) + '/refresh';
+}
+
 export function resourceLimitedPdfDownload(resourceId, materialId) {
 	return '/pool/resource/' + resourceId + '/material/' + materialId + '/pdfdownload';
 }

@@ -251,7 +251,7 @@ return [
 		'preview' => [
 			'maxWidth'  => 1536,
 			'maxHeight' => 1536,
-			'cacheTime' => 0, // 60 * 24 * 30 // in Minutes | 0 => forever
+			'cacheTime' => -1, // 60 * 24 * 30 // in Minutes | -1 => forever | 0 => no cache
 		]
 
 	],

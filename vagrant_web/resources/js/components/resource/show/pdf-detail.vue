@@ -13,7 +13,8 @@
            class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-3 p-1 imageContainer"
            @click="$refs.imageZoom.show(index)"
            :key="image.src">
-        <div class="oneImagePage">
+        <div class="oneImagePage"
+             @click.right.stop.prevent="isAdmin && $refs.menu.openMenu($event, {src: image.src, page: image.page_no})">
           <b-img-lazy
               v-if="index > 12"
               :src="image.src"
@@ -43,6 +44,20 @@
       </div>
 
       <image-zoom :data="previewImages" ref="imageZoom"></image-zoom>
+
+      <div>
+        <context-menu ref="menu" v-slot:default="{optionalData}">
+          <context-menu-item v-if="isAdmin"
+                             @click.stop="openImage(optionalData.page)">
+            {{ $t('pool.open-image') }}
+          </context-menu-item>
+          <context-menu-item v-if="isAdmin"
+                             @click.stop="refreshPageImage(optionalData.page)">
+            {{ $t('pool.refresh-image') }}
+          </context-menu-item>
+        </context-menu>
+      </div>
+
     </div>
   </div>
 
@@ -50,15 +65,23 @@
 
 <script>
 
-import {previewImageFirstPage}       from '../../serverRoutes';
-import {BFormSelect, BImg, BImgLazy} from 'bootstrap-vue';
-import pdfMixin                      from '../pdf-mixin';
-import ImageZoom                     from "../../modals/imageZoom";
+import {pdfPreviewImageForPage, pdfPreviewImageForPageRefresh, previewImageFirstPage} from '../../serverRoutes';
+import {BFormSelect, BImg, BImgLazy}                                                  from 'bootstrap-vue';
+import pdfMixin                                                                       from '../pdf-mixin';
+import ImageZoom                                                                      from "../../modals/imageZoom";
+import ContextMenu
+                                                                                      from "../../context-menu/context-menu";
+import ContextMenuItem
+                                                                                      from "../../context-menu/context-menu-item";
+import asyncIsAdminMixin
+                                                                                      from "../../general/async-isAdmin-mixin";
+import axiosInstance
+                                                                                      from "../../../apps/main/axiosInstance";
 
 export default {
   name: 'PdfDetail',
 
-  mixins: [pdfMixin],
+  mixins: [pdfMixin, asyncIsAdminMixin],
 
   props: {
     resource: {
@@ -119,13 +142,28 @@ export default {
     }
   },
 
-  methods: {},
+  methods: {
+
+    openImage(page) {
+      window.location.href = pdfPreviewImageForPage(this.resource, page);
+    },
+
+    refreshPageImage(page) {
+      const urlRefresh = pdfPreviewImageForPageRefresh(this.resource, page);
+      axiosInstance.get(urlRefresh).then(() => {
+        alert('Image reloaded. Force Page reload please.');
+        window.location.href = urlRefresh;
+      })
+    }
+
+  },
 
   components: {
     ImageZoom,
     BImg,
     BImgLazy,
-    BFormSelect
+    BFormSelect,
+    ContextMenu, ContextMenuItem
   }
 
 }

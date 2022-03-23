@@ -343,4 +343,6 @@ return [
 	'You-have-unsaved-data.-Do-you-want-to-continue-anyways?'  => 'You have unsaved data. Do you want to continue without saving?',
 	'is-from-bot'                                              => 'Material originates from a remote database',
 	'Optimize-Keywords'                                        => 'Optimize Keywords',
+	'refresh-image'                                            => 'refresh image',
+	'open-image'                                               => 'open image',
 ];
