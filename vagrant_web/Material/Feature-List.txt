@@ -50,7 +50,3 @@ Bug: Tags endless-scrolling in der Seitenleiste ... da springt die Liste jedes M
 
 Feature: Wenn man bei einem großen PDF in der Materialvorschau auf "weitere Seiten verfügbar" klickt, dann soll er die nächsten 50 Seiten auch noch anzeigen ...
 
-Bug: In der "Newest Resources List" ist die Pagination-Bar unten auf "Lonely Resources" eingestellt?
-
-
-

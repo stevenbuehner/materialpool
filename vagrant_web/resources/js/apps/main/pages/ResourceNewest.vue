@@ -75,7 +75,7 @@ export default {
   methods: {
     linkGeneration(pageNum) {
       return {
-        name: 'resource-lonely',
+        name: 'resource-newest',
         query: {
           page: pageNum
         }
