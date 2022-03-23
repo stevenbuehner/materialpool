@@ -59,6 +59,27 @@ COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 COPY php.ini /etc/php/7.4/cli/conf.d/99-sail.ini
 RUN chmod +x /usr/local/bin/start-container
 
+
+# initialisation
+ARG CONF_FILE="/etc/ImageMagick-6/policy.xml"
+
+# if imagemagick configuration file exists
+RUN if [ -f "${CONF_FILE}" ] ; \
+then \
+  sed -i '/disable ghostscript format types/d' "${CONF_FILE}" ; \
+  sed -i '/\"PS\"/d' "${CONF_FILE}" ; \
+  sed -i '/\"EPS\"/d' "${CONF_FILE}" ; \
+  sed -i '/\"PDF\"/d' "${CONF_FILE}" ; \
+  sed -i '/\"XPS\"/d' "${CONF_FILE}" ; \
+  sed -i 's|16KP|128KP|g' "${CONF_FILE}" ; \
+  sed -i 's|128MP|1024MP|g' "${CONF_FILE}" ; \
+  sed -i 's|256MiB|2GiB|g' "${CONF_FILE}" ; \
+  sed -i 's|512MiB|4GiB|g' "${CONF_FILE}" ; \
+  sed -i 's|1GiB|8GiB|g' "${CONF_FILE}" ; \
+  echo "ImageMagick PDF and PostScript restriction removal" ; \
+fi
+
+
 EXPOSE 8000
 
 ENTRYPOINT ["start-container"]
