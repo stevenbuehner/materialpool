@@ -90,7 +90,7 @@ export default {
 					delete el.dataset[DATASET_SRC];
 
 					if (hideImage) {
-						delete el.style.display;
+						el.style.removeProperty("display");
 					}
 
 					return resp;
