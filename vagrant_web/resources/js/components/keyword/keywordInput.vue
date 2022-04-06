@@ -102,6 +102,7 @@ import {cloneDeep}          from "lodash";
 export default {
 
   mixins: [savingDialogs],
+  name: "keywordInput",
 
   props: {
     // Only passing in. Later working with myKeywords
@@ -219,7 +220,7 @@ export default {
           multiKeywordParts.map((searchText) => {
             return {searchText, limit: 40};
           }))
-        .then(({keywords}) => {
+        .then((keywords) => {
           vm.suggestedKeywords = keywords;
         })
         .catch((err) => {

@@ -349,7 +349,7 @@ const actions = {
 			.then((multiKeywords) => {
 
 				// reduce array structure by one
-				const keywords = multiKeywords.flat(1);
+				const keywords = multiKeywords.map(({keywords}) => keywords).flat(1);
 
 				// remove duplicates in arrays
 				return keywords.filter((element, index, collection) =>
