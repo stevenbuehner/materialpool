@@ -1,5 +1,5 @@
 <template>
-  <div class="pb-4 pt-2 cell"
+  <div class="pb-4 pt-2 cell position-relative"
        v-show="isVisible"
        :class="{selectable : isSelectable,
          selected : isSelected}"

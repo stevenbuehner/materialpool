@@ -24,7 +24,7 @@
             {{ fileTypes }}
         </span>
         <span class="spinner-border" role="status" v-if="imageIsLoading">
-          <span class="visually-hidden ">Loading...</span>
+          <span class="sr-only">Loading...</span>
         </span>
       </span>
 

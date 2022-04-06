@@ -37,9 +37,9 @@ $notes-font-color: lighten($body-color, 30%);
 // Tagging
 $tag-background-colour: $gray-600;
 $tag-background-colour-hover: darken($tag-background-colour, 5%);
-$tag-progressbar-colour: $cyan-500;
-$tag-progressbar-colour-hover: $cyan-400;
-$tag-progressbar-dragging-colour: $orange-500;
+$tag-progressbar-colour: $green;
+$tag-progressbar-colour-hover: $green-hover;
+$tag-progressbar-dragging-colour: $orange;
 $tag-font-colour: white;
 
 

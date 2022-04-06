@@ -50,3 +50,6 @@ Bug: Tags endless-scrolling in der Seitenleiste ... da springt die Liste jedes M
 
 Feature: Wenn man bei einem großen PDF in der Materialvorschau auf "weitere Seiten verfügbar" klickt, dann soll er die nächsten 50 Seiten auch noch anzeigen ...
 
+Feature: Wenn einem Material keine Ressource zugeordnet ist, dann zeige die gleichen Felder wie bei Zuordnung (Neue Text-Ressource | Material-Upload | Verknüpfungssuche)
+
+Bibelstellenerkennung für: Joh 3:35; 10:17;  14:31; 15:9; 17:23

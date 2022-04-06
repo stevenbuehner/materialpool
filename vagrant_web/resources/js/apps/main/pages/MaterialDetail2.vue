@@ -66,7 +66,7 @@
               <div class="col-xl-12 col-12 p-0">
                 <resource-detail :resource="material.resources[0]" :showDelete="false" :edit-disabled="material.from_bot">
                   <template slot="additional-buttons">
-                    <button class="btn btn-outline-danger mb-1 btn-sm"
+                    <button class="btn btn-outline-danger mb-1"
                             @click.prevent="btnDetachResource(material.resources[0])"
                             v-if="!materialEditLockActive"
                             :title="$t('pool.Detach-resource')">
