@@ -228,7 +228,7 @@ sudo vi /etc/sudoers.d/10_materialpool
 # oder eben www-data ALL=NOPASSWD: /sbin/shutdown
 
 
-## Cronjob einrichten
+## Cronjob einrichten und aktualisieren, je nach PHP-Version!!
 sudo crontab -u www-data -e
 # Einfügen in die Datei:
 * * * * * cd /var/www/wissensbase; php artisan schedule:run >> /dev/null 2>&1
