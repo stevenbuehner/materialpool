@@ -53,3 +53,5 @@ Feature: Wenn man bei einem großen PDF in der Materialvorschau auf "weitere Sei
 Feature: Wenn einem Material keine Ressource zugeordnet ist, dann zeige die gleichen Felder wie bei Zuordnung (Neue Text-Ressource | Material-Upload | Verknüpfungssuche)
 
 Bibelstellenerkennung für: Joh 3:35; 10:17;  14:31; 15:9; 17:23
+
+Fix: Erkenne Duplicate bei ZIP-Dateien korrekt (bzw. Omni-Graffle Dateien, die wohl als ZIP-Dateien hochgeladen werden ...)
