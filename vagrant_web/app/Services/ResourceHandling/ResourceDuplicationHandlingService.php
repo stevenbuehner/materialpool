@@ -10,7 +10,6 @@ namespace App\Services\ResourceHandling;
 
 use App\Events\ResourceWasAttached;
 use App\Events\ResourceWasDetached;
-use App\Listeners\CheckDuplicateMaterials;
 use App\Models\Resource as Res;
 use App\Services\ResourceHandling\Exceptions\MissingResourceHashException;
 use Illuminate\Database\QueryException;
