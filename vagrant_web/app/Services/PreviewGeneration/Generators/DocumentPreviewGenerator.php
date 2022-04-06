@@ -69,7 +69,7 @@ class DocumentPreviewGenerator extends PdfPreviewGenerator implements PreviewGen
 			$converter   = new OfficeConverter($resourcePath, $tempPdfDir);
 			$tempPdfPath = $converter->convertTo($tempPdfName);
 		} catch (OfficeConverterException $e) {
-			throw new NotPreviewAbleException('Pdf could not be created', 0, $e);
+			throw new NotPreviewAbleException('Pdf could not be created due to office exepction: ' . $e->getMessage(), 0, $e);
 		}
 
 		return $tempPdfPath;
