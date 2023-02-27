@@ -341,4 +341,5 @@ return [
 	'Optimize-Keywords'                                        => 'Schlagwortoptimierung',
 	'refresh-image'                                            => 'Bild neu laden',
 	'open-image'                                               => 'Bild öffnen',
+	'add-all-xy-tags'                                          => '{1} Füge einen Tag hinzu|[2,*] :xy Tags auf einmal hinzufügen',
 ];

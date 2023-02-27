@@ -85,12 +85,32 @@
             </template>
           </template>
 
-          <template v-slot:list-footer="options">
+          <template v-slot:list-footer="{search, loading, searching, filteredOptions}">
             <li v-show="hasMoreResults && isSearchTermValid" ref="load" class="loader">
               {{ $t('pool.loading-more-results') }}
             </li>
-            <li v-show="!hasMoreResults && isSearchTermValid && options.filteredOptions.length > 0" class="loader">
+            <li v-show="!hasMoreResults && isSearchTermValid && filteredOptions.length > 0"
+                class="loader">
               {{ $t('pool.no-more-results') }}
+
+              <template
+                  v-if="batchNewTagsEnabled && filteredOptions.filter(_o => !$refs.dropdown.isOptionSelected(_o)).length > 1">
+                <button
+                    class="btn btn-sm btn-warning add-all-tags"
+                    @click.prevent.stop="()=> {
+                    filteredOptions
+                    .filter(_o => !$refs.dropdown.isOptionSelected(_o))
+                    .forEach(_o => $refs.dropdown.select(_o));
+                  }">
+                  {{
+                    $tc('pool.add-all-xy-tags',
+                        filteredOptions.filter(_o => !$refs.dropdown.isOptionSelected(_o)).length,
+                        {xy: filteredOptions.filter(_o => !$refs.dropdown.isOptionSelected(_o)).length}
+                    )
+                  }}
+                </button>
+              </template>
+
             </li>
           </template>
 
@@ -123,6 +143,7 @@
 
     <bible-popover v-if="biblePopover.showMe" :bibleverse="biblePopover.bibleverse" :position="$refs.sideBarField"
                    @bible-popover-closerequest="biblePopover.showMe = false"/>
+
     <!--
      @deleted="onDeleted"/>
     @saved="onKeywordPropertiesChanged" -->
@@ -182,6 +203,12 @@ export default {
       required: false,
       default: true
     },
+
+    batchNewTagsEnabled: {
+      type: Boolean,
+      required: false,
+      default: false
+    }
 
   },
 
@@ -244,7 +271,7 @@ export default {
     },
 
     _clearSearchOnSelect() {
-      // Texteingabe löschen, wenn nur noch eines Sichtbar war, oder wenn es eine Single-Seletct-Eingabe ist
+      // Texteingabe löschen, wenn nur noch eines sichtbar war, oder wenn es eine Single-Seletct-Eingabe ist
       return !this.multipleTags || this.suggestedTags.filter((opt) => {
         return !this.$refs.dropdown.isOptionSelected(opt);
       }).length <= 1;
@@ -259,7 +286,6 @@ export default {
       return String(this.searchTerm).length >= this.minInput;
     },
 
-
     optionsWithNewTag() {
 
       // Wenn der Suchstring zu kurz, gib ein leeres Ergebnis zurück
@@ -271,7 +297,7 @@ export default {
 
       if (this.newTagsEnabled === true && this.searchTerm.length >= this.minInput) {
 
-        // Prüfe ob der Suchtext so schon vorkommt in einem der Values
+        // Prüfe, ob der Suchtext so schon vorkommt in einem der Values
         if (this.suggestedTags.find((el) => el.title === this.searchTerm) === undefined) {
 
           const newTag = {
@@ -637,14 +663,26 @@ export default {
         &.vs__dropdown-option--highlight {
           background-color: $sidebar-input-background-colour-disabled;
         }
+      }
 
+      &.vs__dropdown-option--highlight {
+        background-color: $primary;
+
+        svg path {
+          fill: $body-bg;
+        }
       }
     }
 
     .loader {
       text-align: center;
       color: $sidebar-input-text-colour-placeholder;
+
+      .add-all-tags {
+        font-size: .9em;
+      }
     }
+
   }
 
   .suggested-option.is-new .suggested-text {

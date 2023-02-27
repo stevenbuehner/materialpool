@@ -345,4 +345,5 @@ return [
 	'Optimize-Keywords'                                        => 'Optimize Keywords',
 	'refresh-image'                                            => 'refresh image',
 	'open-image'                                               => 'open image',
+	'add-all-xy-tags'                                          => '{1} Add 1 tag|[2,*] Add :xy tags at once',
 ];
