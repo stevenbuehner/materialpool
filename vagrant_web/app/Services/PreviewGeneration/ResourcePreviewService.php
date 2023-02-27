@@ -50,7 +50,8 @@ class ResourcePreviewService extends AbstractPreviewService {
 
 		$size = new Size($width, $height);
 
-		return $this->getFreshImagePreview($resource, $size, $pageOrSeconds);
+		return $this->getCachedImage($resource, $size, $pageOrSeconds, $clearCache = TRUE);
+
 	}
 
 	/**
@@ -60,8 +61,9 @@ class ResourcePreviewService extends AbstractPreviewService {
 	 * @param Size $size
 	 * @param null|int $pageOrSeconds Page counting from 1 or seconds offset of Video/Audio
 	 * @return Image
+	 * @throws NotPreviewAbleException
 	 */
-	public function getFreshImagePreview(ResourceEntity $resource, Size $size, $pageOrSeconds = NULL) {
+	public function getFreshImagePreview(ResourceEntity $resource, Size $size, ?int $pageOrSeconds = NULL) {
 
 		$image = NULL;
 
@@ -78,20 +80,7 @@ class ResourcePreviewService extends AbstractPreviewService {
 				 'previousError' => $previous]
 			);
 
-			if ($e->getPrevious() instanceof FileNotFoundException) {
-				return $this->getImageWithText('Resource missing', $size->getWidth(), $size->getHeight());
-			}
-
-			$generator = resolve(NoPreviewGenerator::class);
-
-			try {
-				$image = $generator->getImagePreview($resource, $size, $pageOrSeconds);
-			} catch (NotPreviewAbleException $e) {
-				$previous = $e->getPrevious() !== NULL ? $e->getPrevious()->getMessage() : NULL;
-				Log::error($e->getMessage(),
-					['trace'         => $e->getTraceAsString(),
-					 'previousError' => $previous]);
-			}
+			throw $e;
 
 		}
 
@@ -126,7 +115,7 @@ class ResourcePreviewService extends AbstractPreviewService {
 	 * @param bool $clearCache
 	 * @return Image
 	 */
-	public function getCachedImage(ResourceEntity $resource, Size $size, $pageOrSeconds = NULL, $clearCache = FALSE) {
+	public function getCachedImage(ResourceEntity $resource, Size $size, $pageOrSeconds = NULL, bool $clearCache = FALSE) {
 
 		$cacheKey = $this->getCacheKey($resource, [$size, (int)$pageOrSeconds]);
 
@@ -142,9 +131,18 @@ class ResourcePreviewService extends AbstractPreviewService {
 
 		} else {
 
-			$rawImage = $this->getFreshImagePreview($resource, $size, $pageOrSeconds);
+			try {
+				$rawImage = $this->getFreshImagePreview($resource, $size, $pageOrSeconds);
 
-			$this->putImageObjectToCache($rawImage, $cacheKey);
+				// Only cache on success
+				$this->putImageObjectToCache($rawImage, $cacheKey);
+
+			} catch (NotPreviewAbleException $e) {
+
+				$generator = resolve(NoPreviewGenerator::class);
+				return $generator->getImagePreview($resource, $size, $pageOrSeconds);
+
+			}
 
 			return $rawImage;
 		}
