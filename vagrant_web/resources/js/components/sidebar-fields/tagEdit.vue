@@ -11,6 +11,20 @@
           <slot name="title">{{ name }}</slot>
         </span>
       </slot>
+
+
+      <div class="buttons" v-if="!disabled">
+        <slot name="buttons" v-bind="{options:validTypesValues}">
+          <b-button
+              v-if="batchEditRelevanceEnabled && validTypesValues.length > 1"
+              size="sm"
+              class="multi-edit-button"
+              variant="outline-secondary"
+              @click="openRelevanceSelector">
+            {{ $t('pool.batch-edit-relevance') }}
+          </b-button>
+        </slot>
+      </div>
     </div>
 
     <div class="editField">
@@ -144,6 +158,12 @@
     <bible-popover v-if="biblePopover.showMe" :bibleverse="biblePopover.bibleverse" :position="$refs.sideBarField"
                    @bible-popover-closerequest="biblePopover.showMe = false"/>
 
+    <relevance-selector
+        ref="relevanceSelector"
+        :num-tags="value.length"
+        v-if="!disabled && batchEditRelevanceEnabled"
+    ></relevance-selector>
+
     <!--
      @deleted="onDeleted"/>
     @saved="onKeywordPropertiesChanged" -->
@@ -169,6 +189,8 @@ import BibleVerse
 import {copyStringToClipboard}                                       from "../../helper/copyToClipboard";
 import {getOptionKeyFromKeywordObject, getTagLabelFromKeywordObject} from "./tagEdit_functions";
 import {savingDialogs}                                               from "../../helper/flashMessages";
+import RelevanceSelector                                             from "../modals/dialogs/relevanceSeletor.vue";
+import {BButton}                                                     from "bootstrap-vue";
 
 export default {
   name: "tagEdit",
@@ -205,6 +227,12 @@ export default {
     },
 
     batchNewTagsEnabled: {
+      type: Boolean,
+      required: false,
+      default: false
+    },
+
+    batchEditRelevanceEnabled: {
       type: Boolean,
       required: false,
       default: false
@@ -568,13 +596,30 @@ export default {
       });
     },
 
+    openRelevanceSelector() {
+
+      this.$refs.relevanceSelector.show()
+          .then(({relevance}) => {
+
+            this.value.forEach((_op) => {
+              this.$emit('request-update-relevance', {tag: _op, relevance});
+            });
+
+          })
+          .catch(() => {
+          });
+    },
+
     _getTagLabelFromObject: getTagLabelFromKeywordObject,
     _getOptionKey: getOptionKeyFromKeywordObject,
+
 
   },
 
   components: {
+    RelevanceSelector,
     BiblePopover,
+    BButton,
     KeywordEditor,
     ContextMenuItem,
     ContextMenu,

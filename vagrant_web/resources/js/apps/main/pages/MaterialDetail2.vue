@@ -64,7 +64,8 @@
             <div class="row"
                  v-if="material.resources && material.resources.length === 1">
               <div class="col-xl-12 col-12 p-0">
-                <resource-detail :resource="material.resources[0]" :showDelete="false" :edit-disabled="material.from_bot">
+                <resource-detail :resource="material.resources[0]" :showDelete="false"
+                                 :edit-disabled="material.from_bot">
                   <template slot="additional-buttons">
                     <button class="btn btn-outline-danger mb-1"
                             @click.prevent="btnDetachResource(material.resources[0])"
@@ -118,7 +119,7 @@
                 :disabled="materialEditLockActive"
                 @save-request="submitTitle"
             >
-              <template slot="icon">
+              <template v-slot:icon>
                 <title-icon/>
               </template>
             </text-edit-sidebar-field>
@@ -131,7 +132,7 @@
                 type="date"
                 @save-request="submitDate"
             >
-              <template slot="icon">
+              <template v-slot:icon>
                 <calendar-icon/>
               </template>
             </text-edit-sidebar-field>
@@ -145,7 +146,7 @@
                 @input:associated="submitAuthor"
                 @input:dissociated="submitAuthor"
             >
-              <template slot="icon">
+              <template v-slot:icon>
                 <person-icon/>
               </template>
             </single-tag-select>
@@ -165,11 +166,13 @@
                 :name="$t('pool.Bibleverses')"
                 :placeholder="$t('pool.enter-bibleverse')"
                 :disabled="materialEditLockActive"
+                :batch-new-tags-enabled="true"
+                :batch-edit-relevance-enabled="material.bibleverses.length > 2"
                 @input:added="addBibleverse"
                 @input:removed="removeBibleverse"
                 @request-update-relevance="updateBibleverseRelevance($event.tag, $event.relevance)"
             >
-              <template slot="icon">
+              <template v-slot:icon>
                 <bibleverse-icon/>
               </template>
             </bibleverse-edit-sidebar-field>
@@ -181,6 +184,7 @@
                 :placeholder="$t('pool.enter-tags')"
                 :disabled="materialEditLockActive"
                 typefilter="key"
+                :batch-edit-relevance-enabled="material.keywords.length > 3"
                 @input:added="addKeyword"
                 @input:removed="removeKeyword"
                 @request-update-relevance="updateKeywordRelevance($event.tag, $event.relevance)"
@@ -196,7 +200,7 @@
                 @input:removed="removeKeyword"
                 @request-update-relevance="updateKeywordRelevance($event.tag, $event.relevance)"
             >
-              <template slot="icon">
+              <template v-slot:icon>
                 <person-icon/>
               </template>
             </tag-edit-sidebar-field>
@@ -211,7 +215,7 @@
                 @input:removed="removeKeyword"
                 @request-update-relevance="updateKeywordRelevance($event.tag, $event.relevance)"
             >
-              <template slot="icon">
+              <template v-slot:icon>
                 <place-icon/>
               </template>
             </tag-edit-sidebar-field>
@@ -229,7 +233,7 @@
                 @input:removed="removeKeyword"
                 @request-update-relevance="updateKeywordRelevance($event.tag, $event.relevance)"
             >
-              <template slot="icon">
+              <template v-slot:icon>
                 <language-icon/>
               </template>
             </tag-edit-sidebar-field>
@@ -364,6 +368,7 @@ import SingleTagSelect            from "../../../components/sidebar-fields/singl
 import ResourceSelector           from "../../../components/modals/selectors/resourceSelector";
 import MaterialDeletor            from "../../../components/modals/deletors/materialDeletor";
 import Bundle                     from "../../../components/bundles/bundle";
+import RelevanceSelector          from "../../../components/modals/dialogs/relevanceSeletor.vue";
 
 Vue.use(TabsPlugin);
 
@@ -886,6 +891,7 @@ export default {
 
 
   components: {
+    RelevanceSelector,
     Bundle,
     MaterialDeletor,
     ResourceSelector,

@@ -346,4 +346,7 @@ return [
 	'refresh-image'                                            => 'refresh image',
 	'open-image'                                               => 'open image',
 	'add-all-xy-tags'                                          => '{1} Add 1 tag|[2,*] Add :xy tags at once',
+	'batch-edit-relevance'                                     => 'Multi Edit',
+	'select-relevance'                                         => 'Select Relevance',
+	'Set-relevance-for-xy-tags'                                => '{1} Set relevance for one tag|[2,*] Set relevance for :xy tags',
 ];

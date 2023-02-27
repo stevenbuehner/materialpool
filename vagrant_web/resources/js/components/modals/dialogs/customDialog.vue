@@ -1,4 +1,5 @@
 <template>
+
   <b-modal
       :size="opt.size"
       lazy
@@ -15,9 +16,13 @@
       <div v-html="opt.content"></div>
     </slot>
 
-    <template slot="modal-title">{{ opt.title }}</template>
+    <template v-slot:modal-title>
+      <slot name="modal-title">
+        {{ opt.title }}
+      </slot>
+    </template>
 
-    <template slot="modal-footer">
+    <template v-slot:modal-footer>
       <b-button :variant="opt.yesVariant" v-if="opt.yesEnabled" @click="btnYes" ref="bYes">
         <slot name="modal-yes">{{ opt.yesText }}</slot>
       </b-button>

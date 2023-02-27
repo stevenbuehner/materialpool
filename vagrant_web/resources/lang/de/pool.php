@@ -342,4 +342,8 @@ return [
 	'refresh-image'                                            => 'Bild neu laden',
 	'open-image'                                               => 'Bild öffnen',
 	'add-all-xy-tags'                                          => '{1} Füge einen Tag hinzu|[2,*] :xy Tags auf einmal hinzufügen',
+	'batch-edit-relevance'                                     => 'Mehrfachbearbeitung',
+	'select-relevance'                                         => 'Relevanz auswählen',
+	'Set-relevance-for-xy-tags'                                => '{1} Relevanz für einen Tag setzen|[2,*] Relevanz für :xy Tags setzen',
+
 ];
