@@ -142,7 +142,7 @@ class MaterialHandlingService {
 	public function createZipDownloadOfMaterialContents(Material $material) {
 		$subPathInPublic = 'downloads';
 		$public_dir      = public_path($subPathInPublic);
-		$baseDir         = 'Material Collection';
+		$baseDir         = $this->createFilenameFromMaterial($material); // String ohne Datei-Extension
 		$zipFileName     = 'Material_' . $material->id . '_' . uniqid() . '.zip';
 		$zip             = new \ZipArchive();
 
@@ -151,7 +151,7 @@ class MaterialHandlingService {
 
 		if ($zip->open($public_dir . DIRECTORY_SEPARATOR . $zipFileName, \ZipArchive::CREATE) === TRUE) {
 
-			$zip->filename = 'Material Collection'; // Scheint nicht zu funktionieren
+			$zip->filename =  $this->createFilenameFromMaterial($material); // Scheint nicht zu funktionieren
 			$zip->setArchiveComment('All the resources from material ' . $material->id);
 
 			foreach ($material->resources as $resource) {
@@ -181,6 +181,41 @@ class MaterialHandlingService {
 		}
 
 		return DIRECTORY_SEPARATOR . $subPathInPublic . DIRECTORY_SEPARATOR . $zipFileName;
+	}
+
+	/**
+	 * Gibt einen String aus dem Titel zurück, ohne eine Datei-Extension
+	 * @param Material $material
+	 * @param int $minLength
+	 * @param int $maxLength
+	 * @return string
+	 */
+	protected function createFilenameFromMaterial(Material $material, int $minLength = 5, int $maxLength = 80) {
+
+		if ($minLength > $maxLength) {
+			// Swap
+			list($minLength, $maxLength) = array($maxLength, $minLength);
+		}
+
+		$filename = $material->title;
+
+		// Ersetze Umlaute
+		$umlaute  = ["~ä~", "~ö~", "~ü~", "~Ä~", "~Ö~", "~Ü~", "~ß~"];
+		$replace  = ["~ae~", "~oe~", "~ue~", "~Ae~", "~Oe~", "~Ue~", "~ss~"];
+		$filename = preg_replace($umlaute, $replace, $filename);
+
+		// Ersetze alle Zeichen, die es nicht geben darf
+		$filename = preg_replace('~[^a-z-A-Z0-9-_\(\)\,]~', '', $filename);
+
+		// Limitiere Zeichenlänge
+		$filename = trim(substr($filename, 0, $maxLength));
+
+		if (strlen($filename) < $minLength) {
+			$filename = 'Material Collection_' . $filename;
+		}
+
+		return $filename;
+
 	}
 
 
