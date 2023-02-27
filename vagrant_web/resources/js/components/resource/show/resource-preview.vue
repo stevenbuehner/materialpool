@@ -7,7 +7,7 @@
         @preview-zoom-request="openImagePreviewZoomer"/>
 
     <transition name="fade">
-      <div class="card-body resourcePreviewMenu pt-2" v-if="hovered">
+      <div class="card-body resourcePreviewMenu pt-2" v-if="hovered || isMobile">
 
         <div class="meta">
           <div class="filename pb-2" v-if="resource.original_filename">
@@ -62,6 +62,7 @@ import resourceLinks                 from '../resource-links.mixin';
 import UserName                      from "../../user/user-name";
 import {getOrderedPreviewZoomImages} from "../resource-preview-zoom";
 import ImageZoom                     from "../../modals/imageZoom";
+import {isTouch}                     from "../../../helper/mobileHelper";
 
 
 export default {
@@ -101,6 +102,10 @@ export default {
   },
 
   computed: {
+    isMobile(){
+      return isTouch;
+    },
+
     previewComponent() {
       return this.resource.type + '-preview';
     }
