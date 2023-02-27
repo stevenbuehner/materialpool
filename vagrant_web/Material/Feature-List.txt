@@ -55,3 +55,24 @@ Feature: Wenn einem Material keine Ressource zugeordnet ist, dann zeige die glei
 Bibelstellenerkennung für: Joh 3:35; 10:17;  14:31; 15:9; 17:23
 
 Fix: Erkenne Duplicate bei ZIP-Dateien korrekt (bzw. Omni-Graffle Dateien, die wohl als ZIP-Dateien hochgeladen werden ...)
+
+
+Feature: Bewertung eines Materials je Autor vornehmen ... automatisch dann ein Event mit Recalculate-Material-Rating vornehmen ...
+
+Feature / BUG: Cancel Bild-Lade-Prozesse in der Queue, wenn sie nicht mehr gebraucht werden
+
+Feature: Bei Rechtsklick auf ein Tag in der Seitenleiste (Bibelstelle oder Schlagwort) und dann auf "Suchen" soll auch ein "COMMAND-Klick -> neues Fenster" möglich sein.
+
+
+Bug: Diese Datei wird nicht angezeigt im Frontend als Text?!?
+/Users/stevenbuehner/Documents/IHL/6_Semester/Themenseminar NT/Jesu Auslegung der Schrift.txt
+
+
+Feature: Beim Navigieren aus der Suchliste in ein Material hinein und dann wieder zurück, soll der Scroll-Zustand der nach unten gescholten Suchliste wieder hergestellt werden.
+
+Bibelstellenerkennung von "2. Mose 3+4" prüfen in http://192.168.3.3/vue/material/1682
+
+Feature: Vorschaubilder per "Force" neu laden können
+
+Hover beim iPad auf Resourcen im Material sollte auch die Buttons anzeigen (oder beim iPad die Buttons gleich immer anzeigen)
+
