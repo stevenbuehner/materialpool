@@ -48,7 +48,7 @@
               <div class="col-xl-3 col-lg-4 col-md-4 col-sm-6 col-xs-1 p-2"
                    v-for="resource in material.resources">
                 <resource-preview :resource="resource" :edit-disabled="material.from_bot">
-                  <template slot="additional-buttons">
+                  <template v-slot:additional-buttons>
                     <button class="btn btn-sm btn-outline-danger mb-1"
                             @click.prevent="btnDetachResource(resource)"
                             v-if="!materialEditLockActive"
@@ -66,7 +66,7 @@
               <div class="col-xl-12 col-12 p-0">
                 <resource-detail :resource="material.resources[0]" :showDelete="false"
                                  :edit-disabled="material.from_bot">
-                  <template slot="additional-buttons">
+                  <template v-slot:additional-buttons>
                     <button class="btn btn-outline-danger mb-1"
                             @click.prevent="btnDetachResource(material.resources[0])"
                             v-if="!materialEditLockActive"
