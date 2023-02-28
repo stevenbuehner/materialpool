@@ -2,9 +2,7 @@
   <ul class="sb-context-menu"
       tabindex="-1"
       v-if="menuOpen"
-      v-on:blur="closeMenu"
       :style="{top:menuTop, left:menuLeft}">
-
     <slot :optional-data="optionalData"></slot>
 
   </ul>
@@ -76,6 +74,11 @@ export default {
 
 
     closeMenu: function () {
+      //       v-on:blur="closeMenu"
+      // Entfernt, weil ansonsten <a> Elemente im Menü nicht mehr funktionieren
+      // Vermutlich löscht der DOM die Elemente, bevor der Link geöffnet werden kann. Darum passiert gar nichts
+      // Auch $nextTick hat nicht geholfen
+
       this.$root.$emit(MENU_CLOSE_EVENT);
     },
 
@@ -103,6 +106,7 @@ export default {
   created() {
 
     this.$root.$on(MENU_CLOSE_EVENT, function (e) {
+      // console.log(e);
       this.menuOpen = false;
     }.bind(this));
 
@@ -121,7 +125,7 @@ export default {
         const dropdown = target.closest('.sb-context-menu');
 
         if (!dropdown) {
-          this.$root.$emit(MENU_CLOSE_EVENT);
+          this.$root.$emit(MENU_CLOSE_EVENT, event);
         }
 
         this.$root.contextMenuClickSetupComplete = true;

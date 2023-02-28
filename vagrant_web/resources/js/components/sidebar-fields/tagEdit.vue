@@ -138,13 +138,15 @@
                          @click.stop="$refs.keywordEditor.show(optionalData.id)">
         {{ $t('pool.edit') }}
       </context-menu-item>
-      <context-menu-item @click.stop="doToTagSearch(optionalData)">
+
+      <context-menu-item :to="getToTagSearch(optionalData)">
         {{ $t('pool.search-for-xy', {xy: _getTagLabelFromObject(optionalData)}) }}
       </context-menu-item>
       <context-menu-item v-if="optionalData.from && optionalData.to"
                          @click="displayBibleverse(optionalData.from, optionalData.to)">
         {{ $t('pool.Read-Bibleverse') }}
       </context-menu-item>
+
       <context-menu-item @click="copyTagContent(_getTagLabelFromObject(optionalData))">
         {{ $t('pool.Copy') }}
       </context-menu-item>
@@ -191,6 +193,7 @@ import {getOptionKeyFromKeywordObject, getTagLabelFromKeywordObject} from "./tag
 import {savingDialogs}                                               from "../../helper/flashMessages";
 import RelevanceSelector                                             from "../modals/dialogs/relevanceSeletor.vue";
 import {BButton}                                                     from "bootstrap-vue";
+
 
 export default {
   name: "tagEdit",
@@ -587,13 +590,13 @@ export default {
       // this.$emit('input:data-changed', keyword);
     },
 
-    doToTagSearch(keyword) {
-      this.$router.push({
+    getToTagSearch(keyword) {
+      return {
         name: 'search',
         params: {
           search: searchArrayObjectsToSearchQuery([[keyword]])
         }
-      });
+      };
     },
 
     openRelevanceSelector() {

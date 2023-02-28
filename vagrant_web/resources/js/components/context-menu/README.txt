@@ -2,6 +2,7 @@ Folgende Struktur:
 
         <context-menu ref="menu">
             <context-menu-item @click="searchForTag">Suche nach Tag</context-menu-item>
+            <context-menu-item :to="{name='search', params: {...}}">Generiert einen <router-link>, der auch mit Command+Click in einem neuen Fenster geöffnet werden kann</context-menu-item>
             <context-menu-item disabled>Deaktiviert</context-menu-item>
         </context-menu>
 

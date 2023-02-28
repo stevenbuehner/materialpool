@@ -61,9 +61,6 @@ Feature: Bewertung eines Materials je Autor vornehmen ... automatisch dann ein E
 
 Feature / BUG: Cancel Bild-Lade-Prozesse in der Queue, wenn sie nicht mehr gebraucht werden
 
-Feature: Bei Rechtsklick auf ein Tag in der Seitenleiste (Bibelstelle oder Schlagwort) und dann auf "Suchen" soll auch ein "COMMAND-Klick -> neues Fenster" möglich sein.
-
-
 Bug: Diese Datei wird nicht angezeigt im Frontend als Text?!?
 /Users/stevenbuehner/Documents/IHL/6_Semester/Themenseminar NT/Jesu Auslegung der Schrift.txt
 
