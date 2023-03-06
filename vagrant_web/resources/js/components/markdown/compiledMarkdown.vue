@@ -37,7 +37,7 @@ export default {
   methods: {
     debounceCompilation: _throttle(function () {
       const dirty       = marked.parse(this.text);
-      console.log(dirty);
+      // console.log(dirty);
       this.compiledText = sanitizeTextMarkup(dirty);
     }, 200)
   },
