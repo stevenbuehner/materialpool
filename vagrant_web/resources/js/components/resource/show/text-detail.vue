@@ -71,7 +71,7 @@ export default {
     return {
       editModeEnabled: false,
       isSaving: false,
-      myTextContent: this.resource.content,
+      myTextContent: this.resource?.content || '',
     };
   },
 

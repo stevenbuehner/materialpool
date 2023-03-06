@@ -61,10 +61,6 @@ Feature: Bewertung eines Materials je Autor vornehmen ... automatisch dann ein E
 
 Feature / BUG: Cancel Bild-Lade-Prozesse in der Queue, wenn sie nicht mehr gebraucht werden
 
-Bug: Diese Datei wird nicht angezeigt im Frontend als Text?!?
-/Users/stevenbuehner/Documents/IHL/6_Semester/Themenseminar NT/Jesu Auslegung der Schrift.txt
-
-
 Feature: Beim Navigieren aus der Suchliste in ein Material hinein und dann wieder zurück, soll der Scroll-Zustand der nach unten gescholten Suchliste wieder hergestellt werden.
 
 Feature: Vorschaubilder per "Force" neu laden können
