@@ -175,6 +175,11 @@ class SearchController extends Controller {
 		// Search For Bibleverses
 		$verses = $bibleVerseExtraction->stringToBibleVerse($queryString);
 
+		// Merge Bibleverse-Erkennung
+		// Ins Besondere für Bibelstellen die nur Kapitel enthalten wichtig, da diese ansonsten als zwei Bibelstellen erkannt werden
+		// Z.B. bei "2. Mose 3+4"
+		$verses = $bibleVerseExtraction->mergeBibleverses($verses);
+
 		// Remove duplicates:
 		$keys = [];
 		foreach ($verses as $key => $v) {

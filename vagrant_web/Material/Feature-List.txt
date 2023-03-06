@@ -67,8 +67,6 @@ Bug: Diese Datei wird nicht angezeigt im Frontend als Text?!?
 
 Feature: Beim Navigieren aus der Suchliste in ein Material hinein und dann wieder zurück, soll der Scroll-Zustand der nach unten gescholten Suchliste wieder hergestellt werden.
 
-Bibelstellenerkennung von "2. Mose 3+4" prüfen in http://192.168.3.3/vue/material/1682
-
 Feature: Vorschaubilder per "Force" neu laden können
 
 Hover beim iPad auf Resourcen im Material sollte auch die Buttons anzeigen (oder beim iPad die Buttons gleich immer anzeigen)
