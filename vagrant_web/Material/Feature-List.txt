@@ -73,9 +73,7 @@ Feature: Vorschaubilder per "Force" neu laden können
 
 Hover beim iPad auf Resourcen im Material sollte auch die Buttons anzeigen (oder beim iPad die Buttons gleich immer anzeigen)
 
-Bug: URL: http://192.168.3.3/img/icons/type_file.svg
- Wird nicht gefunden ...
-http://192.168.3.3/vue/search/1tfile
+
 
 
 
