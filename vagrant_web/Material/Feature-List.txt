@@ -65,7 +65,9 @@ Feature: Vorschaubilder per "Force" neu laden können
 
 Hover beim iPad auf Resourcen im Material sollte auch die Buttons anzeigen (oder beim iPad die Buttons gleich immer anzeigen)
 
+Fix: Backups nicht täglich machen ... es reicht alle paar Tage.
 
+Feature: Automatisch ausschalten am Abend, wenn das Backup gelaufen ist?
 
 
 
