@@ -19,7 +19,7 @@
 
         <div class="contentSideWrapper">
           <div class="row no-gutters mx-0">
-            <div class="col-12 contentMenue">
+            <div class="col-12 contentMenu">
               <button class="btn btn-sm">
                 <public-material-download :material-id="id"/>
               </button>
@@ -27,7 +27,7 @@
               <button class="btn btn-sm" :title="$t('pool.Delete-material')"
                       @click="btnDeleteMaterial"
                       :disabled="!material">
-                <trash-icon class="trashicon buttonIcon"/>
+                <trash-icon class="trash-icon buttonIcon"/>
               </button>
 
               <button class="btn btn-sm" :title="$t('pool.duplicate-material')"
@@ -60,7 +60,7 @@
               </div>
             </div>
 
-            <!-- Detailierter bei nur einer Ressource -->
+            <!-- Detaillierter bei nur einer Ressource -->
             <div class="row"
                  v-if="material.resources && material.resources.length === 1">
               <div class="col-xl-12 col-12 p-0">
@@ -460,13 +460,13 @@ export default {
                                             this.errorOnLoadingMessage = message;
                                           });
 
-        // Wenn die MaterialDetails noch nicht im Cache geladen sind aber Preview-Daten schon da sind
+        // Wenn die MaterialDetails noch nicht im Cache geladen sind, aber Preview-Daten schon da sind
         // ... dann zeige die schon mal an, bis der Rest geladen wurde
         if (!this.$store.getters['materials/hasMaterialDetails'](this.id) && this.$store.getters['materials/hasMaterialPreview'](this.id)) {
 
           // Stelle sicher, dass Material aus dem VueX-Store aktualisiert wird, sobald es geladen wurde
           materialDetailPromise.then(() => {
-            // console.log("Detailiertes Material wurde nachgeladen");
+            // console.log("Detailliertes Material wurde nachgeladen");
             this.$asyncComputed.material.update();
           });
 
@@ -523,10 +523,6 @@ export default {
       this.submitMaterialUpdate({'author': newKeyword}, this.$t('pool.Author'));
     },
 
-    submitAddUsage() {
-
-    },
-
     submitMaterialUpdate(data, propertyName) {
 
       const result = this.$store.dispatch('materials/updateMaterial', {id: this.material.id, data});
@@ -534,7 +530,7 @@ export default {
       if (propertyName) {
         const startSavingMessage = this.flashStartSaving(propertyName);
 
-        result.then(({response}) => {
+        result.then(() => {
           // On Success
           this.flashSaved(propertyName);
         }).catch(({response}) => {
@@ -840,15 +836,6 @@ export default {
 
     },
 
-    attachResourceToMaterial(resource) {
-      this.$store.dispatch('materials/attachResource', {
-        materialId: this.id,
-        resourceId: resource.id
-      }).then(({material}) => {
-        this.material = material;
-      })
-    },
-
     materialWasModified() {
       this.material.from_bot = false;
     },
@@ -940,7 +927,7 @@ export default {
     border: 1px solid $gray-400;
     border-radius: $card-border-radius;
 
-    .contentMenue {
+    .contentMenu {
       border-bottom: 1px solid $gray-400;
 
       .title {

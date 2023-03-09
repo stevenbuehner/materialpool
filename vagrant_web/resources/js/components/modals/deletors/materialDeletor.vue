@@ -244,7 +244,7 @@ export default {
               this.flashActionFailed(this.$t('pool.material-delete-error') + ': ' + message, deleteFlash);
             })
             .then(() => {
-              this._successfullPromise();
+              this._successfulPromise();
             });
       }
     },
@@ -262,12 +262,12 @@ export default {
 
     },
 
-    _successfullPromise() {
+    _successfulPromise() {
       if (typeof this.resolve === 'function') {
         this.resolve('material deleted');
       }
 
-      this.$refs.myModal.close();
+      this.$refs.myModal.hide();
     },
 
     _cancelPromise() {
@@ -276,7 +276,7 @@ export default {
         this.reject('closed early');
       }
 
-      // this.$refs.myModal.close();
+      // this.$refs.myModal.hide();
       this.resolve = null;
       this.reject  = null;
 

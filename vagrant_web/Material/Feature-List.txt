@@ -36,12 +36,6 @@ Bei der automatischen Tag-Erkennung in der ersten Zeile:
 
 DayJS durch Momentum ersetzen
 
-In Safari beim Löschen von Material
--> erst zugeordnete Ressourcen löschen (funktioniert)
--> Dann klick auf Material löschen -> schnelle Fehlermeldung, die man aber nicht sieht
-
-
-
 In der Suchmaske brauche ich einen Haken, der standardmäßig aktiv ist: Bundles einbeziehen
 
 
@@ -53,7 +47,6 @@ Feature: Wenn man bei einem großen PDF in der Materialvorschau auf "weitere Sei
 Feature: Wenn einem Material keine Ressource zugeordnet ist, dann zeige die gleichen Felder wie bei Zuordnung (Neue Text-Ressource | Material-Upload | Verknüpfungssuche)
 
 Fix: Erkenne Duplicate bei ZIP-Dateien korrekt (bzw. Omni-Graffle Dateien, die wohl als ZIP-Dateien hochgeladen werden ...)
-
 
 Feature: Bewertung eines Materials je Autor vornehmen ... automatisch dann ein Event mit Recalculate-Material-Rating vornehmen ...
 
