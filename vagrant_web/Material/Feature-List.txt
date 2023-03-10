@@ -1,7 +1,7 @@
-Limitiere Image-Preview Requests, so dass sie keine XHR Aufrufe blockieren ...
+Limitiere Image-Preview Requests, sodass sie keine XHR Aufrufe blockieren ...
 - am besten Client-Seitig ... das maximal 3 Bilder gleichzeitig geladen werden
 - Besser noch: Im Hintergrundprozess neue Vorschaubilder generieren -> als Job anlegen
--> Wie lange hält der Cache? (Kann man Hintergrundbilder auf einen anderem Speichersystem ablegen?
+-> Wie lange hält der Cache? (Kann man Hintergrundbilder auf einem anderen Speichersystem ablegen?)
 
 Feature: BEi Doppelklick auf TextResource an die richtige Stelle im Edit-Text springen ...
 
@@ -16,7 +16,7 @@ Material-Usage
 
 
 Resourcen (in der MaterialDetail-Ansicht) ausklappen
-- So dass bei Bildern alle Bilder / Seiten angezeigt werden
+- Sodass bei Bildern alle Bilder / Seiten angezeigt werden
 
 
 Schöneres Styling für Markdown (gibt es da fertige CSS?)
@@ -28,11 +28,8 @@ Server automatisch ausschalten nach einer gewissen Laufzeit (z.B. 2h)
 - ein Admin kann auf "dauerhaft" verschieben
 
 
-Auto-Überschrift Erkennung Aus einem Markup-Text
-=> Verwende die erste Überschrift mit einem #
-
-Bei der automatischen Tag-Erkennung in der ersten Zeile:
-- Eine Zeile ist nur dann mit "Einzeltags" vertrauenswürdig. Wenn die einzelnen Tags maximal 2-3 Wörter jeweils haben ... wenn da längere dabei sind, sind es vermutlich ganze Sätze und keine nützlichen Tags!
+Auto-Überschrift Erkennung aus einem Markup-Text
+⇨ Verwende die erste Überschrift mit einem #
 
 DayJS durch Momentum ersetzen
 

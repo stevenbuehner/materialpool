@@ -18,7 +18,7 @@ class Title implements PreRecognitionProcessInterface {
 	 *
 	 * @param string $value
 	 * @param array $context
-	 * @return string
+	 * @return array
 	 */
 	public function preProcessInput($inputValue, $context) {
 		$pregSearchString = '~(^|,|;)\s*(' . join('|', self::RECOGNIZED_LABELS) . '):?\s+([^,;]*?)\s*(?=$|,|;)~i';

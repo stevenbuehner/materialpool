@@ -6,12 +6,14 @@ use App\Models\File;
 use App\Models\Resource;
 use App\Services\TagExtraction\Interfaces\RelevanceInterface;
 use App\Services\TagExtraction\Properties\BibleverseProperty;
+use App\Services\TagExtraction\Properties\KeywordProperty;
 use App\Services\TagExtraction\Properties\OcrTextProperty;
 use App\Services\TagExtraction\Properties\Property;
 use App\Services\TagExtraction\TagExtractionService;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use StevenBuehner\BibleVerseBundle\Exceptions\InvalidBookIdException;
 use StevenBuehner\BibleVerseBundle\Interfaces\BibleVerseInterface;
 use StevenBuehner\BibleVerseBundle\Service\BibleVerseService;
 
@@ -30,6 +32,7 @@ class TextContentHandler implements HandlerInterface {
 	 *
 	 * @param File $resource
 	 * @return Collection of Properties
+	 * @throws InvalidBookIdException
 	 */
 	public function handle(Resource $resource) {
 		$result = new Collection();
@@ -38,7 +41,7 @@ class TextContentHandler implements HandlerInterface {
 		$result           = $result->merge($firstLineResults);
 
 		// Eine Property ist auf jeden Fall OCR
-		// Also mindestens drei Tags werden gefordert
+		// also mindestens drei Tags werden gefordert
 		$firstLineIsRemoved = $firstLineResults->count() > 4;
 		if ($firstLineIsRemoved) {
 			$this->removeFirstLine($resource);
@@ -53,6 +56,7 @@ class TextContentHandler implements HandlerInterface {
 	/**
 	 * @param Resource $resource
 	 * @return Collection
+	 * @throws InvalidBookIdException
 	 */
 	protected function searchInFirstLine(Resource $resource) {
 		$result = new Collection();
@@ -72,8 +76,14 @@ class TextContentHandler implements HandlerInterface {
 
 			$foundTags = $this->tagExtractionService->extractPartsFromStrings($firstLine, 2, $context = ['firstline']);
 
+			// If there are tags (other than keywords) where found or if there is a keyword, that has four or more spaces inside, skip the recognition process in the first line
+			$irritatingResultsFoundInFirstLine = $foundTags->first(function ($tag) {
+				return !$tag instanceof KeywordProperty || preg_match_all('~\s+~', $tag->getValue()) >= 4;
+			});
+
+
 			// How many tags where found in the first line of text? => At least three are needed, to identify this as info
-			if ($foundTags->count() < 3) {
+			if ($foundTags->count() < 3 || $irritatingResultsFoundInFirstLine === FALSE) {
 				Log::info("Too less information was extracted from the first line -> ignoring information",
 					['resource_id' => $resource->id, 'handler' => __CLASS__]);
 
@@ -86,7 +96,7 @@ class TextContentHandler implements HandlerInterface {
 				}
 
 			} else {
-				// Max relevance, because used added it
+				// Max relevance, because user added it
 				$relevance = RelevanceInterface::RELEVANCE_USER_MAX;
 				$foundTags->each(function (Property $property) use ($relevance) {
 					$property->setRelevance($relevance);
@@ -140,7 +150,7 @@ class TextContentHandler implements HandlerInterface {
 				$content = $this->removeFirstLineFromString($content);
 			}
 
-			// Extract bibleverses
+			// Extract bible verses
 			$foundBibleVerses = $this->bibleVerseService->stringToBibleVerse($content);
 
 			// Transform BibleVerseInterface to BibleverseProperty

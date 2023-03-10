@@ -16,8 +16,7 @@ abstract class AbstractTagRecognition implements TagRecognitionInterface {
 	protected $priority = 0;
 
 	/**
-	 * If any special Tags are found, than they are returned
-	 * They inherit from OCA\KnowledgeBase\Model\Tags\Tag
+	 * If any special Tags are found, then they are returned
 	 *
 	 * @param String $stringValue
 	 * @return Keyword[]|PropertyInterface[]
