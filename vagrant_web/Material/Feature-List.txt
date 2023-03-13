@@ -31,7 +31,8 @@ Server automatisch ausschalten nach einer gewissen Laufzeit (z.B. 2h)
 Auto-Überschrift Erkennung aus einem Markup-Text
 ⇨ Verwende die erste Überschrift mit einem #
 
-DayJS durch Momentum ersetzen
+# Siehe: https://medium.datadriveninvestor.com/https-medium-com-sabesan96-why-you-should-choose-day-js-instead-of-moment-js-9cf7bb274bbd
+Momentum durch DayJs ersetzen (schneller, kleiner etc.)-
 
 In der Suchmaske brauche ich einen Haken, der standardmäßig aktiv ist: Bundles einbeziehen
 
