@@ -95,7 +95,7 @@ import textFieldIcon                                  from 'svg-icon/dist/svg/ma
 import generalMixin                                   from './generalSidebarFields.mixin';
 import Datepicker                                     from '../datepicker/datepicker';
 import {server_datetime_format}                       from "../../apps/config";
-import {moment}                                       from "../../apps/main/localisation";
+import {dayjs}                                        from "../../apps/main/localisation";
 
 Vue.use(FormTextareaPlugin);
 Vue.use(FormInputPlugin);
@@ -176,7 +176,7 @@ export default {
       if (dateOrNullObject === null) {
         this.currentValue = null;
       } else {
-        this.currentValue = moment(dateOrNullObject).format(server_datetime_format);
+        this.currentValue = dayjs(dateOrNullObject).format(server_datetime_format);
       }
 
       if (this.valueHasChanged) {
@@ -218,7 +218,7 @@ export default {
     },
 
     currentValueInDayJsFormat() {
-      return moment(this.currentValue).toDate();
+      return dayjs(this.currentValue).toISOString();
     }
   },
 

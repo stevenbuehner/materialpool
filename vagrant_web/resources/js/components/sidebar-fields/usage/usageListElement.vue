@@ -125,8 +125,8 @@
 </template>
 
 <script>
-import {getLocale, getLocaleDateFormat, moment} from "../../../apps/main/localisation";
-import OccasionIcon                             from 'svg-icon/dist/svg/icomoon/bubble2.svg';
+import {dayjs, getLocaleDateFormat} from "../../../apps/main/localisation";
+import OccasionIcon                 from 'svg-icon/dist/svg/icomoon/bubble2.svg';
 
 import Datepicker from '../../datepicker/datepicker';
 import {BButton}  from 'bootstrap-vue';
@@ -248,14 +248,6 @@ export default {
       return this.id === this.currentActiveUsageId;
     },
 
-    dateLocalisation() {
-      return getLocale();
-    },
-
-    dateFormat() {
-      return getLocaleDateFormat();
-    },
-
     disabledDates() {
       // keine UsageDates eintragbar die weiter als 90 Tage ind er Zukunft liegen
       const today    = new Date();
@@ -267,7 +259,7 @@ export default {
     },
 
     dateTimeChanged() {
-      return !moment(this.modifiedData.datetime).isSame(this.datetime);
+      return !dayjs(this.modifiedData.datetime).isSame(this.datetime, 'day');
     },
 
     reasonChanged() {
@@ -360,11 +352,13 @@ export default {
         return;
       }
 
-      if (moment(this.modifiedData.datetime).isValid() === false) {
+      /*
+      if (dayjs(this.modifiedData.datetime).isValid() === false) {
         if (confirm(this.$t('pool.Required-datetime-is-invalid.Want-to-save-anyway?')) === false) {
           return;
         }
       }
+       */
 
       this.updateInProgress = true;
       const msg             = this.flashActionStartedWaiting(this.$t('pool.Updating-usage'));
@@ -445,7 +439,7 @@ export default {
 
   filters: {
     dateformat(datetime) {
-      return moment(datetime).format(getLocaleDateFormat());
+      return dayjs(datetime).format(getLocaleDateFormat());
     }
   },
 

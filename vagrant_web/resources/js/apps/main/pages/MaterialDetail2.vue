@@ -360,9 +360,9 @@ import {BButton, TabsPlugin}      from 'bootstrap-vue';
 import TextEditSidebarField       from "../../../components/sidebar-fields/textEdit";
 import BibleverseEditSidebarField from "../../../components/sidebar-fields/bibleverseEdit";
 import dayjs                      from 'dayjs';
-import TagEditSidebarField        from "../../../components/sidebar-fields/tagEdit";
-import {RELEVANCE_USER_MAX}       from "../../config";
-import RatingEdit                 from "../../../components/sidebar-fields/ratingEdit";
+import TagEditSidebarField                          from "../../../components/sidebar-fields/tagEdit";
+import {RELEVANCE_USER_MAX, server_datetime_format} from "../../config";
+import RatingEdit                                   from "../../../components/sidebar-fields/ratingEdit";
 import bundleList                 from '../../../components/sidebar-fields/bundleList';
 import SingleTagSelect            from "../../../components/sidebar-fields/singleTagSelect";
 import ResourceSelector           from "../../../components/modals/selectors/resourceSelector";
@@ -502,7 +502,7 @@ export default {
 
     submitDate(newDate) {
       this.submitMaterialUpdate({
-        created_at: dayjs(newDate).format('YYYY-MM-DD HH:mm:ss'),
+        created_at: dayjs(newDate).format(server_datetime_format),
         from_bot: false
       }, this.$t('pool.Creation-date'));
     },

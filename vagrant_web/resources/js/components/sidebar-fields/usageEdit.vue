@@ -58,7 +58,7 @@ import usageListElement from "./usage/usageListElement";
 import OccasionIcon     from 'svg-icon/dist/svg/icomoon/bubble2.svg';
 import {BButton}        from 'bootstrap-vue';
 import {savingDialogs}  from "../../helper/flashMessages";
-import {moment}         from "../../apps/main/localisation";
+import {dayjs}          from "../../apps/main/localisation";
 
 export default {
   name: "usageEdit",
@@ -92,7 +92,7 @@ export default {
 
     displayedList() {
       const orderedUsages = this.usages.sort((e1, e2) => {
-        return moment(e1.datetime).unix() - moment(e2.datetime).unix();
+        return dayjs(e1.datetime).unix() - dayjs(e2.datetime).unix();
       });
 
       let getElementsCount = this.displayMax;
@@ -123,7 +123,7 @@ export default {
         }
 
         return resultElements.sort((e1, e2) => {
-          return moment(e1.datetime).unix() - moment(e2.datetime).unix();
+          return dayjs(e1.datetime).unix() - dayjs(e2.datetime).unix();
         });
 
       } else {

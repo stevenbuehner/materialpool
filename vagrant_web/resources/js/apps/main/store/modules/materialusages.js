@@ -6,7 +6,8 @@ import {
 	api_v2_materialusage_store,
 	api_v2_materialusage_update
 }                                      from "../../../../components/serverRoutes";
-import {moment}                        from "../../localisation";
+import {dayjs}                         from "../../localisation";
+import {server_datetime_format}        from "../../../config";
 
 
 const state = {
@@ -164,7 +165,7 @@ const actions = {
 
 		return axios
 			.post(url, {
-				datetime: moment(datetime).format(),
+				datetime: dayjs(datetime).format(server_datetime_format),
 				place,
 				reason,
 				used_by_id
