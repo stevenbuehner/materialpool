@@ -80,13 +80,20 @@ export default {
       immediate: true
     },
 
+    tree: {
+      handler: function (newValue) {
+        this.updateKeywordTree();
+      },
+      immediate: true
+    }
+
   },
 
   methods: {
 
     updateKeywordTree() {
 
-      console.log('updateKeywordTree');
+      //  console.log('updateKeywordTree', this.tree.length);
 
       if (this.searchPhrase.length === 0) {
         this.displayedTree = this.tree;
@@ -122,10 +129,6 @@ export default {
     afterMove() {
       this.updateKeywordTree();
     }
-  },
-
-  created() {
-    this.updateKeywordTree();
   },
 
   components: {

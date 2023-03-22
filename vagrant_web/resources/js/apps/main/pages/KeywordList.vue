@@ -35,6 +35,31 @@
       </div>
     </div>
 
+    <div class="targetSelectionTagWrapper">
+      <div class="row">
+        <div class="col-12">
+          <single-tag-select
+              :value="fixedSelectedKeyword"
+              :placeholder="$t('pool.keyword')"
+              :min-input="2"
+              :batch-new-tags-enabled="false"
+              :batch-edit-relevance-enabled="false"
+              :new-tags-enabled="false"
+              :name="$t('pool.Insert-keywordtext-here') + ':'"
+              @input:associated="fixedSelectedKeyword=$event"
+              @input:dissociated="fixedSelectedKeyword=null"
+          >
+            <template v-slot:icon><span/></template>
+          </single-tag-select>
+        </div>
+        <div class="col-12">
+          <Tree :move="moveKeyword" :tree="fixedTree"></Tree>
+        </div>
+      </div>
+
+
+    </div>
+
   </div>
 
 </template>
@@ -46,6 +71,7 @@ import refreshIcon         from 'svg-icon/dist/svg/awesome/refresh.svg';
 import Tree                from "../../../components/keyword/tree/Tree";
 import {BFormInput}        from 'bootstrap-vue';
 import MaterialpoolSpinner from "../../../components/spinner/materialpool-spinner";
+import SingleTagSelect     from "../../../components/sidebar-fields/singleTagSelect.vue";
 
 export default {
   name: "KeywordList",
@@ -60,10 +86,11 @@ export default {
 
       treeSearch: '',
 
+      fixedSelectedKeyword: null,
+      fiexedSelectedKeywordTree: {}
+
     };
   },
-
-  computed: {},
 
   created() {
     this.getAllKeywords();
@@ -263,11 +290,65 @@ export default {
 
     btnRefreshTree() {
       this.getAllKeywords(true);
-    }
+    },
 
   },
 
+  computed: {
+    fixedTree() {
+      if (this.fixedSelectedKeyword === null) {
+        return [];
+      }
+
+      const baseTreeElement = this.treeModel.find((el) => el.type === this.fixedSelectedKeyword.type);
+
+      if (!baseTreeElement) {
+        console.error('Konnte das BaseTree Elemenet nicht finden: ', this.fixedSelectedKeyword);
+        return [];
+      }
+
+      /**
+       *
+       * @param keyword
+       * @param id
+       * @returns {keyword|false}
+       */
+      function searchRecursive(keyword, id) {
+
+        if (keyword.id === id) {
+          return keyword;
+        }
+
+        if (keyword?.children?.length > 0) {
+          for (let i = 0; i < keyword.children.length; i++) {
+            const v = searchRecursive(keyword.children[i], id);
+
+            if (v !== false) {
+              return v;
+            }
+
+          }
+
+        }
+
+        return false;
+
+      }
+
+      const keyword = searchRecursive(baseTreeElement, this.fixedSelectedKeyword.id);
+
+      if (!keyword) {
+        console.error('Keyword wurde nicht im Tree gefunden', this.fixedSelectedKeyword);
+        return [];
+      } else {
+        return [keyword];
+      }
+
+    }
+  },
+
   components: {
+    SingleTagSelect,
     MaterialpoolSpinner,
     Tree,
     editIcon,
@@ -278,6 +359,8 @@ export default {
 </script>
 
 <style>
+@import "resources/sass/theme.scss";
+
 .keywordlisticon {
   position: relative;
   display: inline-block;
@@ -290,6 +373,23 @@ export default {
   background-image: url(/img/icons/tag.svg);
   margin-right: 0.5rem;
   margin-left: 0;
+}
+
+.targetSelectionTagWrapper {
+  position: fixed;
+  top: 100px;
+  right: 1em;
+  min-width: 250px;
+  padding: 1em;
+  border-radius: $input-border-radius;
+  background: $gray-200;
+  border: 1px solid $gray-400;
+}
+
+@media screen and (max-width: 1000px){
+  .targetSelectionTagWrapper {
+    display: none;
+  }
 }
 
 </style>
