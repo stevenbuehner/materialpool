@@ -40,7 +40,7 @@
     <!--<script src="/js/vendor.bundle.js"></script>-->
     <link rel="stylesheet" type="text/css" href="/css/main.css">
 @else
-    <script src="http://localhost:8080/js/main_build.js"></script>
+    <script src="http://192.168.3.28:8080/js/main_build.js"></script>
     <!--<script src="http://localhost:8080/js/vendor.bundle.js"></script>-->
 @endif
 
