@@ -4,7 +4,7 @@
 
 Dieser Vertrag ist die verbindliche Arbeitsgrundlage für P1. Ziel ist Laravel 13 auf PHP 8.4 mit aktualisierten Composer-Abhängigkeiten. Die Umstellung erfolgt in überprüfbaren Hauptversionsschritten. Das bestehende Vue-2-Frontend wird nicht modernisiert und seine Paketdefinitionen, sein Buildsystem sowie sein sichtbares Verhalten bleiben unangetastet, soweit eine Backend-Kompatibilitätsanpassung dies nicht zwingend erfordert.
 
-Der Vertrag autorisiert die nachfolgend ausdrücklich beschriebenen Paket- und Laufzeitänderungen. Er autorisiert keine Änderung fachlicher Verträge, produktiver Daten, Datenbankstrukturen, Berechtigungen, API-Payloads, Speicherorte oder Frontendgestaltung. Wird eine solche Änderung technisch unvermeidbar, endet die Autorisierung an dieser Stelle und es ist vor der Umsetzung eine neue Entscheidung nach `docs/ai/decision-template.md` einzuholen.
+Der Vertrag autorisiert die nachfolgend ausdrücklich beschriebenen Paket- und Laufzeitänderungen. Ein Upgrade ist niemals eine stillschweigende Freigabe, bestehendes Verhalten zu ändern. Der Vertrag autorisiert insbesondere keine Änderung fachlicher oder technischer Verhaltensverträge, produktiver Daten, Datenbankstrukturen, Berechtigungen, API-Payloads, Speicherorte oder Frontendgestaltung. Wird eine solche Änderung technisch unvermeidbar oder erscheint eine Änderung gegenüber dem Ist-Verhalten sinnvoll, endet die Umsetzungsautorisierung an dieser Stelle und es ist vorab eine neue Entscheidung nach `docs/ai/decision-template.md` einzuholen.
 
 ## Verbindliche Zielentscheidungen
 
@@ -16,9 +16,19 @@ Der Vertrag autorisiert die nachfolgend ausdrücklich beschriebenen Paket- und L
 | OAuth | Laravel Passport beibehalten und auf Version 13 aktualisieren | Kein Wechsel zu Sanctum; OAuth-Clients, Tokens, Scopes, Keys, Guards und Statuscodes bleiben kompatibel. |
 | Resource-STI | `nanigans/single-table-inheritance` durch `tightenco/parental` `^1.6` ersetzen | Der nicht zukunftsfähige STI-Treiber wird ersetzt. Gespeicherte `type`-Werte, Modellklassen, Hydrierung und JSON bleiben identisch. |
 | Nested Sets | `kalnoy/nestedset` auf die Laravel-13-kompatible Hauptversion 7 aktualisieren | Das aktuelle Baumverhalten ist durch `KeywordNestedSetTest` und `KeywordApiControllerTest` verbindlich eingefroren. Keine Reparatur oder Neuordnung produktiver Bäume im Rahmen des Upgrades. |
-| Eigenes Bible-Paket | Einen stabilen, unveränderlichen Release-Tag statt `dev-develop` verwenden | Vor Nutzung muss der Tag Laravel 13/PHP 8.4 unterstützen und die heute importierten PHP- und JavaScript-Exports bereitstellen. Kein bewegliches Branch-Ziel im finalen Lockfile. |
+| Eigenes Bible-Paket | Das `stevenbuehner/bible-verse-bundle` wird als separates, vom Auftraggeber verwaltetes Composer-Projekt behandelt | In diesem Repository werden nur Anforderungen und Kompatibilitätsbefunde ermittelt. Änderungen und Release-Tags des Pakets nimmt der Auftraggeber im separaten Projekt vor. Eingebunden wird anschließend ein vom Auftraggeber bereitgestellter stabiler, unveränderlicher Tag mit Laravel-13-/PHP-8.4-Kompatibilität und unveränderten PHP- und JavaScript-Exports. |
 | Frontend | Vue 2, Vue Router 3, Vuex 3, Bootstrap 4, Bootstrap-Vue, Laravel Mix/Webpack und beide npm-Lock-/Manifestverträge bleiben unverändert | `laravel/ui` darf auf `^4.0` aktualisiert werden, aber es wird kein Scaffolding-Befehl ausgeführt. Änderungen unter `resources/js`, `resources/sass`, `package.json` oder `package-lock.json` sind nicht Teil von P1. |
 | Stability | Finale Composer-Konfiguration verwendet stabile Releases | `minimum-stability: dev` wird entfernt oder auf `stable` gesetzt. Verbleibende Dev-Abhängigkeiten sind nicht zulässig. |
+
+## Entscheidungs- und Änderungskontrolle
+
+- Bestehendes Verhalten ist unabhängig davon zu erhalten, ob es modern, optimal oder von einer neuen Laravel-/Paketversion empfohlen ist.
+- Neue Framework-Defaults werden nicht automatisch übernommen, wenn sie Laufzeit-, Daten-, Sicherheits-, API-, Queue-, Storage-, Serialisierungs- oder Nutzerverhalten verändern könnten. Der bisherige Wert wird zunächst explizit konfiguriert und durch Charakterisierungstests geschützt.
+- Tests werden nicht auf ein abweichendes Verhalten aktualisierter Bibliotheken umgeschrieben. Eine solche Abweichung wird zunächst als Regression behandelt.
+- Während des Upgrades werden Verbesserungspotenziale aktiv ermittelt und dokumentiert. Jeder Vorschlag enthält mindestens Empfehlung, Alternative, Nutzen, Risiken, betroffene Verträge, Migrationsweg und Rückbauaufwand.
+- Ein Verbesserungsvorschlag wird erst nach ausdrücklicher Freigabe des Auftraggebers umgesetzt. Ohne Freigabe bleibt das bisherige Verhalten bestehen oder der betroffene Upgrade-Schritt pausiert, falls es technisch nicht erhalten werden kann.
+- Rein interne Kompatibilitätsanpassungen dürfen ohne erneute Freigabe erfolgen, wenn Tests nachweisen, dass alle beobachtbaren Verträge unverändert bleiben.
+- Die Zuständigkeit für das separate `bible-verse-bundle` verbleibt beim Auftraggeber. Der Agent darf notwendige Änderungen an diesem Paket beschreiben und eine konkrete Versionierungs-/Release-Empfehlung geben, aber weder dessen Repository noch dessen Releases ohne einen separaten ausdrücklichen Auftrag verändern.
 
 ## Unveränderliche Produktverträge
 
@@ -89,7 +99,7 @@ Folgende Ziel-Hauptversionen sind vereinbart. Innerhalb dieser Grenzen wird pro 
 | `barryvdh/laravel-ide-helper` | kompatible stabile 3.x-Version |
 | `mariuzzo/laravel-js-localization` | kompatible stabile 2.x-Version; generierte JS-Schnittstelle muss gleich bleiben |
 | Sail, Collision, Mockery | jeweils neueste stabile Version, die Laravel 13, PHP 8.4 und PHPUnit 12 gemeinsam unterstützt |
-| `stevenbuehner/bible-verse-bundle` | freigegebener stabiler Release-Tag mit PHP-8.4-/Laravel-13-Kompatibilität |
+| `stevenbuehner/bible-verse-bundle` | vom Auftraggeber im separaten Projekt bereitgestellter stabiler Release-Tag mit PHP-8.4-/Laravel-13-Kompatibilität; dieses Repository aktualisiert danach nur die Composer-Referenz |
 
 Medien- und Konvertierungsbibliotheken (`intervention/image`, EXIF/ExifTool, FFmpeg, FPDI/FPDF, PDF-to-text und Office-Konvertierung) werden auf die jeweils neueste stabile PHP-8.4-kompatible Version aktualisiert, soweit ihre bestehende öffentliche API erhalten bleibt. Ein API-brechender Wechsel – insbesondere Intervention Image 2 auf 3 – wird als separates Backend-Teilprojekt behandelt und nur dann in P1 aufgenommen, wenn Laravel 13/PHP 8.4 sonst nicht erreichbar ist. In diesem Fall ist vor der Umsetzung eine neue Entscheidung mit Migrations- und Rückbauplan erforderlich.
 
@@ -102,7 +112,7 @@ Medien- und Konvertierungsbibliotheken (`intervention/image`, EXIF/ExifTool, FFm
 1. Die vollständige Laravel-8-Suite muss einschließlich der neuen Nested-Set-Tests grün sein.
 2. Ergänzt werden noch fehlende Charakterisierungstests für Resource-STI, Passport, relevante serialisierte Pivot-/Cachewerte, Storage/Archiv, Queue-Namen, Bundle-Paketintegration und Backup-Konfiguration, bevor der jeweils betroffene Code geändert wird.
 3. `route:list`, relevante API-Beispielantworten und Composer-Paketstand werden als maschinenlesbare oder testbare Referenz erfasst, ohne reale Daten oder Secrets zu speichern.
-4. Der stabile Tag des Bible-Pakets wird erstellt beziehungsweise als installierbarer Tag benannt und zunächst gegen den bestehenden Stand geprüft.
+4. Für das Bible-Paket werden benötigte Composer-Constraints sowie PHP-/Laravel- und Export-Kompatibilität ermittelt und dem Auftraggeber als konkrete Anforderung übergeben. Der Auftraggeber stellt den stabilen Tag im separaten Projekt bereit; erst danach wird er hier eingebunden und gegen den bestehenden Stand geprüft.
 
 ### Stufe 1 – Laravel 9
 
