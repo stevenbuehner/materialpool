@@ -109,6 +109,8 @@ Medien- und Konvertierungsbibliotheken (`intervention/image`, EXIF/ExifTool, FFm
 
 ### Stufe 0 – Charakterisierung und reproduzierbare Basis
 
+**Status:** Am 9. September 2026 umgesetzt und mit 141 grünen Tests abgenommen. Details und nicht umgesetzte Verbesserungsvorschläge: `docs/ai/upgrade-stage-0-report.md`.
+
 1. Die vollständige Laravel-8-Suite muss einschließlich der neuen Nested-Set-Tests grün sein.
 2. Ergänzt werden noch fehlende Charakterisierungstests für Resource-STI, Passport, relevante serialisierte Pivot-/Cachewerte, Storage/Archiv, Queue-Namen, Bundle-Paketintegration und Backup-Konfiguration, bevor der jeweils betroffene Code geändert wird.
 3. `route:list`, relevante API-Beispielantworten und Composer-Paketstand werden als maschinenlesbare oder testbare Referenz erfasst, ohne reale Daten oder Secrets zu speichern.

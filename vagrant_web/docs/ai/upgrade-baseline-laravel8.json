@@ -1,0 +1,57 @@
+{
+  "captured_at": "2026-09-09",
+  "purpose": "Immutable machine-readable dependency and route reference before the Laravel 9 upgrade",
+  "runtime_contract": {
+    "application": "laravel/framework v8.83.27",
+    "php_constraint": "^7.4",
+    "test_runtime": "Sail with MySQL database testing"
+  },
+  "direct_composer_packages": {
+    "barryvdh/laravel-debugbar": "v3.7.0",
+    "barryvdh/laravel-ide-helper": "v2.13.0",
+    "facade/ignition": "2.17.7",
+    "filp/whoops": "2.15.1",
+    "fzaninotto/faker": "v1.9.2",
+    "howtomakeaturn/pdfinfo": "1.1.4",
+    "intervention/image": "2.7.2",
+    "kalnoy/nestedset": "v6.0.2",
+    "laracasts/utilities": "3.2.2",
+    "laravel/framework": "v8.83.27",
+    "laravel/passport": "v10.4.2",
+    "laravel/sail": "v1.19.0",
+    "laravel/tinker": "v2.8.1",
+    "laravel/ui": "v3.4.6",
+    "mariuzzo/laravel-js-localization": "v1.10.0",
+    "miljar/php-exif": "v0.6.5",
+    "mockery/mockery": "1.5.1",
+    "nanigans/single-table-inheritance": "v1.0.0",
+    "ncjoes/office-converter": "v1.0.3",
+    "nunomaduro/collision": "v5.11.0",
+    "php-ffmpeg/php-ffmpeg": "v0.18.0",
+    "phpexiftool/exiftool": "10.16",
+    "phpunit/phpunit": "9.6.5",
+    "setasign/fpdi-fpdf": "v2.3.0",
+    "spatie/laravel-backup": "6.16.5",
+    "spatie/pdf-to-text": "1.52.0",
+    "stevenbuehner/bible-verse-bundle": {
+      "version": "dev-develop",
+      "source_reference": "ff33d614541f5cfba69dcd121d6c04cc8da921c4"
+    }
+  },
+  "critical_route_names": [
+    "api.v1.general.options",
+    "api.v1.keywords.index",
+    "api.v1.materials.store",
+    "api.v1.resources.store",
+    "api.v1.foreignMaterialStore",
+    "api.v1.foreignResources.show",
+    "api.v1.bundles.update.init",
+    "api.v2.api.v2.materialresource.attach",
+    "api.v2.api.v2.material.delete",
+    "passport.token",
+    "passport.authorizations.authorize",
+    "pool.searchbar.get",
+    "resource.image.preview",
+    "vue."
+  ]
+}
