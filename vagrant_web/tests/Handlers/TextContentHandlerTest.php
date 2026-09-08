@@ -6,18 +6,18 @@ use App\Models\Text;
 use App\Models\User;
 use App\Services\TagExtraction\ResourceHandles\FileNameHandler;
 use App\Services\TagExtraction\ResourceHandles\TextContentHandler;
-use Illuminate\Foundation\Testing\DatabaseMigrations;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Collection;
 use Tests\TestCase;
 
 class TextContentHandlerTest extends TestCase {
 
-	use DatabaseMigrations;
+	use RefreshDatabase;
 
 	/** @var $service FileNameHandler */
 	protected $service = NULL;
 
-	public function setUp() {
+	protected function setUp(): void {
 		parent::setUp();
 		$this->service = resolve(TextContentHandler::class);
 
@@ -26,10 +26,8 @@ class TextContentHandlerTest extends TestCase {
 		Hallo du!";
 
 		$localPath = config('filesystems.disks.resources.root');
-		$user      = factory(User::class)->create();
-
-		$user = factory(User::class)->create();
-		$text = factory(Text::class)
+		$user = User::factory()->create();
+		$text = Text::factory()
 			->create([
 						 'created_by'  => $user->id,
 						 'is_public'   => FALSE,

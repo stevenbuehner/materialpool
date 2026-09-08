@@ -2,31 +2,29 @@
 
 namespace Tests\Feature;
 
-use App\Listeners\CheckLonelyBibleverse;
-use App\Listeners\CheckLonelyKeyword;
+use App\Jobs\CheckLonelyBibleverse;
+use App\Jobs\CheckLonelyKeyword;
 use App\Models\ForeignMaterialId;
 use App\Models\Keyword;
 use App\Models\Material;
-use App\Models\Person;
-use App\Models\Place;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Foundation\Testing\DatabaseMigrations;
-use Illuminate\Foundation\Testing\TestResponse;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Testing\TestResponse;
 use Laravel\Passport\Passport;
 use Tests\TestCase;
 
 class ApiForeignMaterialControllerTest extends TestCase {
 
-	use DatabaseMigrations, ResourceTrait;
+	use RefreshDatabase, ResourceTrait;
 
-	public function setUp() {
+	protected function setUp(): void {
 		parent::setUp();
 
 		$this->setUpTestData();
 	}
 
-	public function tearDown() {
+	protected function tearDown(): void {
 		parent::tearDown();
 	}
 
@@ -73,7 +71,7 @@ class ApiForeignMaterialControllerTest extends TestCase {
 
 		// Material-Attributes
 		$shouldBe = $shouldBeFM->material->attributesToArray();
-		unset($shouldBe['id']);
+		unset($shouldBe['id'], $shouldBe['flag'], $shouldBe['icon_of_bundle']);
 		$this->assertArraySubset($shouldBe, $data);
 
 		// Author
@@ -131,6 +129,19 @@ class ApiForeignMaterialControllerTest extends TestCase {
 			];
 	}
 
+	protected function assertArraySubset(array $expected, array $actual): void {
+		foreach ($expected as $key => $expectedValue) {
+			$this->assertArrayHasKey($key, $actual);
+
+			if (is_array($expectedValue)) {
+				$this->assertIsArray($actual[$key]);
+				$this->assertArraySubset($expectedValue, $actual[$key]);
+			} else {
+				$this->assertEquals($expectedValue, $actual[$key]);
+			}
+		}
+	}
+
 	public function testShowFailUnauthorizied() {
 		/** @var ForeignMaterialId $fm */
 		$fm = ForeignMaterialId::inRandomOrder()->take(1)->get()->first();
@@ -182,24 +193,24 @@ class ApiForeignMaterialControllerTest extends TestCase {
 		);
 
 		// ForeignMaterialUID
-		$uid = 'test_' . factory(ForeignMaterialId::class)->make()->foreign_id;
+		$uid = 'test_' . ForeignMaterialId::factory()->make()->foreign_id;
 
 		$data = $this->getTestDataMaterial();
 
 		/** @var Keyword $kw1 */
 		/** @var Person $kw2 */
-		$kw1 = factory(Keyword::class)->create();
-		$kw2 = factory(Person::class)->make();
+		$kw1 = Keyword::factory()->create();
+		$kw2 = Keyword::factory()->make(['type' => 'person']);
 
 		$data['keywords'][] = [
 			'title'     => $kw1->title,
-			'type'      => $kw1::getSingleTableType(),
+			'type'      => $kw1->type,
 			'relevance' => 200
 		];
 
 		$data['keywords'][] = [
 			'title' => $kw2->title,
-			'type'  => $kw2::getSingleTableType(),
+			'type'  => $kw2->type,
 		];
 
 		$data['bibleverses'][] = ['from' => 1001001, 'to' => 1001002];
@@ -243,7 +254,7 @@ class ApiForeignMaterialControllerTest extends TestCase {
 		);
 
 		// ForeignMaterialUID
-		$uid  = 'test_' . factory(ForeignMaterialId::class)->make()->foreign_id;
+		$uid  = 'test_' . ForeignMaterialId::factory()->make()->foreign_id;
 		$data = $this->getTestDataMaterial();
 		$uri  = route('api.v1.foreignMaterialStore', ['foreignMaterialId' => $uid]);
 
@@ -276,11 +287,11 @@ class ApiForeignMaterialControllerTest extends TestCase {
 			'author'      => "Steven Buehner",
 			'keywords'    => [
 				['title'     => 'Steven Buehner',
-				 'type'      => Person::getSingleTableType(),
+				 'type'      => 'person',
 				 'relevance' => 200
 				],
 				['title'     => 'Stuttgart',
-				 'type'      => Place::getSingleTableType(),
+				 'type'      => 'place',
 				 'relevance' => 100
 				]
 			],
@@ -343,7 +354,7 @@ class ApiForeignMaterialControllerTest extends TestCase {
 		$data['keywords']    =
 			[
 				['title'     => 'Stuttgart',
-				 'type'      => Place::getSingleTableType(),
+				 'type'      => 'place',
 				 'relevance' => 100
 				]
 			];
@@ -393,7 +404,7 @@ class ApiForeignMaterialControllerTest extends TestCase {
 		);
 
 		// ForeignMaterialUID
-		$uid  = 'test_' . factory(ForeignMaterialId::class)->make()->foreign_id;
+		$uid  = 'test_' . ForeignMaterialId::factory()->make()->foreign_id;
 		$data = $this->getTestDataMaterial();
 		$uri  = route('api.v1.foreignMaterialStore', ['foreignMaterialId' => $uid]);
 

@@ -3,22 +3,28 @@
 namespace Tests\Feature;
 
 use App\Models\Keyword;
-use App\Models\Person;
-use Defuse\Crypto\Key;
-use Illuminate\Foundation\Testing\DatabaseMigrations;
-use Illuminate\Foundation\Testing\TestResponse;
+use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Testing\TestResponse;
+use Laravel\Passport\Passport;
 use Tests\TestCase;
 
 class KeywordApiControllerTest extends TestCase {
 
-	use DatabaseMigrations;
+	use RefreshDatabase;
+
+	protected function setUp(): void {
+		parent::setUp();
+
+		Passport::actingAs(User::factory()->create());
+	}
 
 	public function testKeywordCreatePersonWithType() {
 
 		$method = 'post';
 		$uri    = route('api.v1.keywords.create');
 		$data   = [
-			'type'  => Person::getSingleTableType(),
+			'type'  => 'person',
 			'title' => 'My Name'
 		];
 
@@ -26,7 +32,7 @@ class KeywordApiControllerTest extends TestCase {
 
 		$response->assertStatus(200);
 		$this->assertKeywordStructure($response);
-		$this->assertKeywordData($response, "My Name", Person::getSingleTableType(), Person::getSingleTableType()."_my_name", NULL);
+		$this->assertKeywordData($response, "My Name", 'person', 'person_my_name', NULL);
 	}
 
 	protected function assertKeywordStructure(TestResponse $response) {
@@ -49,7 +55,7 @@ class KeywordApiControllerTest extends TestCase {
 		$method = 'post';
 		$uri    = route('api.v1.keywords.create');
 		$data   = [
-			'type'  => Keyword::getSingleTableType(),
+			'type'  => 'key',
 			'title' => 'My Test'
 		];
 
@@ -57,7 +63,7 @@ class KeywordApiControllerTest extends TestCase {
 
 		$response->assertStatus(200);
 		$this->assertKeywordStructure($response);
-		$this->assertKeywordData($response, "My Test", Keyword::getSingleTableType(), Keyword::getSingleTableType(). "_my_test", NULL);
+		$this->assertKeywordData($response, "My Test", 'key', 'key_my_test', NULL);
 	}
 
 	public function testKeywordCreateKeywordWithoutType() {
@@ -72,10 +78,10 @@ class KeywordApiControllerTest extends TestCase {
 
 		$response->assertStatus(200);
 		$this->assertKeywordStructure($response);
-		$this->assertKeywordData($response, "Some Keyword", Keyword::getSingleTableType(), Keyword::getSingleTableType()."_some_keyword", NULL);
+		$this->assertKeywordData($response, "Some Keyword", 'key', 'key_some_keyword', NULL);
 	}
 
-	public function testKeywordCreatePersonWithoutType() {
+	public function testKeywordCreatePrefixedTitleWithoutType() {
 
 		$method = 'post';
 		$uri    = route('api.v1.keywords.create');
@@ -87,7 +93,7 @@ class KeywordApiControllerTest extends TestCase {
 
 		$response->assertStatus(200);
 		$this->assertKeywordStructure($response);
-		$this->assertKeywordData($response, "Some Person", Person::getSingleTableType(), Person::getSingleTableType()."_some_person", NULL);
+		$this->assertKeywordData($response, "Person: Some Person", 'key', 'key_person_some_person', NULL);
 	}
 
 }

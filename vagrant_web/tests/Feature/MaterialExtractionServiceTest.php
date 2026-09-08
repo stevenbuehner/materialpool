@@ -6,23 +6,23 @@ use App\Models\Material;
 use App\Models\Text;
 use App\Models\User;
 use App\Services\TagExtraction\MaterialExtractionService;
-use Illuminate\Foundation\Testing\DatabaseMigrations;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class MaterialExtractionServiceTest extends TestCase {
 
-	use DatabaseMigrations;
+	use RefreshDatabase;
 
 	/** @var $service MaterialExtractionService */
 	protected $service = NULL;
 
-	public function setUp() {
+	protected function setUp(): void {
 		parent::setUp();
 
 		$this->service = resolve(MaterialExtractionService::class);
 	}
 
-	public function tearDown() {
+	protected function tearDown(): void {
 		parent::tearDown();
 	}
 
@@ -36,10 +36,8 @@ class MaterialExtractionServiceTest extends TestCase {
 		Hallo du!";
 
 		$localPath = config('filesystems.disks.resources.root');
-		$user      = factory(User::class)->create();
-
-		$user = factory(User::class)->create();
-		$text = factory(Text::class)
+		$user = User::factory()->create();
+		$text = Text::factory()
 			->create([
 						 'created_by'  => $user->id,
 						 'is_public'   => FALSE,

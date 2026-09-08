@@ -9,17 +9,16 @@ use App\Models\Resource;
 use App\Models\Text;
 use App\Models\Url;
 use App\Models\User;
-use Illuminate\Foundation\Testing\DatabaseMigrations;
-use Illuminate\Foundation\Testing\TestResponse;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Testing\TestResponse;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use League\Flysystem\Filesystem;
 use Tests\TestCase;
-use function GuzzleHttp\Psr7\mimetype_from_filename;
 
 class ApiResourceControllerTest extends TestCase {
 
-	use DatabaseMigrations, ResourceTrait;
+	use RefreshDatabase, ResourceTrait;
 
 	/** @var  Filesystem $testStorage */
 	protected $testStorage;
@@ -27,7 +26,7 @@ class ApiResourceControllerTest extends TestCase {
 	/** @var  User $testUser */
 	protected $testUser;
 
-	public function setUp() {
+	protected function setUp(): void {
 		parent::setUp();
 
 		Storage::fake(config('app.disks.resources'));
@@ -42,7 +41,7 @@ class ApiResourceControllerTest extends TestCase {
 		$this->assertInstanceOf(User::class, $this->testUser);
 	}
 
-	public function tearDown() {
+	protected function tearDown(): void {
 		parent::tearDown();
 	}
 
@@ -66,7 +65,7 @@ class ApiResourceControllerTest extends TestCase {
 	}
 
 	protected function getUploadedFile($path, $name) {
-		return new UploadedFile($path, $name, mimetype_from_filename($path), filesize($path), NULL, TRUE);
+		return new UploadedFile($path, $name, mime_content_type($path), filesize($path), FALSE, TRUE);
 	}
 
 	protected function uploadFilesSuccessful($data, $isFileResource = TRUE) {
@@ -79,7 +78,7 @@ class ApiResourceControllerTest extends TestCase {
 		$file = $isFileResource ? $data['file'] : NULL;
 
 		$responseData = $response->json();
-		$response->assertStatus(200);
+		$response->assertStatus($isFileResource ? 201 : 200);
 
 		$this->verifyResourceJsonResult($response, $isFileResource);
 
@@ -395,7 +394,7 @@ class ApiResourceControllerTest extends TestCase {
 		$response->assertStatus(200);
 		$this->assertInstanceOf(Resource::class, $response->getOriginalContent());
 		$this->assertNotSame($resource, $response->getOriginalContent());
-		$this->assertEquals($resource->toArray(), $response->getOriginalContent()->toArray());
+		$this->assertEquals($resource->attributesToArray(), $response->getOriginalContent()->attributesToArray());
 
 		// Not allowed to change type
 		$response = $this->put($uri, ['type' => 'test']);
@@ -527,7 +526,7 @@ class ApiResourceControllerTest extends TestCase {
 		$this->verifyResourceJsonResult($response, $isFile = TRUE);
 		$this->assertInstanceOf(ImageFile::class, $response->getOriginalContent());
 		$resource = $resource->fresh();
-		$this->assertEquals($response->getOriginalContent()->toArray(), $resource->toArray());
+		$this->assertEquals($response->getOriginalContent()->attributesToArray(), $resource->attributesToArray());
 
 	}
 
@@ -555,13 +554,13 @@ class ApiResourceControllerTest extends TestCase {
 		$this->verifyResourceJsonResult($response, $isFile = FALSE);
 		$this->assertInstanceOf(Text::class, $response->getOriginalContent());
 		$resource = $resource->fresh();
-		$this->assertEquals($response->getOriginalContent()->toArray(), $resource->toArray());
+		$this->assertEquals($response->getOriginalContent()->attributesToArray(), $resource->attributesToArray());
 	}
 
 	public function testUpdateForbidden() {
 
 		// Resource
-		$resource = Resource::first();
+		$resource = Text::first();
 		$this->assertInstanceOf(Text::class, $resource);
 
 		// Different user than Resource-Owner

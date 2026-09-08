@@ -6,37 +6,30 @@ use App\Models\ImageFile;
 use App\Models\User;
 use App\Services\TagExtraction\ResourceHandles\FileExifHandler;
 use App\Services\TagExtraction\ResourceHandles\FileNameHandler;
-use Illuminate\Foundation\Testing\DatabaseMigrations;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class FileExifHandlerTest extends TestCase {
 
-	use DatabaseMigrations;
+	use RefreshDatabase;
 
 	/** @var $service FileNameHandler */
 	protected $service = NULL;
 
-	public function setUp() {
+	protected function setUp(): void {
 		parent::setUp();
 		$this->service = resolve(FileExifHandler::class);
 
 		Storage::fake(config('app.disks.resources'));
 
-		$localPath = config('filesystems.disks.resources.root');
-		$user      = factory(User::class)->create();
-
-		// Thos would not copy the EXIF-Meta-Data !!!
-		// $canvas = Image::make(__DIR__ . DIRECTORY_SEPARATOR . 'testbild.jpg')->stream();
-		// Storage::disk(config('app.disks.resources'))->put($path = 'testimage.jpg', $canvas);
-
-		$image = Storage::disk('local')->get('tests/testbild.jpg');
+		$image = file_get_contents(base_path('tests/testFiles/Bild.jpg'));
 		Storage::disk(config('app.disks.resources'))->put($path = 'testimage.jpg', $image);
 
 
-		$user  = factory(User::class)->create();
-		$image = factory(ImageFile::class)
+		$user  = User::factory()->create();
+		$image = ImageFile::factory()
 			->create([
 						 'created_by'        => $user->id,
 						 'is_public'         => FALSE,
@@ -44,11 +37,9 @@ class FileExifHandlerTest extends TestCase {
 						 'local_path'        => config('app.disks.resources') . '::' . $path
 					 ]);
 
-		return $image;
-
 	}
 
-	public function tearDown() {
+	protected function tearDown(): void {
 		Storage::disk(config('app.disks.resources'))->delete('testimage.jpg');
 
 		parent::tearDown();

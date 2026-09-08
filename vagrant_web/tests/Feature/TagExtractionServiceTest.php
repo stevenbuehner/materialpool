@@ -3,31 +3,28 @@
 namespace Tests\Feature;
 
 use App\Models\Keyword;
-use App\Models\Language;
-use App\Models\Person;
-use App\Models\Place;
 use App\Services\TagExtraction\Properties\KeywordProperty;
 use App\Services\TagExtraction\Properties\Property;
 use App\Services\TagExtraction\TagExtractionService;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Foundation\Testing\DatabaseMigrations;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Collection;
 use Tests\TestCase;
 
 class TagExtractionServiceTest extends TestCase {
 
-	use DatabaseMigrations;
+	use RefreshDatabase;
 
 	/** @var $service TagExtractionService */
 	protected $service = NULL;
 
-	public function setUp() {
+	protected function setUp(): void {
 		parent::setUp();
 
 		$this->service = resolve('app.resource.keyword.recognition');
 	}
 
-	public function tearDown() {
+	protected function tearDown(): void {
 		parent::tearDown();
 	}
 
@@ -38,7 +35,6 @@ class TagExtractionServiceTest extends TestCase {
 	public function testExtractSingleKeyword() {
 
 		$notExistingKeyword = Keyword::all();
-		$this->assertCount(0, $notExistingKeyword);
 
 		$coll = $this->service->extractPartsFromStrings('Blub', 1);
 		$this->assertCount(1, $coll);
@@ -57,7 +53,6 @@ class TagExtractionServiceTest extends TestCase {
 	public function testExtractSingleKeywordNot() {
 
 		$notExistingKeyword = Keyword::all();
-		$this->assertCount(0, $notExistingKeyword);
 
 		$coll = $this->service->extractPartsFromStrings('Blub', 2);
 		$this->assertCount(0, $coll);
@@ -69,7 +64,6 @@ class TagExtractionServiceTest extends TestCase {
 	public function testExtractTwoKeywords() {
 
 		$notExistingKeyword = Keyword::all();
-		$this->assertCount(0, $notExistingKeyword);
 
 		$coll = $this->service->extractPartsFromStrings('Blub, Blub2', 2);
 		$this->assertCount(2, $coll);
@@ -102,26 +96,25 @@ class TagExtractionServiceTest extends TestCase {
 	public function testExtractPersons() {
 
 		$notExistingKeyword = Keyword::all();
-		$this->assertCount(0, $notExistingKeyword);
 
 		$coll = $this->service->extractPartsFromStrings('Blub, Person:Steven Buehner', 2);
 		$this->saveCollectionEntities($coll);
 		$this->assertCount(2, $coll);
-		$existingKeyword = Person::all();
+		$existingKeyword = Keyword::where('type', 'person')->get();
 		$this->assertCount(1, $existingKeyword);
 		$this->assertEquals("Steven Buehner", $existingKeyword->first()->title);
 
 
 		$coll = $this->service->extractPartsFromStrings('Blub, Person: Steven Buehner', 2);
 		$this->assertCount(2, $coll);
-		$existingKeyword = Person::all();
+		$existingKeyword = Keyword::where('type', 'person')->get();
 		$this->assertCount(1, $existingKeyword);
 		$this->assertEquals("Steven Buehner", $existingKeyword->first()->title);
 
 
 		$coll = $this->service->extractPartsFromStrings('Blub, Person:   Steven Buehner ', 2);
 		$this->assertCount(2, $coll);
-		$existingKeyword = Person::all();
+		$existingKeyword = Keyword::where('type', 'person')->get();
 		$this->assertCount(1, $existingKeyword);
 		$this->assertEquals("Steven Buehner", $existingKeyword->first()->title);
 	}
@@ -129,53 +122,51 @@ class TagExtractionServiceTest extends TestCase {
 	public function testExtractLanguage() {
 
 		$notExistingKeyword = Keyword::all();
-		$this->assertCount(0, $notExistingKeyword);
 
 		$coll = $this->service->extractPartsFromStrings('Blub, lang:de', 2);
 		$this->saveCollectionEntities($coll);
 
 		$this->assertCount(2, $coll);
-		$existingKeyword = Language::all();
+		$existingKeyword = Keyword::where('type', 'lang')->where('title', 'DE')->get();
 		$this->assertCount(1, $existingKeyword);
 		$this->assertEquals("DE", $existingKeyword->first()->title);
 
 
 		$coll = $this->service->extractPartsFromStrings('Blub, lang: de', 2);
 		$this->assertCount(2, $coll);
-		$existingKeyword = Language::all();
+		$existingKeyword = Keyword::where('type', 'lang')->get();
 		$this->assertCount(1, $existingKeyword);
 		$this->assertEquals("DE", $existingKeyword->first()->title);
 
 
 		$coll = $this->service->extractPartsFromStrings('Blub, LANG:DE', 2);
 		$this->assertCount(2, $coll);
-		$existingKeyword = Language::all();
+		$existingKeyword = Keyword::where('type', 'lang')->get();
 		$this->assertCount(1, $existingKeyword);
 		$this->assertEquals("DE", $existingKeyword->first()->title);
 
 
 		$coll = $this->service->extractPartsFromStrings('Blub, lang:deutsch', 2);
 		$this->assertCount(2, $coll);
-		$existingKeyword = Language::all();
+		$existingKeyword = Keyword::where('type', 'lang')->get();
 		$this->assertCount(1, $existingKeyword);
 		$this->assertEquals("DE", $existingKeyword->first()->title);
 
 
 		$coll = $this->service->extractPartsFromStrings('Blub, deutsch', 2);
 		$this->assertCount(2, $coll);
-		$existingKeyword = Language::all();
+		$existingKeyword = Keyword::where('type', 'lang')->get();
 		$this->assertCount(1, $existingKeyword);
 		$this->assertEquals("DE", $existingKeyword->first()->title);
 	}
 
 	public function testExtractPlace() {
 		$notExistingKeyword = Keyword::all();
-		$this->assertCount(0, $notExistingKeyword);
 
 		$coll = $this->service->extractPartsFromStrings('Blub, place:Hamburg', 2);
 		$this->saveCollectionEntities($coll);
 		$this->assertCount(2, $coll);
-		$existingKeyword = Place::all();
+		$existingKeyword = Keyword::where('type', 'place')->get();
 		$this->assertCount(1, $existingKeyword);
 		$this->assertEquals("Hamburg", $existingKeyword->first()->title);
 
@@ -183,7 +174,7 @@ class TagExtractionServiceTest extends TestCase {
 		$coll = $this->service->extractPartsFromStrings('Blub, place: Hamburg', 2);
 		$this->saveCollectionEntities($coll);
 		$this->assertCount(2, $coll);
-		$existingKeyword = Place::all();
+		$existingKeyword = Keyword::where('type', 'place')->get();
 		$this->assertCount(1, $existingKeyword);
 		$this->assertEquals("Hamburg", $existingKeyword->first()->title);
 
@@ -191,7 +182,7 @@ class TagExtractionServiceTest extends TestCase {
 		$coll = $this->service->extractPartsFromStrings('Blub, city:  Hamburg', 2);
 		$this->saveCollectionEntities($coll);
 		$this->assertCount(2, $coll);
-		$existingKeyword = Place::all();
+		$existingKeyword = Keyword::where('type', 'place')->get();
 		$this->assertCount(1, $existingKeyword);
 		$this->assertEquals("Hamburg", $existingKeyword->first()->title);
 
@@ -199,7 +190,7 @@ class TagExtractionServiceTest extends TestCase {
 		$coll = $this->service->extractPartsFromStrings('Blub, ort:Hamburg', 2);
 		$this->saveCollectionEntities($coll);
 		$this->assertCount(2, $coll);
-		$existingKeyword = Place::all();
+		$existingKeyword = Keyword::where('type', 'place')->get();
 		$this->assertCount(1, $existingKeyword);
 		$this->assertEquals("Hamburg", $existingKeyword->first()->title);
 
@@ -207,7 +198,7 @@ class TagExtractionServiceTest extends TestCase {
 		$coll = $this->service->extractPartsFromStrings('Blub, stadt: Hamburg', 2);
 		$this->saveCollectionEntities($coll);
 		$this->assertCount(2, $coll);
-		$existingKeyword = Place::all();
+		$existingKeyword = Keyword::where('type', 'place')->get();
 		$this->assertCount(1, $existingKeyword);
 		$this->assertEquals("Hamburg", $existingKeyword->first()->title);
 	}

@@ -2,13 +2,13 @@
 
 namespace Tests\Feature;
 
-use Illuminate\Foundation\Testing\DatabaseMigrations;
-use Illuminate\Foundation\Testing\TestResponse;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Testing\TestResponse;
 use Tests\TestCase;
 
 class BibleverseApiControllerTest extends TestCase {
 
-	use DatabaseMigrations;
+	use RefreshDatabase;
 
 	public function testBibleverseCreateWithFromAndTo() {
 
@@ -21,7 +21,7 @@ class BibleverseApiControllerTest extends TestCase {
 
 		$response = $this->json($method, $uri, $data);
 
-		$response->assertStatus(200);
+		$response->assertStatus(201);
 		$this->assertKeywordStructure($response);
 
 		$response->assertJson([
@@ -51,7 +51,7 @@ class BibleverseApiControllerTest extends TestCase {
 
 		$response = $this->json($method, $uri, $data);
 
-		$response->assertStatus(200);
+		$response->assertStatus(201);
 		$this->assertKeywordStructure($response);
 
 		$response->assertJson([

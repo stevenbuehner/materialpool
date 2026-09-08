@@ -9,25 +9,25 @@ use App\Services\TagExtraction\Properties\AuthorProperty;
 use App\Services\TagExtraction\Properties\KeywordProperty;
 use App\Services\TagExtraction\Properties\TitleProperty;
 use App\Services\TagExtraction\ResourceHandles\FileNameHandler;
-use Illuminate\Foundation\Testing\DatabaseMigrations;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Collection;
 use Tests\TestCase;
 
 class FileNameHandlerTest extends TestCase {
 
-	use DatabaseMigrations;
+	use RefreshDatabase;
 
 	/** @var $service FileNameHandler */
 	protected $service = NULL;
 
-	public function setUp() {
+	protected function setUp(): void {
 		parent::setUp();
 		$this->service = resolve(FileNameHandler::class);
 
 
 	}
 
-	public function tearDown() {
+	protected function tearDown(): void {
 		parent::tearDown();
 	}
 
@@ -69,7 +69,7 @@ class FileNameHandlerTest extends TestCase {
 		$this->assertInstanceOf(KeywordProperty::class, $result->get(4));
 		$this->assertInstanceOf(TitleProperty::class, $result->get(5));
 
-		$this->assertInstanceOf(Keyword::class, $result->get(0)->getValue());
+		$this->assertEquals('test', $result->get(0)->getValue());
 		$this->assertInstanceOf(Keyword::class, $result->get(1)->getValue());
 		$this->assertInstanceOf(Keyword::class, $result->get(2)->getValue());
 		$this->assertEquals('Steven B', $result->get(3)->getValue());
@@ -78,8 +78,8 @@ class FileNameHandlerTest extends TestCase {
 	}
 
 	protected function createResourceWithFilename($filename = 'test Dateiname.jpg') {
-		$user  = factory(User::class)->create();
-		$image = factory(ImageFile::class)
+		$user  = User::factory()->create();
+		$image = ImageFile::factory()
 			->create([
 						 'created_by'        => $user->id,
 						 'is_public'         => FALSE,

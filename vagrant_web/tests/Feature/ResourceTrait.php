@@ -3,7 +3,6 @@
 namespace Tests\Feature;
 
 
-use App\Listeners\UpdateResourceHashes;
 use App\Models\ImageFile;
 use App\Models\Keyword;
 use App\Models\Material;
@@ -13,6 +12,7 @@ use App\Models\User;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\UploadedFile;
 use Laravel\Passport\Passport;
+use Database\Seeders\ResourceSeeder;
 
 Trait ResourceTrait {
 
@@ -32,43 +32,41 @@ Trait ResourceTrait {
 
 		/** @var Collection $resourceInstances */
 		/** @var Collection $users */
-		$users    = factory(User::class, 3)->create();
-		$keywords = factory(Keyword::class, 5)->create();
+		$users    = User::factory()->count(3)->create();
+		$keywords = Keyword::factory()->count(5)->create();
 
-		factory(Text::class, 2)
+		Text::factory()->count(2)
 			->create([
 						 'created_by' => $users->offsetGet(0)->first()->id
 					 ])
 			->each(function (Resource $r) use ($tesKw, $users) {
 				/** @var Material $material */
-				$material = \ResourceSeeder::makeMaterialWithUserId($users->offsetGet(0)->id);
+				$material = ResourceSeeder::makeMaterialWithUserId($users->offsetGet(0)->id);
 				$material->save();
 				$material->keywords()->save($tesKw);
 				$r->materials()->save($material);
 
-				\ResourceSeeder::addRandomMaterialUid($material, $material->creator);
-				\ResourceSeeder::addRandomResourceUid($r, $material->creator);
+				ResourceSeeder::addRandomMaterialUid($material, $material->creator);
+				ResourceSeeder::addRandomResourceUid($r, $material->creator);
 
-				UpdateResourceHashes::dispatch($r);
 			});
 
-		factory(ImageFile::class, 5)
+		ImageFile::factory()->count(5)
 			->create([
 						 'created_by' => $users->offsetGet(1)->id
 					 ])
 			->each(function ($r) use ($tesKw, $keywords, $users) {
 				/** @var Material $material */
 				/** @var Material $material */
-				$material = \ResourceSeeder::makeMaterialWithUserId($users->offsetGet(1)->id);
+				$material = ResourceSeeder::makeMaterialWithUserId($users->offsetGet(1)->id);
 				$material->save();
 				$material->keywords()->save($tesKw, ['relevance' => rand(0, 255)]);
 				$material->keywords()->attach($keywords->pluck('id'));
 				$r->materials()->save($material);
 
-				\ResourceSeeder::addRandomMaterialUid($material, $material->creator);
-				\ResourceSeeder::addRandomResourceUid($r, $material->creator);
+				ResourceSeeder::addRandomMaterialUid($material, $material->creator);
+				ResourceSeeder::addRandomResourceUid($r, $material->creator);
 
-				UpdateResourceHashes::dispatch($r);
 			});
 	}
 
