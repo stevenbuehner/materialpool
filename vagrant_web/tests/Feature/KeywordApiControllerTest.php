@@ -96,4 +96,99 @@ class KeywordApiControllerTest extends TestCase {
 		$this->assertKeywordData($response, "Person: Some Person", 'key', 'key_person_some_person', NULL);
 	}
 
+	public function testKeywordIndexUsesNestedSetPreorder() {
+		$root = $this->createRoot('Root');
+		$first = $this->createChild('First', $root);
+		$this->createChild('Leaf', $first);
+		$this->createChild('Second', $root);
+		$this->createRoot('Other root');
+
+		$response = $this->getJson(route('api.v1.keywords.index'));
+
+		$response->assertOk();
+		$this->assertSame(
+			['Deutsch', 'Englisch', 'Französisch', 'Root', 'First', 'Leaf', 'Second', 'Other root'],
+			array_column($response->json('data'), 'title')
+		);
+	}
+
+	public function testKeywordShowExposesOrderedAncestorsAndDescendantsWithoutBoundaries() {
+		$root = $this->createRoot('Root');
+		$branch = $this->createChild('Branch', $root);
+		$leaf = $this->createChild('Leaf', $branch);
+		$this->createChild('Sibling', $root);
+
+		$response = $this->getJson(route('api.v1.keywords.show', $branch));
+
+		$response->assertOk()->assertJsonPath('id', $branch->id);
+		$this->assertSame([$root->id], array_column($response->json('ancestors'), 'id'));
+		$this->assertSame([$leaf->id], array_column($response->json('descendants'), 'id'));
+		$this->assertArrayNotHasKey('_lft', $response->json());
+		$this->assertArrayNotHasKey('_rgt', $response->json());
+	}
+
+	public function testKeywordUpdateMovesACompleteSubtreeToTheRequestedParent() {
+		$firstRoot = $this->createRoot('First root');
+		$secondRoot = $this->createRoot('Second root');
+		$branch = $this->createChild('Branch', $firstRoot);
+		$leaf = $this->createChild('Leaf', $branch);
+
+		$response = $this->putJson(route('api.v1.keywords.update', $branch), [
+			'parent_id' => $secondRoot->id,
+		]);
+
+		$response->assertOk()->assertJsonPath('parent_id', $secondRoot->id);
+		$this->assertSame([], $firstRoot->fresh()->descendants()->pluck('id')->all());
+		$this->assertSame(
+			[$branch->id, $leaf->id],
+			$secondRoot->fresh()->descendants()->defaultOrder()->pluck('id')->all()
+		);
+		$this->assertFalse(Keyword::query()->isBroken());
+	}
+
+	public function testKeywordUpdateWithNullParentPromotesTheCompleteSubtreeToARoot() {
+		$root = $this->createRoot('Root');
+		$branch = $this->createChild('Branch', $root);
+		$leaf = $this->createChild('Leaf', $branch);
+
+		$response = $this->putJson(route('api.v1.keywords.update', $branch), [
+			'parent_id' => null,
+		]);
+
+		$response->assertOk()->assertJsonPath('parent_id', null);
+		$this->assertSame([], $root->fresh()->descendants()->pluck('id')->all());
+		$this->assertSame([$leaf->id], $branch->fresh()->descendants()->pluck('id')->all());
+		$this->assertFalse(Keyword::query()->isBroken());
+	}
+
+	public function testRelationsCountDistinguishesDirectChildrenAndAllDescendants() {
+		$root = $this->createRoot('Root');
+		$branch = $this->createChild('Branch', $root);
+		$this->createChild('Leaf', $branch);
+		$this->createChild('Second', $root);
+
+		$response = $this->getJson(route('api.v1.keywords.relations_count', $root));
+
+		$response->assertOk()->assertExactJson([
+			'materials_count' => 0,
+			'material_authors_count' => 0,
+			'children_count' => 2,
+			'descendants_count' => 3,
+		]);
+	}
+
+	private function createRoot(string $title, string $type = 'key'): Keyword {
+		$keyword = new Keyword(['title' => $title, 'type' => $type]);
+		$keyword->saveAsRoot();
+
+		return $keyword->fresh();
+	}
+
+	private function createChild(string $title, Keyword $parent, string $type = 'key'): Keyword {
+		$keyword = new Keyword(['title' => $title, 'type' => $type]);
+		$keyword->appendToNode($parent)->save();
+
+		return $keyword->fresh();
+	}
+
 }
