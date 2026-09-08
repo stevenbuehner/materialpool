@@ -1,0 +1,40 @@
+# Bestehendes UI- und Designsystem
+
+## Grundsatz
+
+Die Oberfläche ist eine funktionale, informationsdichte Vue-2-Anwendung. Ihr Bestandsschutz beruht auf **Bootstrap 4**, **Bootstrap-Vue**, Sass-Variablen und wiederverwendbaren Vue-Komponenten. Neue Oberflächen müssen sich einfügen, nicht ein neues Designsystem begründen.
+
+## Bausteine und Struktur
+
+- Der Einstieg `App.vue` besteht aus Hauptnavigation, globalen Flash-Meldungen und Router-Inhalt. Der Inhaltsbereich hat einen festen oberen Abstand für die Navigation.
+- Seiten liegen unter `resources/js/apps/main/pages/`; wiederkehrende Fachbausteine unter `resources/js/components/`.
+- Vuex-Module sind die gemeinsame Datenquelle. Komponenten sollen vorhandene Store- und API-Muster verwenden statt parallele Zustände oder direkte, uneinheitliche HTTP-Zugriffe einzuführen.
+- Der Router nutzt HTML5-History mit Basis `/vue`; Pfad- und Alias-Konventionen respektieren.
+
+## Gestaltungstoken
+
+Die zentralen Sass-Regeln liegen in `resources/sass/theme.scss` und `resources/sass/main.scss`:
+
+- Bootstrap-Farbpalette und deren jeweils leicht abgedunkelte Hover-Variante verwenden.
+- Raleway ist die globale Schriftfamilie.
+- Tags: grauer Hintergrund, weiße Schrift; Relevanz grün, beim Ziehen orange.
+- Nicht gespeicherte Sidebar-Werte sind hellrot hinterlegt und stärker umrandet. Diese Statussemantik beibehalten.
+- Eingaben und Sidebar-Felder verwenden die bestehenden Abstände, Farben und Aktiv-/Deaktiviert-Zustände.
+
+Keine eigenen Hex-Farben, Schatten, Abstände oder UI-Bibliotheken einführen, wenn ein vorhandenes Bootstrap-/Sass-Token oder eine bestehende Komponente passt.
+
+## Interaktion und Zugänglichkeit
+
+- Bestehende Bootstrap-Vue-Controls, Dialoge, Spinner, Flash-Meldungen und Ladezustände wiederverwenden.
+- Jede neue Interaktion benötigt verständliche Erfolg-/Fehlermeldungen, Tastaturbedienbarkeit, sichtbaren Fokus, ausreichenden Kontrast und einen Lade-/Deaktiviert-Zustand.
+- Responsive Verhalten an kleinen und großen Viewports mit den vorhandenen Bootstrap-Breakpoints prüfen.
+- Icons aus dem vorhandenen Bestand nutzen und deren Lizenzdateien respektieren.
+- Anzeige- und Fehlermeldetexte über `resources/lang/` führen, insbesondere `resources/lang/de/pool.php`; neue Texte nicht nur in Komponenten hardcodieren.
+
+## Entscheidungspflicht bei UI
+
+Vor einer sichtbaren Veränderung an Layout, Navigation, Farbe, Typografie, Seitenstruktur, neuen Komponentenmustern oder Interaktionsabläufen:
+
+1. Das bestehende Muster und die betroffenen Nutzerabläufe benennen.
+2. Eine Empfehlung und mindestens eine Alternative mit Vor-/Nachteilen anbieten.
+3. Erst nach Freigabe umsetzen.
