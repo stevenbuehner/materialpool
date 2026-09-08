@@ -1,0 +1,188 @@
+# Verbindlicher Upgradevertrag: Laravel 8 auf Laravel 13
+
+## Status und Auftrag
+
+Dieser Vertrag ist die verbindliche Arbeitsgrundlage für P1. Ziel ist Laravel 13 auf PHP 8.4 mit aktualisierten Composer-Abhängigkeiten. Die Umstellung erfolgt in überprüfbaren Hauptversionsschritten. Das bestehende Vue-2-Frontend wird nicht modernisiert und seine Paketdefinitionen, sein Buildsystem sowie sein sichtbares Verhalten bleiben unangetastet, soweit eine Backend-Kompatibilitätsanpassung dies nicht zwingend erfordert.
+
+Der Vertrag autorisiert die nachfolgend ausdrücklich beschriebenen Paket- und Laufzeitänderungen. Er autorisiert keine Änderung fachlicher Verträge, produktiver Daten, Datenbankstrukturen, Berechtigungen, API-Payloads, Speicherorte oder Frontendgestaltung. Wird eine solche Änderung technisch unvermeidbar, endet die Autorisierung an dieser Stelle und es ist vor der Umsetzung eine neue Entscheidung nach `docs/ai/decision-template.md` einzuholen.
+
+## Verbindliche Zielentscheidungen
+
+| Thema | Verbindliche Entscheidung | Begründung und Begrenzung |
+| --- | --- | --- |
+| PHP | Zielversion PHP 8.4 | Laravel 13 unterstützt PHP 8.3 bis 8.5; PHP 8.4 erfüllt zugleich die Anforderung von `spatie/laravel-backup` 10 und bietet mehr Bibliotheksreserve als 8.3. |
+| Laravel | Laravel 9 → 10 → 11 → 12 → 13 | Jeder Hauptversionsschritt erhält einen eigenen grünen Prüfpunkt. Zwischenstände sind technische Checkpoints, keine produktiven Releases. |
+| Anwendungsstruktur | Bestehende klassische Laravel-Struktur beibehalten | Die Anwendung wird nicht auf die schlanke Laravel-11+-Skeleton-Struktur umgebaut. Provider, Kernel und Konfigurationsdateien bleiben explizit. |
+| OAuth | Laravel Passport beibehalten und auf Version 13 aktualisieren | Kein Wechsel zu Sanctum; OAuth-Clients, Tokens, Scopes, Keys, Guards und Statuscodes bleiben kompatibel. |
+| Resource-STI | `nanigans/single-table-inheritance` durch `tightenco/parental` `^1.6` ersetzen | Der nicht zukunftsfähige STI-Treiber wird ersetzt. Gespeicherte `type`-Werte, Modellklassen, Hydrierung und JSON bleiben identisch. |
+| Nested Sets | `kalnoy/nestedset` auf die Laravel-13-kompatible Hauptversion 7 aktualisieren | Das aktuelle Baumverhalten ist durch `KeywordNestedSetTest` und `KeywordApiControllerTest` verbindlich eingefroren. Keine Reparatur oder Neuordnung produktiver Bäume im Rahmen des Upgrades. |
+| Eigenes Bible-Paket | Einen stabilen, unveränderlichen Release-Tag statt `dev-develop` verwenden | Vor Nutzung muss der Tag Laravel 13/PHP 8.4 unterstützen und die heute importierten PHP- und JavaScript-Exports bereitstellen. Kein bewegliches Branch-Ziel im finalen Lockfile. |
+| Frontend | Vue 2, Vue Router 3, Vuex 3, Bootstrap 4, Bootstrap-Vue, Laravel Mix/Webpack und beide npm-Lock-/Manifestverträge bleiben unverändert | `laravel/ui` darf auf `^4.0` aktualisiert werden, aber es wird kein Scaffolding-Befehl ausgeführt. Änderungen unter `resources/js`, `resources/sass`, `package.json` oder `package-lock.json` sind nicht Teil von P1. |
+| Stability | Finale Composer-Konfiguration verwendet stabile Releases | `minimum-stability: dev` wird entfernt oder auf `stable` gesetzt. Verbleibende Dev-Abhängigkeiten sind nicht zulässig. |
+
+## Unveränderliche Produktverträge
+
+Die folgenden Punkte sind harte Abnahmekriterien. Eine Abweichung ist kein „Upgrade-Fix“, sondern eine gesondert freizugebende Produktänderung.
+
+### API, Authentifizierung und Sicherheit
+
+- Alle bestehenden Web-, API-v1- und API-v2-Routen, HTTP-Methoden, Routennamen, Middleware-Anforderungen, Statuscodes und JSON-Strukturen bleiben erhalten.
+- Passport bleibt der `api`-Guard. Bestehende OAuth-Clients, Access-/Refresh-Tokens, Scopes und Schlüssel bleiben nutzbar.
+- `User`, Policies, Gates, Rollen, Eigentümerschaft, `is_public` und Sichtbarkeitsregeln behalten ihre Semantik.
+- Die für Passport 13 erforderliche Modellanpassung auf `OAuthenticatable` ist erlaubt, sofern die beschriebenen Verträge durch Tests nachgewiesen unverändert bleiben.
+- Der Wechsel des Framework-CSRF-Middleware-Namens darf nur als kompatible Klassenanpassung erfolgen; Ausnahmen, geschützte Routen und Fehlerverhalten bleiben gleich.
+
+### Datenmodell und Serialisierung
+
+- Bestehende Tabellen, Spalten, Indizes, Primärschlüssel und historische Migrationen werden nicht geändert.
+- Bestehende Migrationen werden niemals umgeschrieben. Eine neue Schema- oder Datenmigration ist in P1 nicht autorisiert und erfordert eine separate Entscheidung.
+- Resource-STI behält alle vorhandenen Kurzcodes und Zuordnungen, insbesondere `res`, `link`, `file`, `text`, `book` sowie die Datei-Untertypen.
+- `MaterialResource.limitation`, Keyword-/Bibleverse-`relevance`, `options`, Zeitstempel und alle bisher serialisierten Werte bleiben les- und schreibkompatibel.
+- Laravel-13-Härtungen für Cache-Serialisierung werden explizit konfiguriert und getestet. Bestehende erlaubte Anwendungsobjekte dürfen nicht stillschweigend unlesbar werden.
+- Die Session-Serialisierung bleibt zunächst PHP-kompatibel. Eine spätere Umstellung auf JSON ist ein separater, geplanter Session-Cutover und nicht Teil dieses Upgrades.
+- Explizite Session-Cookie- und Cache-Prefix-Werte bleiben erhalten, damit keine ungewollte Namespace-Änderung entsteht.
+
+### Verbindlicher Nested-Set-Vertrag
+
+- `keywords` bleibt ein gemeinsamer, nicht nach `type` gescopter Forest mit den Typen `key`, `person`, `place` und `lang`.
+- `_lft`, `_rgt` und `parent_id` bleiben strukturell konsistent; `Keyword::query()->isBroken()` muss nach jeder geprüften Mutation `false` liefern.
+- Die historischen Sprachknoten `Deutsch`, `Englisch` und `Französisch` bleiben Root-Knoten in ihrer bisherigen Reihenfolge.
+- `defaultOrder()` liefert Preorder. `ancestors`, `descendants`, `children`, `siblings`, `withDepth` und `descendantsAndSelf` behalten Umfang und Reihenfolge.
+- Das Setzen von `parent_id`, `appendToNode`, `prependToNode`, relative Einfügungen und `saveAsRoot` behalten die nachgewiesene Teilbaumsemantik.
+- Ein Knoten darf nie unter sich selbst oder einem eigenen Nachfahren platziert werden; der Fehler darf keinen teilweise veränderten Baum hinterlassen.
+- Die Suche nach einem Parent-Keyword umfasst direkt und indirekt verschlagwortete Materialien sowie Autoren im Teilbaum, aber keine Geschwisterzweige.
+- `descendantMaterials()` umfasst den Knoten selbst und alle Tiefen, liefert Materialien trotz mehrerer Treffer nur einmal und schließt fremde Zweige aus.
+- Beim Keyword-Merge gehen Kinder, Materialbeziehungen mit `relevance` und Autorenbeziehungen auf den überlebenden Knoten über.
+- „Löschen ohne Kinder“ hebt direkte Kinder unter Beibehaltung ihrer Teilbäume auf die Ebene des gelöschten Knotens. Die heute nachgewiesene Reihenfolge mehrerer gehobener Kinder wird beibehalten.
+- „Löschen mit Kindern“ entfernt ausschließlich den vollständigen gewählten Teilbaum.
+- `_lft` und `_rgt` bleiben in JSON verborgen; `parent_id` und explizit geladene Baumrelationen bleiben sichtbar.
+
+Diese Semantik ist in `tests/Feature/KeywordNestedSetTest.php` und den erweiterten Fällen in `tests/Feature/KeywordApiControllerTest.php` ausführbar festgeschrieben. Eine Anpassung der Tests an ein abweichendes Verhalten einer neuen Paketversion ist unzulässig, solange nicht zuvor eine fachliche Änderung freigegeben wurde.
+
+### Dateien, Events und asynchrone Verarbeitung
+
+- `resources.local_path` bleibt im Format `disk::relative/path` les- und schreibkompatibel.
+- Die Disks `resources`, `archive`, `bundles`, `local_tmp`, `backup` und `testfiles` behalten Zweck, Sichtbarkeit und Pfadsemantik.
+- Upload, Download, Archivierung, Löschung, Hashing, Metadaten, Vorschauerzeugung und Cache-Invalidierung bleiben erhalten.
+- Material-/Resource-Events, Listener, Jobs, Retry-Verhalten und Queue-Namen bleiben erhalten; insbesondere bleiben bundle-spezifische Queues `bundle_{id}_queue` kompatibel.
+- Der Wechsel von Flysystem 1 auf 3 ersetzt interne Adapterzugriffe durch öffentliche APIs, ohne gespeicherte Pfade oder Dateioperationen zu verändern.
+
+## Composer-Zielbild
+
+Folgende Ziel-Hauptversionen sind vereinbart. Innerhalb dieser Grenzen wird pro Upgrade-Schritt die neueste stabile, mit der jeweiligen Laravel-/PHP-Version kompatible Version gelockt.
+
+| Paket/Bereich | Ziel oder Aktion |
+| --- | --- |
+| `php` | `^8.4` |
+| `laravel/framework` | `^13.0` |
+| `laravel/passport` | `^13.0` |
+| `laravel/tinker` | `^3.0` |
+| `laravel/ui` | `^4.0`, ohne Scaffolding |
+| `kalnoy/nestedset` | `^7.0` |
+| `nanigans/single-table-inheritance` | entfernen |
+| `tightenco/parental` | `^1.6` hinzufügen |
+| `spatie/laravel-backup` | `^10.0` |
+| `phpunit/phpunit` | `^12.0` im Laravel-13-Endstand |
+| `fzaninotto/faker` | durch `fakerphp/faker` ersetzen |
+| `facade/ignition` | durch die kompatible stabile `spatie/laravel-ignition`-Version ersetzen |
+| `barryvdh/laravel-debugbar` | durch `fruitcake/laravel-debugbar` `^4.0` ersetzen |
+| `barryvdh/laravel-ide-helper` | kompatible stabile 3.x-Version |
+| `mariuzzo/laravel-js-localization` | kompatible stabile 2.x-Version; generierte JS-Schnittstelle muss gleich bleiben |
+| Sail, Collision, Mockery | jeweils neueste stabile Version, die Laravel 13, PHP 8.4 und PHPUnit 12 gemeinsam unterstützt |
+| `stevenbuehner/bible-verse-bundle` | freigegebener stabiler Release-Tag mit PHP-8.4-/Laravel-13-Kompatibilität |
+
+Medien- und Konvertierungsbibliotheken (`intervention/image`, EXIF/ExifTool, FFmpeg, FPDI/FPDF, PDF-to-text und Office-Konvertierung) werden auf die jeweils neueste stabile PHP-8.4-kompatible Version aktualisiert, soweit ihre bestehende öffentliche API erhalten bleibt. Ein API-brechender Wechsel – insbesondere Intervention Image 2 auf 3 – wird als separates Backend-Teilprojekt behandelt und nur dann in P1 aufgenommen, wenn Laravel 13/PHP 8.4 sonst nicht erreichbar ist. In diesem Fall ist vor der Umsetzung eine neue Entscheidung mit Migrations- und Rückbauplan erforderlich.
+
+`howtomakeaturn/pdfinfo` ist nach aktueller statischer Analyse nicht im Anwendungscode referenziert. Seine Entfernung ist erst nach Composer-/Autoload-Laufzeitanalyse zulässig; wird eine indirekte Nutzung gefunden, bleibt es auf einer kompatiblen stabilen Version. Das Entfernen anderer vermeintlich ungenutzter Pakete ist nicht durch diesen Vertrag autorisiert.
+
+## Verbindliche Reihenfolge
+
+### Stufe 0 – Charakterisierung und reproduzierbare Basis
+
+1. Die vollständige Laravel-8-Suite muss einschließlich der neuen Nested-Set-Tests grün sein.
+2. Ergänzt werden noch fehlende Charakterisierungstests für Resource-STI, Passport, relevante serialisierte Pivot-/Cachewerte, Storage/Archiv, Queue-Namen, Bundle-Paketintegration und Backup-Konfiguration, bevor der jeweils betroffene Code geändert wird.
+3. `route:list`, relevante API-Beispielantworten und Composer-Paketstand werden als maschinenlesbare oder testbare Referenz erfasst, ohne reale Daten oder Secrets zu speichern.
+4. Der stabile Tag des Bible-Pakets wird erstellt beziehungsweise als installierbarer Tag benannt und zunächst gegen den bestehenden Stand geprüft.
+
+### Stufe 1 – Laravel 9
+
+- PHP-Laufzeit mindestens 8.0.2, bevorzugt 8.1 für diesen Checkpoint.
+- Framework und kompatible Pakete auf Laravel 9 anheben.
+- Flysystem 3 und Symfony Mailer kompatibel umstellen.
+- `facade/ignition` durch `spatie/laravel-ignition` ersetzen.
+- Keine fachlichen oder Frontendänderungen.
+
+### Stufe 2 – Laravel 10
+
+- PHP mindestens 8.1.
+- Framework und direkte Composer-Abhängigkeiten auf Laravel-10-kompatible stabile Versionen anheben.
+- Monolog-3-, Signatur- und Rückgabetypanpassungen ausschließlich verhaltensneutral durchführen.
+
+### Stufe 3 – Laravel 11
+
+- PHP mindestens 8.2.
+- Klassische Anwendungsstruktur beibehalten.
+- Authentifizierung, Queues, Scheduling, Mail und Carbon-Verhalten gegen die Charakterisierungstests prüfen.
+
+### Stufe 4 – Laravel 12
+
+- Zielruntime PHP 8.4 herstellen.
+- Carbon 3 und PHPUnit 11 einführen.
+- Backup-Paket samt veröffentlichter Konfiguration kontrolliert auf die kompatible Hauptversion migrieren.
+- Veraltete Framework- und Test-APIs beseitigen, ohne Verträge zu ändern.
+
+### Stufe 5 – Laravel 13
+
+- `laravel/framework ^13.0`, `laravel/tinker ^3.0`, PHPUnit 12 und alle finalen Paketziele locken.
+- Passport 13 einschließlich `OAuthenticatable` integrieren.
+- CSRF-Middleware-Namenswechsel kompatibel umsetzen.
+- Cache- und Session-Serialisierung sowie Prefix-Kontinuität explizit konfigurieren und testen.
+- Parental-STI und Nestedset 7 anhand ihrer vollständigen Vertragsgruppen abnehmen.
+- `minimum-stability` auf stabile Releases begrenzen und bewegliche Branch-Abhängigkeiten entfernen.
+
+## Quality Gates je Hauptversionsschritt
+
+Ein Schritt darf erst begonnen werden, wenn der vorherige vollständig grün ist. Ein fehlgeschlagenes Gate wird repariert oder der Schritt wird auf seinen letzten grünen Commit zurückgesetzt; Tests dürfen nicht abgeschwächt werden, um neue Paketsemantik zu akzeptieren.
+
+1. `composer validate --strict` und ein reproduzierbarer Lockfile-Aufbau.
+2. `composer audit`; offene Findings werden dokumentiert und sicherheitskritische Findings blockieren den Schritt.
+3. PHP-Syntaxprüfung aller geänderten PHP-Dateien.
+4. Vollständige PHPUnit-Suite gegen die dedizierte MySQL-Datenbank `testing`.
+5. Nested-Set-Vertragsgruppe separat; zusätzlich `countErrors()` und `isBroken()` nach allen Mutationsszenarien.
+6. Frische Datenbank aus allen historischen Migrationen sowie Upgrade einer Datenbankkopie mit realistischer Struktur; niemals gegen Produktionsdaten.
+7. API-v1/v2- und Passport-Prüfungen: unauthentifiziert, authentifiziert, erlaubt, verboten sowie Token-/Client-Kontinuität.
+8. Resource-STI für jeden gespeicherten Typ und Untertyp: Erzeugung, Hydrierung, Relation und JSON.
+9. Material-, Resource-, Keyword- und Bibleverse-Pivots einschließlich `limitation` und `relevance`.
+10. Upload, Lesen, Vorschau, Archivieren und Löschen repräsentativer Dateiarten auf gefakten beziehungsweise isolierten Test-Disks.
+11. Events, Listener, synchrone Testjobs, Queue-Namen und Bundle-Jobreihenfolge.
+12. Backup-Erzeugung und testweiser Restore in eine isolierte temporäre Umgebung.
+13. `npm ci` und bestehender Production-Build als Kompatibilitätsprüfung. Dabei dürfen `package.json`, `package-lock.json` und sichtbare Frontend-Artefakte nicht unbeabsichtigt geändert werden.
+14. Prüfung, dass Entwicklungsdatenbank, reguläre Storage-Dateien und Archive unverändert geblieben sind.
+
+## Commit-, Rückbau- und Abnahmeregeln
+
+- Charakterisierungstests werden vor dem ersten Dependency-Upgrade separat committed.
+- Jeder Laravel-Hauptversionsschritt besteht aus einem eigenen, reviewbaren Commit oder einer kleinen zusammenhängenden Commitserie und endet mit einem dokumentierten grünen Gate.
+- Das `composer.lock` wird pro Schritt vollständig geprüft; unerklärte transitive Major-Upgrades blockieren die Abnahme.
+- Der Rückbau erfolgt auf den letzten grünen Hauptversions-Checkpoint. Datenbank-Rückbau ist nicht vorgesehen, weil P1 keine Schema- oder Datenänderung autorisiert.
+- Laravel 13 ist erst abgenommen, wenn ein kalter Sail-Start, eine frische Installation aus Lockfiles, die vollständige Suite, alle Spezial-Gates und der bestehende Frontend-Build erfolgreich sind.
+- Am Ende werden `AGENTS.md`, `docs/ai/baseline-b8dd716.md`, `docs/ai/architecture.md` und `docs/ai/quality-gates.md` auf die neue verifizierte Basis aktualisiert. Vorher bleiben sie als Beschreibung der noch gültigen Ausgangsbasis bestehen.
+
+## Nicht Bestandteil von P1
+
+- Vue-3-, Vite-, Bootstrap- oder sonstige Frontendmodernisierung.
+- Änderung von UX, Navigation, Design oder sichtbaren Texten.
+- Neue Funktionen, API-Versionen oder Datenmodelle.
+- Bereinigung, Neuordnung oder Reparatur produktiver Nested Sets.
+- Wechsel von Passport zu einem anderen Authentifizierungssystem.
+- Umstellung der Session-Serialisierung auf JSON.
+- Deployment in Produktion; dafür ist nach erfolgreicher technischer Abnahme ein eigener Rollout-/Backup-/Rollbackplan erforderlich.
+
+## Referenzen
+
+- Laravel-13-Upgradeleitfaden: <https://laravel.com/framework/docs/13.x/upgrade>
+- Laravel-Release- und Supportübersicht: <https://laravel.com/docs/13.x/releases>
+- Laravel-9-Upgradeleitfaden: <https://laravel.com/framework/docs/9.x/upgrade>
+- Laravel-12-Upgradeleitfaden: <https://laravel.com/framework/docs/12.x/upgrade>
+- Projektinterne Invarianten: `docs/ai/domain-invariants.md`
+- Projektinterne Quality Gates: `docs/ai/quality-gates.md`
