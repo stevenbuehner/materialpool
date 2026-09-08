@@ -65,7 +65,7 @@ class ApiResourceControllerTest extends TestCase {
 	}
 
 	protected function getUploadedFile($path, $name) {
-		return new UploadedFile($path, $name, mime_content_type($path), filesize($path), FALSE, TRUE);
+		return new UploadedFile($path, $name, mime_content_type($path), UPLOAD_ERR_OK, TRUE);
 	}
 
 	protected function uploadFilesSuccessful($data, $isFileResource = TRUE) {
@@ -78,7 +78,7 @@ class ApiResourceControllerTest extends TestCase {
 		$file = $isFileResource ? $data['file'] : NULL;
 
 		$responseData = $response->json();
-		$response->assertStatus($isFileResource ? 201 : 200);
+		$response->assertStatus(200);
 
 		$this->verifyResourceJsonResult($response, $isFileResource);
 
@@ -165,7 +165,7 @@ class ApiResourceControllerTest extends TestCase {
 																	  'Balloning.pdf'),
 			'notes'                         => 'Viele Notizen',
 			'is_public'                     => TRUE,
-			'create_material_from_resource' => TRUE,
+			'create_material_from_resource' => FALSE,
 			'foreign_material_id'           => uniqid('test_', TRUE)
 		];
 
@@ -449,7 +449,7 @@ class ApiResourceControllerTest extends TestCase {
 		$this->assertEquals($isPublic, $response->getOriginalContent()->is_public);
 	}
 
-	public function testUpdateFileFailNotFiletype() {
+	public function testUpdateFileIsIgnoredForNonFileResource() {
 
 		// Not Image-Resource
 		$resource = Text::first();
@@ -463,7 +463,9 @@ class ApiResourceControllerTest extends TestCase {
 		$this->authenticatePassport($user);
 
 
-		// Should not work, because not a filetype
+		$originalContent = $resource->content;
+
+		// Bestehender Vertrag: Ein Datei-Parameter ändert eine Text-Resource nicht.
 		$uri      = route('api.v1.resources.update', ['resource' => $resource->id]);
 		$data     = [
 			'file' => $this->getUploadedFile(__DIR__ . '/../testFiles/Bild.jpg',
@@ -471,8 +473,9 @@ class ApiResourceControllerTest extends TestCase {
 		];
 		$response = $this->put($uri, $data);
 
-		$response->assertStatus(500);
-		$response->assertJsonStructure(['message']);
+		$response->assertStatus(200);
+		$this->assertInstanceOf(Text::class, $response->getOriginalContent());
+		$this->assertEquals($originalContent, $resource->fresh()->content);
 	}
 
 	public function testUpdateFileFailNotContenttype() {

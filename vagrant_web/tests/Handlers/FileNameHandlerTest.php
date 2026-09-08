@@ -3,7 +3,6 @@
 namespace Tests\Handlers;
 
 use App\Models\ImageFile;
-use App\Models\Keyword;
 use App\Models\User;
 use App\Services\TagExtraction\Properties\AuthorProperty;
 use App\Services\TagExtraction\Properties\KeywordProperty;
@@ -70,10 +69,10 @@ class FileNameHandlerTest extends TestCase {
 		$this->assertInstanceOf(TitleProperty::class, $result->get(5));
 
 		$this->assertEquals('test', $result->get(0)->getValue());
-		$this->assertInstanceOf(Keyword::class, $result->get(1)->getValue());
-		$this->assertInstanceOf(Keyword::class, $result->get(2)->getValue());
+		$this->assertEquals('Dateiname', $result->get(1)->getValue());
+		$this->assertEquals('Steven B', $result->get(2)->getValue());
 		$this->assertEquals('Steven B', $result->get(3)->getValue());
-		$this->assertInstanceOf(Keyword::class, $result->get(4)->getValue());
+		$this->assertEquals('Haus', $result->get(4)->getValue());
 		$this->assertEquals('test, Dateiname, von Steven B; Haus', $result->get(5)->getValue());
 	}
 

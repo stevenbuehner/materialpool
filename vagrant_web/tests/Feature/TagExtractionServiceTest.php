@@ -134,28 +134,28 @@ class TagExtractionServiceTest extends TestCase {
 
 		$coll = $this->service->extractPartsFromStrings('Blub, lang: de', 2);
 		$this->assertCount(2, $coll);
-		$existingKeyword = Keyword::where('type', 'lang')->get();
+		$existingKeyword = Keyword::where('type', 'lang')->where('title', 'DE')->get();
 		$this->assertCount(1, $existingKeyword);
 		$this->assertEquals("DE", $existingKeyword->first()->title);
 
 
 		$coll = $this->service->extractPartsFromStrings('Blub, LANG:DE', 2);
 		$this->assertCount(2, $coll);
-		$existingKeyword = Keyword::where('type', 'lang')->get();
+		$existingKeyword = Keyword::where('type', 'lang')->where('title', 'DE')->get();
 		$this->assertCount(1, $existingKeyword);
 		$this->assertEquals("DE", $existingKeyword->first()->title);
 
 
 		$coll = $this->service->extractPartsFromStrings('Blub, lang:deutsch', 2);
 		$this->assertCount(2, $coll);
-		$existingKeyword = Keyword::where('type', 'lang')->get();
+		$existingKeyword = Keyword::where('type', 'lang')->where('title', 'DE')->get();
 		$this->assertCount(1, $existingKeyword);
 		$this->assertEquals("DE", $existingKeyword->first()->title);
 
 
 		$coll = $this->service->extractPartsFromStrings('Blub, deutsch', 2);
 		$this->assertCount(2, $coll);
-		$existingKeyword = Keyword::where('type', 'lang')->get();
+		$existingKeyword = Keyword::where('type', 'lang')->where('title', 'DE')->get();
 		$this->assertCount(1, $existingKeyword);
 		$this->assertEquals("DE", $existingKeyword->first()->title);
 	}

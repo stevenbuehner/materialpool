@@ -68,7 +68,7 @@ class ApiForeignResourceControllerTest extends TestCase {
 	}
 
 	protected function getUploadedFile($path, $name) {
-		return new UploadedFile($path, $name, mime_content_type($path), filesize($path), FALSE, TRUE);
+		return new UploadedFile($path, $name, mime_content_type($path), UPLOAD_ERR_OK, TRUE);
 	}
 
 	protected function uploadFilesSuccessful($data, $isFileResource = TRUE) {
@@ -81,7 +81,7 @@ class ApiForeignResourceControllerTest extends TestCase {
 		$file = $isFileResource ? $data['file'] : NULL;
 
 		$responseData = $response->json();
-		$response->assertStatus($isFileResource ? 201 : 200);
+		$response->assertStatus(201);
 
 		$this->verifyResourceJsonResult($response, $isFileResource);
 
@@ -173,7 +173,7 @@ class ApiForeignResourceControllerTest extends TestCase {
 																	  'Balloning.pdf'),
 			'notes'                         => 'Viele Notizen',
 			'is_public'                     => TRUE,
-			'create_material_from_resource' => TRUE,
+			'create_material_from_resource' => FALSE,
 			'foreign_material_id'           => uniqid('test_', TRUE)
 		];
 
@@ -484,7 +484,7 @@ class ApiForeignResourceControllerTest extends TestCase {
 		$this->assertEquals($isPublic, $response->getOriginalContent()->resource->is_public);
 	}
 
-	public function testUpdateFileFailNotFiletype() {
+	public function testUpdateFileIsIgnoredForNonFileResource() {
 
 		// Not Image-Resource
 		$resource = Text::has('foreignIds')->first();
@@ -501,7 +501,9 @@ class ApiForeignResourceControllerTest extends TestCase {
 		$this->authenticatePassport($user);
 
 
-		// Should not work, because not a filetype
+		$originalContent = $resource->content;
+
+		// Bestehender Vertrag: Ein Datei-Parameter ändert eine Text-Resource nicht.
 		$uri      = route('api.v1.foreignResources.update', ['foreignResourceId' => $foreignResourceId->foreign_id]);
 		$data     = [
 			'file' => $this->getUploadedFile(__DIR__ . '/../testFiles/Bild.jpg',
@@ -509,8 +511,10 @@ class ApiForeignResourceControllerTest extends TestCase {
 		];
 		$response = $this->put($uri, $data);
 
-		$response->assertStatus(500);
-		$response->assertJsonStructure(['message']);
+		$response->assertStatus(200);
+		$this->assertInstanceOf(ForeignResourceId::class, $response->getOriginalContent());
+		$this->assertInstanceOf(Text::class, $response->getOriginalContent()->resource);
+		$this->assertEquals($originalContent, $resource->fresh()->content);
 	}
 
 	public function testUpdateFileFailNotContenttype() {
@@ -606,7 +610,27 @@ class ApiForeignResourceControllerTest extends TestCase {
 	}
 
 	public function testUpdateOfSharedResource() {
-		$this->markTestSkipped('Der Ablauf ist noch nicht implementiert.');
+		$resource = Text::has('foreignIds')->first();
+		$this->assertInstanceOf(Text::class, $resource);
+
+		$foreignResourceId = $resource->foreignIds()->first();
+		$this->assertInstanceOf(ForeignResourceId::class, $foreignResourceId);
+
+		$secondForeignResourceId = ForeignResourceId::factory()->create([
+			'resource_id' => $resource->id,
+			'user_id'     => $foreignResourceId->user_id,
+		]);
+
+		$this->authenticatePassport($resource->creator);
+
+		$response = $this->put(
+			route('api.v1.foreignResources.update', ['foreignResourceId' => $foreignResourceId->foreign_id]),
+			['notes' => $notes = 'Aktualisierte gemeinsame Ressource']
+		);
+
+		$response->assertStatus(200);
+		$this->assertEquals($resource->id, $secondForeignResourceId->fresh()->resource_id);
+		$this->assertEquals($notes, $resource->fresh()->notes);
 	}
 
 	public function testUpdateForbidden() {
@@ -691,7 +715,7 @@ class ApiForeignResourceControllerTest extends TestCase {
 	public function testDeleteFileSuccessAndRemoved() {
 		/** @var File $resource */
 		$resource = File::has('foreignIds')->first();
-		$this->assertNull($resource);
+		$this->assertInstanceOf(File::class, $resource);
 
 		$foreignResourceIds = $resource->foreignIds;
 		$foreignResourceIds->pop();
@@ -733,8 +757,15 @@ class ApiForeignResourceControllerTest extends TestCase {
 
 	public function testDeleteFileSuccessButNotRemoved() {
 		/** @var File $resource */
-		$resource = File::has('foreignIds', '>=', 2)->first();
+		$resource = File::has('foreignIds')->first();
 		$this->assertInstanceOf(File::class, $resource);
+
+		ForeignResourceId::factory()->create([
+			'resource_id' => $resource->id,
+			'user_id'     => $resource->creator->id,
+		]);
+		$resource->load('foreignIds');
+		$this->assertEquals(2, $resource->foreignIds->count());
 
 		$foreignResourceId = $resource->foreignIds()->first();
 		$this->assertInstanceOf(ForeignResourceId::class, $foreignResourceId);
@@ -757,10 +788,11 @@ class ApiForeignResourceControllerTest extends TestCase {
 		$response->assertStatus(200);
 		$response->assertJsonMissing(['message']);
 
-		$this->assertFalse($resource->localFileExists(), 'File should be deleted');
+		$this->assertTrue($resource->localFileExists(), 'File must remain while another foreign ID references it');
 
 		$resource = $resource->fresh();
-		$this->assertNull($resource);
+		$this->assertInstanceOf(File::class, $resource);
+		$this->assertEquals(1, $resource->foreignIds()->count());
 
 		$foreignResourceId = $foreignResourceId->fresh();
 		$this->assertNull($foreignResourceId);
