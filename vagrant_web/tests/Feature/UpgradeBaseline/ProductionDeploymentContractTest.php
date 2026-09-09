@@ -160,6 +160,7 @@ class ProductionDeploymentContractTest extends TestCase
     {
         $buildScript = file_get_contents(base_path('ops/production/build-release.sh'));
         $activateScript = file_get_contents(base_path('ops/production/activate-release.sh'));
+        $appServiceProvider = file_get_contents(app_path('Providers/AppServiceProvider.php'));
         $worker = file_get_contents(base_path('ops/production/materialpool-worker.conf'));
 
         $this->assertStringContainsString('npm ci --ignore-scripts', $buildScript);
@@ -170,6 +171,7 @@ class ProductionDeploymentContractTest extends TestCase
         $this->assertStringContainsString('--no-dev', $activateScript);
         $this->assertStringContainsString("find . -type f ! -path './.release-manifest' -print0", $activateScript);
         $this->assertStringContainsString('LC_ALL=C sort -z', $activateScript);
+        $this->assertStringNotContainsString('LaravelIdeHelper', $appServiceProvider);
         $this->assertStringContainsString('storage/framework/down', $activateScript);
         $this->assertStringContainsString("supervisorctl status 'materialpool-default:*'", $activateScript);
         $this->assertStringNotContainsString('composer update', $activateScript);
