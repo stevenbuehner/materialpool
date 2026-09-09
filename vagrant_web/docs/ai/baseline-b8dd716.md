@@ -1,40 +1,54 @@
-# Verifizierte Ausgangsbasis: `b8dd716`
+# Verifizierte technische Basis: `28f4ec4`
 
 ## Verbindliche Referenz
 
-Diese KI-Dokumentation wurde gegen den Git-Commit `b8dd716931de60f5cf60936b20d1233847afa831` geprüft:
+Die Backend-Basis dieser KI-Dokumentation wurde gegen den Git-Commit `28f4ec452c1a4446a361ae21dd40d99d6fee8a11` geprüft:
 
 ```text
-Fix: Wenn mehr als drei Leerzeichen in der ersten Zeile in einem Tag sind,
-erkenne die ganze Zeile nicht als Valide Texterkennung an
+upgrade: Laravel 13 und Passport 13 abschließen
 ```
 
-Zum Prüfzeitpunkt zeigt `master` genau auf diesen Commit (Tag `1.2.1`). Dieser Commit ist die Ausgangsbasis für alle Aussagen in `AGENTS.md` und `docs/ai/`. Der Branch `develop` sowie `Vue3_Upgrade` wurden absichtlich nicht als Quelle ausgewertet, weil sie einen nicht übernommenen Vue-3-Upgradeversuch enthalten.
+Dieser Commit ist der grüne Laravel-13-/Passport-13-Implementierungsstand auf `master`. Der historische Dateiname `baseline-b8dd716.md` bleibt bestehen, damit vorhandene Links stabil bleiben. Die ursprüngliche Vue-2-Ausgangsbasis `b8dd716931de60f5cf60936b20d1233847afa831` (Tag `1.2.1`) bleibt für den Vergleich relevant; `develop` und `Vue3_Upgrade` wurden weiterhin nicht als Quelle übernommen.
 
 ## Verifizierte Aussagen
 
-| Aussage der KI-Dokumentation | Ergebnis am Commit `b8dd716` | Nachweis im Bestand |
+| Aussage der KI-Dokumentation | Ergebnis am Commit `28f4ec4` | Nachweis im Bestand |
 | --- | --- | --- |
-| Backend basiert auf PHP 7.4 und Laravel 8 | bestätigt | `composer.json`: `php ^7.4`, `laravel/framework ^8.0` |
-| API-Authentifizierung nutzt Laravel Passport | bestätigt | `composer.json`: `laravel/passport ^10.0`; `config/auth.php`; API-Routen |
-| Frontend ist Vue 2 mit Vue Router 3 und Vuex 3 | bestätigt | `package.json`: Vue `^2.6.14`, Router `^3.5.3`, Vuex `^3.6.2` |
-| Build nutzt Webpack 4 und Bootstrap 4/Bootstrap-Vue | bestätigt | `package.json`, `resources/sass/main.scss` |
+| Backend basiert auf PHP 8.4 und Laravel 13 | bestätigt | `composer.json`: `php ^8.4`, `laravel/framework ^13.0`; Laufzeitprüfung im Sail-Container: PHP 8.4.25, Laravel 13.31.0 |
+| API-Authentifizierung nutzt Passport 13 | bestätigt | `laravel/passport 13.8.0`, `config/auth.php`, `AuthServiceProvider`, Passport-Vertragstests |
+| Passport verwendet das neue Client-Schema | bestätigt | UUID-fähige IDs, gehashte Secrets, Owner-/Redirect-/Grant-Felder und Device Codes; Migration und echter Password-Grant-Austausch getestet |
+| Frontend bleibt Vue 2 mit Vue Router 3 und Vuex 3 | bestätigt | Frontend-Quellen, `package.json` und `package-lock.json` wurden im Backend-Upgrade nicht geändert |
+| Build bleibt Webpack 4 und Bootstrap 4/Bootstrap-Vue | bestätigt | isolierter Production-Build aus dem bestehenden Lock-Stand erfolgreich |
 | SPA-Einstieg liegt unter `/vue` und ist geschützt | bestätigt | `routes/web.php`, `resources/js/apps/main/index.js` |
-| APIs führen v1 und v2 | bestätigt | `routes/api.php` |
-| Resources verwenden Single-Table-Inheritance mit `type` | bestätigt | `app/Models/Resource.php`, `app/Models/File.php` |
-| Keywords sind ein Nested-Set-Baum mit vier Typen | bestätigt | `app/Models/Keyword.php` |
-| Material-Relationen führen fachliche Pivotdaten | bestätigt | `app/Models/Material.php`: `limitation` und `relevance` |
-| Events/Listener verwalten Hashes, Metadaten und Vorschau-Caches | bestätigt | `app/Providers/EventServiceProvider.php` |
-| Bundles verwenden individuelle Queues | bestätigt | `app/Services/Bundles/BundleQueueService.php`, `BundleImportController.php` |
-| Persistente Disks für Ressourcen, Archive und Bundles existieren | bestätigt | `config/filesystems.php` |
-| Tests basieren auf PHPUnit 9 und Laravel-Testumgebung | bestätigt | `composer.json`, `phpunit.xml`, `tests/` |
+| APIs führen v1 und v2 | bestätigt | `routes/api.php`; Pfade und HTTP-Methoden blieben erhalten |
+| Resources verwenden Parental-STI mit unveränderten `type`-Werten | bestätigt | `app/Models/Resource.php`, `app/Models/File.php`, STI-Vertragstests |
+| Keywords verwenden Nestedset 7 mit unverändertem Baumvertrag | bestätigt | `kalnoy/nestedset ^7.0`; Forest-, Move-, Merge-, Delete-, Search-, Pivot- und JSON-Tests |
+| Material-Relationen führen fachliche Pivotdaten | bestätigt | Vertragstests für `limitation` und `relevance` |
+| Events/Listener verwalten Hashes, Metadaten und Vorschau-Caches | bestätigt | Handler-/Resource-/Queue-Tests |
+| Bundles verwenden individuelle Queues | bestätigt | Bundle-Vertragstests für `bundle_{id}_queue` |
+| Persistente Disks für Ressourcen, Archive und Bundles existieren | bestätigt | `config/filesystems.php`; Tests verwenden Fakes oder isolierte Test-Disks |
+| Tests basieren auf PHPUnit 12 und der Laravel-Testumgebung | bestätigt | PHPUnit 12.5.35; 156 Tests und 1.588 Assertions gegen MySQL `testing` grün |
 
-## Bewusst nicht behauptet
+## Bewusste Kompatibilitätsentscheidungen
 
-- Die Dokumentation behauptet keine lokale Laufzeitfähigkeit: DB-Zugang, installierte Abhängigkeiten, Docker-Verfügbarkeit und externe Medienprogramme hängen von der konkreten Umgebung ab.
-- Sie schreibt keine ungeprüften Aussagen aus `develop` oder `Vue3_Upgrade` in die Vue-2-Architektur fort.
-- Sie ersetzt keine fachliche Freigabe für bestehende, nur teilweise getestete Altprozesse.
+- Passport folgt bei UUIDs, Secret-Hashing, Client-Schema, Device Codes, Headless-Betrieb und deaktivierter Legacy-JSON-API den Version-13-Defaults.
+- Als einzige Abweichung bei den aktivierten OAuth-Grants bleibt der für den Material Grabber benötigte Password Grant aktiv. Bestehende Token-Laufzeiten, `CreateFreshApiToken` und der Cookie-Name `materialpool_token` bleiben ebenfalls als zuvor vorhandene Kompatibilitätskonfiguration erhalten.
+- Session-Serialisierung bleibt vorerst `php`; Cache-Serialisierung und bestehende Prefixes sind explizit abgesichert.
+- Die klassische Laravel-Anwendungsstruktur mit Kerneln, Providern und Konfigurationsdateien bleibt erhalten. Innerhalb dieser Struktur werden aktuelle Laravel-13-Konventionen bevorzugt, sofern sie vollständig und verhaltensneutral übernommen werden können.
+- `stevenbuehner/bible-verse-bundle` bleibt als einziges Dev-Paket unveränderlich auf Commit `ff33d614541f5cfba69dcd121d6c04cc8da921c4` fixiert, bis der Auftraggeber im separaten Projekt einen stabilen kompatiblen Tag veröffentlicht.
+- Das Frontend bleibt bewusst auf Vue 2/Laravel Mix. Der erfolgreiche isolierte Build ändert nichts daran, dass die Modernisierung ein separates Projekt ist.
+
+## Verifikationsgrenze und Deployment-Status
+
+Die vollständige Suite, Fresh-Migration, befüllte Passport-Altschema-Migration, echter Tokenaustausch, isoliertes Backup, Handler, Nested Sets, STI, Routen, Composer-Validierung und Security-Audit sind grün. Der Endstand ist technisch abgenommen, aber noch kein produktiver Rollout:
+
+- Vor Produktion muss das Bible-Paket einen stabilen Tag erhalten.
+- Der Passport-Cutover muss mit Clientinventar, verifiziertem Datenbankbackup, Wartungsfenster und Restore-Probe produktionsnah geprobt werden.
+- `setasign/fpdi-fpdf` ist aufgegeben, aktuell aber ohne bekanntes Security-Advisory; sein Ersatz ist ein separates Teilprojekt.
+- Das Host-PHP 8.0 und Node 26 sind keine gültige Backend-/Legacy-Frontend-Referenz. Backendprüfungen laufen über Sail/PHP 8.4; der Legacy-Build wurde isoliert mit Node 16 ausgeführt.
+
+Details stehen in `docs/ai/upgrade-stage-5-report.md` und `docs/ai/passport-13-client-migration.md`.
 
 ## Pflege bei künftigen Änderungen
 
-Wenn die technische Basis bewusst geändert wird (z. B. PHP-, Laravel-, Vue- oder Build-Upgrade), muss zuerst diese Datei, dann `architecture.md`, `design-system.md`, `quality-gates.md` und schließlich `AGENTS.md` aktualisiert werden. Bis zu einer ausdrücklich freigegebenen Vue-3-Migration gilt Vue 2 als verbindlicher Standard.
+Wenn die technische Basis bewusst geändert wird, sind diese Baseline, `architecture.md`, `design-system.md`, `quality-gates.md` und `AGENTS.md` gemeinsam zu prüfen. Bis zu einer ausdrücklich freigegebenen Vue-3-/Build-Migration gilt Vue 2 als verbindlicher Frontendstandard. Passport-, Datenbank-, Session-, Storage- und Nested-Set-Verträge bleiben entscheidungspflichtig.

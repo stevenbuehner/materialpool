@@ -236,7 +236,7 @@ Ein Schritt darf erst begonnen werden, wenn der vorherige vollständig grün ist
 - Der Code-Rückbau erfolgt auf den letzten grünen Hauptversions-Checkpoint. Der Passport-Datenbank-Rückbau erfolgt wegen des nicht umkehrbaren Secret-Hashings ausschließlich aus dem unmittelbar vor dem Cutover erstellten Backup. Solange ausschließlich numerische Alt-IDs vorliegen, unterstützt die Migration zwar einen technischen Schema-Down-Pfad, dieser kann die Klartext-Secrets jedoch nicht wiederherstellen.
 - Laravel 13 ist erst abgenommen, wenn ein kalter Sail-Start, eine frische Installation aus Lockfiles, die vollständige Suite, alle Spezial-Gates und der bestehende Frontend-Build erfolgreich sind.
 - „Frische Installation aus Lockfiles“ bezeichnet in P1 zwingend den Composer-Lockfile-Aufbau. Für npm gilt bis zum separaten Frontend-Upgrade die in Quality Gate 14 beschriebene, dokumentierte Legacy-Ausnahme.
-- Am Ende werden `AGENTS.md`, `docs/ai/baseline-b8dd716.md`, `docs/ai/architecture.md` und `docs/ai/quality-gates.md` auf die neue verifizierte Basis aktualisiert. Vorher bleiben sie als Beschreibung der noch gültigen Ausgangsbasis bestehen.
+- `AGENTS.md`, `docs/ai/baseline-b8dd716.md`, `docs/ai/architecture.md` und `docs/ai/quality-gates.md` werden nach dem grünen Laravel-13-Implementierungscommit auf die neue verifizierte Basis aktualisiert. Der historische Dateiname `baseline-b8dd716.md` bleibt zur Linkstabilität erhalten; der ursprüngliche Stand ist darin weiterhin nachvollziehbar.
 
 ## Nicht Bestandteil von P1
 

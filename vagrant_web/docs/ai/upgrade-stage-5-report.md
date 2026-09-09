@@ -78,7 +78,7 @@ Der offizielle [Passport-13-Upgradeleitfaden](https://github.com/laravel/passpor
 | Key-Dateirechte | Lokale Public- und Private-Key-Dateien haben Modus `0600`; echter Token-Austausch ist grün. Schlüssel sind nicht in Git erfasst. |
 | neues `oauth_clients`-Schema | `owner`, `redirect_uris`, `grant_types` sowie 36-stellige IDs werden durch eine neue, versionierte Migration hergestellt. Historische Migrationen bleiben unverändert. |
 | Device Codes | Offizielle Migration wurde bytegleich veröffentlicht; Device-Routen sind registriert. |
-| Password Grant | Als einzige produktbedingte Abweichung ausdrücklich aktiviert. Ein aus dem Altschema migrierter Client erhält mit unverändertem Credential ein Access- und Refresh-Token. |
+| Password Grant | Als einzige Abweichung bei den aktivierten OAuth-Grants ausdrücklich aktiviert. Ein aus dem Altschema migrierter Client erhält mit unverändertem Credential ein Access- und Refresh-Token. Die bereits zuvor gesetzten Token-Laufzeiten, `CreateFreshApiToken` und der Cookie-Name bleiben aus Kompatibilitätsgründen bestehen und sind separat dokumentiert. |
 
 ## Weitere Paket- und Konventionsanpassungen
 

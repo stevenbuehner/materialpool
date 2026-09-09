@@ -7,7 +7,7 @@ Dieses Repository ist der **Materialpool**, eine geschützte Laravel-Anwendung z
 Die Dokumentation unter [`docs/ai/`](docs/ai/) ist Teil dieser Anweisung und vor Änderungen im betroffenen Bereich zu lesen:
 
 - [Architektur](docs/ai/architecture.md)
-- [Verifizierte Ausgangsbasis](docs/ai/baseline-b8dd716.md)
+- [Verifizierte technische Basis](docs/ai/baseline-b8dd716.md)
 - [Domänen-Invarianten](docs/ai/domain-invariants.md)
 - [Designsystem](docs/ai/design-system.md)
 - [Qualitätssicherung](docs/ai/quality-gates.md)
@@ -42,7 +42,8 @@ Antworte und dokumentiere auf Deutsch; belasse etablierte technische Bezeichner,
 
 ## Technische Leitplanken
 
-- **Backend:** Laravel 8 und PHP 7.4. Nutze die im Projekt vorhandene Syntax und Konventionen; führe keine Modernisierung des Stacks nebenbei durch.
+- **Backend:** Laravel 13 und PHP 8.4. Nutze aktuelle Laravel-13-/PHP-8.4-Konventionen, wenn sie im betroffenen Bereich vollständig umsetzbar und verhaltensneutral sind. Beobachtbare Default-Änderungen bleiben entscheidungspflichtig.
+- **OAuth:** Laravel Passport 13 bleibt der API-Guard. Neue Clients verwenden UUIDs und gehashte Secrets; die Legacy-JSON-Verwaltungsrouten sind deaktiviert. Der Password Grant, bestehende Token-Laufzeiten und `materialpool_token` sind bewusst erhaltene Produktverträge; Änderungen daran verlangen Freigabe und den Ablauf aus `docs/ai/passport-13-client-migration.md`.
 - **Frontend:** Vue 2, Vue Router 3, Vuex 3, Bootstrap 4/Bootstrap-Vue und Webpack via Laravel Mix. Keine Vue-3-/Vite-Muster, Composition API oder neue UI-Bibliothek ohne Freigabe.
 - **API:** Versionen `v1` und `v2` sind bestehende Verträge. Prüfe vor jeder API-Änderung Route, Controller, Request, Policy und alle aufrufenden Vuex-Module/Komponenten.
 - **Autorisierung:** Serverseitige Authentifizierung und Policies sind maßgeblich. UI-Ausblendung ist kein Sicherheitsmechanismus.

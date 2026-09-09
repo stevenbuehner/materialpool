@@ -2,20 +2,28 @@
 
 ## Sichere Standardprüfungen
 
-Die Reihenfolge ist bewusst risikobewusst. Nur Befehle ausführen, deren lokale Voraussetzungen vorhanden sind; niemals aus einer Prüfung heraus Datenbank oder gespeicherte Ressourcen löschen.
+Die Reihenfolge ist bewusst risikobewusst. Backendprüfungen laufen im Sail-PHP-8.4-Container gegen die dedizierte MySQL-Datenbank `testing`; niemals die Entwicklungs- oder Produktionsdatenbank verwenden. Datei- und Backuptests müssen gefakte oder isolierte Test-Disks verwenden.
 
 ```sh
-# PHP-Test-Suite (benötigt konfigurierte Testdatenbank)
-php artisan test
+# Container und Versionen prüfen
+./vendor/bin/sail up -d
+./vendor/bin/sail php -v
+./vendor/bin/sail artisan --version
 
-# Alternativ die vorhandene PHPUnit-Suite
-./vendor/bin/phpunit
+# Frisches Testschema und vollständige PHPUnit-Suite
+./vendor/bin/sail artisan migrate:fresh --env=testing --force
+./vendor/bin/sail test
 
-# Produktions-Build für Vue/Sass/Übersetzungen
+# Composer-Verträge
+./vendor/bin/sail composer validate --strict
+./vendor/bin/sail composer audit --locked
+
+# Produktions-Build für Vue/Sass/Übersetzungen; bis zum Frontend-Upgrade
+# nur in der dokumentierten isolierten Node-16-Umgebung ausführen
 npm run build
 ```
 
-Vor gezielten PHP-Änderungen sind mindestens Syntaxprüfung und die passende Testklasse auszuführen. Bei einer vorhandenen Docker-/Sail-Umgebung können Befehle darin laufen; erst Konfiguration und Datenbankzustand prüfen.
+Vor gezielten PHP-Änderungen sind mindestens die Syntaxprüfung im PHP-8.4-Container und die passende Testklasse auszuführen. Ein lokales Host-PHP unter 8.4 darf Composer oder Artisan für diese Anwendung nicht ausführen.
 
 ## Bereichsspezifische Gates
 
@@ -27,7 +35,26 @@ Vor gezielten PHP-Änderungen sind mindestens Syntaxprüfung und die passende Te
 | Material-/Keyword-/Bibleverse-Relation | Pivotdaten (insb. `relevance`/`limitation`), Bereinigung verwaister Datensätze, UI-Darstellung |
 | Bundle/Queue | Queue-Name, Job-Reihenfolge, Wiederholbarkeit, Fehlerbehandlung; nur mit Test- oder ausdrücklich freigegebenen Daten |
 | Vue/Sass | `npm run build`, Desktop- und Mobile-Ansicht, Lade-/Fehler-/Leerezustand, Tastaturzugang |
-| Migration/Dependency/Infra | vorherige Freigabe, Up-/Down-Plan, Aktualisierungsnotiz, vollständige passende Tests |
+| Migration/Dependency/Infra | vorherige Freigabe, offizieller Online-Upgradeleitfaden, Up-/Down-Plan, Aktualisierungsnotiz, Fresh- und Bestandsschema, vollständige passende Tests |
+| Passport/OAuth | Client-ID als String/UUID, Secret-Hashing, Referenzerhalt, Grant-/Redirect-Migration, Auth-Fehlerfälle und echter Tokenaustausch; vor Rollout den Ablauf in `passport-13-client-migration.md` |
+| Nested Sets | vollständige `KeywordNestedSetTest`- und `KeywordApiControllerTest`-Gruppen; nach Mutationen `countErrors()` und `isBroken()` |
+| Resource-STI | alle gespeicherten Resource- und File-Typcodes: Erzeugung, Hydrierung, Relation, Scope und JSON |
+| Backup | Erzeugung und Restore-/Inhaltsprüfung ausschließlich in isolierter Umgebung; niemals produktive Ziele bereinigen |
+
+## Laravel-13-Referenzgates
+
+Der verifizierte Laravel-13-Stand umfasst mindestens:
+
+```sh
+./vendor/bin/sail test
+./vendor/bin/sail test --filter KeywordNestedSetTest
+./vendor/bin/sail test --filter KeywordApiControllerTest
+./vendor/bin/sail test --filter Passport13MigrationContractTest
+./vendor/bin/sail test --filter BackupExecutionContractTest
+./vendor/bin/sail artisan route:list --json
+```
+
+Die vollständige Referenz am Implementierungscommit `28f4ec4` lautet 156 Tests mit 1.588 Assertions. Eine niedrigere Zahl ist zu erklären; Tests dürfen bei Paket- oder Frameworkänderungen nicht stillschweigend entfallen oder abgeschwächt werden.
 
 ## Abschlussbericht
 

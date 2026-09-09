@@ -11,7 +11,7 @@ Materialpool verwendet ab Laravel 13 Laravel Passport 13 möglichst ohne Abweich
 - die veralteten JSON-Verwaltungsrouten für Clients und Tokens bleiben deaktiviert;
 - Passport bleibt headless und bringt keine anwendungseigene Authorization- oder Device-View mit.
 
-Die einzige bewusste Grant-Abweichung ist `Passport::enablePasswordGrant()`. Der externe Material Grabber benötigt diesen OAuth-Flow weiterhin. Die Cookie-Integration `CreateFreshApiToken` bleibt für das unveränderte Vue-2-Frontend aktiv. Beides ist durch bestehende Authentifizierungs- und Routentests abgedeckt.
+Die einzige bewusste Abweichung bei den aktivierten OAuth-Grants ist `Passport::enablePasswordGrant()`. Der externe Material Grabber benötigt diesen OAuth-Flow weiterhin. Zusätzlich bleiben aus Kompatibilitätsgründen die bereits zuvor gesetzten Token-Laufzeiten (Access Token fünf Tage, Refresh Token 30 Tage, Personal Access Token sechs Monate), `CreateFreshApiToken` und der Cookie-Name `materialpool_token` erhalten. Diese Einstellungen sind keine neu eingeführten Abweichungen des Upgrades; ihre spätere Annäherung an Passport-Defaults wäre jedoch eine eigene Client-/Session-Entscheidung. Grant, Laufzeiten und Cookie-Integration sind durch Authentifizierungs- und Routentests abgedeckt.
 
 ## Auswirkungen auf vorhandene und neue Clients
 
