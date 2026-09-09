@@ -114,7 +114,7 @@ Der offizielle [Passport-13-Upgradeleitfaden](https://github.com/laravel/passpor
 ### P0 vor produktivem Deployment
 
 1. **Passport-Cutover proben.** Empfehlung: Clientinventar, verifiziertes Backup, Wartungsfenster und den Ablauf aus `passport-13-client-migration.md` in einer produktionsnahen Kopie durchspielen. Alternative: kein Deployment. Rückbau: ausschließlich Code plus Datenbankbackup.
-2. **Runtime bereitstellen und prüfen.** Produktion muss PHP 8.4.x, passende Erweiterungen und Medien-Binaries, Composer 2 sowie die geprüfte MySQL-8-Semantik verwenden. Ein Deployment auf der lokalen Host-PHP-8.0-Laufzeit ist unmöglich.
+2. **Linux-Produktionsruntime bereitstellen und prüfen.** Verbindliches Ziel sind Linux, Nginx, PHP-FPM 8.4 und MySQL 8. Produktion muss zusätzlich passende PHP-Erweiterungen und Medien-Binaries, Composer 2, einen Queue-Prozessmonitor, Cron sowie persistente und gesicherte Ressourcen-/Archiv-/Bundle-/Backup-Pfade verwenden. Nginx liefert ausschließlich `public/` aus; Sail und `php artisan serve` bleiben lokale Entwicklungswerkzeuge. Ein Deployment auf der lokalen Host-PHP-8.0-Laufzeit ist unmöglich.
 
 ### P1 nach stabilem Laravel-13-Deployment
 

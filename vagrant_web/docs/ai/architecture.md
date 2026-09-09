@@ -19,7 +19,8 @@ Browser → Laravel Web-Routen → Vue 2 SPA (/vue)
 
 ## Laufzeit und Build
 
-- PHP `^8.4`, Laravel `^13.0`, MySQL 8 und Docker/Sail. Lokales Backend-Referenzsystem ist der PHP-8.4-Sail-Container; ein älteres Host-PHP ist nicht maßgeblich.
+- Produktion läuft auf einem Linux-Server mit Nginx, PHP-FPM `8.4` und MySQL 8. Nginx liefert ausschließlich `public/` aus; `storage/` und `bootstrap/cache/` sind für den PHP-FPM-Nutzer schreibbar. Queue-Worker werden durch einen Prozessmonitor betrieben; persistente Ressourcen-, Archiv-, Bundle- und Backup-Daten liegen außerhalb eines austauschbaren Release-Verzeichnisses.
+- Docker/Sail ist ausschließlich die lokale Entwicklungs- und Testlaufzeit. Lokales Backend-Referenzsystem ist der PHP-8.4-Sail-Container; ein älteres Host-PHP ist nicht maßgeblich. Sail oder `php artisan serve` sind kein Produktions-Webserver.
 - PHPUnit 12.5 testet ausschließlich gegen die dedizierte MySQL-Datenbank `testing`; Ressourcen-, Archiv- und Backup-Dateien werden gefakt oder isoliert.
 - Frontend: Vue 2, Vuex 3, Vue Router 3, Bootstrap 4, Bootstrap-Vue, Sass und Webpack/Laravel Mix.
 - Paketdefinitionen: `composer.json`, `package.json`; Lock-Dateien sind Teil des reproduzierbaren Builds.
