@@ -43,7 +43,7 @@ docker run --rm \
         test "$(node --version)" = "v16.20.2"
         cp .env.example .env
         composer install --prefer-dist --no-interaction
-        npm ci
+        npm ci --ignore-scripts
         npm run build
         rm -f .env
         rm -rf node_modules vendor storage/framework/cache/data/* storage/framework/views/*'

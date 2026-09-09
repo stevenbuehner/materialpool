@@ -85,7 +85,7 @@ Der Build akzeptiert einen exakten Commit und bricht bei Änderungen im Material
 ops/production/build-release.sh <40-stellige-commit-id> /absoluter/ausgabeordner
 ```
 
-Das Skript exportiert ausschließlich diesen Commit, prüft PHP 8.4 und Node 16.20.2 im Image `sail-8.4/app`, führt `composer install`, `npm ci` und `npm run build` aus, entfernt `.env`, `vendor` und `node_modules` und erzeugt Release-Manifest, Archiv und SHA-256-Datei. Das Frontend bleibt inhaltlich unverändert; nur seine vorhandenen Artefakte werden reproduzierbar gebaut.
+Das Skript exportiert ausschließlich diesen Commit, prüft PHP 8.4 und Node 16.20.2 im Image `sail-8.4/app`, führt `composer install`, `npm ci --ignore-scripts` und `npm run build` aus, entfernt `.env`, `vendor` und `node_modules` und erzeugt Release-Manifest, Archiv und SHA-256-Datei. Installationsskripte sind vorübergehend deaktiviert, weil das nur indirekt über `svg-icon` eingebrachte, im Produktionsbuild nicht verwendete PhantomJS-Paket kein Linux-arm64-Binary besitzt. Der danach zwingend erfolgreiche Webpack-Build ist das Verhaltensgate. Dependencies, Lockfile und Frontendquellen bleiben unverändert; die Beseitigung dieser Ausnahme gehört zum separaten Frontend-Upgrade.
 
 Der Upload aktiviert nichts:
 

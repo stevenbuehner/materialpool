@@ -103,6 +103,7 @@ Der offizielle [Passport-13-Upgradeleitfaden](https://github.com/laravel/passpor
 - Vollständige PHPUnit-Suite: 156 Tests, 1.588 Assertions, bestanden.
 - Nach Umstellung auf BibleVerseBundle `3.0.0`: gezielter Bundle-Vertrag mit 6 Tests/39 Assertions sowie die vollständige Suite mit 156 Tests/1.588 Assertions erneut bestanden.
 - Nach Umsetzung des Produktionsvertrags: gezielte Produktions-/Backup-/Scheduler-Gruppe mit 16 Tests und 89 Assertions sowie vollständige Suite mit 165 Tests und 1.612 Assertions bestanden.
+- Der Commit-basierte Release-Build verwendet `npm ci --ignore-scripts`: Das ungenutzte PhantomJS-Postinstall aus der indirekten `svg-icon`-Kette besitzt kein Linux-arm64-Binary. Der danach verpflichtende Webpack-Produktionsbuild beweist, dass keine benötigte Buildstufe übersprungen wurde; Frontendquellen und Lockfile bleiben unverändert.
 - AES-256-Backup wurde in der isolierten Testdisk mit Passwort geöffnet, entpackt und per SHA-256 gegen die Fixture geprüft. Der echte S3-Download-/Restore-Nachweis bleibt ein externes Go-live-Gate.
 - Nginx-Konfiguration wurde mit `nginx -t` im offiziellen Nginx-Stable-Container erfolgreich geprüft; Shell-Syntax und fail-closed Produktions-Preflight wurden ebenfalls geprüft.
 - Nestedset-Vertragsgruppe: alle Forest-, Boundary-, Depth-, Move-, Merge-, Delete-, Search-, Pivot- und JSON-Fälle innerhalb des Gesamtlaufs bestanden; `isBroken()` bleibt false.

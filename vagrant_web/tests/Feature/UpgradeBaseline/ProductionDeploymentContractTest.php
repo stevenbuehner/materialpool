@@ -162,7 +162,7 @@ class ProductionDeploymentContractTest extends TestCase
         $activateScript = file_get_contents(base_path('ops/production/activate-release.sh'));
         $worker = file_get_contents(base_path('ops/production/materialpool-worker.conf'));
 
-        $this->assertStringContainsString('npm ci', $buildScript);
+        $this->assertStringContainsString('npm ci --ignore-scripts', $buildScript);
         $this->assertStringContainsString('npm run build', $buildScript);
         $this->assertStringContainsString('composer install', $activateScript);
         $this->assertStringContainsString('--no-dev', $activateScript);
