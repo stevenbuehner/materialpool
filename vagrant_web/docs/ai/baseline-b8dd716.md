@@ -44,7 +44,7 @@ Die vollständige Suite, Fresh-Migration, befüllte Passport-Altschema-Migration
 
 - Der Passport-Cutover muss mit Clientinventar, verifiziertem Datenbankbackup, Wartungsfenster und Restore-Probe produktionsnah geprobt werden.
 - Die produktive Runtime muss PHP 8.4.x, die benötigten Erweiterungen, Composer 2 und MySQL 8 in der geprüften Semantik bereitstellen.
-- `setasign/fpdi-fpdf` ist aufgegeben, aktuell aber ohne bekanntes Security-Advisory; sein Ersatz ist ein separates Teilprojekt.
+- `setasign/fpdi-fpdf` ist ausschließlich ein aufgegebenes Composer-Metapaket, aktuell ohne bekanntes Security-Advisory. FPDI 2.6.8 und FPDF 1.9.0 bleiben funktionsfähig und separat gepflegt; die spätere Bereinigung besteht nur aus ihrer direkten Composer-Deklaration und ist im Laravel-13-Vertrag festgelegt.
 - Das Host-PHP 8.0 und Node 26 sind keine gültige Backend-/Legacy-Frontend-Referenz. Backendprüfungen laufen über Sail/PHP 8.4; der Legacy-Build wurde isoliert mit Node 16 ausgeführt.
 
 Details stehen in `docs/ai/upgrade-stage-5-report.md` und `docs/ai/passport-13-client-migration.md`.

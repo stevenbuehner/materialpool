@@ -95,7 +95,7 @@ Der offizielle [Passport-13-Upgradeleitfaden](https://github.com/laravel/passpor
 - Kaltstart mit `sail down` und `sail up -d` ohne Volume-Löschung: MySQL wurde gesund, Anwendung startete mit PHP 8.4.25; die vollständige Suite wurde anschließend erneut erfolgreich ausgeführt.
 - `composer update --lock --no-interaction`: reproduzierbarer Lock-Stand, Paket-Discovery erfolgreich.
 - `composer validate --strict`: gültig und ohne Warnung.
-- `composer audit --locked`: keine Security-Advisories; ein aufgegebenes Paket ohne vorgeschlagenen Ersatz (`setasign/fpdi-fpdf`).
+- `composer audit --locked`: keine Security-Advisories; Composer markiert `setasign/fpdi-fpdf` als aufgegebenes Metapaket ohne maschinenlesbaren Ersatz. Das Projekt selbst empfiehlt die direkten Abhängigkeiten `setasign/fpdi` und `setasign/fpdf`.
 - PHP-Syntaxprüfung aller 29 geänderten beziehungsweise neuen PHP-Dateien im PHP-8.4-Container: bestanden.
 - `php artisan migrate:fresh --env=testing --force`: vollständiges Fresh-Schema einschließlich Passport-13-Migrationen: bestanden.
 - Befülltes Passport-Altschema: Secret-Hashing, Owner-/Grant-/Redirect-Übernahme, ID-/Tokenreferenz-Erhalt und echter Password-Grant-Tokenaustausch: bestanden.
@@ -123,7 +123,7 @@ Der offizielle [Passport-13-Upgradeleitfaden](https://github.com/laravel/passpor
 3. **Logout auf POST vereinheitlichen.** Empfehlung: im separaten Frontend-Upgrade den GET-Link durch einen CSRF-geschützten POST ersetzen und danach `logout.legacy` entfernen. Alternative: Legacy-Route beibehalten. Nutzen: Laravel-Standard und weniger CSRF-Risiko.
 4. **Historische Passport-Hilfstabelle entfernen.** Empfehlung: erst nach Produktionsbeobachtung und Backup die ungenutzte `oauth_personal_access_clients`-Tabelle per eigener Migration entfernen. Alternative: harmlos bestehen lassen. Rückbau: Tabelle aus Backup/Migration wiederherstellen.
 5. **Altes Standard-String-Limit bewerten.** Empfehlung: nach Schemavergleich `Schema::defaultStringLength(191)` in einem eigenen Schema-Baseline-Schritt entfernen. Alternative: für Fresh-/Bestandskonsistenz behalten. Rückbau: Providerzeile wiederherstellen.
-6. **Aufgegebenes PDF-Metapaket ersetzen.** Empfehlung: PDF-Ausgaben charakterisieren und auf gepflegte direkte FPDI-/FPDF-Pakete wechseln. Alternative: Paket vorübergehend behalten; es hat aktuell kein Security-Advisory, aber keinen Maintainer.
+6. **PDF-Metapaket direkt deklarieren.** `setasign/fpdi-fpdf` ist ausschließlich ein aufgegebenes Composer-Metapaket; es enthält keine PDF-Implementierung. FPDI 2.6.8 und FPDF 1.9.0 funktionieren weiter und werden separat veröffentlicht. Empfehlung: das Metapaket entfernen und dieselben Bibliotheken direkt als `setasign/fpdi:^2.6` und `setasign/fpdf:^1.9` deklarieren. Die aktuelle statische Analyse findet keine eigenen FPDI-/FPDF-Aufrufstellen; vor und nach dem Wechsel sind dennoch Autoload, Lockfile, vollständige Suite und bei indirekter Nutzung repräsentative PDF-Artefakte zu prüfen. Alternative: Metapaket vorübergehend behalten; kein aktuelles Security-Advisory, aber dauerhafte Composer-Abandonment-Warnung. Details und Abnahmebedingungen stehen im Upgradevertrag unter „P1-PDF-Abhängigkeitsbereinigung“.
 
 ### P2 getrennte Modernisierungen
 
@@ -133,4 +133,4 @@ Der offizielle [Passport-13-Upgradeleitfaden](https://github.com/laravel/passpor
 
 ## Verbleibende Risiken
 
-Laravel 13 selbst und der gelockte PHP-Backend-Stand haben laut Composer keine bekannten Security-Advisories. Der stabile Bible-Paket-Tag ist eingebunden und kein Blocker mehr. Ein produktives Release bleibt bis zur bereitgestellten PHP-8.4-/MySQL-8-Runtime und einer erfolgreichen produktionsnahen Passport-/Backup-/Restore-Probe gesperrt. Das unveränderte Legacy-Frontend und das aufgegebene PDF-Metapaket bleiben bekannte, getrennt zu bearbeitende Wartungsrisiken.
+Laravel 13 selbst und der gelockte PHP-Backend-Stand haben laut Composer keine bekannten Security-Advisories. Der stabile Bible-Paket-Tag ist eingebunden und kein Blocker mehr. Ein produktives Release bleibt bis zur bereitgestellten PHP-8.4-/MySQL-8-Runtime und einer erfolgreichen produktionsnahen Passport-/Backup-/Restore-Probe gesperrt. Das unveränderte Legacy-Frontend und ausschließlich das aufgegebene FPDI-/FPDF-Metapaket bleiben bekannte, getrennt zu bearbeitende Wartungsrisiken; die eigentlichen FPDI-/FPDF-Bibliotheken bleiben funktionsfähig und gepflegt.
