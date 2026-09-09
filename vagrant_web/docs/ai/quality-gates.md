@@ -69,7 +69,7 @@ Der verifizierte Laravel-13-Stand umfasst mindestens:
 
 Die vollständige Referenz am Implementierungscommit `28f4ec4` lautet 156 Tests mit 1.588 Assertions. Eine niedrigere Zahl ist zu erklären; Tests dürfen bei Paket- oder Frameworkänderungen nicht stillschweigend entfallen oder abgeschwächt werden.
 
-Nach Ergänzung des Produktionsvertrags lautet die aktuelle Untergrenze 165 Tests mit 1.612 Assertions. Die historische Zahl bleibt zur Einordnung des reinen Laravel-13-Checkpoints dokumentiert.
+Nach Ergänzung des Produktionsvertrags und der Release-Regressionsprüfungen lautet die aktuelle Untergrenze 165 Tests mit 1.641 Assertions. Die historische Zahl bleibt zur Einordnung des reinen Laravel-13-Checkpoints dokumentiert.
 
 ## Abschlussbericht
 

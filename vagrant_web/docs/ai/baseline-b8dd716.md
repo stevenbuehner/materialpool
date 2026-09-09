@@ -29,7 +29,7 @@ Dieser Commit ist der grüne Laravel-13-/Passport-13-Implementierungsstand auf `
 | Persistente Disks für Ressourcen, Archive und Bundles existieren | bestätigt | `config/filesystems.php`; Tests verwenden Fakes oder isolierte Test-Disks |
 | Tests basieren auf PHPUnit 12 und der Laravel-Testumgebung | bestätigt | PHPUnit 12.5.35; 156 Tests und 1.588 Assertions gegen MySQL `testing` grün |
 
-Die nachgelagerte Produktionsvertrags-Etappe ergänzt neun Tests; der aktuelle ausführbare Stand umfasst 165 Tests und 1.612 Assertions. Die ursprüngliche Laravel-13-Basiszahl bleibt in der Tabelle als historischer Nachweis erhalten.
+Die nachgelagerte Produktionsvertrags-Etappe ergänzt neun Tests; der aktuelle ausführbare Stand umfasst 165 Tests und 1.641 Assertions. Die ursprüngliche Laravel-13-Basiszahl bleibt in der Tabelle als historischer Nachweis erhalten.
 
 ## Bewusste Kompatibilitätsentscheidungen
 

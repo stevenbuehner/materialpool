@@ -87,6 +87,8 @@ ops/production/build-release.sh <40-stellige-commit-id> /absoluter/ausgabeordner
 
 Das Skript exportiert ausschließlich diesen Commit, prüft PHP 8.4 und Node 16.20.2 im Image `sail-8.4/app`, führt `composer install`, `npm ci --ignore-scripts` und `npm run build` aus, entfernt `.env`, `vendor` und `node_modules` und erzeugt Release-Manifest, Archiv und SHA-256-Datei. Installationsskripte sind vorübergehend deaktiviert, weil das nur indirekt über `svg-icon` eingebrachte, im Produktionsbuild nicht verwendete PhantomJS-Paket kein Linux-arm64-Binary besitzt. Der danach zwingend erfolgreiche Webpack-Build ist das Verhaltensgate. Dependencies, Lockfile und Frontendquellen bleiben unverändert; die Beseitigung dieser Ausnahme gehört zum separaten Frontend-Upgrade.
 
+Der unveränderte Lockstand meldet beim Build 129 npm-Audit-Funde insgesamt. Ein gesondertes `npm audit --omit=dev` weist davon 28 dem Production-Abhängigkeitsgraphen zu: 10 low, 6 moderate, 10 high und 2 critical. Betroffen sind unter anderem die direkten Abhängigkeiten `axios` und `dompurify`; die Audit-Fixvorschläge enthalten teilweise Major-Upgrades. Der Produktionsvertrag autorisiert deshalb keine automatische Paketänderung. Vor dem ersten Go-live muss der Befund mit Datum und Lockstand ausdrücklich bewertet und entweder als zeitlich begrenztes Risiko freigegeben oder in einem gesondert freigegebenen Frontend-Security-Schritt behoben werden.
+
 Der Upload aktiviert nichts:
 
 ```sh
