@@ -7,7 +7,7 @@
   "license": "MIT",
   "type": "project",
   "require": {
-    "php": "^8.2",
+    "php": "^8.4",
     "ext-imagick": "*",
     "ext-json": "*",
     "ext-pdo": "*",
@@ -17,7 +17,7 @@
     "intervention/image": "^2.3",
     "kalnoy/nestedset": "^6.0",
     "laracasts/utilities": "^3.0",
-    "laravel/framework": "^11.0",
+    "laravel/framework": "12.0.0",
     "laravel/passport": "^12.0",
     "laravel/tinker": "^2.0",
     "laravel/ui": "^4.0",
@@ -27,7 +27,7 @@
     "php-ffmpeg/php-ffmpeg": "^1.0",
     "phpexiftool/exiftool": "^10.16",
     "setasign/fpdi-fpdf": "^2.0",
-    "spatie/laravel-backup": "^9.0",
+    "spatie/laravel-backup": "^9.3",
     "spatie/pdf-to-text": "^1.1",
     "stevenbuehner/bible-verse-bundle": "dev-develop"
   },
@@ -36,13 +36,14 @@
     "barryvdh/laravel-ide-helper": "^3.0",
     "fakerphp/faker": "^1.20",
     "filp/whoops": "^2.0",
-    "laravel/boost": "^2.5",
+    "laravel/boost": "1.0.21",
     "laravel/sail": "^1.12",
     "mariuzzo/laravel-js-localization": "^2.1",
     "mockery/mockery": "^1.0",
-    "nunomaduro/collision": "^8.1",
-    "phpunit/phpunit": "^10.0",
-    "spatie/laravel-ignition": "^2.0"
+    "nunomaduro/collision": "8.6.1",
+    "phpunit/phpunit": "^11.5.50",
+    "spatie/laravel-ignition": "2.9.1",
+    "symfony/console": "7.2.*"
   },
   "config": {
     "optimize-autoloader": true,

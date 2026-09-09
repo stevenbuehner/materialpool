@@ -14,7 +14,7 @@ Der Vertrag autorisiert die nachfolgend ausdrücklich beschriebenen Paket- und L
 | --- | --- | --- |
 | PHP | Zielversion PHP 8.4 | Laravel 13 unterstützt PHP 8.3 bis 8.5; PHP 8.4 erfüllt zugleich die Anforderung von `spatie/laravel-backup` 10 und bietet mehr Bibliotheksreserve als 8.3. |
 | Laravel | Laravel 9 → 10 → 11 → 12 → 13 | Jeder Hauptversionsschritt erhält einen eigenen grünen Prüfpunkt. Zwischenstände sind technische Checkpoints, keine produktiven Releases. |
-| EOL-Zwischenstände | Laravel 9 bis 11 werden ausschließlich als lokale, nicht deploybare Kompatibilitäts-Checkpoints verwendet | Für diese historischen Hauptversionen werden die jeweils letzten stabilen Releases verwendet. Versionsbedingt unvermeidbare Security-Advisories werden dokumentiert, nicht verschwiegen und nicht durch bewegliche Dev-Stände umgangen. Sie dürfen nur für den kurzen lokalen Prüfpfad toleriert werden. |
+| Nicht deploybare Zwischenstände | Laravel 9 bis 11 sowie der bewusst exakte Laravel-12.0.0-Messpunkt werden ausschließlich als lokale, nicht deploybare Kompatibilitäts-Checkpoints verwendet | Für Laravel 9 bis 11 werden die jeweils letzten stabilen Releases verwendet. Laravel 12 wird gemäß Entscheidung A exakt auf 12.0.0 begrenzt, weil Nestedset 6 keine spätere 12.x-Version unterstützt; danach folgt ohne Deployment unmittelbar Laravel 13 mit Nestedset 7. Versionsbedingt unvermeidbare Security-Advisories werden dokumentiert und nicht durch bewegliche Dev-Stände umgangen. |
 | Anwendungsstruktur | Bestehende klassische Laravel-Struktur beibehalten | Die Anwendung wird nicht auf die schlanke Laravel-11+-Skeleton-Struktur umgebaut. Provider, Kernel und Konfigurationsdateien bleiben explizit. |
 | OAuth | Laravel Passport beibehalten und auf Version 13 aktualisieren | Kein Wechsel zu Sanctum; OAuth-Clients, Tokens, Scopes, Keys, Guards und Statuscodes bleiben kompatibel. |
 | Resource-STI | `nanigans/single-table-inheritance` durch `tightenco/parental` `^1.6` ersetzen | Der nicht zukunftsfähige STI-Treiber wird ersetzt. Gespeicherte `type`-Werte, Modellklassen, Hydrierung und JSON bleiben identisch. |
@@ -23,7 +23,7 @@ Der Vertrag autorisiert die nachfolgend ausdrücklich beschriebenen Paket- und L
 | Frontend | Vue 2, Vue Router 3, Vuex 3, Bootstrap 4, Bootstrap-Vue, Laravel Mix/Webpack und beide npm-Lock-/Manifestverträge bleiben unverändert | `laravel/ui` darf auf `^4.0` aktualisiert werden, aber es wird kein Scaffolding-Befehl ausgeführt. Änderungen unter `resources/js`, `resources/sass`, `package.json` oder `package-lock.json` sind nicht Teil von P1. |
 | Stability | Alle Framework-Checkpoints verwenden stabile Releases; die finale Composer-Konfiguration erlaubt ausschließlich stabile Releases | Für EOL-Checkpoints darf Composers Security-Blocking nur beim kontrollierten Lockfile-Aufbau übergangen werden, nicht der Audit selbst. `minimum-stability: dev` wird im Endstand entfernt oder auf `stable` gesetzt. Verbleibende Dev-Abhängigkeiten sind dann nicht zulässig. |
 | Offizielle Upgradeleitfäden | Vor jedem Laravel-Hauptversionsschritt wird der zu diesem Zeitpunkt online verfügbare offizielle Laravel-Upgradeleitfaden vollständig geprüft | Die Prüfung wird mit URL, Abrufdatum und Einordnung jedes anwendbaren Punkts im Stufenbericht dokumentiert. Bei Major-Upgrades von Laravel-Erstpaketen, insbesondere Passport, gilt dies zusätzlich für deren offiziellen Upgradeleitfaden. |
-| KI-Entwicklungsunterstützung | Laravel Boost 2 ab dem Laravel-11-Checkpoint als lokale `require-dev`-Abhängigkeit einsetzen | Boost unterstützt die Stufen 11 bis 13 mit versionsbezogener Dokumentationssuche und lesender Anwendungsinspektion. Produkt-KI, ein anwendungseigener MCP-Server und selbstständige Schreib-/Ausführungswerkzeuge sind nicht Bestandteil von P1. |
+| KI-Entwicklungsunterstützung | Laravel Boost als lokale `require-dev`-Abhängigkeit einsetzen | Boost 2 gilt ab Laravel 11 und wieder im Laravel-13-Endstand. Für exakt Laravel 12.0.0 wird vorübergehend die stabile Version 1.0.21 mit zusätzlich ausgeschlossenen Alt-Werkzeugen verwendet, weil aktuelle Boost-2-Versionen eine spätere Laravel-12-Patchversion verlangen. Produkt-KI, ein anwendungseigener MCP-Server und selbstständige Schreib-/Ausführungswerkzeuge sind nicht Bestandteil von P1. |
 
 ## Entscheidungs- und Änderungskontrolle
 
@@ -98,7 +98,7 @@ Diese Semantik ist in `tests/Feature/KeywordNestedSetTest.php` und den erweitert
 
 ## Composer-Zielbild
 
-Folgende Ziel-Hauptversionen sind vereinbart. Pro Upgrade-Schritt werden die neueste stabile Framework-Version und die für diese Stufe vorgesehenen neuesten stabilen direkten Paketversionen gelockt. Ein verhaltenssensitives transitive Major-Upgrade darf nur dann bis zur dafür vorgesehenen Stufe festgehalten werden, wenn der Vertrag dies ausdrücklich benennt; Constraint, Grund und späteste Auflösungsstufe werden im Stufenbericht dokumentiert. Bewegliche Dev-Stände sind davon ausgenommen und im Endstand unzulässig.
+Folgende Ziel-Hauptversionen sind vereinbart. Pro Upgrade-Schritt werden grundsätzlich die neueste stabile Framework-Version und die für diese Stufe vorgesehenen neuesten stabilen direkten Paketversionen gelockt. Die verbindliche Ausnahme ist Stufe 4 mit exakt Laravel 12.0.0 und den dafür dokumentierten temporären Paket-Pins. Ein verhaltenssensitives transitives Major-Upgrade darf nur dann bis zur dafür vorgesehenen Stufe festgehalten werden, wenn der Vertrag dies ausdrücklich benennt; Constraint, Grund und späteste Auflösungsstufe werden im Stufenbericht dokumentiert. Bewegliche Dev-Stände sind davon ausgenommen und im Endstand unzulässig.
 
 | Paket/Bereich | Ziel oder Aktion |
 | --- | --- |
@@ -176,14 +176,19 @@ Medien- und Konvertierungsbibliotheken (`intervention/image`, EXIF/ExifTool, FFm
 - Browser-Instrumentierung, Tinker und das selbstständige Schreiben dauerhafter Regeln deaktivieren.
 - Keine Produkt-KI-Funktion, kein Laravel AI SDK und keinen anwendungseigenen MCP-Endpunkt hinzufügen.
 - Boost-Kompatibilität vor jeder weiteren Laravel-Stufe prüfen.
+- Für den exakten Laravel-12.0.0-Checkpoint Boost vorübergehend auf die stabile Version 1.0.21 zurücksetzen, zusätzliche unsichere Alt-Werkzeuge ausschließen und in Stufe 5 wieder auf Boost 2 wechseln.
 - Versionsspezifische Boost-Guidelines und Skills erst nach der Laravel-13-Abnahme und der Aktualisierung von `AGENTS.md` sowie der Baseline-Dokumente erzeugen, damit während der Zwischenstände keine widersprüchlichen Projektanweisungen entstehen.
 
 ### Stufe 4 – Laravel 12
 
+**Status:** Am 9. September 2026 als kurzer, ausschließlich lokaler und nicht deploybarer Laravel-12.0.0-Kompatibilitäts-Checkpoint vollständig umgesetzt. Prüfungen, Leitfadenmatrix, temporäre Pins und Audit: `docs/ai/upgrade-stage-4-report.md`.
+
 - Zielruntime PHP 8.4 herstellen.
 - Den offiziellen Laravel-12-Upgradeleitfaden online prüfen und vollständig im Stufenbericht abbilden.
 - PHPUnit 11 einführen.
-- Backup-Paket samt veröffentlichter Konfiguration kontrolliert auf die kompatible Hauptversion migrieren.
+- Wegen der Nestedset-6-Obergrenze exakt Laravel 12.0.0 verwenden und diesen Stand nicht deployen; danach unmittelbar auf Laravel 13 mit Nestedset 7 wechseln.
+- Backup-Paket und veröffentlichte Konfiguration auf der höchsten mit exakt Laravel 12.0.0 kompatiblen Linie prüfen. Backup 10 folgt in Stufe 5, weil es eine spätere Laravel-12-Patchversion voraussetzt.
+- Boost für diesen exakten Checkpoint temporär auf die stabile Version 1.0.21 begrenzen und dessen schwächer abgesicherte Werkzeuge zusätzlich ausschließen; in Stufe 5 wieder auf Boost 2 wechseln.
 - Veraltete Framework- und Test-APIs beseitigen, ohne Verträge zu ändern.
 - Insbesondere lokale Disk-Roots, SVG-Bildvalidierung, `mergeIfMissing`, Route-Namenspräzedenz und Container-Auflösung prüfen; neue Defaults nur bei nachgewiesen identischem Verhalten übernehmen.
 
@@ -205,8 +210,8 @@ Medien- und Konvertierungsbibliotheken (`intervention/image`, EXIF/ExifTool, FFm
 Ein Schritt darf erst begonnen werden, wenn der vorherige vollständig grün ist. Ein fehlgeschlagenes Gate wird repariert oder der Schritt wird auf seinen letzten grünen Commit zurückgesetzt; Tests dürfen nicht abgeschwächt werden, um neue Paketsemantik zu akzeptieren.
 
 1. Online-Prüfung des offiziellen Laravel-Upgradeleitfadens und aller angehobenen Laravel-Erstpakete mit dokumentierter Punkt-für-Punkt-Einordnung.
-2. `composer validate --strict` und ein reproduzierbarer Lockfile-Aufbau.
-3. `composer audit`; offene Findings werden immer dokumentiert. Bei den ausdrücklich nicht deploybaren Laravel-9- bis Laravel-11-Checkpoints blockieren ausschließlich durch die gewählte historischen Framework-/Passport-Stufe unvermeidbare Findings den lokalen Kompatibilitätsschritt nicht. Andere sicherheitskritische Findings blockieren weiterhin. Der Laravel-13-Endstand darf keine offenen sicherheitskritischen Findings enthalten.
+2. `composer validate --strict` und ein reproduzierbarer Lockfile-Aufbau. Beim exakten Laravel-12.0.0-Messpunkt ist ausschließlich Composers Warnung gegen den bewusst exakten Framework-Constraint akzeptiert; weitere Fehler oder Warnungen blockieren.
+3. `composer audit`; offene Findings werden immer dokumentiert. Bei den ausdrücklich nicht deploybaren Laravel-9- bis Laravel-11-Checkpoints und dem exakten Laravel-12.0.0-Messpunkt blockieren ausschließlich durch die gewählte historische Framework-/Passport-Stufe unvermeidbare Findings den lokalen Kompatibilitätsschritt nicht. Andere sicherheitskritische Findings blockieren weiterhin. Der Laravel-13-Endstand darf keine offenen sicherheitskritischen Findings enthalten.
 4. PHP-Syntaxprüfung aller geänderten PHP-Dateien.
 5. Vollständige PHPUnit-Suite gegen die dedizierte MySQL-Datenbank `testing`.
 6. Nested-Set-Vertragsgruppe separat; zusätzlich `countErrors()` und `isBroken()` nach allen Mutationsszenarien.
@@ -224,7 +229,7 @@ Ein Schritt darf erst begonnen werden, wenn der vorherige vollständig grün ist
 
 - Charakterisierungstests werden vor dem ersten Dependency-Upgrade separat committed.
 - Jeder Laravel-Hauptversionsschritt besteht aus einem eigenen, reviewbaren Commit oder einer kleinen zusammenhängenden Commitserie und endet mit einem dokumentierten grünen Gate.
-- Commits der EOL-Zwischenstände Laravel 9 bis 11 sind weder Release- noch Deployment-Kandidaten und dürfen nicht in einer erreichbaren produktiven Umgebung betrieben werden.
+- Commits der EOL-Zwischenstände Laravel 9 bis 11 und des exakten Laravel-12.0.0-Messpunkts sind weder Release- noch Deployment-Kandidaten und dürfen nicht in einer erreichbaren produktiven Umgebung betrieben werden.
 - Das `composer.lock` wird pro Schritt vollständig geprüft; unerklärte transitive Major-Upgrades blockieren die Abnahme.
 - Der Rückbau erfolgt auf den letzten grünen Hauptversions-Checkpoint. Datenbank-Rückbau ist nicht vorgesehen, weil P1 keine Schema- oder Datenänderung autorisiert.
 - Laravel 13 ist erst abgenommen, wenn ein kalter Sail-Start, eine frische Installation aus Lockfiles, die vollständige Suite, alle Spezial-Gates und der bestehende Frontend-Build erfolgreich sind.

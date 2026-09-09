@@ -13,7 +13,7 @@ class ImageFile extends File {
 
 	public static function getValidationRules() {
 		$rules         = parent::getValidationRules();
-		$rules['file'] = 'bail|required|file|image';
+		$rules['file'] = 'bail|required|file|image:allow_svg';
 
 		return $rules;
 	}
