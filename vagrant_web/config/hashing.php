@@ -19,6 +19,18 @@ return [
 
 	/*
 	|--------------------------------------------------------------------------
+	| Rehash Passwords On Login
+	|--------------------------------------------------------------------------
+	|
+	| The legacy application did not automatically rehash passwords during
+	| authentication. Keep that behavior explicit during the framework upgrade.
+	|
+	*/
+
+	'rehash_on_login' => false,
+
+	/*
+	|--------------------------------------------------------------------------
 	| Bcrypt Options
 	|--------------------------------------------------------------------------
 	|

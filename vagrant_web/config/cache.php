@@ -91,6 +91,8 @@ return [
     |
     */
 
-    'prefix' => 'laravel',
+    // Laravel 10 appended this separator in the cache stores. Laravel 11 does
+    // not, so it remains explicit to preserve the existing cache namespace.
+    'prefix' => 'laravel:',
 
 ];

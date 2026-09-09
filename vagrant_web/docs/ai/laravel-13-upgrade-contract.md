@@ -4,6 +4,8 @@
 
 Dieser Vertrag ist die verbindliche Arbeitsgrundlage für P1. Ziel ist Laravel 13 auf PHP 8.4 mit aktualisierten Composer-Abhängigkeiten. Die Umstellung erfolgt in überprüfbaren Hauptversionsschritten. Das bestehende Vue-2-Frontend wird nicht modernisiert und seine Paketdefinitionen, sein Buildsystem sowie sein sichtbares Verhalten bleiben unangetastet, soweit eine Backend-Kompatibilitätsanpassung dies nicht zwingend erfordert.
 
+**Vertragsrevision:** 9. September 2026. Der Vertrag wurde gegen die zu diesem Zeitpunkt online verfügbaren offiziellen Laravel-Upgradeleitfäden 9.x bis 13.x sowie den offiziellen Passport-Upgradeleitfaden geprüft. Die Online-Prüfung ist ab dieser Revision selbst Bestandteil jedes weiteren Hauptversionsschritts.
+
 Der Vertrag autorisiert die nachfolgend ausdrücklich beschriebenen Paket- und Laufzeitänderungen. Ein Upgrade ist niemals eine stillschweigende Freigabe, bestehendes Verhalten zu ändern. Der Vertrag autorisiert insbesondere keine Änderung fachlicher oder technischer Verhaltensverträge, produktiver Daten, Datenbankstrukturen, Berechtigungen, API-Payloads, Speicherorte oder Frontendgestaltung. Wird eine solche Änderung technisch unvermeidbar oder erscheint eine Änderung gegenüber dem Ist-Verhalten sinnvoll, endet die Umsetzungsautorisierung an dieser Stelle und es ist vorab eine neue Entscheidung nach `docs/ai/decision-template.md` einzuholen.
 
 ## Verbindliche Zielentscheidungen
@@ -20,6 +22,7 @@ Der Vertrag autorisiert die nachfolgend ausdrücklich beschriebenen Paket- und L
 | Eigenes Bible-Paket | Das `stevenbuehner/bible-verse-bundle` wird als separates, vom Auftraggeber verwaltetes Composer-Projekt behandelt | In diesem Repository werden nur Anforderungen und Kompatibilitätsbefunde ermittelt. Änderungen und Release-Tags des Pakets nimmt der Auftraggeber im separaten Projekt vor. Eingebunden wird anschließend ein vom Auftraggeber bereitgestellter stabiler, unveränderlicher Tag mit Laravel-13-/PHP-8.4-Kompatibilität und unveränderten PHP- und JavaScript-Exports. |
 | Frontend | Vue 2, Vue Router 3, Vuex 3, Bootstrap 4, Bootstrap-Vue, Laravel Mix/Webpack und beide npm-Lock-/Manifestverträge bleiben unverändert | `laravel/ui` darf auf `^4.0` aktualisiert werden, aber es wird kein Scaffolding-Befehl ausgeführt. Änderungen unter `resources/js`, `resources/sass`, `package.json` oder `package-lock.json` sind nicht Teil von P1. |
 | Stability | Alle Framework-Checkpoints verwenden stabile Releases; die finale Composer-Konfiguration erlaubt ausschließlich stabile Releases | Für EOL-Checkpoints darf Composers Security-Blocking nur beim kontrollierten Lockfile-Aufbau übergangen werden, nicht der Audit selbst. `minimum-stability: dev` wird im Endstand entfernt oder auf `stable` gesetzt. Verbleibende Dev-Abhängigkeiten sind dann nicht zulässig. |
+| Offizielle Upgradeleitfäden | Vor jedem Laravel-Hauptversionsschritt wird der zu diesem Zeitpunkt online verfügbare offizielle Laravel-Upgradeleitfaden vollständig geprüft | Die Prüfung wird mit URL, Abrufdatum und Einordnung jedes anwendbaren Punkts im Stufenbericht dokumentiert. Bei Major-Upgrades von Laravel-Erstpaketen, insbesondere Passport, gilt dies zusätzlich für deren offiziellen Upgradeleitfaden. |
 
 ## Entscheidungs- und Änderungskontrolle
 
@@ -33,6 +36,14 @@ Der Vertrag autorisiert die nachfolgend ausdrücklich beschriebenen Paket- und L
 - Eine Konventionsumstellung wird nicht nur teilweise oder kosmetisch durchgeführt. Sind zusammengehörige Aufrufstellen, Konfigurationen oder Tests nicht vollständig migrierbar, bleibt vorerst die bestehende Konvention bestehen und der Befund wird als Entscheidungsvorschlag dokumentiert.
 - Neue Framework-Defaults, die beobachtbares Verhalten verändern, gelten nicht allein wegen ihres Standardstatus als freigegeben. Für Änderungen an API, Daten, Sicherheit, Berechtigungen, Storage, Queues, Serialisierung, UX oder Nutzerverhalten ist weiterhin vorab eine ausdrückliche Entscheidung erforderlich.
 - Die Zuständigkeit für das separate `bible-verse-bundle` verbleibt beim Auftraggeber. Der Agent darf notwendige Änderungen an diesem Paket beschreiben und eine konkrete Versionierungs-/Release-Empfehlung geben, aber weder dessen Repository noch dessen Releases ohne einen separaten ausdrücklichen Auftrag verändern.
+
+## Verbindliche Leitfadenprüfung je Stufe
+
+- Vor der Änderung von PHP-, Laravel- oder Composer-Constraints wird der offizielle Online-Leitfaden der unmittelbar nächsten Laravel-Hauptversion unter `https://laravel.com/framework/docs/<version>.x/upgrade` geöffnet und vollständig auf das Repository abgebildet. Eine gespeicherte Kopie, Erinnerung oder Zusammenfassung allein genügt nicht.
+- Der Stufenbericht enthält mindestens Abrufdatum, genaue Zielversionen, alle für das Projekt anwendbaren Punkte sowie je Punkt den Status `nicht betroffen`, `durch Test abgedeckt`, `verhaltensneutral umgesetzt` oder `Entscheidung erforderlich`.
+- Für jedes angehobene Laravel-Erstpaket wird dessen offizieller Major-Upgradeleitfaden ebenfalls online geprüft. Für Passport gilt insbesondere `https://github.com/laravel/passport/blob/<version>.x/UPGRADE.md`.
+- Änderungen am offiziellen Leitfaden zwischen Planung und Umsetzung werden erneut bewertet. Widerspricht eine neue Vorgabe diesem Vertrag oder verlangt sie eine Verhaltens-, Sicherheits-, Daten- oder Schemaentscheidung, pausiert die Stufe vor der betreffenden Änderung.
+- Der offizielle Leitfaden ist eine technische Pflichtquelle, erweitert aber nicht eigenständig die Änderungsautorisierung dieses Vertrags.
 
 ## Unveränderliche Produktverträge
 
@@ -48,8 +59,11 @@ Die folgenden Punkte sind harte Abnahmekriterien. Eine Abweichung ist kein „Up
 
 ### Datenmodell und Serialisierung
 
-- Bestehende Tabellen, Spalten, Indizes, Primärschlüssel und historische Migrationen werden nicht geändert.
-- Bestehende Migrationen werden niemals umgeschrieben. Eine neue Schema- oder Datenmigration ist in P1 nicht autorisiert und erfordert eine separate Entscheidung.
+- Bestehende Tabellen, Spalten, Indizes und Primärschlüssel werden nicht ohne separate Entscheidung geändert.
+- Anwendungseigene historische Migrationen werden nicht umgeschrieben. Eine neue Schema- oder Datenmigration ist in P1 nicht autorisiert und erfordert eine separate Entscheidung.
+- Migrationen eines Laravel-Erstpakets, die in einer Vorversion automatisch aus dem Paket geladen wurden und laut offiziellem Upgradeleitfaden nun veröffentlicht werden müssen, dürfen unverändert in das Repository übernommen werden. Dies gilt nicht als neues Schema, sofern Dateiname, Inhalt und resultierendes Schema dem bisher automatisch ausgeführten Stand entsprechen. Anzahl und Inhalt werden gegen unbeabsichtigte Paketänderungen getestet. Änderungen an diesen veröffentlichten Dateien sind nicht erlaubt.
+- Kann eine neue Laravel-Version das bisherige Zielschema aus einer unveränderten anwendungseigenen Migration wegen geänderter Migrationssemantik nicht mehr reproduzieren, ist dies kein gewöhnlicher Kompatibilitätsfix: Das Fresh-Migration-Gate pausiert und verlangt eine Entscheidung zwischen einer minimalen, nachweislich schemaäquivalenten Quellenkorrektur und einem versionierten Schema-Baseline-Verfahren.
+- **Freigegebene Ausnahme vom 9. September 2026:** In `2019_01_19_235903_bigger_local_path.php` werden ausschließlich die bereits zuvor geltenden `nullable`-Attribute von `resources.remote_path` und `resources.local_path` bei `change()` explizit wiederholt. Dies folgt der Laravel-11-Migrationssemantik und darf das resultierende Schema nicht verändern. Vorwärts- und Rückwärtsdefinition sowie Fresh-/Bestandsschema werden darauf geprüft. Weitere Änderungen historischer Migrationen sind dadurch nicht autorisiert.
 - Resource-STI behält alle vorhandenen Kurzcodes und Zuordnungen, insbesondere `res`, `link`, `file`, `text`, `book` sowie die Datei-Untertypen.
 - `MaterialResource.limitation`, Keyword-/Bibleverse-`relevance`, `options`, Zeitstempel und alle bisher serialisierten Werte bleiben les- und schreibkompatibel.
 - Laravel-13-Härtungen für Cache-Serialisierung werden explizit konfiguriert und getestet. Bestehende erlaubte Anwendungsobjekte dürfen nicht stillschweigend unlesbar werden.
@@ -83,7 +97,7 @@ Diese Semantik ist in `tests/Feature/KeywordNestedSetTest.php` und den erweitert
 
 ## Composer-Zielbild
 
-Folgende Ziel-Hauptversionen sind vereinbart. Innerhalb dieser Grenzen wird pro Upgrade-Schritt die neueste stabile, mit der jeweiligen Laravel-/PHP-Version kompatible Version gelockt.
+Folgende Ziel-Hauptversionen sind vereinbart. Pro Upgrade-Schritt werden die neueste stabile Framework-Version und die für diese Stufe vorgesehenen neuesten stabilen direkten Paketversionen gelockt. Ein verhaltenssensitives transitive Major-Upgrade darf nur dann bis zur dafür vorgesehenen Stufe festgehalten werden, wenn der Vertrag dies ausdrücklich benennt; Constraint, Grund und späteste Auflösungsstufe werden im Stufenbericht dokumentiert. Bewegliche Dev-Stände sind davon ausgenommen und im Endstand unzulässig.
 
 | Paket/Bereich | Ziel oder Aktion |
 | --- | --- |
@@ -140,23 +154,37 @@ Medien- und Konvertierungsbibliotheken (`intervention/image`, EXIF/ExifTool, FFm
 
 ### Stufe 3 – Laravel 11
 
+**Status:** Am 9. September 2026 als ausschließlich lokaler, nicht deploybarer EOL-Kompatibilitäts-Checkpoint umgesetzt. Prüfungen, Leitfadenmatrix und bekannte Befunde: `docs/ai/upgrade-stage-3-report.md`.
+
 - PHP mindestens 8.2.
 - Klassische Anwendungsstruktur beibehalten.
+- Den offiziellen Laravel-11- und Passport-12-Upgradeleitfaden online prüfen und vollständig im Stufenbericht abbilden.
 - Authentifizierung, Queues, Scheduling, Mail und Carbon-Verhalten gegen die Charakterisierungstests prüfen.
+- Carbon 3 bereits in dieser Stufe kontrolliert einführen: Laravel 11 unterstützt Carbon 2 und 3, und im Anwendungscode werden keine von Carbon 3 semantisch geänderten `diffIn*`-Methoden verwendet. Damit entfällt der bisherige Widerspruch zwischen „neueste stabile kompatible Pakete“ und einer künstlichen Carbon-2-Fixierung bis Laravel 12.
+- Cache-Präfix, Password-Rehashing und Queue-`after_commit` so explizit konfigurieren, dass das bisherige Verhalten erhalten bleibt.
+- Die fünf bislang automatisch geladenen Passport-Migrationen gemäß Passport-12-Leitfaden unverändert veröffentlichen und ihre exakte Liste prüfen; keine zusätzlichen Passport-Schemaänderungen einführen.
+- Den bisher verfügbaren Password Grant ausdrücklich aktivieren und testen.
+- Die freigegebene schemaäquivalente `nullable()`-Korrektur der zwei historischen `change()`-Definitionen für `resources.remote_path` und `resources.local_path` umsetzen und gegen Fresh- sowie Bestandsschema prüfen.
 
 ### Stufe 4 – Laravel 12
 
 - Zielruntime PHP 8.4 herstellen.
-- Carbon 3 und PHPUnit 11 einführen.
+- Den offiziellen Laravel-12-Upgradeleitfaden online prüfen und vollständig im Stufenbericht abbilden.
+- PHPUnit 11 einführen.
 - Backup-Paket samt veröffentlichter Konfiguration kontrolliert auf die kompatible Hauptversion migrieren.
 - Veraltete Framework- und Test-APIs beseitigen, ohne Verträge zu ändern.
+- Insbesondere lokale Disk-Roots, SVG-Bildvalidierung, `mergeIfMissing`, Route-Namenspräzedenz und Container-Auflösung prüfen; neue Defaults nur bei nachgewiesen identischem Verhalten übernehmen.
 
 ### Stufe 5 – Laravel 13
 
+- Den offiziellen Laravel-13-Upgradeleitfaden sowie den Passport-13-Upgradeleitfaden online prüfen und vollständig im Stufenbericht abbilden.
 - `laravel/framework ^13.0`, `laravel/tinker ^3.0`, PHPUnit 12 und alle finalen Paketziele locken.
 - Passport 13 einschließlich `OAuthenticatable` integrieren.
-- CSRF-Middleware-Namenswechsel kompatibel umsetzen.
+- Integer-basierte bestehende Passport-Client-IDs und die bisherigen JSON-API-Routen ausdrücklich konfigurieren. UUID-Default und das Abschalten der JSON-API werden nicht stillschweigend übernommen.
+- Vor dem Passport-13-Upgrade sind separate Entscheidungen zu treffen: Hashing bestehender Client-Secrets, Umgang mit dem neuen `oauth_clients`-Schema einschließlich der dokumentierten Integer-ID-Kollision sowie Ersatz der entfallenen Passport-Authorization-View. Bis dahin ist dieser Teil der Stufe gesperrt.
+- Den CSRF-Middleware-Namenswechsel auf `PreventRequestForgery` modernisieren. Die neue Origin-Prüfung über `Sec-Fetch-Site` ist eine Sicherheits- und Verhaltensänderung und benötigt vor Aktivierung eine separate Entscheidung mit Erfolgs- und Ablehnungstests.
 - Cache- und Session-Serialisierung sowie Prefix-Kontinuität explizit konfigurieren und testen.
+- Cache-Objekte auf eine explizite `serializable_classes`-Allowlist begrenzen. Die Session-Serialisierung bleibt für einen unterbrechungsfreien Upgradepfad ausdrücklich `php`; ein Wechsel zu `json` bleibt ein separater Session-Cutover.
 - Parental-STI und Nestedset 7 anhand ihrer vollständigen Vertragsgruppen abnehmen.
 - `minimum-stability` auf stabile Releases begrenzen und bewegliche Branch-Abhängigkeiten entfernen.
 
@@ -164,20 +192,21 @@ Medien- und Konvertierungsbibliotheken (`intervention/image`, EXIF/ExifTool, FFm
 
 Ein Schritt darf erst begonnen werden, wenn der vorherige vollständig grün ist. Ein fehlgeschlagenes Gate wird repariert oder der Schritt wird auf seinen letzten grünen Commit zurückgesetzt; Tests dürfen nicht abgeschwächt werden, um neue Paketsemantik zu akzeptieren.
 
-1. `composer validate --strict` und ein reproduzierbarer Lockfile-Aufbau.
-2. `composer audit`; offene Findings werden immer dokumentiert. Bei den ausdrücklich nicht deploybaren Laravel-9- bis Laravel-11-Checkpoints blockieren ausschließlich durch die gewählte historischen Framework-/Passport-Stufe unvermeidbare Findings den lokalen Kompatibilitätsschritt nicht. Andere sicherheitskritische Findings blockieren weiterhin. Der Laravel-13-Endstand darf keine offenen sicherheitskritischen Findings enthalten.
-3. PHP-Syntaxprüfung aller geänderten PHP-Dateien.
-4. Vollständige PHPUnit-Suite gegen die dedizierte MySQL-Datenbank `testing`.
-5. Nested-Set-Vertragsgruppe separat; zusätzlich `countErrors()` und `isBroken()` nach allen Mutationsszenarien.
-6. Frische Datenbank aus allen historischen Migrationen sowie Upgrade einer Datenbankkopie mit realistischer Struktur; niemals gegen Produktionsdaten.
-7. API-v1/v2- und Passport-Prüfungen: unauthentifiziert, authentifiziert, erlaubt, verboten sowie Token-/Client-Kontinuität.
-8. Resource-STI für jeden gespeicherten Typ und Untertyp: Erzeugung, Hydrierung, Relation und JSON.
-9. Material-, Resource-, Keyword- und Bibleverse-Pivots einschließlich `limitation` und `relevance`.
-10. Upload, Lesen, Vorschau, Archivieren und Löschen repräsentativer Dateiarten auf gefakten beziehungsweise isolierten Test-Disks.
-11. Events, Listener, synchrone Testjobs, Queue-Namen und Bundle-Jobreihenfolge.
-12. Backup-Erzeugung und testweiser Restore in eine isolierte temporäre Umgebung.
-13. `npm ci` und bestehender Production-Build als Kompatibilitätsprüfung. Dabei dürfen `package.json`, `package-lock.json` und sichtbare Frontend-Artefakte nicht unbeabsichtigt geändert werden.
-14. Prüfung, dass Entwicklungsdatenbank, reguläre Storage-Dateien und Archive unverändert geblieben sind.
+1. Online-Prüfung des offiziellen Laravel-Upgradeleitfadens und aller angehobenen Laravel-Erstpakete mit dokumentierter Punkt-für-Punkt-Einordnung.
+2. `composer validate --strict` und ein reproduzierbarer Lockfile-Aufbau.
+3. `composer audit`; offene Findings werden immer dokumentiert. Bei den ausdrücklich nicht deploybaren Laravel-9- bis Laravel-11-Checkpoints blockieren ausschließlich durch die gewählte historischen Framework-/Passport-Stufe unvermeidbare Findings den lokalen Kompatibilitätsschritt nicht. Andere sicherheitskritische Findings blockieren weiterhin. Der Laravel-13-Endstand darf keine offenen sicherheitskritischen Findings enthalten.
+4. PHP-Syntaxprüfung aller geänderten PHP-Dateien.
+5. Vollständige PHPUnit-Suite gegen die dedizierte MySQL-Datenbank `testing`.
+6. Nested-Set-Vertragsgruppe separat; zusätzlich `countErrors()` und `isBroken()` nach allen Mutationsszenarien.
+7. Frische Datenbank aus allen unveränderten anwendungseigenen und den ausdrücklich übernommenen Paketmigrationen sowie Upgrade einer Datenbankkopie mit realistischer Struktur; niemals gegen Produktionsdaten.
+8. API-v1/v2- und Passport-Prüfungen: unauthentifiziert, authentifiziert, erlaubt, verboten sowie Token-/Client-Kontinuität.
+9. Resource-STI für jeden gespeicherten Typ und Untertyp: Erzeugung, Hydrierung, Relation und JSON.
+10. Material-, Resource-, Keyword- und Bibleverse-Pivots einschließlich `limitation` und `relevance`.
+11. Upload, Lesen, Vorschau, Archivieren und Löschen repräsentativer Dateiarten auf gefakten beziehungsweise isolierten Test-Disks.
+12. Events, Listener, synchrone Testjobs, Queue-Namen und Bundle-Jobreihenfolge.
+13. Backup-Erzeugung und testweiser Restore in eine isolierte temporäre Umgebung.
+14. Das unveränderte Frontend wird durch den bestehenden Production-Build und Hashvergleich der Manifeste und Quellen geprüft. `npm ci` wird versucht; ein bereits in Stufe 0 nachgewiesener, unveränderter Plattformfehler einer Legacy-Frontend-Abhängigkeit blockiert die reinen Backend-Checkpoints nicht, solange Lockfiles unverändert bleiben und der Build aus dem bestehenden Lock-Stand erfolgreich ist. Die Behebung dieses Frontend-Installationsproblems bleibt Aufgabe des separaten Frontend-Upgrades.
+15. Prüfung, dass Entwicklungsdatenbank, reguläre Storage-Dateien und Archive unverändert geblieben sind.
 
 ## Commit-, Rückbau- und Abnahmeregeln
 
@@ -187,6 +216,7 @@ Ein Schritt darf erst begonnen werden, wenn der vorherige vollständig grün ist
 - Das `composer.lock` wird pro Schritt vollständig geprüft; unerklärte transitive Major-Upgrades blockieren die Abnahme.
 - Der Rückbau erfolgt auf den letzten grünen Hauptversions-Checkpoint. Datenbank-Rückbau ist nicht vorgesehen, weil P1 keine Schema- oder Datenänderung autorisiert.
 - Laravel 13 ist erst abgenommen, wenn ein kalter Sail-Start, eine frische Installation aus Lockfiles, die vollständige Suite, alle Spezial-Gates und der bestehende Frontend-Build erfolgreich sind.
+- „Frische Installation aus Lockfiles“ bezeichnet in P1 zwingend den Composer-Lockfile-Aufbau. Für npm gilt bis zum separaten Frontend-Upgrade die in Quality Gate 14 beschriebene, dokumentierte Legacy-Ausnahme.
 - Am Ende werden `AGENTS.md`, `docs/ai/baseline-b8dd716.md`, `docs/ai/architecture.md` und `docs/ai/quality-gates.md` auf die neue verifizierte Basis aktualisiert. Vorher bleiben sie als Beschreibung der noch gültigen Ausgangsbasis bestehen.
 
 ## Nicht Bestandteil von P1
@@ -204,6 +234,9 @@ Ein Schritt darf erst begonnen werden, wenn der vorherige vollständig grün ist
 - Laravel-13-Upgradeleitfaden: <https://laravel.com/framework/docs/13.x/upgrade>
 - Laravel-Release- und Supportübersicht: <https://laravel.com/docs/13.x/releases>
 - Laravel-9-Upgradeleitfaden: <https://laravel.com/framework/docs/9.x/upgrade>
+- Laravel-10-Upgradeleitfaden: <https://laravel.com/framework/docs/10.x/upgrade>
+- Laravel-11-Upgradeleitfaden: <https://laravel.com/framework/docs/11.x/upgrade>
 - Laravel-12-Upgradeleitfaden: <https://laravel.com/framework/docs/12.x/upgrade>
+- Passport-Upgradeleitfaden: <https://github.com/laravel/passport/blob/13.x/UPGRADE.md>
 - Projektinterne Invarianten: `docs/ai/domain-invariants.md`
 - Projektinterne Quality Gates: `docs/ai/quality-gates.md`

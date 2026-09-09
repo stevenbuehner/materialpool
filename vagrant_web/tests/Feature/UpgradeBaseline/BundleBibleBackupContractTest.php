@@ -85,6 +85,7 @@ class BundleBibleBackupContractTest extends TestCase
         $this->assertSame(config('app.name'), config('backup.backup.name'));
         $this->assertSame([storage_path('app')], config('backup.backup.source.files.include'));
         $this->assertSame([storage_path('app/tmp')], config('backup.backup.source.files.exclude'));
+        $this->assertNull(config('backup.backup.source.files.relative_path'));
         $this->assertSame(['mysql'], config('backup.backup.source.databases'));
         $this->assertSame(['backup'], config('backup.backup.destination.disks'));
         $this->assertSame(storage_path('backups'), config('backup.backup.temporary_directory'));

@@ -19,6 +19,21 @@ class SerializationAndStorageContractTest extends TestCase
 {
     use RefreshDatabase;
 
+    public function test_historical_resource_path_columns_keep_their_nullable_schema(): void
+    {
+        $columns = DB::table('information_schema.COLUMNS')
+            ->where('TABLE_SCHEMA', config('database.connections.mysql.database'))
+            ->where('TABLE_NAME', 'resources')
+            ->whereIn('COLUMN_NAME', ['remote_path', 'local_path'])
+            ->get()
+            ->keyBy('COLUMN_NAME');
+
+        $this->assertSame('YES', $columns['remote_path']->IS_NULLABLE);
+        $this->assertSame(255, $columns['remote_path']->CHARACTER_MAXIMUM_LENGTH);
+        $this->assertSame('YES', $columns['local_path']->IS_NULLABLE);
+        $this->assertSame(512, $columns['local_path']->CHARACTER_MAXIMUM_LENGTH);
+    }
+
     public function test_material_resource_limitation_keeps_its_php_serialized_object_contract(): void
     {
         $user = User::factory()->create();

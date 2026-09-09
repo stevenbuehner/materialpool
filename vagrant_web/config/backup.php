@@ -34,6 +34,12 @@ return [
 				 * Determines if symlinks should be followed.
 				 */
 				'follow_links' => TRUE,
+
+				/*
+				 * Keep paths relative to their existing source roots. This explicit
+				 * null value is required by laravel-backup 9 and preserves v8 output.
+				 */
+				'relative_path' => NULL,
 			],
 
 			/*
@@ -91,7 +97,7 @@ return [
 		/*
 		 * The directory where the temporary files will be stored.
 		 */
-		'temporary_directory' => storage_path('backups'),
+		'temporary_directory' => env('BACKUP_TEMPORARY_DIRECTORY', storage_path('backups')),
 	],
 
 	/*

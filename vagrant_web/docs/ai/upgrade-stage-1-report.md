@@ -20,6 +20,10 @@ Der Schritt verändert keine Datenbankstruktur, API, Berechtigung, fachliche Sem
 - PHP-FFMpeg 1.4.0
 - `mariuzzo/laravel-js-localization` 1.10.0, bewusst auf der letzten mit `resources/lang` kompatiblen Version gehalten
 
+## Nachgetragener Online-Leitfadenabgleich
+
+Im Rahmen der Vertragsrevision vom 9. September 2026 wurde der bereits abgeschlossene Checkpoint nochmals online mit dem offiziellen [Laravel-9-Upgradeleitfaden](https://laravel.com/framework/docs/9.x/upgrade) abgeglichen. Die für dieses Repository anwendbaren Hauptpunkte waren PHP 8.0.2, Framework-/Collision-/Ignition-Constraints, Flysystem 3, Symfony Mailer, PHP-Rückgabetypen, Sprachverzeichnis und die Prüfung weiterer Drittanbieterpakete. Diese Punkte entsprechen den unten dokumentierten Paket-, Storage-, Mail-, Signatur- und Übersetzungspfad-Anpassungen. Die übrigen beschriebenen Änderungen wurden im Anwendungscode gesucht und waren entweder nicht betroffen oder durch die vollständige Vertrags-Suite abgedeckt. Diese Nachprüfung ersetzt keine künftig stufenbegleitende Prüfung; ab Stufe 3 wird die Einordnung vor dem Dependency-Wechsel erstellt.
+
 Die wirkungslose Composer-Repository-Definition für einen GitHub-Fork von PHPExifTool wurde entfernt. Bereits zuvor und weiterhin wird `phpexiftool/exiftool` 10.16 aus dessen Upstream-Repository gelockt. Das separat verwaltete `stevenbuehner/bible-verse-bundle` bleibt unverändert auf `dev-develop`; die stabile Ablösung ist gemäß Upgradevertrag Aufgabe einer späteren Stufe nach Bereitstellung durch den Auftraggeber.
 
 ## Kompatibilitäts- und Konventionsanpassungen

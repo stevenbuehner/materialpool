@@ -16,6 +16,10 @@ Es wurden weder Schema noch Daten, API, Authentifizierungssemantik, Berechtigung
 - Spatie Laravel Ignition: 1.7.2 auf 2.9.1
 - Spatie Laravel Backup: 8.2.0 auf 8.8.2
 
+## Nachgetragener Online-Leitfadenabgleich
+
+Im Rahmen der Vertragsrevision vom 9. September 2026 wurde der bereits abgeschlossene Checkpoint nochmals online mit dem offiziellen [Laravel-10-Upgradeleitfaden](https://laravel.com/framework/docs/10.x/upgrade) abgeglichen. Die anwendbaren Punkte umfassten PHP 8.1, Composer 2.2, Framework-, Passport-, UI-, Ignition- und Collision-Kompatibilität, `minimum-stability`, Monolog 3, Policy-Registrierung, PHPUnit-/Mocking-Anpassungen und die Suche nach geänderten DB-Expression-, Redis-Tag-, `$dates`-, Form-Request- und Routing-APIs. Ergebnis und Umsetzung sind in den folgenden Abschnitten dokumentiert. Ab Stufe 3 erfolgt dieser Online-Abgleich verbindlich vor dem jeweiligen Dependency-Wechsel und mit einer expliziten Punkt-für-Punkt-Einordnung.
+
 Die in der offiziellen Laravel-10-Anleitung aufgeführten Anwendungsrisiken wurden vollständig durchsucht. Es gibt keine betroffenen `$dates`-Properties, manuellen DB-Expression-Casts, Redis-Cache-Tags, `dispatchNow`-/`dispatch_now`-Aufrufe, `Redirect::home`-Aufrufe, manuellen `QueryException`-Konstruktoren oder kollidierenden Form-Request-`after()`-Methoden.
 
 Folgende aktuelle Konventionen wurden als zusammenhängende, verhaltensneutrale Migration übernommen:

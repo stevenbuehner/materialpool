@@ -13,6 +13,14 @@ class AuthenticationAndRouteContractTest extends TestCase
 {
     use RefreshDatabase;
 
+    private const PASSPORT_MIGRATIONS = [
+        '2016_06_01_000001_create_oauth_auth_codes_table.php',
+        '2016_06_01_000002_create_oauth_access_tokens_table.php',
+        '2016_06_01_000003_create_oauth_refresh_tokens_table.php',
+        '2016_06_01_000004_create_oauth_clients_table.php',
+        '2016_06_01_000005_create_oauth_personal_access_clients_table.php',
+    ];
+
     public function test_the_api_guard_remains_passport_with_the_eloquent_user_provider(): void
     {
         $this->assertSame('web', config('auth.defaults.guard'));
@@ -21,6 +29,33 @@ class AuthenticationAndRouteContractTest extends TestCase
         $this->assertSame('eloquent', config('auth.providers.users.driver'));
         $this->assertSame(User::class, config('auth.providers.users.model'));
         $this->assertContains(HasApiTokens::class, class_uses_recursive(User::class));
+        $this->assertTrue(Passport::$passwordGrantEnabled);
+    }
+
+    public function test_framework_defaults_that_would_change_runtime_behavior_remain_explicit(): void
+    {
+        $this->assertFalse(config('hashing.rehash_on_login'));
+        $this->assertSame('laravel:', config('cache.prefix'));
+        $this->assertFalse(config('queue.connections.sync.after_commit'));
+        $this->assertFalse(config('queue.connections.database.after_commit'));
+    }
+
+    public function test_passport_keeps_loading_exactly_its_five_historical_table_migrations(): void
+    {
+        $vendorPath = base_path('vendor/laravel/passport/database/migrations');
+        $applicationPath = database_path('migrations');
+        $migrations = array_map('basename', glob($vendorPath . '/*.php'));
+        sort($migrations);
+
+        $this->assertSame(self::PASSPORT_MIGRATIONS, $migrations);
+
+        foreach (self::PASSPORT_MIGRATIONS as $migration) {
+            $this->assertFileEquals(
+                $vendorPath . '/' . $migration,
+                $applicationPath . '/' . $migration,
+                "Published Passport migration {$migration} differs from its locked source."
+            );
+        }
     }
 
     public function test_a_protected_api_route_rejects_anonymous_requests_and_accepts_passport_users(): void

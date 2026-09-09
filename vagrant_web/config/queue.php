@@ -31,7 +31,8 @@ return [
 	'connections' => [
 
 		'sync' => [
-			'driver' => 'sync',
+			'driver'       => 'sync',
+			'after_commit' => false,
 		],
 
 		'database' => [
@@ -39,6 +40,7 @@ return [
 			'table'       => 'jobs',
 			'queue'       => 'default',
 			'retry_after' => 90,
+			'after_commit' => false,
 		],
 
 		/*
