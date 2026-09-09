@@ -99,6 +99,18 @@ class AuthenticationAndRouteContractTest extends TestCase
         }
     }
 
+    public function test_duplicate_legacy_route_names_keep_resolving_to_the_established_targets(): void
+    {
+        $this->assertSame(
+            '/api/v1/materials/123/copy',
+            route('api.v1.materials.show', ['material' => 123], false)
+        );
+        $this->assertSame(
+            '/api/v1/bundles/456',
+            route('api.v1.bundles.show', ['bundle' => 456], false)
+        );
+    }
+
     public function test_passport_route_signatures_remain_available(): void
     {
         $contracts = [

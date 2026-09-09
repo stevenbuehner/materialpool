@@ -14,7 +14,9 @@ use App\Models\Url;
 use App\Models\User;
 use App\Models\VideoFile;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 use Tests\TestCase;
 
 class ResourceStiContractTest extends TestCase
@@ -140,5 +142,17 @@ class ResourceStiContractTest extends TestCase
 
         $this->assertSame('assigned afterwards', $text->content);
         $this->assertSame('afterwards.txt', $text->original_filename);
+    }
+
+    public function test_image_validation_keeps_accepting_svg_uploads(): void
+    {
+        $svg = UploadedFile::fake()->createWithContent(
+            'vector.svg',
+            '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1 1"><path d="M0 0h1v1H0z"/></svg>'
+        );
+
+        $validator = Validator::make(['file' => $svg], ImageFile::getValidationRules());
+
+        $this->assertTrue($validator->passes(), $validator->errors()->first('file'));
     }
 }
