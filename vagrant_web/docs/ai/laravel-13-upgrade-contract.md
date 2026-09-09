@@ -23,6 +23,7 @@ Der Vertrag autorisiert die nachfolgend ausdrücklich beschriebenen Paket- und L
 | Frontend | Vue 2, Vue Router 3, Vuex 3, Bootstrap 4, Bootstrap-Vue, Laravel Mix/Webpack und beide npm-Lock-/Manifestverträge bleiben unverändert | `laravel/ui` darf auf `^4.0` aktualisiert werden, aber es wird kein Scaffolding-Befehl ausgeführt. Änderungen unter `resources/js`, `resources/sass`, `package.json` oder `package-lock.json` sind nicht Teil von P1. |
 | Stability | Alle Framework-Checkpoints verwenden stabile Releases; die finale Composer-Konfiguration erlaubt ausschließlich stabile Releases | Für EOL-Checkpoints darf Composers Security-Blocking nur beim kontrollierten Lockfile-Aufbau übergangen werden, nicht der Audit selbst. `minimum-stability: dev` wird im Endstand entfernt oder auf `stable` gesetzt. Verbleibende Dev-Abhängigkeiten sind dann nicht zulässig. |
 | Offizielle Upgradeleitfäden | Vor jedem Laravel-Hauptversionsschritt wird der zu diesem Zeitpunkt online verfügbare offizielle Laravel-Upgradeleitfaden vollständig geprüft | Die Prüfung wird mit URL, Abrufdatum und Einordnung jedes anwendbaren Punkts im Stufenbericht dokumentiert. Bei Major-Upgrades von Laravel-Erstpaketen, insbesondere Passport, gilt dies zusätzlich für deren offiziellen Upgradeleitfaden. |
+| KI-Entwicklungsunterstützung | Laravel Boost 2 ab dem Laravel-11-Checkpoint als lokale `require-dev`-Abhängigkeit einsetzen | Boost unterstützt die Stufen 11 bis 13 mit versionsbezogener Dokumentationssuche und lesender Anwendungsinspektion. Produkt-KI, ein anwendungseigener MCP-Server und selbstständige Schreib-/Ausführungswerkzeuge sind nicht Bestandteil von P1. |
 
 ## Entscheidungs- und Änderungskontrolle
 
@@ -106,6 +107,7 @@ Folgende Ziel-Hauptversionen sind vereinbart. Pro Upgrade-Schritt werden die neu
 | `laravel/passport` | `^13.0` |
 | `laravel/tinker` | `^3.0` |
 | `laravel/ui` | `^4.0`, ohne Scaffolding |
+| `laravel/boost` | stabile 2.x-Version als reine Entwicklungsabhängigkeit ab Laravel 11; kompatibel bis Laravel 13 halten |
 | `kalnoy/nestedset` | `^7.0` |
 | `nanigans/single-table-inheritance` | entfernen |
 | `tightenco/parental` | `^1.6` hinzufügen |
@@ -165,6 +167,16 @@ Medien- und Konvertierungsbibliotheken (`intervention/image`, EXIF/ExifTool, FFm
 - Die fünf bislang automatisch geladenen Passport-Migrationen gemäß Passport-12-Leitfaden unverändert veröffentlichen und ihre exakte Liste prüfen; keine zusätzlichen Passport-Schemaänderungen einführen.
 - Den bisher verfügbaren Password Grant ausdrücklich aktivieren und testen.
 - Die freigegebene schemaäquivalente `nullable()`-Korrektur der zwei historischen `change()`-Definitionen für `resources.remote_path` und `resources.local_path` umsetzen und gegen Fresh- sowie Bestandsschema prüfen.
+
+### Zwischenschritt 3a – Laravel-KI-Unterstützung
+
+**Status:** Am 9. September 2026 auf dem abgeschlossenen Laravel-11-Checkpoint umgesetzt. Technische Entscheidung und Sicherheitsgrenzen: `docs/ai/laravel-ai-support.md`.
+
+- Laravel Boost 2 ausschließlich in `require-dev` installieren und über Sail als lokales MCP für Codex konfigurieren.
+- Browser-Instrumentierung, Tinker und das selbstständige Schreiben dauerhafter Regeln deaktivieren.
+- Keine Produkt-KI-Funktion, kein Laravel AI SDK und keinen anwendungseigenen MCP-Endpunkt hinzufügen.
+- Boost-Kompatibilität vor jeder weiteren Laravel-Stufe prüfen.
+- Versionsspezifische Boost-Guidelines und Skills erst nach der Laravel-13-Abnahme und der Aktualisierung von `AGENTS.md` sowie der Baseline-Dokumente erzeugen, damit während der Zwischenstände keine widersprüchlichen Projektanweisungen entstehen.
 
 ### Stufe 4 – Laravel 12
 
@@ -238,5 +250,9 @@ Ein Schritt darf erst begonnen werden, wenn der vorherige vollständig grün ist
 - Laravel-11-Upgradeleitfaden: <https://laravel.com/framework/docs/11.x/upgrade>
 - Laravel-12-Upgradeleitfaden: <https://laravel.com/framework/docs/12.x/upgrade>
 - Passport-Upgradeleitfaden: <https://github.com/laravel/passport/blob/13.x/UPGRADE.md>
+- Laravel Boost: <https://laravel.com/framework/docs/12.x/boost>
+- Laravel Boost 2 Upgrade Guide: <https://github.com/laravel/boost/blob/main/UPGRADE.md>
+- Aktuelle Laravel-Boost-Kompatibilitäts-Constraints: <https://github.com/laravel/boost/blob/main/composer.json>
+- Laravel AI SDK, Boost und MCP im Vergleich: <https://laravel.com/blog/laravel-ai-sdk-boost-or-mcp-which-tool-do-you-need>
 - Projektinterne Invarianten: `docs/ai/domain-invariants.md`
 - Projektinterne Quality Gates: `docs/ai/quality-gates.md`
