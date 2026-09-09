@@ -4,12 +4,10 @@ namespace App\Services\Bundles;
 
 use App\Models\Bundle;
 use Illuminate\Filesystem\FilesystemAdapter;
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
-use League\Flysystem\Adapter\Local;
-use League\Flysystem\FileNotFoundException;
-use League\Flysystem\Filesystem;
 
 class BundlesService {
 
@@ -111,18 +109,9 @@ class BundlesService {
 
 		// Load from DB
 		if (!Config::has("database.connections.$containerName")) {
-			/** @var Filesystem $driver */
-			$driver = $bundleDisk->getDriver();
-
-			/** @var Local $adapter */
-			$adapter = $driver->getAdapter();
-
-			$localPrefix = $adapter->getPathPrefix();
-
-
 			$dbConfig = [
 				'driver'   => 'sqlite',
-				'database' => $localPrefix . $dbPath,
+				'database' => $bundleDisk->path($dbPath),
 				'prefix'   => '',
 			];
 
@@ -219,9 +208,9 @@ class BundlesService {
 		$bundleDisk = $this->getBundleDisk();
 		$dbPath     = $rootPath . '/' . self::LOCAL_DB_FILENAME;
 
-		if (!$bundleDisk->has($rootPath)) {
+		if (!$bundleDisk->exists($rootPath)) {
 			throw new FileNotFoundException($rootPath);
-		} else if (!$bundleDisk->has($dbPath)) {
+		} else if (!$bundleDisk->exists($dbPath)) {
 			throw new FileNotFoundException($dbPath);
 		}
 

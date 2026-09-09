@@ -12,13 +12,14 @@ Der Vertrag autorisiert die nachfolgend ausdrücklich beschriebenen Paket- und L
 | --- | --- | --- |
 | PHP | Zielversion PHP 8.4 | Laravel 13 unterstützt PHP 8.3 bis 8.5; PHP 8.4 erfüllt zugleich die Anforderung von `spatie/laravel-backup` 10 und bietet mehr Bibliotheksreserve als 8.3. |
 | Laravel | Laravel 9 → 10 → 11 → 12 → 13 | Jeder Hauptversionsschritt erhält einen eigenen grünen Prüfpunkt. Zwischenstände sind technische Checkpoints, keine produktiven Releases. |
+| EOL-Zwischenstände | Laravel 9 bis 11 werden ausschließlich als lokale, nicht deploybare Kompatibilitäts-Checkpoints verwendet | Für diese historischen Hauptversionen werden die jeweils letzten stabilen Releases verwendet. Versionsbedingt unvermeidbare Security-Advisories werden dokumentiert, nicht verschwiegen und nicht durch bewegliche Dev-Stände umgangen. Sie dürfen nur für den kurzen lokalen Prüfpfad toleriert werden. |
 | Anwendungsstruktur | Bestehende klassische Laravel-Struktur beibehalten | Die Anwendung wird nicht auf die schlanke Laravel-11+-Skeleton-Struktur umgebaut. Provider, Kernel und Konfigurationsdateien bleiben explizit. |
 | OAuth | Laravel Passport beibehalten und auf Version 13 aktualisieren | Kein Wechsel zu Sanctum; OAuth-Clients, Tokens, Scopes, Keys, Guards und Statuscodes bleiben kompatibel. |
 | Resource-STI | `nanigans/single-table-inheritance` durch `tightenco/parental` `^1.6` ersetzen | Der nicht zukunftsfähige STI-Treiber wird ersetzt. Gespeicherte `type`-Werte, Modellklassen, Hydrierung und JSON bleiben identisch. |
 | Nested Sets | `kalnoy/nestedset` auf die Laravel-13-kompatible Hauptversion 7 aktualisieren | Das aktuelle Baumverhalten ist durch `KeywordNestedSetTest` und `KeywordApiControllerTest` verbindlich eingefroren. Keine Reparatur oder Neuordnung produktiver Bäume im Rahmen des Upgrades. |
 | Eigenes Bible-Paket | Das `stevenbuehner/bible-verse-bundle` wird als separates, vom Auftraggeber verwaltetes Composer-Projekt behandelt | In diesem Repository werden nur Anforderungen und Kompatibilitätsbefunde ermittelt. Änderungen und Release-Tags des Pakets nimmt der Auftraggeber im separaten Projekt vor. Eingebunden wird anschließend ein vom Auftraggeber bereitgestellter stabiler, unveränderlicher Tag mit Laravel-13-/PHP-8.4-Kompatibilität und unveränderten PHP- und JavaScript-Exports. |
 | Frontend | Vue 2, Vue Router 3, Vuex 3, Bootstrap 4, Bootstrap-Vue, Laravel Mix/Webpack und beide npm-Lock-/Manifestverträge bleiben unverändert | `laravel/ui` darf auf `^4.0` aktualisiert werden, aber es wird kein Scaffolding-Befehl ausgeführt. Änderungen unter `resources/js`, `resources/sass`, `package.json` oder `package-lock.json` sind nicht Teil von P1. |
-| Stability | Finale Composer-Konfiguration verwendet stabile Releases | `minimum-stability: dev` wird entfernt oder auf `stable` gesetzt. Verbleibende Dev-Abhängigkeiten sind nicht zulässig. |
+| Stability | Alle Framework-Checkpoints verwenden stabile Releases; die finale Composer-Konfiguration erlaubt ausschließlich stabile Releases | Für EOL-Checkpoints darf Composers Security-Blocking nur beim kontrollierten Lockfile-Aufbau übergangen werden, nicht der Audit selbst. `minimum-stability: dev` wird im Endstand entfernt oder auf `stable` gesetzt. Verbleibende Dev-Abhängigkeiten sind dann nicht zulässig. |
 
 ## Entscheidungs- und Änderungskontrolle
 
@@ -28,6 +29,9 @@ Der Vertrag autorisiert die nachfolgend ausdrücklich beschriebenen Paket- und L
 - Während des Upgrades werden Verbesserungspotenziale aktiv ermittelt und dokumentiert. Jeder Vorschlag enthält mindestens Empfehlung, Alternative, Nutzen, Risiken, betroffene Verträge, Migrationsweg und Rückbauaufwand.
 - Ein Verbesserungsvorschlag wird erst nach ausdrücklicher Freigabe des Auftraggebers umgesetzt. Ohne Freigabe bleibt das bisherige Verhalten bestehen oder der betroffene Upgrade-Schritt pausiert, falls es technisch nicht erhalten werden kann.
 - Rein interne Kompatibilitätsanpassungen dürfen ohne erneute Freigabe erfolgen, wenn Tests nachweisen, dass alle beobachtbaren Verträge unverändert bleiben.
+- Neue Laravel-Standards und aktuelle Framework-Konventionen werden während jeder Stufe übernommen, wenn die Umstellung im betroffenen Bereich vollständig möglich, für die folgenden Laravel-Stufen tragfähig und durch Tests nachweislich verhaltensneutral ist. Veraltete oder überholte Konventionen werden in diesem Fall nicht als bloßer Kompatibilitätsballast fortgeführt.
+- Eine Konventionsumstellung wird nicht nur teilweise oder kosmetisch durchgeführt. Sind zusammengehörige Aufrufstellen, Konfigurationen oder Tests nicht vollständig migrierbar, bleibt vorerst die bestehende Konvention bestehen und der Befund wird als Entscheidungsvorschlag dokumentiert.
+- Neue Framework-Defaults, die beobachtbares Verhalten verändern, gelten nicht allein wegen ihres Standardstatus als freigegeben. Für Änderungen an API, Daten, Sicherheit, Berechtigungen, Storage, Queues, Serialisierung, UX oder Nutzerverhalten ist weiterhin vorab eine ausdrückliche Entscheidung erforderlich.
 - Die Zuständigkeit für das separate `bible-verse-bundle` verbleibt beim Auftraggeber. Der Agent darf notwendige Änderungen an diesem Paket beschreiben und eine konkrete Versionierungs-/Release-Empfehlung geben, aber weder dessen Repository noch dessen Releases ohne einen separaten ausdrücklichen Auftrag verändern.
 
 ## Unveränderliche Produktverträge
@@ -118,6 +122,8 @@ Medien- und Konvertierungsbibliotheken (`intervention/image`, EXIF/ExifTool, FFm
 
 ### Stufe 1 – Laravel 9
 
+**Status:** Am 9. September 2026 als ausschließlich lokaler, nicht deploybarer EOL-Kompatibilitäts-Checkpoint umgesetzt. Prüfungen und bekannte Befunde: `docs/ai/upgrade-stage-1-report.md`.
+
 - PHP-Laufzeit mindestens 8.0.2, bevorzugt 8.1 für diesen Checkpoint.
 - Framework und kompatible Pakete auf Laravel 9 anheben.
 - Flysystem 3 und Symfony Mailer kompatibel umstellen.
@@ -157,7 +163,7 @@ Medien- und Konvertierungsbibliotheken (`intervention/image`, EXIF/ExifTool, FFm
 Ein Schritt darf erst begonnen werden, wenn der vorherige vollständig grün ist. Ein fehlgeschlagenes Gate wird repariert oder der Schritt wird auf seinen letzten grünen Commit zurückgesetzt; Tests dürfen nicht abgeschwächt werden, um neue Paketsemantik zu akzeptieren.
 
 1. `composer validate --strict` und ein reproduzierbarer Lockfile-Aufbau.
-2. `composer audit`; offene Findings werden dokumentiert und sicherheitskritische Findings blockieren den Schritt.
+2. `composer audit`; offene Findings werden immer dokumentiert. Bei den ausdrücklich nicht deploybaren Laravel-9- bis Laravel-11-Checkpoints blockieren ausschließlich durch die gewählte historischen Framework-/Passport-Stufe unvermeidbare Findings den lokalen Kompatibilitätsschritt nicht. Andere sicherheitskritische Findings blockieren weiterhin. Der Laravel-13-Endstand darf keine offenen sicherheitskritischen Findings enthalten.
 3. PHP-Syntaxprüfung aller geänderten PHP-Dateien.
 4. Vollständige PHPUnit-Suite gegen die dedizierte MySQL-Datenbank `testing`.
 5. Nested-Set-Vertragsgruppe separat; zusätzlich `countErrors()` und `isBroken()` nach allen Mutationsszenarien.
@@ -175,6 +181,7 @@ Ein Schritt darf erst begonnen werden, wenn der vorherige vollständig grün ist
 
 - Charakterisierungstests werden vor dem ersten Dependency-Upgrade separat committed.
 - Jeder Laravel-Hauptversionsschritt besteht aus einem eigenen, reviewbaren Commit oder einer kleinen zusammenhängenden Commitserie und endet mit einem dokumentierten grünen Gate.
+- Commits der EOL-Zwischenstände Laravel 9 bis 11 sind weder Release- noch Deployment-Kandidaten und dürfen nicht in einer erreichbaren produktiven Umgebung betrieben werden.
 - Das `composer.lock` wird pro Schritt vollständig geprüft; unerklärte transitive Major-Upgrades blockieren die Abnahme.
 - Der Rückbau erfolgt auf den letzten grünen Hauptversions-Checkpoint. Datenbank-Rückbau ist nicht vorgesehen, weil P1 keine Schema- oder Datenänderung autorisiert.
 - Laravel 13 ist erst abgenommen, wenn ein kalter Sail-Start, eine frische Installation aus Lockfiles, die vollständige Suite, alle Spezial-Gates und der bestehende Frontend-Build erfolgreich sind.

@@ -6,7 +6,7 @@ use App\Models\Traits\TimeCountTrait;
 use App\Services\PreviewGeneration\Generators\VideoPreviewGenerator;
 use App\Services\PreviewGeneration\Interfaces\PreviewGeneratorInterface;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use League\Flysystem\FileNotFoundException;
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
 
 /**
  * Class VideoFile

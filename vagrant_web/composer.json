@@ -6,14 +6,8 @@
   ],
   "license": "MIT",
   "type": "project",
-  "repositories": [
-    {
-      "type": "github",
-      "url": "https://github.com/stevenbuehner/PHPExiftool"
-    }
-  ],
   "require": {
-    "php": "^7.4",
+    "php": "^8.0.2",
     "ext-imagick": "*",
     "ext-json": "*",
     "ext-pdo": "*",
@@ -23,31 +17,31 @@
     "intervention/image": "^2.3",
     "kalnoy/nestedset": "^6.0",
     "laracasts/utilities": "^3.0",
-    "laravel/framework": "^8.0",
-    "laravel/passport": "^10.0",
+    "laravel/framework": "^9.0",
+    "laravel/passport": "^11.0",
     "laravel/tinker": "^2.0",
-    "laravel/ui": "^3.0",
+    "laravel/ui": "^4.0",
     "miljar/php-exif": "^0.6.5",
     "nanigans/single-table-inheritance": "^1.0",
     "ncjoes/office-converter": "^1.0",
-    "php-ffmpeg/php-ffmpeg": "^0.18",
+    "php-ffmpeg/php-ffmpeg": "^1.0",
     "phpexiftool/exiftool": "^10.16",
     "setasign/fpdi-fpdf": "^2.0",
-    "spatie/laravel-backup": "^6.0",
+    "spatie/laravel-backup": "^8.0",
     "spatie/pdf-to-text": "^1.1",
     "stevenbuehner/bible-verse-bundle": "dev-develop"
   },
   "require-dev": {
-    "barryvdh/laravel-debugbar": "^3.2",
-    "barryvdh/laravel-ide-helper": "^2.8",
-    "facade/ignition": "^2.3.6",
+    "barryvdh/laravel-debugbar": "^3.7",
+    "barryvdh/laravel-ide-helper": "^2.12",
+    "fakerphp/faker": "^1.20",
     "filp/whoops": "^2.0",
-    "fzaninotto/faker": "^1.9",
     "laravel/sail": "^1.12",
-    "mariuzzo/laravel-js-localization": "^1.8",
+    "mariuzzo/laravel-js-localization": "1.10.0",
     "mockery/mockery": "^1.0",
-    "nunomaduro/collision": "^5.0",
-    "phpunit/phpunit": "^9.0"
+    "nunomaduro/collision": "^6.1",
+    "phpunit/phpunit": "^9.5.10",
+    "spatie/laravel-ignition": "^1.0"
   },
   "config": {
     "optimize-autoloader": true,

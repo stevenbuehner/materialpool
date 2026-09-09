@@ -10,9 +10,7 @@ use App\Services\ResourceHandling\Exceptions\LocalFileDoesNotExistException;
 use App\Services\ResourceHandling\Exceptions\RemoteFileDoesNotExistException;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
-use League\Flysystem\Adapter\Local;
-use League\Flysystem\FileNotFoundException;
-use League\Flysystem\Filesystem;
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
 
 class FileHandlingService extends ResourceHandlingService {
 
@@ -134,7 +132,7 @@ class FileHandlingService extends ResourceHandlingService {
 			$archiveDisc       = Storage::disk('archive');
 			$original_filename = $resource->getOriginalFilenameAttribute();
 			$stream            = $resource->getLocalFileStream();
-			$filePath          = strftime('%G/%m/%d/') . $resource->id . '.backup_' . $original_filename;
+			$filePath          = now()->format('o/m/d/') . $resource->id . '.backup_' . $original_filename;
 			$archiveDisc->writeStream($filePath, $stream);
 			fclose($stream);
 		} catch (FileNotFoundException $e) {
@@ -158,15 +156,10 @@ class FileHandlingService extends ResourceHandlingService {
 		$localDisk    = Storage::disk('local');
 		$relativePath = 'tmp/' . uniqid('temp_' . $resource->id . '_', TRUE);
 		$stream       = $resource->getLocalFileStream();
-		$localDisk->getDriver()->writeStream($relativePath, $stream);
+		$localDisk->writeStream($relativePath, $stream);
 		fclose($stream);
 
-		/** @var Filesystem $driver */
-		/** @var Local $adapter */
-		$driver    = $localDisk->getDriver();
-		$adapter   = $driver->getAdapter();
-		$prefix    = $adapter->getPathPrefix();
-		$localPath = $prefix . $relativePath;
+		$localPath = $localDisk->path($relativePath);
 
 		return $localPath;
 	}

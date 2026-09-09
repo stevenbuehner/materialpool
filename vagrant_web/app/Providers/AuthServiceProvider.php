@@ -46,10 +46,6 @@ class AuthServiceProvider extends ServiceProvider {
 
 		$this->registerPolicies();
 
-		// Passport Routes aufsetzen
-		// This method will register the routes necessary to issue access tokens and revoke access tokens, clients, and personal access tokens:
-		Passport::routes();
-
 		// Expire tokens after one day
 		Passport::tokensExpireIn(Carbon::now()->addDays(5));
 		Passport::refreshTokensExpireIn(Carbon::now()->addDays(30));

@@ -14,15 +14,15 @@ use Database\Seeders\ResourceSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Testing\TestResponse;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Support\Facades\Storage;
-use League\Flysystem\Filesystem;
 use Tests\TestCase;
 
 class ApiForeignResourceControllerTest extends TestCase {
 
 	use RefreshDatabase, ResourceTrait;
 
-	/** @var  Filesystem $testStorage */
+	/** @var FilesystemAdapter $testStorage */
 	protected $testStorage;
 
 	/** @var  User $testUser */
@@ -113,8 +113,9 @@ class ApiForeignResourceControllerTest extends TestCase {
 
 		if (TRUE === $isFileResource) {
 			$this->assertInstanceOf(File::class, $resource);
+			$localFilePath = $resource->getLocalFilePath();
 
-			$this->assertTrue(Storage::disk(config('app.disks.resources'))->exists($resource->getLocalFilePath()));
+			$this->assertTrue(Storage::disk(config('app.disks.resources'))->exists($localFilePath));
 			$this->assertTrue($resource->hasLocalFile());
 			$this->assertNotNull($resource->getLocalUrl());
 			$this->assertNotNull($resource->getLocalMimeType());
@@ -122,7 +123,7 @@ class ApiForeignResourceControllerTest extends TestCase {
 
 			$this->assertTrue($resource->deleteLocalFile());
 
-			$this->assertFalse(Storage::disk(config('app.disks.resources'))->exists($resource->getLocalFilePath()));
+			$this->assertFalse(Storage::disk(config('app.disks.resources'))->exists($localFilePath));
 			$this->assertNull($resource->local_path);
 			$this->assertFalse($resource->hasLocalFile());
 		}

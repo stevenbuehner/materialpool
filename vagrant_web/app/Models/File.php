@@ -9,9 +9,6 @@ use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
-use League\Flysystem\Adapter\Local;
-use League\Flysystem\AdapterInterface;
-use League\Flysystem\Filesystem;
 
 /**
  * Class File
@@ -82,8 +79,8 @@ class File extends Resource {
 
 		if ($this->hasLocalFile()) {
 			try {
-				$filesize = $this->getLocalDisk()->getSize($this->getLocalFilePath());
-			} catch (\League\Flysystem\FileNotFoundException $e) {
+				$filesize = $this->getLocalDisk()->size($this->getLocalFilePath());
+			} catch (FileNotFoundException $e) {
 			}
 		}
 
@@ -166,12 +163,10 @@ class File extends Resource {
 
 	/**
 	 * @return false|resource
-	 * @throws \League\Flysystem\FileNotFoundException
+	 * @throws FileNotFoundException
 	 */
 	public function getLocalFileStream() {
-		$driver = $this->getLocalDisk()->getDriver();
-
-		return $driver->readStream($this->getLocalFilePath());
+		return $this->getLocalDisk()->readStream($this->getLocalFilePath());
 	}
 
 	public function deleteLocalFile() {
@@ -212,17 +207,10 @@ class File extends Resource {
 	 * @return FALSE|string
 	 */
 	public function getAbsoluteLocalPath() {
-		$disk = $this->getLocalDisk();
-		$path = $this->getLocalFilePath();
+		list($storage, $path) = $this->getLocalStorageAndPath();
 
-		if ($disk->getDriver() instanceof Filesystem) {
-
-			/** @var AdapterInterface $adapter */
-			$adapter = $disk->getDriver()->getAdapter();
-
-			if ($adapter instanceof Local) {
-				return $adapter->applyPathPrefix($path);
-			}
+		if (config("filesystems.disks.$storage.driver") === 'local') {
+			return $this->getLocalDisk()->path($path);
 		}
 
 		return FALSE;

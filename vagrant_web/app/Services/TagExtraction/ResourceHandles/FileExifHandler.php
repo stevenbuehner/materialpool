@@ -49,8 +49,7 @@ class FileExifHandler implements HandlerInterface {
 		$result = new Collection();
 
 		$localDisk         = Storage::disk($diskName);
-		$localPathPrefix   = $localDisk->getDriver()->getAdapter()->getPathPrefix();
-		$localAbsolutePath = $localPathPrefix . $localRelativePath;
+		$localAbsolutePath = $localDisk->path($localRelativePath);
 
 		try {
 			$metaData = $this->exifReader->read($localAbsolutePath);
