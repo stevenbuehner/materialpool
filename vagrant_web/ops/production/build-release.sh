@@ -52,7 +52,8 @@ payload_checksum="$(docker run --rm \
     --volume "${source_directory}:/release:ro" \
     --entrypoint /bin/bash \
     "$docker_image" \
-    -lc "tar -C /release --sort=name --mtime='UTC 1970-01-01' --owner=0 --group=0 --numeric-owner -cf - . | sha256sum | awk '{print \\$1}'")"
+    -lc "tar -C /release --sort=name --mtime='UTC 1970-01-01' --owner=0 --group=0 --numeric-owner -cf - . | sha256sum" \
+    | awk '{print $1}')"
 cat > "${source_directory}/.release-manifest" <<EOF
 COMMIT=${resolved_commit}
 PAYLOAD_SHA256=${payload_checksum}
