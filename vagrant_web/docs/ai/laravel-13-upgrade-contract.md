@@ -132,6 +132,8 @@ Medien- und Konvertierungsbibliotheken (`intervention/image`, EXIF/ExifTool, FFm
 
 ### Stufe 2 – Laravel 10
 
+**Status:** Am 9. September 2026 als ausschließlich lokaler, nicht deploybarer EOL-Kompatibilitäts-Checkpoint umgesetzt. Prüfungen und bekannte Befunde: `docs/ai/upgrade-stage-2-report.md`.
+
 - PHP mindestens 8.1.
 - Framework und direkte Composer-Abhängigkeiten auf Laravel-10-kompatible stabile Versionen anheben.
 - Monolog-3-, Signatur- und Rückgabetypanpassungen ausschließlich verhaltensneutral durchführen.

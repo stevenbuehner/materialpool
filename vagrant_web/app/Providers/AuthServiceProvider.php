@@ -42,10 +42,7 @@ class AuthServiceProvider extends ServiceProvider {
 	 *
 	 * @return void
 	 */
-	public function boot() {
-
-		$this->registerPolicies();
-
+	public function boot(): void {
 		// Expire tokens after one day
 		Passport::tokensExpireIn(Carbon::now()->addDays(5));
 		Passport::refreshTokensExpireIn(Carbon::now()->addDays(30));

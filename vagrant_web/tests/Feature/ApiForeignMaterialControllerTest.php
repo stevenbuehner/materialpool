@@ -10,6 +10,7 @@ use App\Models\Material;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Bus;
 use Illuminate\Testing\TestResponse;
 use Laravel\Passport\Passport;
 use Tests\TestCase;
@@ -361,11 +362,16 @@ class ApiForeignMaterialControllerTest extends TestCase {
 		$data['bibleverses'] = [];
 		$data['author']      = "Max Mustermann";
 
-		$this->expectsJobs(CheckLonelyBibleverse::class);
-		$this->expectsJobs(CheckLonelyKeyword::class);
+		Bus::fake([
+			CheckLonelyBibleverse::class,
+			CheckLonelyKeyword::class,
+		]);
 
 		$response     = $this->json('put', $uri, $data);
 		$responseData = $response->json();
+
+		Bus::assertDispatched(CheckLonelyBibleverse::class);
+		Bus::assertDispatched(CheckLonelyKeyword::class);
 
 		$this->assertEquals($data['title'], $responseData['title']);
 		$this->assertEquals($data['rating'], $responseData['rating']);
