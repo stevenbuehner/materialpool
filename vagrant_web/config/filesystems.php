@@ -85,6 +85,19 @@ return [
 			'root'   => env('BACKUP_PATH', base_path('../backups')) ,
 		],
 
+		'backup_s3' => [
+			'driver' => 's3',
+			'key' => env('BACKUP_S3_KEY'),
+			'secret' => env('BACKUP_S3_SECRET'),
+			'region' => env('BACKUP_S3_REGION'),
+			'bucket' => env('BACKUP_S3_BUCKET'),
+			'url' => env('BACKUP_S3_URL'),
+			'endpoint' => env('BACKUP_S3_ENDPOINT'),
+			'use_path_style_endpoint' => env('BACKUP_S3_USE_PATH_STYLE_ENDPOINT', false),
+			'root' => env('BACKUP_S3_PREFIX', 'materialpool'),
+			'throw' => true,
+		],
+
 		'testfiles' => [
 			'driver'     => 'local',
 			'root'       => base_path('tests/testFiles'),

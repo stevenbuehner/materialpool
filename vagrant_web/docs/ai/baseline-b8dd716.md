@@ -29,6 +29,8 @@ Dieser Commit ist der grüne Laravel-13-/Passport-13-Implementierungsstand auf `
 | Persistente Disks für Ressourcen, Archive und Bundles existieren | bestätigt | `config/filesystems.php`; Tests verwenden Fakes oder isolierte Test-Disks |
 | Tests basieren auf PHPUnit 12 und der Laravel-Testumgebung | bestätigt | PHPUnit 12.5.35; 156 Tests und 1.588 Assertions gegen MySQL `testing` grün |
 
+Die nachgelagerte Produktionsvertrags-Etappe ergänzt neun Tests; der aktuelle ausführbare Stand umfasst 165 Tests und 1.612 Assertions. Die ursprüngliche Laravel-13-Basiszahl bleibt in der Tabelle als historischer Nachweis erhalten.
+
 ## Bewusste Kompatibilitätsentscheidungen
 
 - Passport folgt bei UUIDs, Secret-Hashing, Client-Schema, Device Codes, Headless-Betrieb und deaktivierter Legacy-JSON-API den Version-13-Defaults.
@@ -40,7 +42,7 @@ Dieser Commit ist der grüne Laravel-13-/Passport-13-Implementierungsstand auf `
 
 ## Verifikationsgrenze und Deployment-Status
 
-Die vollständige Suite, Fresh-Migration, befüllte Passport-Altschema-Migration, echter Tokenaustausch, isoliertes Backup, Handler, Nested Sets, STI, Routen, Composer-Validierung und Security-Audit sind grün. Der Endstand ist technisch abgenommen, aber noch kein produktiver Rollout:
+Die vollständige Suite, Fresh-Migration, befüllte Passport-Altschema-Migration, echter Tokenaustausch, isoliertes verschlüsseltes Backup, Handler, Nested Sets, STI, Routen, Composer-Validierung und Security-Audit sind grün. Der Repository-Endstand ist technisch abgenommen, aber noch kein produktiver Rollout. Der verbindliche Betriebsablauf steht in [`production-deployment-contract.md`](production-deployment-contract.md):
 
 - Der Passport-Cutover muss mit Clientinventar, verifiziertem Datenbankbackup, Wartungsfenster und Restore-Probe produktionsnah geprobt werden.
 - Die produktive Runtime muss PHP 8.4.x, die benötigten Erweiterungen, Composer 2 und MySQL 8 in der geprüften Semantik bereitstellen.

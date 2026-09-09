@@ -19,7 +19,7 @@ Browser → Laravel Web-Routen → Vue 2 SPA (/vue)
 
 ## Laufzeit und Build
 
-- Produktion läuft auf einem Linux-Server mit Nginx, PHP-FPM `8.4` und MySQL 8. Nginx liefert ausschließlich `public/` aus; `storage/` und `bootstrap/cache/` sind für den PHP-FPM-Nutzer schreibbar. Queue-Worker werden durch einen Prozessmonitor betrieben; persistente Ressourcen-, Archiv-, Bundle- und Backup-Daten liegen außerhalb eines austauschbaren Release-Verzeichnisses.
+- Produktion läuft auf einem einzelnen Ubuntu-24.04-LTS-Server mit Nginx, PHP-FPM `8.4` und MySQL 8 hinter einem externen TLS-Reverse-Proxy. Nginx liefert ausschließlich `public/` aus. Atomare Releases, Shared-Pfade, Proxy-Trust, Queue/Scheduler sowie Backup/Restore sind verbindlich in [`production-deployment-contract.md`](production-deployment-contract.md) festgelegt.
 - Docker/Sail ist ausschließlich die lokale Entwicklungs- und Testlaufzeit. Lokales Backend-Referenzsystem ist der PHP-8.4-Sail-Container; ein älteres Host-PHP ist nicht maßgeblich. Sail oder `php artisan serve` sind kein Produktions-Webserver.
 - PHPUnit 12.5 testet ausschließlich gegen die dedizierte MySQL-Datenbank `testing`; Ressourcen-, Archiv- und Backup-Dateien werden gefakt oder isoliert.
 - Frontend: Vue 2, Vuex 3, Vue Router 3, Bootstrap 4, Bootstrap-Vue, Sass und Webpack/Laravel Mix.
@@ -65,7 +65,7 @@ Material- und Relation-Services lösen `MaterialWas…`, `ResourceWasAttached` u
 ## Persistenz und Speicher
 
 - Die primären Tabellen entstehen aus `database/migrations/`; bestehende Migrationen sind historische Fakten. Änderungen benötigen Freigabe. Dokumentierte Ausnahmen des Laravel-Upgrades sind die schemaäquivalente `nullable()`-Korrektur und die neuen Passport-13-Cutover-/Device-Code-Migrationen.
-- `config/filesystems.php` definiert relevante Disks: `resources`, `archive`, `bundles`, `local_tmp`, `backup` und `testfiles`.
+- `config/filesystems.php` definiert relevante Disks: `resources`, `archive`, `bundles`, `local_tmp`, `backup`, `backup_s3` und `testfiles`. `backup_s3` ist ausschließlich Offsite-Backupziel; Ressourcen bleiben lokal.
 - Bei Dateien ist `resources.local_path` ein persistenter Vertrag: üblicherweise `disk::relative/path`. Speicherpfade, Archivierung und Löschverhalten nie isoliert ändern.
 - Preview- und Cache-Dateien sind abgeleitet, aber ihre Invalidation ist Teil des sichtbaren Verhaltens.
 

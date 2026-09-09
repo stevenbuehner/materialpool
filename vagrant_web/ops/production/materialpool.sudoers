@@ -1,0 +1,2 @@
+# Install as /etc/sudoers.d/materialpool after validating it with visudo -cf.
+materialpool ALL=(root) NOPASSWD: /usr/local/sbin/materialpool-activate-release

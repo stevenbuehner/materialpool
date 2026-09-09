@@ -19,6 +19,7 @@ return [
 				 */
 				'include'      => [
 					storage_path('app'),
+					public_path('uploads'),
 				],
 
 				/*
@@ -80,6 +81,8 @@ return [
 		'database_dump_compressor' => Spatie\DbDumper\Compressors\GzipCompressor::class,
 
 		'destination'         => [
+			'compression_method' => ZipArchive::CM_DEFAULT,
+			'compression_level' => 9,
 
 			/*
 			 * The filename prefix used for the backup zip file.
@@ -91,13 +94,26 @@ return [
 			 */
 			'disks'           => [
 				'backup',
+				'backup_s3',
 			],
+
+			'continue_on_failure' => false,
 		],
 
 		/*
 		 * The directory where the temporary files will be stored.
 		 */
 		'temporary_directory' => env('BACKUP_TEMPORARY_DIRECTORY', storage_path('backups')),
+
+		'password' => env('BACKUP_ARCHIVE_PASSWORD'),
+
+		'encryption' => 'aes256',
+
+		'verify_backup' => true,
+
+		'tries' => 1,
+
+		'retry_delay' => 0,
 	],
 
 	/*
@@ -125,7 +141,15 @@ return [
 		'notifiable'    => \Spatie\Backup\Notifications\Notifiable::class,
 
 		'mail' => [
-			'to' => 'buehner@me.com',
+			// Spatie validates this value while the application boots. The generated
+			// non-deliverable placeholder keeps local installs bootable; production
+			// preflight still requires an explicitly configured real recipient.
+			'to' => env('BACKUP_NOTIFICATION_EMAIL') ?: sprintf(
+				'unconfigured@%s.invalid',
+				strtolower(preg_replace('/[^a-z0-9]+/i', '-', config('app.name', 'application')))
+			),
+			'recipient_is_explicit' => is_string(env('BACKUP_NOTIFICATION_EMAIL'))
+				&& trim(env('BACKUP_NOTIFICATION_EMAIL')) !== '',
 		],
 
 		'slack' => [
@@ -151,7 +175,7 @@ return [
 	'monitor_backups' => [
 		[
 			'name'          => config('app.name'),
-			'disks'         => ['backup'],
+			'disks'         => ['backup', 'backup_s3'],
 			'health_checks' => [
 				\Spatie\Backup\Tasks\Monitor\HealthChecks\MaximumAgeInDays::class          => 7,
 				\Spatie\Backup\Tasks\Monitor\HealthChecks\MaximumStorageInMegabytes::class => 1024*300,

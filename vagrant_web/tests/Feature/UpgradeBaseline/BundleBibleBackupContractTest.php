@@ -83,21 +83,21 @@ class BundleBibleBackupContractTest extends TestCase
     public function test_backup_configuration_keeps_sources_destination_retention_and_notifications(): void
     {
         $this->assertSame(config('app.name'), config('backup.backup.name'));
-        $this->assertSame([storage_path('app')], config('backup.backup.source.files.include'));
+        $this->assertSame([storage_path('app'), public_path('uploads')], config('backup.backup.source.files.include'));
         $this->assertSame([storage_path('app/tmp')], config('backup.backup.source.files.exclude'));
         $this->assertNull(config('backup.backup.source.files.relative_path'));
         $this->assertSame(['mysql'], config('backup.backup.source.databases'));
-        $this->assertSame(['backup'], config('backup.backup.destination.disks'));
+        $this->assertSame(['backup', 'backup_s3'], config('backup.backup.destination.disks'));
         $this->assertSame(storage_path('backups'), config('backup.backup.temporary_directory'));
         $this->assertSame(14, config('backup.cleanup.default_strategy.keep_all_backups_for_days'));
         $this->assertSame(7, config('backup.cleanup.default_strategy.keep_daily_backups_for_days'));
         $this->assertSame(8, config('backup.cleanup.default_strategy.keep_weekly_backups_for_weeks'));
         $this->assertSame(6, config('backup.cleanup.default_strategy.keep_monthly_backups_for_months'));
         $this->assertSame(2, config('backup.cleanup.default_strategy.keep_yearly_backups_for_years'));
-        $this->assertSame(['backup'], config('backup.monitor_backups.0.disks'));
+        $this->assertSame(['backup', 'backup_s3'], config('backup.monitor_backups.0.disks'));
     }
 
-    public function test_backup_cleanup_and_queue_worker_schedules_remain_stable(): void
+    public function test_backup_and_cleanup_schedules_remain_stable_while_queue_workers_are_external(): void
     {
         $schedule = new Schedule();
         $method = new ReflectionMethod(Kernel::class, 'schedule');
@@ -111,18 +111,14 @@ class BundleBibleBackupContractTest extends TestCase
         $cleanup = $events->first(function ($event) {
             return strpos($event->command, "'artisan' backup:clean") !== false;
         });
-        $worker = $events->first(function ($event) {
-            return strpos($event->command, 'queue:work database --queue=default') !== false;
-        });
-
         $this->assertNotNull($backup);
         $this->assertSame('0 0 * * *', $backup->expression);
         $this->assertTrue($backup->runInBackground);
         $this->assertNotNull($cleanup);
         $this->assertSame('0 0 * * *', $cleanup->expression);
-        $this->assertNotNull($worker);
-        $this->assertSame('*/5 * * * *', $worker->expression);
-        $this->assertStringContainsString('--tries=50 --timeout=120 --no-interaction', $worker->command);
+        $this->assertFalse($events->contains(function ($event) {
+            return strpos($event->command, 'queue:work') !== false;
+        }));
     }
 
     private function bundle(): Bundle

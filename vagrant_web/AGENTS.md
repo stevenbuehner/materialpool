@@ -11,6 +11,7 @@ Die Dokumentation unter [`docs/ai/`](docs/ai/) ist Teil dieser Anweisung und vor
 - [Domänen-Invarianten](docs/ai/domain-invariants.md)
 - [Designsystem](docs/ai/design-system.md)
 - [Qualitätssicherung](docs/ai/quality-gates.md)
+- [Produktions- und Deploymentvertrag](docs/ai/production-deployment-contract.md)
 - [Entscheidungsvorlage](docs/ai/decision-template.md)
 
 Antworte und dokumentiere auf Deutsch; belasse etablierte technische Bezeichner, API-Namen und Code-Konventionen in Englisch.

@@ -30,6 +30,8 @@ class BackupExecutionContractTest extends TestCase
             'backup.backup.source.databases' => [],
             'backup.backup.destination.disks' => ['backup'],
             'backup.backup.temporary_directory' => $temporaryDirectory,
+            'backup.backup.password' => 'contract-test-password',
+            'backup.backup.encryption' => 'aes256',
         ]);
 
         $exitCode = Artisan::call('backup:run', [
@@ -46,6 +48,7 @@ class BackupExecutionContractTest extends TestCase
         File::ensureDirectoryExists($restoreDirectory);
         $zip = new ZipArchive();
         $this->assertTrue($zip->open(Storage::disk('backup')->path($archives->first())));
+        $this->assertTrue($zip->setPassword('contract-test-password'));
         $this->assertTrue($zip->extractTo($restoreDirectory));
         $zip->close();
 

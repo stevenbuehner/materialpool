@@ -20,6 +20,7 @@ Das Vue-2-Frontend, seine Quellen, `package.json` und `package-lock.json` wurden
 | `phpunit/phpunit` | 12.5.35 | XML-Schema auf 12.5 aktualisiert |
 | `nunomaduro/collision` | 8.9.5 | kompatibler stabiler Stand |
 | `fruitcake/laravel-debugbar` | 4.4.3 | ersetzt den alten Debugbar-Fork; Standard-Autodiscovery |
+| `league/flysystem-aws-s3-v3` | 3.35.3 | direkter Laravel-13-kompatibler Adapter ausschließlich für verschlüsselte Offsite-Backups |
 | `stevenbuehner/bible-verse-bundle` | 3.0.0 | stabiler PHP-8.4-kompatibler Release; PHP-/JavaScript-Verträge erhalten |
 
 `minimum-stability` ist `stable`. Das separat verwaltete `stevenbuehner/bible-verse-bundle` ist über `^3.0` auf den stabilen Tag `3.0.0` und Commit `c9757851ee69220293223728e1db525951e60da8` gelockt. Die frühere Commit-Referenz und ihre Stability-Ausnahme sind entfallen. Der PHP-/JavaScript-Exportvertrag des Pakets ist getestet.
@@ -101,6 +102,9 @@ Der offizielle [Passport-13-Upgradeleitfaden](https://github.com/laravel/passpor
 - Befülltes Passport-Altschema: Secret-Hashing, Owner-/Grant-/Redirect-Übernahme, ID-/Tokenreferenz-Erhalt und echter Password-Grant-Tokenaustausch: bestanden.
 - Vollständige PHPUnit-Suite: 156 Tests, 1.588 Assertions, bestanden.
 - Nach Umstellung auf BibleVerseBundle `3.0.0`: gezielter Bundle-Vertrag mit 6 Tests/39 Assertions sowie die vollständige Suite mit 156 Tests/1.588 Assertions erneut bestanden.
+- Nach Umsetzung des Produktionsvertrags: gezielte Produktions-/Backup-/Scheduler-Gruppe mit 16 Tests und 89 Assertions sowie vollständige Suite mit 165 Tests und 1.612 Assertions bestanden.
+- AES-256-Backup wurde in der isolierten Testdisk mit Passwort geöffnet, entpackt und per SHA-256 gegen die Fixture geprüft. Der echte S3-Download-/Restore-Nachweis bleibt ein externes Go-live-Gate.
+- Nginx-Konfiguration wurde mit `nginx -t` im offiziellen Nginx-Stable-Container erfolgreich geprüft; Shell-Syntax und fail-closed Produktions-Preflight wurden ebenfalls geprüft.
 - Nestedset-Vertragsgruppe: alle Forest-, Boundary-, Depth-, Move-, Merge-, Delete-, Search-, Pivot- und JSON-Fälle innerhalb des Gesamtlaufs bestanden; `isBroken()` bleibt false.
 - Handler-Gruppe separat: 7 Tests, 40 Assertions; gemeinsam mit Boost 10 Tests und 46 Assertions, bestanden.
 - Backup 10: isoliertes Datei-Backup erzeugt, entpackt und per SHA-256 gegen die Fixture geprüft.
@@ -113,8 +117,11 @@ Der offizielle [Passport-13-Upgradeleitfaden](https://github.com/laravel/passpor
 
 ### P0 vor produktivem Deployment
 
-1. **Passport-Cutover proben.** Empfehlung: Clientinventar, verifiziertes Backup, Wartungsfenster und den Ablauf aus `passport-13-client-migration.md` in einer produktionsnahen Kopie durchspielen. Alternative: kein Deployment. Rückbau: ausschließlich Code plus Datenbankbackup.
-2. **Linux-Produktionsruntime bereitstellen und prüfen.** Verbindliches Ziel sind Linux, Nginx, PHP-FPM 8.4 und MySQL 8. Produktion muss zusätzlich passende PHP-Erweiterungen und Medien-Binaries, Composer 2, einen Queue-Prozessmonitor, Cron sowie persistente und gesicherte Ressourcen-/Archiv-/Bundle-/Backup-Pfade verwenden. Nginx liefert ausschließlich `public/` aus; Sail und `php artisan serve` bleiben lokale Entwicklungswerkzeuge. Ein Deployment auf der lokalen Host-PHP-8.0-Laufzeit ist unmöglich.
+Der Repository-Teil ist im verbindlichen [`production-deployment-contract.md`](production-deployment-contract.md) umgesetzt: Healthcheck, expliziter Proxy-Trust, Supervisor-Worker, Scheduler, verschlüsseltes lokales/S3-Backup, Preflight, atomare Release-Skripte und Servervorlagen sind versioniert. Offen bleiben zwingend externe Abnahmen:
+
+1. **Passport-Cutover proben.** Clientinventar, verifiziertes Backup, Wartungsfenster und den Ablauf aus `passport-13-client-migration.md` in einer produktionsnahen Kopie vollständig durchspielen.
+2. **Zielruntime abnehmen.** Reale Domain, Proxy-CIDR, SSH-, SMTP- und S3-Werte bereitstellen; Ubuntu/Nginx/PHP-FPM 8.4/MySQL 8, Firewall, Rechte, Cron und Supervisor prüfen.
+3. **Restore-Gate erfüllen.** Ein verschlüsseltes S3-Backup herunterladen, entschlüsseln und Datenbank samt repräsentativen persistenten Dateien isoliert wiederherstellen. Ohne protokollierten Erfolg bleibt Produktion blockiert.
 
 ### P1 nach stabilem Laravel-13-Deployment
 
@@ -133,4 +140,4 @@ Der offizielle [Passport-13-Upgradeleitfaden](https://github.com/laravel/passpor
 
 ## Verbleibende Risiken
 
-Laravel 13 selbst und der gelockte PHP-Backend-Stand haben laut Composer keine bekannten Security-Advisories. Der stabile Bible-Paket-Tag ist eingebunden und kein Blocker mehr. Ein produktives Release bleibt bis zur bereitgestellten PHP-8.4-/MySQL-8-Runtime und einer erfolgreichen produktionsnahen Passport-/Backup-/Restore-Probe gesperrt. Das unveränderte Legacy-Frontend und ausschließlich das aufgegebene FPDI-/FPDF-Metapaket bleiben bekannte, getrennt zu bearbeitende Wartungsrisiken; die eigentlichen FPDI-/FPDF-Bibliotheken bleiben funktionsfähig und gepflegt.
+Laravel 13 selbst und der gelockte PHP-Backend-Stand haben laut Composer keine bekannten Security-Advisories. Der stabile Bible-Paket-Tag ist eingebunden und kein Blocker mehr. Die Produktionsartefakte sind vorbereitet; ein produktives Release bleibt dennoch bis zu realen Betriebswerten, abgenommener Zielruntime und erfolgreicher Passport-/S3-Backup-/Restore-Probe gesperrt. Das unveränderte Legacy-Frontend und ausschließlich das aufgegebene FPDI-/FPDF-Metapaket bleiben bekannte, getrennt zu bearbeitende Wartungsrisiken; die eigentlichen FPDI-/FPDF-Bibliotheken bleiben funktionsfähig und gepflegt.

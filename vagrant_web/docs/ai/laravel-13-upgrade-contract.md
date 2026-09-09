@@ -13,7 +13,7 @@ Der Vertrag autorisiert die nachfolgend ausdrücklich beschriebenen Paket- und L
 | Thema | Verbindliche Entscheidung | Begründung und Begrenzung |
 | --- | --- | --- |
 | PHP | Zielversion PHP 8.4 | Laravel 13 unterstützt PHP 8.3 bis 8.5; PHP 8.4 erfüllt zugleich die Anforderung von `spatie/laravel-backup` 10 und bietet mehr Bibliotheksreserve als 8.3. |
-| Produktionsplattform | Linux-Server mit Nginx, PHP-FPM 8.4 und MySQL 8 | Sail bleibt ausschließlich Entwicklungs- und Testumgebung. Nginx darf nur `public/` ausliefern; persistente Storage- und Backup-Daten müssen Releasewechsel überstehen. Ein detaillierter Rollout, Secrets, Rechte, Queue-Prozessmonitor, Cron und Backup-/Restore-Verfahren werden vor dem ersten Deployment separat entschieden und dokumentiert. |
+| Produktionsplattform | Einzelner Ubuntu-24.04-LTS-Server mit Nginx, PHP-FPM 8.4 und MySQL 8 hinter externem TLS-Reverse-Proxy | Sail bleibt ausschließlich Entwicklungs- und Testumgebung. Atomare Releases, Shared-Pfade, Rechte, Proxy-Trust, Queue, Cron, verschlüsseltes lokales/S3-Backup und Restore-Gate sind im verbindlichen [`production-deployment-contract.md`](production-deployment-contract.md) festgelegt. |
 | Laravel | Laravel 9 → 10 → 11 → 12 → 13 | Jeder Hauptversionsschritt erhält einen eigenen grünen Prüfpunkt. Zwischenstände sind technische Checkpoints, keine produktiven Releases. |
 | Nicht deploybare Zwischenstände | Laravel 9 bis 11 sowie der bewusst exakte Laravel-12.0.0-Messpunkt werden ausschließlich als lokale, nicht deploybare Kompatibilitäts-Checkpoints verwendet | Für Laravel 9 bis 11 werden die jeweils letzten stabilen Releases verwendet. Laravel 12 wird gemäß Entscheidung A exakt auf 12.0.0 begrenzt, weil Nestedset 6 keine spätere 12.x-Version unterstützt; danach folgt ohne Deployment unmittelbar Laravel 13 mit Nestedset 7. Versionsbedingt unvermeidbare Security-Advisories werden dokumentiert und nicht durch bewegliche Dev-Stände umgangen. |
 | Anwendungsstruktur | Bestehende klassische Laravel-Struktur beibehalten | Die Anwendung wird nicht auf die schlanke Laravel-11+-Skeleton-Struktur umgebaut. Provider, Kernel und Konfigurationsdateien bleiben explizit. |
@@ -258,11 +258,13 @@ Ein Schritt darf erst begonnen werden, wenn der vorherige vollständig grün ist
 - Bereinigung, Neuordnung oder Reparatur produktiver Nested Sets.
 - Wechsel von Passport zu einem anderen Authentifizierungssystem.
 - Umstellung der Session-Serialisierung auf JSON.
-- Deployment in Produktion; dafür ist nach erfolgreicher technischer Abnahme ein eigener Rollout-/Backup-/Rollbackplan erforderlich.
+- Ausführung eines Deployments auf einem realen Produktionsserver. Die dafür freigegebene technische Vorbereitung und der verpflichtende Rollout-/Backup-/Rollbackablauf stehen in [`production-deployment-contract.md`](production-deployment-contract.md); reale Zugänge und der nachgewiesene S3-Restore bleiben Voraussetzung.
 
 ## Referenzen
 
 - Laravel-13-Upgradeleitfaden: <https://laravel.com/framework/docs/13.x/upgrade>
+- Laravel-13-Deploymentleitfaden: <https://laravel.com/framework/docs/13.x/deployment>
+- Produktions- und Deploymentvertrag: [`production-deployment-contract.md`](production-deployment-contract.md)
 - Laravel-Release- und Supportübersicht: <https://laravel.com/docs/13.x/releases>
 - Laravel-9-Upgradeleitfaden: <https://laravel.com/framework/docs/9.x/upgrade>
 - Laravel-10-Upgradeleitfaden: <https://laravel.com/framework/docs/10.x/upgrade>

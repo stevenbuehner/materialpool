@@ -39,7 +39,8 @@ return [
 			'driver'      => 'database',
 			'table'       => 'jobs',
 			'queue'       => 'default',
-			'retry_after' => 90,
+			// Must remain longer than the Supervisor worker timeout (120 seconds).
+			'retry_after' => env('QUEUE_RETRY_AFTER', 150),
 			'after_commit' => false,
 		],
 

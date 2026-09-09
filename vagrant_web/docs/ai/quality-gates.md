@@ -40,6 +40,19 @@ Vor gezielten PHP-Änderungen sind mindestens die Syntaxprüfung im PHP-8.4-Cont
 | Nested Sets | vollständige `KeywordNestedSetTest`- und `KeywordApiControllerTest`-Gruppen; nach Mutationen `countErrors()` und `isBroken()` |
 | Resource-STI | alle gespeicherten Resource- und File-Typcodes: Erzeugung, Hydrierung, Relation, Scope und JSON |
 | Backup | Erzeugung und Restore-/Inhaltsprüfung ausschließlich in isolierter Umgebung; niemals produktive Ziele bereinigen |
+| Produktion/Deployment | zusätzlich alle Gates, externen Werte, Restore-Nachweise und Rollbackschritte aus [`production-deployment-contract.md`](production-deployment-contract.md); ohne echten S3-Restore kein Go-live |
+
+## Produktionsartefakte
+
+Repository-seitig sind vor einem Release mindestens zu prüfen:
+
+```sh
+bash -n ops/production/*.sh
+./vendor/bin/sail artisan test tests/Feature/UpgradeBaseline/ProductionDeploymentContractTest.php
+./vendor/bin/sail artisan production:preflight --configuration-only
+```
+
+Der letzte Befehl muss mit der lokalen Testkonfiguration bewusst fehlschlagen; erfolgreich sein darf er erst mit vollständigen Produktionswerten. Auf einer produktionsnahen Zielplattform folgen `production:preflight` ohne Ausnahme, `nginx -t`, `php-fpm8.4 -t`, Supervisor-/Cron-/systemd-/Rechte-/Firewall-Prüfung sowie der verschlüsselte S3-Download-/Restore-Test.
 
 ## Laravel-13-Referenzgates
 
@@ -55,6 +68,8 @@ Der verifizierte Laravel-13-Stand umfasst mindestens:
 ```
 
 Die vollständige Referenz am Implementierungscommit `28f4ec4` lautet 156 Tests mit 1.588 Assertions. Eine niedrigere Zahl ist zu erklären; Tests dürfen bei Paket- oder Frameworkänderungen nicht stillschweigend entfallen oder abgeschwächt werden.
+
+Nach Ergänzung des Produktionsvertrags lautet die aktuelle Untergrenze 165 Tests mit 1.612 Assertions. Die historische Zahl bleibt zur Einordnung des reinen Laravel-13-Checkpoints dokumentiert.
 
 ## Abschlussbericht
 

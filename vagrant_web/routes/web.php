@@ -13,6 +13,12 @@
 
 // use \Illuminate\Routing\Route;
 
+Route::get('/up', function () {
+	event(new \Illuminate\Foundation\Events\DiagnosingHealth());
+
+	return response('OK', 200)->header('Content-Type', 'text/plain');
+})->name('health');
+
 Route::get('/', function () {
 	return redirect('/vue');
 	// return view('welcome');
