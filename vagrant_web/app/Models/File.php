@@ -9,6 +9,7 @@ use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Parental\HasChildren;
 
 /**
  * Class File
@@ -19,12 +20,28 @@ use Illuminate\Support\Facades\Storage;
  */
 class File extends Resource {
 	use HasFactory;
+	use HasChildren;
 
-	protected static $singleTableSubclasses = [AudioFile::class, VideoFile::class, ImageFile::class, DocumentFile::class, PdfFile::class];
 	protected static $singleTableType       = 'file';
 	protected static $ORIGINAL_FILENAME     = 'of';
+	protected $childTypes = [
+		'file'  => File::class,
+		'audio' => AudioFile::class,
+		'video' => VideoFile::class,
+		'image' => ImageFile::class,
+		'doc'   => DocumentFile::class,
+		'pdf'   => PdfFile::class,
+	];
 
 	protected $cachedData = [];
+
+	protected static function booted(): void {
+		parent::booted();
+
+		static::addGlobalScope('file_types', function ($query): void {
+			$query->whereIn($query->getModel()->getTable().'.type', array_keys((new static())->getChildTypes()));
+		});
+	}
 
 	public function __construct(array $attributes = []) {
 		parent::__construct($attributes);

@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Passport\Contracts\OAuthenticatable as PassportAuthenticatable;
 use Laravel\Passport\HasApiTokens;
 
 
@@ -26,7 +27,7 @@ use Laravel\Passport\HasApiTokens;
  *
  * @property Collection $resources
  */
-class User extends Authenticatable {
+class User extends Authenticatable implements PassportAuthenticatable {
 	use HasFactory;
 	use HasApiTokens;
 	use Notifiable;

@@ -95,4 +95,8 @@ return [
     // not, so it remains explicit to preserve the existing cache namespace.
     'prefix' => 'laravel:',
 
+    // Laravel 13 rejects serialized objects unless their classes are explicitly
+    // permitted. Materialpool stores in application caches only scalar/array data.
+    'serializable_classes' => false,
+
 ];

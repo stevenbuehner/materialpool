@@ -109,5 +109,6 @@ Route::get('/bibleverse/{from}-{to}', 'Api\BibleverseController@show')
 
 
 Auth::routes($options = ['register' => FALSE]);
-Route::get('/logout', 'Auth\LoginController@logout')->name('logout');
-
+// Legacy Vue 2 still links to GET /logout. Keep the URL until the separate
+// frontend upgrade, but avoid colliding with Laravel UI's standard POST route.
+Route::get('/logout', 'Auth\LoginController@logout')->name('logout.legacy');

@@ -46,6 +46,10 @@ return [
 
 	'encrypt' => FALSE,
 
+	// Preserve existing sessions during the framework upgrade. Moving to Laravel
+	// 13's JSON default is a separate, explicitly tested session cutover.
+	'serialization' => 'php',
+
 	/*
 	|--------------------------------------------------------------------------
 	| Session File Location

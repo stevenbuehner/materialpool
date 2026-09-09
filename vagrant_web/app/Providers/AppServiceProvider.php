@@ -38,7 +38,6 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
-use Laravel\Passport\Passport;
 use PHPExif\Adapter\Exiftool;
 use StevenBuehner\BibleVerseBundle\Service\BibleVerseService;
 
@@ -50,9 +49,6 @@ class AppServiceProvider extends ServiceProvider {
 	 */
 	public function boot(): void {
 		Schema::defaultStringLength(191);
-
-		// Workaround für Passport 6
-		Passport::withoutCookieSerialization();
 	}
 
 	/**
@@ -67,10 +63,6 @@ class AppServiceProvider extends ServiceProvider {
 
 
 		if ($this->app->environment() == 'local') {
-			$this->app->register('Barryvdh\Debugbar\ServiceProvider');
-
-			$this->app->alias('Barryvdh\Debugbar\Facade', 'Debugbar');
-
 			$this->app->register('Illuminate\Translation\TranslationServiceProvider');
 		}
 

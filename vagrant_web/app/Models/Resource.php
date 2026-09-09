@@ -8,7 +8,7 @@ use App\Services\TagExtraction\ResourceHandles\HandlerInterface;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Nanigans\SingleTableInheritance\SingleTableInheritanceTrait;
+use Parental\HasChildren;
 
 /**
  * Class Resource
@@ -30,12 +30,22 @@ use Nanigans\SingleTableInheritance\SingleTableInheritanceTrait;
  */
 class Resource extends Model {
 	use HasFactory;
-	use SingleTableInheritanceTrait;
+	use HasChildren;
 
 	static           $allResourceTypeKeys   = ['res', 'link', 'file', 'text', 'book', 'audio', 'video', 'image', 'doc'];
-	protected static $singleTableTypeField  = 'type';
-	protected static $singleTableSubclasses = [Url::class, File::class, Text::class, Book::class];
 	protected static $singleTableType       = 'res';
+	protected $childTypes = [
+		'res'   => Resource::class,
+		'link'  => Url::class,
+		'file'  => File::class,
+		'audio' => AudioFile::class,
+		'video' => VideoFile::class,
+		'image' => ImageFile::class,
+		'doc'   => DocumentFile::class,
+		'pdf'   => PdfFile::class,
+		'text'  => Text::class,
+		'book'  => Book::class,
+	];
 
 	protected $additionalEditViews = [];
 	protected $table               = 'resources';
@@ -60,6 +70,16 @@ class Resource extends Model {
 		$this->notes     = '';
 
 		parent::__construct($attributes);
+	}
+
+	protected static function booted(): void {
+		static::creating(function (Resource $resource): void {
+			$resource->setAttribute('type', static::$singleTableType);
+		});
+	}
+
+	public static function getSingleTableTypeMap(): array {
+		return (new self())->getChildTypes();
 	}
 
 	public static function getSingleTableClass($key) {

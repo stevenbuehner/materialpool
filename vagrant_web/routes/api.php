@@ -143,7 +143,7 @@ Route::group([
 		->name('materials.associateResources');
 	Route::get('materials/{material}/copy', 'MaterialController@copy')
 		->where(['material' => '[0-9]+'])
-		->name('materials.show');
+		->name('materials.copy');
 	Route::get('materials/{material}/create-download', 'MaterialController@createPublicZipDownload')
 		->where(['material' => '[0-9]+'])
 		->name('materials.createPublicZipDownload');
@@ -292,7 +292,7 @@ Route::group([
 
 	// Bundle import and update
 	Route::get('bundles', 'BundleImportController@index')
-		->name('bundles.show');
+		->name('bundles.index');
 	Route::get('bundles/{bundle}', 'BundleImportController@show')
 		->where('bundle', '[0-9]+')
 		->name('bundles.show');

@@ -1,15 +1,5 @@
 <?php
 
-$boostVersion = Composer\InstalledVersions::getVersion('laravel/boost');
-$usesLegacyBoost = $boostVersion !== null && version_compare($boostVersion, '2.0.0.0', '<');
-
-$legacyToolExclusions = $usesLegacyBoost ? [
-    Laravel\Boost\Mcp\Tools\DatabaseQuery::class,
-    'Laravel\\Boost\\Mcp\\Tools\\GetConfig',
-    'Laravel\\Boost\\Mcp\\Tools\\ListAvailableEnvVars',
-    'Laravel\\Boost\\Mcp\\Tools\\ReportFeedback',
-] : [];
-
 return [
     /*
     |--------------------------------------------------------------------------
@@ -30,11 +20,11 @@ return [
 
     'mcp' => [
         'tools' => [
-            'exclude' => array_merge([
+            'exclude' => [
                 Laravel\Boost\Mcp\Tools\BrowserLogs::class,
                 Laravel\Boost\Mcp\Tools\RecordRule::class,
                 Laravel\Boost\Mcp\Tools\Tinker::class,
-            ], $legacyToolExclusions),
+            ],
         ],
     ],
 

@@ -7,6 +7,7 @@ use App\Services\PreviewGeneration\Generators\AudioPreviewGenerator;
 use App\Services\PreviewGeneration\Interfaces\PreviewGeneratorInterface;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
+use Parental\HasParent;
 
 /**
  * Class AudioFile
@@ -15,6 +16,7 @@ use Illuminate\Contracts\Filesystem\FileNotFoundException;
  */
 class AudioFile extends File {
 	use HasFactory;
+	use HasParent;
 	use TimeCountTrait;
 
 	protected static $singleTableType = 'audio';

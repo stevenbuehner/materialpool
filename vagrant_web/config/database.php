@@ -1,5 +1,7 @@
 <?php
 
+use Illuminate\Support\Str;
+
 return [
 
     /*
@@ -95,6 +97,13 @@ return [
     'redis' => [
 
         'client' => 'predis',
+
+        'options' => [
+            'prefix' => env(
+                'REDIS_PREFIX',
+                Str::slug((string) env('APP_NAME', 'laravel'), '_').'_database_'
+            ),
+        ],
 
         'default' => [
             'host' => env('REDIS_HOST', '127.0.0.1'),

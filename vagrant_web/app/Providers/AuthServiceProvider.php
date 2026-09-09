@@ -43,8 +43,8 @@ class AuthServiceProvider extends ServiceProvider {
 	 * @return void
 	 */
 	public function boot(): void {
-		// Passport 12 disables this grant by default. It remains enabled here so
-		// existing OAuth clients keep the same grant capabilities after upgrade.
+		// Die Material-Grabber-Integration benötigt weiterhin den optionalen
+		// Password Grant. Alle übrigen Passport-13-Defaults bleiben unverändert.
 		Passport::enablePasswordGrant();
 
 		// Expire tokens after one day

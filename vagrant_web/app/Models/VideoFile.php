@@ -7,6 +7,7 @@ use App\Services\PreviewGeneration\Generators\VideoPreviewGenerator;
 use App\Services\PreviewGeneration\Interfaces\PreviewGeneratorInterface;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
+use Parental\HasParent;
 
 /**
  * Class VideoFile
@@ -15,6 +16,7 @@ use Illuminate\Contracts\Filesystem\FileNotFoundException;
  */
 class VideoFile extends File {
 	use HasFactory;
+	use HasParent;
 	use TimeCountTrait;
 
 	protected static $singleTableType = 'video';

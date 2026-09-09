@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
+use Laravel\Passport\ClientRepository;
 
 class ApiKeysSeeder extends Seeder {
 
@@ -11,11 +12,16 @@ class ApiKeysSeeder extends Seeder {
 	 *
 	 * @return void
 	 */
-	public function run() {
+	public function run(): void {
+		$client = (new ClientRepository())->createPasswordGrantClient(
+			'Material Grabber',
+			config('auth.guards.api.provider'),
+			TRUE
+		);
 
-		$repo   = new \Laravel\Passport\ClientRepository();
-		$client = $repo->createPasswordGrantClient(NULL, 'Material Grabber', 'http://localhost');
-		$client->forceFill(['secret' => 'BsbBi5TMALcnnJZmsQUo7P2brXdLteRB94ExREar'])->save();
-
+		if ($this->command !== NULL) {
+			$this->command->warn('Das Client-Secret wird nur dieses eine Mal angezeigt:');
+			$this->command->line((string) $client->plainSecret);
+		}
 	}
 }

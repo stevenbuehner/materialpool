@@ -4,8 +4,10 @@ namespace App\Models;
 
 use App\Services\Processors\ContentHashProviderInterface;
 use App\Services\TagExtraction\ResourceHandles\TextContentInterface;
+use Parental\HasParent;
 
 class Url extends Resource implements TextContentInterface, ContentHashProviderInterface {
+	use HasParent;
 
 	protected static $singleTableType = 'link';
 	protected static $URL_OPTION      = 'u';

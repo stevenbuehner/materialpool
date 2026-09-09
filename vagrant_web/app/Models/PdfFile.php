@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Parental\HasParent;
 use App\Models\Traits\PageCountTrait;
 use App\Services\PreviewGeneration\Generators\PdfPreviewGenerator;
 use App\Services\PreviewGeneration\Interfaces\PreviewGeneratorInterface;
@@ -15,6 +16,7 @@ use App\Services\PreviewGeneration\Interfaces\PreviewGeneratorInterface;
  */
 class PdfFile extends File {
 	use HasFactory;
+	use HasParent;
 
 	use PageCountTrait;
 

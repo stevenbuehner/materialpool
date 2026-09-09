@@ -3,7 +3,6 @@
 namespace Tests\Unit;
 
 use Laravel\Boost\Mcp\Tools\BrowserLogs;
-use Laravel\Boost\Mcp\Tools\DatabaseQuery;
 use Laravel\Boost\Mcp\Tools\RecordRule;
 use Laravel\Boost\Mcp\Tools\Tinker;
 use Tests\TestCase;
@@ -20,9 +19,7 @@ class LaravelBoostIntegrationTest extends TestCase
         );
 
         $this->assertArrayNotHasKey('laravel/boost', $composer['require']);
-        $expectedConstraint = app()->version() === '12.0.0' ? '1.0.21' : '^2.5';
-
-        $this->assertSame($expectedConstraint, $composer['require-dev']['laravel/boost']);
+        $this->assertSame('^2.8', $composer['require-dev']['laravel/boost']);
     }
 
     public function test_codex_starts_boost_through_the_project_sail_runtime(): void
@@ -46,11 +43,5 @@ class LaravelBoostIntegrationTest extends TestCase
         $this->assertContains(RecordRule::class, $excludedTools);
         $this->assertContains(Tinker::class, $excludedTools);
 
-        if (app()->version() === '12.0.0') {
-            $this->assertContains(DatabaseQuery::class, $excludedTools);
-            $this->assertContains('Laravel\\Boost\\Mcp\\Tools\\GetConfig', $excludedTools);
-            $this->assertContains('Laravel\\Boost\\Mcp\\Tools\\ListAvailableEnvVars', $excludedTools);
-            $this->assertContains('Laravel\\Boost\\Mcp\\Tools\\ReportFeedback', $excludedTools);
-        }
     }
 }

@@ -5,9 +5,11 @@ namespace App\Models;
 use App\Services\PreviewGeneration\Generators\ImagePreviewGenerator;
 use App\Services\PreviewGeneration\Interfaces\PreviewGeneratorInterface;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Parental\HasParent;
 
 class ImageFile extends File {
 	use HasFactory;
+	use HasParent;
 
 	protected static $singleTableType = 'image';
 

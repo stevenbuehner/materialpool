@@ -11,6 +11,7 @@ use App\Services\TagExtraction\ResourceHandles\HandlerInterface;
 use App\Services\TagExtraction\ResourceHandles\TextContentHandler;
 use App\Services\TagExtraction\ResourceHandles\TextContentInterface;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Parental\HasParent;
 
 /**
  * Class Text
@@ -20,6 +21,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  */
 class Text extends Resource implements TextContentInterface, ContentHashProviderInterface {
 	use HasFactory;
+	use HasParent;
 
 	protected static $singleTableType   = 'text';
 	protected static $CONTENT_OPTION    = 'c';
