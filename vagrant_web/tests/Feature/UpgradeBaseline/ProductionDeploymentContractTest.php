@@ -164,8 +164,12 @@ class ProductionDeploymentContractTest extends TestCase
 
         $this->assertStringContainsString('npm ci --ignore-scripts', $buildScript);
         $this->assertStringContainsString('npm run build', $buildScript);
+        $this->assertStringContainsString("find . -type f ! -path './.release-manifest' -print0", $buildScript);
+        $this->assertStringContainsString('LC_ALL=C sort -z', $buildScript);
         $this->assertStringContainsString('composer install', $activateScript);
         $this->assertStringContainsString('--no-dev', $activateScript);
+        $this->assertStringContainsString("find . -type f ! -path './.release-manifest' -print0", $activateScript);
+        $this->assertStringContainsString('LC_ALL=C sort -z', $activateScript);
         $this->assertStringContainsString('storage/framework/down', $activateScript);
         $this->assertStringContainsString("supervisorctl status 'materialpool-default:*'", $activateScript);
         $this->assertStringNotContainsString('composer update', $activateScript);

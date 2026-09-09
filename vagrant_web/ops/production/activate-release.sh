@@ -33,7 +33,14 @@ manifest="${staging_directory}/.release-manifest"
 commit="$(sed -n 's/^COMMIT=//p' "$manifest")"
 expected_payload_checksum="$(sed -n 's/^PAYLOAD_SHA256=//p' "$manifest")"
 [[ "$commit" =~ ^[0-9a-f]{40}$ ]] || { echo "Ungültige Commit-ID im Manifest." >&2; exit 1; }
-actual_payload_checksum="$(tar -C "$staging_directory" --exclude='./.release-manifest' --sort=name --mtime='UTC 1970-01-01' --owner=0 --group=0 --numeric-owner -cf - . | sha256sum | awk '{print $1}')"
+actual_payload_checksum="$(
+    cd "$staging_directory"
+    find . -type f ! -path './.release-manifest' -print0 \
+        | LC_ALL=C sort -z \
+        | xargs -0 sha256sum \
+        | sha256sum \
+        | awk '{print $1}'
+)"
 [[ "$actual_payload_checksum" == "$expected_payload_checksum" ]] || {
     echo "Payload-Prüfsumme aus dem Release-Manifest ist ungültig." >&2
     exit 1
