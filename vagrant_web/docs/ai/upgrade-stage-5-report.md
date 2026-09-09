@@ -91,6 +91,7 @@ Der offizielle [Passport-13-Upgradeleitfaden](https://github.com/laravel/passpor
 
 ## Ausgeführte Prüfungen
 
+- Kaltstart mit `sail down` und `sail up -d` ohne Volume-Löschung: MySQL wurde gesund, Anwendung startete mit PHP 8.4.25; die vollständige Suite wurde anschließend erneut erfolgreich ausgeführt.
 - `composer update --lock --no-interaction`: reproduzierbarer Lock-Stand, Paket-Discovery erfolgreich.
 - `composer validate --strict`: gültig; ausschließlich die dokumentierte Commit-Referenz-Warnung des separat verwalteten Bible-Pakets.
 - `composer audit --locked`: keine Security-Advisories; ein aufgegebenes Paket ohne vorgeschlagenen Ersatz (`setasign/fpdi-fpdf`).
