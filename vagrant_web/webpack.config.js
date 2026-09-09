@@ -173,7 +173,7 @@ module.exports = {
 
 // Analyzer only in DEV-Mode
 // http://127.0.0.1:8888
-if (devMode === true) {
+if (process.env.ANALYZE === 'true') {
 	module.exports.plugins.push(new (require('webpack-bundle-analyzer').BundleAnalyzerPlugin)({
 		openAnalyzer: false
 	}));
