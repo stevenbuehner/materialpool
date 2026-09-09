@@ -11,6 +11,7 @@ Die Dokumentation unter [`docs/ai/`](docs/ai/) ist Teil dieser Anweisung und vor
 - [Domänen-Invarianten](docs/ai/domain-invariants.md)
 - [Designsystem](docs/ai/design-system.md)
 - [Qualitätssicherung](docs/ai/quality-gates.md)
+- [Vue-3-Migrationsvertrag](docs/ai/vue-3-migration-contract.md)
 - [Produktions- und Deploymentvertrag](docs/ai/production-deployment-contract.md)
 - [Entscheidungsvorlage](docs/ai/decision-template.md)
 
@@ -45,7 +46,7 @@ Antworte und dokumentiere auf Deutsch; belasse etablierte technische Bezeichner,
 
 - **Backend:** Laravel 13 und PHP 8.4. Nutze aktuelle Laravel-13-/PHP-8.4-Konventionen, wenn sie im betroffenen Bereich vollständig umsetzbar und verhaltensneutral sind. Beobachtbare Default-Änderungen bleiben entscheidungspflichtig.
 - **OAuth:** Laravel Passport 13 bleibt der API-Guard. Neue Clients verwenden UUIDs und gehashte Secrets; die Legacy-JSON-Verwaltungsrouten sind deaktiviert. Der Password Grant, bestehende Token-Laufzeiten und `materialpool_token` sind bewusst erhaltene Produktverträge; Änderungen daran verlangen Freigabe und den Ablauf aus `docs/ai/passport-13-client-migration.md`.
-- **Frontend:** Vue 2, Vue Router 3, Vuex 3, Bootstrap 4/Bootstrap-Vue und Webpack via Laravel Mix. Keine Vue-3-/Vite-Muster, Composition API oder neue UI-Bibliothek ohne Freigabe.
+- **Frontend:** Bis zum jeweils freigegebenen Migrationsschritt gelten Vue 2, Vue Router 3, Vuex 3, Bootstrap 4/Bootstrap-Vue und Webpack. Planung, Umsetzung und Abnahme der Vue-3-/Vite-Migration richten sich verbindlich nach `docs/ai/vue-3-migration-contract.md`; der Vertrag ersetzt keine dort verlangte Stufen- oder Entscheidungsfreigabe.
 - **API:** Versionen `v1` und `v2` sind bestehende Verträge. Prüfe vor jeder API-Änderung Route, Controller, Request, Policy und alle aufrufenden Vuex-Module/Komponenten.
 - **Autorisierung:** Serverseitige Authentifizierung und Policies sind maßgeblich. UI-Ausblendung ist kein Sicherheitsmechanismus.
 - **Dateien:** Ressourcen können lokale Dateien, URLs oder Text sein. Behandle den `local_path`-Wert, die konfigurierten Disks und Archive als persistenten Datenvertrag.

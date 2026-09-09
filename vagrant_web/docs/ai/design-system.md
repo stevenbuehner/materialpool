@@ -4,6 +4,8 @@
 
 Die Oberfläche ist eine funktionale, informationsdichte Vue-2-Anwendung. Ihr Bestandsschutz beruht auf **Bootstrap 4**, **Bootstrap-Vue**, Sass-Variablen und wiederverwendbaren Vue-Komponenten. Neue Oberflächen müssen sich einfügen, nicht ein neues Designsystem begründen.
 
+Für die geplante technische Migration auf Vue 3 ist identische Funktionalität und identisches Erscheinungsbild verbindlich. Referenzaufnahmen, Komponentenersatz, Bootstrap-5-Kompatibilität und visuelle Abnahme folgen dem [`Vue-3-Migrationsvertrag`](vue-3-migration-contract.md). Die Migration ist keine Freigabe für ein Redesign.
+
 ## Bausteine und Struktur
 
 - Der Einstieg `App.vue` besteht aus Hauptnavigation, globalen Flash-Meldungen und Router-Inhalt. Der Inhaltsbereich hat einen festen oberen Abstand für die Navigation.

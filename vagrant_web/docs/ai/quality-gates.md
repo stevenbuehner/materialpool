@@ -35,6 +35,7 @@ Vor gezielten PHP-Änderungen sind mindestens die Syntaxprüfung im PHP-8.4-Cont
 | Material-/Keyword-/Bibleverse-Relation | Pivotdaten (insb. `relevance`/`limitation`), Bereinigung verwaister Datensätze, UI-Darstellung |
 | Bundle/Queue | Queue-Name, Job-Reihenfolge, Wiederholbarkeit, Fehlerbehandlung; nur mit Test- oder ausdrücklich freigegebenen Daten |
 | Vue/Sass | `npm run build`, Desktop- und Mobile-Ansicht, Lade-/Fehler-/Leerezustand, Tastaturzugang |
+| Vue-3-Migrationsstufe | zusätzlich alle stufenspezifischen Funktional-, Komponenten-, E2E-, Visual-, Accessibility-, Security-, Lockfile- und Rückbaugates aus [`vue-3-migration-contract.md`](vue-3-migration-contract.md) |
 | Migration/Dependency/Infra | vorherige Freigabe, offizieller Online-Upgradeleitfaden, Up-/Down-Plan, Aktualisierungsnotiz, Fresh- und Bestandsschema, vollständige passende Tests |
 | Passport/OAuth | Client-ID als String/UUID, Secret-Hashing, Referenzerhalt, Grant-/Redirect-Migration, Auth-Fehlerfälle und echter Tokenaustausch; vor Rollout den Ablauf in `passport-13-client-migration.md` |
 | Nested Sets | vollständige `KeywordNestedSetTest`- und `KeywordApiControllerTest`-Gruppen; nach Mutationen `countErrors()` und `isBroken()` |

@@ -23,6 +23,7 @@ Browser → Laravel Web-Routen → Vue 2 SPA (/vue)
 - Docker/Sail ist ausschließlich die lokale Entwicklungs- und Testlaufzeit. Lokales Backend-Referenzsystem ist der PHP-8.4-Sail-Container; ein älteres Host-PHP ist nicht maßgeblich. Sail oder `php artisan serve` sind kein Produktions-Webserver.
 - PHPUnit 12.5 testet ausschließlich gegen die dedizierte MySQL-Datenbank `testing`; Ressourcen-, Archiv- und Backup-Dateien werden gefakt oder isoliert.
 - Frontend: Vue 2, Vuex 3, Vue Router 3, Bootstrap 4, Bootstrap-Vue, Sass und Webpack/Laravel Mix.
+- Die schrittweise Modernisierung auf Vue 3, Pinia und Laravels Vite-Integration ist ausschließlich nach dem [`Vue-3-Migrationsvertrag`](vue-3-migration-contract.md) zulässig. Bis zur Abnahme der jeweiligen Stufe bleibt der vorherige grüne Stand maßgeblich.
 - Paketdefinitionen: `composer.json`, `package.json`; Lock-Dateien sind Teil des reproduzierbaren Builds.
 - `npm run build` erzeugt das Produktionsbundle und führt vorher `php artisan lang:js -c --no-lib` aus.
 
