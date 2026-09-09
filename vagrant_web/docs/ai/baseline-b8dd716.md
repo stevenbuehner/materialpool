@@ -35,15 +35,15 @@ Dieser Commit ist der grüne Laravel-13-/Passport-13-Implementierungsstand auf `
 - Als einzige Abweichung bei den aktivierten OAuth-Grants bleibt der für den Material Grabber benötigte Password Grant aktiv. Bestehende Token-Laufzeiten, `CreateFreshApiToken` und der Cookie-Name `materialpool_token` bleiben ebenfalls als zuvor vorhandene Kompatibilitätskonfiguration erhalten.
 - Session-Serialisierung bleibt vorerst `php`; Cache-Serialisierung und bestehende Prefixes sind explizit abgesichert.
 - Die klassische Laravel-Anwendungsstruktur mit Kerneln, Providern und Konfigurationsdateien bleibt erhalten. Innerhalb dieser Struktur werden aktuelle Laravel-13-Konventionen bevorzugt, sofern sie vollständig und verhaltensneutral übernommen werden können.
-- `stevenbuehner/bible-verse-bundle` bleibt als einziges Dev-Paket unveränderlich auf Commit `ff33d614541f5cfba69dcd121d6c04cc8da921c4` fixiert, bis der Auftraggeber im separaten Projekt einen stabilen kompatiblen Tag veröffentlicht.
+- `stevenbuehner/bible-verse-bundle` ist über den stabilen Constraint `^3.0` auf Release `3.0.0` (Commit `c9757851ee69220293223728e1db525951e60da8`) gelockt. Die frühere Dev-/Commit-Ausnahme ist vollständig entfallen.
 - Das Frontend bleibt bewusst auf Vue 2/Laravel Mix. Der erfolgreiche isolierte Build ändert nichts daran, dass die Modernisierung ein separates Projekt ist.
 
 ## Verifikationsgrenze und Deployment-Status
 
 Die vollständige Suite, Fresh-Migration, befüllte Passport-Altschema-Migration, echter Tokenaustausch, isoliertes Backup, Handler, Nested Sets, STI, Routen, Composer-Validierung und Security-Audit sind grün. Der Endstand ist technisch abgenommen, aber noch kein produktiver Rollout:
 
-- Vor Produktion muss das Bible-Paket einen stabilen Tag erhalten.
 - Der Passport-Cutover muss mit Clientinventar, verifiziertem Datenbankbackup, Wartungsfenster und Restore-Probe produktionsnah geprobt werden.
+- Die produktive Runtime muss PHP 8.4.x, die benötigten Erweiterungen, Composer 2 und MySQL 8 in der geprüften Semantik bereitstellen.
 - `setasign/fpdi-fpdf` ist aufgegeben, aktuell aber ohne bekanntes Security-Advisory; sein Ersatz ist ein separates Teilprojekt.
 - Das Host-PHP 8.0 und Node 26 sind keine gültige Backend-/Legacy-Frontend-Referenz. Backendprüfungen laufen über Sail/PHP 8.4; der Legacy-Build wurde isoliert mit Node 16 ausgeführt.
 

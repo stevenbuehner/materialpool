@@ -28,7 +28,7 @@
     "setasign/fpdi-fpdf": "^2.0",
     "spatie/laravel-backup": "^10.3",
     "spatie/pdf-to-text": "^1.1",
-    "stevenbuehner/bible-verse-bundle": "dev-develop#ff33d614541f5cfba69dcd121d6c04cc8da921c4",
+    "stevenbuehner/bible-verse-bundle": "^3.0",
     "tightenco/parental": "^1.6"
   },
   "require-dev": {

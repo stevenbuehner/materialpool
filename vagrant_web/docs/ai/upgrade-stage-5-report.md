@@ -20,8 +20,9 @@ Das Vue-2-Frontend, seine Quellen, `package.json` und `package-lock.json` wurden
 | `phpunit/phpunit` | 12.5.35 | XML-Schema auf 12.5 aktualisiert |
 | `nunomaduro/collision` | 8.9.5 | kompatibler stabiler Stand |
 | `fruitcake/laravel-debugbar` | 4.4.3 | ersetzt den alten Debugbar-Fork; Standard-Autodiscovery |
+| `stevenbuehner/bible-verse-bundle` | 3.0.0 | stabiler PHP-8.4-kompatibler Release; PHP-/JavaScript-Verträge erhalten |
 
-`minimum-stability` ist `stable`. Das separat verwaltete `stevenbuehner/bible-verse-bundle` ist als einzige dokumentierte Ausnahme unveränderlich auf Commit `ff33d614541f5cfba69dcd121d6c04cc8da921c4` fixiert. Composers Warnung gegen Commit-Referenzen bleibt deshalb bestehen, bis der Auftraggeber denselben Stand stabil taggt. Der PHP-/JavaScript-Exportvertrag des Pakets ist getestet.
+`minimum-stability` ist `stable`. Das separat verwaltete `stevenbuehner/bible-verse-bundle` ist über `^3.0` auf den stabilen Tag `3.0.0` und Commit `c9757851ee69220293223728e1db525951e60da8` gelockt. Die frühere Commit-Referenz und ihre Stability-Ausnahme sind entfallen. Der PHP-/JavaScript-Exportvertrag des Pakets ist getestet.
 
 `composer outdated --direct --strict` nennt nur zwei nicht automatisch auszuführende Major-Wechsel: Intervention Image 2 auf 4 und PHPUnit 12 auf 13. Intervention Image berührt die Medien-API und gehört in ein separates Backend-Teilprojekt; Laravel 13 empfiehlt PHPUnit 12, weshalb PHPUnit 13 nicht übernommen wurde.
 
@@ -93,16 +94,18 @@ Der offizielle [Passport-13-Upgradeleitfaden](https://github.com/laravel/passpor
 
 - Kaltstart mit `sail down` und `sail up -d` ohne Volume-Löschung: MySQL wurde gesund, Anwendung startete mit PHP 8.4.25; die vollständige Suite wurde anschließend erneut erfolgreich ausgeführt.
 - `composer update --lock --no-interaction`: reproduzierbarer Lock-Stand, Paket-Discovery erfolgreich.
-- `composer validate --strict`: gültig; ausschließlich die dokumentierte Commit-Referenz-Warnung des separat verwalteten Bible-Pakets.
+- `composer validate --strict`: gültig und ohne Warnung.
 - `composer audit --locked`: keine Security-Advisories; ein aufgegebenes Paket ohne vorgeschlagenen Ersatz (`setasign/fpdi-fpdf`).
 - PHP-Syntaxprüfung aller 29 geänderten beziehungsweise neuen PHP-Dateien im PHP-8.4-Container: bestanden.
 - `php artisan migrate:fresh --env=testing --force`: vollständiges Fresh-Schema einschließlich Passport-13-Migrationen: bestanden.
 - Befülltes Passport-Altschema: Secret-Hashing, Owner-/Grant-/Redirect-Übernahme, ID-/Tokenreferenz-Erhalt und echter Password-Grant-Tokenaustausch: bestanden.
 - Vollständige PHPUnit-Suite: 156 Tests, 1.588 Assertions, bestanden.
+- Nach Umstellung auf BibleVerseBundle `3.0.0`: gezielter Bundle-Vertrag mit 6 Tests/39 Assertions sowie die vollständige Suite mit 156 Tests/1.588 Assertions erneut bestanden.
 - Nestedset-Vertragsgruppe: alle Forest-, Boundary-, Depth-, Move-, Merge-, Delete-, Search-, Pivot- und JSON-Fälle innerhalb des Gesamtlaufs bestanden; `isBroken()` bleibt false.
 - Handler-Gruppe separat: 7 Tests, 40 Assertions; gemeinsam mit Boost 10 Tests und 46 Assertions, bestanden.
 - Backup 10: isoliertes Datei-Backup erzeugt, entpackt und per SHA-256 gegen die Fixture geprüft.
 - Production-Webpack-Build: in isolierter Kopie im Sail-Image mit Node 16 erfolgreich; Repository-Ausgaben wurden nicht überschrieben.
+- Nach Umstellung auf BibleVerseBundle `3.0.0` wurde dieser isolierte Production-Webpack-Build erneut erfolgreich ausgeführt; alle direkten Paketimporte werden aufgelöst.
 - `route:list --json`: erfolgreich; Passport-Core-/Device-Routen vorhanden, alte JSON-Verwaltungsrouten abwesend.
 - Frontend-Manifeste/-Quellen und reguläre Storage-Pfade zeigen keine Git-Änderungen. Alle Dateioperationstests verwenden Fakes; nur `testing` wurde migriert.
 
@@ -110,9 +113,8 @@ Der offizielle [Passport-13-Upgradeleitfaden](https://github.com/laravel/passpor
 
 ### P0 vor produktivem Deployment
 
-1. **Bible-Paket stabil taggen.** Empfehlung: Commit `ff33d614…` im separaten Projekt unverändert als semantischen Stable-Release veröffentlichen und hier nur den Constraint ersetzen. Alternative: Commit-Pin vorübergehend behalten; dann bleibt Composers Warnung bestehen. Rückbau: zurück auf den Commit-Pin.
-2. **Passport-Cutover proben.** Empfehlung: Clientinventar, verifiziertes Backup, Wartungsfenster und den Ablauf aus `passport-13-client-migration.md` in einer produktionsnahen Kopie durchspielen. Alternative: kein Deployment. Rückbau: ausschließlich Code plus Datenbankbackup.
-3. **Runtime bereitstellen.** Produktion muss PHP 8.4.x, passende Erweiterungen, Composer 2 und die geprüfte MySQL-8-Semantik verwenden. Ein Deployment auf der lokalen Host-PHP-8.0-Laufzeit ist unmöglich.
+1. **Passport-Cutover proben.** Empfehlung: Clientinventar, verifiziertes Backup, Wartungsfenster und den Ablauf aus `passport-13-client-migration.md` in einer produktionsnahen Kopie durchspielen. Alternative: kein Deployment. Rückbau: ausschließlich Code plus Datenbankbackup.
+2. **Runtime bereitstellen und prüfen.** Produktion muss PHP 8.4.x, passende Erweiterungen und Medien-Binaries, Composer 2 sowie die geprüfte MySQL-8-Semantik verwenden. Ein Deployment auf der lokalen Host-PHP-8.0-Laufzeit ist unmöglich.
 
 ### P1 nach stabilem Laravel-13-Deployment
 
@@ -131,4 +133,4 @@ Der offizielle [Passport-13-Upgradeleitfaden](https://github.com/laravel/passpor
 
 ## Verbleibende Risiken
 
-Laravel 13 selbst und der gelockte PHP-Backend-Stand haben laut Composer keine bekannten Security-Advisories. Ein produktives Release bleibt dennoch bis zum stabilen Bible-Paket-Tag und einer erfolgreichen produktionsnahen Passport-/Backup-Probe gesperrt. Das unveränderte Legacy-Frontend und das aufgegebene PDF-Metapaket bleiben bekannte, getrennt zu bearbeitende Wartungsrisiken.
+Laravel 13 selbst und der gelockte PHP-Backend-Stand haben laut Composer keine bekannten Security-Advisories. Der stabile Bible-Paket-Tag ist eingebunden und kein Blocker mehr. Ein produktives Release bleibt bis zur bereitgestellten PHP-8.4-/MySQL-8-Runtime und einer erfolgreichen produktionsnahen Passport-/Backup-/Restore-Probe gesperrt. Das unveränderte Legacy-Frontend und das aufgegebene PDF-Metapaket bleiben bekannte, getrennt zu bearbeitende Wartungsrisiken.

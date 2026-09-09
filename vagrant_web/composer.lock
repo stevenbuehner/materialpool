@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "242a1e0cc72d8e821eaf68ef28ed8b78",
+    "content-hash": "cd2c383b47441bbe7114f1d2ffd36291",
     "packages": [
         {
             "name": "brick/math",
@@ -5403,26 +5403,35 @@
         },
         {
             "name": "stevenbuehner/bible-verse-bundle",
-            "version": "dev-develop",
+            "version": "3.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/stevenbuehner/BibleVerseBundle.git",
-                "reference": "ff33d614541f5cfba69dcd121d6c04cc8da921c4"
+                "reference": "c9757851ee69220293223728e1db525951e60da8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/stevenbuehner/BibleVerseBundle/zipball/ff33d614541f5cfba69dcd121d6c04cc8da921c4",
-                "reference": "ff33d614541f5cfba69dcd121d6c04cc8da921c4",
+                "url": "https://api.github.com/repos/stevenbuehner/BibleVerseBundle/zipball/c9757851ee69220293223728e1db525951e60da8",
+                "reference": "c9757851ee69220293223728e1db525951e60da8",
                 "shasum": ""
             },
             "require": {
-                "php": ">7.0"
+                "php": "^8.3"
             },
             "require-dev": {
-                "phpdocumentor/reflection-docblock": "2.0",
-                "phpunit/phpunit": "^6.5",
-                "symfony/yaml": "~2.1",
-                "twig/twig": "^1.35"
+                "phpunit/phpunit": "^12.5",
+                "symfony/config": "^7.4 || ^8.0",
+                "symfony/dependency-injection": "^7.4 || ^8.0",
+                "symfony/http-kernel": "^7.4 || ^8.0",
+                "symfony/yaml": "^7.4 || ^8.0",
+                "twig/twig": "^3.21"
+            },
+            "suggest": {
+                "doctrine/orm": "Required only when using the optional Doctrine entity repository integration.",
+                "symfony/config": "^7.4 || ^8.0 for the optional Symfony bundle integration.",
+                "symfony/dependency-injection": "^7.4 || ^8.0 for the optional Symfony bundle integration.",
+                "symfony/http-kernel": "^7.4 || ^8.0 for the optional Symfony bundle integration.",
+                "symfony/yaml": "^7.4 || ^8.0 for loading the optional Symfony service configuration."
             },
             "type": "library",
             "autoload": {
@@ -5440,13 +5449,13 @@
                     "email": "buehner@me.com"
                 }
             ],
-            "description": "A highly tested library to parse, identify, merge store and work with bibleverses.",
+            "description": "A highly tested library to parse, identify, merge store and work with bible verses.",
             "homepage": "https://github.com/stevenbuehner/BibleVerseBundle",
             "support": {
                 "issues": "https://github.com/stevenbuehner/BibleVerseBundle/issues",
-                "source": "https://github.com/stevenbuehner/BibleVerseBundle/tree/develop"
+                "source": "https://github.com/stevenbuehner/BibleVerseBundle/tree/3.0.0"
             },
-            "time": "2023-03-09T23:32:04+00:00"
+            "time": "2026-09-09T18:26:58+00:00"
         },
         {
             "name": "symfony/cache",
@@ -11868,9 +11877,7 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {
-        "stevenbuehner/bible-verse-bundle": 20
-    },
+    "stability-flags": {},
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
