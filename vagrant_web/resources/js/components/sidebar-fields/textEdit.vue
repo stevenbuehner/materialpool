@@ -89,7 +89,7 @@
 </template>
 
 <script>
-import {BButton}                                      from '@/adapters/bootstrap';
+import {BButton, BFormInput, BFormTextarea}           from '@/adapters/bootstrap';
 import textFieldIcon                                  from '@icons/vendor/svg-icon/svg/material/text-fields.svg'
 import generalMixin                                   from './generalSidebarFields.mixin';
 import Datepicker                                     from '../datepicker/datepicker';
@@ -221,6 +221,8 @@ export default {
   components: {
     textFieldIcon,
     BButton,
+    BFormInput,
+    BFormTextarea,
     Datepicker
   }
 }

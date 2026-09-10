@@ -130,7 +130,7 @@ import {getLocale, getLocaleDateFormat, moment} from "../../../apps/main/localis
 import OccasionIcon                             from '@icons/vendor/svg-icon/svg/icomoon/bubble2.svg';
 
 import Datepicker from '../../datepicker/datepicker';
-import {BButton}  from '@/adapters/bootstrap';
+import {BButton, BFormInput} from '@/adapters/bootstrap';
 import trashIcon  from '@icons/vendor/svg-icon/svg/oct/trashcan.svg';
 
 import {savingDialogs} from "../../../helper/flashMessages";
@@ -454,7 +454,8 @@ export default {
     trashIcon,
     cancelIcon,
     checkCircleIcon,
-    BButton
+    BButton,
+    BFormInput
   }
 
 }

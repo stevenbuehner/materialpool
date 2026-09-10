@@ -46,7 +46,7 @@
         <!-- Right aligned nav items -->
         <b-navbar-nav class="ml-auto">
 
-          <b-nav-form @submit="goForSearch">
+          <b-nav-form @submit.prevent="goForSearch">
             <b-input-group class="px-2">
               <b-form-input size="sm"
                             type="text"

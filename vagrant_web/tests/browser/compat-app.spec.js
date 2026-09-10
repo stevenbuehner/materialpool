@@ -1,4 +1,5 @@
 import {expect, test} from '@playwright/test';
+import {Buffer} from 'node:buffer';
 
 test('Vue application mounts with synthetic bootstrap data', async ({page}, testInfo) => {
     const pageErrors = [];
@@ -54,12 +55,35 @@ test('Vue application mounts with synthetic bootstrap data', async ({page}, test
             },
         }),
     }));
+    await page.route('**/pool/search/get?*', route => route.fulfill({
+        contentType: 'application/json',
+        body: JSON.stringify({
+            data: [],
+            current_page: 1,
+            from: null,
+            last_page: 1,
+            next_page_url: null,
+            per_page: 30,
+            prev_page_url: null,
+            to: null,
+            total: 0,
+        }),
+    }));
 
     await page.goto('/vue/');
 
     await expect(page.locator('.main-area')).toBeVisible();
     await expect(page.getByRole('link', {name: 'Suchen'})).toBeVisible();
     await expect(page.locator('svg.sb-navbar-icon')).toHaveCount(2);
+
+    const speedSearch = page.getByPlaceholder('Schnellsuche');
+    if (!await speedSearch.isVisible()) {
+        await page.locator('.navbar-toggler').click();
+    }
+    await expect(speedSearch).toHaveClass(/form-control-sm/);
+    await speedSearch.fill('Gamma');
+    await page.locator('form').filter({has: speedSearch}).getByRole('button', {name: 'Suchen'}).click();
+    await expect(page).toHaveURL(/\/vue\/search\/1\*Gamma$/);
 
     await testInfo.attach('vue-compat-warnings', {
         body: JSON.stringify(compatWarnings, null, 2),
