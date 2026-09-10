@@ -893,3 +893,227 @@ test('Material creator keeps preset selection, material preload and preset stora
     expect(consoleErrors).toEqual([]);
     expect(unexpectedWarnings).toEqual([]);
 });
+
+test('Assign app keeps page selection, attachment and nested image dialogs', async ({page}) => {
+    const pageErrors = [];
+    const consoleErrors = [];
+    const unexpectedWarnings = [];
+    const attachRequests = [];
+    const resourceTagsRequests = [];
+    const resourceLoads = [];
+    const partialMaterial = {
+        id: 9,
+        title: 'Partial synthetic material',
+        description: '',
+        rating: 10,
+        author: null,
+        keywords: [],
+        bibleverses: [],
+        resources: [],
+        pivot: {limitation: {pages: [2]}},
+    };
+    let currentResource = {
+        id: 42,
+        type: 'pdf',
+        original_filename: 'synthetic-pages.pdf',
+        notes: '',
+        remote_path: '',
+        is_public: false,
+        page_count: 3,
+        materials: [partialMaterial],
+        creator: null,
+        created_at: '2026-09-01 12:00:00',
+        updated_at: '2026-09-02 13:00:00',
+        content_hash: 'synthetic-pdf-hash',
+        filesize: 3072,
+    };
+
+    page.on('pageerror', error => pageErrors.push(error.stack || error.message));
+    page.on('console', message => {
+        if (message.type() === 'error') consoleErrors.push(message.text());
+        if (message.type() === 'warning' && !message.text().startsWith('[Vue warn]: (deprecation ')) {
+            unexpectedWarnings.push(message.text());
+        }
+    });
+
+    await page.route('**/vue/**', route => route.fulfill({
+        contentType: 'text/html',
+        body: `<!doctype html>
+            <html lang="de">
+                <head>
+                    <meta charset="utf-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1">
+                    <title>Materialpool Assign Test</title>
+                    <link rel="stylesheet" href="/css/main.css">
+                </head>
+                <body>
+                    <div id="app"></div>
+                    <script>
+                        window.Laravel = {csrfToken: 'synthetic-csrf-token'};
+                        window.materialpool = {route: '/resource/42/assign', store: {materials: []}};
+                    </script>
+                    <script src="/js/main_build.js"></script>
+                </body>
+            </html>`,
+    }));
+    await page.route('**/resource/*/image/page-*', async route => {
+        const pageNumber = new URL(route.request().url()).pathname.split('-').pop();
+        await route.fulfill({
+            contentType: 'image/svg+xml',
+            body: `<svg xmlns="http://www.w3.org/2000/svg" width="600" height="800">
+                <rect width="600" height="800" fill="#f8f9fa"/>
+                <rect x="28" y="28" width="544" height="744" fill="#fff" stroke="#adb5bd" stroke-width="4"/>
+                <text x="300" y="390" text-anchor="middle" font-family="sans-serif" font-size="72" fill="#495057">Seite ${pageNumber}</text>
+            </svg>`,
+        });
+    });
+    await page.route('**/api/**', async route => {
+        const request = route.request();
+        const pathname = new URL(request.url()).pathname;
+
+        if (pathname === '/api/v1/general/options') {
+            await route.fulfill({
+                contentType: 'application/json',
+                body: JSON.stringify({
+                    systemname: 'MaterialPool Default',
+                    server: {max_upload: 10485760},
+                    user: {
+                        id: 1,
+                        name: 'Synthetic User',
+                        email: 'synthetic@example.invalid',
+                        is_admin: false,
+                        frontend_user_settings: {},
+                    },
+                }),
+            });
+            return;
+        }
+
+        if (pathname === '/api/v1/resources/42') {
+            resourceLoads.push(42);
+            await route.fulfill({contentType: 'application/json', body: JSON.stringify(currentResource)});
+            return;
+        }
+
+        if (pathname === '/api/v1/resources/43') {
+            resourceLoads.push(43);
+            await route.fulfill({
+                contentType: 'application/json',
+                body: JSON.stringify({...currentResource, id: 43, page_count: 1, materials: []}),
+            });
+            return;
+        }
+
+        if (pathname === '/api/v1/resources/42/pdf-tags' && request.method() === 'POST') {
+            resourceTagsRequests.push(request.postDataJSON());
+            await route.fulfill({contentType: 'application/json', body: '[]'});
+            return;
+        }
+
+        if (pathname === '/api/v2/material/9/resource/42/attach' && request.method() === 'POST') {
+            const payload = request.postDataJSON();
+            attachRequests.push(payload);
+            const attachedMaterial = {
+                ...partialMaterial,
+                pivot: {limitation: {pages: [2, 1]}},
+            };
+            currentResource = {...currentResource, materials: [attachedMaterial]};
+            await route.fulfill({
+                contentType: 'application/json',
+                body: JSON.stringify({material: attachedMaterial, resource: currentResource}),
+            });
+            return;
+        }
+
+        await route.fulfill({contentType: 'application/json', body: '[]'});
+    });
+
+    await page.goto('/vue/');
+    const subMenu = page.locator('.sub-menu');
+    await expect(subMenu).toBeVisible();
+    await expect(subMenu.getByRole('link', {name: 'MatPool'})).toHaveAttribute('href', '/vue/resource/42');
+    const createButton = subMenu.getByRole('button', {name: 'neu', exact: true});
+    const addButton = subMenu.getByRole('button', {name: 'hinzufügen', exact: true});
+    await expect(createButton).toBeDisabled();
+    await expect(addButton).toBeDisabled();
+
+    const pageCells = page.locator('.content > .row > .cell');
+    await expect(pageCells).toHaveCount(3);
+    await expect(pageCells.locator('img')).toHaveCount(3);
+    await expect(pageCells.locator('img').first()).toBeVisible();
+    await pageCells.first().locator('.content-container').click();
+    await expect(pageCells.first()).toHaveClass(/\bselected\b/);
+    await expect(createButton).toBeEnabled();
+    await expect(addButton).toBeEnabled();
+
+    await addButton.click();
+    const materialSelector = page.locator('.modal.show');
+    await expect(materialSelector.getByRole('heading', {name: 'Wähle ein Material'})).toBeVisible();
+    await materialSelector.locator('.lastMaterials .material').filter({hasText: 'Partial synthetic material'}).click();
+    await expect.poll(() => attachRequests.length).toBe(1);
+    expect(attachRequests[0]).toEqual({limitation: {type: 'page', value: '2,1'}});
+    await expect(materialSelector).toBeHidden();
+
+    const selectedMaterialDropdown = subMenu.locator('.b-nav-dropdown')
+        .filter({hasText: 'ein Material ausgewählt'});
+    await selectedMaterialDropdown.locator('.dropdown-toggle').click();
+    await expect(selectedMaterialDropdown.getByRole('button', {name: 'löschen'})).toBeVisible();
+    await expect(selectedMaterialDropdown.getByRole('link', {name: 'öffnen'}))
+        .toHaveAttribute('href', '/vue/material/9');
+    await selectedMaterialDropdown.locator('.dropdown-toggle').click();
+
+    const displayDropdown = subMenu.locator('.b-nav-dropdown').filter({hasText: 'Ansicht'});
+    await displayDropdown.locator('.dropdown-toggle').click();
+    await displayDropdown.getByRole('menuitem', {name: 'groß'}).click();
+    await expect(pageCells.first()).toHaveClass(/\bcol-md-6\b/);
+    await expect(page).toHaveScreenshot('assign-app-pages.png', {
+        animations: 'disabled',
+        caret: 'hide',
+    });
+
+    await subMenu.getByRole('button', {name: 'alles auswählen'}).click();
+    await expect(page.locator('.content > .row > .cell.selected')).toHaveCount(3);
+    await expect(subMenu.getByRole('button', {name: 'alles auswählen'})).toHaveCount(0);
+
+    await pageCells.first().locator('.zoom').click();
+    const imageModal = page.locator('.modal.show:has(.checked-modal-page)');
+    await expect(imageModal.locator('.checked-modal-page')).toContainText('selected pages: 1, 2, 3');
+    await expect(imageModal.locator('.modal-body img')).toHaveAttribute('src', '/resource/42/image/page-1');
+    await imageModal.locator('.next').click();
+    await expect(imageModal.locator('.modal-body img')).toHaveAttribute('src', '/resource/42/image/page-2');
+    await expect(page).toHaveScreenshot('assign-app-image-zoom.png', {
+        animations: 'disabled',
+        caret: 'hide',
+    });
+
+    await page.keyboard.press('Control+KeyN');
+    await expect.poll(() => resourceTagsRequests.length).toBe(1);
+    await expect(page.locator('.modal.show')).toHaveCount(2);
+    await expect(page.locator('.modal-backdrop.show')).toHaveCount(2);
+    await expect(page.locator('body')).toHaveClass(/\bmodal-open\b/);
+    const materialCreator = page.locator('.modal.show').filter({hasText: 'Material erstellen'});
+    await expect(materialCreator.getByRole('heading', {name: 'Material erstellen'})).toBeVisible();
+    await expect(materialCreator).toHaveCSS('z-index', '1075');
+    await expect(imageModal).toHaveCSS('z-index', '1055');
+    await materialCreator.getByRole('button', {name: 'Abbrechen'}).click();
+    await expect(page.locator('.modal.show')).toHaveCount(1);
+    await expect(page.locator('.modal-backdrop.show')).toHaveCount(1);
+    await expect(page.locator('body')).toHaveClass(/\bmodal-open\b/);
+
+    await imageModal.locator('.modal-body img').click();
+    await expect(page.locator('.modal.show')).toHaveCount(0);
+    await expect(page.locator('.modal-backdrop.show')).toHaveCount(0);
+    await expect(page.locator('body')).not.toHaveClass(/\bmodal-open\b/);
+
+    await page.evaluate(() => {
+        window.history.pushState({}, '', '/vue/resource/43/assign');
+        window.dispatchEvent(new PopStateEvent('popstate'));
+    });
+    await expect.poll(() => resourceLoads).toEqual([42, 43]);
+    await expect(subMenu.getByRole('link', {name: 'MatPool'})).toHaveAttribute('href', '/vue/resource/43');
+    await expect(pageCells).toHaveCount(1);
+
+    expect(pageErrors).toEqual([]);
+    expect(consoleErrors).toEqual([]);
+    expect(unexpectedWarnings).toEqual([]);
+});

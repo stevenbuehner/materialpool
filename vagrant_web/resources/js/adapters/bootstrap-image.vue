@@ -7,12 +7,14 @@
       :width="width"
       :height="height"
       :loading="lazy ? 'lazy' : null"
+      @click="$emit('click', $event)"
   >
 </template>
 <script>
 export default {
     name: 'BImg',
     inheritAttrs: false,
+    emits: ['click'],
     props: {
         alt: {type: String, default: ''},
         blank: {type: Boolean, default: false},

@@ -9,6 +9,7 @@
         role="dialog"
         aria-modal="true"
         :aria-labelledby="titleId"
+        :style="modalStyle"
         @mousedown.self="onBackdrop"
         @keydown="onKeydown"
     >
@@ -37,7 +38,7 @@
         </div>
       </div>
     </div>
-    <div v-if="localVisible" class="modal-backdrop fade show"/>
+    <div v-if="localVisible" class="modal-backdrop fade show" :style="backdropStyle"/>
   </teleport>
 </template>
 
@@ -46,6 +47,11 @@ import {modalDialogClasses} from './bootstrap-modal';
 
 let modalUid = 0;
 let openModalCount = 0;
+let nextModalLayer = 0;
+
+const modalZIndex = 1055;
+const backdropZIndex = 1050;
+const modalLayerOffset = 20;
 
 export default {
     name: 'BModal',
@@ -73,6 +79,7 @@ export default {
         return {
             hasShown: Boolean(visible),
             localVisible: Boolean(visible),
+            modalLayer: 0,
             returnFocusTo: null,
             titleId: `materialpool-modal-title-${modalUid}`,
         };
@@ -83,6 +90,14 @@ export default {
         },
         is_visible() {
             return this.localVisible;
+        },
+        backdropStyle() {
+            if (this.modalLayer === 0) return null;
+            return {zIndex: backdropZIndex + (this.modalLayer * modalLayerOffset)};
+        },
+        modalStyle() {
+            if (this.modalLayer === 0) return null;
+            return {zIndex: modalZIndex + (this.modalLayer * modalLayerOffset)};
         },
         renderContent() {
             return !this.lazy || this.hasShown;
@@ -180,6 +195,8 @@ export default {
             return [...(this.$refs.modal?.querySelectorAll(selector) || [])].filter(element => !element.hidden);
         },
         opened() {
+            this.modalLayer = nextModalLayer;
+            nextModalLayer += 1;
             openModalCount += 1;
             document.body.classList.add('modal-open');
             this.$nextTick(() => {
@@ -199,7 +216,10 @@ export default {
         },
         releaseBody() {
             openModalCount = Math.max(0, openModalCount - 1);
-            if (openModalCount === 0) document.body.classList.remove('modal-open');
+            if (openModalCount === 0) {
+                nextModalLayer = 0;
+                document.body.classList.remove('modal-open');
+            }
         },
         emitModel(value) {
             this.$emit('input', value);

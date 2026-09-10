@@ -6,14 +6,14 @@
       <b-navbar-brand :to="{name: 'resource-detail', params: {id: id}}" class="ps-3">MatPool</b-navbar-brand>
 
       <b-navbar-nav>
-        <b-button size="sm"
-                  class="my-1 my-md-0 mx-1"
-                  :title="selectedPages.length > 0 ? $t('pool.create-material-selected-pages') + ' (CTRL + N)': $t('pool.select-pages-first')"
-                  :disabled="selectedPages.length === 0"
-                  @click="btnCreateNewMaterialFromSelection"
-                  v-shortkey="['ctrl', 'n']" @shortkey="btnCreateNewMaterialFromSelection"
+        <button type="button"
+                class="btn btn-secondary btn-sm my-1 my-md-0 mx-1"
+                :title="selectedPages.length > 0 ? $t('pool.create-material-selected-pages') + ' (CTRL + N)': $t('pool.select-pages-first')"
+                :disabled="selectedPages.length === 0"
+                @click="btnCreateNewMaterialFromSelection"
+                v-shortkey="['ctrl', 'n']" @shortkey="btnCreateNewMaterialFromSelection"
         >{{ $t('pool.new') }}
-        </b-button>
+        </button>
         <b-button size="sm"
                   class="my-1 my-md-0 mx-1"
                   :title="selectedPages.length > 0 ? $t('pool.add-material-selected-pages') : $t('pool.select-pages-first')"
