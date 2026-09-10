@@ -1,5 +1,4 @@
 import AsyncComputed from 'vue-async-computed';
-import ShortKey from 'vue-shortkey';
 
 import flashMessage from '@/adapters/flash-message';
 import { installTranslation } from '@/adapters/translation';
@@ -9,6 +8,7 @@ import {
     TabsPlugin,
 } from '@/adapters/bootstrap';
 import queuedImagesLoader from '@/directives/queued-images-loader';
+import ShortKey from '@/directives/shortkey';
 import { timeout_flashSavingMessage } from '../config';
 
 export function installLegacyPlugins(VueApp, vueLangConfig) {
