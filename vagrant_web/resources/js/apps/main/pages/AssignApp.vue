@@ -113,7 +113,6 @@ import {
   BDropdownItem,
   BNavbarBrand,
   BNavbarNav,
-  BNavItem,
   BNavItemDropdown,
   VBTooltip
 }                       from '@/adapters/bootstrap';
@@ -411,7 +410,6 @@ export default {
     BNavbar,
     BNavbarBrand,
     BNavbarNav,
-    BNavItem,
     BNavItemDropdown,
     BDropdownItem,
     BButton,

@@ -83,7 +83,6 @@
 import {
   BButton,
   BCollapse,
-  BDropdownDivider,
   BDropdownItem,
   BFormInput,
   BInputGroup,
@@ -134,7 +133,6 @@ export default {
     BNavItem,
     BNavForm,
     BNavItemDropdown,
-    BDropdownDivider,
     BDropdownItem,
     BCollapse,
     BFormInput,
