@@ -1,6 +1,6 @@
 # Vue-3-Migration – Stufe 3: UI-Komponenten
 
-Status: In Arbeit; die Teilstufen Shortcuts, Rating, Datepicker, Select, Upload, Bootstrap-Primitiven, Bootstrap-Formlayout und Bootstrap-Darstellung sind abgeschlossen. Navigation, Overlays und der Bootstrap-5-Wechsel folgen in getrennten, rückbaubaren Arbeitspaketen.
+Status: In Arbeit; die Teilstufen Shortcuts, Rating, Datepicker, Select, Upload, Bootstrap-Primitiven, Bootstrap-Formlayout, Bootstrap-Darstellung und Pagination sind abgeschlossen. Navbar/Dropdown/Tabs, Overlays und der Bootstrap-5-Wechsel folgen in getrennten, rückbaubaren Arbeitspaketen.
 
 Dieser Bericht ergänzt den verbindlichen [Vue-3-Migrationsvertrag](vue-3-migration-contract.md). Er wird nach jeder Komponentenfamilie fortgeschrieben. Ein grüner Teilcommit ist noch keine Freigabe der gesamten Stufe 3.
 
@@ -86,6 +86,13 @@ Dieser Bericht ergänzt den verbindlichen [Vue-3-Migrationsvertrag](vue-3-migrat
 - Bundleauswirkung gegenüber Teilstufe 3.7: Haupt-JavaScript plus 3.646 Bytes, Source Map plus 9.576 Bytes, CSS in der Gesamtgröße unverändert. Wegen neu berechneter SFC-Scopes wurden die betroffenen bestehenden Lazy-JavaScript-/CSS-Artefakte reproduzierbar neu erzeugt.
 - Grenze: Bundle-Fortschritt, Card-/List-Layout, Badges sowie sofortige und lazy geladene Bilder konnten wegen der ausgeschöpften lokalen Browser-Ausführungsfreigaben nicht erneut visuell geprüft werden. Layout, Ladeereignisse, Direktivenweitergabe und Responsive-Darstellung bleiben daher Bestandteil des nächsten verfügbaren Browser-/Visual-Gates.
 
+## Teilstufe 3.9 – Pagination
+
+- Die vier `BPaginationNav`-Verbraucher verwenden nun einen lokalen Vue-3-Adapter. Beibehalten sind Vue-2- und Vue-3-Modellereignisse, Seitenzahl/Limit, zentrierte Bootstrap-4-Pagination, aktive/deaktivierte Zustände, begrenztes Seitenfenster mit Trennern, First/Previous/Next/Last sowie `link-gen`-Routerobjekte.
+- Nummernlinks navigieren direkt über Vue Router; die Randsteuerung aktualisiert Modell und Route explizit. Dadurch bleiben die vorhandenen `?page=`-Verträge von Materialliste, Suche sowie neuesten und verwaisten Ressourcen unverändert.
+- 28 Unit-Tests einschließlich Anfangs-/Mittel-/Endfenster, gezieltes Lint ohne Fehler und Production-Build sind grün. Haupt-JavaScript wächst gegenüber Teilstufe 3.8 um 3.272 Bytes, die Source Map um 5.428 Bytes; CSS bleibt unverändert.
+- Grenze: Klick, Fokusreihenfolge, ARIA-Ausgabe und Responsive-Umbruch mit realen mehrseitigen Ergebnissen bleiben wegen der ausgeschöpften Browser-Ausführungsfreigaben im nächsten verfügbaren Browsergate offen.
+
 ## Aktueller Stufenabgleich
 
 - Erledigt und nicht übersprungen: Paket-/Peer-Prüfung, Adaptergrenze, direkte Verbraucher, Format-/Locale-Anpassung, Production-Artefakte, statische Tests sowie Desktop-/Mobile-Browserinteraktion für die Datepicker-Familie.
@@ -94,7 +101,8 @@ Dieser Bericht ergänzt den verbindlichen [Vue-3-Migrationsvertrag](vue-3-migrat
 - Erledigt und nicht übersprungen für Bootstrap-Primitiven: alle direkten und bisher implizit globalen Verbraucher, belegte Props/Ereignisse/Methoden, Bootstrap-4-Markupklassen, Schnellsuche und Desktop-/Mobile-Smoke. Nicht einzeln browserautomatisierte Adapterzweige und alle komplexeren Bootstrap-Familien sind oben ausdrücklich dem Integrationsgate beziehungsweise den folgenden Teilstufen zugeordnet.
 - Erledigt und nicht übersprungen für Bootstrap-Formlayout: alle belegten FormGroup-/Select-/Input-Group-Verbraucher und Verträge, Accessibility-Verknüpfung, Wertidentität, responsive Klassen, interner Slotvertrag sowie statische und Build-Prüfung. Die ausstehende Browser-/Visual-Abnahme ist oben konkret abgegrenzt.
 - Erledigt und nicht übersprungen für Bootstrap-Darstellung: alle realen Verbraucher, wirksame Props/Slots, Fortschrittsmathematik und ARIA, Bildattribute/Listener/Directive sowie tote Registrierungen. Die ausstehende Browser-/Visual-Abnahme ist oben konkret abgegrenzt.
-- Als nächste Teilstufe festgehalten: Navigation und Pagination, anschließend Overlays und schließlich der gemeinsame BootstrapVueNext-/Bootstrap-5-CSS-Wechsel. Bootstrap 4 und 5 werden gemäß Vertrag nicht ungekapselt gleichzeitig in der Produktseite geladen. Die bereits lokalen Komponenten sind gekapselte Adapter, kein globaler CSS-Wechsel.
+- Erledigt und nicht übersprungen für Pagination: alle vier Verbraucher, Seitenfenster und Grenzen, Modellereignisse, Routerziele und Bootstrap-4-Zustandsklassen. Die interaktive Browserabnahme ist oben konkret abgegrenzt.
+- Als nächste Teilstufe festgehalten: Navbar/Dropdown/Tabs, anschließend Overlays und schließlich der gemeinsame BootstrapVueNext-/Bootstrap-5-CSS-Wechsel. Bootstrap 4 und 5 werden gemäß Vertrag nicht ungekapselt gleichzeitig in der Produktseite geladen. Die bereits lokalen Komponenten sind gekapselte Adapter, kein globaler CSS-Wechsel.
 - Für das Ende von Stufe 3 offen: vollständiges `npm ci` ohne `--legacy-peer-deps`, Compat-Warnungsinventar ohne UI-Altlasten, alle repräsentativen geschützten Reisen sowie Visual-, Fokus-, Keyboard- und Responsive-Abnahme. Der normale npm-11-CI-Lauf scheitert derzeit ausschließlich an den verbleibenden Bootstrap-4-/BootstrapVue-Peers (`portal-vue`/Vue 2 und automatisch erwartetes jQuery); es wurde bewusst kein ungenutztes jQuery ergänzt. Der frische Legacy-Peer-Lauf meldet 77 Audit-Einträge (7 low, 19 moderate, 39 high, 12 critical). Die wesentlichen bekannten Altpfade bleiben dem Bootstrap-/Webpack-Wechsel sowie dem separaten Axios-Arbeitspaket zugeordnet.
 - Das neu verbindliche `db:seed`-Gate ist im Vue-Vertrag, in den gemeinsamen Quality Gates und als ausdrückliches Produktionsverbot dokumentiert. Der tatsächliche Lauf bleibt offen, solange Sail/MySQL nicht verfügbar ist; Docker war bei diesem Checkpoint nicht gestartet. Host-PHP 8.5/SQLite wurde vertragsgemäß nicht als Ersatznachweis gewertet.
 
