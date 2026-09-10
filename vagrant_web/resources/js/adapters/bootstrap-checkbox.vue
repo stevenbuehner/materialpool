@@ -1,14 +1,14 @@
 <template>
-  <div class="custom-control custom-checkbox">
+  <div class="form-check">
     <input
         v-bind="$attrs"
         :id="resolvedId"
         type="checkbox"
-        class="custom-control-input"
+        class="form-check-input"
         :checked="currentValue"
         @change="onChange"
     >
-    <label class="custom-control-label" :for="resolvedId">
+    <label class="form-check-label" :for="resolvedId">
       <slot/>
     </label>
   </div>

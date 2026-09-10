@@ -48,14 +48,11 @@
                @keyup.enter="requestAddBibleverseAfterPromise"
                v-model="searchInput">
 
-        <div class="input-group-append" v-if="stillLoading">
-          <button
-              class="btn btn-outline-secondary spinnerBlock"
-              type="button">
-            <materialpool-spinner/>
-          </button>
-
-        </div>
+        <button v-if="stillLoading"
+                class="btn btn-outline-secondary spinnerBlock"
+                type="button">
+          <materialpool-spinner/>
+        </button>
 
       </div>
 

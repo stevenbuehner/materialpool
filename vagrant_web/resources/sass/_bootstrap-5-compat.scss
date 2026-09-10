@@ -1,0 +1,124 @@
+// Materialpool components whose Bootstrap 4 layout primitive no longer exists
+// in Bootstrap 5. These rules preserve the verified geometry without loading a
+// second Bootstrap generation.
+@include media-breakpoint-down(sm) {
+  .navbar-expand-sm > .container {
+    padding-right: 0;
+    padding-left: 0;
+  }
+}
+
+@include media-breakpoint-down(md) {
+  .navbar-expand-md > .container {
+    padding-right: 0;
+    padding-left: 0;
+  }
+}
+
+.materialpool-form-row {
+  display: flex;
+  flex-wrap: wrap;
+  margin-right: -5px;
+  margin-left: -5px;
+
+  > .col,
+  > [class*="col-"] {
+    padding-right: 5px;
+    padding-left: 5px;
+  }
+}
+
+// Bootstrap 4 did not underline links until hover; Bootstrap 5 does so by
+// default. Preserve the established resting state across Blade and Vue views.
+a,
+.btn-link {
+  text-decoration: none;
+}
+
+a:hover,
+.btn-link:hover {
+  text-decoration: underline;
+}
+
+// The legacy authentication templates use grid columns outside a `.row`.
+// Bootstrap 4 gave every column its 15px horizontal padding directly; in
+// Bootstrap 5 that padding is limited to direct row children.
+.form-horizontal > .mb-3 > [class*="col-"] {
+  position: relative;
+  padding-right: 15px;
+  padding-left: 15px;
+}
+
+.form-horizontal > .mb-3 > label + div[class*="col-"],
+.form-horizontal > .mb-3:last-child > div[class*="col-"] {
+  padding-top: 8px;
+}
+
+// Bootstrap 4 emitted its grid width after custom-select. Bootstrap 5 emits
+// form-select later, so legacy grid classes on a select need one specificity
+// step to retain their documented column width.
+@for $column from 1 through 12 {
+  .form-select.col-#{$column} {
+    display: inline-block;
+    width: percentage(calc($column / 12));
+    vertical-align: middle;
+  }
+}
+
+.form-select {
+  padding-right: 1.75rem;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='4' height='5' viewBox='0 0 4 5'%3e%3cpath fill='%23343a40' d='M2 0L0 2h4zm0 5L0 3h4z'/%3e%3c/svg%3e");
+  background-size: 8px 10px;
+}
+
+.materialpool-jumbotron {
+  margin-bottom: 2rem;
+  padding: 2rem 1rem;
+  background-color: $jumbotron-bg;
+  border-radius: $border-radius-lg;
+
+  @include media-breakpoint-up(sm) {
+    padding: 4rem 2rem;
+  }
+}
+
+.materialpool-card-columns {
+  @include media-breakpoint-up(sm) {
+    column-count: 3;
+    column-gap: 1.25rem;
+    orphans: 1;
+    widows: 1;
+
+    > .card {
+      display: inline-block;
+      width: 100%;
+    }
+  }
+}
+
+// The local modal adapter deliberately retains the established text close
+// button instead of replacing it with Bootstrap 5's visually different icon.
+.modal-header {
+  align-items: flex-start;
+}
+
+.modal-header .close {
+  float: right;
+  padding: 1rem;
+  margin: -1rem -1rem -1rem auto;
+  color: #000;
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1;
+  text-shadow: 0 1px 0 #fff;
+  background-color: transparent;
+  border: 0;
+  opacity: .5;
+
+  &:hover,
+  &:focus {
+    color: #000;
+    text-decoration: none;
+    opacity: .75;
+  }
+}

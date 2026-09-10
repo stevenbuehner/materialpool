@@ -99,7 +99,7 @@
             <!-- Create Client Form -->
             <form role="form">
               <!-- Name -->
-              <div class="form-group row">
+              <div class="row mb-3">
                 <label class="col-md-3 col-form-label">Name</label>
 
                 <div class="col-md-9">
@@ -113,7 +113,7 @@
               </div>
 
               <!-- Redirect URL -->
-              <div class="form-group row">
+              <div class="row mb-3">
                 <label class="col-md-3 col-form-label">Redirect URL</label>
 
                 <div class="col-md-9">
@@ -127,7 +127,7 @@
               </div>
 
               <!-- Confidential -->
-              <div class="form-group row">
+              <div class="row mb-3">
                 <label class="col-md-3 col-form-label">Confidential</label>
 
                 <div class="col-md-9">
@@ -184,7 +184,7 @@
             <!-- Edit Client Form -->
             <form role="form">
               <!-- Name -->
-              <div class="form-group row">
+              <div class="row mb-3">
                 <label class="col-md-3 col-form-label">Name</label>
 
                 <div class="col-md-9">
@@ -198,7 +198,7 @@
               </div>
 
               <!-- Redirect URL -->
-              <div class="form-group row">
+              <div class="row mb-3">
                 <label class="col-md-3 col-form-label">Redirect URL</label>
 
                 <div class="col-md-9">

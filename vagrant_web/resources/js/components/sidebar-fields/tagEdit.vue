@@ -74,7 +74,7 @@
               <span class="suggested-text">
                 {{ _getTagLabelFromObject(option) }}
               </span>
-              <span v-if="option.isNew" class="is-new badge badge-info">{{ $t('pool.new') }}</span>
+              <span v-if="option.isNew" class="is-new badge text-bg-info">{{ $t('pool.new') }}</span>
             </span>
           </template>
 

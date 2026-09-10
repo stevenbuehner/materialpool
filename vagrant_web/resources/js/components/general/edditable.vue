@@ -18,10 +18,8 @@
              @keyup.enter.esc.tab="saveEdit"
              autofocus
              ref="textInput">
-      <div class="input-group-append">
-        <button class="btn btn-outline-secondary" type="button" @click="saveEdit" :disabled="!enableSave">save</button>
-        <button class="btn btn-outline-secondary" type="button" @click="cancedlEdit">cancel</button>
-      </div>
+      <button class="btn btn-outline-secondary" type="button" @click="saveEdit" :disabled="!enableSave">save</button>
+      <button class="btn btn-outline-secondary" type="button" @click="cancedlEdit">cancel</button>
     </div>
   </div>
 </template>

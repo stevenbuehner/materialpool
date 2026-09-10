@@ -82,7 +82,7 @@
             <!-- Create Token Form -->
             <form role="form" @submit.prevent="store">
               <!-- Name -->
-              <div class="form-group row">
+              <div class="row mb-3">
                 <label class="col-md-4 col-form-label">Name</label>
 
                 <div class="col-md-6">
@@ -92,7 +92,7 @@
               </div>
 
               <!-- Scopes -->
-              <div class="form-group row" v-if="scopes.length > 0">
+              <div class="row mb-3" v-if="scopes.length > 0">
                 <label class="col-md-4 col-form-label">Scopes</label>
 
                 <div class="col-md-6">

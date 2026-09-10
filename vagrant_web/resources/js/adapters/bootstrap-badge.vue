@@ -3,7 +3,7 @@
       :is="tag"
       v-bind="$attrs"
       class="badge"
-      :class="[`badge-${variant}`, {'badge-pill': pill}]"
+      :class="[`text-bg-${variant}`, {'rounded-pill': pill}]"
   ><slot/></component>
 </template>
 

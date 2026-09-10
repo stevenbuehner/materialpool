@@ -2,7 +2,7 @@ import {describe, expect, it} from 'vitest';
 import {debounceMilliseconds, formControlClasses} from '../../resources/js/adapters/bootstrap-form-control';
 
 describe('Bootstrap form control compatibility', () => {
-    it('maps BootstrapVue state and size to the existing Bootstrap 4 classes', () => {
+    it('maps BootstrapVue state and size to Bootstrap 5 form-control classes', () => {
         expect(formControlClasses({size: 'sm', state: false})).toEqual({
             'form-control': true,
             'form-control-plaintext': false,

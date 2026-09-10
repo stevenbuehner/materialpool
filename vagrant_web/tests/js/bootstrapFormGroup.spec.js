@@ -3,7 +3,7 @@ import {formGroupColumnClasses} from '../../resources/js/adapters/bootstrap-form
 import {normalizeSelectOption} from '../../resources/js/adapters/bootstrap-form-select';
 
 describe('Bootstrap form layout compatibility', () => {
-    it('maps responsive label columns to Bootstrap 4 classes', () => {
+    it('maps responsive label columns to Bootstrap 5 grid classes', () => {
         expect(formGroupColumnClasses({labelCols: 3, labelColsMd: 3, labelColsLg: 1}, 'label'))
             .toEqual(['col-3', 'col-md-3', 'col-lg-1']);
     });

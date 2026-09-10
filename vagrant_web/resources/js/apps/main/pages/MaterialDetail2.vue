@@ -18,7 +18,7 @@
       <div class="col-12 col-sm-7 col-md-8 col-lg-8 mb-3 px-0 px-sm-1 px-md-2 px-lg-3">
 
         <div class="contentSideWrapper">
-          <div class="row no-gutters mx-0">
+          <div class="row g-0 mx-0">
             <div class="col-12 contentMenu">
               <button class="btn btn-sm">
                 <public-material-download :material-id="id"/>
@@ -45,7 +45,7 @@
             <!-- Auflistung bei mehr als einer Ressource -->
             <div class="row"
                  v-if="material.resources && material.resources.length > 1">
-              <div class="col-xl-3 col-lg-4 col-md-4 col-sm-6 col-xs-1 p-2"
+              <div class="col-xl-3 col-lg-4 col-md-4 col-sm-6 col-12 p-2"
                    v-for="resource in material.resources">
                 <resource-preview :resource="resource" :edit-disabled="material.from_bot">
                   <template v-slot:additional-buttons>
@@ -81,7 +81,7 @@
 
             <!-- Ohne eine Resource -->
             <div class="row" v-if="material.resources && material.resources.length === 0">
-              <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 py-2">
+              <div class="col-12 py-2">
                 {{ $t('pool.Material-without-resources') }}
                 <button class="btn btn-sm btn-danger btn-sm"
                         @click="btnDeleteMaterial"
@@ -958,6 +958,7 @@ export default {
       color: $black;
 
       &.active {
+        color: $gray-700;
         background: $gray-200;
         border-top-color: $gray-400;
         border-right-color: $gray-400;

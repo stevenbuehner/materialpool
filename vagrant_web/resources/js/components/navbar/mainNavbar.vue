@@ -54,11 +54,9 @@
                             required
                             v-model="schnellsuche"/>
 
-              <b-input-group-append>
-                <b-button size="sm" variant="outline-secondary" class="" type="submit">
-                  {{ $t('pool.Search') }}
-                </b-button>
-              </b-input-group-append>
+              <b-button size="sm" variant="outline-secondary" class="" type="submit">
+                {{ $t('pool.Search') }}
+              </b-button>
             </b-input-group>
           </b-nav-form>
 
@@ -86,7 +84,6 @@ import {
   BDropdownItem,
   BFormInput,
   BInputGroup,
-  BInputGroupAppend,
   BNavbar,
   BNavbarBrand,
   BNavbarNav,
@@ -138,7 +135,6 @@ export default {
     BFormInput,
     BButton,
     BInputGroup,
-    BInputGroupAppend,
     uploadIcon, newTextIcon
   }
 }

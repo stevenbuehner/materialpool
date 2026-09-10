@@ -39,16 +39,14 @@
                       :placeholder="$t('pool.Template-name')"
                       ref="templateNameInput"
                   />
-                  <b-input-group-append>
-                    <b-button @click="_saveNewPreset"
-                              v-if="!preloadDropdown.presetIsSaving">
-                      {{ $t('pool.Save') }}
-                    </b-button>
-                    <b-button v-if="preloadDropdown.presetIsSaving"
-                              variant="outline-secondary">
-                      <materialpool-spinner/>
-                    </b-button>
-                  </b-input-group-append>
+                  <b-button @click="_saveNewPreset"
+                            v-if="!preloadDropdown.presetIsSaving">
+                    {{ $t('pool.Save') }}
+                  </b-button>
+                  <b-button v-if="preloadDropdown.presetIsSaving"
+                            variant="outline-secondary">
+                    <materialpool-spinner/>
+                  </b-button>
                 </b-input-group>
               </b-dropdown-form>
 
@@ -96,17 +94,15 @@
                       :placeholder="$t('pool.Material-ID')"
                       ref="preloadMaterialIdInput"
                   />
-                  <b-input-group-append>
-                    <b-button variant="primary"
-                              @click="_selectMaterialId(preloadMaterialId)"
-                              v-if="!preloadDropdown.materialIdIsLoading">
-                      {{ $t('pool.Ok') }}
-                    </b-button>
-                    <b-button v-if="preloadDropdown.materialIdIsLoading"
-                              variant="outline-secondary">
-                      <materialpool-spinner/>
-                    </b-button>
-                  </b-input-group-append>
+                  <b-button variant="primary"
+                            @click="_selectMaterialId(preloadMaterialId)"
+                            v-if="!preloadDropdown.materialIdIsLoading">
+                    {{ $t('pool.Ok') }}
+                  </b-button>
+                  <b-button v-if="preloadDropdown.materialIdIsLoading"
+                            variant="outline-secondary">
+                    <materialpool-spinner/>
+                  </b-button>
                 </b-input-group>
               </b-dropdown-form>
             </b-dropdown>
@@ -246,7 +242,6 @@ import {
   BFormGroup,
   BFormInput,
   BInputGroup,
-  BInputGroupAppend,
   BModal
 }                              from '@/adapters/bootstrap';
 import starRating              from '@/adapters/star-rating';
@@ -746,7 +741,7 @@ export default {
     BForm,
     BAlert,
     BDropdown, BDropdownItemButton, BDropdownDivider, BDropdownGroup, BDropdownForm,
-    BFormGroup, BInputGroup, BInputGroupAppend,
+    BFormGroup, BInputGroup,
     BFormInput,
     BModal,
     BButton, BButtonGroup,

@@ -3,6 +3,24 @@
 @import "../../node_modules/bootstrap/scss/mixins";
 @import "vue-select-compat-variables";
 
+// Keep the established Bootstrap 4 geometry while Bootstrap 5 supplies the
+// maintained component and utility implementation.
+$enable-rfs: false;
+$enable-negative-margins: true;
+$grid-gutter-width: 30px;
+$container-max-widths: (
+  sm: 540px,
+  md: 720px,
+  lg: 960px,
+  xl: 1140px,
+  xxl: 1140px,
+);
+$container-padding-x: 30px;
+$border-radius: .25rem;
+$border-radius-sm: .2rem;
+$border-radius-lg: .3rem;
+$navbar-padding-x: 1rem;
+
 
 // Hover Colors
 $blue-hover: darken($blue, 5%);
@@ -49,7 +67,7 @@ $sidebar-input-background-colour-disabled: $gray-400;
 $sidebar-input-text-colour-placeholder: $input-placeholder-color;
 
 $sidebar-input-value-not-saved-yet-background-color: lighten($red, 35%);
-$sidebar-input-value-not-saved-yet-border-color: darken($input-border-color, 30%);
+$sidebar-input-value-not-saved-yet-border-color: darken($gray-400, 30%);
 
 // Sidebar-Tagging
 $sidebar-input-font-color-active: #333;

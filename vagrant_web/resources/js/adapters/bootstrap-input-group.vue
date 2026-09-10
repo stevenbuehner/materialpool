@@ -1,23 +1,21 @@
 <template>
   <component :is="tag" v-bind="$attrs" class="input-group" :class="size ? `input-group-${size}` : null" role="group">
-    <bootstrap-input-group-prepend v-if="$slots.prepend || prepend">
+    <template v-if="$slots.prepend || prepend">
       <slot name="prepend"><bootstrap-input-group-text>{{ prepend }}</bootstrap-input-group-text></slot>
-    </bootstrap-input-group-prepend>
+    </template>
     <slot/>
-    <bootstrap-input-group-append v-if="$slots.append || append">
+    <template v-if="$slots.append || append">
       <slot name="append"><bootstrap-input-group-text>{{ append }}</bootstrap-input-group-text></slot>
-    </bootstrap-input-group-append>
+    </template>
   </component>
 </template>
 
 <script>
-import BootstrapInputGroupAppend from './bootstrap-input-group-append.vue';
-import BootstrapInputGroupPrepend from './bootstrap-input-group-prepend.vue';
 import BootstrapInputGroupText from './bootstrap-input-group-text.vue';
 
 export default {
     name: 'BInputGroup',
-    components: {BootstrapInputGroupAppend, BootstrapInputGroupPrepend, BootstrapInputGroupText},
+    components: {BootstrapInputGroupText},
     inheritAttrs: false,
     props: {
         append: {type: String, default: null},

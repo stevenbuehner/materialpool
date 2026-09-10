@@ -24,7 +24,7 @@
             {{ fileTypes }}
         </span>
         <span class="spinner-border" role="status" v-if="imageIsLoading">
-          <span class="sr-only">Loading...</span>
+          <span class="visually-hidden">Loading...</span>
         </span>
       </span>
 
@@ -35,7 +35,7 @@
       <h6 class="card-subtitle mb-2 text-muted">
         <span class="info" v-if="material.author">Von {{ material.author.title }}</span>
         <span class="bundleName" v-if="bundleName">({{ bundleName }})</span>
-        <span class="badge badge-pill badge-warning"
+        <span class="badge rounded-pill text-bg-warning"
               v-if="material.resources.length === 0">{{ $t('pool.no-resources-attached') }}</span>
       </h6>
 

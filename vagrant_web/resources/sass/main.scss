@@ -1,9 +1,10 @@
 @import url(https://fonts.googleapis.com/css?family=Raleway:300,400,600);
 // My Bootstrap Overriding style stuff
 @import 'theme.scss';
-/* Bootstrap 4 */
+/* Bootstrap 5 */
 @import "~bootstrap/scss/bootstrap.scss";
-@import "~bootstrap-vue/dist/bootstrap-vue.min";
+@import "~bootstrap-vue-next/dist/bootstrap-vue-next.css";
+@import "bootstrap-5-compat";
 @import "resources/js/components/sidebar-fields/globalCss";
 
 

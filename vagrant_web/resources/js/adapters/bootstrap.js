@@ -9,8 +9,6 @@ export {default as BFormTextarea} from './bootstrap-form-textarea.vue';
 export {default as BFormGroup} from './bootstrap-form-group.vue';
 export {default as BFormSelect} from './bootstrap-form-select.vue';
 export {default as BInputGroup} from './bootstrap-input-group.vue';
-export {default as BInputGroupAppend} from './bootstrap-input-group-append.vue';
-export {default as BInputGroupPrepend} from './bootstrap-input-group-prepend.vue';
 export {default as BInputGroupText} from './bootstrap-input-group-text.vue';
 export {default as BBadge} from './bootstrap-badge.vue';
 export {default as BCard} from './bootstrap-card.vue';

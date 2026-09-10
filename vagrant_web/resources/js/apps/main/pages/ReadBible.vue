@@ -19,7 +19,7 @@
       </b-input-group>
     </div>
 
-    <div class="range pt-3 jumbotron">
+    <div class="range pt-3 materialpool-jumbotron">
       <bible-text
           v-for="(bv, rangeIndex) in bibleVerses"
           :key="'bvr' + rangeIndex"

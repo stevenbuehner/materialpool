@@ -17,6 +17,7 @@ test('@visual login page baseline', async ({ page }) => {
         status: 200,
     }));
     await page.goto('/login', { waitUntil: 'domcontentloaded' });
+    await page.waitForLoadState('load');
     await page.evaluate(() => document.activeElement?.blur());
     await expect(page).toHaveScreenshot('login-page.png', {
         animations: 'disabled',

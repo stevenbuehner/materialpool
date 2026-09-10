@@ -2,14 +2,14 @@
   <component
       :is="groupTag"
       v-bind="$attrs"
-      class="form-group"
-      :class="[stateClass, {'form-row': isHorizontal && groupTag !== 'fieldset', 'was-validated': validated}]"
+      class="materialpool-form-group mb-3"
+      :class="[stateClass, {'materialpool-form-row': isHorizontal && groupTag !== 'fieldset', 'was-validated': validated}]"
       :disabled="groupTag === 'fieldset' ? disabled : null"
       :role="groupTag === 'fieldset' ? null : 'group'"
       :aria-invalid="state === false ? 'true' : null"
       :aria-labelledby="groupTag === 'fieldset' && isHorizontal ? labelId : null"
   >
-    <div v-if="isHorizontal && groupTag === 'fieldset'" class="form-row">
+    <div v-if="isHorizontal && groupTag === 'fieldset'" class="materialpool-form-row">
       <component :is="labelTag" v-if="hasLabel || isHorizontal" v-bind="labelAttributes" :class="labelClasses">
         <slot name="label">{{ label }}</slot>
       </component>
@@ -115,7 +115,7 @@ export default {
                 this.labelClass,
                 ...this.labelColumnClasses,
                 {
-                    'sr-only': this.labelSrOnly,
+                    'visually-hidden': this.labelSrOnly,
                     'col-form-label': this.isHorizontal || !this.labelFor,
                     'pt-0': !this.isHorizontal && !this.labelFor,
                     'd-block': !this.isHorizontal && Boolean(this.labelFor),

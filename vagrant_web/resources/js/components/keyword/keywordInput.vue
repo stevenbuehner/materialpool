@@ -48,21 +48,19 @@
                v-model="keywordInput"
                autocorrect="off"
                @keyup.enter="requestCreateNewKeyword">
-        <div class="input-group-append">
-          <button class="btn btn-outline-secondary"
-                  type="button"
-                  :class="{'disabled' : keywordInput.length < 3}"
-                  v-if="!stillLoading"
-                  @click="requestCreateNewKeyword"
-          >{{ $t('pool.new') }}
-          </button>
+        <button class="btn btn-outline-secondary"
+                type="button"
+                :class="{'disabled' : keywordInput.length < 3}"
+                v-if="!stillLoading"
+                @click="requestCreateNewKeyword"
+        >{{ $t('pool.new') }}
+        </button>
 
-          <button v-if="stillLoading"
-                  class="btn btn-outline-secondary spinnerBlock"
-                  type="button">
-            <materialpool-spinner/>
-          </button>
-        </div>
+        <button v-if="stillLoading"
+                class="btn btn-outline-secondary spinnerBlock"
+                type="button">
+          <materialpool-spinner/>
+        </button>
       </div>
 
     </div>

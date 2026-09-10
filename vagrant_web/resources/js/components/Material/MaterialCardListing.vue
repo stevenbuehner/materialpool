@@ -2,7 +2,7 @@
   <div class="material-listing">
     <div class="material-listing-menue"></div>
 
-    <div class="card-columns" id="material-listing-data">
+    <div class="materialpool-card-columns" id="material-listing-data">
       <material v-for="material in materials"
                 :material="material"
                 :key="material.id"

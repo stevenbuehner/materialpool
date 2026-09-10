@@ -31,7 +31,7 @@
         <div class="d-center">
           <span class="icon" :style="{backgroundImage: 'url(' + option.icon + ')'}"></span>
           {{ option.title }}
-          <span v-if="option.new" class="badge badge-secondary">{{ $t('pool.new') }}</span>
+          <span v-if="option.new" class="badge text-bg-secondary">{{ $t('pool.new') }}</span>
         </div>
       </template>
 
@@ -234,7 +234,7 @@ export default {
   }
 }
 
-.form-group {
+.materialpool-form-group {
   .sbKeywordToggleTextSelect {
     &.editModeActive {
       width: 100%;

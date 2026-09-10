@@ -56,8 +56,8 @@ export default {
         },
         selectClasses() {
             return [
-                this.plain ? 'form-control' : 'custom-select',
-                this.size ? `${this.plain ? 'form-control' : 'custom-select'}-${this.size}` : null,
+                this.plain ? 'form-control' : 'form-select',
+                this.size ? `${this.plain ? 'form-control' : 'form-select'}-${this.size}` : null,
                 {'is-valid': this.state === true, 'is-invalid': this.state === false},
             ];
         },
