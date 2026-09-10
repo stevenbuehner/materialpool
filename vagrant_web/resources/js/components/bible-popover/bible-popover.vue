@@ -761,7 +761,8 @@ $bible-popover-context-color: $bible-popover-theme-color;
       }
     }
 
-    .float-right {
+    .float-right,
+    .float-end {
       float: right;
     }
 

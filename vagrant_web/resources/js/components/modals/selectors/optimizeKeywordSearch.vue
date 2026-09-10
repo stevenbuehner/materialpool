@@ -13,7 +13,7 @@
       <!-- Emulate built in modal header close button action -->
 
       <div class="d-flex align-items-start justify-content-between mb-2">
-        <div class="keyword-listing mr-2">
+        <div class="keyword-listing mr-2 me-2">
           <search-input-tag v-for="(kw,index) in currentKeywordSelection"
                             v-bind="kw"
                             :key="kw.text"
@@ -25,7 +25,7 @@
                             @select="_changeSelection(kw)"/>
         </div>
 
-        <div class="ml-2">
+        <div class="ml-2 ms-2">
           <h5>{{ $t('pool.Optimize-Keywords') }}</h5>
           <div class="d-flex">
             <small class="me-1">{{ minDisplayedSuggestions }}</small>
@@ -34,7 +34,7 @@
                           v-model="numberOfDisplayedSuggestions"
                           :min="minDisplayedSuggestions" :max="tagSuggestionsCount" step="1"
                           :disabled="tagSuggestionsCount <= 0 || minDisplayedSuggestions === tagSuggestionsCount"></b-form-input>
-            <small class="ml-1">{{ tagSuggestionsCount }}</small>
+            <small class="ml-1 ms-1">{{ tagSuggestionsCount }}</small>
           </div>
 
         </div>

@@ -76,7 +76,7 @@
         {{ $t('pool.Suggestions') }}:</h4>
       <transition-group name="fade" v-if="!stillLoading">
         <button type="button"
-                class="btn btn-outline-secondary btn-sm mr-1 mb-1"
+                class="btn btn-outline-secondary btn-sm mr-1 me-1 mb-1"
                 v-for="kw in displayableSuggestedKeywords"
                 :key="'s' + kw.id"
                 @click="requestAddKeyword(kw)"

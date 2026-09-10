@@ -24,7 +24,7 @@
         v-show="visible"
         ref="menu"
         class="dropdown-menu"
-        :class="{'dropdown-menu-right': right, show: visible}"
+        :class="{'dropdown-menu-right dropdown-menu-end': right, show: visible}"
         role="menu"
         tabindex="-1"
         @keydown="onMenuKeydown"

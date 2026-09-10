@@ -22,7 +22,7 @@
 
     <b-alert variant="danger" :show="error">{{ $t('pool.Errormessage') }}:
       {{ error }}
-      <button class="btn btn-danger btn-sm float-right" @click="$router.go()">{{ $t('pool.Reload-page') }}</button>
+      <button class="btn btn-danger btn-sm float-right float-end" @click="$router.go()">{{ $t('pool.Reload-page') }}</button>
     </b-alert>
 
   </div>
