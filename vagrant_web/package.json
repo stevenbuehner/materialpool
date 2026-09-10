@@ -49,7 +49,7 @@
     "vue-async-computed": "4.0.1",
     "vue-router": "4.6.4",
     "vue-select": "^3.20.4",
-    "vue-star-rating": "^1.7.0",
+    "vue-star-rating": "2.1.0",
     "vue-transmit": "9.0.0-alpha.11",
     "vuex": "4.1.0"
   },

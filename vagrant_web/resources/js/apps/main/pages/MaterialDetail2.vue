@@ -330,7 +330,6 @@ import resourcePreview         from '../../../components/resource/show/resource-
 import resourceDetail          from '../../../components/resource/show/resource-detail.vue';
 import editableText            from '../../../components/general/edditable.vue';
 import fromBot                 from '../../../components/fromBot.vue';
-import starRating              from '@/adapters/star-rating';
 import ResourceUploader        from "../../../components/uploader/resourceUploader";
 import customDialog            from '../../../components/modals/dialogs/customDialog';
 import MaterialRating          from "../../../components/Material/MaterialRating";
@@ -896,7 +895,6 @@ export default {
     resourceDetail,
     edditableText: editableText,
     bundleList,
-    starRating,
     usageEdit,
     fromBot,
     customDialog,

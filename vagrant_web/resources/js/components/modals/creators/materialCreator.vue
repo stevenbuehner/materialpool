@@ -195,7 +195,7 @@
             :star-size="15"
             :inline="true"
             text-class="starRatingText"
-            v-model="form.rating"
+            v-model:rating="form.rating"
             :read-only="formDisabled"/>
       </b-form-group>
 

@@ -32,10 +32,10 @@
               active-color="black"
               :star-size="15"
               :inline="true"
-              @rating-selected="submitRating"
-              @current-rating="currentRatingChanged"
+              @update:rating="submitRating"
+              @hover:rating="currentRatingChanged"
               :show-rating="true"
-              v-model="material.rating"
+              v-model:rating="material.rating"
               ref="rating">
           </material-rating>
 
@@ -210,7 +210,6 @@ import resourcePreview         from '../../../components/resource/show/resource-
 import resourceDetail          from '../../../components/resource/show/resource-detail.vue';
 import editableText            from '../../../components/general/edditable.vue';
 import fromBot                 from '../../../components/fromBot.vue';
-import starRating              from '@/adapters/star-rating';
 import ResourceUploader        from "../../../components/uploader/resourceUploader";
 import {resourceDownloadLink}  from "../../../components/serverRoutes";
 import customDialog            from '../../../components/modals/dialogs/customDialog';
@@ -515,7 +514,6 @@ export default {
     resourcePreview,
     resourceDetail,
     edditableText: editableText,
-    starRating,
     fromBot,
     customDialog,
   },

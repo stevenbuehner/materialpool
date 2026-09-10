@@ -21,6 +21,7 @@ import {setReactive} from '@/adapters/reactivity';
 
 export default {
   name: 'five-star-rating',
+  emits: ['rating-selected', 'current-rating', 'update:rating', 'hover:rating'],
   components: {
     star
   },
@@ -149,9 +150,11 @@ export default {
         if (persist) {
           this.selectedRating = this.currentRating
           this.$emit('rating-selected', this.selectedRating)
+          this.$emit('update:rating', this.selectedRating)
           this.ratingSelected = true
         } else {
           this.$emit('current-rating', this.currentRating)
+          this.$emit('hover:rating', this.currentRating)
         }
       }
     },
