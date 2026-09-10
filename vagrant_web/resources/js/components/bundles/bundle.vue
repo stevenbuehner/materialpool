@@ -53,7 +53,7 @@
                             <span v-if="this.max > 1">({{ current }} / {{ max }})</span> {{ updateProgressLabel }}
                         </span>
           </b-progress-bar>
-          <span v-if="updateProgressPercentage <= 20" class="ml-2 ms-2">
+          <span v-if="updateProgressPercentage <= 20" class="ms-2">
                         <span v-if="this.max > 1">({{ current }} / {{ max }})</span> {{ updateProgressLabel }}
                     </span>
         </b-progress>

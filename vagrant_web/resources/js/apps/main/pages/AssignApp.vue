@@ -41,7 +41,7 @@
         </b-nav-item-dropdown>
       </b-navbar-nav>
 
-      <b-navbar-nav class="ml-auto ms-auto">
+      <b-navbar-nav class="ms-auto">
         <b-nav-item-dropdown :text="$t('pool.Display')" left>
           <b-dropdown-item @click="previewSize='lg'" :disabled="previewSize ==='lg'">
             {{ $t('pool.large') }}

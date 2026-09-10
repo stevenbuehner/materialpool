@@ -187,6 +187,13 @@ Dieser Bericht ergänzt den verbindlichen [Vue-3-Migrationsvertrag](vue-3-migrat
 - Abnahme: Production-Build, 37 Unit-Tests, ESLint ohne Fehler, Diff-Check und das vollständige production-artige Browsergate mit 10/10 WebKit-Tests sind grün.
 - Grenze: Die Bereinigung betrifft nur die konkrete Compilerwarnung. Sonstige Vue-Compat-Warnungen werden weiterhin inventarisiert und erst nach reproduzierbarem Fund familienweise beseitigt.
 
+## Teilstufe 3.20 – Bootstrap-4-Richtungsduplikate entfernen
+
+- Nach dem aktivierten Bootstrap 5 wurden die in Teilstufe 3.17 bewusst doppelt geführten physischen Richtungsutilities entfernt. Aktiv bleiben ausschließlich `ms`/`me`/`ps`/`pe`, `float-end` und `dropdown-menu-end`; Abstände und Ausrichtung ändern sich dadurch nicht.
+- Der Abschluss-Scan erfasst Basis- und responsive Varianten von `ml`/`mr`/`pl`/`pr` sowie alte `float-*`, `dropdown-menu-*`, `text-*`, `border-*` und `rounded-*`-Richtungsnamen. Die verbleibenden `left`-/`right`-Treffer sind ausschließlich normale CSS-Eigenschaften und keine Bootstrap-Utilities.
+- Abnahme: Production- und laufender Dev-Build kompilieren erfolgreich, 37 Unit-Tests und ESLint ohne Fehler sind grün. Das vollständige production-artige Browsergate besteht mit 10/10 funktionalen Tests und allen sechs darin enthaltenen SPA-Screenshotvergleichen; zusätzlich bleiben die beiden Login-Screenshotreferenzen pixelidentisch.
+- Grenze: Die Stufe entfernt nur nachweislich wirkungslose Duplikate. Die noch offenen repräsentativen Browserzustände und das allgemeine Compat-Warnungsinventar bleiben eigenständige folgende Arbeitspakete.
+
 ## Aktueller Stufenabgleich
 
 - Erledigt und nicht übersprungen: Paket-/Peer-Prüfung, Adaptergrenze, direkte Verbraucher, Format-/Locale-Anpassung, Production-Artefakte, statische Tests sowie Desktop-/Mobile-Browserinteraktion für die Datepicker-Familie.
@@ -202,7 +209,7 @@ Dieser Bericht ergänzt den verbindlichen [Vue-3-Migrationsvertrag](vue-3-migrat
 - Erledigt und nicht übersprungen für Navbar/Collapse: beide Navbar-Verbraucher, alle sieben belegten Bausteine, responsive Klassen, Collapse-Ziel, ARIA, Routerlinks, Formularsubmit und Route-Parameter-Watcher. Der Hauptnavbar ist auf echten Desktop-/Mobile-Viewports geprüft; Route-Wechsel und Dropdowns in `AssignApp` bleiben konkret abgegrenzt.
 - Erledigt und nicht übersprungen für Modals/Overlays: alle neun Verbraucher, Props, Slots, Modell-/Lifecycle-Ereignisse, öffentliche Methoden, Promise-Callbacks, Backdrop/Escape, Focus-Management, Body-Lock und tote Overlay-Registrierungen. Ein teleportierter Promise-Dialog ist einschließlich Abbruch und Fokusrückgabe auf Desktop/Mobile belegt; Backdrop, Verschachtelung, Erfolgsauflösung und spezielle Dialogfamilien bleiben vor dem CSS-Wechsel zwingend.
 - Erledigt und nicht übersprungen für den BootstrapVue-JavaScript-Restscan und CSS-Cutover: sämtliche Tags und Adapterimporte sind explizit aufgelöst; BootstrapVue, sein CSS und Popper 1 sind entfernt. Bootstrap 5 und BootstrapVueNext sind die einzigen Bootstrap-Abhängigkeiten, während die lokalen Vue-3-Adapter den Bestandsvertrag kapseln.
-- Als nächster Schritt festgehalten: physische Bootstrap-4-Richtungsduplikate nach dem nun aktiven Bootstrap 5 entfernen und die noch offenen repräsentativen Adapterzweige in deterministische Browserreisen aufnehmen. Danach folgen Compat-Warnungsabbau und das Stufe-3-Abschlussgate; der bereits bestandene CSS-Cutover wird nicht erneut aufgeschoben.
+- Als nächster Schritt festgehalten: die noch offenen repräsentativen Adapterzweige in deterministische Browserreisen aufnehmen. Danach folgen das vollständige Compat-Warnungsinventar und das Stufe-3-Abschlussgate; der bereits bestandene CSS-Cutover und die Richtungsbereinigung werden nicht erneut aufgeschoben.
 - Für das Ende von Stufe 3 offen: Compat-Warnungsinventar ohne UI-Altlasten sowie die oben genannten repräsentativen geschützten Reisen mit Visual-, Fokus-, Keyboard- und Responsive-Abnahme. `npm ci` ohne Legacy-Peer-Modus ist nun grün. Der aktuelle Auditstand von 78 Einträgen bleibt dem Webpack-/Vite- und dem separaten Axios-Arbeitspaket zugeordnet; es wurde weder `audit fix` noch ein nicht begründetes Paket ergänzt.
 - Das neu verbindliche `db:seed`-Gate ist im Vue-Vertrag, in den gemeinsamen Quality Gates und als ausdrückliches Produktionsverbot dokumentiert. Der tatsächliche Lauf bleibt offen, solange Sail/MySQL nicht verfügbar ist; Docker war bei diesem Checkpoint nicht gestartet. Host-PHP 8.5/SQLite wurde vertragsgemäß nicht als Ersatznachweis gewertet.
 

@@ -22,14 +22,14 @@
       </div>
       <div class="col-12 p-3">
         <button
-            class="btn btn-sm btn-success float-right float-end m-1"
+            class="btn btn-sm btn-success float-end m-1"
             @click="btnSave"
             v-show="savingNeccessary"
             title="CMD + ENTER"
         >{{ $t('pool.Save') }}
         </button>
         <button
-            class="btn btn-sm btn-danger float-right float-end m-1"
+            class="btn btn-sm btn-danger float-end m-1"
             @click="btnCancel"
             title="ESC"
         >{{ $t('pool.Cancel') }}

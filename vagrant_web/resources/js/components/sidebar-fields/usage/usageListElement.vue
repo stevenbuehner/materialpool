@@ -35,7 +35,7 @@
           <div class="col col-11 p-1">
 
             <div class="row m-n1">
-              <div class="col col-6 py-1 pl-1 ps-1 pr-0 pe-0">
+              <div class="col col-6 py-1 ps-1 pe-0">
                 <div class="inputWrapper">
                   <b-form-input
                       ref="reason_input_field"
@@ -53,7 +53,7 @@
                 </div>
               </div>
 
-              <div class="col col-6 p-1 pl-0 ps-0">
+              <div class="col col-6 p-1 ps-0">
                 <div class="inputWrapper">
                   <b-form-input
                       ref="place_input_field"
@@ -70,7 +70,7 @@
                 </div>
               </div>
 
-              <div class="col col-6 pl-1 ps-1 pb-1 pr-0 pe-0">
+              <div class="col col-6 ps-1 pb-1 pe-0">
                 <div class="inputWrapper">
                   <datepicker
                       ref="datepicker"
