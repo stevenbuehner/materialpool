@@ -1,11 +1,4 @@
 @import "resources/sass/theme";
-@import "~vue-select/src/scss/global/variables";
-
-$vs-state-disabled-bg: $sidebar-input-background-colour-disabled;
-$vs-border-color: $input-border-color;
-
-@import "~vue-select/src/scss/vue-select.scss";
-
 .sideBarField {
   font-size: 0.8em;
   margin-bottom: 1em;

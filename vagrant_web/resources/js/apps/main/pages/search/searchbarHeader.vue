@@ -2,7 +2,10 @@
   <div>
     <div class="row" v-for="(sp, key, index) in searchParams" :key="sp.id">
       <div class="col-lg-11 col-lg-11 col-sm-11">
-        <search-input v-model="sp.values" @updated="emitSearchUpdated($event, sp.id)"/>
+        <search-input
+            :line-values="sp.values"
+            @updated="updateSearchParam($event, sp.id)"
+        />
       </div>
       <div class="col-lg-1 col-lg-1 col-sm-1">
         <div class="btn-group">
@@ -77,6 +80,11 @@ export default {
   },
 
   methods: {
+
+    updateSearchParam(values, id) {
+      this.searchParams[id].values = values;
+      this.emitSearchUpdated(values, id);
+    },
 
     fromPropsToData(searchObjects) {
       let searchParams = {};

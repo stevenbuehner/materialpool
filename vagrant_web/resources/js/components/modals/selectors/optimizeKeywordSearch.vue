@@ -136,7 +136,7 @@ export default {
     // Filtere alle searchItems heraus, die bereits in der Liste enthalten sind
     tagSuggestionsFiltered() {
 
-      return this.tagSuggestions.filter((el) => {
+      return (this.tagSuggestions || []).filter((el) => {
 
         const b1 = el?.searchItem;
 

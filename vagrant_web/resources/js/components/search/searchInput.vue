@@ -5,21 +5,12 @@
               :options="options"
               :placeholder="$t('pool.Insert-search-phrase-here')"
               :filterable="false"
-              :value="lineValues"
+              :model-value="lineValues"
               language="de-DE"
               label="text"
-              @input="$emit('updated', $event)"
+              @update:model-value="$emit('updated', $event)"
               @search="onSearch"
   >
-
-    <template v-slot:search="{ attributes, events }">
-      <input
-          class="vs__search"
-          v-bind="attributes"
-          v-on="events"
-          autocorrect="off" autocapitalize="off" spellcheck="false"
-      /><!-- Hack für Safari -->
-    </template>
 
     <template v-slot:no-options>
       {{ $t('pool.Insert-search-phrase') }}
@@ -44,7 +35,7 @@
       </div>
     </template>
 
-    <template v-slot:selected-option-container="{option, disabled, multiple, deselect}">
+    <template v-slot:selected-option-container="{option, disabled, deselect}">
       <search-input-tag v-bind="{...option, disabled}" @deselect="deselect(option)"/>
     </template>
 
@@ -77,13 +68,6 @@ export default {
       options: [],
     };
   },
-
-
-  model: {
-    prop: 'lineValues',
-    event: 'updated'
-  },
-
 
   watch: {},
 
@@ -140,8 +124,6 @@ export default {
 
 <style lang="scss">
 @import "resources/sass/theme";
-@import "~vue-select/dist/vue-select.css";
-
 .searchInputSelect {
 
   .vs__selected-options {
@@ -207,4 +189,3 @@ export default {
 
 }
 </style>
-

@@ -24,7 +24,11 @@ test('Vue application mounts with synthetic bootstrap data', async ({page}, test
             contentType: 'text/html',
             body: `<!doctype html>
                 <html lang="de">
-                    <head><meta charset="utf-8"><title>Materialpool Compat Test</title></head>
+                    <head>
+                        <meta charset="utf-8">
+                        <title>Materialpool Compat Test</title>
+                        <link rel="stylesheet" href="/css/main.css">
+                    </head>
                     <body>
                         <div id="app"></div>
                         <script>
@@ -74,7 +78,11 @@ test('Vue 3 datepicker keeps the German input and calendar interaction', async (
             contentType: 'text/html',
             body: `<!doctype html>
                 <html lang="de">
-                    <head><meta charset="utf-8"><title>Materialpool Datepicker Test</title></head>
+                    <head>
+                        <meta charset="utf-8">
+                        <title>Materialpool Datepicker Test</title>
+                        <link rel="stylesheet" href="/css/main.css">
+                    </head>
                     <body>
                         <div id="app"></div>
                         <script>
@@ -169,5 +177,86 @@ test('Vue 3 datepicker keeps the German input and calendar interaction', async (
     await expect(dateInput).toHaveValue('01.09.2026');
     await dateInput.click();
     await expect(page.locator('.vdp-datepicker__calendar').first()).toBeVisible();
+    expect(pageErrors).toEqual([]);
+});
+
+test('Vue 3 select keeps asynchronous search and object selection', async ({page}) => {
+    const pageErrors = [];
+    page.on('pageerror', error => pageErrors.push(error.stack || error.message));
+
+    await page.route('**/vue/**', route => route.fulfill({
+        contentType: 'text/html',
+        body: `<!doctype html>
+            <html lang="de">
+                <head>
+                    <meta charset="utf-8">
+                    <title>Materialpool Select Test</title>
+                    <link rel="stylesheet" href="/css/main.css">
+                </head>
+                <body>
+                    <div id="app"></div>
+                    <script>
+                        window.Laravel = {csrfToken: 'synthetic-csrf-token'};
+                        window.materialpool = {
+                            route: '/search',
+                            store: {materials: []},
+                        };
+                    </script>
+                    <script src="/js/main_build.js"></script>
+                </body>
+            </html>`,
+    }));
+    await page.route('**/api/v1/general/options?*', route => route.fulfill({
+        contentType: 'application/json',
+        body: JSON.stringify({
+            systemname: 'MaterialPool Default',
+            server: {max_upload: 10485760},
+            user: {
+                id: 1,
+                name: 'Synthetic User',
+                email: 'synthetic@example.invalid',
+                is_admin: false,
+                frontend_user_settings: {},
+            },
+        }),
+    }));
+    await page.route('**/pool/search/get?*', route => route.fulfill({
+        contentType: 'application/json',
+        body: JSON.stringify({
+            data: [],
+            current_page: 1,
+            from: null,
+            last_page: 1,
+            next_page_url: null,
+            per_page: 30,
+            prev_page_url: null,
+            to: null,
+            total: 0,
+        }),
+    }));
+    await page.route('**/pool/search/guess?*', route => route.fulfill({
+        contentType: 'application/json',
+        body: JSON.stringify({
+            data: [{
+                text: 'Alpha',
+                icon: '/img/icons/ayce.svg',
+                item: {type: '*', text: 'Alpha'},
+            }],
+        }),
+    }));
+
+    await page.goto('/vue/search');
+
+    const select = page.locator('.searchInputSelect');
+    const searchInput = page.locator('.searchInputSelect input[role="combobox"]');
+    await expect(select).toHaveCSS('display', 'block');
+    await expect(select).toHaveCSS('border-top-width', '0px');
+    await expect(select.locator('.vs__dropdown-toggle')).toHaveCSS('border-top-width', '1px');
+    await expect(searchInput).toBeVisible();
+    await searchInput.fill('Alp');
+    await expect(page.locator('.vs__dropdown-option').filter({hasText: 'Alpha'})).toBeVisible();
+    await searchInput.press('Tab');
+    await expect(page.locator('.searchInputSelect .sb-search-input-tag')).toContainText('Alpha');
+    await expect(page).toHaveURL(/\/vue\/search\/1\*Alpha$/);
     expect(pageErrors).toEqual([]);
 });

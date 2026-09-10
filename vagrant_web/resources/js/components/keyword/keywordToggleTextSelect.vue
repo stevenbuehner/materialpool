@@ -12,12 +12,12 @@
         v-else
         ref="mySelect"
         class="searchInput"
-        v-model="selection"
+        :model-value="selection"
         :options="options"
         :placeholder="searchPlaceholder"
         language="de-DE"
         label="title"
-        @input="onChange"
+        @update:model-value="onChange"
         @search:blur="onBlur"
         @search:focus="onFocus"
         @search="onSearch"
@@ -110,10 +110,11 @@ export default {
       if (this.editModeActive === false) {
         this.editModeActive = true;
 
-        this.$nextTick((test) => {
+        this.$nextTick(() => {
           try {
-            this.$refs.mySelect.$refs.search.focus();
-          } catch (e) {
+            this.$refs.mySelect.focusSearch();
+          } catch (_error) {
+            // The select may already have closed while the next tick was pending.
           }
         })
       }

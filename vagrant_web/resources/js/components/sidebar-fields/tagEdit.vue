@@ -42,25 +42,15 @@
             :options="optionsWithNewTag"
             :placeholder="placeholder"
             :selectOnTab="true"
-            :value="validTypesValues"
+            :model-value="validTypesValues"
             @open="onOpen"
             @close="onClose"
-            @input="onInputChanged"
+            @update:model-value="onInputChanged"
             @search="onSearchTermChanged"
-            @search:blur=""
             ref="dropdown"
         >
 
-          <template v-slot:search="{ attributes, events }">
-            <input
-                class="vs__search"
-                v-bind="attributes"
-                v-on="events"
-                autocorrect="off" autocapitalize="off" spellcheck="false"
-            /><!-- Hack für Safari -->
-          </template>
-
-          <template v-if="multipleTags" v-slot:selected-option-container="{option, disabled, multiple, deselect}">
+          <template v-if="multipleTags" v-slot:selected-option-container="{option, disabled, deselect}">
             <dragable-element
                 :id="option.id"
                 :disable-move-relevance="disabled"
@@ -99,7 +89,7 @@
             </template>
           </template>
 
-          <template v-slot:list-footer="{search, loading, searching, filteredOptions}">
+          <template v-slot:list-footer="{filteredOptions}">
             <li v-show="hasMoreResults && isSearchTermValid" ref="load" class="loader">
               {{ $t('pool.loading-more-results') }}
             </li>
