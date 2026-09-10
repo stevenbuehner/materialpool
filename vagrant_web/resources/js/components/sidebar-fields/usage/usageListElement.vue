@@ -74,7 +74,8 @@
                 <div class="inputWrapper">
                   <datepicker
                       ref="datepicker"
-                      v-model="modifiedData.datetime"
+                      :model-value="modifiedData.datetime"
+                      @update:model-value="modifiedData.datetime = $event"
                       :disabled="disabled"
                       :disabled-dates="disabledDates"
                       :input-class="{valueChanged : dateTimeChanged}"

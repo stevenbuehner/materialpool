@@ -2,6 +2,16 @@
 
 import ExtDatePicker                    from "@/adapters/datepicker";
 import {getLocale, getLocaleDateFormat} from "../../apps/main/localisation";
+import de                               from 'date-fns/locale/de';
+import enUS                             from 'date-fns/locale/en-US';
+
+const datepickerLocales = {de, en: enUS};
+
+function getDatepickerFormat() {
+  return getLocaleDateFormat()
+      .replace('DD', 'dd')
+      .replace('YYYY', 'yyyy');
+}
 
 export default {
   name: "datepicker",
@@ -11,11 +21,11 @@ export default {
   props: {
     format: {
       type: [String, Function],
-      default: getLocaleDateFormat()
+      default: getDatepickerFormat()
     },
     language: {
-      type: String,
-      default: getLocale()
+      type: Object,
+      default: () => datepickerLocales[getLocale()] || enUS
     },
     mondayFirst: {
       type: Boolean,
@@ -35,6 +45,6 @@ export default {
 
 <style type="scss">
 /* purgecss start ignore */
-@import "~@hokify/vuejs-datepicker/dist/vuejs-datepicker.css";
+@import "~@wslyhbb/vuejs-datepicker/dist/vuejs-datepicker.css";
 /* purgecss end ignore */
 </style>

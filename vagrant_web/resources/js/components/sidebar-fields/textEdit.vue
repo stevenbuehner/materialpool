@@ -57,12 +57,12 @@
           <datepicker v-if="type === 'date'"
                       :disabled="disabled"
                       :typeable="true"
-                      :value="currentValueInDayJsFormat"
+                      :model-value="currentValueInDayJsFormat"
                       :disabled-dates="{from: new Date()}"
                       :required="required"
                       :input-class="{valueChanged : valueHasChanged}"
                       :placeholder="getPlaceholder"
-                      @input="onDateInputChanged"
+                      @update:model-value="onDateInputChanged"
           />
 
           <b-form-textarea

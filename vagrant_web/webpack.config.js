@@ -30,11 +30,13 @@ module.exports = {
 				loader: 'babel-loader',
 				options: {
 					plugins: [
+						require.resolve('@babel/plugin-proposal-class-properties'),
+						require.resolve('@babel/plugin-transform-logical-assignment-operators'),
 						require.resolve('@babel/plugin-transform-nullish-coalescing-operator'),
 						require.resolve('@babel/plugin-transform-optional-chaining'),
 					],
 				},
-				exclude: /node_modules\/(?!(vue-router|epic-spinners)\/)/
+				exclude: /node_modules\/(?!(vue-router|epic-spinners|date-fns|@wslyhbb\/vuejs-datepicker)\/)/
 			},
 			{
 				test: /\.(png|jpg|jpeg|gif)$/,

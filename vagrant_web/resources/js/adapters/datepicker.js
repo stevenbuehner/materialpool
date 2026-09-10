@@ -1,1 +1,1 @@
-export { default } from '@hokify/vuejs-datepicker';
+export { default } from '@wslyhbb/vuejs-datepicker';
