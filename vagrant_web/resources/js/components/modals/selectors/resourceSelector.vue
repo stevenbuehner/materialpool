@@ -143,13 +143,13 @@ export default {
 
   methods: {
 
-    showPromise() {
+    showPromise(returnFocusTo = null) {
 
       return new Promise((resolve, reject) => {
         this.resolve = resolve;
         this.reject  = reject;
 
-        this.$refs.myModal.show();
+        this.$refs.myModal.show(returnFocusTo);
       });
 
     },

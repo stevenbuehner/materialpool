@@ -567,8 +567,8 @@ export default {
       });
     },
 
-    assignResourceToThisMaterial() {
-      this.$refs.resourceSelector.showPromise()
+    assignResourceToThisMaterial(event) {
+      this.$refs.resourceSelector.showPromise(event.currentTarget)
           .then((resource) => {
 
             if (this.material.resources.find(mr => mr.id == resource.id)) {
@@ -581,6 +581,9 @@ export default {
                 this.material = material;
               })
             }
+          })
+          .catch(() => {
+            // Closing the selector is an expected user action.
           });
     },
 

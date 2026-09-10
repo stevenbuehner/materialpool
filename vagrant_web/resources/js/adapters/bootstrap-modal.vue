@@ -105,10 +105,10 @@ export default {
         if (this.localVisible) this.releaseBody();
     },
     methods: {
-        show() {
+        show(returnFocusTo = null) {
             if (this.localVisible) return;
             this.$emit('show');
-            this.returnFocusTo = document.activeElement;
+            this.returnFocusTo = returnFocusTo || document.activeElement;
             this.localVisible = true;
             this.hasShown = true;
             this.emitModel(true);
@@ -177,9 +177,18 @@ export default {
             openModalCount += 1;
             document.body.classList.add('modal-open');
             this.$nextTick(() => {
-                const focusable = this.focusableElements();
-                (focusable[0] || this.$refs.modal)?.focus?.();
-                this.$emit('shown');
+                const focusModal = () => {
+                    if (!this.localVisible) return;
+                    const focusable = this.focusableElements();
+                    (focusable[0] || this.$refs.modal)?.focus?.();
+                    this.$emit('shown');
+                };
+
+                if (typeof window.requestAnimationFrame === 'function') {
+                    window.requestAnimationFrame(focusModal);
+                } else {
+                    focusModal();
+                }
             });
         },
         releaseBody() {

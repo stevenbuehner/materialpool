@@ -27,6 +27,7 @@ test('Vue application mounts with synthetic bootstrap data', async ({page}, test
                 <html lang="de">
                     <head>
                         <meta charset="utf-8">
+                        <meta name="viewport" content="width=device-width, initial-scale=1">
                         <title>Materialpool Compat Test</title>
                         <link rel="stylesheet" href="/css/main.css">
                     </head>
@@ -77,9 +78,30 @@ test('Vue application mounts with synthetic bootstrap data', async ({page}, test
     await expect(page.locator('svg.sb-navbar-icon')).toHaveCount(2);
 
     const speedSearch = page.getByPlaceholder('Schnellsuche');
-    if (!await speedSearch.isVisible()) {
-        await page.locator('.navbar-toggler').click();
+    const navbarToggle = page.locator('.navbar-toggler');
+    const navbarCollapse = page.locator('#nav_collapse');
+    if (testInfo.project.name.startsWith('mobile')) {
+        await expect(navbarToggle).toBeVisible();
+        await expect(navbarToggle).toHaveAttribute('aria-expanded', 'false');
+        await expect(navbarCollapse).not.toHaveClass(/\bshow\b/);
+        await navbarToggle.click();
+        await expect(navbarToggle).toHaveAttribute('aria-expanded', 'true');
+        await expect(navbarCollapse).toHaveClass(/\bshow\b/);
+    } else {
+        await expect(navbarToggle).toBeHidden();
     }
+
+    const accountDropdown = page.locator('.b-nav-dropdown').last();
+    const accountToggle = accountDropdown.locator('.dropdown-toggle');
+    const accountMenu = accountDropdown.locator('.dropdown-menu');
+    await accountToggle.press('ArrowDown');
+    await expect(accountToggle).toHaveAttribute('aria-expanded', 'true');
+    await expect(accountMenu).toBeVisible();
+    await expect(accountMenu.locator('.dropdown-item').first()).toBeFocused();
+    await page.keyboard.press('Escape');
+    await expect(accountMenu).toBeHidden();
+    await expect(accountToggle).toBeFocused();
+
     await expect(speedSearch).toHaveClass(/form-control-sm/);
     await speedSearch.fill('Gamma');
     await page.locator('form').filter({has: speedSearch}).getByRole('button', {name: 'Suchen'}).click();
@@ -104,6 +126,7 @@ test('Vue 3 datepicker keeps the German input and calendar interaction', async (
                 <html lang="de">
                     <head>
                         <meta charset="utf-8">
+                        <meta name="viewport" content="width=device-width, initial-scale=1">
                         <title>Materialpool Datepicker Test</title>
                         <link rel="stylesheet" href="/css/main.css">
                     </head>
@@ -201,6 +224,35 @@ test('Vue 3 datepicker keeps the German input and calendar interaction', async (
     await expect(dateInput).toHaveValue('01.09.2026');
     await dateInput.click();
     await expect(page.locator('.vdp-datepicker__calendar').first()).toBeVisible();
+
+    const tabs = page.locator('.sideTab [role="tab"]');
+    await expect(tabs).toHaveCount(3);
+    await expect(tabs.nth(0)).toHaveAttribute('aria-selected', 'true');
+    await tabs.nth(1).click();
+    await expect(page).toHaveURL(/tabIndex=1/);
+    await expect(tabs.nth(1)).toHaveAttribute('aria-selected', 'true');
+    await tabs.nth(1).press('ArrowRight');
+    await expect(page).toHaveURL(/tabIndex=2/);
+    await expect(tabs.nth(2)).toBeFocused();
+    await expect(tabs.nth(2)).toHaveAttribute('aria-selected', 'true');
+
+    await tabs.nth(1).click();
+    const assignButton = page.getByRole('button', {name: 'Resource zuordnen'});
+    await assignButton.click();
+
+    const modal = page.locator('.modal.show');
+    await expect(modal).toBeVisible();
+    await expect(modal.locator('.modal-dialog')).toHaveClass(/\bmodal-lg\b/);
+    await expect(modal.getByRole('heading', {name: 'Wähle eine Resource'})).toBeVisible();
+    await expect(page.locator('.modal-backdrop.show')).toBeVisible();
+    await expect(page.locator('body')).toHaveClass(/\bmodal-open\b/);
+    await expect(modal.locator('.modal-header .close')).toBeFocused();
+
+    await page.keyboard.press('Escape');
+    await expect(modal).toBeHidden();
+    await expect(page.locator('.modal-backdrop.show')).toHaveCount(0);
+    await expect(page.locator('body')).not.toHaveClass(/\bmodal-open\b/);
+    await expect(assignButton).toBeFocused();
     expect(pageErrors).toEqual([]);
 });
 
@@ -214,6 +266,7 @@ test('Vue 3 select keeps asynchronous search and object selection', async ({page
             <html lang="de">
                 <head>
                     <meta charset="utf-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1">
                     <title>Materialpool Select Test</title>
                     <link rel="stylesheet" href="/css/main.css">
                 </head>
@@ -297,6 +350,7 @@ test('Vue 3 uploader keeps multipart success and error handling', async ({page})
             <html lang="de">
                 <head>
                     <meta charset="utf-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1">
                     <title>Materialpool Upload Test</title>
                     <link rel="stylesheet" href="/css/main.css">
                 </head>
