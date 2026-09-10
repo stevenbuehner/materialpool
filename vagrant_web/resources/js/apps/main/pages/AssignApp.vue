@@ -27,7 +27,7 @@
             <b-button
                 variant="danger"
                 size="sm"
-                @click.prevent.default="btnRemoveSelectionFromMaterial(mat.id)"
+                @click.prevent="btnRemoveSelectionFromMaterial(mat.id)"
             >{{ $t('pool.delete') }}
             </b-button>
             <b-button
@@ -151,7 +151,7 @@ export default {
   },
 
   watch: {
-    '$route.params.id': (newVal, oldVal) => {
+    '$route.params.id'(newVal) {
       this.updateResource(newVal);
     }
   },
