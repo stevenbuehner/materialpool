@@ -73,12 +73,15 @@
         </h2>
 
         <p>
-          <span v-for="vers in verses" v-if="!isLoading"
-                :class="{context: (contextOffsetFrom > 0 || contextOffsetTo > 0) && (vers.no < normalizedBibleverse.getFrom() || vers.no > normalizedBibleverse.getTo())}"
-                class="verse">
-              <span v-if="!isSingleVerse" class="vno">{{ vers.vno }}</span>
-              <span class="text">{{ vers.text }} </span>
-          </span>
+          <template v-if="!isLoading">
+            <span v-for="vers in verses"
+                  :class="{context: (contextOffsetFrom > 0 || contextOffsetTo > 0) && (vers.no < normalizedBibleverse.getFrom() || vers.no > normalizedBibleverse.getTo())}"
+                  :key="vers.vno"
+                  class="verse">
+                <span v-if="!isSingleVerse" class="vno">{{ vers.vno }}</span>
+                <span class="text">{{ vers.text }} </span>
+            </span>
+          </template>
           <materialpool-spinner v-if="isLoading"/>
         </p>
         <p></p>
@@ -122,7 +125,7 @@ import doubleLeftIcon                                            from './angle-d
 import doubleRightIcon                                           from './angle-double-right.svg';
 import pinIcon                                                   from './pin.svg';
 import pinRemoveIcon                                             from './pin-remove.svg';
-import copyIcon                                                  from 'svg-icon/dist/trimmed-svg/bootstrap/copy.svg'
+import copyIcon                                                  from '@icons/vendor/svg-icon/trimmed-svg/bootstrap/copy.svg'
 import closeIcon                                                 from './close.svg';
 import cursorMoveIcon                                            from './cursor-move.svg';
 import {bibleverseToSearchItem, searchArrayObjectsToSearchQuery} from "../search/searchHelper";
@@ -601,7 +604,7 @@ export default {
     emitBiblePopoverOpening(this);
   },
 
-  destroyed() {
+  unmounted() {
     offBiblePopoverOpening(this._incomingPopoverOpening);
   },
 

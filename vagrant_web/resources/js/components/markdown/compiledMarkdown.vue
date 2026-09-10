@@ -3,9 +3,10 @@ import marked                     from './markdownSetup';
 import bibleverseInlinePopoverTxt from "./../bibleverse/bibleverse-inline-popover-txt";
 import _throttle                  from 'lodash/throttle'
 import {sanitizeTextMarkup}       from "./sanitizeSetup";
+import {h}                        from 'vue';
 
 function vnodeData(element) {
-  const data = {attrs: {}};
+  const data = {};
 
   for (const {name, value} of element.attributes) {
     if (name === 'class') {
@@ -13,14 +14,14 @@ function vnodeData(element) {
     } else if (name === 'style') {
       data.style = value;
     } else {
-      data.attrs[name] = value;
+      data[name] = value;
     }
   }
 
   return data;
 }
 
-function renderSanitizedNode(h, node) {
+function renderSanitizedNode(node) {
   if (node.nodeType === Node.TEXT_NODE) {
     return node.textContent;
   }
@@ -30,16 +31,14 @@ function renderSanitizedNode(h, node) {
   }
 
   const children = [...node.childNodes]
-    .map(child => renderSanitizedNode(h, child))
+    .map(child => renderSanitizedNode(child))
     .filter(child => child !== null);
   const tagName = node.tagName.toLowerCase();
 
   if (tagName === 'bibleverse-inline-popover-txt') {
     return h(bibleverseInlinePopoverTxt, {
-      props: {
-        text: node.getAttribute('data-text') || node.textContent,
-        loadContents: node.getAttribute('data-load-contents') === 'true',
-      },
+      text: node.getAttribute('data-text') || node.textContent,
+      loadContents: node.getAttribute('data-load-contents') === 'true',
     }, children);
   }
 
@@ -48,6 +47,7 @@ function renderSanitizedNode(h, node) {
 
 export default {
   name: "compiledMarkdown",
+  compatConfig: {MODE: 3},
 
   props: {
     text: {
@@ -84,11 +84,11 @@ export default {
     }, 200)
   },
 
-  render(h) {
+  render() {
     const root = document.createElement('div');
     root.innerHTML = this.compiledText;
     const children = [...root.childNodes]
-      .map(node => renderSanitizedNode(h, node))
+      .map(node => renderSanitizedNode(node))
       .filter(node => node !== null);
 
     return h('div', {class: 'compiledMarkdown'}, children);

@@ -20,6 +20,8 @@
     "@babel/plugin-proposal-function-sent",
     "@babel/plugin-proposal-export-namespace-from",
     "@babel/plugin-proposal-numeric-separator",
+    "@babel/plugin-transform-nullish-coalescing-operator",
+    "@babel/plugin-transform-optional-chaining",
     "@babel/plugin-proposal-throw-expressions"
   ]
 }

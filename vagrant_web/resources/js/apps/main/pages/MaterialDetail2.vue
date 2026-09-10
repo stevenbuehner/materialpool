@@ -340,18 +340,18 @@ import KeywordToggleTextSelect from "../../../components/keyword/keywordToggleTe
 import {savingDialogs}         from "../../../helper/flashMessages";
 import PublicMaterialDownload  from "../../../components/download/public-material-download";
 import {formatLocalizedDate}   from '../../../helper/datetime.mixin'
-import cloneIcon               from 'svg-icon/dist/svg/awesome/clone.svg';
+import cloneIcon               from '@icons/vendor/svg-icon/svg/awesome/clone.svg';
 import usageEdit               from "../../../components/sidebar-fields/usageEdit";
 
 
-import trashIcon       from 'svg-icon/dist/svg/oct/trashcan.svg';
-import titleIcon       from 'svg-icon/dist/svg/material/title.svg';
-import calendarIcon    from 'svg-icon/dist/svg/material/today.svg';
-import descriptionIcon from 'svg-icon/dist/svg/material/description.svg';
-import placeIcon       from 'svg-icon/dist/svg/material/place.svg';
-import authorIcon      from 'svg-icon/dist/svg/material/person.svg';
-import personIcon      from 'svg-icon/dist/svg/material/person.svg';
-import languageIcon    from 'svg-icon/dist/svg/material/language.svg';
+import trashIcon       from '@icons/vendor/svg-icon/svg/oct/trashcan.svg';
+import titleIcon       from '@icons/vendor/svg-icon/svg/material/title.svg';
+import calendarIcon    from '@icons/vendor/svg-icon/svg/material/today.svg';
+import descriptionIcon from '@icons/vendor/svg-icon/svg/material/description.svg';
+import placeIcon       from '@icons/vendor/svg-icon/svg/material/place.svg';
+import authorIcon      from '@icons/vendor/svg-icon/svg/material/person.svg';
+import personIcon      from '@icons/vendor/svg-icon/svg/material/person.svg';
+import languageIcon    from '@icons/vendor/svg-icon/svg/material/language.svg';
 import bibleverseIcon  from '../../../../icons/bibleverse/bible.svg'
 import {BButton}                  from '@/adapters/bootstrap';
 import {setReactive}              from '@/adapters/reactivity';

@@ -137,7 +137,7 @@ export const routes = [
 		   },
 		   */
 	       {
-		       path: '*', redirect: '/search'
+		       path: '/:pathMatch(.*)*', redirect: '/search'
 	       }
 
        ]

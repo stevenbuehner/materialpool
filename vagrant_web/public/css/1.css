@@ -1,6 +1,6 @@
 .sbTreeNode{display:block;margin-top:.2rem}.sbTreeNode.isTemp>.label{background-color:#ffc107}.sbTreeNode .label{border:.05rem solid gray;padding:.1rem .5rem .2rem .5rem;border-radius:.25rem}.sbTreeNode .label:hover{background-color:#007bff;color:#fff}.sbTreeNode .label:hover svg path{fill:#fff}.sbTreeNode .label .keywordIcon{height:1em}.sbTreeNode.isDragged>.label{border:.05rem dotted gray;background-color:rgb(0%,43.4117647059%,90%)}.sbTreeNode.isDragover{box-shadow:0 0 5px #2ecc3b;background-color:rgba(102,204,120,.15);padding:0 5px}.sbTreeNode.hasChildren>.label{cursor:pointer}.sbTreeNode.hasChildren>.carret>.single{display:none}.sbTreeNode:not(.hasChildren)>.carret>.double{display:none}.sbTreeNode .sbTreeEditIcon{height:.8rem;margin-left:1rem;cursor:pointer}.sbTreeNode .carret>svg{height:.8rem;width:.8rem;padding:.1rem 0 .1rem 0;transform:rotate(-90deg);transition:all ease-in-out .2s}.sbTreeNode.isOpen>.carret>svg{transform:rotate(0deg)}
 .sbTree ul{list-style:none;padding-inline-start:1.5rem}
 .keywordlisticon{position:relative;display:inline-block;background-size:contain;background-position:0 0;height:.9rem;background-repeat:no-repeat;top:.1rem;width:1rem;background-image:url(/img/icons/tag.svg);margin-right:.5rem;margin-left:0}
-.waitmessage[data-v-2b65a29c]{min-height:50vh}.refreshIcon[data-v-2b65a29c]{width:1.5rem}.refreshIcon[data-v-2b65a29c] path{fill:#fff}
+.waitmessage[data-v-4c069920]{min-height:50vh}.refreshIcon[data-v-4c069920]{width:1.5rem}.refreshIcon[data-v-4c069920] path{fill:#fff}
 
 /*# sourceMappingURL=1.css.map*/

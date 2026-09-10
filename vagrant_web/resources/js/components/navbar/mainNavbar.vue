@@ -97,8 +97,8 @@ import {
   BNavItemDropdown
 }                                        from '@/adapters/bootstrap';
 import {searchArrayObjectsToSearchQuery} from "../search/searchHelper";
-import uploadIcon                        from 'svg-icon/dist/svg/icomoon/cloud-upload.svg';
-import newTextIcon                       from 'svg-icon/dist/svg/zero/custom-text.svg';
+import uploadIcon                        from '@icons/vendor/svg-icon/svg/icomoon/cloud-upload.svg';
+import newTextIcon                       from '@icons/vendor/svg-icon/svg/zero/custom-text.svg';
 import asyncIsAdminMixin                 from "../general/async-isAdmin-mixin";
 import asyncUsernameMixin                from "../general/async-username-mixin";
 

@@ -41,8 +41,8 @@
 
 <script>
 
-import editIcon            from 'svg-icon/dist/svg/ionic/edit.svg';
-import refreshIcon         from 'svg-icon/dist/svg/awesome/refresh.svg';
+import editIcon            from '@icons/vendor/svg-icon/svg/ionic/edit.svg';
+import refreshIcon         from '@icons/vendor/svg-icon/svg/awesome/refresh.svg';
 import Tree                from "../../../components/keyword/tree/Tree";
 import {BFormInput}        from '@/adapters/bootstrap';
 import MaterialpoolSpinner from "../../../components/spinner/materialpool-spinner";
@@ -303,7 +303,7 @@ export default {
   width: 1.5rem;
 }
 
-.refreshIcon ::v-deep path {
+.refreshIcon :deep(path) {
   fill: white;
 }
 </style>

@@ -70,7 +70,7 @@
 <script>
 import {BAlert, BButton, BFormGroup, BFormInput} from '@/adapters/bootstrap';
 import ResourcePreview                           from "../../../components/resource/show/resource-preview";
-import ArrowLeftIcon                             from 'svg-icon/dist/svg/mfglabs/arrow_left.svg'
+import ArrowLeftIcon                             from '@icons/vendor/svg-icon/svg/mfglabs/arrow_left.svg'
 import {savingDialogs}                           from "../../../helper/flashMessages";
 
 export default {

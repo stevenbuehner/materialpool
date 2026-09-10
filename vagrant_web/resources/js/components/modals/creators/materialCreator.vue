@@ -259,8 +259,8 @@ import {savingDialogs}         from "../../../helper/flashMessages";
 import MaterialpoolSpinner     from "../../spinner/materialpool-spinner";
 
 // Icons
-import trashIcon   from 'svg-icon/dist/svg/oct/trashcan.svg';
-import repeatIcon  from 'svg-icon/dist/svg/typcn/arrow-repeat.svg';
+import trashIcon   from '@icons/vendor/svg-icon/svg/oct/trashcan.svg';
+import repeatIcon  from '@icons/vendor/svg-icon/svg/typcn/arrow-repeat.svg';
 import {cloneDeep} from "lodash";
 
 

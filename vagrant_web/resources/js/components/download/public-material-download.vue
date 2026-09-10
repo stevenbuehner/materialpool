@@ -20,9 +20,9 @@
 
 <script>
 
-import cloudIcon               from 'svg-icon/dist/svg/icomoon/cloud.svg';
-import cloudCheckIcon          from 'svg-icon/dist/svg/icomoon/cloud-check.svg';
-import cloudDownloadIcon       from 'svg-icon/dist/svg/icomoon/cloud-download.svg';
+import cloudIcon               from '@icons/vendor/svg-icon/svg/icomoon/cloud.svg';
+import cloudCheckIcon          from '@icons/vendor/svg-icon/svg/icomoon/cloud-check.svg';
+import cloudDownloadIcon       from '@icons/vendor/svg-icon/svg/icomoon/cloud-download.svg';
 import {copyStringToClipboard} from "../../helper/copyToClipboard";
 import MaterialpoolSpinner     from "../spinner/materialpool-spinner";
 

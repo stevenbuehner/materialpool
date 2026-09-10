@@ -81,8 +81,8 @@ import Biblevers                from "../bibleverse/biblevers.vue";
 import materialDetail           from '../../apps/main/pages/MaterialDetail.vue';
 import {material_preview_image} from '../serverRoutes';
 import materialStoreMixin       from './materialStore.mixin';
-import playIcon                 from 'svg-icon/dist/svg/icomoon/play2.svg'
-import fromBotIcon              from 'svg-icon/dist/svg/awesome/database.svg'
+import playIcon                 from '@icons/vendor/svg-icon/svg/icomoon/play2.svg'
+import fromBotIcon              from '@icons/vendor/svg-icon/svg/awesome/database.svg'
 
 
 function sortByRelevance(t1, t2) {

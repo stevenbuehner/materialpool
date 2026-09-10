@@ -192,7 +192,7 @@ export default {
     VueSelect,
   },
 
-  beforeDestroy() {
+  beforeUnmount() {
     clearTimeout(myTimeout);
   }
 

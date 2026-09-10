@@ -139,7 +139,7 @@ export default {
 
   },
 
-  destroyed() {
+  unmounted() {
     // Todo: Remove document onmousedown event
     this.$off(MENU_ITEM_CLICKED);
   },

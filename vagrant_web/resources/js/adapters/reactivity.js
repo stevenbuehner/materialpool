@@ -1,9 +1,8 @@
-import Vue from 'vue';
-
 export function setReactive(target, key, value) {
-    return Vue.set(target, key, value);
+    target[key] = value;
+    return value;
 }
 
 export function deleteReactive(target, key) {
-    return Vue.delete(target, key);
+    return delete target[key];
 }

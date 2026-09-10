@@ -30,11 +30,11 @@
 </template>
 
 <script>
-import editIcon                                                       from 'svg-icon/dist/svg/ionic/edit.svg';
+import editIcon                                                       from '@icons/vendor/svg-icon/svg/ionic/edit.svg';
 import singleDown
-                                                                      from 'svg-icon/dist/trimmed-svg/awesome/angle-down.svg';
+                                                                      from '@icons/vendor/svg-icon/trimmed-svg/awesome/angle-down.svg';
 import doubleDown
-                                                                      from 'svg-icon/dist/trimmed-svg/awesome/angle-double-down.svg';
+                                                                      from '@icons/vendor/svg-icon/trimmed-svg/awesome/angle-double-down.svg';
 import {ayceIcon, iconName, keyIcon, langIcon, personIcon, placeIcon} from '../keywordDefaultIcons';
 
 export default {

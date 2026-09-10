@@ -5,7 +5,7 @@
 </template>
 
 <script>
-import flagIcon     from 'svg-icon/dist/svg/game/originals-black-flag.svg';
+import flagIcon     from '@icons/vendor/svg-icon/svg/game/originals-black-flag.svg';
 import {flagColors} from './flagOptions.js';
 
 export default {

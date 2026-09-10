@@ -74,10 +74,9 @@
 
       <h4 v-if="!stillLoading && suggestedKeywords.length > 0">
         {{ $t('pool.Suggestions') }}:</h4>
-      <transition-group name="fade">
+      <transition-group name="fade" v-if="!stillLoading">
         <button type="button"
                 class="btn btn-outline-secondary btn-sm mr-1 mb-1"
-                v-if="!stillLoading"
                 v-for="kw in displayableSuggestedKeywords"
                 :key="'s' + kw.id"
                 @click="requestAddKeyword(kw)"
@@ -92,7 +91,7 @@
 <script>
 import Keyword              from './keyword.vue';
 import _debounce            from 'lodash/debounce';
-import eraseSvg             from 'svg-icon/dist/svg/zero/clear.svg';
+import eraseSvg             from '@icons/vendor/svg-icon/svg/zero/clear.svg';
 import {RELEVANCE_USER_MAX} from "../../apps/config";
 import MaterialpoolSpinner  from "../spinner/materialpool-spinner";
 import {savingDialogs}      from "../../helper/flashMessages";
@@ -415,7 +414,7 @@ export default {
   height: 1.5em;
 }
 
-.icon-erase ::v-deep path {
+.icon-erase :deep(path) {
   fill: white;
 }
 

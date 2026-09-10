@@ -35,7 +35,7 @@ import {deleteReactive, setReactive} from '@/adapters/reactivity';
 
 import searchInput      from '../../../../components/search/searchInput.vue';
 import OptimizeKeywords from "../../../../components/modals/selectors/optimizeKeywordSearch";
-import optimizeIcon     from 'svg-icon/dist/svg/icomoon/zoom-in.svg';
+import optimizeIcon     from '@icons/vendor/svg-icon/svg/icomoon/zoom-in.svg';
 
 function getNewSearchParam(id, values) {
   return {

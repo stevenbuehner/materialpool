@@ -68,9 +68,8 @@
       <h4 v-if="displayableSuggestedBibleverses.length > 0">
         {{ $t('pool.Bibleversesuggestions') }}:</h4>
 
-      <transition-group name="fade">
+      <transition-group name="fade" v-if="!stillLoading">
         <button type="button"
-                v-if="!stillLoading"
                 class="btn btn-outline-secondary btn-sm mr-1 mb-1"
                 v-for="bv in displayableSuggestedBibleverses"
                 :key="'s' + getBibleverseKey(bv)"
@@ -105,7 +104,7 @@
 <script>
 
 import bibleverse           from './biblevers.vue'
-import eraseSvg             from 'svg-icon/dist/svg/zero/clear.svg';
+import eraseSvg             from '@icons/vendor/svg-icon/svg/zero/clear.svg';
 import {RELEVANCE_USER_MAX} from "../../apps/config";
 import _debounce            from 'lodash/debounce';
 import MaterialpoolSpinner  from "../spinner/materialpool-spinner";
@@ -426,7 +425,7 @@ export default {
   height: 1.5em;
 }
 
-.icon-erase ::v-deep path {
+.icon-erase :deep(path) {
   fill: white;
 }
 

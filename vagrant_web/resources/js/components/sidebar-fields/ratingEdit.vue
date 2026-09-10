@@ -29,7 +29,7 @@
 
 <script>
 	import generalMixin   from './generalSidebarFields.mixin';
-	import feedbackIcon   from 'svg-icon/dist/svg/zero/oil-table-chart.svg';
+	import feedbackIcon   from '@icons/vendor/svg-icon/svg/zero/oil-table-chart.svg';
 	import FiveStarRating from "../Rating/FiveStarRating";
 
 

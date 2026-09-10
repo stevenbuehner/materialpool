@@ -126,15 +126,15 @@
 
 <script>
 import {getLocale, getLocaleDateFormat, moment} from "../../../apps/main/localisation";
-import OccasionIcon                             from 'svg-icon/dist/svg/icomoon/bubble2.svg';
+import OccasionIcon                             from '@icons/vendor/svg-icon/svg/icomoon/bubble2.svg';
 
 import Datepicker from '../../datepicker/datepicker';
 import {BButton}  from '@/adapters/bootstrap';
-import trashIcon  from 'svg-icon/dist/svg/oct/trashcan.svg';
+import trashIcon  from '@icons/vendor/svg-icon/svg/oct/trashcan.svg';
 
 import {savingDialogs} from "../../../helper/flashMessages";
-import cancelIcon      from 'svg-icon/dist/svg/material/undo.svg';
-import checkCircleIcon from 'svg-icon/dist/svg/material/save.svg';
+import cancelIcon      from '@icons/vendor/svg-icon/svg/material/undo.svg';
+import checkCircleIcon from '@icons/vendor/svg-icon/svg/material/save.svg';
 import vueSelect       from '@/adapters/vue-select';
 import _debounce       from "lodash/debounce";
 import {cloneDeep}     from "lodash";

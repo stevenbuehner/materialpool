@@ -176,7 +176,7 @@
 <script>
 import generalMixin                                                      from './generalSidebarFields.mixin';
 import VueSelect                                                         from '@/adapters/vue-select';
-import tagIcon                                                           from 'svg-icon/dist/svg/material/style.svg';
+import tagIcon                                                           from '@icons/vendor/svg-icon/svg/material/style.svg';
 import {keywordTypes}                                                    from "../keyword/keywordDefaultIcons";
 import {cloneDeep, debounce as _debounce, differenceBy as _differenceBy} from 'lodash';
 import DragableElement                                                   from "./vue-select/dragable-element";

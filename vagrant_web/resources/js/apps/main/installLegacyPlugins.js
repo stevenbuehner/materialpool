@@ -1,8 +1,8 @@
-import VueLang from '@eli5/vue-lang-js';
 import AsyncComputed from 'vue-async-computed';
 import ShortKey from 'vue-shortkey';
 
 import flashMessage from '@/adapters/flash-message';
+import { installTranslation } from '@/adapters/translation';
 import {
     FormInputPlugin,
     FormTextareaPlugin,
@@ -14,7 +14,7 @@ import { timeout_flashSavingMessage } from '../config';
 export function installLegacyPlugins(VueApp, vueLangConfig) {
     VueApp.use(ShortKey);
     VueApp.use(AsyncComputed);
-    VueApp.use(VueLang, vueLangConfig);
+    installTranslation(VueApp, vueLangConfig);
     VueApp.use(FormInputPlugin);
     VueApp.use(FormTextareaPlugin);
     VueApp.use(TabsPlugin);

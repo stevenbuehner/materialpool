@@ -90,7 +90,7 @@
 
 <script>
 import {BButton}                                      from '@/adapters/bootstrap';
-import textFieldIcon                                  from 'svg-icon/dist/svg/material/text-fields.svg'
+import textFieldIcon                                  from '@icons/vendor/svg-icon/svg/material/text-fields.svg'
 import generalMixin                                   from './generalSidebarFields.mixin';
 import Datepicker                                     from '../datepicker/datepicker';
 import {server_datetime_format}                       from "../../apps/config";

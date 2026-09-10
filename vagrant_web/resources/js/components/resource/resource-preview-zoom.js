@@ -27,7 +27,7 @@ export default {
 		this._registerThisComponentForResourcePreview();
 	},
 
-	beforeDestroy() {
+	beforeUnmount() {
 		this._unregisterThisComponentForResourcePreview();
 	},
 

@@ -1,5 +1,5 @@
 <script>
-import tagIcon from 'svg-icon/dist/svg/material/style.svg';
+import tagIcon from '@icons/vendor/svg-icon/svg/material/style.svg';
 import tagEdit from "./tagEdit";
 
 export default {

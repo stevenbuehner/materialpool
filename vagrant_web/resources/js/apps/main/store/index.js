@@ -1,5 +1,4 @@
-import Vue                       from 'vue';
-import VueX                      from 'vuex';
+import {createStore}             from 'vuex';
 import resources                 from './modules/resources';
 import materials                 from './modules/materials';
 import materialusages            from './modules/materialusages';
@@ -17,10 +16,7 @@ import bibles                    from './modules/bibles';
 import users                     from './modules/users';
 import keywordsSuggestions       from './modules/keywordsSuggestions';
 
-Vue.use(VueX);
-
-
-export const store = new VueX.Store({
+export const store = createStore({
 
 	modules: {
 		resources,

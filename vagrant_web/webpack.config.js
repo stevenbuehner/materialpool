@@ -3,7 +3,7 @@ const webpack = require('webpack');
 
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const devMode              = process.env.NODE_ENV !== 'production';
-const VueLoaderPlugin      = require('vue-loader/lib/plugin');
+const {VueLoaderPlugin}    = require('vue-loader');
 const ASSET_PATH           = devMode ? 'http://localhost:8080/' /* In DEV Mode This is the VIRTUAL Path where the files will be served from memory. But also where the hot-reload stuff comes from. */ : '/';
 
 // const MergeIntoSingleFilePlugin = require('webpack-merge-and-include-globally');
@@ -25,9 +25,16 @@ module.exports = {
 	module: {
 		rules: [
 			{
-				test: /\.js$/,
+				test: /\.m?js$/,
+				type: 'javascript/auto',
 				loader: 'babel-loader',
-				exclude: /node_modules/
+				options: {
+					plugins: [
+						require.resolve('@babel/plugin-transform-nullish-coalescing-operator'),
+						require.resolve('@babel/plugin-transform-optional-chaining'),
+					],
+				},
+				exclude: /node_modules\/(?!(vue-router|epic-spinners)\/)/
 			},
 			{
 				test: /\.(png|jpg|jpeg|gif)$/,
@@ -41,49 +48,7 @@ module.exports = {
 				loader: [
 					'babel-loader',
 					{
-						loader: 'vue-svg-loader',
-						options: {
-							// optional [svgo](https://github.com/svg/svgo) options
-							svgo: {
-								plugins: [
-									{cleanupAttrs: false},
-									{removeDoctype: true},
-									{removeXMLProcInst: true},
-									{removeComments: true},
-									{removeMetadata: true},
-									{removeTitle: true},
-									{removeDesc: true},
-									{removeUselessDefs: true},
-									{removeEditorsNSData: true},
-									{removeEmptyAttrs: true},
-									{removeHiddenElems: true},
-									{removeEmptyText: true},
-									{removeEmptyContainers: true},
-									{removeViewBox: false},
-									{cleanupEnableBackground: true},
-									{convertStyleToAttrs: false},
-									{convertColors: false},
-									{convertPathData: false},
-									{convertTransform: false},
-									{removeUnknownsAndDefaults: false}, // Don't change! Removes viewBox
-									{removeNonInheritableGroupAttrs: true},
-									{removeUselessStrokeAndFill: true},
-									{removeUnusedNS: true},
-									{cleanupIDs: false},
-									{cleanupNumericValues: false},
-									{moveElemsAttrsToGroup: false},
-									{moveGroupAttrsToElems: false},
-									{collapseGroups: true},
-									{removeRasterImages: false},
-									{mergePaths: false},
-									{convertShapeToPath: false},
-									{sortAttrs: true},
-									{removeDimensions: true},
-									{
-										removeAttrs: {attrs: '(stroke|fill)'},
-									}]
-							}
-						}
+						loader: path.resolve(__dirname, 'scripts/loaders/svg-vue-loader.cjs'),
 					}
 				],
 			},
@@ -114,7 +79,14 @@ module.exports = {
 			},
 			{
 				test: /\.vue$/,
-				use: 'vue-loader',
+				loader: 'vue-loader',
+				options: {
+					compilerOptions: {
+						compatConfig: {
+							MODE: 2,
+						},
+					},
+				},
 			},
 		]
 	},
@@ -130,6 +102,9 @@ module.exports = {
 
 
 		new webpack.DefinePlugin({
+			__VUE_OPTIONS_API__: JSON.stringify(true),
+			__VUE_PROD_DEVTOOLS__: JSON.stringify(false),
+			__VUE_PROD_HYDRATION_MISMATCH_DETAILS__: JSON.stringify(false),
 			'process.env': {
 				NODE_ENV: devMode ? '"development"' : '"production"'
 			}
@@ -147,7 +122,8 @@ module.exports = {
 		extensions: ['*', '.js', '.vue', '.json'],//in webpack 2.2 default resolve .js .json
 		alias: {
 			'@': path.resolve(__dirname, 'resources/js'),
-			'vue$': 'vue/dist/vue.esm.js' // Use the full build
+			'@icons': path.resolve(__dirname, 'resources/icons'),
+			'vue$': '@vue/compat/dist/vue.esm-bundler.js' // Vue 3 migration build
 			// 'vue$': 'vue/dist/vue.runtime.esm.js' // Use runtime only
 		}
 	},

@@ -1,7 +1,7 @@
 <template>
   <div class="resourceUploader">
-    <vue-transmit tag="section"
-                  v-bind="options"
+    <vue-transmit v-bind="options"
+                  tag="section"
                   upload-area-classes="bg-faded"
                   ref="uploader"
                   @success="onSingleFileSuccessfullyUploaded"
@@ -21,14 +21,15 @@
       </div>
 
       <template #files="props">
-        <div v-for="(file, i) in props.files" :key="file.id" :class="{'mt-5': i === 0}"
-             v-if="file.status !== 'success'">
-          <h4>{{ file.name }}</h4>
-          <div class="progress" style="width: 100%;">
-            <div class="progress-bar bg-success"
-                 :style="{width: file.upload.progress + '%'}"></div>
+        <template v-for="(file, i) in props.files" :key="file.id">
+          <div v-if="file.status !== 'success'" :class="{'mt-5': i === 0}">
+            <h4>{{ file.name }}</h4>
+            <div class="progress" style="width: 100%;">
+              <div class="progress-bar bg-success"
+                   :style="{width: file.upload.progress + '%'}"></div>
+            </div>
           </div>
-        </div>
+        </template>
       </template>
 
     </vue-transmit>

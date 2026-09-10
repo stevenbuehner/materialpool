@@ -25,7 +25,7 @@
 
 <script>
 import generalMixin  from './generalSidebarFields.mixin';
-import extensionIcon from 'svg-icon/dist/svg/material/extension.svg';
+import extensionIcon from '@icons/vendor/svg-icon/svg/material/extension.svg';
 
 
 export default {
