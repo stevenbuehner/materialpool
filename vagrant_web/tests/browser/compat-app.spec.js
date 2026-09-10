@@ -710,3 +710,186 @@ test('Vue 3 uploader keeps multipart success and error handling', async ({page})
     expect(uploadRequests[3].body).toContain('successful-retry.txt');
     expect(pageErrors).toEqual([]);
 });
+
+test('Material creator keeps preset selection, material preload and preset storage', async ({page}) => {
+    const pageErrors = [];
+    const consoleErrors = [];
+    const unexpectedWarnings = [];
+    const settingsRequests = [];
+    let currentUser = {
+        id: 1,
+        name: 'Synthetic User',
+        email: 'synthetic@example.invalid',
+        is_admin: false,
+        frontend_user_settings: {
+            assign: {
+                material: {
+                    templates: {
+                        Existing: {
+                            title: 'Existing preset title',
+                            description: 'Existing preset description',
+                            rating: 12,
+                            author: null,
+                            keywords: [],
+                            bibleverses: [],
+                        },
+                    },
+                    defaulttemplate: null,
+                },
+            },
+        },
+    };
+
+    page.on('pageerror', error => pageErrors.push(error.stack || error.message));
+    page.on('console', message => {
+        if (message.type() === 'error') consoleErrors.push(message.text());
+        if (message.type() === 'warning' && !message.text().startsWith('[Vue warn]: (deprecation ')) {
+            unexpectedWarnings.push(message.text());
+        }
+    });
+
+    await page.route('**/vue/**', route => route.fulfill({
+        contentType: 'text/html',
+        body: `<!doctype html>
+            <html lang="de">
+                <head>
+                    <meta charset="utf-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1">
+                    <title>Materialpool Preset Test</title>
+                    <link rel="stylesheet" href="/css/main.css">
+                </head>
+                <body>
+                    <div id="app"></div>
+                    <script>
+                        window.Laravel = {csrfToken: 'synthetic-csrf-token'};
+                        window.materialpool = {route: '/resource/42', store: {materials: []}};
+                    </script>
+                    <script src="/js/main_build.js"></script>
+                </body>
+            </html>`,
+    }));
+    await page.route('**/api/**', async route => {
+        const request = route.request();
+        const pathname = new URL(request.url()).pathname;
+
+        if (pathname === '/api/v1/general/options') {
+            await route.fulfill({
+                contentType: 'application/json',
+                body: JSON.stringify({
+                    systemname: 'MaterialPool Default',
+                    server: {max_upload: 10485760},
+                    user: currentUser,
+                }),
+            });
+            return;
+        }
+
+        if (pathname === '/api/v1/resources/42') {
+            await route.fulfill({
+                contentType: 'application/json',
+                body: JSON.stringify({
+                    id: 42,
+                    type: 'text',
+                    original_filename: 'synthetic-resource.txt',
+                    content: 'Synthetic resource content',
+                    notes: '',
+                    remote_path: '',
+                    is_public: false,
+                    materials: [],
+                    creator: null,
+                    created_at: '2026-09-01 12:00:00',
+                    updated_at: '2026-09-02 13:00:00',
+                    content_hash: 'synthetic-content-hash',
+                    filesize: 1024,
+                    page_count: null,
+                }),
+            });
+            return;
+        }
+
+        if (pathname === '/api/v1/materials/77') {
+            await route.fulfill({
+                contentType: 'application/json',
+                body: JSON.stringify({
+                    id: 77,
+                    title: 'Material 77 title',
+                    description: 'Material 77 description',
+                    rating: 16,
+                    author: null,
+                    keywords: [],
+                    bibleverses: [],
+                    resources: [],
+                }),
+            });
+            return;
+        }
+
+        if (pathname === '/api/v1/users/1' && request.method() === 'POST') {
+            const payload = request.postDataJSON();
+            settingsRequests.push(payload);
+            currentUser = {...currentUser, frontend_user_settings: payload.data};
+            await route.fulfill({
+                contentType: 'application/json',
+                body: JSON.stringify(currentUser),
+            });
+            return;
+        }
+
+        await route.fulfill({contentType: 'application/json', body: '[]'});
+    });
+
+    await page.goto('/vue/');
+    const resourceCard = page.locator('.resource > .card');
+    await resourceCard.getByRole('tab', {name: 'Materialien'}).click();
+    const creatorButton = page.getByTitle('Erstelle zugehöriges Material');
+    await creatorButton.click();
+
+    const modal = page.locator('.modal.show');
+    await expect(modal.getByRole('heading', {name: 'Material erstellen'})).toBeVisible();
+    const templateDropdown = modal.locator('.b-dropdown');
+    const templateToggle = templateDropdown.locator('.dropdown-toggle');
+    const templateMenu = templateDropdown.locator('.dropdown-menu');
+    await templateToggle.click();
+    await expect(templateMenu).toBeVisible();
+    await expect(templateMenu.getByRole('menuitem', {name: /Existing/})).toBeVisible();
+    const [modalBox, menuBox] = await Promise.all([modal.boundingBox(), templateMenu.boundingBox()]);
+    expect(menuBox.x + menuBox.width).toBeLessThanOrEqual(modalBox.x + modalBox.width);
+    await expect(page).toHaveScreenshot('material-creator-presets.png', {
+        animations: 'disabled',
+        caret: 'hide',
+    });
+
+    await templateMenu.getByRole('menuitem', {name: /Existing/}).click();
+    await expect(modal.locator('#materialtitle')).toHaveValue('Existing preset title');
+    await expect(modal.locator('#materialdescription')).toHaveValue('Existing preset description');
+
+    await templateToggle.click();
+    await templateMenu.getByRole('menuitem', {name: 'Lade von Material-ID'}).click();
+    const materialIdInput = templateMenu.getByPlaceholder('Material ID');
+    await expect(materialIdInput).toBeFocused();
+    await materialIdInput.fill('77');
+    await templateMenu.getByRole('button', {name: 'Ok'}).click();
+    await expect(templateMenu).toBeHidden();
+    await expect(templateToggle).toBeFocused();
+    await expect(modal.locator('#materialtitle')).toHaveValue('Material 77 title');
+    await expect(modal.locator('#materialdescription')).toHaveValue('Material 77 description');
+
+    await templateToggle.click();
+    await templateMenu.getByRole('menuitem', {name: 'Neue Vorlage erstellen'}).click();
+    const templateNameInput = templateMenu.getByPlaceholder('Template Name');
+    await expect(templateNameInput).toBeFocused();
+    await templateNameInput.fill('Saved copy');
+    await templateMenu.getByRole('button', {name: 'Speichern'}).click();
+    await expect.poll(() => settingsRequests.length).toBe(1);
+    await expect(templateMenu).toBeHidden();
+    await expect(templateToggle).toBeFocused();
+    expect(settingsRequests[0].data.assign.material.templates['Saved copy']).toMatchObject({
+        title: 'Material 77 title',
+        description: 'Material 77 description',
+        rating: 16,
+    });
+
+    expect(pageErrors).toEqual([]);
+    expect(consoleErrors).toEqual([]);
+    expect(unexpectedWarnings).toEqual([]);
+});

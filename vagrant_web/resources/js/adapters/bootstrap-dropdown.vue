@@ -25,6 +25,7 @@
         ref="menu"
         class="dropdown-menu"
         :class="{'dropdown-menu-end': right, show: visible}"
+        :style="right ? {right: '0', left: 'auto'} : null"
         role="menu"
         tabindex="-1"
         @keydown="onMenuKeydown"
@@ -61,6 +62,9 @@ export default {
         document.removeEventListener('click', this.onDocumentClick);
     },
     methods: {
+        focus() {
+            this.$refs.toggleButton?.focus();
+        },
         toggle() {
             if (this.disabled) return;
             this.visible ? this.hide() : this.show();
@@ -77,7 +81,10 @@ export default {
             this.visible = false;
             this.$nextTick(() => {
                 this.$emit('hidden');
-                if (returnFocus) this.$refs.toggleButton?.focus();
+                if (returnFocus) {
+                    const restoreFocus = () => this.focus();
+                    setTimeout(restoreFocus, 0);
+                }
             });
         },
         onDocumentClick(event) {

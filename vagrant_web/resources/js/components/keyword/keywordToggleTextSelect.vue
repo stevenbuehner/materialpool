@@ -3,10 +3,10 @@
        :class="[{disabled, notDisabled : !disabled}, {editModeActive, editModeInactive: !editModeActive}, {isEmpty:!keyword}]"
        @click="toggleEditModeClick">
 
-    <span v-if="!editModeActive && keyword" class="readMode" :title="title">{{ keyword.title }}</span>
+    <span v-if="!editModeActive && keyword" class="readMode" :title="resolvedTitle">{{ keyword.title }}</span>
 
     <span v-else-if="!editModeActive && !keyword" class="readMode emptyTexts"
-          :title="title">{{ emptyPlaceholder }}</span>
+          :title="resolvedTitle">{{ resolvedEmptyPlaceholder }}</span>
 
     <vue-select
         v-else
@@ -14,7 +14,7 @@
         class="searchInput"
         :model-value="selection"
         :options="options"
-        :placeholder="searchPlaceholder"
+        :placeholder="resolvedSearchPlaceholder"
         language="de-DE"
         label="title"
         @update:model-value="onChange"
@@ -76,24 +76,32 @@ export default {
 
     searchPlaceholder: {
       type: String,
-      default() {
-        return this.$t('pool.Enter-name-please');
-      },
+      default: '',
     },
 
     emptyPlaceholder: {
       type: String,
-      default() {
-        return this.$t('pool.No-author-given')
-      }
+      default: '',
     },
 
     title: {
       type: String,
-      default() {
-        return this.$t('pool.Click-here-to-edit')
-      }
+      default: '',
     }
+  },
+
+  computed: {
+    resolvedSearchPlaceholder() {
+      return this.searchPlaceholder || this.$t('pool.Enter-name-please');
+    },
+
+    resolvedEmptyPlaceholder() {
+      return this.emptyPlaceholder || this.$t('pool.No-author-given');
+    },
+
+    resolvedTitle() {
+      return this.title || this.$t('pool.Click-here-to-edit');
+    },
   },
 
   data() {

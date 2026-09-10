@@ -290,6 +290,9 @@ export default {
       formErrors: [],
       materialCreationRunning: false,
 
+      presets: {},
+      defaultPresetId: null,
+
       preloadDropdown: {
         loadFromMaterialFormActive: false,
         materialIdIsLoading: false,
@@ -373,30 +376,6 @@ export default {
 
   },
 
-  asyncComputed: {
-
-    presets: {
-      get() {
-        return this.$store.dispatch('general/currentUserSetting', {
-          settingId: USER_SETTINGS_MATERIAL_TEMPLATE_ID,
-          defaultValue: {}
-        });
-      },
-      default: {}
-    },
-
-    defaultPresetId: {
-      get() {
-        return this.$store.dispatch('general/currentUserSetting', {
-          settingId: USER_SETTINGS_MATERIAL_DEFAULT_TEMPLATE_ID,
-          defaultValue: null
-        })
-      },
-      default: null
-    }
-
-  },
-
   watch: {
     authorSearch: _debounce(function (searchValue) {
       this._getAuthorSuggestion(searchValue)
@@ -404,9 +383,7 @@ export default {
   },
 
   created() {
-
     this._onReset();
-
   },
 
   methods: {
@@ -507,8 +484,6 @@ export default {
 
       this.formErrors = [];
 
-      console.log('_onReset');
-
       this.form.title       = '';
       this.form.description = '';
       this.form.rating      = null;
@@ -517,15 +492,41 @@ export default {
       this.keywordInput     = [];
       this.bibleverseInput  = [];
 
-      // Lade DefaultPreset wenn vorhanden
-      this.$store.dispatch('general/currentUserSetting', {
-        settingId: USER_SETTINGS_MATERIAL_DEFAULT_TEMPLATE_ID,
-        defaultValue: null
-      }).then((templateID) => {
-        if (templateID !== null && this.presets[templateID]) {
-          this._loadPreset(templateID);
+      // Lade Vorlagen gemeinsam, damit die Standardvorlage nie gegen einen
+      // noch ausstehenden asynchronen Preset-Wert geprüft wird.
+      return this._refreshPresetSettings().then(() => {
+        if (this.defaultPresetId !== null && this.presets[this.defaultPresetId]) {
+          this._loadPreset(this.defaultPresetId);
         }
-      })
+      });
+
+    },
+
+    _refreshPresetSettings() {
+      return Promise.all([
+        this.$store.dispatch('general/currentUserSetting', {
+          settingId: USER_SETTINGS_MATERIAL_TEMPLATE_ID,
+          defaultValue: {}
+        }),
+        this.$store.dispatch('general/currentUserSetting', {
+          settingId: USER_SETTINGS_MATERIAL_DEFAULT_TEMPLATE_ID,
+          defaultValue: null
+        })
+      ]).then(([presets, defaultPresetId]) => {
+        this.presets = presets || {};
+        this.defaultPresetId = defaultPresetId ?? null;
+      });
+
+    },
+
+    _refreshPresets() {
+      return this.$store.dispatch('general/currentUserSetting', {
+        settingId: USER_SETTINGS_MATERIAL_TEMPLATE_ID,
+        defaultValue: {}
+      }).then((presets) => {
+        this.presets = presets || {};
+        return this.presets;
+      });
 
     },
 
@@ -543,7 +544,7 @@ export default {
         data: templateID
       }).then(() => {
         this.flashSaved(this.$t('pool.Default-Preset'), flashMessage)
-        this.$asyncComputed.defaultPresetId.update();
+        this.defaultPresetId = templateID;
       }).catch((msg) => {
         this.flashError(this.$t('pool.Default-Preset'), msg, flashMessage);
       });
@@ -611,14 +612,16 @@ export default {
 
             this.flashSaved(this.$t('pool.template'), flashSave);
 
-            this.preloadDropdown.presetIsSaving = false;
-            this.$asyncComputed.presets.update();
+            return this._refreshPresets().then(() => {
+              this.preloadDropdown.presetIsSaving = false;
 
-            // Close Dropdown on success
-            this.$refs.templateDropdown.hide(true);
+              // Close Dropdown on success
+              this._hideTemplateDropdown();
+            });
 
           })
           .catch((message) => {
+            this.preloadDropdown.presetIsSaving = false;
             this.flashError(this.$t('pool.template'), message, flashSave);
           });
 
@@ -638,7 +641,7 @@ export default {
           })
           .then(() => {
             // Always
-            this.$asyncComputed.presets.update();
+            return this._refreshPresets();
           });
 
     },
@@ -661,7 +664,7 @@ export default {
             this._initMaterialFormWithTemplateData(material);
 
             // Close Dropdown on success
-            this.$refs.templateDropdown.hide(true);
+            this._hideTemplateDropdown();
           })
           .catch((message) => {
             this.flashActionFailed(message);
@@ -681,6 +684,12 @@ export default {
       id     = USER_SETTINGS_MATERIAL_TEMPLATE_ID + '.' + id;
 
       return id;
+    },
+
+    _hideTemplateDropdown() {
+      const dropdown = this.$refs.templateDropdown;
+      dropdown.hide();
+      setTimeout(() => dropdown.focus(), 0);
     },
 
     _initMaterialFormWithTemplateData(materialTemplate) {
