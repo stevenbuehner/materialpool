@@ -76,6 +76,10 @@ test('Vue application mounts with synthetic bootstrap data', async ({page}, test
     await expect(page.locator('.main-area')).toBeVisible();
     await expect(page.getByRole('link', {name: 'Suchen'})).toBeVisible();
     await expect(page.locator('svg.sb-navbar-icon')).toHaveCount(2);
+    await expect(page).toHaveScreenshot('compat-app-home.png', {
+        animations: 'disabled',
+        caret: 'hide',
+    });
 
     const speedSearch = page.getByPlaceholder('Schnellsuche');
     const navbarToggle = page.locator('.navbar-toggler');
@@ -222,6 +226,10 @@ test('Vue 3 datepicker keeps the German input and calendar interaction', async (
     const dateInput = page.getByPlaceholder('Datum');
     await expect(dateInput).toBeVisible();
     await expect(dateInput).toHaveValue('01.09.2026');
+    await expect(page).toHaveScreenshot('material-detail.png', {
+        animations: 'disabled',
+        caret: 'hide',
+    });
     await dateInput.click();
     await expect(page.locator('.vdp-datepicker__calendar').first()).toBeVisible();
 
@@ -247,6 +255,10 @@ test('Vue 3 datepicker keeps the German input and calendar interaction', async (
     await expect(page.locator('.modal-backdrop.show')).toBeVisible();
     await expect(page.locator('body')).toHaveClass(/\bmodal-open\b/);
     await expect(modal.locator('.modal-header .close')).toBeFocused();
+    await expect(page).toHaveScreenshot('material-resource-modal.png', {
+        animations: 'disabled',
+        caret: 'hide',
+    });
 
     await page.keyboard.press('Escape');
     await expect(modal).toBeHidden();

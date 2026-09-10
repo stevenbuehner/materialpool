@@ -154,6 +154,13 @@ Dieser Bericht ergänzt den verbindlichen [Vue-3-Migrationsvertrag](vue-3-migrat
 - Der sichtbare In-App-Browser bestätigt zusätzlich die wieder gestylte Loginseite mit bedienbaren Formularfeldern; geschützte Produktseiten wurden dort mangels bereitgestellter Testanmeldung nicht mit realen Daten geöffnet. Alle funktionalen Integrationsprüfungen verwenden ausschließlich synthetische Daten und Requests.
 - Grenze: Dieses erste Gate schließt die zuvor offenen Hauptfälle für Navbar, Account-Dropdown, Material-Tabs und einen repräsentativen Promise-Modalpfad. Resource-Card-Geometrie, Pagination mit mehreren Seiten, Preset-Dropdowns, Outside-Click, Backdrop-Schließen, verschachtelte Dialoge, Promise-Erfolg, Bildzoom sowie repräsentative geschützte Reisen bleiben ausdrücklich offen. Vor dem CSS-Wechsel werden dafür anwendungsbezogene Desktop-/Mobile-Screenshotreferenzen ergänzt; die vorhandene Loginreferenz allein genügt nicht als UI-Gesamtbaseline.
 
+## Teilstufe 3.16 – SPA-Visual-Baseline I
+
+- Das normale synthetische E2E-Gate vergleicht nun zusätzlich sechs eingecheckte WebKit-Referenzbilder: leere SPA-Startansicht, produktives Materialdetail und geöffneter Resource-Auswahldialog jeweils bei 1440×900 und 390×844. Die Screenshots verwenden feste Testdaten, deaktivierte Animationen und ausgeblendete Carets.
+- Die Referenzen decken die für den Bootstrap-5-Wechsel besonders empfindlichen Bereiche ab: Desktop-/Mobile-Navbar, Breakpoint/Collapse, Grid und Abstände, Tabs, Form Controls, Selects, Rating, Buttons, Modalgröße/-position, Backdrop und mobile Überläufe. Die Bilder wurden nach Erzeugung einzeln visuell geprüft; sie zeigen den bestehenden Bootstrap-4-Zustand und sind kein stillschweigendes Redesignziel.
+- Der Erzeugungslauf und ein davon unabhängiger Vergleichslauf bestanden jeweils mit 10/10 Tests auf dem production-artigen Server. Damit sind die Dateien reproduzierbar und werden bei CSS-, Markup- oder Browseränderungen nicht automatisch überschrieben; Änderungen verlangen eine bewusste visuelle Bewertung.
+- Grenze: Die erste Baseline enthält noch keine Resource-Detailkarte, Pagination, offenen Preset-Dropdown oder verschachtelten/Bild-Dialog. Diese Zustände bleiben zusätzlich zu den funktionalen Restfällen aus Teilstufe 3.15 offen und werden vor dem gemeinsamen CSS-Umschaltpunkt erweitert, soweit sie mit synthetischen Daten deterministisch erreichbar sind.
+
 ## Aktueller Stufenabgleich
 
 - Erledigt und nicht übersprungen: Paket-/Peer-Prüfung, Adaptergrenze, direkte Verbraucher, Format-/Locale-Anpassung, Production-Artefakte, statische Tests sowie Desktop-/Mobile-Browserinteraktion für die Datepicker-Familie.
