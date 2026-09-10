@@ -34,7 +34,7 @@
 
 
 <script>
-import {BFormInput, BFormSelect, BModal}                              from '@/adapters/bootstrap';
+import {BFormInput, BFormSelect}                                     from '@/adapters/bootstrap';
 import contextMenu                                                    from '../context-menu/context-menu.vue';
 import contextMenuItem                                                from "../context-menu/context-menu-item.vue";
 import {keywordSearchLink}                                            from '../serverRoutes';
@@ -281,7 +281,6 @@ export default {
     KeywordEditor: () => import("../modals/editors/keywordEditor"),
 
     ContextMenuItem: contextMenuItem,
-    BModal,
     BFormInput,
     BFormSelect,
     contextMenu,

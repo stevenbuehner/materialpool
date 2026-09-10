@@ -114,7 +114,6 @@ import {
   BNavbarBrand,
   BNavbarNav,
   BNavItemDropdown,
-  VBTooltip
 }                       from '@/adapters/bootstrap';
 import {
   BNavbar
@@ -416,11 +415,6 @@ export default {
     materialSelector,
     materialCreator
   },
-
-  directives: {
-    bTooltip: VBTooltip
-  },
-
 }
 </script>
 
