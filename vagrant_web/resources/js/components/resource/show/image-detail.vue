@@ -12,7 +12,7 @@
 
 <script>
 
-import {BButton, BCard, BImgLazy}                           from '@/adapters/bootstrap';
+import {BImgLazy}                                          from '@/adapters/bootstrap';
 import {previewImageFirstPage}                              from '../../serverRoutes';
 import resourceLinks                                        from '../resource-links.mixin';
 import {max_preview_image_size_x, max_preview_image_size_y} from "../../../apps/config";
@@ -63,8 +63,6 @@ export default {
     }
   },
   components: {
-    BCard,
-    BButton,
     BImgLazy
   }
 }
