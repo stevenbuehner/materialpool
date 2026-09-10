@@ -9,7 +9,7 @@
 
       <span class="previous"
             @click.stop="previousPreviewImage"
-            v-if="previewLimitedImages.length > 1"><</span>
+            v-if="previewLimitedImages.length > 1">&lt;</span>
       <span class="next"
             @click.stop="nextPreviewImage"
             v-if="previewLimitedImages.length > 1">></span>

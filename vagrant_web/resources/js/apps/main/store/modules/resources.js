@@ -130,7 +130,9 @@ const actions = {
 
 				return data;
 			})
-			.catch((response) => throw convertErrorResponseToMessage(response));
+			.catch((response) => {
+				throw convertErrorResponseToMessage(response);
+			});
 
 	},
 
@@ -144,7 +146,9 @@ const actions = {
 			            return (data.success && data.success === true);
 
 		            })
-		            .catch((response) => throw convertErrorResponseToMessage(response));
+		            .catch((response) => {
+			            throw convertErrorResponseToMessage(response);
+		            });
 
 	},
 
@@ -203,7 +207,9 @@ const actions = {
 			.then(({data}) => {
 				return data;
 			})
-			.catch((response) => throw convertErrorResponseToMessage(response));
+			.catch((response) => {
+				throw convertErrorResponseToMessage(response);
+			});
 
 		promise.then((material) => {
 
@@ -293,7 +299,9 @@ const actions = {
 			.then(({data}) => {
 				return data;
 			})
-			.catch((response) => throw convertErrorResponseToMessage(response));
+			.catch((response) => {
+				throw convertErrorResponseToMessage(response);
+			});
 
 		promise.then((resource) => {
 			commit('clearResource', oldResourceId);

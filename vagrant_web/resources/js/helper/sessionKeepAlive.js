@@ -5,5 +5,7 @@ import {convertErrorResponseToMessage} from "../apps/main/store/modules/handleEr
 export async function sessionKeepAlive() {
 	return await axiosInstance
 		.get(keepAliveRoute)
-		.catch((response) => throw convertErrorResponseToMessage(response));
+		.catch((response) => {
+			throw convertErrorResponseToMessage(response);
+		});
 }
