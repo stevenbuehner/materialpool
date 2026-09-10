@@ -1,7 +1,7 @@
 <template>
   <select
-      ref="input"
       v-bind="$attrs"
+      ref="input"
       :value="currentValue"
       :class="selectClasses"
       :disabled="disabled"

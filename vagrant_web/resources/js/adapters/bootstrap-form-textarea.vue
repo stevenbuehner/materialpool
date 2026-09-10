@@ -1,7 +1,7 @@
 <template>
   <textarea
-      ref="input"
       v-bind="$attrs"
+      ref="input"
       :value="currentValue"
       :rows="rows"
       :class="controlClasses"

@@ -1,7 +1,7 @@
 <template>
   <div
-      v-show="isActive"
       v-bind="$attrs"
+      v-show="isActive"
       class="tab-pane fade"
       :class="{active: isActive, show: isActive, 'card-body': bootstrapTabs && bootstrapTabs.card}"
       role="tabpanel"

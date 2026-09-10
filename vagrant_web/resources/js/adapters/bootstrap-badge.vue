@@ -1,7 +1,7 @@
 <template>
   <component
-      :is="tag"
       v-bind="$attrs"
+      :is="tag"
       class="badge"
       :class="[`text-bg-${variant}`, {'rounded-pill': pill}]"
   ><slot/></component>

@@ -1,7 +1,7 @@
 <template>
   <component
-      :is="groupTag"
       v-bind="$attrs"
+      :is="groupTag"
       class="materialpool-form-group mb-3"
       :class="[stateClass, {'materialpool-form-row': isHorizontal && groupTag !== 'fieldset', 'was-validated': validated}]"
       :disabled="groupTag === 'fieldset' ? disabled : null"

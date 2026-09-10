@@ -1,9 +1,9 @@
 <template>
   <teleport to="body">
     <div
+        v-bind="$attrs"
         v-if="localVisible"
         ref="modal"
-        v-bind="$attrs"
         class="modal fade show d-block"
         tabindex="-1"
         role="dialog"

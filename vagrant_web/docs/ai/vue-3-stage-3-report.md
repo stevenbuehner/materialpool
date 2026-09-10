@@ -179,6 +179,14 @@ Dieser Bericht ergänzt den verbindlichen [Vue-3-Migrationsvertrag](vue-3-migrat
 - Der beim Paketwechsel erfolgreich gelieferte npm-Auditstand beträgt 78 Einträge (7 low, 20 moderate, 39 high, 12 critical). Ein späterer separater Neuabruf war wegen gesperrtem Registry-Zugriff nicht möglich und wird nicht als neues Ergebnis gewertet. Die Altlasten liegen weiterhin überwiegend im Webpack-4-/Buildpfad und werden nicht per blindem `audit fix` verändert.
 - Grenze: BootstrapVueNext ist als gepflegte Vue-3-Zielabhängigkeit und CSS-Ergänzung vorhanden; die anwendungseigenen Adapter bleiben für die historisch belegten Props, Events, Slots und die Pixelparität zuständig. Noch nicht deterministisch abgedeckt sind Resource-Detailkarte, mehrseitige Pagination, beide Preset-Formulare, Outside-Click, Backdrop-Schließen, verschachtelte/Bild-Dialoge, Promise-Erfolg und `AssignApp`. Diese Fälle blockieren nicht den nachgewiesenen gemeinsamen CSS-Wechsel, bleiben aber Pflicht vor Abschluss von Stufe 3.
 
+## Teilstufe 3.19 – Warnungsfreie Dev-Kompilierung
+
+- Der reale Einstieg `php artisan dev` wurde nach dem Bootstrap-5-Cutover neu gestartet. Wegen eines bereits belegten Ports 8000 wählte Laravel erwartungsgemäß Port 8001; Queue und Frontend-Watcher liefen parallel weiter.
+- Die Vue-Migrationscompiler-Warnung `COMPILER_V_BIND_OBJECT_ORDER` wurde nicht unterdrückt: In allen betroffenen lokalen Bootstrap-Adaptern steht das weitergereichte Attributobjekt nun zuerst und behält damit ausdrücklich die Vue-2-Überschreibungsreihenfolge. Props, Slots, Ereignisse und gerendertes Markup bleiben unverändert.
+- Der laufende Watcher meldet danach `Compiled successfully`. Die Loginseite wurde über die Dev-Instanz auf Port 8001 im sichtbaren Browser geladen; Styles, Formular und Debugbar sind sichtbar, ein Compile-Overlay oder Laufzeitfehler trat nicht auf.
+- Abnahme: Production-Build, 37 Unit-Tests, ESLint ohne Fehler, Diff-Check und das vollständige production-artige Browsergate mit 10/10 WebKit-Tests sind grün.
+- Grenze: Die Bereinigung betrifft nur die konkrete Compilerwarnung. Sonstige Vue-Compat-Warnungen werden weiterhin inventarisiert und erst nach reproduzierbarem Fund familienweise beseitigt.
+
 ## Aktueller Stufenabgleich
 
 - Erledigt und nicht übersprungen: Paket-/Peer-Prüfung, Adaptergrenze, direkte Verbraucher, Format-/Locale-Anpassung, Production-Artefakte, statische Tests sowie Desktop-/Mobile-Browserinteraktion für die Datepicker-Familie.

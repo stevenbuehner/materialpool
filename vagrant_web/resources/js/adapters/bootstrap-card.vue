@@ -1,5 +1,5 @@
 <template>
-  <component :is="tag" v-bind="$attrs" class="card" :class="cardClasses">
+  <component v-bind="$attrs" :is="tag" class="card" :class="cardClasses">
     <div v-if="$slots.header || header" class="card-header" :class="headerClass">
       <slot name="header">{{ header }}</slot>
     </div>

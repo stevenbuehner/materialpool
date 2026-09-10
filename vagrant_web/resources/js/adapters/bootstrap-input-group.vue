@@ -1,5 +1,5 @@
 <template>
-  <component :is="tag" v-bind="$attrs" class="input-group" :class="size ? `input-group-${size}` : null" role="group">
+  <component v-bind="$attrs" :is="tag" class="input-group" :class="size ? `input-group-${size}` : null" role="group">
     <template v-if="$slots.prepend || prepend">
       <slot name="prepend"><bootstrap-input-group-text>{{ prepend }}</bootstrap-input-group-text></slot>
     </template>

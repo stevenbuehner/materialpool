@@ -1,6 +1,6 @@
 <template>
-  <router-link v-if="to" v-bind="$attrs" :to="to" class="navbar-brand"><slot/></router-link>
-  <a v-else v-bind="$attrs" :href="href || '#'" class="navbar-brand"><slot/></a>
+  <router-link v-bind="$attrs" v-if="to" :to="to" class="navbar-brand"><slot/></router-link>
+  <a v-bind="$attrs" v-else :href="href || '#'" class="navbar-brand"><slot/></a>
 </template>
 
 <script>

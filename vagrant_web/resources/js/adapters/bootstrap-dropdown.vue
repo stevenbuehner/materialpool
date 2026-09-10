@@ -1,8 +1,8 @@
 <template>
   <component
+      v-bind="$attrs"
       :is="nav ? 'li' : 'div'"
       ref="root"
-      v-bind="$attrs"
       class="dropdown b-dropdown"
       :class="[nav ? 'nav-item b-nav-dropdown' : 'btn-group', {show: visible}]"
   >

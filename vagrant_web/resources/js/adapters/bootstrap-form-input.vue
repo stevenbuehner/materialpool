@@ -1,7 +1,7 @@
 <template>
   <input
-      ref="input"
       v-bind="$attrs"
+      ref="input"
       :value="localValue"
       :type="type"
       :class="controlClasses"

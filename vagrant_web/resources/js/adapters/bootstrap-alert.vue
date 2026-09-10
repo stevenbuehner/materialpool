@@ -1,8 +1,8 @@
 <template>
   <transition :name="fade ? 'fade' : ''">
     <div
-        v-if="visible"
         v-bind="$attrs"
+        v-if="visible"
         class="alert"
         :class="[`alert-${variant}`, {'alert-dismissible': dismissible, show: fade}]"
         role="alert"
