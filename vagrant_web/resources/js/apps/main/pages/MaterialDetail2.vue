@@ -352,7 +352,7 @@ import authorIcon      from '@icons/vendor/svg-icon/svg/material/person.svg';
 import personIcon      from '@icons/vendor/svg-icon/svg/material/person.svg';
 import languageIcon    from '@icons/vendor/svg-icon/svg/material/language.svg';
 import bibleverseIcon  from '../../../../icons/bibleverse/bible.svg'
-import {BButton}                  from '@/adapters/bootstrap';
+import {BButton, BTab, BTabs}    from '@/adapters/bootstrap';
 import {setReactive}              from '@/adapters/reactivity';
 import TextEditSidebarField       from "../../../components/sidebar-fields/textEdit";
 import BibleverseEditSidebarField from "../../../components/sidebar-fields/bibleverseEdit";
@@ -877,6 +877,8 @@ export default {
     MaterialDeletor,
     ResourceSelector,
     BButton,
+    BTab,
+    BTabs,
     SingleTagSelect,
     RatingEdit,
     TagEditSidebarField,

@@ -21,4 +21,6 @@ export {default as BListGroupItem} from './bootstrap-list-group-item.vue';
 export {default as BProgress} from './bootstrap-progress.vue';
 export {default as BProgressBar} from './bootstrap-progress-bar.vue';
 export {default as BPaginationNav} from './bootstrap-pagination-nav.vue';
+export {default as BTab} from './bootstrap-tab.vue';
+export {default as BTabs} from './bootstrap-tabs.vue';
 export * from 'bootstrap-vue';
