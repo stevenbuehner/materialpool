@@ -12,6 +12,7 @@ Die Reihenfolge ist bewusst risikobewusst. Backendprüfungen laufen im Sail-PHP-
 
 # Frisches Testschema und vollständige PHPUnit-Suite
 ./vendor/bin/sail artisan migrate:fresh --env=testing --force
+./vendor/bin/sail artisan db:seed --env=testing --force
 ./vendor/bin/sail test
 
 # Composer-Verträge
@@ -25,6 +26,8 @@ npm run build
 
 Vor gezielten PHP-Änderungen sind mindestens die Syntaxprüfung im PHP-8.4-Container und die passende Testklasse auszuführen. Ein lokales Host-PHP unter 8.4 darf Composer oder Artisan für diese Anwendung nicht ausführen.
 
+`db:seed` ist wegen `ClearAllTablesSeeder` destruktiv und darf ausschließlich nach Kontrolle von `APP_ENV=testing` und der aufgelösten Verbindung gegen die dedizierte, entbehrliche Testdatenbank laufen. Ein erfolgreicher Exit-Code wird durch read-only Assertions auf repräsentative Benutzer-, OAuth-, Resource-, Material-, Keyword- und Bibeldaten ergänzt. Seed-Ausgaben mit einmaligen Test-Client-Secrets dürfen nicht in Logs, Screenshots oder Commits übernommen werden. Für die Vue-3-Migration ist dieses Gate mindestens an der Vue-2-Ausgangsbasis und vor der Releasefreigabe verbindlich; ist Sail/MySQL nicht verfügbar, bleibt es offen.
+
 ## Bereichsspezifische Gates
 
 | Änderung | Zusätzlich prüfen |
@@ -36,6 +39,7 @@ Vor gezielten PHP-Änderungen sind mindestens die Syntaxprüfung im PHP-8.4-Cont
 | Bundle/Queue | Queue-Name, Job-Reihenfolge, Wiederholbarkeit, Fehlerbehandlung; nur mit Test- oder ausdrücklich freigegebenen Daten |
 | Vue/Sass | `npm run build`, Desktop- und Mobile-Ansicht, Lade-/Fehler-/Leerezustand, Tastaturzugang |
 | Vue-3-Migrationsstufe | zusätzlich alle stufenspezifischen Funktional-, Komponenten-, E2E-, Visual-, Accessibility-, Security-, Lockfile- und Rückbaugates aus [`vue-3-migration-contract.md`](vue-3-migration-contract.md) |
+| Seeder/Testdaten | frisches isoliertes Testschema, erfolgreicher `db:seed`-Lauf, repräsentative Datenassertions, keine echten Daten oder persistierten Secrets; Änderungen an Lösch- oder Fachsemantik nur nach Freigabe |
 | Migration/Dependency/Infra | vorherige Freigabe, offizieller Online-Upgradeleitfaden, Up-/Down-Plan, Aktualisierungsnotiz, Fresh- und Bestandsschema, vollständige passende Tests |
 | Passport/OAuth | Client-ID als String/UUID, Secret-Hashing, Referenzerhalt, Grant-/Redirect-Migration, Auth-Fehlerfälle und echter Tokenaustausch; vor Rollout den Ablauf in `passport-13-client-migration.md` |
 | Nested Sets | vollständige `KeywordNestedSetTest`- und `KeywordApiControllerTest`-Gruppen; nach Mutationen `countErrors()` und `isBroken()` |

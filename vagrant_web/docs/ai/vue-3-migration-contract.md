@@ -145,6 +145,7 @@ Ziel: Das heutige Verhalten messbar machen, bevor Abhängigkeiten ausgetauscht w
 - Legacy-Referenz und endgültige, unterstützte Node-LTS-Laufzeit getrennt dokumentieren; keine EOL-Node-Version als Endziel. Die gemeinsamen Engine-/Peer-Anforderungen aller Toolchain-Pakete entscheiden, nicht eine pauschale Mindestversion aus einem Tutorial.
 - vollständige Route-, Komponenten-, Store-, Plugin-, Directive-, Mixin-, Filter-, Eventbus-, Slot-, `v-model`-/`.sync`-, Transition-, `v-html`- und Drittanbieterinventur erzeugen;
 - kritische Nutzerreisen und Testdaten definieren, insbesondere Suche, Material/Resource, Keywords, Bibelstellen, Upload, Vorschau, Zuweisung, Bundles und Berechtigungsfehler;
+- den vollständigen `DatabaseSeeder` nach einem frischen Schema mit `php artisan db:seed` gegen eine nachweislich isolierte Testdatenbank ausführen und die für die Referenzreisen benötigten synthetischen Daten verifizieren;
 - Vitest-kompatible reine JS-Tests nur dort vorziehen, wo sie den bestehenden Build nicht verändern; browserbasierte E2E- und visuelle Referenztests gegen den Vue-2-Stand einführen;
 - Bundlegröße, Buildzeit, Browserkonsole und `npm audit --json` als Baseline speichern, ohne Secrets oder reale Daten.
 
@@ -152,7 +153,7 @@ Vor größerer Portierungsarbeit einen begrenzten technischen Versuch in einer i
 
 Browser-E2E verwenden einen Runner für Referenz und Ziel; Standardvorschlag ist Playwright für E2E und Screenshots, alternativ ein bereits etablierter Runner. Vue-2-Komponententests nur für konkrete Risikobausteine mit passender Test-Utils-Version einrichten; keine kurzlebige zweite Vollsuite bauen. Ab dem Vue-3-Wechsel Vue Test Utils 2 einsetzen, nicht erst nach Entfernung von Compat. ESLint früh für neue/geänderte Dateien aktivieren; vorhandene Altbefunde einmalig dokumentieren.
 
-**Ausgangsgate:** bestehender Production-Build und Backend-Suite grün.  
+**Ausgangsgate:** bestehender Production-Build und Backend-Suite grün; `php artisan db:seed` läuft nach einem frischen Testschema erfolgreich durch und erzeugt die erwarteten synthetischen Referenzdaten.
 **Abnahme:** alle vereinbarten Referenzreisen reproduzierbar; keine unklassifizierten Konsolenfehler; Screenshots und Zustandsmatrizen vollständig.  
 **Rückbau:** nur Test-/Dokumentationsänderungen entfernen.
 
@@ -258,6 +259,7 @@ Während des Parallelbetriebs gibt es pro fachlichem Datensatz genau einen schre
 - direkte und transitive Dependencies auditieren, deduplizieren und SBOM/Inventar aktualisieren;
 - Bundle- und Laufzeitperformance gegen Stufe 0 vergleichen; erhebliche Regressionen analysieren und freigeben lassen;
 - Architektur, Baseline, Designsystem, Quality Gates, Deploymentvertrag und AGENTS.md auf den verifizierten Endstand aktualisieren;
+- auf einer neu angelegten, isolierten Testdatenbank Migrationen und anschließend `php artisan db:seed` erneut ausführen; repräsentative Seed-Daten sowie darauf aufbauende authentifizierte Kernreisen prüfen;
 - Release nur aus einem frischen Lockfile-Install und nach vollständigem Backend-/Frontend-Gate.
 
 ## Verbindliche Prüfungen je Stufe
@@ -278,6 +280,17 @@ npm run build
 ./vendor/bin/sail test
 ```
 
+Das Backend-Gate umfasst an Stufe 0 und Stufe 7 zusätzlich den Seed-Lauf. Er darf wegen des löschenden `ClearAllTablesSeeder` ausschließlich gegen die dedizierte, entbehrliche Testdatenbank erfolgen:
+
+```sh
+./vendor/bin/sail artisan migrate:fresh --env=testing --force
+./vendor/bin/sail artisan db:seed --env=testing --force
+```
+
+Vor dem ersten Befehl müssen `APP_ENV=testing` und die tatsächlich aufgelöste Datenbankverbindung kontrolliert sein; Entwicklungs-, Staging- und Produktionsdatenbanken sind ausdrücklich ausgeschlossen. Erfolg bedeutet mehr als Exit-Code 0: repräsentative Benutzer-, Resource-, Material-, Keyword- und Bibeldaten sowie der für Test-Authentifizierung benötigte OAuth-Client werden durch Tests oder read-only Assertions nachgewiesen. Zufällig erzeugte IDs oder Inhalte werden nicht als feste Snapshotwerte vorausgesetzt. Der Seed-Lauf darf keine Secrets, lokale Datenbankdateien oder echte Nutzerdaten in Logs, Screenshots oder Commits übernehmen; einmalig ausgegebene Test-Client-Secrets werden nicht protokolliert.
+
+Ein Seed-Fehler wird innerhalb der frühesten passenden Migrationsstufe diagnostiziert und bei verhaltensneutraler technischer Ursache repariert. Änderungen an Seed-Datenumfang, Löschverhalten, fachlichen Beziehungen, Importquellen oder Authentifizierungssemantik bleiben entscheidungspflichtig. Ist Sail/MySQL nicht verfügbar, bleibt dieses Gate offen; ein Lauf mit einer abweichenden Host-PHP- oder SQLite-Version ersetzt den verbindlichen Nachweis nicht.
+
 Die npm-Skripte werden in Stufe 0/der jeweils ersten benötigten Stufe eingerichtet. Nicht vorhandene Skripte dürfen vorher nicht als erfolgreich fingiert werden. Security-Audit-Befunde werden getrennt für Produktionsbundle, Build/CI und Dev-Server bewertet; `--omit=dev` allein beweist keine Nichterreichbarkeit. Ziel sind keine offenen High-/Critical-Befunde ohne explizit akzeptierte, befristete Ausnahme. Ein Audit ohne Findings beweist keine vollständige Sicherheit. `npm audit fix --force` und ungeprüftes Umgehen von Peer-Konflikten sind verboten. Eine Ausnahme benötigt Advisory, Pfad, Exploitierbarkeit, Kompensation, Frist und Owner.
 
 Ein Login-Smoke ersetzt keine authentifizierte Nutzerreise. Kernreisen müssen mindestens Lesen, Ändern/Speichern, erneutes Laden mit persistiertem Ergebnis und einen realen Berechtigungs-/Validierungsfehler prüfen. Mock-Tests decken Fehler und Grenzfälle ab; sie ersetzen nicht die Integration gegen Laravel/MySQL mit synthetischen Daten. Shutdown-Tests dürfen keinen echten Rechner herunterfahren; Seiteneffekt isoliert abfangen und den UI-/Requestvertrag prüfen. Nicht verfügbare Umgebung = Gate offen, nicht bestanden.
@@ -296,7 +309,7 @@ Zusätzliche Abnahme:
 | Security | XSS-Fixtures für Markdown/`v-html`, unsichere URLs, CSRF-/Session-Verhalten, Dependency-Audit |
 | Upload/Media | Progress, Abbruch/Fehler, Dateitypen, Preview, Video/Audio, Object-URL-/Listener-Cleanup |
 | Build | frisches `npm ci`, Dev-HMR, Productionmanifest, dynamische Chunks, Source Maps, Asset-URLs |
-| Backend | vollständige bestehende PHPUnit-Verträge; keine Abschwächung zur Anpassung an Frontendänderungen |
+| Backend | vollständige bestehende PHPUnit-Verträge; an Stufe 0 und Stufe 7 zusätzlich erfolgreicher `db:seed`-Lauf samt repräsentativen Datenassertions auf frischer isolierter Testdatenbank; keine Abschwächung zur Anpassung an Frontendänderungen |
 
 ## KI-gestützter Arbeitsvertrag
 
