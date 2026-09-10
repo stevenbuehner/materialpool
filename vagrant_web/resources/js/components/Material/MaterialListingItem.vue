@@ -78,7 +78,6 @@
 <script>
 import Keyword                  from '../keyword/keyword.vue'
 import Biblevers                from "../bibleverse/biblevers.vue";
-import materialDetail           from '../../apps/main/pages/MaterialDetail.vue';
 import {material_preview_image} from '../serverRoutes';
 import materialStoreMixin       from './materialStore.mixin';
 import playIcon                 from '@icons/vendor/svg-icon/svg/icomoon/play2.svg'
@@ -220,7 +219,6 @@ export default {
   components: {
     Biblevers,
     Keyword,
-    materialDetail,
     playIcon,
     fromBotIcon
   }

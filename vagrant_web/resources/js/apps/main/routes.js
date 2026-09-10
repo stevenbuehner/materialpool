@@ -1,4 +1,3 @@
-import MaterialDetail2    from './pages/MaterialDetail.vue';
 import MaterialDetail     from './pages/MaterialDetail2.vue';
 import SearchPage         from './pages/search/searchPage.vue';
 import ResourceDetail     from './pages/Resource.vue';
@@ -48,14 +47,9 @@ export const routes = [
 	       },
 	       {
 		       path: '/material/:id', component: MaterialDetail, name: 'material-detail', props: (route) => {
-			       return {id: parseInt(route.params.id)};
-		       }
-	       },
-	       {
-		       path: '/material2/:id', component: MaterialDetail2, name: 'material-detail2', props: (route) => {
 			       return {
-				       id: parseInt(route.params.id),
-				       tabIndex: parseInt(route.query.tabIndex) || 0,
+			        id: parseInt(route.params.id),
+			        tabIndex: parseInt(route.query.tabIndex) || 0,
 			       };
 		       }
 	       },
