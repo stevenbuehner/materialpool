@@ -34,7 +34,7 @@
 
 <script>
 import {searchArrayObjectsToSearchArrayItems}                               from "../../../components/search/searchHelper";
-import {BDropdown, BDropdownItem, BFormInput, BInputGroup, BInputGroupText} from "@/adapters/bootstrap";
+import {BDropdown, BDropdownItem, BFormInput, BInputGroup} from "@/adapters/bootstrap";
 import BibleText
                                                                             from "../../../components/biblecontents/bibleText";
 import {BibleVerse, BibleVerseService}                                      from "../../../helper/BibleverseHelper";
@@ -202,7 +202,6 @@ export default {
     BibleText,
     BInputGroup,
     BFormInput,
-    BInputGroupText,
     BDropdown,
     BDropdownItem,
   },
