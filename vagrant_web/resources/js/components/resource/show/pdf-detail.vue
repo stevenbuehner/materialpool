@@ -66,7 +66,7 @@
 <script>
 
 import {pdfPreviewImageForPage, pdfPreviewImageForPageRefresh, previewImageFirstPage} from '../../serverRoutes';
-import {BFormSelect, BImg, BImgLazy}                                                  from 'bootstrap-vue';
+import {BFormSelect, BImg, BImgLazy}                                                  from '@/adapters/bootstrap';
 import pdfMixin                                                                       from '../pdf-mixin';
 import ImageZoom                                                                      from "../../modals/imageZoom";
 import ContextMenu

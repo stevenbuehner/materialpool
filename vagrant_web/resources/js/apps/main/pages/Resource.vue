@@ -97,10 +97,10 @@
             </b-list-group-item>
 
             <b-list-group-item>
-              <b>{{ $t('pool.Created-at') }}:</b> {{ resource.created_at | dayjs | recentOrFormat }}
+              <b>{{ $t('pool.Created-at') }}:</b> {{ recentOrFormat(dayjs(resource.created_at)) }}
             </b-list-group-item>
             <b-list-group-item>
-              <b>{{ $t('pool.Updated-at') }}:</b> {{ resource.updated_at | dayjs | recentOrFormat }}
+              <b>{{ $t('pool.Updated-at') }}:</b> {{ recentOrFormat(dayjs(resource.updated_at)) }}
             </b-list-group-item>
 
             <b-list-group-item>
@@ -108,7 +108,7 @@
             </b-list-group-item>
 
             <b-list-group-item v-if="resource.filesize">
-              <b>{{ $t('pool.Filesize') }}:</b> {{ resource.filesize | readableBytes }}
+              <b>{{ $t('pool.Filesize') }}:</b> {{ readableBytes(resource.filesize) }}
             </b-list-group-item>
 
             <b-list-group-item class="d-flex">
@@ -155,7 +155,7 @@
 </template>
 
 <script>
-import {BAlert, BListGroup, BListGroupItem, BTab, BTabs} from 'bootstrap-vue';
+import {BAlert, BListGroup, BListGroupItem, BTab, BTabs} from '@/adapters/bootstrap';
 import pdfLimitation
                                                          from '../../../components/resource/limitation/pdfLimitation.vue';
 import audioLimitation

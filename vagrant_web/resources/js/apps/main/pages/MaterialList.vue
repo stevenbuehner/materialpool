@@ -18,7 +18,7 @@
 
 <script>
 import MaterialCardListing from "../../../components/Material/MaterialCardListing.vue";
-import {BPaginationNav}    from 'bootstrap-vue';
+import {BPaginationNav}    from '@/adapters/bootstrap';
 
 export default {
 

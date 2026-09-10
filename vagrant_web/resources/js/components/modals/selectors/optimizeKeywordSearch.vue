@@ -41,7 +41,7 @@
       </div>
 
       <div class="d-block selection small" v-if="selectedTagDisplay.length > 0">
-        "{{ selectedTagDisplay | trim(300) }}"
+        "{{ trim(selectedTagDisplay, 300) }}"
       </div>
 
 
@@ -77,7 +77,7 @@
 
 <script>
 
-import {BButton, BFormInput, BListGroup, BListGroupItem, BModal} from 'bootstrap-vue';
+import {BButton, BFormInput, BListGroup, BListGroupItem, BModal} from '@/adapters/bootstrap';
 import MaterialpoolSpinner                                       from "../../spinner/materialpool-spinner";
 import SearchInputTag                                            from "../../search/searchInputTag";
 import {objectToSearchItem}                                      from "../../search/searchHelper";

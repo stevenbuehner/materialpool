@@ -17,7 +17,7 @@
               --><template v-if="place !== ''"><!--
                 -->in <span class="place">{{ place }}</span>,
               </template><!--
-            -->am <span>{{ datetime | dateformat }}</span><!--
+            -->am <span>{{ dateformat(datetime) }}</span><!--
             -->)
           </span>
 
@@ -129,13 +129,13 @@ import {getLocale, getLocaleDateFormat, moment} from "../../../apps/main/localis
 import OccasionIcon                             from 'svg-icon/dist/svg/icomoon/bubble2.svg';
 
 import Datepicker from '../../datepicker/datepicker';
-import {BButton}  from 'bootstrap-vue';
+import {BButton}  from '@/adapters/bootstrap';
 import trashIcon  from 'svg-icon/dist/svg/oct/trashcan.svg';
 
 import {savingDialogs} from "../../../helper/flashMessages";
 import cancelIcon      from 'svg-icon/dist/svg/material/undo.svg';
 import checkCircleIcon from 'svg-icon/dist/svg/material/save.svg';
-import vueSelect       from 'vue-select';
+import vueSelect       from '@/adapters/vue-select';
 import _debounce       from "lodash/debounce";
 import {cloneDeep}     from "lodash";
 
@@ -441,12 +441,9 @@ export default {
 
     },
 
-  },
-
-  filters: {
     dateformat(datetime) {
       return moment(datetime).format(getLocaleDateFormat());
-    }
+    },
   },
 
   components: {

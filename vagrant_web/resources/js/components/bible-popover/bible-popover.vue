@@ -111,7 +111,13 @@ Events:
 <script>
 import BiblePopoverHeader                                        from "./bible-popover-header";
 import BiblePopoverContent                                       from "./bible-popover-content";
-import eventBus                                                  from './bible-popover-eventbus.js';
+import {
+  emitBiblePopoverNext,
+  emitBiblePopoverOpening,
+  emitBiblePopoverPrevious,
+  offBiblePopoverOpening,
+  onBiblePopoverOpening,
+}                                                                from './bible-popover-events.js';
 import doubleLeftIcon                                            from './angle-double-left.svg';
 import doubleRightIcon                                           from './angle-double-right.svg';
 import pinIcon                                                   from './pin.svg';
@@ -563,11 +569,11 @@ export default {
 
 
     _doPrevious() {
-      eventBus.$emit('bible-popover-previous', this);
+      emitBiblePopoverPrevious(this);
     },
 
     _doNext() {
-      eventBus.$emit('bible-popover-next', this);
+      emitBiblePopoverNext(this);
     },
 
     _doClose() {
@@ -583,7 +589,7 @@ export default {
   },
 
   created() {
-    eventBus.$on('bible-popover-opening', this._incomingPopoverOpening);
+    onBiblePopoverOpening(this._incomingPopoverOpening);
 
     this._initPosition();
     this._initContextOffsets();
@@ -592,11 +598,11 @@ export default {
   },
 
   mounted() {
-    eventBus.$emit('bible-popover-opening', this);
+    emitBiblePopoverOpening(this);
   },
 
   destroyed() {
-    eventBus.$off('bible-popover-opening', this._incomingPopoverOpening);
+    offBiblePopoverOpening(this._incomingPopoverOpening);
   },
 
   components: {

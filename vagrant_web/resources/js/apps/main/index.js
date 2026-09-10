@@ -9,22 +9,12 @@ import '../../../sass/main.scss';
 
 // Localisation
 import {vueLangConfig} from './localisation';
-
-import ShortKey                      from 'vue-shortkey'
-import AsyncComputed                 from 'vue-async-computed';
 import {sessionKeepAlive}            from "../../helper/sessionKeepAlive";
 import {keepalive_seconds_intervall} from "../config";
-import VueLang                       from "@eli5/vue-lang-js";
+import {installLegacyPlugins}        from './installLegacyPlugins';
 
-// Directives
-import queuedImagesLoader from "../../directives/queued-images-loader";
-
-Vue.use(ShortKey);
 Vue.use(VueRouter);
-Vue.use(AsyncComputed);
-
-// Localisation
-Vue.use(VueLang, vueLangConfig);
+installLegacyPlugins(Vue, vueLangConfig);
 
 
 const router = new VueRouter({
@@ -36,8 +26,6 @@ const router = new VueRouter({
 	},
 	routes
 });
-
-Vue.directive('image-queue', queuedImagesLoader);
 
 const vueInstance = new Vue({
 	el: '#app',

@@ -40,7 +40,7 @@
 </template>
 
 <script>
-import {BButton, BPaginationNav} from 'bootstrap-vue';
+import {BButton, BPaginationNav} from '@/adapters/bootstrap';
 import {previewImageFirstPage}   from "../../../components/serverRoutes";
 
 export default {

@@ -43,7 +43,7 @@
 
 <script>
 import CustomDialog                             from "./customDialog.vue";
-import {BFormInput}                             from 'bootstrap-vue';
+import {BFormInput}                             from '@/adapters/bootstrap';
 import {RELEVANCE_USER_AVG, RELEVANCE_USER_MAX} from "../../../apps/config";
 
 export default {

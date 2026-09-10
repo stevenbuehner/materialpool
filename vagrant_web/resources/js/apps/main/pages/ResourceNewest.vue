@@ -23,7 +23,7 @@
 </template>
 
 <script>
-import {BButton, BPaginationNav} from 'bootstrap-vue';
+import {BButton, BPaginationNav} from '@/adapters/bootstrap';
 import ResourcePreview           from "../../../components/resource/show/resource-preview";
 import {savingDialogs}           from "../../../helper/flashMessages";
 

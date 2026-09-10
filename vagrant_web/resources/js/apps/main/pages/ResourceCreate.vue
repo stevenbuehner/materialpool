@@ -28,7 +28,7 @@
 <script>
 
 import ResourceUploader        from "../../../components/uploader/resourceUploader";
-import {BAlert, BFormCheckbox} from 'bootstrap-vue';
+import {BAlert, BFormCheckbox} from '@/adapters/bootstrap';
 
 export default {
   name: "resourceUpload",

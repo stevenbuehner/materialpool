@@ -8,7 +8,7 @@
 
 <script>
 import Bundle       from "../../../components/bundles/bundle.vue";
-import {BCardGroup} from 'bootstrap-vue';
+import {BCardGroup} from '@/adapters/bootstrap';
 
 
 export default {

@@ -52,7 +52,7 @@
 </template>
 
 <script>
-import vueSelect       from 'vue-select';
+import vueSelect       from '@/adapters/vue-select';
 import _debounce       from 'lodash/debounce';
 import SearchInputTag  from "./searchInputTag";
 import {preloadedIcon} from "../keyword/keywordDefaultIcons";

@@ -16,7 +16,8 @@
   </div>
 </template>
 <script type="text/javascript">
-import star from 'vue-star-rating/src/star.vue'
+import star from '@/adapters/star'
+import {setReactive} from '@/adapters/reactivity';
 
 export default {
   name: 'five-star-rating',
@@ -171,7 +172,7 @@ export default {
 
       for (var i = 0; i < this.starCount; i++) {
         const level = Math.max(0, Math.min(1, relativeStarCount - i)) * 100;
-        this.$set(this.fillLevel, i, level);
+        setReactive(this.fillLevel, i, level);
       }
     },
     round() {

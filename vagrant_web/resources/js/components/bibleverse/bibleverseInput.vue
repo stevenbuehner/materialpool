@@ -426,7 +426,7 @@ export default {
   height: 1.5em;
 }
 
-.icon-erase >>> path {
+.icon-erase ::v-deep path {
   fill: white;
 }
 

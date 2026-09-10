@@ -36,7 +36,7 @@
 </template>
 
 <script>
-import {BImg, BModal} from 'bootstrap-vue';
+import {BImg, BModal} from '@/adapters/bootstrap';
 import undoIcon       from 'svg-icon/dist/svg/subway/undo-1.svg'
 import redoIcon       from 'svg-icon/dist/svg/subway/redo-1.svg'
 import backArrow      from 'svg-icon/dist/svg/typcn/arrow-back.svg'

@@ -31,7 +31,7 @@
           -->
 
           <div class="filesize" v-if="resource.filesize">
-            {{ $t('pool.Filesize') }}: {{ resource.filesize | readableBytes }}
+            {{ $t('pool.Filesize') }}: {{ readableBytes(resource.filesize) }}
           </div>
 
           <div class="resource-id">{{ $t('pool.Resource-ID') }}: {{ resource.id }}</div>

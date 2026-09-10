@@ -36,7 +36,7 @@
                 :to="{name:'material-detail', params: {id:mat.id}}"
             >{{ $t('pool.open') }}
             </b-button>
-            {{ mat.title | trim(70) }}
+            {{ trim(mat.title, 70) }}
           </b-dropdown-item>
         </b-nav-item-dropdown>
       </b-navbar-nav>
@@ -116,10 +116,10 @@ import {
   BNavItem,
   BNavItemDropdown,
   VBTooltip
-}                       from 'bootstrap-vue';
+}                       from '@/adapters/bootstrap';
 import {
   BNavbar
-}                       from 'bootstrap-vue/';
+}                       from '@/adapters/bootstrap';
 import materialSelector from '../../../components/modals/selectors/materialSelector.vue';
 import materialCreator  from '../../../components/modals/creators/materialCreator.vue';
 import truncate         from '../../../filters/truncate-filter.mixin'

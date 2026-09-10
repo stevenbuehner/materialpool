@@ -175,7 +175,7 @@
 
 <script>
 import generalMixin                                                      from './generalSidebarFields.mixin';
-import VueSelect                                                         from 'vue-select/dist/vue-select';
+import VueSelect                                                         from '@/adapters/vue-select';
 import tagIcon                                                           from 'svg-icon/dist/svg/material/style.svg';
 import {keywordTypes}                                                    from "../keyword/keywordDefaultIcons";
 import {cloneDeep, debounce as _debounce, differenceBy as _differenceBy} from 'lodash';
@@ -192,7 +192,7 @@ import {copyStringToClipboard}                                       from "../..
 import {getOptionKeyFromKeywordObject, getTagLabelFromKeywordObject} from "./tagEdit_functions";
 import {savingDialogs}                                               from "../../helper/flashMessages";
 import RelevanceSelector                                             from "../modals/dialogs/relevanceSeletor.vue";
-import {BButton}                                                     from "bootstrap-vue";
+import {BButton}                                                     from "@/adapters/bootstrap";
 
 
 export default {

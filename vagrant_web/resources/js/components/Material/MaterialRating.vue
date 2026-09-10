@@ -1,6 +1,6 @@
 <script>
 
-import starRating from 'vue-star-rating';
+import starRating from '@/adapters/star-rating';
 
 export default {
   name: "MaterialRating",

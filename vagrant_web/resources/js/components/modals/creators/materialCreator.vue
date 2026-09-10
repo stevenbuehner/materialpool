@@ -6,7 +6,7 @@
            @shown="_selectFocus"
   >
 
-    <template slot="modal-header" class="">
+    <template #modal-header>
       <div class="row sb_materialcreator_header">
         <div class="col col-9 col-md-10 modal-title">
           <h5>
@@ -115,7 +115,7 @@
       </div>
     </template>
 
-    <template slot="modal-footer">
+    <template #modal-footer>
 
       <slot name="all-buttons">
         <slot name="extra-buttons"></slot>
@@ -248,8 +248,8 @@ import {
   BInputGroup,
   BInputGroupAppend,
   BModal
-}                              from 'bootstrap-vue';
-import starRating              from 'vue-star-rating';
+}                              from '@/adapters/bootstrap';
+import starRating              from '@/adapters/star-rating';
 import KeywordInput            from "../../keyword/keywordInput.vue";
 import BibleverseInput         from "../../bibleverse/bibleverseInput";
 import _debounce               from 'lodash/debounce';

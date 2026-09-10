@@ -5,6 +5,14 @@ const startRegexp = /([1-5]\.?\s*)?[a-zäöü\.]{2,15}[ \t]([1-9][0-9]{0,2}[,;\.
 // Der Lexer funktioniert nur, wenn am Anfang eines Strings gesucht wird (mit ^)
 const regexp = new RegExp('^(' + BibleVerseService?.biblePattern?.source + ')', BibleVerseService?.biblePattern?.flags);
 
+function escapeHtmlAttribute(value) {
+	return String(value)
+		.replaceAll('&', '&amp;')
+		.replaceAll('"', '&quot;')
+		.replaceAll('<', '&lt;')
+		.replaceAll('>', '&gt;');
+}
+
 export function getBibleverseTokenizer(doAutoload) {
 	doAutoload = doAutoload === true;
 
@@ -36,9 +44,9 @@ export function getBibleverseTokenizer(doAutoload) {
 			}
 		},
 		renderer(token) {
-			return `<bibleverse-inline-popover-txt :text="'${token.bibleverse}'" :load-contents="${token.doAutoload}">${token.bibleverse}</bibleverse-inline-popover-txt>`
+			const bibleverse = escapeHtmlAttribute(token.bibleverse);
+			return `<bibleverse-inline-popover-txt data-text="${bibleverse}" data-load-contents="${token.doAutoload}">${bibleverse}</bibleverse-inline-popover-txt>`
 		},
 		childTokens: [],                 // Any child tokens to be visited by walkTokens
 	};
 }
-

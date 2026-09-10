@@ -1,6 +1,6 @@
 <template>
   <div class="card-header">
-    <div>{{ resource.content | trim(300) }}</div>
+    <div>{{ trim(resource.content, 300) }}</div>
   </div>
 </template>
 

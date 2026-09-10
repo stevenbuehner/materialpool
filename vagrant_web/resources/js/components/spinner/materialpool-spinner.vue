@@ -7,7 +7,7 @@
 </template>
 
 <script>
-import HollowDotsSpinner from "epic-spinners/src/components/lib/HollowDotsSpinner";
+import { HollowDotsSpinner } from "@/adapters/spinner";
 
 export default {
   name: "materialpool-spinner",

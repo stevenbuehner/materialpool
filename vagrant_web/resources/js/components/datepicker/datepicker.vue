@@ -1,6 +1,6 @@
 <script>
 
-import ExtDatePicker                    from "@hokify/vuejs-datepicker";
+import ExtDatePicker                    from "@/adapters/datepicker";
 import {getLocale, getLocaleDateFormat} from "../../apps/main/localisation";
 
 export default {

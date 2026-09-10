@@ -23,11 +23,11 @@
         @search="onSearch"
     >
 
-      <template slot="no-options">
+      <template #no-options>
         {{ $t('pool.Nothing-found') }}
       </template>
 
-      <template slot="option" slot-scope="option">
+      <template #option="option">
         <div class="d-center">
           <span class="icon" :style="{backgroundImage: 'url(' + option.icon + ')'}"></span>
           {{ option.title }}
@@ -35,7 +35,7 @@
         </div>
       </template>
 
-      <template slot="selected-option" slot-scope="option">
+      <template #selected-option="option">
         <div class="selected d-center">
           <span class="icon" :style="{backgroundImage: 'url(' + option.icon + ')'}"></span>
           {{ option.title }}
@@ -47,7 +47,7 @@
 
 <script>
 
-import VueSelect from 'vue-select';
+import VueSelect from '@/adapters/vue-select';
 import _debounce from 'lodash/debounce';
 
 let myTimeout = null;

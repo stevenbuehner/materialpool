@@ -39,7 +39,8 @@
 </template>
 
 <script>
-import {BButton, BModal} from 'bootstrap-vue';
+import {BButton, BModal} from '@/adapters/bootstrap';
+import {setReactive}     from '@/adapters/reactivity';
 
 export default {
   name: "customDialog",
@@ -153,11 +154,11 @@ export default {
       for (let i in this.defaultOptions) {
 
         if (tempOptions.hasOwnProperty(i)) {
-          this.$set(this.opt, i, tempOptions[i]);
+          setReactive(this.opt, i, tempOptions[i]);
           // this.opt[i] = tempOptions[i];
         } else if (this.defaultOptions.hasOwnProperty(i)) {
           // this.opt[i] = this.defaultOptions[i];
-          this.$set(this.opt, i, this.defaultOptions[i]);
+          setReactive(this.opt, i, this.defaultOptions[i]);
 
         }
       }

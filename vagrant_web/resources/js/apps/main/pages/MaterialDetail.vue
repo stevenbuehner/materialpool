@@ -124,7 +124,7 @@
                         {{ $tc('pool.resource-count', material.resources.length, {name: material.resources.length}) }},
                     </span>
 
-          {{ $t('pool.edited') }} {{ material.updated_at | dayjs | recentOrFormat }},
+          {{ $t('pool.edited') }} {{ recentOrFormat(dayjs(material.updated_at)) }},
 
           <span v-if="material.creator && material.creator.name"
                 class="mr-0 pr-0">
@@ -145,7 +145,7 @@
       <div class="row" v-if="material.resources !== undefined && material.resources.length > 1">
         <div class="col-xl-3 col-lg-4 col-md-4 col-sm-6 col-xs-12 " v-for="resource in material.resources">
           <resource-preview :resource="resource">
-            <template slot="additional-buttons">
+            <template #additional-buttons>
               <button class="btn btn-sm btn-outline-danger mb-1"
                       @click.prevent="btnDetachResource(resource)"
                       :title="$t('pool.Detach-resource')">
@@ -160,7 +160,7 @@
       <div class="row" v-if="material.resources !== undefined && material.resources.length === 1">
         <div class="col-xl-12 col-12">
           <resource-detail :resource="material.resources[0]" :showDelete="false">
-            <template slot="additional-buttons">
+            <template #additional-buttons>
               <button class="btn btn-outline-danger mb-1"
                       @click.prevent="btnDetachResource(material.resources[0])"
                       :title="$t('pool.Detach-resource')">
@@ -210,7 +210,7 @@ import resourcePreview         from '../../../components/resource/show/resource-
 import resourceDetail          from '../../../components/resource/show/resource-detail.vue';
 import editableText            from '../../../components/general/edditable.vue';
 import fromBot                 from '../../../components/fromBot.vue';
-import starRating              from 'vue-star-rating/src/star-rating';
+import starRating              from '@/adapters/star-rating';
 import ResourceUploader        from "../../../components/uploader/resourceUploader";
 import {resourceDownloadLink}  from "../../../components/serverRoutes";
 import customDialog            from '../../../components/modals/dialogs/customDialog';

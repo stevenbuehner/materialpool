@@ -44,7 +44,7 @@
 import editIcon            from 'svg-icon/dist/svg/ionic/edit.svg';
 import refreshIcon         from 'svg-icon/dist/svg/awesome/refresh.svg';
 import Tree                from "../../../components/keyword/tree/Tree";
-import {BFormInput}        from 'bootstrap-vue';
+import {BFormInput}        from '@/adapters/bootstrap';
 import MaterialpoolSpinner from "../../../components/spinner/materialpool-spinner";
 
 export default {
@@ -303,7 +303,7 @@ export default {
   width: 1.5rem;
 }
 
-.refreshIcon >>> path {
+.refreshIcon ::v-deep path {
   fill: white;
 }
 </style>

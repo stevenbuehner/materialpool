@@ -4,6 +4,48 @@ import bibleverseInlinePopoverTxt from "./../bibleverse/bibleverse-inline-popove
 import _throttle                  from 'lodash/throttle'
 import {sanitizeTextMarkup}       from "./sanitizeSetup";
 
+function vnodeData(element) {
+  const data = {attrs: {}};
+
+  for (const {name, value} of element.attributes) {
+    if (name === 'class') {
+      data.class = value;
+    } else if (name === 'style') {
+      data.style = value;
+    } else {
+      data.attrs[name] = value;
+    }
+  }
+
+  return data;
+}
+
+function renderSanitizedNode(h, node) {
+  if (node.nodeType === Node.TEXT_NODE) {
+    return node.textContent;
+  }
+
+  if (node.nodeType !== Node.ELEMENT_NODE) {
+    return null;
+  }
+
+  const children = [...node.childNodes]
+    .map(child => renderSanitizedNode(h, child))
+    .filter(child => child !== null);
+  const tagName = node.tagName.toLowerCase();
+
+  if (tagName === 'bibleverse-inline-popover-txt') {
+    return h(bibleverseInlinePopoverTxt, {
+      props: {
+        text: node.getAttribute('data-text') || node.textContent,
+        loadContents: node.getAttribute('data-load-contents') === 'true',
+      },
+    }, children);
+  }
+
+  return h(tagName, vnodeData(node), children);
+}
+
 export default {
   name: "compiledMarkdown",
 
@@ -43,13 +85,13 @@ export default {
   },
 
   render(h) {
-    // See: npm v-runtime-template
-    const dynamic = {
-      template: '<div class=\'compiledMarkdown\'>' + this.compiledText + '</div>',
-      components: {bibleverseInlinePopoverTxt}
-    };
+    const root = document.createElement('div');
+    root.innerHTML = this.compiledText;
+    const children = [...root.childNodes]
+      .map(node => renderSanitizedNode(h, node))
+      .filter(node => node !== null);
 
-    return h(dynamic, {});
+    return h('div', {class: 'compiledMarkdown'}, children);
   },
 
   components: {}

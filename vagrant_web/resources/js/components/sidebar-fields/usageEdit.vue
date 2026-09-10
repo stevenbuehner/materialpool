@@ -56,7 +56,7 @@
 <script>
 import usageListElement from "./usage/usageListElement";
 import OccasionIcon     from 'svg-icon/dist/svg/icomoon/bubble2.svg';
-import {BButton}        from 'bootstrap-vue';
+import {BButton}        from '@/adapters/bootstrap';
 import {savingDialogs}  from "../../helper/flashMessages";
 import {moment}         from "../../apps/main/localisation";
 

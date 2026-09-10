@@ -17,7 +17,7 @@
 
 <script>
 
-import {BButton, BCard}                                     from 'bootstrap-vue'
+import {BButton, BCard}                                     from '@/adapters/bootstrap'
 import resourceLinks                                        from '../resource-links.mixin';
 import {previewImageFirstPage}                              from "../../serverRoutes";
 import resourcePreviewZoom                                  from '../resource-preview-zoom';

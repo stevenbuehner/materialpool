@@ -33,7 +33,7 @@
       <span class="next"
             @click.prevent="showZoom(zoomedImage.next)"
             v-if="zoomedImage.next >= 0">></span>
-      <template slot="modal-header" v-if="zoomedImage.current >= 0">
+      <template v-if="zoomedImage.current >= 0" #modal-header>
         <div class="checked-modal-page"
              :class="{selected: pages[zoomedImage.current].isSelected}"
              @click="addPageSelection(pages[zoomedImage.current].index)">
@@ -48,7 +48,8 @@
 <script>
 
 import Page                     from './page.vue';
-import {BImg, BModal}           from 'bootstrap-vue';
+import {BImg, BModal}           from '@/adapters/bootstrap';
+import {setReactive}            from '@/adapters/reactivity';
 import {pdfPreviewImageForPage} from "../../serverRoutes";
 
 export default {
@@ -179,7 +180,7 @@ export default {
     firstPageSelected: function (pageIndex) {
       for (let i = 1; i <= this.pageCount; i++) {
         // this.selectedPages[i] = pageIndex === i;
-        this.$set(this.selectedPages, i, pageIndex === i);
+        setReactive(this.selectedPages, i, pageIndex === i);
       }
     },
 
@@ -213,7 +214,7 @@ export default {
       const max              = Math.max(lastSelectedPage, firstSelectedPage);
 
       for (let i = min; i <= max; i++) {
-        this.$set(this.selectedPages, i, true);
+        setReactive(this.selectedPages, i, true);
         // this.selectedPages[i] = true;
       }
 
@@ -225,7 +226,7 @@ export default {
       // this.selectedPages[pageIndex] = !this.selectedPages[pageIndex];
       console.log('Set index: ', pageIndex, !this.selectedPages[pageIndex]);
 
-      this.$set(this.selectedPages, pageIndex, !this.selectedPages[pageIndex]);
+      setReactive(this.selectedPages, pageIndex, !this.selectedPages[pageIndex]);
 
     },
 

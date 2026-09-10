@@ -20,7 +20,7 @@
         <h4 v-if="uploadRunning">Upload is beeing processed</h4>
       </div>
 
-      <template slot="files" slot-scope="props">
+      <template #files="props">
         <div v-for="(file, i) in props.files" :key="file.id" :class="{'mt-5': i === 0}"
              v-if="file.status !== 'success'">
           <h4>{{ file.name }}</h4>
@@ -43,9 +43,10 @@
 </template>
 
 <script>
-import {VueTransmit}            from "vue-transmit/dist/vue-transmit.esm.min";
+import {VueTransmit}            from "@/adapters/vue-transmit";
 import {api_v1_resources_store} from "../serverRoutes";
-import {BAlert, BButton}        from 'bootstrap-vue';
+import {BAlert, BButton}        from '@/adapters/bootstrap';
+import {setReactive}            from '@/adapters/reactivity';
 
 
 export default {
@@ -99,7 +100,7 @@ export default {
     // Get maxUploadSize from the server
     this.$store.dispatch('general/maxUploadSize')
         .then((maxUploadSize) => {
-          this.$set(this.options, 'maxFileSize', Math.floor(maxUploadSize / 1024 / 1024));
+          setReactive(this.options, 'maxFileSize', Math.floor(maxUploadSize / 1024 / 1024));
         });
   },
 
@@ -162,12 +163,6 @@ export default {
       this.fileStatus    = null;
       this.uploadRunning = false;
 
-    }
-  },
-
-  filters: {
-    json(value) {
-      return JSON.stringify(value, null, 2)
     }
   },
 

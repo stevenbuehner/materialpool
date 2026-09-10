@@ -68,7 +68,7 @@
 </template>
 
 <script>
-import {BAlert, BButton, BFormGroup, BFormInput} from 'bootstrap-vue';
+import {BAlert, BButton, BFormGroup, BFormInput} from '@/adapters/bootstrap';
 import ResourcePreview                           from "../../../components/resource/show/resource-preview";
 import ArrowLeftIcon                             from 'svg-icon/dist/svg/mfglabs/arrow_left.svg'
 import {savingDialogs}                           from "../../../helper/flashMessages";

@@ -38,7 +38,7 @@
 <script>
 import searchbarHeader          from './searchbarHeader.vue';
 import searchbarOutcome         from './searchbarOutcome.vue';
-import {BAlert, BPaginationNav} from 'bootstrap-vue';
+import {BAlert, BPaginationNav} from '@/adapters/bootstrap';
 
 import {
   searchArrayItemsToSearchQuery,

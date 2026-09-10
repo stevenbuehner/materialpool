@@ -6,13 +6,13 @@
         v-if="bundle"
         no-body
     >
-      <template slot="header">
+      <template #header>
 
         <div class="d-flex justify-content-between bundleProgressFront">
           <div>
             <h4 class="card-title">{{ bundle.name }}</h4>
             <h6 class="card-subtitle text-muted">{{ installedVersion }},
-              {{ bundle.updated_at | dayjs | recentOrFormat }}</h6>
+              {{ recentOrFormat(dayjs(bundle.updated_at)) }}</h6>
           </div>
 
           <div class="bundleTodoMenu">
@@ -70,7 +70,7 @@
           {{ $tc('pool.resource-count', info.count_files, {count: info.count_files}) }},
         </b-list-group-item>
         <b-list-group-item v-if="info">
-          {{ $t('pool.export-date') }}: {{ info.exportDate | dayjs | recentOrFormat }}
+          {{ $t('pool.export-date') }}: {{ recentOrFormat(dayjs(info.exportDate)) }}
         </b-list-group-item>
       </b-list-group>
 
@@ -79,7 +79,7 @@
 </template>
 
 <script>
-import {BButton, BCard, BListGroup, BListGroupItem, BProgress, BProgressBar} from 'bootstrap-vue'
+import {BButton, BCard, BListGroup, BListGroupItem, BProgress, BProgressBar} from '@/adapters/bootstrap'
 import {formatLocalizedDate}                                                 from "../../helper/datetime.mixin";
 
 

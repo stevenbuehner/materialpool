@@ -12,7 +12,7 @@
 
 <script>
 
-import {BButton, BCard, BImgLazy}                           from 'bootstrap-vue';
+import {BButton, BCard, BImgLazy}                           from '@/adapters/bootstrap';
 import {previewImageFirstPage}                              from '../../serverRoutes';
 import resourceLinks                                        from '../resource-links.mixin';
 import {max_preview_image_size_x, max_preview_image_size_y} from "../../../apps/config";

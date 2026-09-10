@@ -95,7 +95,7 @@ import {
   BNavForm,
   BNavItem,
   BNavItemDropdown
-}                                        from 'bootstrap-vue';
+}                                        from '@/adapters/bootstrap';
 import {searchArrayObjectsToSearchQuery} from "../search/searchHelper";
 import uploadIcon                        from 'svg-icon/dist/svg/icomoon/cloud-upload.svg';
 import newTextIcon                       from 'svg-icon/dist/svg/zero/custom-text.svg';

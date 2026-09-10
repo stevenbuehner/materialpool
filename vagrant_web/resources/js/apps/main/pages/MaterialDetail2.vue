@@ -330,7 +330,7 @@ import resourcePreview         from '../../../components/resource/show/resource-
 import resourceDetail          from '../../../components/resource/show/resource-detail.vue';
 import editableText            from '../../../components/general/edditable.vue';
 import fromBot                 from '../../../components/fromBot.vue';
-import starRating              from 'vue-star-rating/src/star-rating';
+import starRating              from '@/adapters/star-rating';
 import ResourceUploader        from "../../../components/uploader/resourceUploader";
 import customDialog            from '../../../components/modals/dialogs/customDialog';
 import MaterialRating          from "../../../components/Material/MaterialRating";
@@ -353,10 +353,8 @@ import authorIcon      from 'svg-icon/dist/svg/material/person.svg';
 import personIcon      from 'svg-icon/dist/svg/material/person.svg';
 import languageIcon    from 'svg-icon/dist/svg/material/language.svg';
 import bibleverseIcon  from '../../../../icons/bibleverse/bible.svg'
-import Vue             from 'vue';
-
-
-import {BButton, TabsPlugin}      from 'bootstrap-vue';
+import {BButton}                  from '@/adapters/bootstrap';
+import {setReactive}              from '@/adapters/reactivity';
 import TextEditSidebarField       from "../../../components/sidebar-fields/textEdit";
 import BibleverseEditSidebarField from "../../../components/sidebar-fields/bibleverseEdit";
 import dayjs                      from 'dayjs';
@@ -369,9 +367,6 @@ import ResourceSelector           from "../../../components/modals/selectors/res
 import MaterialDeletor            from "../../../components/modals/deletors/materialDeletor";
 import Bundle                     from "../../../components/bundles/bundle";
 import RelevanceSelector          from "../../../components/modals/dialogs/relevanceSeletor.vue";
-
-Vue.use(TabsPlugin);
-
 
 // https://github.com/craigh411/vue-star-rating/#props
 export default {
@@ -753,7 +748,7 @@ export default {
         if (index === -1) {
           this.material.keywords.push(data);
         } else {
-          this.$set(this.material.keywords, index, data);
+          setReactive(this.material.keywords, index, data);
         }
 
         startFlash.destroy();
@@ -821,7 +816,7 @@ export default {
         if (index === -1) {
           this.material.bibleverses.push(data);
         } else {
-          this.$set(this.material.bibleverses, index, data);
+          setReactive(this.material.bibleverses, index, data);
         }
 
         startFlash.destroy();

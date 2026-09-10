@@ -8,12 +8,14 @@
             :placeholder="$t('pool.Insert-bibleverse-here')"
             @keydown.enter="analyseSearchInput"/>
 
-        <b-dropdown :text="dropDownLabel" variant="secondary" slot="append"
-                    :title="$t('pool.Select-Translation')">
-          <b-dropdown-item v-for="bible in allBibles" :key="bible.uuid" @click="bibleUuid=bible.uuid">
-            {{ bible.title }}
-          </b-dropdown-item>
-        </b-dropdown>
+        <template #append>
+          <b-dropdown :text="dropDownLabel" variant="secondary"
+                      :title="$t('pool.Select-Translation')">
+            <b-dropdown-item v-for="bible in allBibles" :key="bible.uuid" @click="bibleUuid=bible.uuid">
+              {{ bible.title }}
+            </b-dropdown-item>
+          </b-dropdown>
+        </template>
       </b-input-group>
     </div>
 
@@ -32,7 +34,7 @@
 
 <script>
 import {searchArrayObjectsToSearchArrayItems}                               from "../../../components/search/searchHelper";
-import {BDropdown, BDropdownItem, BFormInput, BInputGroup, BInputGroupText} from "bootstrap-vue";
+import {BDropdown, BDropdownItem, BFormInput, BInputGroup, BInputGroupText} from "@/adapters/bootstrap";
 import BibleText
                                                                             from "../../../components/biblecontents/bibleText";
 import {BibleVerse, BibleVerseService}                                      from "../../../helper/BibleverseHelper";

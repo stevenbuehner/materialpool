@@ -34,7 +34,7 @@
 
 <script>
 
-import {BBadge}            from 'bootstrap-vue';
+import {BBadge}            from '@/adapters/bootstrap';
 import MaterialpoolSpinner from "../../spinner/materialpool-spinner";
 
 export default {

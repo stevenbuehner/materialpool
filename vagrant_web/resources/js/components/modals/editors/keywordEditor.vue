@@ -12,7 +12,7 @@
         @savingError="$emit('savingError', $event)"
         @deleted="$emit('deleted', $event)">
 
-      <template slot="additional-buttons">
+      <template #additional-buttons>
         <b-button variant="secondary"
                   @click.prevent="hide">{{ $t('pool.cancel') }}
         </b-button>
@@ -24,7 +24,7 @@
 </template>
 
 <script>
-import {BButton, BModal} from 'bootstrap-vue'
+import {BButton, BModal} from '@/adapters/bootstrap'
 import KeywordEdit       from "../../keyword/keywordEdit";
 
 

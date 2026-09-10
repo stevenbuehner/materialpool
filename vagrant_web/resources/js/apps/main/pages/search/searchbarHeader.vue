@@ -31,6 +31,7 @@
 </template>
 
 <script>
+import {deleteReactive, setReactive} from '@/adapters/reactivity';
 
 import searchInput      from '../../../../components/search/searchInput.vue';
 import OptimizeKeywords from "../../../../components/modals/selectors/optimizeKeywordSearch";
@@ -100,7 +101,7 @@ export default {
 
       const needsUpdateMaterials = this.searchParams[idParam] && this.searchParams[idParam].values && this.searchParams[idParam].values.length > 0;
 
-      this.$delete(this.searchParams, idParam);
+      deleteReactive(this.searchParams, idParam);
 
       if (needsUpdateMaterials) {
         this.emitSearchUpdated();
@@ -116,7 +117,7 @@ export default {
       });
       nextCounter++;
 
-      this.$set(this.searchParams, nextCounter, getNewSearchParam(nextCounter));
+      setReactive(this.searchParams, nextCounter, getNewSearchParam(nextCounter));
 
       // Don't emit. Because then the unneccessary lines will be removed again
       // this.emitSearchUpdated(undefined, nextCounter);

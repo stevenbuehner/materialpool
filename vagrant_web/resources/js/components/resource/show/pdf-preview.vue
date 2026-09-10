@@ -30,7 +30,7 @@
 <script>
 
 import {pdfPreviewImageForPage} from '../../serverRoutes';
-import {BImg}                   from 'bootstrap-vue';
+import {BImg}                   from '@/adapters/bootstrap';
 import pdfMixin                 from '../pdf-mixin';
 import resourcePreviewZoom      from '../resource-preview-zoom';
 import resourcePreview          from '../resource-preview.mixin';

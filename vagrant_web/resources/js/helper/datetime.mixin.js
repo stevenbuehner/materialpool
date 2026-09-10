@@ -16,59 +16,40 @@ dayJS.extend(relativeTime);
 dayJS.locale(lang);
 
 
+export function dayjs(value, customFormat) {
+	return (customFormat !== undefined) ? dayJS(value, customFormat) : dayJS(value);
+}
+
+export function format(dayjsValue, formatPattern) {
+	return dayjsValue.format(formatPattern);
+}
+
+export function recentOrFormat(dayjsValue, hours, formatPattern) {
+
+	hours         = hours || 24 * 7;
+	formatPattern = formatPattern || 'LLL';
+
+	if ((Math.abs(dayjsValue.clone().diff(dayJS(), 'hour'))) > hours) {
+		return dayjsValue.format(formatPattern);
+	}
+
+	return dayjsValue.fromNow();
+}
+
+export function fromNow(dayjsValue) {
+	return dayjsValue.fromNow();
+}
+
+export function toNow(dayjsValue) {
+	return dayjsValue.toNow();
+}
+
 export const formatLocalizedDate = {
-	filters: {
-
-		/**
-		 * Parse String to dayJs Object
-		 *
-		 * @param  value String {string}
-		 * @param customFormat {string}
-		 * @return {dayJS}
-		 */
-		dayjs(value, customFormat) {
-			return (customFormat !== undefined) ? dayJS(value, customFormat) : dayJS(value);
-		},
-
-		/**
-		 *
-		 * @param dayjs {dayJS}
-		 * @param format {string}
-		 * @return {string}
-		 */
-		format(dayjs, format) {
-			return dayjs.format(format);
-		},
-
-		recentOrFormat(dayjs, hours, format) {
-
-			hours  = hours || 24 * 7;
-			format = format || 'LLL';
-
-			if ((Math.abs(dayjs.clone().diff(dayJS(), 'hour'))) > hours) {
-				return dayjs.format(format);
-			} else {
-				return dayjs.fromNow();
-			}
-
-		},
-
-		/**
-		 *
-		 * @param dayjs {dayJS}
-		 * @return {string}
-		 */
-		fromNow(dayjs) {
-			return dayjs.fromNow();
-		},
-
-		/**
-		 *
-		 * @param dayjs {dayJS}
-		 * @return {string}
-		 */
-		toNow(dayjs) {
-			return dayjs.toNow();
-		}
+	methods: {
+		dayjs,
+		format,
+		fromNow,
+		recentOrFormat,
+		toNow,
 	}
 };

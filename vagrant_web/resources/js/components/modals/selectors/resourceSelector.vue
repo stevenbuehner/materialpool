@@ -5,7 +5,7 @@
            ref="myModal"
            @hide="_cancelPromise"
   >
-    <template slot="modal-footer">
+    <template #modal-footer>
       <button type="button" class="btn btn-danger btn-sm" @click="hide">{{ $t('pool.Cancel') }}</button>
     </template>
 
@@ -96,7 +96,7 @@
 
 <script>
 
-import {BAlert, BButton, BForm, BFormCheckbox, BFormGroup, BFormInput, BFormSelect, BModal} from 'bootstrap-vue';
+import {BAlert, BButton, BForm, BFormCheckbox, BFormGroup, BFormInput, BFormSelect, BModal} from '@/adapters/bootstrap';
 import _debounce                                                                            from 'lodash/debounce';
 import MaterialpoolSpinner
                                                                                             from "../../spinner/materialpool-spinner";

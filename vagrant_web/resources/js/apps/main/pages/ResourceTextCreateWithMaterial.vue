@@ -63,7 +63,7 @@
 
 <script>
 
-import {BFormGroup, BFormInput, BFormTextarea} from 'bootstrap-vue';
+import {BFormGroup, BFormInput, BFormTextarea} from '@/adapters/bootstrap';
 import CustomDialog                            from "../../../components/modals/dialogs/customDialog";
 import CompiledMarkdown                        from "../../../components/markdown/compiledMarkdown";
 

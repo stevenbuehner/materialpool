@@ -116,7 +116,7 @@
 </template>
 
 <script>
-import {BButton, BFormInput, BFormSelect} from 'bootstrap-vue';
+import {BButton, BFormInput, BFormSelect} from '@/adapters/bootstrap';
 import Keyword                            from "./keyword";
 import MaterialpoolSpinner                from "../spinner/materialpool-spinner";
 

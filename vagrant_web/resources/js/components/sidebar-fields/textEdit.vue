@@ -89,16 +89,12 @@
 </template>
 
 <script>
-import Vue                                            from 'vue';
-import {BButton, FormInputPlugin, FormTextareaPlugin} from 'bootstrap-vue';
+import {BButton}                                      from '@/adapters/bootstrap';
 import textFieldIcon                                  from 'svg-icon/dist/svg/material/text-fields.svg'
 import generalMixin                                   from './generalSidebarFields.mixin';
 import Datepicker                                     from '../datepicker/datepicker';
 import {server_datetime_format}                       from "../../apps/config";
 import {moment}                                       from "../../apps/main/localisation";
-
-Vue.use(FormTextareaPlugin);
-Vue.use(FormInputPlugin);
 
 export default {
   name: "textEdit",

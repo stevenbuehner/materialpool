@@ -34,7 +34,7 @@
 
 
 <script>
-import {BFormInput, BFormSelect, BModal}                              from 'bootstrap-vue';
+import {BFormInput, BFormSelect, BModal}                              from '@/adapters/bootstrap';
 import contextMenu                                                    from '../context-menu/context-menu.vue';
 import contextMenuItem                                                from "../context-menu/context-menu-item.vue";
 import {keywordSearchLink}                                            from '../serverRoutes';

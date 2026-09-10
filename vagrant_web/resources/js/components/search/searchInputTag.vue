@@ -42,7 +42,7 @@
 
 import searchInputTag_include from "./searchInputTag_include";
 import {preloadedIcon}        from "../keyword/keywordDefaultIcons";
-import {BBadge}               from 'bootstrap-vue'
+import {BBadge}               from '@/adapters/bootstrap'
 
 export default {
   name: "searchInputTag",

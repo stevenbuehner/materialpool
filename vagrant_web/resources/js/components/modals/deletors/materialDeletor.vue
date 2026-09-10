@@ -5,7 +5,7 @@
            ref="myModal"
            @hide="_cancelPromise"
   >
-    <template slot="modal-footer">
+    <template #modal-footer>
 
       <b-button v-if="!materialIsReloading && material && material.resources.length === 0"
                 variant="danger" size="sm" @click="_deleteThisMaterial">
@@ -87,7 +87,7 @@
 </template>
 <script>
 
-import {BAlert, BButton, BFormGroup, BModal} from 'bootstrap-vue';
+import {BAlert, BButton, BFormGroup, BModal} from '@/adapters/bootstrap';
 import MaterialpoolSpinner                   from "../../spinner/materialpool-spinner";
 import {savingDialogs}                       from "../../../helper/flashMessages";
 
