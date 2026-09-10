@@ -196,9 +196,22 @@ export default {
     return {
       isLoading: false,
       errorMsg: null,
+      resource: null,
 
       forceReload: 0,
     };
+  },
+
+  watch: {
+    id: {
+      immediate: true,
+      handler() {
+        this.loadResource();
+      },
+    },
+    forceReload() {
+      this.loadResource();
+    },
   },
 
   computed: {
@@ -224,30 +237,25 @@ export default {
     }
   },
 
-  asyncComputed: {
-    resource: {
-      get() {
-        this.isLoading = true;
-
-        return this.$store.dispatch('resources/get', this.id)
-                   .then((data) => {
-                     this.errorMsg  = null;
-                     this.isLoading = false;
-                     return data;
-                   })
-                   .catch((message) => {
-                     this.errorMsg  = message;
-                     this.isLoading = false;
-                   });
-      },
-      default: null,
-      watch() {
-        this.forceReload
-      }
-    }
-  },
-
   methods: {
+    loadResource() {
+      this.isLoading = true;
+
+      return this.$store.dispatch('resources/get', this.id)
+          .then((data) => {
+            this.resource = data;
+            this.errorMsg = null;
+            return data;
+          })
+          .catch((message) => {
+            this.resource = null;
+            this.errorMsg = message;
+          })
+          .finally(() => {
+            this.isLoading = false;
+          });
+    },
+
     btnAddMaterialToResource() {
 
       this.$refs.materialSelector.showPromise().then((material) => {

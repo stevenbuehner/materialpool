@@ -350,6 +350,156 @@ test('Vue 3 select keeps asynchronous search and object selection', async ({page
     expect(pageErrors).toEqual([]);
 });
 
+test('Resource detail cards and multi-page pagination keep their application contracts', async ({page}) => {
+    const pageErrors = [];
+    const consoleErrors = [];
+    const unexpectedWarnings = [];
+    page.on('pageerror', error => pageErrors.push(error.stack || error.message));
+    page.on('console', message => {
+        if (message.type() === 'error') consoleErrors.push(message.text());
+        if (message.type() === 'warning' && !message.text().startsWith('[Vue warn]: (deprecation ')) {
+            unexpectedWarnings.push(message.text());
+        }
+    });
+
+    let initialRoute = '/resource/42';
+    await page.route('**/vue/**', route => {
+        return route.fulfill({
+            contentType: 'text/html',
+            body: `<!doctype html>
+                <html lang="de">
+                    <head>
+                        <meta charset="utf-8">
+                        <meta name="viewport" content="width=device-width, initial-scale=1">
+                        <title>Materialpool Resource and Pagination Test</title>
+                        <link rel="stylesheet" href="/css/main.css">
+                    </head>
+                    <body>
+                        <div id="app"></div>
+                        <script>
+                            window.Laravel = {csrfToken: 'synthetic-csrf-token'};
+                            window.materialpool = {route: ${JSON.stringify(initialRoute)}, store: {materials: []}};
+                        </script>
+                        <script src="/js/main_build.js"></script>
+                    </body>
+                </html>`,
+        });
+    });
+    await page.route('**/api/**', async route => {
+        const requestUrl = new URL(route.request().url());
+        const pathname = requestUrl.pathname;
+
+        if (pathname === '/api/v1/general/options') {
+            await route.fulfill({
+                contentType: 'application/json',
+                body: JSON.stringify({
+                    systemname: 'MaterialPool Default',
+                    server: {max_upload: 10485760},
+                    user: {
+                        id: 1,
+                        name: 'Synthetic User',
+                        email: 'synthetic@example.invalid',
+                        is_admin: false,
+                        frontend_user_settings: {},
+                    },
+                }),
+            });
+            return;
+        }
+
+        if (pathname === '/api/v1/resources/42') {
+            await route.fulfill({
+                contentType: 'application/json',
+                body: JSON.stringify({
+                    id: 42,
+                    type: 'text',
+                    original_filename: 'synthetic-resource.txt',
+                    content: '# Synthetic resource\n\nStable content.',
+                    notes: 'Stable note',
+                    remote_path: '',
+                    is_public: false,
+                    materials: [],
+                    creator: null,
+                    created_at: '2026-09-01 12:00:00',
+                    updated_at: '2026-09-02 13:00:00',
+                    content_hash: 'synthetic-content-hash',
+                    filesize: 1024,
+                    page_count: null,
+                }),
+            });
+            return;
+        }
+
+        if (pathname === '/api/v1/materials') {
+            const pageNumber = Number.parseInt(requestUrl.searchParams.get('page') || '1', 10);
+            await route.fulfill({
+                contentType: 'application/json',
+                body: JSON.stringify({
+                    data: [{
+                        id: 70 + pageNumber,
+                        title: `Synthetic material page ${pageNumber}`,
+                        description: 'Stable material description',
+                        author: null,
+                        from_bot: false,
+                        icon_of_bundle: null,
+                        resources: [{id: 42, type: 'text'}],
+                        keywords: [],
+                        bibleverses: [],
+                    }],
+                    current_page: pageNumber,
+                    last_page: 12,
+                    per_page: 1,
+                    total: 12,
+                }),
+            });
+            return;
+        }
+
+        await route.fulfill({contentType: 'application/json', body: '[]'});
+    });
+
+    await page.goto('/vue/');
+    await page.waitForTimeout(100);
+    expect(pageErrors).toEqual([]);
+    expect(consoleErrors).toEqual([]);
+    expect(unexpectedWarnings).toEqual([]);
+    const resourceCard = page.locator('.resource > .card');
+    await expect(resourceCard).toBeVisible();
+    await expect(resourceCard.getByRole('heading', {name: 'synthetic-resource.txt'})).toBeVisible();
+    await expect(resourceCard.getByRole('heading', {name: 'Synthetic resource'})).toBeVisible();
+    await resourceCard.getByRole('tab', {name: 'MetaInfo'}).click();
+    await expect(resourceCard).toContainText('synthetic-content-hash');
+    await expect(page).toHaveScreenshot('resource-detail.png', {
+        animations: 'disabled',
+        caret: 'hide',
+    });
+
+    initialRoute = '/material?page=6';
+    await page.goto('/vue/');
+    await page.waitForTimeout(100);
+    expect(pageErrors).toEqual([]);
+    expect(consoleErrors).toEqual([]);
+    expect(unexpectedWarnings).toEqual([]);
+    const materialCard = page.locator('.materialpool-card-columns > .card.resource');
+    await expect(materialCard).toBeVisible();
+    await expect(materialCard).toContainText('Synthetic material page 6');
+    const pagination = page.locator('.pagination');
+    await expect(pagination.locator('.page-item.active')).toHaveText('6');
+    await expect(pagination.locator('[role="separator"]')).toHaveCount(1);
+    await pagination.getByRole('link', {name: '7', exact: true}).click();
+    await expect(page).toHaveURL(/\/vue\/material\?page=7$/);
+    await expect(materialCard).toContainText('Synthetic material page 7');
+    await expect(pagination.locator('.page-item.active')).toHaveText('7');
+    await expect(page).toHaveScreenshot('material-pagination.png', {
+        animations: 'disabled',
+        caret: 'hide',
+    });
+
+    expect(pageErrors).toEqual([]);
+    expect(consoleErrors).toEqual([]);
+    expect(unexpectedWarnings).toEqual([]);
+});
+
 test('Vue 3 uploader keeps multipart success and error handling', async ({page}) => {
     const pageErrors = [];
     const uploadRequests = [];
