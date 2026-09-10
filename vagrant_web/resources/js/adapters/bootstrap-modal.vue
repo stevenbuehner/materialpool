@@ -122,10 +122,16 @@ export default {
             this.localVisible = false;
             this.emitModel(false);
             this.releaseBody();
+            const returnFocusTo = this.returnFocusTo;
+            this.returnFocusTo = null;
             this.$nextTick(() => {
                 this.$emit('hidden', event);
-                this.returnFocusTo?.focus?.();
-                this.returnFocusTo = null;
+                const restoreFocus = () => returnFocusTo?.focus?.();
+                if (typeof window.requestAnimationFrame === 'function') {
+                    window.requestAnimationFrame(restoreFocus);
+                } else {
+                    restoreFocus();
+                }
             });
         },
         close() {

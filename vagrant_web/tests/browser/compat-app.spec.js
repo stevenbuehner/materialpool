@@ -106,6 +106,11 @@ test('Vue application mounts with synthetic bootstrap data', async ({page}, test
     await expect(accountMenu).toBeHidden();
     await expect(accountToggle).toBeFocused();
 
+    await accountToggle.click();
+    await expect(accountMenu).toBeVisible();
+    await page.mouse.click(10, page.viewportSize().height - 10);
+    await expect(accountMenu).toBeHidden();
+
     await expect(speedSearch).toHaveClass(/form-control-sm/);
     await speedSearch.fill('Gamma');
     await page.locator('form').filter({has: speedSearch}).getByRole('button', {name: 'Suchen'}).click();
@@ -121,6 +126,8 @@ test('Vue application mounts with synthetic bootstrap data', async ({page}, test
 
 test('Vue 3 datepicker keeps the German input and calendar interaction', async ({page}) => {
     const pageErrors = [];
+    const attachRequests = [];
+    let returnResourceSuggestion = false;
     page.on('pageerror', error => pageErrors.push(error.stack || error.message));
 
     await page.route('**/vue/**', async route => {
@@ -195,14 +202,60 @@ test('Vue 3 datepicker keeps the German input and calendar interaction', async (
         }
 
         if (pathname === '/api/v1/resources/find') {
+            const resources = returnResourceSuggestion ? [{
+                id: 99,
+                type: 'text',
+                notes: 'Synthetic selectable resource',
+                content: 'Selected resource content',
+                original_filename: 'selected-resource.txt',
+                materials: [],
+            }] : [];
             await route.fulfill({
                 contentType: 'application/json',
                 body: JSON.stringify({
-                    data: [],
+                    data: resources,
                     current_page: 1,
                     last_page: 1,
                     per_page: 20,
-                    total: 0,
+                    total: resources.length,
+                }),
+            });
+            return;
+        }
+
+        if (pathname === '/api/v2/material/1/resource/99/attach' && route.request().method() === 'POST') {
+            attachRequests.push(route.request().postData() || '');
+            const selectedResource = {
+                id: 99,
+                type: 'text',
+                notes: 'Synthetic selectable resource',
+                content: 'Selected resource content',
+                original_filename: 'selected-resource.txt',
+                remote_path: '',
+                is_public: false,
+                filesize: 512,
+                materials: [],
+            };
+            await route.fulfill({
+                contentType: 'application/json',
+                body: JSON.stringify({
+                    material: {
+                        id: 1,
+                        title: 'Testmaterial',
+                        description: '',
+                        rating: 10,
+                        flag: null,
+                        author: null,
+                        creator: null,
+                        from_bot: false,
+                        created_at: '2026-09-01 12:00:00',
+                        updated_at: '2026-09-01 12:00:00',
+                        resources: [selectedResource],
+                        keywords: [],
+                        bibleverses: [],
+                        foreign_ids: [],
+                    },
+                    resource: selectedResource,
                 }),
             });
             return;
@@ -260,11 +313,23 @@ test('Vue 3 datepicker keeps the German input and calendar interaction', async (
         caret: 'hide',
     });
 
-    await page.keyboard.press('Escape');
+    await modal.click({position: {x: 2, y: 2}});
     await expect(modal).toBeHidden();
     await expect(page.locator('.modal-backdrop.show')).toHaveCount(0);
     await expect(page.locator('body')).not.toHaveClass(/\bmodal-open\b/);
     await expect(assignButton).toBeFocused();
+
+    returnResourceSuggestion = true;
+    await assignButton.click();
+    await expect(modal).toBeVisible();
+    await modal.locator('#resourceid').fill('99');
+    const selectableResource = modal.locator('li.resource').filter({hasText: 'Synthetic selectable resource'});
+    await expect(selectableResource).toBeVisible();
+    await selectableResource.click();
+    await expect.poll(() => attachRequests.length).toBe(1);
+    await expect(modal).toBeHidden();
+    await expect(page.locator('body')).not.toHaveClass(/\bmodal-open\b/);
+    await expect(page.locator('.resourceDetail')).toContainText('Selected resource content');
     expect(pageErrors).toEqual([]);
 });
 
