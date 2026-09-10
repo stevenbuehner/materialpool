@@ -39,4 +39,3 @@ export {default as BNavbarToggle} from './bootstrap-navbar-toggle.vue';
 export {default as BNavForm} from './bootstrap-nav-form.vue';
 export {default as BNavItem} from './bootstrap-nav-item.vue';
 export {default as BModal} from './bootstrap-modal.vue';
-export * from 'bootstrap-vue';
