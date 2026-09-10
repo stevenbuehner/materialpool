@@ -260,3 +260,148 @@ test('Vue 3 select keeps asynchronous search and object selection', async ({page
     await expect(page).toHaveURL(/\/vue\/search\/1\*Alpha$/);
     expect(pageErrors).toEqual([]);
 });
+
+test('Vue 3 uploader keeps multipart success and error handling', async ({page}) => {
+    const pageErrors = [];
+    const uploadRequests = [];
+    let rejectUpload = false;
+    page.on('pageerror', error => pageErrors.push(error.stack || error.message));
+
+    await page.route('**/vue/**', route => route.fulfill({
+        contentType: 'text/html',
+        body: `<!doctype html>
+            <html lang="de">
+                <head>
+                    <meta charset="utf-8">
+                    <title>Materialpool Upload Test</title>
+                    <link rel="stylesheet" href="/css/main.css">
+                </head>
+                <body>
+                    <div id="app"></div>
+                    <script>
+                        window.Laravel = {csrfToken: 'synthetic-csrf-token'};
+                        window.materialpool = {
+                            route: '/resource/create',
+                            store: {materials: []},
+                        };
+                    </script>
+                    <script src="/js/main_build.js"></script>
+                </body>
+            </html>`,
+    }));
+    await page.route('**/api/**', async route => {
+        const request = route.request();
+        const pathname = request.url()
+            .replace(/^https?:\/\/[^/]+/, '')
+            .split('?')[0];
+
+        if (pathname === '/api/v1/general/options') {
+            await route.fulfill({
+                contentType: 'application/json',
+                body: JSON.stringify({
+                    systemname: 'MaterialPool Default',
+                    server: {max_upload: 10485760},
+                    user: {
+                        id: 1,
+                        name: 'Synthetic User',
+                        email: 'synthetic@example.invalid',
+                        is_admin: false,
+                        frontend_user_settings: {},
+                    },
+                }),
+            });
+            return;
+        }
+
+        if (pathname === '/api/v1/resources' && request.method() === 'POST') {
+            uploadRequests.push({
+                body: request.postData() || '',
+                csrf: request.headers()['x-csrf-token'],
+            });
+
+            if (rejectUpload) {
+                await route.fulfill({
+                    status: 422,
+                    contentType: 'application/json',
+                    body: JSON.stringify({error: ' pencils are not supported'}),
+                });
+                return;
+            }
+
+            await route.fulfill({
+                status: 201,
+                contentType: 'application/json',
+                body: JSON.stringify({
+                    id: 90 + uploadRequests.length,
+                    type: 'file',
+                    title: 'synthetic-upload.txt',
+                }),
+            });
+            return;
+        }
+
+        await route.fulfill({contentType: 'application/json', body: '[]'});
+    });
+
+    await page.goto('/vue/resource/create');
+
+    const uploadArea = page.locator('.resourceUploader .v-transmit__upload-area');
+    const fileInput = page.locator('.resourceUploader input[type="file"]');
+    const selectFileButton = page.getByRole('button', {
+        name: 'Datei hier fallen lassen um neue Resource zu erstellen',
+    });
+    await expect(uploadArea).toBeVisible();
+    await expect(uploadArea).toHaveCSS('border-top-style', 'dashed');
+    await expect(selectFileButton).toBeVisible();
+    await uploadArea.dispatchEvent('dragenter');
+    await expect(uploadArea).toHaveClass(/v-transmit__upload-area--is-dragging/);
+    await uploadArea.dispatchEvent('dragleave');
+    await expect(uploadArea).not.toHaveClass(/v-transmit__upload-area--is-dragging/);
+    const autoCreateCheckbox = page.getByRole('checkbox', {name: 'Erstelle Material automatisch'});
+    await page.locator('label', {hasText: 'Erstelle Material automatisch'}).click();
+    await expect(autoCreateCheckbox).not.toBeChecked();
+    await fileInput.setInputFiles([
+        {
+            name: 'synthetic-upload-a.txt',
+            mimeType: 'text/plain',
+            buffer: Buffer.from('synthetic upload contents a'),
+        },
+        {
+            name: 'synthetic-upload-b.txt',
+            mimeType: 'text/plain',
+            buffer: Buffer.from('synthetic upload contents b'),
+        },
+    ]);
+    await expect.poll(() => uploadRequests.length).toBe(2);
+    await expect(selectFileButton).toBeVisible();
+    expect(uploadRequests.map(request => request.body).join('\n')).toContain('synthetic-upload-a.txt');
+    expect(uploadRequests.map(request => request.body).join('\n')).toContain('synthetic-upload-b.txt');
+    expect(uploadRequests[0].csrf).toBe('synthetic-csrf-token');
+
+    rejectUpload = true;
+    await page.goto('/vue/resource/create');
+    const reloadedCheckbox = page.getByRole('checkbox', {name: 'Erstelle Material automatisch'});
+    await page.locator('label', {hasText: 'Erstelle Material automatisch'}).click();
+    await expect(reloadedCheckbox).not.toBeChecked();
+    await fileInput.setInputFiles({
+        name: 'rejected-upload.txt',
+        mimeType: 'text/plain',
+        buffer: Buffer.from('synthetic rejected upload'),
+    });
+    await expect(page.locator('.resourceUploader .alert-danger')).toBeVisible();
+    await expect(page.locator('.resourceUploader .errorStatusCode')).toContainText('422');
+    await expect(page.locator('.resourceUploader .errorMessage')).toContainText('Error during upload');
+    await page.getByRole('button', {name: 'nochmal versuchen'}).click();
+    await expect(selectFileButton).toBeVisible();
+
+    rejectUpload = false;
+    await fileInput.setInputFiles({
+        name: 'successful-retry.txt',
+        mimeType: 'text/plain',
+        buffer: Buffer.from('synthetic successful retry'),
+    });
+    await expect.poll(() => uploadRequests.length).toBe(4);
+    await expect(selectFileButton).toBeVisible();
+    expect(uploadRequests[3].body).toContain('successful-retry.txt');
+    expect(pageErrors).toEqual([]);
+});

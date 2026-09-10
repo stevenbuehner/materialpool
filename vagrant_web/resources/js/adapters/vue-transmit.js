@@ -1,1 +1,1 @@
-export { VueTransmit } from 'vue-transmit/dist/vue-transmit.esm.min';
+export {default as VueTransmit} from './vue-transmit.vue';

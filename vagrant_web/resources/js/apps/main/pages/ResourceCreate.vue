@@ -11,7 +11,10 @@
       </resource-uploader>
 
       <div class="options mt-2">{{ $t('pool.Additional-Options') }}:</div>
-      <b-form-checkbox v-model="autocreateMaterial">{{ $t('pool.auto-create-material') }}</b-form-checkbox>
+      <b-form-checkbox
+          :checked="autocreateMaterial"
+          @input="autocreateMaterial = $event"
+      >{{ $t('pool.auto-create-material') }}</b-form-checkbox>
     </div>
 
     <b-alert variant="info" :show="materialCreationRunning && !error">{{ $t('pool.material-is-beeing-generated') }}

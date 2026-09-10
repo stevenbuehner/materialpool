@@ -21,8 +21,8 @@
       </div>
 
       <template #files="props">
-        <template v-for="(file, i) in props.files" :key="file.id">
-          <div v-if="file.status !== 'success'" :class="{'mt-5': i === 0}">
+        <template v-for="(file, i) in props.files">
+          <div v-if="file.status !== 'success'" :key="file.id" :class="{'mt-5': i === 0}">
             <h4>{{ file.name }}</h4>
             <div class="progress" style="width: 100%;">
               <div class="progress-bar bg-success"
@@ -62,6 +62,8 @@ export default {
       }
     }
   },
+
+  emits: ['resource-created', 'multiple-resources-created'],
 
   data() {
     return {
@@ -117,7 +119,7 @@ export default {
       }
     },
 
-    onProcessing(file) {
+    onProcessing(_file) {
       this.uploadRunning = true;
     },
 
@@ -126,7 +128,7 @@ export default {
       this.$emit('resource-created', resource);
     },
 
-    onQueueComplete(file, resource) {
+    onQueueComplete(_file, _resource) {
       this.$emit('multiple-resources-created', this.createdResources);
       this.createdResources = [];
       this.uploadRunning    = false;

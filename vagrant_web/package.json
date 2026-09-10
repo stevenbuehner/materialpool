@@ -51,7 +51,6 @@
     "vue-async-computed": "4.0.1",
     "vue-router": "4.6.4",
     "vue-star-rating": "2.1.0",
-    "vue-transmit": "9.0.0-alpha.11",
     "vuex": "4.1.0"
   },
   "devDependencies": {
