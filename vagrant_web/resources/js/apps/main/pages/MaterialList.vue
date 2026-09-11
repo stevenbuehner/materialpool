@@ -19,6 +19,7 @@
 <script>
 import MaterialCardListing from "../../../components/Material/MaterialCardListing.vue";
 import {BPaginationNav}    from '@/adapters/bootstrap';
+import {useMaterialPagesStore} from '../stores/materialPages';
 
 export default {
 
@@ -53,7 +54,7 @@ export default {
       if (this.current_page !== pageNo) {
 
         this.materials = [];
-        this.$store.dispatch('materialapp/getMaterialPage', pageNo)
+        useMaterialPagesStore().getMaterialPage(pageNo)
             .then((data) => {
 
               this.materials = data.data;

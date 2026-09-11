@@ -1,6 +1,6 @@
 # Vue-3-Migration – Stufe 6: Vuex zu Pinia
 
-Status: In Arbeit. Die Migration erfolgt Store für Store; jeder Abschnitt nennt den alleinigen schreibenden Store, seine migrierten Konsumenten und die Abnahme. Dieser Bericht ergänzt den verbindlichen [Vue-3-Migrationsvertrag](vue-3-migration-contract.md). Letzter vollständig committeter Teilstufenstand ist 6.11 (`d8b5990c`).
+Status: In Arbeit. Die Migration erfolgt Store für Store; jeder Abschnitt nennt den alleinigen schreibenden Store, seine migrierten Konsumenten und die Abnahme. Dieser Bericht ergänzt den verbindlichen [Vue-3-Migrationsvertrag](vue-3-migration-contract.md). Letzter vollständig committeter Teilstufenstand ist 6.12 (`78a55c7c`).
 
 ## Pinia-Basis und Parallelbetrieb
 
@@ -173,6 +173,16 @@ Abnahme: Production-Build mit 967 transformierten Modulen, 31 Vitest-Dateien mit
 
 Rückbau: Der gemeinsame Teilstufencommit muss als Einheit zurückgebaut werden. Er registriert beide Vuex-Module erneut, stellt die 52 Zugriffe einschließlich der Cross-Writer und der gerichteten Writer aus `search`, `materialapp` und App-Bootstrap wieder her und entfernt beide Pinia-Stores und ihre Tests. Die bereits migrierten fachfremden Pinia-Stores bleiben unabhängig.
 
+## Teilstufe 6.13 – Materialseiten
+
+`materialapp` war nach Teilstufe 6.12 ein isolierter Seitencache: Er lädt `/api/v1/materials?page=…`, speichert die vollständige Laravel-Paginator-Antwort pro Seitenschlüssel und übergibt deren Materialpreviews an den allein schreibenden Pinia-Store `materials`. `useMaterialPagesStore` erhält Request, rohe Fehlerweitergabe, Seitenschlüssel und Response-Body unverändert. Der einzige Komponenten-Konsument `MaterialList.vue` verwendet Pinia; Vuex-Modul und Root-Registrierung sind entfernt.
+
+Zwei Unit-Tests schützen einmaligen Abruf, Cachetreffer, Requestparameter, Preview-Übergabe ohne fälschliches Detailflag sowie die semantisch wichtige Property-Prüfung: Auch ein explizit falsy gespeicherter Seitenwert gilt als vorhanden und löst keinen Request aus. `Object.hasOwn` ersetzt dabei nur den warnenden direkten Prototypzugriff.
+
+Abnahme: Production-Build mit 967 transformierten Modulen, 32 Vitest-Dateien mit 118/118 Tests, ESLint mit 0 Fehlern und 207 bekannten Warnungen, Frontend-Inventar und Diff-Check sind grün. Die bestehende Resource-/Materiallisten-Reise prüft initiale Seite 6, Navigation auf Seite 7, sichtbare Inhalte, aktive Pagination und unveränderte Screenshots in Desktop- und Mobile-WebKit (2/2). Backend-Route, Authentifizierung, Query, Pagination und Daten wurden nicht verändert. Das Inventar meldet keine Vue-2-/Compat-Muster und noch exakt 2 registrierte Vuex-Module.
+
+Rückbau: Der Teilstufencommit registriert das Vuex-Modul erneut, stellt den Dispatch in `MaterialList.vue` wieder her und entfernt Pinia-Store und Unit-Tests. Der bereits migrierte Materialstore bleibt bestehen; wie in Teilstufe 6.12 wird der gerichtete Preview-Writer beim Rückbau weiterhin direkt an Pinia übergeben.
+
 ## Noch zu migrieren
 
-Nach Teilstufe 6.12 verbleiben 3 registrierte Vuex-Module: `materialapp`, `search` und `general`. Da Materialdaten jetzt ausschließlich Pinia gehören, können `materialapp` und `search` nacheinander ohne Cross-Store-Brücke migriert werden. `general` bleibt bis nach den fachlichen Stores; Vuex wird erst nach dessen letztem Konsumenten entfernt.
+Nach Teilstufe 6.13 verbleiben 2 registrierte Vuex-Module: `search` und `general`. `search` kann nun ohne Cross-Store-Brücke migriert werden; `general` bleibt bis nach dem fachlichen Store. Vuex wird erst nach dessen letztem Konsumenten entfernt.
