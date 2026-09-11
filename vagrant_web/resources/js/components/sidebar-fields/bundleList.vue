@@ -26,6 +26,7 @@
 <script>
 import generalMixin  from './generalSidebarFields.mixin';
 import extensionIcon from '@icons/vendor/svg-icon/svg/material/extension.svg';
+import {useBundlesStore} from '../../apps/main/stores/bundles';
 
 
 export default {
@@ -50,7 +51,7 @@ export default {
       get() {
         if (this.hasBundleIds) {
           const bundlePromiseArray = this.value.map((bundleId) => {
-                return this.$store.dispatch('bundles/getBundleById', bundleId);
+                return useBundlesStore().getBundleById(bundleId);
               }
           );
 

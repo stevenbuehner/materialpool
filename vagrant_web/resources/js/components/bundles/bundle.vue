@@ -81,6 +81,7 @@
 <script>
 import {BButton, BCard, BListGroup, BListGroupItem, BProgress, BProgressBar} from '@/adapters/bootstrap'
 import {formatLocalizedDate}                                                 from "../../helper/datetime.mixin";
+import {useBundlesStore}                                                     from '../../apps/main/stores/bundles';
 
 
 export default {
@@ -159,14 +160,14 @@ export default {
 
         if (this.forceBundleUpdate === true) {
           console.log('FORCE reloading bundle');
-          this.$store.dispatch('bundles/allBundles', this.forceBundleUpdate)
+          useBundlesStore().allBundles(this.forceBundleUpdate)
               .then(() => {
                 console.log('FORCE reloaded bundle');
                 this.forceBundleUpdate = false;
               });
         }
 
-        return this.$store.dispatch('bundles/getBundle', this.uuid);
+        return useBundlesStore().getBundle(this.uuid);
       },
       default: null,
       watch() {
@@ -175,7 +176,7 @@ export default {
     },
     info: {
       get() {
-        return this.$store.dispatch('bundles/getBundleInfo', this.uuid);
+        return useBundlesStore().getBundleInfo(this.uuid);
       },
       default: null,
       watch() {
@@ -193,7 +194,7 @@ export default {
         this.current        = 100;
         this.isInitializing = true;
 
-        this.$store.dispatch('bundles/initUpdateJobs', this.bundle.id)
+        useBundlesStore().initUpdateJobs(this.bundle.id)
             .then(({deleteJobs, updateJobs, deletedJobs, openJobs, continueUpdate, updateAvailable}) => {
                   this.isInitializing = false;
                   this.max            = openJobs;
@@ -221,7 +222,7 @@ export default {
 
       this.isRunning = true;
 
-      return this.$store.dispatch('bundles/runJobs', this.bundle.id)
+      return useBundlesStore().runJobs(this.bundle.id)
                  .then(({done, open}) => {
                    this.max     = parseInt(Math.max(this.current + open + done, this.max));
                    this.current = parseInt(this.max - open);
@@ -257,7 +258,7 @@ export default {
         this.current        = 100;
         this.isInitializing = true;
 
-        this.$store.dispatch('bundles/initUninstallJobs', this.bundle.id)
+        useBundlesStore().initUninstallJobs(this.bundle.id)
             .then(({deleteJobs, updateJobs, deletedJobs, openJobs, continueUpdate, updateAvailable}) => {
                   this.isInitializing = false;
                   this.max            = openJobs;

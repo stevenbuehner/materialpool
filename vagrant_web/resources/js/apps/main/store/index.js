@@ -4,7 +4,6 @@ import materials                 from './modules/materials';
 import keywords                  from './modules/keywords';
 import search                    from './modules/search';
 import materialapp               from './modules/materialapp';
-import bundles                   from './modules/bundles';
 import general                   from './modules/general';
 import keywordsSuggestions       from './modules/keywordsSuggestions';
 
@@ -17,7 +16,6 @@ export const store = createStore({
 		keywords,
 		keywordsSuggestions,
 		search,
-		bundles,
 		general,
 	}
 });

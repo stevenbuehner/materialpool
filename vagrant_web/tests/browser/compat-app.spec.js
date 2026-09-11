@@ -369,6 +369,136 @@ test('Bible search optimization loads cross references through Pinia', async ({p
     expect(pageErrors).toEqual([]);
 });
 
+test('Bundle overview loads and completes an update through Pinia', async ({page}) => {
+    const pageErrors = [];
+    const updateRequests = [];
+    page.on('pageerror', error => pageErrors.push(error.stack || error.message));
+
+    await page.route('**/vue/**', route => route.fulfill({
+        contentType: 'text/html',
+        body: `<!doctype html>
+            <html lang="de">
+                <head>
+                    <meta charset="utf-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1">
+                    <title>Materialpool Bundle Store Test</title>
+                    ${viteStylesheetTags}
+                </head>
+                <body>
+                    <div id="app"></div>
+                    <script>
+                        window.Laravel = {csrfToken: 'synthetic-csrf-token'};
+                        window.materialpool = {route: '/bundle', store: {materials: []}};
+                    </script>
+                    ${viteScriptTag}
+                </body>
+            </html>`,
+    }));
+    await page.route('**/api/**', async route => {
+        const pathname = new URL(route.request().url()).pathname;
+
+        if (pathname === '/api/v1/general/options') {
+            await route.fulfill({
+                contentType: 'application/json',
+                body: JSON.stringify({
+                    systemname: 'MaterialPool Default',
+                    server: {max_upload: 10485760},
+                    user: {
+                        id: 1,
+                        name: 'Synthetic User',
+                        email: 'synthetic@example.invalid',
+                        is_admin: false,
+                        frontend_user_settings: {},
+                    },
+                }),
+            });
+            return;
+        }
+
+        if (pathname === '/api/v1/bundles' && route.request().method() === 'GET') {
+            await route.fulfill({
+                contentType: 'application/json',
+                body: JSON.stringify({
+                    bundles: [{
+                        id: 7,
+                        uuid: 'compat-bundle',
+                        name: 'Compat Bundle',
+                        author: 'Synthetic Author',
+                        description: 'Synthetic bundle description',
+                        installed_version: '1.0',
+                        update_available: true,
+                        is_installed: true,
+                        updated_at: '2026-09-01 12:00:00',
+                    }],
+                    infos: [{
+                        uuid: 'compat-bundle',
+                        version: '2.0',
+                        count_materials: 3,
+                        count_files: 4,
+                        exportDate: '2026-09-02 12:00:00',
+                    }],
+                }),
+            });
+            return;
+        }
+
+        if (pathname === '/api/v1/bundles/7/init-update') {
+            updateRequests.push({kind: 'init', options: route.request().postDataJSON()});
+            await route.fulfill({
+                contentType: 'application/json',
+                body: JSON.stringify({
+                    deleteJobs: 0,
+                    updateJobs: 1,
+                    deletedJobs: 0,
+                    openJobs: 1,
+                    continueUpdate: false,
+                    updateAvailable: true,
+                }),
+            });
+            return;
+        }
+
+        if (pathname === '/api/v1/bundles/7/run-update') {
+            updateRequests.push({kind: 'run', options: route.request().postDataJSON()});
+            await route.fulfill({
+                contentType: 'application/json',
+                body: JSON.stringify({
+                    done: 1,
+                    open: 0,
+                    bundle: {
+                        id: 7,
+                        uuid: 'compat-bundle',
+                        name: 'Compat Bundle',
+                        author: 'Synthetic Author',
+                        description: 'Synthetic bundle description',
+                        installed_version: '2.0',
+                        update_available: false,
+                        is_installed: true,
+                        updated_at: '2026-09-03 12:00:00',
+                    },
+                }),
+            });
+            return;
+        }
+
+        await route.fulfill({contentType: 'application/json', body: '[]'});
+    });
+
+    await page.goto('/vue/');
+
+    const bundleCard = page.locator('.card').filter({hasText: 'Compat Bundle'});
+    await expect(bundleCard).toContainText('Version 1.0');
+    await expect(bundleCard).toContainText('3 Materialien');
+    const updateButton = bundleCard.getByRole('button', {name: /update auf V2\.0 durchführen/i});
+    await updateButton.click();
+    await expect.poll(() => updateRequests.map(({kind}) => kind)).toEqual(['init', 'run']);
+    await expect(bundleCard).toContainText('Version 2.0');
+    await expect(updateButton).toHaveCount(0);
+    await expectResolvedNavigation(page);
+    expect(updateRequests.map(({options}) => options)).toEqual([{}, {}]);
+    expect(pageErrors).toEqual([]);
+});
+
 test('Vue 3 datepicker keeps the German input and calendar interaction', async ({page}) => {
     const pageErrors = [];
     const attachRequests = [];

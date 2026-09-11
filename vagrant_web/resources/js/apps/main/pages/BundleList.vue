@@ -8,6 +8,7 @@
 
 <script>
 import Bundle       from "../../../components/bundles/bundle.vue";
+import {useBundlesStore} from '../stores/bundles';
 
 
 export default {
@@ -24,7 +25,7 @@ export default {
   asyncComputed: {
     bundles: {
       get() {
-        return this.$store.dispatch('bundles/allBundles');
+        return useBundlesStore().allBundles();
       },
       default: null,
       /* watch() {

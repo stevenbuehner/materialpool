@@ -112,6 +112,18 @@ Abnahme: Production-Build mit 967 transformierten Modulen, 26 Vitest-Dateien mit
 
 Rückbau: Der Teilstufencommit registriert das frühere Vuex-Modul erneut, stellt die elf direkten Komponenten-Dispatches wieder her und entfernt Pinia-Store und Unit-Tests. Die bereits migrierten Stores für Bibeltexte, Übersetzungen und Querverweise bleiben unabhängig.
 
+## Teilstufe 6.9 – Bundles
+
+`bundles` verwaltet die gemeinsam geladene Liste installierter Bundles, lokale Bundle-Metadaten, Icons sowie die Initialisierung und schrittweise Ausführung von Update- und Deinstallationsjobs. Der Pinia-Port erhält den Drei-Zustands-Cache aus `null`, laufendem Promise und fertigem Array, die Zusammenführung paralleler Erstabrufe, erzwungenes Neuladen beider Listen, Lookup- und Fehlertexte, Icon-Promise-Caching, Requestpfade und `{timeout: 0}` sowie die Aktualisierung des vorhandenen Bundle-Objekts nach Abschluss der Queue. Alle vier Komponenten-Konsumenten verwenden Pinia; das Vuex-Modul und seine Root-Registrierung sind entfernt.
+
+Die etablierten Bezeichner `getAllBundeInfos` und die als erfüllte Werte zurückgegebenen konvertierten Fehler der Init-, Run- und Icon-Actions bleiben absichtlich erhalten. Damit ändert diese Teilstufe weder Komponentensteuerung noch Fehlerfluss. Backend-Routen, `auth:api`, Bundle-Dateien, Datenbank, Jobs und Queue-Zustand wurden nicht verändert. Die Browserabnahme fängt alle Bundle-Requests ab und führt daher keinen echten Import, keine echte Deinstallation und keinen Queue-Lauf aus.
+
+Acht Unit-Tests schützen parallelen Erstabruf, Force-Reload, UUID-Lookups samt exakten Fehlern, Update-/Uninstall-Initialisierung, erfüllten Fehlerwert, Run-Payload und Cache-Merge, Icon-Cache sowie ID-/Namenslookup einschließlich der historischen String-Rejection `not found`. Eine neue responsive Browserreise lädt die Bundle-Übersicht mit Metadaten, startet den vollständig gemockten Updateablauf, prüft Init- und Run-POSTs und verifiziert den sichtbaren Wechsel von Version 1.0 auf 2.0.
+
+Abnahme: Production-Build mit 967 transformierten Modulen, 27 Vitest-Dateien mit 84/84 Tests, ESLint mit 0 Fehlern und 258 bekannten Warnungen, Frontend-Inventar und Diff-Check sind grün. Die Bundle-Reise besteht in Desktop- und Mobile-WebKit. Das Inventar meldet keine Vue-2-/Compat-Muster und noch exakt 7 registrierte Vuex-Module. Die bekannten Sass-Deprecations und der Chunkgrößenhinweis bleiben unverändert.
+
+Rückbau: Der Teilstufencommit registriert das frühere Vuex-Modul erneut, stellt die neun direkten Komponenten-Dispatches wieder her und entfernt Pinia-Store, Tests und die isolierte Bundle-Browserreise. Andere Pinia-Slices bleiben unabhängig.
+
 ## Noch zu migrieren
 
-Nach Teilstufe 6.8 verbleiben 8 registrierte Vuex-Module: `resources`, `materials`, `materialapp`, `keywords`, `keywordsSuggestions`, `search`, `bundles` und `general`. Die Reihenfolge bleibt risikobasiert: weitere isolierbare Module folgen vor den gekoppelten Relations- und zentralen Material-/Resource-/General-Pfaden. Vuex wird erst nach dem letzten migrierten Konsumenten entfernt.
+Nach Teilstufe 6.9 verbleiben 7 registrierte Vuex-Module: `resources`, `materials`, `materialapp`, `keywords`, `keywordsSuggestions`, `search` und `general`. Die verbleibende Reihenfolge berücksichtigt nun ihre Kopplung: `keywords` vor `keywordsSuggestions`, `materials` und `resources` vor ihren schreibenden Sekundärstores `search` und `materialapp`, `general` nach den fachlichen Stores. Vuex wird erst nach dem letzten migrierten Konsumenten entfernt.

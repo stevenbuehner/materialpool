@@ -82,6 +82,7 @@ import {material_preview_image} from '../serverRoutes';
 import materialStoreMixin       from './materialStore.mixin';
 import playIcon                 from '@icons/vendor/svg-icon/svg/icomoon/play2.svg'
 import fromBotIcon              from '@icons/vendor/svg-icon/svg/awesome/database.svg'
+import {useBundlesStore}        from '../../apps/main/stores/bundles';
 
 
 function sortByRelevance(t1, t2) {
@@ -171,7 +172,7 @@ export default {
     bundleName: {
       get() {
         if (this.material && this.material.icon_of_bundle) {
-          return this.$store.dispatch('bundles/getBundleNameById', this.material.icon_of_bundle)
+          return useBundlesStore().getBundleNameById(this.material.icon_of_bundle)
                      .catch(() => {
                        return 'Missing Bundle name. Ups';
                      })
