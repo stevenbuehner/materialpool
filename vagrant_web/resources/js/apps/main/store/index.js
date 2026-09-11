@@ -8,7 +8,6 @@ import bibleverseCrossReferences from './modules/bibleverseCrossReferences';
 import search                    from './modules/search';
 import tagsearch                 from './modules/tagsearch';
 import materialapp               from './modules/materialapp';
-import recentmaterials           from './modules/recentmaterials';
 import bundles                   from './modules/bundles';
 import biblecontents             from './modules/biblecontents';
 import general                   from './modules/general';
@@ -29,7 +28,6 @@ export const store = createStore({
 		bibleverseCrossReferences,
 		search,
 		tagsearch,
-		recentmaterials,
 		bundles,
 		biblecontents,
 		general,

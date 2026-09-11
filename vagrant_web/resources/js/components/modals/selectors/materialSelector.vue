@@ -78,6 +78,7 @@
 import {BAlert, BButton, BForm, BFormGroup, BFormInput, BModal} from '@/adapters/bootstrap';
 import _debounce                                                from 'lodash/debounce';
 import MaterialpoolSpinner                                      from "../../spinner/materialpool-spinner";
+import {useRecentMaterialsStore}                                from '../../../apps/main/stores/recentMaterials';
 
 export default {
   name: "materialSelector",
@@ -189,7 +190,7 @@ export default {
         this.$refs.myModal.hide();
         // this.resolve = null; // already done during hide()
         // this.reject  = null; // already done during hide()
-        this.$store.commit('recentmaterials/addRecentMaterialId', material.id);
+        useRecentMaterialsStore().addRecentMaterialId(material.id);
       }
     },
 

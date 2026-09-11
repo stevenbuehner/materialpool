@@ -1,4 +1,5 @@
 import {createApp, h} from 'vue';
+import {createPinia} from 'pinia';
 import {createRouter, createWebHistory} from 'vue-router';
 import {store}   from './store'; // Before routes to use in BeforeRouting-Functions
 import {routes}  from './routes';
@@ -25,8 +26,10 @@ const app = createApp({
 	name: 'Materialpool',
 	render: () => h(mainApp),
 });
+const pinia = createPinia();
 installLegacyPlugins(app, vueLangConfig);
 app.use(store);
+app.use(pinia);
 app.use(router);
 app.mount('#app');
 

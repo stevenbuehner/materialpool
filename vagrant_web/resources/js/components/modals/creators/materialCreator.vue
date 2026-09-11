@@ -254,6 +254,7 @@ import KeywordToggleTextSelect from "../../keyword/keywordToggleTextSelect";
 import {RELEVANCE_USER_AVG}    from "../../../apps/config";
 import {savingDialogs}         from "../../../helper/flashMessages";
 import MaterialpoolSpinner     from "../../spinner/materialpool-spinner";
+import {useRecentMaterialsStore} from '../../../apps/main/stores/recentMaterials';
 
 // Icons
 import trashIcon   from '@icons/vendor/svg-icon/svg/oct/trashcan.svg';
@@ -433,7 +434,7 @@ export default {
 
               this.$refs.myModal.hide();
 
-              this.$store.commit('recentmaterials/addRecentMaterialId', material.id);
+              useRecentMaterialsStore().addRecentMaterialId(material.id);
             })
             .catch((message) => {
               this.flashError(this.$t('pool.Material'), message, flashSave);
