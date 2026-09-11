@@ -107,6 +107,7 @@ import _debounce            from 'lodash/debounce';
 import MaterialpoolSpinner  from "../spinner/materialpool-spinner";
 import {savingDialogs}      from "../../helper/flashMessages";
 import {cloneDeep}          from "lodash";
+import {useBibleversesStore} from '../../apps/main/stores/bibleverses';
 
 export default {
 
@@ -230,7 +231,7 @@ export default {
     // _.throttle), visit: https://lodash.com/docs#debounce
     search: _debounce((loading, search, vm) => {
 
-      vm.$store.dispatch('bibleverses/search', search)
+      useBibleversesStore().search(search)
         .then((bibleverses) => {
           vm.suggestedBibleverses = bibleverses;
         })
@@ -305,11 +306,11 @@ export default {
     },
 
     createNewBibleverse(from, to) {
-      return this.$store.dispatch('bibleverses/create', {from: from, to: to});
+      return useBibleversesStore().create({from: from, to: to});
     },
 
     appendBibleverseToMaterial(bvId, materialId) {
-      return this.$store.dispatch('bibleverses/updateRelevance', {
+      return useBibleversesStore().updateRelevance({
         bibleverseId: bvId,
         materialId,
         relevance: RELEVANCE_USER_MAX,
@@ -347,7 +348,7 @@ export default {
       const prom = new Promise((resolve, reject) => {
 
         if (this.materialId) {
-          return this.$store.dispatch('bibleverses/deleteMultipleAssignemts',
+          return useBibleversesStore().deleteMultipleAssignemts(
               {
                 bibleverseIds: this.myBibleverses.map(bv => bv.id),
                 materialId: this.materialId

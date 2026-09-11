@@ -366,6 +366,7 @@ import ResourceSelector           from "../../../components/modals/selectors/res
 import MaterialDeletor            from "../../../components/modals/deletors/materialDeletor";
 import Bundle                     from "../../../components/bundles/bundle";
 import RelevanceSelector          from "../../../components/modals/dialogs/relevanceSeletor.vue";
+import {useBibleversesStore}      from '../stores/bibleverses';
 
 // https://github.com/craigh411/vue-star-rating/#props
 export default {
@@ -777,7 +778,7 @@ export default {
         this.material.bibleverses.splice(i, 1);
       }
 
-      this.$store.dispatch('bibleverses/deleteAssignment', {
+      useBibleversesStore().deleteAssignment({
         materialId: this.id,
         bibleverseId: bibleVerseObject.id
       }).then((response) => {
@@ -799,13 +800,13 @@ export default {
       const startFlash = this.flashStartSaving(this.$t('pool.Bibleverse'));
 
       const promise = bibleverseObject.id === undefined ?
-                      this.$store.dispatch('bibleverses/createAndAssign', {
+                      useBibleversesStore().createAndAssign({
                         from: bibleverseObject.from,
                         to: bibleverseObject.to,
                         materialId: this.id,
                         relevance: newRelevance
                       }) :
-                      this.$store.dispatch('bibleverses/updateRelevance', {
+                      useBibleversesStore().updateRelevance({
                         materialId: this.id,
                         bibleverseId: bibleverseObject.id,
                         relevance: newRelevance

@@ -165,6 +165,7 @@ test('Bible reader loads and selects cached translations', async ({page}) => {
     const pageErrors = [];
     const bibleListRequests = [];
     const bibleContentRequests = [];
+    const bibleSearchRequests = [];
     page.on('pageerror', error => pageErrors.push(error.stack || error.message));
 
     await page.route('**/vue/**', route => route.fulfill({
@@ -217,27 +218,42 @@ test('Bible reader loads and selects cached translations', async ({page}) => {
     });
     await page.route('**/api/v1/biblecontents/**', route => {
         bibleContentRequests.push(route.request().url());
+        const isSecondRange = new URL(route.request().url()).pathname.includes('001001003-001001003');
         return route.fulfill({
             contentType: 'application/json',
             body: JSON.stringify({
                 bible: {uuid: 'basis', title: 'BasisBibel'},
-                verses: [
+                verses: isSecondRange ? [
+                    {verse: 1001003, bible_id: 1, bibleUuid: 'basis', text: 'Es werde Licht.'},
+                ] : [
                     {verse: 1001001, bible_id: 1, bibleUuid: 'basis', text: 'Am Anfang schuf Gott.'},
                     {verse: 1001002, bible_id: 1, bibleUuid: 'basis', text: 'Die Erde war wüst und leer.'},
                 ],
             }),
         });
     });
-    await page.route('**/pool/search/**', route => route.fulfill({
-        contentType: 'application/json',
-        body: JSON.stringify({
-            data: [],
-            current_page: 1,
-            last_page: 1,
-            per_page: 20,
-            total: 0,
-        }),
-    }));
+    await page.route('**/pool/search/**', route => {
+        const pathname = new URL(route.request().url()).pathname;
+
+        if (pathname === '/pool/search/guess/bibleverses') {
+            bibleSearchRequests.push(route.request().postDataJSON());
+            return route.fulfill({
+                contentType: 'application/json',
+                body: JSON.stringify([{id: 3, from: 1001003, to: 1001003, label: '1Mo 1,3'}]),
+            });
+        }
+
+        return route.fulfill({
+            contentType: 'application/json',
+            body: JSON.stringify({
+                data: [],
+                current_page: 1,
+                last_page: 1,
+                per_page: 20,
+                total: 0,
+            }),
+        });
+    });
 
     await page.goto('/vue/');
 
@@ -251,6 +267,12 @@ test('Bible reader loads and selects cached translations', async ({page}) => {
     await translation.click();
     await page.getByRole('menuitem', {name: 'BasisBibel'}).click();
     await expect(translation).toContainText('BasisBibel');
+    const bibleSearch = page.getByPlaceholder('Bibelvers hier eingeben');
+    await bibleSearch.fill('1. Mose 1,3');
+    await bibleSearch.press('Enter');
+    await expect.poll(() => bibleSearchRequests).toEqual([{q: '1. Mose 1,3'}]);
+    await expect(page).toHaveURL(/\/vue\/readbible\/1001003-1001003$/);
+    await expect(page.locator('.bibleTextPortion')).toContainText('Es werde Licht.');
     await expectResolvedNavigation(page);
     expect(pageErrors).toEqual([]);
 });

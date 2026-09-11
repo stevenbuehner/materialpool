@@ -100,6 +100,18 @@ Abnahme: Production-Build mit 967 transformierten Modulen, 25 Vitest-Dateien mit
 
 Rückbau: Der Teilstufencommit registriert das frühere Vuex-Modul erneut, stellt die beiden Komponenten-Dispatches wieder her und entfernt Store und Tests. Die Pinia-Stores für Bibeltexte und Übersetzungen bleiben davon unabhängig.
 
+## Teilstufe 6.8 – Bibelstellen
+
+`bibleverses` verwaltet den ID-Cache und die schreibenden Abläufe zum Anlegen, Zuordnen, Relevanzändern und Entfernen von Bibelstellen sowie die eigenständige Bibelstellensuche. Der Pinia-Port erhält alle bestehenden GET-/POST-Pfade, Method-Spoofing-Payloads, das Weglassen einer falsy Relevanz zugunsten des Serverdefaults, die Queue-Nutzung und Ergebnisreihenfolge bei Mehrfachaktionen sowie die unterschiedlichen historischen Fehlerverträge: normale CRUD-Fehler werden konvertiert als erfüllter Wert zurückgegeben, der Suchfehler wird weiterhin mit `response.data` geworfen. Alle fünf Komponenten-Konsumenten verwenden Pinia; das Vuex-Modul und seine Root-Registrierung sind entfernt.
+
+Der etablierte, fehlerhaft geschriebene Action-Name `deleteMultipleAssignemts` bleibt absichtlich erhalten, damit der öffentliche JS-Vertrag dieser Teilstufe nicht nebenbei geändert wird. Eine Korrektur kann erst nach Entfernung aller Legacy-Aufrufe als eigenes, mechanisches Refactoring erfolgen. Es wurden keine Backend-Routen, Controller, Policies, Events oder Queue-Jobs verändert; insbesondere bleibt `CheckLonelyBibleverse` serverseitig im Löschablauf maßgeblich.
+
+Acht Unit-Tests schützen ID-Cache, erfüllten Ladefehler, Queue und Reihenfolge von Mehrfachabrufen, Create-and-Assign samt Payloads, Serverdefault bei falsy Relevanz, Einzel- und Mehrfachlöschung sowie Sucherfolg und geworfenen Suchfehler. Die responsive Bibelleser-Reise wurde um eine echte Eingabe erweitert und prüft den Such-POST, den daraus folgenden Routenwechsel und den neu geladenen sichtbaren Bibeltext.
+
+Abnahme: Production-Build mit 967 transformierten Modulen, 26 Vitest-Dateien mit 76/76 Tests, ESLint mit 0 Fehlern und 273 bekannten Warnungen, Frontend-Inventar und Diff-Check sind grün. Die erweiterte Bibelleser-Reise besteht in Desktop- und Mobile-WebKit. Das Inventar meldet keine Vue-2-/Compat-Muster und noch exakt 8 registrierte Vuex-Module. Die bekannten Sass-Deprecations und der Chunkgrößenhinweis bleiben unverändert.
+
+Rückbau: Der Teilstufencommit registriert das frühere Vuex-Modul erneut, stellt die elf direkten Komponenten-Dispatches wieder her und entfernt Pinia-Store und Unit-Tests. Die bereits migrierten Stores für Bibeltexte, Übersetzungen und Querverweise bleiben unabhängig.
+
 ## Noch zu migrieren
 
-Nach Teilstufe 6.7 verbleiben 9 registrierte Vuex-Module: `resources`, `materials`, `materialapp`, `keywords`, `keywordsSuggestions`, `bibleverses`, `search`, `bundles` und `general`. Die Reihenfolge bleibt risikobasiert: weitere isolierbare Module folgen vor den gekoppelten Relations- und zentralen Material-/Resource-/General-Pfaden. Vuex wird erst nach dem letzten migrierten Konsumenten entfernt.
+Nach Teilstufe 6.8 verbleiben 8 registrierte Vuex-Module: `resources`, `materials`, `materialapp`, `keywords`, `keywordsSuggestions`, `search`, `bundles` und `general`. Die Reihenfolge bleibt risikobasiert: weitere isolierbare Module folgen vor den gekoppelten Relations- und zentralen Material-/Resource-/General-Pfaden. Vuex wird erst nach dem letzten migrierten Konsumenten entfernt.

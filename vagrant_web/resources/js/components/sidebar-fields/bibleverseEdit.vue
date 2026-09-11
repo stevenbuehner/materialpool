@@ -1,6 +1,7 @@
 <script>
 import tagIcon from '@icons/vendor/svg-icon/svg/material/style.svg';
 import tagEdit from "./tagEdit";
+import {useBibleversesStore} from '../../apps/main/stores/bibleverses';
 
 export default {
   name: "bibleverseEdit",
@@ -50,7 +51,7 @@ export default {
 
       this.queryHandler[counter] = queryCache;
 
-      queryCache.promise = this.$store.dispatch('bibleverses/search', query)
+      queryCache.promise = useBibleversesStore().search(query)
                                .then((bibleverses) => {
 
                                  queryCache.isLoading = false;

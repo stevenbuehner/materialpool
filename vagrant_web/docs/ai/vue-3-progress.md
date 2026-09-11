@@ -18,16 +18,17 @@ Abgeschlossen:
 - Teilstufe 6.5 implementiert: `bibles`, alle vier Komponenten-Konsumenten und die beiden gekoppelten Writer-Aufrufe aus `biblecontents` verwenden Pinia; Erstladefehler, UUID-Cache und parallele Abrufe sind testgedeckt.
 - Teilstufe 6.6 implementiert: `biblecontents` und alle fünf Komponenten-Konsumenten verwenden Pinia; Queue, parallele Requests, Cache-Schlüssel, Retry und Suche sind testgedeckt und die Bibelleser-Browserreise zeigt reale Versinhalte.
 - Teilstufe 6.7 implementiert: `bibleverseCrossReferences` und beide Komponenten-Konsumenten verwenden Pinia; Pagination, Queue, Cache und Zero-Count sind testgedeckt, die Schlagwortoptimierung zeigt Querverweis und Bibeltext responsiv im Browser.
+- Teilstufe 6.8 implementiert: `bibleverses` und alle fünf Komponenten-Konsumenten verwenden Pinia; Cache, CRUD-Payloads, Queue und Fehlerverträge sind testgedeckt, die Bibelleser-Reise schützt Suche, Route und neuen Versinhalt responsiv.
 
 Offene Gates:
 
-- Teilstufe 6.7: Commit.
-- Stufe 6: weitere 9 Vuex-Module samt sämtlichen Konsumenten; danach Entfernung von Vuex.
+- Teilstufe 6.8: Commit.
+- Stufe 6: weitere 8 Vuex-Module samt sämtlichen Konsumenten; danach Entfernung von Vuex.
 - Stufe 7: vollständige Releasegates einschließlich `migrate:fresh` und `db:seed` ausschließlich gegen die verifizierte, entbehrliche Sail-MySQL-Datenbank `testing`.
 
 Compat-/Paket-Ausnahmen: Keine Vue-2-/`@vue/compat`-Ausnahme. Vuex 4.1.0 bleibt nur bis zur Migration des letzten Moduls parallel zu Pinia 4.0.3 installiert.
 
-Nächster Schritt: Teilstufe 6.7 committen; anschließend das nächste isolierbare Modul anhand seiner Writer-, Request- und Konsumentenabhängigkeiten auswählen und charakterisieren.
+Nächster Schritt: Teilstufe 6.8 committen; anschließend `bundles` als nächsten isolierten Store anhand seiner Writer-, Request- und Komponentenverträge charakterisieren.
 
 Rückbau: Letzter vollständig grüner Stufenstand ist `9e2593b5`. Pinia-Teilstufen bleiben bis zur finalen Vuex-Entfernung einzeln rückbaubar.
 

@@ -41,6 +41,7 @@ import {BibleVerse, BibleVerseService}                                      from
 import {fromRangeArrayToString}                                             from './readBibleHelper';
 import {useBiblesStore}                                                     from '../stores/bibles';
 import {useBibleContentsStore}                                              from '../stores/bibleContents';
+import {useBibleversesStore}                                                from '../stores/bibleverses';
 
 export default {
   name: "ReadBible",
@@ -137,7 +138,7 @@ export default {
 
     analyseSearchInput() {
 
-      this.$store.dispatch('bibleverses/search', this.searchInput)
+      useBibleversesStore().search(this.searchInput)
           .then(bibleverses => {
             this.updateRoute(bibleverses)
           });

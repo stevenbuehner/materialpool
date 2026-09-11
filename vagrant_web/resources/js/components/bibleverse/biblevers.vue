@@ -41,6 +41,7 @@ import {RELEVANCE_USER_MAX}              from "../../apps/config";
 import BiblePopover                    from "./../bible-popover/bible-popover.vue";
 import {BibleVerse, BibleVerseService} from "../../helper/BibleverseHelper";
 import {cloneDeep}                     from 'lodash';
+import {useBibleversesStore}           from '../../apps/main/stores/bibleverses';
 
 export default {
 
@@ -148,7 +149,7 @@ export default {
       this.$emit('savingPivot', {relevance: relevance});
 
       if (this.materialId) {
-        this.$store.dispatch('bibleverses/updateRelevance', {
+        useBibleversesStore().updateRelevance({
           materialId: this.materialId,
           bibleverseId: this.myBibleverse.id,
           relevance: relevance
@@ -202,7 +203,7 @@ export default {
 
       if (this.materialId) {
 
-        this.$store.dispatch('bibleverses/deleteAssignment', {
+        useBibleversesStore().deleteAssignment({
           materialId: this.materialId,
           bibleverseId: this.myBibleverse.id
         }).then(() => {
