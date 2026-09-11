@@ -23,6 +23,18 @@ Abnahme: Production-Build mit 967 transformierten Modulen, 19 Vitest-Dateien mit
 
 Rückbau: Der zusammengehörige Teilstufencommit entfernt Pinia wieder aus App und Lockfile, registriert das unveränderte Vuex-Modul erneut und stellt die beiden Vuex-Commit-Aufrufstellen wieder her.
 
+## Teilstufe 6.2 – Suchvorschläge für Tags
+
+`tagsearch` enthielt keinen State und genau eine Action mit einem Konsumenten. `useTagSearchStore` übernimmt denselben GET auf `/pool/search/guess`, denselben Query-Parameter `q`, die unveränderte Response-Body-Rückgabe und das bestehende Verhalten, einen abgewiesenen Wert zu protokollieren und anschließend als erfüllten Action-Wert zurückzugeben.
+
+- `searchInput.vue` verwendet den Pinia-Store innerhalb der bestehenden debouncten Suche; Filterung, Loading-Callback und Auswahl bleiben unverändert.
+- Das frühere Vuex-Modul ist gelöscht und aus der Root-Registrierung entfernt.
+- Zwei Unit-Tests schützen Requestform, Objektidentität der Erfolgsantwort und Objektidentität samt Logging im Fehlerfall.
+
+Abnahme: Production-Build, 20 Vitest-Dateien mit 44/44 Tests, ESLint mit 0 Fehlern und nun 315 bekannten Warnungen sowie das Frontend-Inventar sind grün. Die einzige direkte Nutzerreise „Vue 3 select keeps asynchronous search and object selection“ besteht auf Desktop und Mobile; sie prüft den echten debouncten Request, Ergebnisdarstellung, Tastaturauswahl und resultierende Route.
+
+Rückbau: Der Teilstufencommit stellt ausschließlich das Vuex-Modul, seine Registrierung und den einen Dispatch-Aufruf wieder her; die Pinia-Basis aus Teilstufe 6.1 bleibt davon unabhängig.
+
 ## Noch zu migrieren
 
-Nach Teilstufe 6.1 verbleiben 15 registrierte Vuex-Module: `resources`, `materials`, `materialusages`, `materialapp`, `keywords`, `keywordsSuggestions`, `bibleverses`, `bibleverseCrossReferences`, `search`, `tagsearch`, `bundles`, `biblecontents`, `general`, `bibles` und `users`. Die Reihenfolge bleibt risikobasiert: zuerst read-mostly beziehungsweise isolierte Module, dann gekoppelte Cache-/Relationsmodule und zuletzt die zentralen Material-/Resource-/General-Pfade. Vuex wird erst nach dem letzten migrierten Konsumenten entfernt.
+Nach Teilstufe 6.2 verbleiben 14 registrierte Vuex-Module: `resources`, `materials`, `materialusages`, `materialapp`, `keywords`, `keywordsSuggestions`, `bibleverses`, `bibleverseCrossReferences`, `search`, `bundles`, `biblecontents`, `general`, `bibles` und `users`. Die Reihenfolge bleibt risikobasiert: zuerst read-mostly beziehungsweise isolierte Module, dann gekoppelte Cache-/Relationsmodule und zuletzt die zentralen Material-/Resource-/General-Pfade. Vuex wird erst nach dem letzten migrierten Konsumenten entfernt.

@@ -6,7 +6,6 @@ import keywords                  from './modules/keywords';
 import bibleverses               from './modules/bibleverses';
 import bibleverseCrossReferences from './modules/bibleverseCrossReferences';
 import search                    from './modules/search';
-import tagsearch                 from './modules/tagsearch';
 import materialapp               from './modules/materialapp';
 import bundles                   from './modules/bundles';
 import biblecontents             from './modules/biblecontents';
@@ -27,7 +26,6 @@ export const store = createStore({
 		bibleverses,
 		bibleverseCrossReferences,
 		search,
-		tagsearch,
 		bundles,
 		biblecontents,
 		general,

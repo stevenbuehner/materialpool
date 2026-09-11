@@ -47,6 +47,7 @@ import vueSelect       from '@/adapters/vue-select';
 import _debounce       from 'lodash/debounce';
 import SearchInputTag  from "./searchInputTag";
 import {preloadedIcon} from "../keyword/keywordDefaultIcons";
+import {useTagSearchStore} from '../../apps/main/stores/tagSearch';
 
 export default {
 
@@ -86,7 +87,7 @@ export default {
     // _.throttle), visit: https://lodash.com/docs#debounce
     search: _debounce((loading, search, vm) => {
 
-      vm.$store.dispatch('tagsearch/searchTags', search)
+      useTagSearchStore().searchTags(search)
         .then((data) => {
           vm.options = data.data.filter((el) => {
             // Remove already displayed options
