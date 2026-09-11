@@ -165,6 +165,10 @@ test('Vue 3 datepicker keeps the German input and calendar interaction', async (
     const pageErrors = [];
     const attachRequests = [];
     const relevanceRequests = [];
+    const usageCreateRequests = [];
+    const usageUpdateRequests = [];
+    const usageDeleteRequests = [];
+    const userSearchRequests = [];
     let returnResourceSuggestion = false;
     page.on('pageerror', error => pageErrors.push(error.stack || error.message));
 
@@ -306,6 +310,66 @@ test('Vue 3 datepicker keeps the German input and calendar interaction', async (
             return;
         }
 
+        if (pathname === '/api/v2/users/find') {
+            userSearchRequests.push(new URL(route.request().url()).searchParams.get('s'));
+            await route.fulfill({
+                contentType: 'application/json',
+                body: JSON.stringify([{
+                    id: 2,
+                    name: 'Second User',
+                    email: 'second@example.invalid',
+                }]),
+            });
+            return;
+        }
+
+        if (pathname === '/api/v2/material/1/usage' && route.request().method() === 'POST') {
+            usageCreateRequests.push(route.request().postDataJSON());
+            await route.fulfill({
+                contentType: 'application/json',
+                body: JSON.stringify({
+                    id: 71,
+                    material_id: 1,
+                    datetime: '2026-09-10T10:00:00+02:00',
+                    place: '',
+                    reason: '',
+                    used_by: {
+                        id: 1,
+                        name: 'Synthetic User',
+                        email: 'synthetic@example.invalid',
+                    },
+                }),
+            });
+            return;
+        }
+
+        if (pathname === '/api/v2/material/1/usage/71' && route.request().method() === 'POST') {
+            const payload = route.request().postDataJSON();
+
+            if (payload._method === 'DELETE') {
+                usageDeleteRequests.push(payload);
+                await route.fulfill({contentType: 'application/json', body: JSON.stringify({success: true})});
+            } else {
+                usageUpdateRequests.push(payload);
+                await route.fulfill({
+                    contentType: 'application/json',
+                    body: JSON.stringify({
+                        id: 71,
+                        material_id: 1,
+                        datetime: payload.datetime,
+                        place: payload.place,
+                        reason: payload.reason,
+                        used_by: {
+                            id: payload.used_by_id,
+                            name: 'Second User',
+                            email: 'second@example.invalid',
+                        },
+                    }),
+                });
+            }
+            return;
+        }
+
         if (pathname === '/api/v2/material/1/resource/99/attach' && route.request().method() === 'POST') {
             attachRequests.push(route.request().postData() || '');
             const selectedResource = {
@@ -369,6 +433,36 @@ test('Vue 3 datepicker keeps the German input and calendar interaction', async (
     });
     await dateInput.click();
     await expect(page.locator('.vdp-datepicker__calendar').first()).toBeVisible();
+
+    await page.getByTitle('Anlass hinzufügen').click();
+    await expect.poll(() => usageCreateRequests.length).toBe(1);
+    expect(usageCreateRequests[0]).toMatchObject({place: '', reason: '', used_by_id: 1});
+
+    const usage = page.locator('.usage-edit-list-el').first();
+    await expect(usage.getByPlaceholder('Grund')).toBeVisible();
+    await usage.getByPlaceholder('Grund').fill('Jugendgruppe');
+    await usage.getByPlaceholder('Örtlichkeit').fill('Berlin');
+    await usage.locator('.multiselect-clear').click();
+    await usage.locator('.used_by .multiselect-wrapper').click();
+    await usage.locator('.used_by input').fill('Second');
+    await expect.poll(() => userSearchRequests).toContain('Second');
+    await usage.locator('.vs__dropdown-option').filter({hasText: 'Second User'}).click();
+    await usage.getByTitle('Speichern').click();
+
+    await expect.poll(() => usageUpdateRequests.length).toBe(1);
+    expect(usageUpdateRequests[0]).toMatchObject({
+        place: 'Berlin',
+        reason: 'Jugendgruppe',
+        used_by_id: 2,
+    });
+    await expect(usage.locator('.read-mode')).toContainText('Jugendgruppe');
+    await expect(usage.locator('.read-mode')).toContainText('Second User');
+
+    page.once('dialog', dialog => dialog.accept());
+    await usage.getByTitle('löschen').click();
+    await expect.poll(() => usageDeleteRequests.length).toBe(1);
+    expect(usageDeleteRequests[0]).toEqual({_method: 'DELETE'});
+    await expect(page.locator('.usage-edit-list-el')).toHaveCount(0);
 
     const tabs = page.locator('.sideTab [role="tab"]');
     await expect(tabs).toHaveCount(3);

@@ -1,7 +1,6 @@
 import {createStore}             from 'vuex';
 import resources                 from './modules/resources';
 import materials                 from './modules/materials';
-import materialusages            from './modules/materialusages';
 import keywords                  from './modules/keywords';
 import bibleverses               from './modules/bibleverses';
 import bibleverseCrossReferences from './modules/bibleverseCrossReferences';
@@ -18,7 +17,6 @@ export const store = createStore({
 	modules: {
 		resources,
 		materials,
-		materialusages,
 		materialapp,
 		keywords,
 		keywordsSuggestions,

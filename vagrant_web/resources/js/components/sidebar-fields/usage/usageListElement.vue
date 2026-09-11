@@ -140,6 +140,7 @@ import vueSelect       from '@/adapters/vue-select';
 import _debounce       from "lodash/debounce";
 import {cloneDeep}     from "lodash";
 import {useUsersStore} from '../../../apps/main/stores/users';
+import {useMaterialUsagesStore} from '../../../apps/main/stores/materialUsages';
 
 export default {
   name: "usageListElement",
@@ -374,8 +375,8 @@ export default {
       // Close-Edit Mode
       this.$emit('element-clicked', null);
 
-      this.$store
-          .dispatch('materialusages/updateMaterialUsage', {
+      useMaterialUsagesStore()
+          .updateMaterialUsage({
             material_id: this.material_id,
             id: this.id,
             datetime: this.modifiedData.datetime,
@@ -409,8 +410,8 @@ export default {
         const msg             = this.flashStartRemoving(this.$t('pool.Usage'));
         this.updateInProgress = true;
 
-        this.$store
-            .dispatch('materialusages/deleteMaterialUsage', {
+        useMaterialUsagesStore()
+            .deleteMaterialUsage({
               material_id: this.material_id,
               id: this.id
             })

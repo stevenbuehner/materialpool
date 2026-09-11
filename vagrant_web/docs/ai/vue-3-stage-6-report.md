@@ -44,10 +44,25 @@ Die Vuex-Getter und `setUsers` verwendeten nachweislich den literalen Schlüssel
 - Drei Unit-Tests schützen Parameter mit und ohne Limit, unveränderte Rückgabe, konvertierte Rejection, ID-Indexierung und gezieltes Entfernen.
 - Das Vuex-Modul ist gelöscht; `usageListElement.vue` ruft die Pinia-Action innerhalb seines bestehenden 250-ms-Debounce auf.
 - Abnahme: Production-Build, 21 Vitest-Dateien mit 47/47 Tests, ESLint mit 0 Fehlern und 310 bekannten Warnungen sowie Frontend-Inventar mit exakt 13 Vuex-Modulen sind grün.
-- Offenes gekoppeltes Gate: Der Repository-Bestand enthält noch keine Browserfixture für Suche, Speichern und Löschen eines Materialnutzungseintrags. Diese Nutzerreise wird zusammen mit dem unmittelbar zugehörigen `materialusages`-Store ergänzt und muss beide Stores gemeinsam abnehmen. Bis dahin belegen Unit-Test und vollständiger SFC-Build den Users-Slice, nicht die gesamte Usage-Interaktion.
+- Das zuvor offene gekoppelte Gate ist in Teilstufe 6.4 geschlossen: Die Materialdetail-Reise prüft Benutzersuche und Auswahl zusammen mit Anlegen, Speichern und Löschen eines Anlasses.
 
 Rückbau: Der Teilstufencommit stellt das alte Vuex-Modul, seine Registrierung und den Dispatch in `usageListElement.vue` wieder her; andere Pinia-Stores bleiben unverändert.
 
+## Teilstufe 6.4 – Materialnutzungen
+
+`materialusages` war der alleinige Writer für die pro Material-ID gruppierte Anlassliste. Der Pinia-Port erhält die bisherigen API-Pfade, POST-/Method-Spoofing-Payloads, `moment(...).format()`-Normalisierung, Defaultwerte, Erfolgsrückgaben, Leerlistenbehandlung und die über `convertErrorResponseToMessage` geworfenen Fehlermeldungen. `usageEdit.vue` sowie `usageListElement.vue` sind die einzigen Konsumenten und rufen nun den Pinia-Store auf; das Vuex-Modul ist gelöscht und aus dem Root-Store entfernt.
+
+Zwei lokale Defekte wurden beim verhaltensneutralen Port behoben:
+
+- Die frühere Bedingung `!value instanceof Array` wertete wegen JavaScript-Operatorpräzedenz nie wie beabsichtigt aus. Ein fehlender oder beschädigter Material-Cache wird jetzt vor Einfügen eines einzelnen Datensatzes zuverlässig als Array initialisiert.
+- Ein fachlich fehlgeschlagenes HTTP-200-Löschergebnis wurde erst in eine Meldung konvertiert, danach erneut gefangen und ein zweites Mal konvertiert. Dadurch konnte die Servermeldung zu `undefined error` werden. Der Pinia-Store transportiert diese Meldung einmalig durch den bestehenden Fehlerkonverter; der UI-Fehlerpfad bleibt derselbe, erhält aber wieder den verwertbaren Text.
+
+Sieben Unit-Tests schützen Laden und Cache-Wiederverwendung, die bewusst nicht gecachte Leerantwort, Create-Defaults, Update und Cache-Ersetzung, erfolgreiches Löschen, die Servermeldung eines fachlich erfolglosen Löschens sowie Request-Rejections. Die erweiterte Materialdetail-Browserreise prüft darüber hinaus den tatsächlichen Ablauf: Anlass anlegen, aktuellen Benutzer übernehmen, Auswahl leeren, debouncte Benutzersuche ausführen, anderen Benutzer auswählen, Grund und Ort speichern, das aktualisierte Anzeigeobjekt sehen, Löschbestätigung akzeptieren und den Eintrag aus der Liste entfernen. Dabei werden Create-, Search-, Update- und Delete-Payloads explizit geprüft.
+
+Abnahme: Production-Build mit 967 transformierten Modulen, 22 Vitest-Dateien mit 54/54 Tests, ESLint mit 0 Fehlern und 296 bekannten Warnungen, Frontend-Inventar und Diff-Check sind grün. Der gekoppelte Materialdetail-Browsertest besteht im Desktop-WebKit; seine vorhandenen Referenzbilder vor der Interaktion bleiben unverändert. Das Inventar meldet keine Vue-2-/Compat-Muster und noch exakt 12 registrierte Vuex-Module. `php artisan dev --inline` wurde neu gestartet; Laravel läuft auf Port 8000 und Vite schreibt den aktiven Hot-Endpunkt auf Port 5174.
+
+Rückbau: Der Teilstufencommit stellt das Vuex-Modul und seine Registrierung wieder her und setzt die drei Komponentenaufrufe auf `dispatch` zurück. Die bereits unabhängigen Pinia-Stores einschließlich `users` bleiben erhalten.
+
 ## Noch zu migrieren
 
-Nach Teilstufe 6.3 verbleiben 13 registrierte Vuex-Module: `resources`, `materials`, `materialusages`, `materialapp`, `keywords`, `keywordsSuggestions`, `bibleverses`, `bibleverseCrossReferences`, `search`, `bundles`, `biblecontents`, `general` und `bibles`. Die Reihenfolge bleibt risikobasiert: zuerst read-mostly beziehungsweise isolierte Module, dann gekoppelte Cache-/Relationsmodule und zuletzt die zentralen Material-/Resource-/General-Pfade. Vuex wird erst nach dem letzten migrierten Konsumenten entfernt.
+Nach Teilstufe 6.4 verbleiben 12 registrierte Vuex-Module: `resources`, `materials`, `materialapp`, `keywords`, `keywordsSuggestions`, `bibleverses`, `bibleverseCrossReferences`, `search`, `bundles`, `biblecontents`, `general` und `bibles`. Die Reihenfolge bleibt risikobasiert: zuerst read-mostly beziehungsweise isolierte Module, dann gekoppelte Cache-/Relationsmodule und zuletzt die zentralen Material-/Resource-/General-Pfade. Vuex wird erst nach dem letzten migrierten Konsumenten entfernt.

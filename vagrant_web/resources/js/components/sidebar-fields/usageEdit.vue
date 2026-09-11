@@ -59,6 +59,7 @@ import OccasionIcon     from '@icons/vendor/svg-icon/svg/icomoon/bubble2.svg';
 import {BButton}        from '@/adapters/bootstrap';
 import {savingDialogs}  from "../../helper/flashMessages";
 import {moment}         from "../../apps/main/localisation";
+import {useMaterialUsagesStore} from '../../apps/main/stores/materialUsages';
 
 export default {
   name: "usageEdit",
@@ -145,8 +146,8 @@ export default {
   asyncComputed: {
     usages: {
       get() {
-        return this.$store
-                   .dispatch('materialusages/getMaterialUsages', this.materialId)
+        return useMaterialUsagesStore()
+                   .getMaterialUsages(this.materialId)
                    .then((d) => {
                      // Nur dann bekommt das Child-Listen-Element die Änderungen im Objekt mitgeteilt
                      this.$forceUpdate();
@@ -172,8 +173,8 @@ export default {
 
       const loggedInUserId = await this.$store.dispatch('general/currentUserId');
 
-      this.$store
-          .dispatch('materialusages/addMaterialUsage', {
+      useMaterialUsagesStore()
+          .addMaterialUsage({
             material_id: this.materialId,
             used_by_id: loggedInUserId || null
           })
