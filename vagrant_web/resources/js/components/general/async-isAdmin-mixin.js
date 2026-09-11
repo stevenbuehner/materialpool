@@ -1,8 +1,10 @@
+import {useGeneralStore} from '../../apps/main/stores/general';
+
 export default {
 	asyncComputed: {
 		isAdmin: {
 			get() {
-				return this.$store.dispatch('general/isAdmin')
+				return useGeneralStore().isAdmin()
 				           .then((isAdmin) => {
 					           return isAdmin;
 				           });

@@ -1,8 +1,10 @@
+import {useGeneralStore} from '../../apps/main/stores/general';
+
 export default {
 	asyncComputed: {
 		username: {
 			get() {
-				return this.$store.dispatch('general/currentUser')
+				return useGeneralStore().currentUser()
 				           .then((user) => {
 					           return user.name;
 				           });

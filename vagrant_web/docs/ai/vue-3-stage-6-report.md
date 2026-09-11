@@ -1,6 +1,6 @@
 # Vue-3-Migration – Stufe 6: Vuex zu Pinia
 
-Status: In Arbeit. Die Migration erfolgt Store für Store; jeder Abschnitt nennt den alleinigen schreibenden Store, seine migrierten Konsumenten und die Abnahme. Dieser Bericht ergänzt den verbindlichen [Vue-3-Migrationsvertrag](vue-3-migration-contract.md). Letzter vollständig committeter Teilstufenstand ist 6.13 (`151fd37e`).
+Status: In Arbeit. Die Migration erfolgt Store für Store; jeder Abschnitt nennt den alleinigen schreibenden Store, seine migrierten Konsumenten und die Abnahme. Dieser Bericht ergänzt den verbindlichen [Vue-3-Migrationsvertrag](vue-3-migration-contract.md). Letzter vollständig committeter Teilstufenstand ist 6.14 (`5e39bd2d`).
 
 ## Pinia-Basis und Parallelbetrieb
 
@@ -195,6 +195,20 @@ Abnahme: Production-Build mit 967 transformierten Modulen, 33 Vitest-Dateien mit
 
 Rückbau: Der Teilstufencommit registriert das frühere Vuex-Modul erneut, stellt die vier Dispatch-Aufrufe wieder her und entfernt Pinia-Store und Unit-Tests. Der bereits migrierte Materialstore bleibt bestehen; der gerichtete Preview-Writer wird beim Rückbau wie in Teilstufe 6.12 weiterhin direkt an Pinia übergeben.
 
+## Teilstufe 6.15 – Allgemeine Optionen und Benutzereinstellungen
+
+`general` war das letzte fachliche Vuex-Modul. `useGeneralStore` erhält den Options- und Benutzer-Promise-Cache, die Ableitungen für Uploadlimit, aktuellen Benutzer, Adminstatus und Systemnamen sowie Lesen, Überschreiben und Entfernen verschachtelter `frontend_user_settings`. Alle elf Aufrufe in Landingpage, Navbar-/Admin-Mixins, Uploader, Materialanlässen und Materialvorlagen verwenden Pinia. Das Vuex-Modul ist gelöscht; die noch installierte Vuex-Hülle registriert keine Module mehr.
+
+Die API-Pfade, GET-/POST-Payloads, vollständige Settings-Übertragung, Cache-Aktualisierung des aktuellen Benutzers und die historischen erfüllten Fehlermeldungswerte bleiben unverändert. Backend-Routen, Passport-Authentifizierung, Controller, Validierung, Benutzerrechte und Daten wurden nicht verändert. Insbesondere ist die bestehende serverseitige Autorisierungssemantik von `UserSelfController` nicht Teil dieses Frontend-Ports.
+
+Zwei gekoppelte Fehlerpfade wurden lokal stabilisiert: Nach fehlgeschlagenem Options- oder Benutzerabruf verblieb zuvor ein erfüllter Fehlerstring dauerhaft im Cache. Zusätzlich versuchte die jeweils nachgelagerte `.then`-Kette, diesen String als Options- beziehungsweise Benutzerobjekt einzutragen und konnte einen unbeobachteten `TypeError` erzeugen. Der Store liefert weiterhin denselben erfüllten Meldungswert an den Aufrufer, entfernt aber den betroffenen Cacheeintrag und aktualisiert Objektcaches nur mit valider Objektdatenform. Damit ist ein späterer Retry möglich. Weil Pinia State und Action nicht unter demselben Namen zulässt, heißt der nie extern gelesene interne State `generalOptions`; der verwendete Action-Vertrag `options()` bleibt erhalten.
+
+Sieben Unit-Tests schützen parallele Options- und Benutzerabrufe, abgeleitete Werte, beide retryfähigen Fehlerpfade, Current-User-Synchronisierung, verschachteltes Lesen, vollständige Schreibpayloads, Hinzufügen und Entfernen von Materialvorlagen sowie den erfüllten Settings-Schreibfehler. Vier Browserreisen prüfen Navigation/Benutzeranzeige, Admin-/Anlasspfad, Uploadlimit und Uploadablauf sowie Laden und Speichern verschachtelter Materialvorlagen.
+
+Abnahme: Production-Build mit 967 transformierten Modulen, 34 Vitest-Dateien mit 129/129 Tests, ESLint mit 0 Fehlern und 197 bekannten Warnungen, Frontend-Inventar und Diff-Check sind grün. Vier gekoppelte Reisen bestehen in Desktop- und Mobile-WebKit mit 8/8 Prüfungen und unveränderten visuellen Referenzen. Das Inventar meldet keine Vue-2-/Compat-Muster und 0 registrierte Vuex-Module; eine Volltextkontrolle findet keine `$store`-Aufrufe mehr.
+
+Rückbau: Der Teilstufencommit registriert `general` erneut, stellt die elf Dispatch-Aufrufe in sechs Bereichen wieder her und entfernt Pinia-Store und Unit-Tests. Die in früheren Teilstufen migrierten Fachstores bleiben unabhängig.
+
 ## Noch zu migrieren
 
-Nach Teilstufe 6.14 verbleibt ausschließlich das registrierte Vuex-Modul `general`. Nach Migration seiner sämtlichen Konsumenten wird Vuex als eigener, abschließend geprüfter Schritt entfernt.
+Nach Teilstufe 6.15 existiert kein Vuex-Konsument und kein registriertes Vuex-Modul mehr. Als eigene mechanische Teilstufe folgen Entfernung der leeren Root-Store-Hülle, `app.use(store)`, npm-Paket und Lockfile-Einträge sowie vollständige Gates.

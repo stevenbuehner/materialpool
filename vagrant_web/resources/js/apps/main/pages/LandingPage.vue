@@ -40,6 +40,7 @@
 </template>
 
 <script>
+import {useGeneralStore} from '../stores/general';
 
 export default {
   name: "LandingPage",
@@ -53,13 +54,13 @@ export default {
 
     currentUser: {
       get() {
-        return this.$store.dispatch('general/currentUser');
+        return useGeneralStore().currentUser();
       },
 
     },
     systemName: {
       get() {
-        return this.$store.dispatch('general/systemName');
+        return useGeneralStore().systemName();
       }
     }
   },

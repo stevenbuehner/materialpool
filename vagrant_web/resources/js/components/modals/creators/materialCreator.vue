@@ -257,6 +257,7 @@ import MaterialpoolSpinner     from "../../spinner/materialpool-spinner";
 import {useRecentMaterialsStore} from '../../../apps/main/stores/recentMaterials';
 import {useKeywordsStore}        from '../../../apps/main/stores/keywords';
 import {useMaterialsStore}       from '../../../apps/main/stores/materials';
+import {useGeneralStore}         from '../../../apps/main/stores/general';
 
 // Icons
 import trashIcon   from '@icons/vendor/svg-icon/svg/oct/trashcan.svg';
@@ -509,11 +510,11 @@ export default {
 
     _refreshPresetSettings() {
       return Promise.all([
-        this.$store.dispatch('general/currentUserSetting', {
+        useGeneralStore().currentUserSetting({
           settingId: USER_SETTINGS_MATERIAL_TEMPLATE_ID,
           defaultValue: {}
         }),
-        this.$store.dispatch('general/currentUserSetting', {
+        useGeneralStore().currentUserSetting({
           settingId: USER_SETTINGS_MATERIAL_DEFAULT_TEMPLATE_ID,
           defaultValue: null
         })
@@ -525,7 +526,7 @@ export default {
     },
 
     _refreshPresets() {
-      return this.$store.dispatch('general/currentUserSetting', {
+      return useGeneralStore().currentUserSetting({
         settingId: USER_SETTINGS_MATERIAL_TEMPLATE_ID,
         defaultValue: {}
       }).then((presets) => {
@@ -544,7 +545,7 @@ export default {
 
       const flashMessage = this.flashStartSaving(this.$t('pool.Default-Preset'));
 
-      this.$store.dispatch('general/storeCurrentUserSetting', {
+      useGeneralStore().storeCurrentUserSetting({
         settingId: USER_SETTINGS_MATERIAL_DEFAULT_TEMPLATE_ID,
         data: templateID
       }).then(() => {
@@ -609,7 +610,7 @@ export default {
       const flashSave                     = this.flashStartSaving(this.$t('pool.template'));
       this.preloadDropdown.presetIsSaving = true;
 
-      this.$store.dispatch('general/storeCurrentUserSetting', {
+      useGeneralStore().storeCurrentUserSetting({
         settingId: id,
         data: cloneDeep(this.formData) // JSON.parse(JSON.stringify(this.formData))
       })
@@ -637,7 +638,7 @@ export default {
       const settingId = this._createTemplateId(templateId);
       const flashSave = this.flashStartRemoving(this.$t('pool.template'));
 
-      this.$store.dispatch('general/removeCurrentUserSetting', settingId)
+      useGeneralStore().removeCurrentUserSetting(settingId)
           .then(() => {
             this.flashRemoved(this.$t('pool.template'), flashSave);
           })

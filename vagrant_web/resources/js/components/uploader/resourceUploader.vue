@@ -48,6 +48,7 @@ import {VueTransmit}            from "@/adapters/vue-transmit";
 import {api_v1_resources_store} from "../serverRoutes";
 import {BAlert, BButton}        from '@/adapters/bootstrap';
 import {setReactive}            from '@/adapters/reactivity';
+import {useGeneralStore}        from '../../apps/main/stores/general';
 
 
 export default {
@@ -101,7 +102,7 @@ export default {
 
   created() {
     // Get maxUploadSize from the server
-    this.$store.dispatch('general/maxUploadSize')
+    useGeneralStore().maxUploadSize()
         .then((maxUploadSize) => {
           setReactive(this.options, 'maxFileSize', Math.floor(maxUploadSize / 1024 / 1024));
         });

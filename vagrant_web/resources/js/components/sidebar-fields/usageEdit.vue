@@ -60,6 +60,7 @@ import {BButton}        from '@/adapters/bootstrap';
 import {savingDialogs}  from "../../helper/flashMessages";
 import {moment}         from "../../apps/main/localisation";
 import {useMaterialUsagesStore} from '../../apps/main/stores/materialUsages';
+import {useGeneralStore}        from '../../apps/main/stores/general';
 
 export default {
   name: "usageEdit",
@@ -171,7 +172,7 @@ export default {
 
       const message = this.flashActionStartedWaiting(this.$t('pool.Adding-Usage'));
 
-      const loggedInUserId = await this.$store.dispatch('general/currentUserId');
+      const loggedInUserId = await useGeneralStore().currentUserId();
 
       useMaterialUsagesStore()
           .addMaterialUsage({
