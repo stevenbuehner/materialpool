@@ -4,7 +4,6 @@ import materials                 from './modules/materials';
 import search                    from './modules/search';
 import materialapp               from './modules/materialapp';
 import general                   from './modules/general';
-import keywordsSuggestions       from './modules/keywordsSuggestions';
 
 export const store = createStore({
 
@@ -12,7 +11,6 @@ export const store = createStore({
 		resources,
 		materials,
 		materialapp,
-		keywordsSuggestions,
 		search,
 		general,
 	}

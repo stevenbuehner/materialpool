@@ -44,6 +44,7 @@ import searchInputTag_include from "./searchInputTag_include";
 import {preloadedIcon}        from "../keyword/keywordDefaultIcons";
 import {BBadge}               from '@/adapters/bootstrap'
 import {useBibleverseCrossReferencesStore} from '../../apps/main/stores/bibleverseCrossReferences';
+import {useKeywordSuggestionsStore}        from '../../apps/main/stores/keywordSuggestions';
 
 export default {
   name: "searchInputTag",
@@ -94,7 +95,7 @@ export default {
             to: this?.item?.from
           });
         } else if (this.type === 'k') {
-          return this.$store.dispatch('keywordsSuggestions/getCount', this?.item?.id);
+          return useKeywordSuggestionsStore().getCount(this?.item?.id);
         }
 
         return false;

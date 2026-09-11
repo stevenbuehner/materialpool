@@ -369,6 +369,117 @@ test('Bible search optimization loads cross references through Pinia', async ({p
     expect(pageErrors).toEqual([]);
 });
 
+test('Keyword search optimization loads suggestions through Pinia', async ({page}) => {
+    const pageErrors = [];
+    const suggestionRequests = [];
+    page.on('pageerror', error => pageErrors.push(error.stack || error.message));
+
+    await page.route('**/vue/**', route => route.fulfill({
+        contentType: 'text/html',
+        body: `<!doctype html>
+            <html lang="de">
+                <head>
+                    <meta charset="utf-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1">
+                    <title>Materialpool Keyword Suggestion Store Test</title>
+                    ${viteStylesheetTags}
+                </head>
+                <body>
+                    <div id="app"></div>
+                    <script>
+                        window.Laravel = {csrfToken: 'synthetic-csrf-token'};
+                        window.materialpool = {route: '/search/1k55', store: {materials: []}};
+                    </script>
+                    ${viteScriptTag}
+                </body>
+            </html>`,
+    }));
+    await page.route('**/api/**', async route => {
+        const pathname = new URL(route.request().url()).pathname;
+
+        if (pathname === '/api/v1/general/options') {
+            await route.fulfill({
+                contentType: 'application/json',
+                body: JSON.stringify({
+                    systemname: 'MaterialPool Default',
+                    server: {max_upload: 10485760},
+                    user: {
+                        id: 1,
+                        name: 'Synthetic User',
+                        email: 'synthetic@example.invalid',
+                        is_admin: false,
+                        frontend_user_settings: {},
+                    },
+                }),
+            });
+            return;
+        }
+
+        if (pathname === '/api/v1/keywords/55') {
+            await route.fulfill({
+                contentType: 'application/json',
+                body: JSON.stringify({
+                    id: 55,
+                    title: 'Primary keyword',
+                    lc_title: 'primary keyword',
+                    type: 'key',
+                    ancestors: [],
+                    descendants: [],
+                }),
+            });
+            return;
+        }
+
+        if (pathname === '/api/v2/keywords/suggestions/55') {
+            suggestionRequests.push(route.request().url());
+            await route.fulfill({
+                contentType: 'application/json',
+                body: JSON.stringify({
+                    data: [{
+                        id: 56,
+                        title: 'Related keyword',
+                        lc_title: 'related keyword',
+                        type: 'key',
+                        relevance: 12,
+                        ancestors: [],
+                        descendants: [],
+                    }],
+                    total: 1,
+                    next_page_url: null,
+                }),
+            });
+            return;
+        }
+
+        await route.fulfill({contentType: 'application/json', body: '[]'});
+    });
+    await page.route('**/pool/search/get?*', route => route.fulfill({
+        contentType: 'application/json',
+        body: JSON.stringify({
+            data: [],
+            current_page: 1,
+            last_page: 1,
+            per_page: 30,
+            total: 0,
+        }),
+    }));
+
+    await page.goto('/vue/');
+
+    const searchTag = page.locator('.searchInputSelect .sb-search-input-tag').filter({hasText: 'Primary keyword'});
+    await expect(searchTag).toBeVisible();
+    await page.locator('.row .btn-group button').first().click();
+
+    const modal = page.locator('.modal.show');
+    await expect(modal.getByRole('heading', {name: 'Schlagwortoptimierung'})).toBeVisible();
+    await expect(modal.locator('.keyword-listing .cross-refs')).toHaveText('1');
+    await expect.poll(() => suggestionRequests.length).toBe(1);
+    await expect(modal.locator('.suggestions .sb-search-input-tag')).toContainText('Related keyword');
+    await expect(modal.locator('.suggestions')).toContainText('Relevanz: 12');
+    expect(new URL(suggestionRequests[0]).pathname).toBe('/api/v2/keywords/suggestions/55');
+    expect(pageErrors).toEqual([]);
+});
+
 test('Bundle overview loads and completes an update through Pinia', async ({page}) => {
     const pageErrors = [];
     const updateRequests = [];

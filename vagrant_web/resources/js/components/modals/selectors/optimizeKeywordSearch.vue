@@ -87,6 +87,7 @@ import {cloneDeep}                                               from "lodash";
 import {useBiblesStore}                                          from '../../../apps/main/stores/bibles';
 import {useBibleContentsStore}                                   from '../../../apps/main/stores/bibleContents';
 import {useBibleverseCrossReferencesStore}                       from '../../../apps/main/stores/bibleverseCrossReferences';
+import {useKeywordSuggestionsStore}                              from '../../../apps/main/stores/keywordSuggestions';
 
 export default {
   name: "optimizeKeywordSearch",
@@ -192,7 +193,7 @@ export default {
             break;
 
           case 'k':
-            count = await this.$store.dispatch('keywordsSuggestions/getCount', this.selectedTag?.item?.id);
+            count = await useKeywordSuggestionsStore().getCount(this.selectedTag?.item?.id);
             break;
         }
 
@@ -262,12 +263,10 @@ export default {
 
           case 'k':
 
-            const keywordSug = await this.$store.dispatch('keywordsSuggestions/get',
-                {
-                  id: this.selectedTag?.item?.id,
-                  maximum: this.numberOfDisplayedSuggestions
-                }
-            );
+            const keywordSug = await useKeywordSuggestionsStore().get({
+              id: this.selectedTag?.item?.id,
+              maximum: this.numberOfDisplayedSuggestions
+            });
 
             return keywordSug.map((kw) => {
 

@@ -1,6 +1,6 @@
 # Vue-3-Migration – Stufe 6: Vuex zu Pinia
 
-Status: In Arbeit. Die Migration erfolgt Store für Store; jeder Abschnitt nennt den alleinigen schreibenden Store, seine migrierten Konsumenten und die Abnahme. Dieser Bericht ergänzt den verbindlichen [Vue-3-Migrationsvertrag](vue-3-migration-contract.md). Letzter vollständig committeter Teilstufenstand ist 6.9 (`aaedd9b9`).
+Status: In Arbeit. Die Migration erfolgt Store für Store; jeder Abschnitt nennt den alleinigen schreibenden Store, seine migrierten Konsumenten und die Abnahme. Dieser Bericht ergänzt den verbindlichen [Vue-3-Migrationsvertrag](vue-3-migration-contract.md). Letzter vollständig committeter Teilstufenstand ist 6.10 (`c5a93799`).
 
 ## Pinia-Basis und Parallelbetrieb
 
@@ -139,6 +139,21 @@ Abnahme: Production-Build mit 967 transformierten Modulen, 28 Vitest-Dateien mit
 
 Rückbau: Der Teilstufencommit registriert das frühere Vuex-Modul erneut, stellt die 25 Aufrufe in zwölf Konsumenten einschließlich des Übergabewriters aus `keywordsSuggestions` wieder her und entfernt Pinia-Store, Unit-Tests und die Keyword-Browserreise. Andere Pinia-Slices bleiben unabhängig.
 
+## Teilstufe 6.11 – Schlagwortvorschläge
+
+`keywordsSuggestions` hält Vorschlagslisten und deren Gesamtzahl pro Ausgangsschlagwort. Der Pinia-Port erhält den v2-API-Pfad, das Standardmaximum 50, die Pagination bis zum angeforderten Maximum, Teilmengenrückgabe, Queue und Reihenfolge der Mehrfachabfrage sowie den historischen Vertrag, konvertierte Requestfehler als erfüllten Action-Wert zurückzugeben. Beide Komponenten-Konsumenten verwenden Pinia; das Vuex-Modul und seine Root-Registrierung sind entfernt. Die Vorschlagsobjekte behalten ihre `relevance`, während eine tiefe Kopie ohne `relevance` an den zentralen `keywords`-Store übergeben wird. Damit bleibt dieser weiterhin der einzige Writer des allgemeinen Schlagwort-Caches.
+
+Zwei lokale Cacheverbesserungen wurden testgedeckt umgesetzt:
+
+- Der frühere Count-Getter prüfte den gespeicherten Wert auf Truthiness. Ein korrekt geladener Count von `0` wurde daher wie „nicht geladen“ behandelt und erneut angefragt. Nullish-Prüfung unterscheidet jetzt zuverlässig zwischen Nulltreffer und fehlendem Cache.
+- Count und Vorschlagsliste werden im Dialog parallel lazy berechnet. Vor dem ersten Cache-Schreibvorgang entstanden dadurch bis zu vier identische Requests. Der Store führt laufende Abrufe nun pro Ausgangsschlagwort zusammen. Ein nachfolgend angefordertes größeres Maximum wird nach Abschluss weiterhin gegen Cache und Gesamtzahl geprüft und bei Bedarf korrekt nachgeladen; ein erfüllter Fehlerwert wird ohne automatischen Retry an parallele Aufrufer weitergegeben.
+
+Sechs Unit-Tests schützen Pagination und Maximum, den separaten Relevanzvertrag beider Stores, vollständigen Cache und Invalidierung, parallele Count-/Listenabfragen, Zero-Count, erfüllten Fehlerwert sowie Queue und Ergebnisreihenfolge. Eine neue vollständig gemockte Browserreise lädt ein Ausgangsschlagwort, öffnet die Optimierung und prüft Count-Badge, vorgeschlagenes Schlagwort, Relevanz und den einzelnen Request in Desktop- und Mobile-WebKit.
+
+Abnahme: Production-Build mit 967 transformierten Modulen, 29 Vitest-Dateien mit 103/103 Tests, ESLint mit 0 Fehlern und 233 bekannten Warnungen, Frontend-Inventar und Diff-Check sind grün. Die neue Vorschlagsreise besteht responsiv mit 2/2 Prüfungen. Das Inventar meldet keine Vue-2-/Compat-Muster und noch exakt 5 registrierte Vuex-Module. Backend-Route, Controller, Datenbankabfrage, Autorisierung und Daten wurden nicht verändert. Die bekannten Sass-Deprecations und der Chunkgrößenhinweis bleiben unverändert.
+
+Rückbau: Der Teilstufencommit registriert das frühere Vuex-Modul erneut, stellt die drei Dispatch-Aufrufe in zwei Komponenten wieder her und entfernt Pinia-Store, Unit-Tests und die isolierte Browserreise. Der zentrale Pinia-Store `keywords` bleibt bestehen; beim Rückbau schreibt das Vuex-Modul wie in Teilstufe 6.10 dokumentiert über dessen gerichtete Übergabe-Action.
+
 ## Noch zu migrieren
 
-Nach Teilstufe 6.10 verbleiben 6 registrierte Vuex-Module: `resources`, `materials`, `materialapp`, `keywordsSuggestions`, `search` und `general`. Als Nächstes kann `keywordsSuggestions` migriert werden; anschließend folgen `materials` und `resources` vor ihren schreibenden Sekundärstores `search` und `materialapp`, `general` nach den fachlichen Stores. Vuex wird erst nach dem letzten migrierten Konsumenten entfernt.
+Nach Teilstufe 6.11 verbleiben 5 registrierte Vuex-Module: `resources`, `materials`, `materialapp`, `search` und `general`. Als Nächstes werden die eng gekoppelten Stores `materials` und `resources` samt ihren gegenseitigen Cache-Schreibpfaden vermessen und in möglichst kleinen, jeweils allein schreibenden Slices migriert. Erst danach folgen die schreibenden Sekundärstores `search` und `materialapp`; `general` bleibt bis nach den fachlichen Stores. Vuex wird erst nach dem letzten migrierten Konsumenten entfernt.
