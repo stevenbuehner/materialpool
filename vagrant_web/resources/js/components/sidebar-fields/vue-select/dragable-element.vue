@@ -77,13 +77,11 @@ export default {
     }
   },
 
-  created() {
-    this.$on('dragging-done', (dragPercentage) => {
-      this.requestUpdateRelevance(dragPercentage);
-    });
-  },
-
   methods: {
+    onDraggingDone(dragPercentage) {
+      this.requestUpdateRelevance(dragPercentage);
+    },
+
     requestUpdateRelevance(dragPercentage) {
       this.$emit('request-update-relevance', Math.round(dragPercentage * this.maxRelevance));
     },

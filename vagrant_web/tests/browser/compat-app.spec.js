@@ -1,6 +1,22 @@
 import {expect, test} from '@playwright/test';
 import {Buffer} from 'node:buffer';
 
+const compatWarningsByPage = new WeakMap();
+
+test.beforeEach(({page}) => {
+    const compatWarnings = [];
+    compatWarningsByPage.set(page, compatWarnings);
+    page.on('console', message => {
+        if (message.type() === 'warning' && message.text().startsWith('[Vue warn]: (deprecation ')) {
+            compatWarnings.push(message.text());
+        }
+    });
+});
+
+test.afterEach(({page}) => {
+    expect(compatWarningsByPage.get(page)).toEqual([]);
+});
+
 test('Vue application mounts with synthetic bootstrap data', async ({page}, testInfo) => {
     const pageErrors = [];
     const compatWarnings = [];
@@ -116,17 +132,31 @@ test('Vue application mounts with synthetic bootstrap data', async ({page}, test
     await page.locator('form').filter({has: speedSearch}).getByRole('button', {name: 'Suchen'}).click();
     await expect(page).toHaveURL(/\/vue\/search\/1\*Gamma$/);
 
+    await page.evaluate(() => {
+        window.history.pushState({}, '', '/vue/system/shutdown');
+        window.dispatchEvent(new PopStateEvent('popstate'));
+    });
+    const shutdownDialog = page.locator('.modal.show');
+    await expect(shutdownDialog.getByRole('heading', {name: 'Achtung'})).toBeVisible();
+    const confirmShutdown = shutdownDialog.getByRole('button', {name: 'Ja'});
+    await expect(confirmShutdown).toBeFocused();
+    await shutdownDialog.getByRole('button', {name: 'Nein'}).click();
+    await expect(shutdownDialog).toBeHidden();
+    await expect(page).toHaveURL(/\/vue\/search\/1\*Gamma$/);
+
     await testInfo.attach('vue-compat-warnings', {
         body: JSON.stringify(compatWarnings, null, 2),
         contentType: 'application/json',
     });
     expect(pageErrors).toEqual([]);
+    expect(compatWarnings).toEqual([]);
     expect(unexpectedWarnings).toEqual([]);
 });
 
 test('Vue 3 datepicker keeps the German input and calendar interaction', async ({page}) => {
     const pageErrors = [];
     const attachRequests = [];
+    const relevanceRequests = [];
     let returnResourceSuggestion = false;
     page.on('pageerror', error => pageErrors.push(error.stack || error.message));
 
@@ -196,6 +226,51 @@ test('Vue 3 datepicker keeps the German input and calendar interaction', async (
                     keywords: [],
                     bibleverses: [],
                     foreign_ids: [],
+                }),
+            });
+            return;
+        }
+
+        if (pathname === '/api/v1/materials/2') {
+            await route.fulfill({
+                contentType: 'application/json',
+                body: JSON.stringify({
+                    id: 2,
+                    title: 'Compat interactions',
+                    description: '',
+                    rating: 10,
+                    flag: null,
+                    author: null,
+                    creator: null,
+                    from_bot: false,
+                    created_at: '2026-09-01 12:00:00',
+                    updated_at: '2026-09-01 12:00:00',
+                    resources: [],
+                    keywords: [{
+                        id: 55,
+                        title: 'Compat keyword',
+                        lc_title: 'compat keyword',
+                        type: 'key',
+                        pivot: {relevance: 100},
+                    }],
+                    bibleverses: [],
+                    foreign_ids: [],
+                }),
+            });
+            return;
+        }
+
+        if (pathname === '/api/v1/material/2/keyword/55' && route.request().method() === 'POST') {
+            const payload = route.request().postDataJSON();
+            relevanceRequests.push(payload);
+            await route.fulfill({
+                contentType: 'application/json',
+                body: JSON.stringify({
+                    id: 55,
+                    title: 'Compat keyword',
+                    lc_title: 'compat keyword',
+                    type: 'key',
+                    pivot: {relevance: payload.relevance},
                 }),
             });
             return;
@@ -330,6 +405,34 @@ test('Vue 3 datepicker keeps the German input and calendar interaction', async (
     await expect(modal).toBeHidden();
     await expect(page.locator('body')).not.toHaveClass(/\bmodal-open\b/);
     await expect(page.locator('.resourceDetail')).toContainText('Selected resource content');
+
+    await page.evaluate(() => {
+        window.history.pushState({}, '', '/vue/material/2');
+        window.dispatchEvent(new PopStateEvent('popstate'));
+    });
+    const draggableTag = page.locator('.selected-tag.draggable').filter({hasText: 'Compat keyword'});
+    await expect(draggableTag).toBeVisible();
+    const tagBox = await draggableTag.boundingBox();
+    expect(tagBox).not.toBeNull();
+    await page.mouse.move(tagBox.x + 2, tagBox.y + (tagBox.height / 2));
+    await page.mouse.down();
+    await page.mouse.move(tagBox.x + (tagBox.width * 0.75), tagBox.y + (tagBox.height / 2));
+    await page.mouse.up();
+    await expect.poll(() => relevanceRequests.length).toBe(1);
+    expect(relevanceRequests[0]._method).toBe('PUT');
+    expect(relevanceRequests[0].relevance).toBeGreaterThan(150);
+    expect(relevanceRequests[0].relevance).toBeLessThanOrEqual(300);
+
+    await draggableTag.click({button: 'right'});
+    const contextMenu = page.locator('.sb-context-menu');
+    await expect(contextMenu).toBeVisible();
+    await page.mouse.click(2, 2);
+    await expect(contextMenu).toBeHidden();
+
+    await draggableTag.click({button: 'right'});
+    await contextMenu.getByRole('link', {name: 'Suche nach "Compat keyword"'}).click();
+    await expect(contextMenu).toBeHidden();
+    await expect(page).toHaveURL(/\/vue\/search\/1k55$/);
     expect(pageErrors).toEqual([]);
 });
 

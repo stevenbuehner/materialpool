@@ -12,10 +12,14 @@
 </template>
 
 <script>
-import {MENU_ITEM_CLICKED} from "./context-menu";
-
 export default {
   name: "context-menu-item",
+
+  emits: ['click'],
+
+  inject: {
+    contextMenuItemClicked: {default: null},
+  },
 
   props: {
     disabled: {
@@ -56,8 +60,7 @@ export default {
 
   methods: {
     menuItemClicked(event) {
-
-      this.$parent.$emit(MENU_ITEM_CLICKED, this);
+      this.contextMenuItemClicked?.(this);
       this.$emit('click', event);
 
     }

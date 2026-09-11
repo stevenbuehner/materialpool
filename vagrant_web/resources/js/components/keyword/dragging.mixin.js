@@ -84,7 +84,7 @@ export const draggingSupport = {
 					// To set the relevance = 0 we can use negative direction
 					this.$emit('single-click');
 				} else {
-					this.$emit('dragging-done', this.dragPercentage);
+					this.onDraggingDone(this.dragPercentage);
 				}
 
 			}

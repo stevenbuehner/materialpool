@@ -314,7 +314,6 @@ export default {
 
       if (foundIndex >= 0) {
         this.myKeywords.splice(foundIndex, 1, kw);
-        // this.$set(this.myKeywords, foundIndex, kw)
       } else {
         this.myKeywords.push(kw);
       }

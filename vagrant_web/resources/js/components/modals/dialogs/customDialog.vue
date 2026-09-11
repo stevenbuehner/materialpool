@@ -6,6 +6,7 @@
       ref="myModal"
       centered
       :busy="opt.busy"
+      @shown="_focusOnButton"
       @hide="onHide"
       @cancel="onCancel"
       :no-close-on-esc="!opt.allowBackdrop"
@@ -177,14 +178,6 @@ export default {
         this.resolve = resolve;
         this.reject  = reject;
         this.$refs.myModal.show();
-
-        if (this.$refs.myModal.is_visible) {
-          this.$nextTick(() => {
-            this._focusOnButton();
-          });
-        } else {
-          this.$refs.myModal.$once('shown', this._focusOnButton)
-        }
 
       });
 

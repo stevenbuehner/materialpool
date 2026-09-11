@@ -9,16 +9,15 @@
 </template>
 
 <script>
-import menuItem from './context-menu-item.vue';
-
-const MENU_CLOSE_EVENT         = 'context-menu:close';
-const MENU_OPEN_EVENT          = 'context-menu:open';
-export const MENU_ITEM_CLICKED = 'item-clicked';
+const openMenus = new Set();
 
 export default {
   name: "context-menu",
-  components: {
-    menuItem
+
+  provide() {
+    return {
+      contextMenuItemClicked: this.onMenuItemClicked,
+    };
   },
 
   props: {
@@ -79,7 +78,8 @@ export default {
       // Vermutlich löscht der DOM die Elemente, bevor der Link geöffnet werden kann. Darum passiert gar nichts
       // Auch $nextTick hat nicht geholfen
 
-      this.$root.$emit(MENU_CLOSE_EVENT);
+      this.menuOpen = false;
+      openMenus.delete(this);
     },
 
     openMenu: function (event, optionalData) {
@@ -91,9 +91,12 @@ export default {
         this.optionalData = optionalData;
       }
 
-      this.$root.$emit(MENU_OPEN_EVENT, this);
+      openMenus.forEach(menu => {
+        if (menu !== this) menu.closeMenu();
+      });
 
       this.menuOpen = true;
+      openMenus.add(this);
 
       this.$nextTick(function () {
         this.$el.focus();
@@ -101,47 +104,26 @@ export default {
       });
 
     },
-  },
 
-  created() {
-
-    this.$root.$on(MENU_CLOSE_EVENT, function (e) {
-      // console.log(e);
-      this.menuOpen = false;
-    }.bind(this));
-
-    this.$root.$on(MENU_OPEN_EVENT, function (instance) {
-      if (instance !== this) {
-        this.menuOpen = false;
+    onDocumentMouseDown(event) {
+      const target = event.target;
+      if (!(target instanceof Element) || !target.closest('.sb-context-menu')) {
+        this.closeMenu();
       }
-    }.bind(this));
+    },
 
-    // Only once for the first component
-    if (this.$root.contextMenuClickSetupComplete === undefined) {
-
-      document.onmousedown = function (event) {
-
-        const target   = event.target;
-        const dropdown = target.closest('.sb-context-menu');
-
-        if (!dropdown) {
-          this.$root.$emit(MENU_CLOSE_EVENT, event);
-        }
-
-        this.$root.contextMenuClickSetupComplete = true;
-      }.bind(this);
-    }
-
-
-    this.$on(MENU_ITEM_CLICKED, () => {
-      this.menuOpen = false;
-    });
-
+    onMenuItemClicked() {
+      this.closeMenu();
+    },
   },
 
-  unmounted() {
-    // Todo: Remove document onmousedown event
-    this.$off(MENU_ITEM_CLICKED);
+  mounted() {
+    document.addEventListener('mousedown', this.onDocumentMouseDown);
+  },
+
+  beforeUnmount() {
+    document.removeEventListener('mousedown', this.onDocumentMouseDown);
+    this.closeMenu();
   },
 
 }

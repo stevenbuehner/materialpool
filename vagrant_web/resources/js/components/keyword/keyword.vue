@@ -145,13 +145,13 @@ export default {
     // Needs to be copied. Because any changes in properties are not recognized in computed properties
     this.myKeyword = cloneDeep(this.keyword); // JSON.parse(JSON.stringify(this.keyword));
 
-    this.$on('dragging-done', (dragPercentage) => {
-      this.updateRelevance(dragPercentage * RELEVANCE_USER_MAX);
-    });
-
   },
 
   methods: {
+
+    onDraggingDone(dragPercentage) {
+      this.updateRelevance(dragPercentage * RELEVANCE_USER_MAX);
+    },
 
     keydownStartDrag(event) {
       if (this.editable) {

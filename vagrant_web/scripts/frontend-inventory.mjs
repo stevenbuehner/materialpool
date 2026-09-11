@@ -34,7 +34,9 @@ for (const { text } of sources) {
 
 const patterns = {
     bootstrapVueImports: /from\s+['"]bootstrap-vue['"]|require\(['"]bootstrap-vue['"]\)/,
-    eventBusUsage: /\$on\s*\(|\$off\s*\(|\$once\s*\(|\$emit\s*\(/,
+    // Component $emit calls are normal in Vue 3; only removed instance-bus APIs
+    // identify a legacy event bus.
+    eventBusUsage: /\$on\s*\(|\$off\s*\(|\$once\s*\(/,
     filters: /\bfilters\s*:/,
     functionalComponents: /\bfunctional\s*:\s*true/,
     renderFunctions: /\brender\s*\(/,
