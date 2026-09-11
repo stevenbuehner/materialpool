@@ -40,6 +40,7 @@ import BibleText
 import {BibleVerse, BibleVerseService}                                      from "../../../helper/BibleverseHelper";
 import {fromRangeArrayToString}                                             from './readBibleHelper';
 import {useBiblesStore}                                                     from '../stores/bibles';
+import {useBibleContentsStore}                                              from '../stores/bibleContents';
 
 export default {
   name: "ReadBible",
@@ -67,7 +68,7 @@ export default {
 
     ranges: {
       get() {
-        return this.$store.dispatch('biblecontents/getMultiple', this.bibleVerses.map(bv => {
+        return useBibleContentsStore().getMultiple(this.bibleVerses.map(bv => {
               return {
                 from: bv.getFrom(),
                 to: bv.getTo(),

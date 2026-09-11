@@ -15,6 +15,7 @@
 	import BibleVerse          from '../../../../vendor/stevenbuehner/bible-verse-bundle/js/in/BibleVerse.js';
 	import MaterialpoolSpinner from "../spinner/materialpool-spinner";
 	import {useBiblesStore}    from '../../apps/main/stores/bibles';
+	import {useBibleContentsStore} from '../../apps/main/stores/bibleContents';
 
 	export default {
 		name: "bibleText",
@@ -49,7 +50,7 @@
 				get() {
 					this.versesAreReloading = true;
 
-					return this.$store.dispatch('biblecontents/get', {
+					return useBibleContentsStore().get({
 						from: this.bibleverse.getFrom(),
 						to: this.bibleverse.getTo(),
 						bibleUuid: this.bibleUuid

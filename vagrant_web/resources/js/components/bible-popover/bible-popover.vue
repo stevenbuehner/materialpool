@@ -134,6 +134,7 @@ import MaterialpoolSpinner                                       from "../spinne
 import {copyStringToClipboard}                                   from "../../helper/copyToClipboard";
 import {BibleVerse, BibleVerseService}                           from "../../helper/BibleverseHelper";
 import {useBiblesStore}                                          from '../../apps/main/stores/bibles';
+import {useBibleContentsStore}                                   from '../../apps/main/stores/bibleContents';
 
 
 export default {
@@ -302,7 +303,7 @@ export default {
       get() {
         this.isLoading = true;
 
-        return this.$store.dispatch('biblecontents/get', {
+        return useBibleContentsStore().get({
           from: this.from - this.contextOffsetFrom,
           to: parseInt(this.to) + this.contextOffsetTo,
           bibleUuid: this.bibleUuid

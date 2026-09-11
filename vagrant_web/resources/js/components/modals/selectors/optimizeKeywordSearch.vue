@@ -85,6 +85,7 @@ import {BibleVerse, BibleVerseService}                           from "../../../
 import truncateFilterMixin                                       from "../../../filters/truncate-filter.mixin";
 import {cloneDeep}                                               from "lodash";
 import {useBiblesStore}                                          from '../../../apps/main/stores/bibles';
+import {useBibleContentsStore}                                   from '../../../apps/main/stores/bibleContents';
 
 export default {
   name: "optimizeKeywordSearch",
@@ -165,7 +166,7 @@ export default {
         let result = '';
         switch (this.selectedTag?.item?.type) {
           case 'b':
-            const verses = await this.$store.dispatch('biblecontents/get',
+            const verses = await useBibleContentsStore().get(
                 {from: this.selectedTag?.item?.from, to: this.selectedTag?.item?.to}
             );
 
@@ -247,7 +248,7 @@ export default {
                 extra: {bibleverse}
               }
 
-              this.$store.dispatch('biblecontents/get', {from, to})
+              useBibleContentsStore().get({from, to})
                   .then((resp) => {
                     result.bigText = '';
 

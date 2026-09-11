@@ -73,6 +73,21 @@ Abnahme: Production-Build mit 967 transformierten Modulen, 23 Vitest-Dateien mit
 
 Rückbau: Der Teilstufencommit registriert das frühere Vuex-Modul erneut, stellt die vier Komponenten-Dispatches und die beiden Root-Commits in `biblecontents` wieder her und entfernt Store und Tests. Andere Pinia-Slices bleiben unabhängig.
 
+## Teilstufe 6.6 – Bibeltexte
+
+`biblecontents` verwaltet Versbereiche im Speicher, serialisiert HTTP-Zugriffe über die bestehende `PQueue` und speist gefundene Übersetzungsmetadaten in den bereits migrierten `bibles`-Store. Der Pinia-Port erhält die Routenbildung einschließlich optionaler Übersetzungs-UUID, das bisherige Response- und Suchfehlerverhalten, die Reihenfolge von `getMultiple`, die Cache-Schlüssel aus `getRangeId` sowie das doppelte Caching eines Defaultabrufs unter Default- und tatsächlich aufgelöster Übersetzung. Alle fünf Komponenten-Konsumenten verwenden nun Pinia; das Vuex-Modul und seine Root-Registrierung sind entfernt.
+
+Zwei lokale Cachedefekte wurden behoben:
+
+- Der alte Code erzeugte zwar ein Queue-Promise, schrieb es aber erst **nach** `await` in den Cache. Parallele identische Aufrufe starteten deshalb mehrere Requests, obwohl Kommentar und nachfolgender Promise-Zweig ausdrücklich Zusammenführung vorsahen. Der Pinia-Store cached das laufende Promise vor dem Warten. Bei Rejection wird der Eintrag entfernt, sodass der bisher mögliche spätere Retry erhalten bleibt.
+- `searchAndGet` normalisierte eine nicht übergebene `bibleUuid` nicht auf `null`. Dadurch wurde die Defaultantwort zwar unter dem leeren Schlüssel, wegen des strikten `=== null` aber nicht zusätzlich unter der vom Server gelieferten Übersetzungs-UUID gespeichert. Beide Schlüssel werden jetzt konsistent wie im normalen `get`-Pfad befüllt.
+
+Sechs Unit-Tests schützen Queue und beide Cache-Schlüssel, Zusammenführung paralleler Requests, Retry nach Fehler, Ergebnisreihenfolge mehrerer Bereiche, Suchroute/-parameter/-caching und den unverändert geloggten und geworfenen fachlichen Suchfehler. Die in Teilstufe 6.5 eingeführte Browserreise lädt nun zusätzlich einen realen Versbereich, prüft den einmaligen Content-Request im bestehenden neunstelligen Versnummernformat sowie beide sichtbaren Verstexte. Auswahl und Anzeige der Übersetzungen bleiben enthalten.
+
+Abnahme: Production-Build mit 967 transformierten Modulen, 24 Vitest-Dateien mit 63/63 Tests, ESLint mit 0 Fehlern und 288 bekannten Warnungen, Frontend-Inventar und Diff-Check sind grün. Die gekoppelte Bibelleser-Reise besteht in Desktop- und Mobile-WebKit. Das Inventar meldet keine Vue-2-/Compat-Muster und noch exakt 10 registrierte Vuex-Module.
+
+Rückbau: Der Teilstufencommit registriert das Vuex-Modul erneut und stellt die fünf Komponenten-Dispatches wieder her. Der eigenständige Pinia-Store `bibles` aus Teilstufe 6.5 bleibt bestehen; seine beiden Writer-Aufrufe werden beim Rückbau wieder als Root-Commits aus `biblecontents` ausgeführt.
+
 ## Noch zu migrieren
 
-Nach Teilstufe 6.5 verbleiben 11 registrierte Vuex-Module: `resources`, `materials`, `materialapp`, `keywords`, `keywordsSuggestions`, `bibleverses`, `bibleverseCrossReferences`, `search`, `bundles`, `biblecontents` und `general`. Die Reihenfolge bleibt risikobasiert: als Nächstes folgt der fachlich gekoppelte `biblecontents`-Cache, danach weitere isolierbare Module und zuletzt die zentralen Material-/Resource-/General-Pfade. Vuex wird erst nach dem letzten migrierten Konsumenten entfernt.
+Nach Teilstufe 6.6 verbleiben 10 registrierte Vuex-Module: `resources`, `materials`, `materialapp`, `keywords`, `keywordsSuggestions`, `bibleverses`, `bibleverseCrossReferences`, `search`, `bundles` und `general`. Die Reihenfolge bleibt risikobasiert: weitere isolierbare Module folgen vor den gekoppelten Relations- und zentralen Material-/Resource-/General-Pfaden. Vuex wird erst nach dem letzten migrierten Konsumenten entfernt.

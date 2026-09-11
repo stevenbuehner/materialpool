@@ -164,6 +164,7 @@ test('Vue application mounts with synthetic bootstrap data', async ({page}, test
 test('Bible reader loads and selects cached translations', async ({page}) => {
     const pageErrors = [];
     const bibleListRequests = [];
+    const bibleContentRequests = [];
     page.on('pageerror', error => pageErrors.push(error.stack || error.message));
 
     await page.route('**/vue/**', route => route.fulfill({
@@ -180,7 +181,7 @@ test('Bible reader loads and selects cached translations', async ({page}) => {
                     <div id="app"></div>
                     <script>
                         window.Laravel = {csrfToken: 'synthetic-csrf-token'};
-                        window.materialpool = {route: '/readbible', store: {materials: []}};
+                        window.materialpool = {route: '/readbible/1001001-1001002', store: {materials: []}};
                     </script>
                     ${viteScriptTag}
                 </body>
@@ -214,12 +215,39 @@ test('Bible reader loads and selects cached translations', async ({page}) => {
             }),
         });
     });
+    await page.route('**/api/v1/biblecontents/**', route => {
+        bibleContentRequests.push(route.request().url());
+        return route.fulfill({
+            contentType: 'application/json',
+            body: JSON.stringify({
+                bible: {uuid: 'basis', title: 'BasisBibel'},
+                verses: [
+                    {verse: 1001001, bible_id: 1, bibleUuid: 'basis', text: 'Am Anfang schuf Gott.'},
+                    {verse: 1001002, bible_id: 1, bibleUuid: 'basis', text: 'Die Erde war wüst und leer.'},
+                ],
+            }),
+        });
+    });
+    await page.route('**/pool/search/**', route => route.fulfill({
+        contentType: 'application/json',
+        body: JSON.stringify({
+            data: [],
+            current_page: 1,
+            last_page: 1,
+            per_page: 20,
+            total: 0,
+        }),
+    }));
 
     await page.goto('/vue/');
 
     const translation = page.getByTitle('Übersetzung auswählen');
     await expect(translation).toBeVisible();
     await expect.poll(() => bibleListRequests.length).toBe(1);
+    await expect.poll(() => bibleContentRequests.length).toBe(1);
+    expect(new URL(bibleContentRequests[0]).pathname).toBe('/api/v1/biblecontents/001001001-001001002');
+    await expect(page.locator('.bibleTextPortion')).toContainText('Am Anfang schuf Gott.');
+    await expect(page.locator('.bibleTextPortion')).toContainText('Die Erde war wüst und leer.');
     await translation.click();
     await page.getByRole('menuitem', {name: 'BasisBibel'}).click();
     await expect(translation).toContainText('BasisBibel');

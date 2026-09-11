@@ -18,6 +18,7 @@
 <script>
 import BiblePopover from "./../bible-popover/bible-popover";
 import BibleVerse   from '../../../../vendor/stevenbuehner/bible-verse-bundle/js/in/BibleVerse.js';
+import {useBibleContentsStore} from '../../apps/main/stores/bibleContents';
 
 export default {
   name: "bibleverse-inline-popover-txt",
@@ -57,8 +58,8 @@ export default {
 
     normalizedBibleverse: {
       get() {
-        return this.$store
-                   .dispatch('biblecontents/searchAndGet', {search: this.text})
+        return useBibleContentsStore()
+                   .searchAndGet({search: this.text})
                    .then(({bible, bibleverses}) => {
 
                      if (Array.isArray(bibleverses) && bibleverses.length > 0) {
