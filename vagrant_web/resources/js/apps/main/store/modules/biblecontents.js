@@ -2,6 +2,7 @@ import {api_v1_biblecontents_get, api_v1_biblecontents_search_and_get} from '../
 import axios                                                           from '../../axiosInstance';
 import {queue}                                                         from "../networkQueue";
 import {getRangeId}                                                    from "../helper/bibleverseHelper";
+import {useBiblesStore}                                                from '../../stores/bibles';
 
 
 const state = {
@@ -51,7 +52,7 @@ const actions = {
 			const verses = data.verses;
 
 			// Cache bible
-			commit('bibles/addBible', bible, {root: true});
+			useBiblesStore().addBible(bible);
 
 			// Cache verses ohne BibleUid
 			if (bibleUuid === null) {
@@ -104,7 +105,7 @@ const actions = {
 			            }
 
 			            // data: {bible, bibleverses, verses}
-			            commit('bibles/addBible', data.bible, {root: true});
+			            useBiblesStore().addBible(data.bible);
 
 			            if (data.bibleverses.length === 1) {
 				            // All bibleverses belong to this one bibleverse

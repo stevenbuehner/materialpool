@@ -39,6 +39,7 @@ import BibleText
                                                                             from "../../../components/biblecontents/bibleText";
 import {BibleVerse, BibleVerseService}                                      from "../../../helper/BibleverseHelper";
 import {fromRangeArrayToString}                                             from './readBibleHelper';
+import {useBiblesStore}                                                     from '../stores/bibles';
 
 export default {
   name: "ReadBible",
@@ -57,7 +58,7 @@ export default {
   asyncComputed: {
     allBibles: {
       get() {
-        return this.$store.dispatch('bibles/getAll').then((bibles) => {
+        return useBiblesStore().getAll().then((bibles) => {
           return bibles;
         });
       },

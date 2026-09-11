@@ -9,7 +9,6 @@ import materialapp               from './modules/materialapp';
 import bundles                   from './modules/bundles';
 import biblecontents             from './modules/biblecontents';
 import general                   from './modules/general';
-import bibles                    from './modules/bibles';
 import keywordsSuggestions       from './modules/keywordsSuggestions';
 
 export const store = createStore({
@@ -26,6 +25,5 @@ export const store = createStore({
 		bundles,
 		biblecontents,
 		general,
-		bibles,
 	}
 });

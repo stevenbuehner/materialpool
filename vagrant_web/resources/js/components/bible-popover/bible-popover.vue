@@ -133,6 +133,7 @@ import {fromRangeArrayToString}                                  from "../../app
 import MaterialpoolSpinner                                       from "../spinner/materialpool-spinner";
 import {copyStringToClipboard}                                   from "../../helper/copyToClipboard";
 import {BibleVerse, BibleVerseService}                           from "../../helper/BibleverseHelper";
+import {useBiblesStore}                                          from '../../apps/main/stores/bibles';
 
 
 export default {
@@ -336,7 +337,7 @@ export default {
         const bibleUuid = this.usedBibleTranslationUuid;
 
         if (bibleUuid !== null) {
-          return this.$store.dispatch('bibles/get', bibleUuid)
+          return useBiblesStore().get(bibleUuid)
         }
         return {};
       },

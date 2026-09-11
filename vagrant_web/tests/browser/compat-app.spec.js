@@ -161,6 +161,72 @@ test('Vue application mounts with synthetic bootstrap data', async ({page}, test
     expect(unexpectedWarnings).toEqual([]);
 });
 
+test('Bible reader loads and selects cached translations', async ({page}) => {
+    const pageErrors = [];
+    const bibleListRequests = [];
+    page.on('pageerror', error => pageErrors.push(error.stack || error.message));
+
+    await page.route('**/vue/**', route => route.fulfill({
+        contentType: 'text/html',
+        body: `<!doctype html>
+            <html lang="de">
+                <head>
+                    <meta charset="utf-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1">
+                    <title>Materialpool Bible Store Test</title>
+                    ${viteStylesheetTags}
+                </head>
+                <body>
+                    <div id="app"></div>
+                    <script>
+                        window.Laravel = {csrfToken: 'synthetic-csrf-token'};
+                        window.materialpool = {route: '/readbible', store: {materials: []}};
+                    </script>
+                    ${viteScriptTag}
+                </body>
+            </html>`,
+    }));
+    await page.route('**/api/v1/general/options?*', route => route.fulfill({
+        contentType: 'application/json',
+        body: JSON.stringify({
+            systemname: 'MaterialPool Default',
+            server: {max_upload: 10485760},
+            user: {
+                id: 1,
+                name: 'Synthetic User',
+                email: 'synthetic@example.invalid',
+                is_admin: false,
+                frontend_user_settings: {},
+            },
+        }),
+    }));
+    await page.route('**/api/v1/bibles?*', route => {
+        bibleListRequests.push(route.request().url());
+        return route.fulfill({
+            contentType: 'application/json',
+            body: JSON.stringify({
+                data: [
+                    {uuid: 'basis', title: 'BasisBibel'},
+                    {uuid: 'lut', title: 'Luther 2017'},
+                ],
+                current_page: 1,
+                last_page: 1,
+            }),
+        });
+    });
+
+    await page.goto('/vue/');
+
+    const translation = page.getByTitle('Übersetzung auswählen');
+    await expect(translation).toBeVisible();
+    await expect.poll(() => bibleListRequests.length).toBe(1);
+    await translation.click();
+    await page.getByRole('menuitem', {name: 'BasisBibel'}).click();
+    await expect(translation).toContainText('BasisBibel');
+    await expectResolvedNavigation(page);
+    expect(pageErrors).toEqual([]);
+});
+
 test('Vue 3 datepicker keeps the German input and calendar interaction', async ({page}) => {
     const pageErrors = [];
     const attachRequests = [];

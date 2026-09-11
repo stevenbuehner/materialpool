@@ -14,6 +14,7 @@
 	import BibleTextVerse      from "./bibleTextVerse";
 	import BibleVerse          from '../../../../vendor/stevenbuehner/bible-verse-bundle/js/in/BibleVerse.js';
 	import MaterialpoolSpinner from "../spinner/materialpool-spinner";
+	import {useBiblesStore}    from '../../apps/main/stores/bibles';
 
 	export default {
 		name: "bibleText",
@@ -67,7 +68,7 @@
 			bible: {
 				get() {
 					if (this.bibleUuid) {
-						return this.$store.dispatch('bibles/get', this.bibleUuid);
+						return useBiblesStore().get(this.bibleUuid);
 					} else {
 						return {};
 					}

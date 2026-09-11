@@ -84,6 +84,7 @@ import {objectToSearchItem}                                      from "../../sea
 import {BibleVerse, BibleVerseService}                           from "../../../helper/BibleverseHelper";
 import truncateFilterMixin                                       from "../../../filters/truncate-filter.mixin";
 import {cloneDeep}                                               from "lodash";
+import {useBiblesStore}                                          from '../../../apps/main/stores/bibles';
 
 export default {
   name: "optimizeKeywordSearch",
@@ -251,7 +252,7 @@ export default {
                     result.bigText = '';
 
                     if (resp.length > 0) {
-                      this.$store.dispatch('bibles/get', resp[0].bibleUuid)
+                      useBiblesStore().get(resp[0].bibleUuid)
                           .then(({title}) => {
                             result.smallText = title;
                           });

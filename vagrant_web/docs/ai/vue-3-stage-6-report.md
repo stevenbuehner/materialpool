@@ -63,6 +63,16 @@ Abnahme: Production-Build mit 967 transformierten Modulen, 22 Vitest-Dateien mit
 
 Rückbau: Der Teilstufencommit stellt das Vuex-Modul und seine Registrierung wieder her und setzt die drei Komponentenaufrufe auf `dispatch` zurück. Die bereits unabhängigen Pinia-Stores einschließlich `users` bleiben erhalten.
 
+## Teilstufe 6.5 – Bibelübersetzungen
+
+`bibles` ist ein read-mostly UUID-Cache mit Einzelabruf und paginiertem Vollabruf. `useBiblesStore` erhält die beiden API-Pfade, die UUID-Indexierung und den Drei-Zustands-Vertrag des Vollabrufs: `false` vor dem ersten Request, dasselbe laufende Ergebnis für parallele Aufrufer und `true` nach erfolgreichem Abschluss. Alle vier Komponenten-Konsumenten verwenden Pinia. Das noch nicht migrierte `biblecontents` übergibt mitgelieferte Übersetzungsmetadaten nun ebenfalls an die Pinia-Action; damit bleibt Pinia der einzige Writer dieses Datensatzes und es gibt keine Store-Synchronisation.
+
+Der alte Erstladepfad rief nach erfolgreichem Request `state.allBibles.values()` auf. `allBibles` ist ein Plain Object und besitzt diese Methode nicht, sodass ausgerechnet der erste Aufruf nach gefülltem Cache mit einem `TypeError` endete. Der Port gibt korrekt `Object.values(this.allBibles)` zurück. Drei Unit-Tests schützen Einzelabruf und UUID-Cache, explizites Hinzufügen sowie die Zusammenführung paralleler Vollabrufe einschließlich des ersten und aller späteren Rückgabewerte.
+
+Abnahme: Production-Build mit 967 transformierten Modulen, 23 Vitest-Dateien mit 57/57 Tests, ESLint mit 0 Fehlern und 293 bekannten Warnungen, Frontend-Inventar und Diff-Check sind grün. Eine neue Browserreise lädt die echte lazy geladene Bibelleser-Route, prüft den einmaligen paginierten Listenrequest sowie Anzeige und Auswahl einer Übersetzung; sie besteht in Desktop- und Mobile-WebKit. Das Inventar meldet keine Vue-2-/Compat-Muster und noch exakt 11 registrierte Vuex-Module.
+
+Rückbau: Der Teilstufencommit registriert das frühere Vuex-Modul erneut, stellt die vier Komponenten-Dispatches und die beiden Root-Commits in `biblecontents` wieder her und entfernt Store und Tests. Andere Pinia-Slices bleiben unabhängig.
+
 ## Noch zu migrieren
 
-Nach Teilstufe 6.4 verbleiben 12 registrierte Vuex-Module: `resources`, `materials`, `materialapp`, `keywords`, `keywordsSuggestions`, `bibleverses`, `bibleverseCrossReferences`, `search`, `bundles`, `biblecontents`, `general` und `bibles`. Die Reihenfolge bleibt risikobasiert: zuerst read-mostly beziehungsweise isolierte Module, dann gekoppelte Cache-/Relationsmodule und zuletzt die zentralen Material-/Resource-/General-Pfade. Vuex wird erst nach dem letzten migrierten Konsumenten entfernt.
+Nach Teilstufe 6.5 verbleiben 11 registrierte Vuex-Module: `resources`, `materials`, `materialapp`, `keywords`, `keywordsSuggestions`, `bibleverses`, `bibleverseCrossReferences`, `search`, `bundles`, `biblecontents` und `general`. Die Reihenfolge bleibt risikobasiert: als Nächstes folgt der fachlich gekoppelte `biblecontents`-Cache, danach weitere isolierbare Module und zuletzt die zentralen Material-/Resource-/General-Pfade. Vuex wird erst nach dem letzten migrierten Konsumenten entfernt.
