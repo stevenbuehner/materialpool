@@ -96,8 +96,8 @@ export default {
 </script>
 
 <style lang="scss">
-@import "~video.js/dist/video-js.css";
-@import "~@videojs/themes/dist/sea/index.css";
+@import "video.js/dist/video-js.css";
+@import "@videojs/themes/dist/sea/index.css";
 
 .sbVideo {
 }

@@ -101,7 +101,11 @@ export default {
     & *:before,
     & + .tgl-btn {
       box-sizing: border-box;
+    }
 
+    &,
+    & *,
+    & + .tgl-btn {
       &::selection {
         background: none;
       }

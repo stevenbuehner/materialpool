@@ -128,7 +128,7 @@ import pinRemoveIcon                                             from './pin-rem
 import copyIcon                                                  from '@icons/vendor/svg-icon/trimmed-svg/bootstrap/copy.svg'
 import closeIcon                                                 from './close.svg';
 import cursorMoveIcon                                            from './cursor-move.svg';
-import {bibleverseToSearchItem, searchArrayObjectsToSearchQuery} from "../search/searchHelper";
+import {searchArrayObjectsToSearchQuery}                        from "../search/searchHelper";
 import {fromRangeArrayToString}                                  from "../../apps/main/pages/ReadBible";
 import MaterialpoolSpinner                                       from "../spinner/materialpool-spinner";
 import {copyStringToClipboard}                                   from "../../helper/copyToClipboard";

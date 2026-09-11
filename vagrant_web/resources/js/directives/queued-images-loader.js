@@ -1,4 +1,4 @@
-import PQueue, {AbortError}              from 'p-queue/dist';
+import PQueue, {AbortError}              from 'p-queue';
 import {MAX_SIMULTANEOUS_IMAGES_LOADING} from "../apps/config";
 
 const DEFAULT_PRIORITY = 10;

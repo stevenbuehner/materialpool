@@ -45,6 +45,6 @@ export default {
 
 <style type="scss">
 /* purgecss start ignore */
-@import "~@wslyhbb/vuejs-datepicker/dist/vuejs-datepicker.css";
+@import "@wslyhbb/vuejs-datepicker/dist/vuejs-datepicker.css";
 /* purgecss end ignore */
 </style>
