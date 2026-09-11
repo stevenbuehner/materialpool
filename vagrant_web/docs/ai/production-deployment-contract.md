@@ -4,7 +4,7 @@
 
 Dieser Vertrag ist vor jeder Änderung an Produktion, Deployment, Queue, Scheduler, Proxy, Backups oder produktiver Konfiguration vollständig zu lesen. Er gilt für Materialpool auf Laravel 13 und PHP 8.4. Grundlage sind die am 9. September 2026 erneut geprüften offiziellen Laravel-13-Dokumentationen zu [Deployment](https://laravel.com/framework/docs/13.x/deployment), [Queues](https://laravel.com/framework/docs/13.x/queues) und [Task Scheduling](https://laravel.com/framework/docs/13.x/scheduling).
 
-Produktion ist ein einzelner Ubuntu-24.04-LTS-Server mit Nginx, PHP-FPM 8.4 und MySQL 8. Ein externer Reverse Proxy terminiert TLS. Sail ist ausschließlich Entwicklungs- und Testwerkzeug. Das Vue-2-Frontend wird in einer kontrollierten Node-16.20.2-Umgebung gebaut; auf dem Produktionsserver wird kein Node installiert.
+Produktion ist ein einzelner Ubuntu-24.04-LTS-Server mit Nginx, PHP-FPM 8.4 und MySQL 8. Ein externer Reverse Proxy terminiert TLS. Sail ist ausschließlich Entwicklungs- und Testwerkzeug. Das Vue-3-/Vite-Frontend wird in der kontrollierten Node-24-LTS-Umgebung des PHP-8.4-Build-Images mit npm 11.19.0 gebaut; auf dem Produktionsserver wird kein Node installiert.
 
 Dieser Vertrag autorisiert die versionierten Betriebsartefakte, aber weder einen Zugriff auf einen realen Server noch das Erfinden fehlender Betriebswerte. Domain, Proxy-IP/CIDR, SSH-Ziel, SMTP-Zugang und S3-Endpunkt/Region/Bucket/Zugang müssen vor dem Rollout extern bereitgestellt werden. Produktive Secrets, Schlüssel, Daten und Dateien bleiben außerhalb von Git.
 
@@ -85,7 +85,7 @@ Der Build akzeptiert einen exakten Commit und bricht bei Änderungen im Material
 ops/production/build-release.sh <40-stellige-commit-id> /absoluter/ausgabeordner
 ```
 
-Das Skript exportiert ausschließlich diesen Commit, prüft PHP 8.4 und Node 16.20.2 im Image `sail-8.4/app`, führt `composer install`, `npm ci --ignore-scripts` und `npm run build` aus, entfernt `.env`, `vendor` und `node_modules` und erzeugt Release-Manifest, Archiv und SHA-256-Datei. Installationsskripte sind vorübergehend deaktiviert, weil das nur indirekt über `svg-icon` eingebrachte, im Produktionsbuild nicht verwendete PhantomJS-Paket kein Linux-arm64-Binary besitzt. Der danach zwingend erfolgreiche Webpack-Build ist das Verhaltensgate. Dependencies, Lockfile und Frontendquellen bleiben unverändert; die Beseitigung dieser Ausnahme gehört zum separaten Frontend-Upgrade.
+Das Skript exportiert ausschließlich diesen Commit, prüft PHP 8.4, Node 24 (mindestens 24.21.0) und npm 11.19.0 im Image `sail-8.4/app`, führt `composer install`, `npm ci --ignore-scripts` und `npm run build` aus, verlangt anschließend ein Vite-Manifest unter `public/build/manifest.json` sowie das Fehlen von `public/hot`, entfernt `.env`, `vendor` und `node_modules` und erzeugt Release-Manifest, Archiv und SHA-256-Datei. Installationsskripte bleiben im Release-Build deaktiviert; alle für Vite benötigten Abhängigkeiten sind reine JavaScript-Pakete und der danach zwingend erfolgreiche Produktionsbuild ist das Verhaltensgate. Die gehashten Dateien unter `public/build` entstehen ausschließlich im isolierten Release-Build und werden nicht eingecheckt.
 
 Der unveränderte Lockstand meldet beim Build 129 npm-Audit-Funde insgesamt. Ein gesondertes `npm audit --omit=dev` weist davon 28 dem Production-Abhängigkeitsgraphen zu: 10 low, 6 moderate, 10 high und 2 critical. Betroffen sind unter anderem die direkten Abhängigkeiten `axios` und `dompurify`; die Audit-Fixvorschläge enthalten teilweise Major-Upgrades. Der Produktionsvertrag autorisiert deshalb keine automatische Paketänderung. Vor dem ersten Go-live muss der Befund mit Datum und Lockstand ausdrücklich bewertet und entweder als zeitlich begrenztes Risiko freigegeben oder in einem gesondert freigegebenen Frontend-Security-Schritt behoben werden.
 
@@ -139,4 +139,4 @@ Ohne reale Domain, Proxy-CIDR, SSH-Ziel, SMTP- und S3-Zugang können nur Reposit
 
 ## Nachgelagerte P1-Arbeiten
 
-Erst nach stabilem Produktionsbetrieb: FPDI-/FPDF-Metapaket verhaltensneutral durch direkte Abhängigkeiten ersetzen, Session kontrolliert auf JSON umstellen, GET-Logout beim Frontend-Upgrade durch POST ersetzen, historische Passport-Hilfstabelle nach Beobachtungszeit entfernen und OAuth-Consent-/Device-UI nur bei echtem Bedarf entscheiden. Vue-2-/Webpack-4-/Node-16-Modernisierung ist ein eigenes Projekt.
+Erst nach stabilem Produktionsbetrieb: FPDI-/FPDF-Metapaket verhaltensneutral durch direkte Abhängigkeiten ersetzen, Session kontrolliert auf JSON umstellen, GET-Logout kontrolliert durch POST ersetzen, historische Passport-Hilfstabelle nach Beobachtungszeit entfernen und OAuth-Consent-/Device-UI nur bei echtem Bedarf entscheiden.

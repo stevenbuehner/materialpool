@@ -8,7 +8,10 @@ export default defineConfig({
     plugins: [
         svgVuePlugin(),
         laravel({
-            input: ['resources/js/apps/main/index.js'],
+            input: [
+                'resources/js/apps/main/index.js',
+                'resources/sass/main.scss',
+            ],
             refresh: true,
         }),
         vue({
@@ -29,6 +32,11 @@ export default defineConfig({
             scss: {
                 loadPaths: [fileURLToPath(new URL('.', import.meta.url))],
             },
+        },
+    },
+    server: {
+        watch: {
+            ignored: ['**/storage/**', '**/public/build/**'],
         },
     },
     build: {

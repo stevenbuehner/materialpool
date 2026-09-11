@@ -172,8 +172,8 @@ import {cloneDeep, debounce as _debounce, differenceBy as _differenceBy} from 'l
 import DragableElement                                                   from "./vue-select/dragable-element";
 import ContextMenu                                                       from "../context-menu/context-menu";
 import ContextMenuItem                                                   from "../context-menu/context-menu-item";
-import KeywordEditor                                                     from "../modals/editors/keywordEditor";
 import {searchArrayObjectsToSearchQuery}                                 from "../search/searchHelper";
+import {defineAsyncComponent}                                            from 'vue';
 
 import BiblePopover                                                  from "../bible-popover/bible-popover";
 import BibleVerse
@@ -613,7 +613,7 @@ export default {
     RelevanceSelector,
     BiblePopover,
     BButton,
-    KeywordEditor,
+    KeywordEditor: defineAsyncComponent(() => import('../modals/editors/keywordEditor')),
     ContextMenuItem,
     ContextMenu,
     DragableElement,

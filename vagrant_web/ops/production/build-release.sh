@@ -40,11 +40,14 @@ docker run --rm \
     "$docker_image" \
     -lc 'set -Eeuo pipefail
         test "$(php -r '\''echo PHP_MAJOR_VERSION.".".PHP_MINOR_VERSION;'\'')" = "8.4"
-        test "$(node --version)" = "v16.20.2"
+        node -e '\''const [major, minor] = process.versions.node.split(".").map(Number); process.exit(major === 24 && minor >= 21 ? 0 : 1)'\''
+        test "$(npm --version)" = "11.19.0"
         cp .env.example .env
         composer install --prefer-dist --no-interaction
         npm ci --ignore-scripts
         npm run build
+        test -f public/build/manifest.json
+        test ! -e public/hot
         rm -f .env
         rm -rf node_modules vendor storage/framework/cache/data/* storage/framework/views/*'
 
@@ -58,7 +61,8 @@ cat > "${source_directory}/.release-manifest" <<EOF
 COMMIT=${resolved_commit}
 PAYLOAD_SHA256=${payload_checksum}
 PHP=8.4
-NODE=16.20.2
+NODE=24.x (minimum 24.21.0)
+NPM=11.19.0
 EOF
 
 artifact="${output_directory}/materialpool-${resolved_commit}.tar.gz"

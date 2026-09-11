@@ -10,7 +10,6 @@ test('login page remains usable', async ({ page }) => {
 });
 
 test('@visual login page baseline', async ({ page }) => {
-    await page.route('**/js/main_build.js', route => route.abort());
     await page.route('https://fonts.googleapis.com/**', route => route.fulfill({
         body: '',
         contentType: 'text/css',

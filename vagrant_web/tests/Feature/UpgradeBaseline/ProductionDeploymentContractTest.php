@@ -165,6 +165,8 @@ class ProductionDeploymentContractTest extends TestCase
 
         $this->assertStringContainsString('npm ci --ignore-scripts', $buildScript);
         $this->assertStringContainsString('npm run build', $buildScript);
+        $this->assertStringContainsString('public/build/manifest.json', $buildScript);
+        $this->assertStringContainsString('test ! -e public/hot', $buildScript);
         $this->assertStringContainsString("find . -type f ! -path './.release-manifest' -print0", $buildScript);
         $this->assertStringContainsString('LC_ALL=C sort -z', $buildScript);
         $this->assertStringContainsString('composer install', $activateScript);

@@ -1,5 +1,4 @@
 import {createApp, h} from 'vue';
-import '@babel/polyfill';
 import {createRouter, createWebHistory} from 'vue-router';
 import {store}   from './store'; // Before routes to use in BeforeRouting-Functions
 import {routes}  from './routes';

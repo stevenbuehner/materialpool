@@ -35,14 +35,7 @@
 
 @endphp
 
-@if (env('APP_ENV') =='production')
-    <script src="/js/main_build.js"></script>
-    <!--<script src="/js/vendor.bundle.js"></script>-->
-    <link rel="stylesheet" type="text/css" href="/css/main.css">
-@else
-    <script src="http://localhost:8080/js/main_build.js"></script>
-    <!--<script src="http://localhost:8080/js/vendor.bundle.js"></script>-->
-@endif
+@vite('resources/js/apps/main/index.js')
 
 </body>
 </html>

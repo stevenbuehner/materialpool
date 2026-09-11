@@ -38,18 +38,7 @@ import {BDropdown, BDropdownItem, BFormInput, BInputGroup} from "@/adapters/boot
 import BibleText
                                                                             from "../../../components/biblecontents/bibleText";
 import {BibleVerse, BibleVerseService}                                      from "../../../helper/BibleverseHelper";
-
-export function fromRangeArrayToString(verseranges) {
-  return verseranges.map(bv => {
-
-    if (bv instanceof BibleVerse) {
-      return bv.getFrom() + '-' + bv.getTo();
-    } else {
-      return bv.from + '-' + bv.to + (bv.bibleId ? '-' + bv.bibleId : '');
-    }
-
-  }).join(',');
-}
+import {fromRangeArrayToString}                                             from './readBibleHelper';
 
 export default {
   name: "ReadBible",

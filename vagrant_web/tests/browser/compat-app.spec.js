@@ -1,5 +1,6 @@
 import {expect, test} from '@playwright/test';
 import {Buffer} from 'node:buffer';
+import {viteScriptTag, viteStylesheetTags} from './viteAssets.js';
 
 const compatWarningsByPage = new WeakMap();
 
@@ -50,7 +51,7 @@ test('Vue application mounts with synthetic bootstrap data', async ({page}, test
                         <meta charset="utf-8">
                         <meta name="viewport" content="width=device-width, initial-scale=1">
                         <title>Materialpool Compat Test</title>
-                        <link rel="stylesheet" href="/css/main.css">
+                        ${viteStylesheetTags}
                     </head>
                     <body>
                         <div id="app"></div>
@@ -58,7 +59,7 @@ test('Vue application mounts with synthetic bootstrap data', async ({page}, test
                             window.Laravel = {csrfToken: 'synthetic-csrf-token'};
                             window.materialpool = {store: {materials: []}};
                         </script>
-                        <script src="/js/main_build.js"></script>
+                        ${viteScriptTag}
                     </body>
                 </html>`,
         });
@@ -176,7 +177,7 @@ test('Vue 3 datepicker keeps the German input and calendar interaction', async (
                         <meta charset="utf-8">
                         <meta name="viewport" content="width=device-width, initial-scale=1">
                         <title>Materialpool Datepicker Test</title>
-                        <link rel="stylesheet" href="/css/main.css">
+                        ${viteStylesheetTags}
                     </head>
                     <body>
                         <div id="app"></div>
@@ -187,7 +188,7 @@ test('Vue 3 datepicker keeps the German input and calendar interaction', async (
                                 store: {materials: []},
                             };
                         </script>
-                        <script src="/js/main_build.js"></script>
+                        ${viteScriptTag}
                     </body>
                 </html>`,
         });
@@ -456,7 +457,7 @@ test('Vue 3 select keeps asynchronous search and object selection', async ({page
                     <meta charset="utf-8">
                     <meta name="viewport" content="width=device-width, initial-scale=1">
                     <title>Materialpool Select Test</title>
-                    <link rel="stylesheet" href="/css/main.css">
+                    ${viteStylesheetTags}
                 </head>
                 <body>
                     <div id="app"></div>
@@ -467,7 +468,7 @@ test('Vue 3 select keeps asynchronous search and object selection', async ({page
                             store: {materials: []},
                         };
                     </script>
-                    <script src="/js/main_build.js"></script>
+                    ${viteScriptTag}
                 </body>
             </html>`,
     }));
@@ -548,7 +549,7 @@ test('Resource detail cards and multi-page pagination keep their application con
                         <meta charset="utf-8">
                         <meta name="viewport" content="width=device-width, initial-scale=1">
                         <title>Materialpool Resource and Pagination Test</title>
-                        <link rel="stylesheet" href="/css/main.css">
+                        ${viteStylesheetTags}
                     </head>
                     <body>
                         <div id="app"></div>
@@ -556,7 +557,7 @@ test('Resource detail cards and multi-page pagination keep their application con
                             window.Laravel = {csrfToken: 'synthetic-csrf-token'};
                             window.materialpool = {route: ${JSON.stringify(initialRoute)}, store: {materials: []}};
                         </script>
-                        <script src="/js/main_build.js"></script>
+                        ${viteScriptTag}
                     </body>
                 </html>`,
         });
@@ -691,7 +692,7 @@ test('Vue 3 uploader keeps multipart success and error handling', async ({page})
                     <meta charset="utf-8">
                     <meta name="viewport" content="width=device-width, initial-scale=1">
                     <title>Materialpool Upload Test</title>
-                    <link rel="stylesheet" href="/css/main.css">
+                    ${viteStylesheetTags}
                 </head>
                 <body>
                     <div id="app"></div>
@@ -702,7 +703,7 @@ test('Vue 3 uploader keeps multipart success and error handling', async ({page})
                             store: {materials: []},
                         };
                     </script>
-                    <script src="/js/main_build.js"></script>
+                    ${viteScriptTag}
                 </body>
             </html>`,
     }));
@@ -868,7 +869,7 @@ test('Material creator keeps preset selection, material preload and preset stora
                     <meta charset="utf-8">
                     <meta name="viewport" content="width=device-width, initial-scale=1">
                     <title>Materialpool Preset Test</title>
-                    <link rel="stylesheet" href="/css/main.css">
+                    ${viteStylesheetTags}
                 </head>
                 <body>
                     <div id="app"></div>
@@ -876,7 +877,7 @@ test('Material creator keeps preset selection, material preload and preset stora
                         window.Laravel = {csrfToken: 'synthetic-csrf-token'};
                         window.materialpool = {route: '/resource/42', store: {materials: []}};
                     </script>
-                    <script src="/js/main_build.js"></script>
+                    ${viteScriptTag}
                 </body>
             </html>`,
     }));
@@ -1057,7 +1058,7 @@ test('Assign app keeps page selection, attachment and nested image dialogs', asy
                     <meta charset="utf-8">
                     <meta name="viewport" content="width=device-width, initial-scale=1">
                     <title>Materialpool Assign Test</title>
-                    <link rel="stylesheet" href="/css/main.css">
+                    ${viteStylesheetTags}
                 </head>
                 <body>
                     <div id="app"></div>
@@ -1065,7 +1066,7 @@ test('Assign app keeps page selection, attachment and nested image dialogs', asy
                         window.Laravel = {csrfToken: 'synthetic-csrf-token'};
                         window.materialpool = {route: '/resource/42/assign', store: {materials: []}};
                     </script>
-                    <script src="/js/main_build.js"></script>
+                    ${viteScriptTag}
                 </body>
             </html>`,
     }));

@@ -22,12 +22,7 @@
     </script>
 
 
-    @if (env('APP_ENV') =='production')
-        <script src="/js/main_build.js"></script>
-        <link rel="stylesheet" href="/css/main.css">
-    @else
-        <script src="http://localhost:8080/js/main_build.js"></script>
-    @endif
+    @vite('resources/sass/main.scss')
 
 
 

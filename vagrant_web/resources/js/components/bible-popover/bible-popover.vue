@@ -129,7 +129,7 @@ import copyIcon                                                  from '@icons/ve
 import closeIcon                                                 from './close.svg';
 import cursorMoveIcon                                            from './cursor-move.svg';
 import {searchArrayObjectsToSearchQuery}                        from "../search/searchHelper";
-import {fromRangeArrayToString}                                  from "../../apps/main/pages/ReadBible";
+import {fromRangeArrayToString}                                  from "../../apps/main/pages/readBibleHelper";
 import MaterialpoolSpinner                                       from "../spinner/materialpool-spinner";
 import {copyStringToClipboard}                                   from "../../helper/copyToClipboard";
 import {BibleVerse, BibleVerseService}                           from "../../helper/BibleverseHelper";
