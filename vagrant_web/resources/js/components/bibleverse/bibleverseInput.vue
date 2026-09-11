@@ -21,14 +21,14 @@
     <div class="card-body">
       <bibleverse v-for="(bv, index) in myBibleverses"
                   :key="getBibleverseKey(bv)"
-                  v-model="myBibleverses[index]"
+                  :bibleverse="myBibleverses[index]"
                   :material-id="materialId"
                   :removeable="!disabled"
                   :editable="!disabled"
                   :searchable="!disabled"
                   :dragable="!disabled && enableRelevance"
                   @removed="bibleverseRemoved"
-                  @saved="bibleverseUpdated(bv, index); flashSaved('Bibleverse')"
+                  @saved="bibleverseUpdated($event, index); flashSaved('Bibleverse')"
                   @saving="flashStartSaving('Bibleverse')"
                   @savingPivot="flashStartSaving('Bibleverse Piot')"
                   @savingError="flashUpdateTagError"
@@ -145,11 +145,6 @@ export default {
       default: true
     }
 
-  },
-
-  model: {
-    prop: 'bibleverses',
-    event: 'updated'
   },
 
   data() {
@@ -334,6 +329,7 @@ export default {
 
     /** i.e. pivot or something like that */
     bibleverseUpdated(bv, index) {
+      this.myBibleverses.splice(index, 1, bv);
       this.emitUpdate();
     },
 

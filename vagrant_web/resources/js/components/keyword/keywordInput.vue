@@ -21,14 +21,14 @@
     <div class="card-body">
       <keyword v-for="(kw, index) in myKeywords"
                :key="getKeywordkey(kw)"
-               v-model="myKeywords[index]"
+               :keyword="myKeywords[index]"
                :material-id="materialId"
                :removeable="!disabled"
                :editable="!disabled"
                :searchable="!disabled"
                :dragable="!disabled"
                @removed="keywordRemoved"
-               @saved="keywordUpdated(kw, index); flashSaved('Keyword')"
+               @saved="keywordUpdated($event, index); flashSaved('Keyword')"
                @saving="flashStartSaving('Keyword')"
                @savingPivot="flashStartSaving('Keyword Piot')"
                @savingError="flashUpdateTagError"
@@ -122,11 +122,6 @@ export default {
       default: false
     },
 
-  },
-
-  model: {
-    prop: 'keywords',
-    event: 'updated'
   },
 
   data() {
@@ -334,6 +329,7 @@ export default {
 
     /** i.e. pivot or something like that */
     keywordUpdated(kw, index) {
+      this.myKeywords.splice(index, 1, kw);
       this.emitUpdate();
     },
 

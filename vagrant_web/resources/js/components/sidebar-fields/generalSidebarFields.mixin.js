@@ -31,13 +31,6 @@ export default {
 
 	},
 
-
-	model: {
-		prop: 'value',
-		event: 'input'
-	},
-
-
 	computed: {
 		getPlaceholder() {
 			return this.placeholder !== null ? this.placeholder : this.name;

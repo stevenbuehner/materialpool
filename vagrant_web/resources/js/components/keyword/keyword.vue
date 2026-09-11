@@ -99,12 +99,6 @@ export default {
     }
   },
 
-  model: {
-    prop: 'keyword',
-    event: 'saved'
-  },
-
-
   data: function () {
     return {
       menuIsOpen: false,

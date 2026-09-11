@@ -199,12 +199,14 @@
       <div class="row">
         <div class="col-6">
           <keyword-input
-              v-model="keywordInput"
+              :keywords="keywordInput"
+              @updated="keywordInput = $event"
               :disabled="formDisabled"/>
         </div>
         <div class="col-6">
           <bibleverse-input
-              v-model="bibleverseInput"
+              :bibleverses="bibleverseInput"
+              @updated="bibleverseInput = $event"
               :disabled="formDisabled"
               :external-suggestions="externalBibleverseSuggestions"/>
         </div>

@@ -25,10 +25,6 @@ export default {
   components: {
     star
   },
-  model: {
-    prop: 'rating',
-    event: 'rating-selected'
-  },
   props: {
     rating: {
       type: Number,

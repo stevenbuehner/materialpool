@@ -92,13 +92,6 @@ export default {
     }
   },
 
-
-  model: {
-    prop: 'bibleverse',
-    event: 'saved'
-  },
-
-
   data: function () {
     return {
       myBibleverse: {},

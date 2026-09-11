@@ -41,11 +41,6 @@ export default {
     }
   },
 
-  model: {
-    prop: 'value',
-    event: 'isToggled'
-  },
-
   data() {
     return {
       myValue: this.value
