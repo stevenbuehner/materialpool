@@ -17,16 +17,17 @@ Abgeschlossen:
 - Teilstufe 6.4 implementiert: `materialusages` und sämtliche Konsumenten verwenden Pinia; sieben Store-Tests und die gekoppelte Materialdetail-Browserreise schützen Create, Search, Update und Delete.
 - Teilstufe 6.5 implementiert: `bibles`, alle vier Komponenten-Konsumenten und die beiden gekoppelten Writer-Aufrufe aus `biblecontents` verwenden Pinia; Erstladefehler, UUID-Cache und parallele Abrufe sind testgedeckt.
 - Teilstufe 6.6 implementiert: `biblecontents` und alle fünf Komponenten-Konsumenten verwenden Pinia; Queue, parallele Requests, Cache-Schlüssel, Retry und Suche sind testgedeckt und die Bibelleser-Browserreise zeigt reale Versinhalte.
+- Teilstufe 6.7 implementiert: `bibleverseCrossReferences` und beide Komponenten-Konsumenten verwenden Pinia; Pagination, Queue, Cache und Zero-Count sind testgedeckt, die Schlagwortoptimierung zeigt Querverweis und Bibeltext responsiv im Browser.
 
 Offene Gates:
 
-- Teilstufe 6.6: Commit.
-- Stufe 6: weitere 10 Vuex-Module samt sämtlichen Konsumenten; danach Entfernung von Vuex.
+- Teilstufe 6.7: Commit.
+- Stufe 6: weitere 9 Vuex-Module samt sämtlichen Konsumenten; danach Entfernung von Vuex.
 - Stufe 7: vollständige Releasegates einschließlich `migrate:fresh` und `db:seed` ausschließlich gegen die verifizierte, entbehrliche Sail-MySQL-Datenbank `testing`.
 
 Compat-/Paket-Ausnahmen: Keine Vue-2-/`@vue/compat`-Ausnahme. Vuex 4.1.0 bleibt nur bis zur Migration des letzten Moduls parallel zu Pinia 4.0.3 installiert.
 
-Nächster Schritt: Teilstufe 6.6 committen; anschließend das nächste isolierbare Modul anhand seiner Writer-, Request- und Konsumentenabhängigkeiten auswählen und charakterisieren.
+Nächster Schritt: Teilstufe 6.7 committen; anschließend das nächste isolierbare Modul anhand seiner Writer-, Request- und Konsumentenabhängigkeiten auswählen und charakterisieren.
 
 Rückbau: Letzter vollständig grüner Stufenstand ist `9e2593b5`. Pinia-Teilstufen bleiben bis zur finalen Vuex-Entfernung einzeln rückbaubar.
 

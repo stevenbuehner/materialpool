@@ -88,6 +88,18 @@ Abnahme: Production-Build mit 967 transformierten Modulen, 24 Vitest-Dateien mit
 
 Rückbau: Der Teilstufencommit registriert das Vuex-Modul erneut und stellt die fünf Komponenten-Dispatches wieder her. Der eigenständige Pinia-Store `bibles` aus Teilstufe 6.5 bleibt bestehen; seine beiden Writer-Aufrufe werden beim Rückbau wieder als Root-Commits aus `biblecontents` ausgeführt.
 
+## Teilstufe 6.7 – Bibel-Querverweise
+
+`bibleverseCrossReferences` hält paginierte Querverweise und deren Gesamtzahl pro Bibelversbereich. Der Pinia-Port erhält den v2-API-Pfad, das bisherige Standardmaximum 50, die Bereichsnormalisierung, die Begrenzung der Rückgabe auf `maximum`, die sequenzielle Mehrfachabfrage über die bestehende `PQueue` sowie den bisherigen Vertrag, konvertierte Requestfehler als erfüllten Action-Wert zurückzugeben. Beide Komponenten-Konsumenten verwenden Pinia; das Vuex-Modul und seine Root-Registrierung sind entfernt.
+
+Ein lokaler Cachedefekt wurde behoben: Der frühere Count-Getter prüfte den gespeicherten Wert auf Truthiness. Ein korrekt geladener Count von `0` wurde dadurch wie „nicht geladen“ behandelt und löste bei jedem Zugriff erneut einen Request aus. Der neue Getter unterscheidet mit Nullish-Prüfung zuverlässig zwischen `0` und einem fehlenden Cachewert.
+
+Fünf Unit-Tests schützen Pagination bis zum gewünschten Maximum, Wiederverwendung vollständig geladener Daten, den Zero-Count-Cache, den bestehenden erfüllten Fehlerwert und Reihenfolge/Queue-Nutzung von `getMultiple`. Eine neue responsive Browserreise öffnet die Schlagwortoptimierung aus einer real geparsten Bibelstellen-Suche, prüft den Querverweis-Request, den sichtbaren Zielvers und dessen Bibeltext. Dabei wurde ein bestehender Darstellungsfehler sichtbar und behoben: Die Vorschlagsobjekte wurden nachträglich über ihre nicht-reaktive Rohreferenz verändert und blieben deshalb dauerhaft bei `is loading ...`. Die Komponente lädt Text und Übersetzung nun vor Rückgabe des Vorschlags; Funktion und endgültige Darstellung sind unverändert, der vorgesehene Endzustand erscheint zuverlässig.
+
+Abnahme: Production-Build mit 967 transformierten Modulen, 25 Vitest-Dateien mit 68/68 Tests, ESLint mit 0 Fehlern und 288 bekannten Warnungen, Frontend-Inventar und Diff-Check sind grün. Die neue Querverweis-Reise besteht in Desktop- und Mobile-WebKit. Das Inventar meldet keine Vue-2-/Compat-Muster und noch exakt 9 registrierte Vuex-Module. Die bekannten Sass-Deprecations und der Chunkgrößenhinweis bleiben unverändert.
+
+Rückbau: Der Teilstufencommit registriert das frühere Vuex-Modul erneut, stellt die beiden Komponenten-Dispatches wieder her und entfernt Store und Tests. Die Pinia-Stores für Bibeltexte und Übersetzungen bleiben davon unabhängig.
+
 ## Noch zu migrieren
 
-Nach Teilstufe 6.6 verbleiben 10 registrierte Vuex-Module: `resources`, `materials`, `materialapp`, `keywords`, `keywordsSuggestions`, `bibleverses`, `bibleverseCrossReferences`, `search`, `bundles` und `general`. Die Reihenfolge bleibt risikobasiert: weitere isolierbare Module folgen vor den gekoppelten Relations- und zentralen Material-/Resource-/General-Pfaden. Vuex wird erst nach dem letzten migrierten Konsumenten entfernt.
+Nach Teilstufe 6.7 verbleiben 9 registrierte Vuex-Module: `resources`, `materials`, `materialapp`, `keywords`, `keywordsSuggestions`, `bibleverses`, `search`, `bundles` und `general`. Die Reihenfolge bleibt risikobasiert: weitere isolierbare Module folgen vor den gekoppelten Relations- und zentralen Material-/Resource-/General-Pfaden. Vuex wird erst nach dem letzten migrierten Konsumenten entfernt.

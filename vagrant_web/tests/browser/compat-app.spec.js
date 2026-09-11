@@ -255,6 +255,98 @@ test('Bible reader loads and selects cached translations', async ({page}) => {
     expect(pageErrors).toEqual([]);
 });
 
+test('Bible search optimization loads cross references through Pinia', async ({page}) => {
+    const pageErrors = [];
+    const crossReferenceRequests = [];
+    page.on('pageerror', error => pageErrors.push(error.stack || error.message));
+
+    await page.route('**/vue/**', route => route.fulfill({
+        contentType: 'text/html',
+        body: `<!doctype html>
+            <html lang="de">
+                <head>
+                    <meta charset="utf-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1">
+                    <title>Materialpool Cross Reference Store Test</title>
+                    ${viteStylesheetTags}
+                </head>
+                <body>
+                    <div id="app"></div>
+                    <script>
+                        window.Laravel = {csrfToken: 'synthetic-csrf-token'};
+                        window.materialpool = {route: '/search/1b1001001-1001002', store: {materials: []}};
+                    </script>
+                    ${viteScriptTag}
+                </body>
+            </html>`,
+    }));
+    await page.route('**/api/v1/general/options?*', route => route.fulfill({
+        contentType: 'application/json',
+        body: JSON.stringify({
+            systemname: 'MaterialPool Default',
+            server: {max_upload: 10485760},
+            user: {
+                id: 1,
+                name: 'Synthetic User',
+                email: 'synthetic@example.invalid',
+                is_admin: false,
+                frontend_user_settings: {},
+            },
+        }),
+    }));
+    await page.route('**/pool/search/get?*', route => route.fulfill({
+        contentType: 'application/json',
+        body: JSON.stringify({
+            data: [],
+            current_page: 1,
+            last_page: 1,
+            per_page: 30,
+            total: 0,
+        }),
+    }));
+    await page.route('**/api/v2/bibleverses/crossrefs/**', route => {
+        crossReferenceRequests.push(route.request().url());
+        return route.fulfill({
+            contentType: 'application/json',
+            body: JSON.stringify({
+                data: [{target_from: 1001003, target_to: 1001003, relevance: 77}],
+                total: 1,
+                next_page_url: null,
+            }),
+        });
+    });
+    await page.route('**/api/v1/biblecontents/**', route => {
+        const isCrossReference = /\/0*1001003-0*1001003$/.test(new URL(route.request().url()).pathname);
+        return route.fulfill({
+            contentType: 'application/json',
+            body: JSON.stringify({
+                bible: {uuid: 'basis', title: 'BasisBibel'},
+                verses: [{
+                    verse: isCrossReference ? 1001003 : 1001001,
+                    bible_id: 1,
+                    bibleUuid: 'basis',
+                    text: isCrossReference ? 'Es werde Licht.' : 'Am Anfang schuf Gott.',
+                }],
+            }),
+        });
+    });
+
+    await page.goto('/vue/');
+
+    const searchTag = page.locator('.searchInputSelect .sb-search-input-tag').filter({hasText: '1Mo 1,1f'});
+    await expect(searchTag).toBeVisible();
+    await page.locator('.row .btn-group button').first().click();
+
+    const modal = page.locator('.modal.show');
+    await expect(modal.getByRole('heading', {name: 'Schlagwortoptimierung'})).toBeVisible();
+    await expect.poll(() => crossReferenceRequests.length).toBeGreaterThan(0);
+    await expect(modal.locator('.suggestions .sb-search-input-tag')).toContainText('1Mo 1,3');
+    await expect(modal.locator('.suggestions')).toContainText('Es werde Licht.');
+    expect(new URL(crossReferenceRequests[0]).pathname)
+        .toBe('/api/v2/bibleverses/crossrefs/001001001-001001002');
+    expect(pageErrors).toEqual([]);
+});
+
 test('Vue 3 datepicker keeps the German input and calendar interaction', async ({page}) => {
     const pageErrors = [];
     const attachRequests = [];

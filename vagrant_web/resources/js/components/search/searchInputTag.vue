@@ -43,6 +43,7 @@
 import searchInputTag_include from "./searchInputTag_include";
 import {preloadedIcon}        from "../keyword/keywordDefaultIcons";
 import {BBadge}               from '@/adapters/bootstrap'
+import {useBibleverseCrossReferencesStore} from '../../apps/main/stores/bibleverseCrossReferences';
 
 export default {
   name: "searchInputTag",
@@ -88,7 +89,7 @@ export default {
     crossReferencesCount: {
       get() {
         if (this.type === 'b') {
-          return this.$store.dispatch('bibleverseCrossReferences/getCount', {
+          return useBibleverseCrossReferencesStore().getCount({
             from: this?.item?.from,
             to: this?.item?.from
           });

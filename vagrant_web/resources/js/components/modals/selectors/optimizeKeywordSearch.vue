@@ -86,6 +86,7 @@ import truncateFilterMixin                                       from "../../../
 import {cloneDeep}                                               from "lodash";
 import {useBiblesStore}                                          from '../../../apps/main/stores/bibles';
 import {useBibleContentsStore}                                   from '../../../apps/main/stores/bibleContents';
+import {useBibleverseCrossReferencesStore}                       from '../../../apps/main/stores/bibleverseCrossReferences';
 
 export default {
   name: "optimizeKeywordSearch",
@@ -185,7 +186,7 @@ export default {
         let count = 1;
         switch (this.selectedTag?.item?.type) {
           case 'b':
-            count = await this.$store.dispatch('bibleverseCrossReferences/getCount',
+            count = await useBibleverseCrossReferencesStore().getCount(
                 {from: this.selectedTag?.item?.from, to: this.selectedTag?.item?.to}
             );
             break;
@@ -223,7 +224,7 @@ export default {
         switch (this.selectedTag?.item?.type) {
           case 'b':
 
-            const crossRefs = await this.$store.dispatch('bibleverseCrossReferences/get',
+            const crossRefs = await useBibleverseCrossReferencesStore().get(
                 {
                   from: this.selectedTag?.item?.from,
                   to: this.selectedTag?.item?.to,
@@ -231,41 +232,32 @@ export default {
                 }
             );
 
-            return crossRefs.map((crossRef) => {
+            return Promise.all(crossRefs.map(async (crossRef) => {
 
               const from       = crossRef.target_from;
               const to         = crossRef.target_to !== 0 ? crossRef.target_to : crossRef.target_from;
               const bibleverse = new BibleVerse(from, to);
+              const verses     = await useBibleContentsStore().get({from, to});
 
               const result = {
                 searchItem: objectToSearchItem(bibleverse),
                 relevance: crossRef.relevance,
                 headline: BibleVerseService.bibleVerseToString(bibleverse, 'long'),
-                bigText: '',
-                smallText: 'is loading ...',
+                bigText: '"' + verses.map(({text}) => text).join(' ') + '"',
+                smallText: '',
                 key: 'b-' + from + '-' + to,
 
                 extra: {bibleverse}
               }
 
-              useBibleContentsStore().get({from, to})
-                  .then((resp) => {
-                    result.bigText = '';
-
-                    if (resp.length > 0) {
-                      useBiblesStore().get(resp[0].bibleUuid)
-                          .then(({title}) => {
-                            result.smallText = title;
-                          });
-                    }
-
-                    result.bigText = '"' + resp.map(({text}) => text).join(' ') + '"';
-
-                  });
+              if (verses.length > 0) {
+                const {title} = await useBiblesStore().get(verses[0].bibleUuid);
+                result.smallText = title;
+              }
 
               return result;
 
-            });
+            }));
 
 
           case 'k':
