@@ -35,6 +35,19 @@ Abnahme: Production-Build, 20 Vitest-Dateien mit 44/44 Tests, ESLint mit 0 Fehle
 
 Rückbau: Der Teilstufencommit stellt ausschließlich das Vuex-Modul, seine Registrierung und den einen Dispatch-Aufruf wieder her; die Pinia-Basis aus Teilstufe 6.1 bleibt davon unabhängig.
 
+## Teilstufe 6.3 – Benutzersuche
+
+`users` besitzt einen Suchrequest und genau einen Konsumenten in der Bearbeitung von Materialnutzungen. Der Pinia-Store bewahrt URL, optionale `limit`-Semantik, Erfolgsrückgabe und die über `convertErrorResponseToMessage` geworfene Fehlermeldung.
+
+Die Vuex-Getter und `setUsers` verwendeten nachweislich den literalen Schlüssel `id` beziehungsweise `data.id` statt der jeweiligen Benutzer-ID. Dadurch war der interne Cache trotz gefüllter Suchantwort nicht per ID lesbar. Im Repository existierte kein Getter-Konsument; die sichtbare Suche verwendet unverändert die direkt zurückgegebene Liste. Der Pinia-Port indexiert die Objekte korrekt per `user.id`. Diese lokale Fehlerbehebung verändert daher weder Request noch sichtbaren Ablauf, macht aber State, Getter und `clearUser` konsistent und testbar.
+
+- Drei Unit-Tests schützen Parameter mit und ohne Limit, unveränderte Rückgabe, konvertierte Rejection, ID-Indexierung und gezieltes Entfernen.
+- Das Vuex-Modul ist gelöscht; `usageListElement.vue` ruft die Pinia-Action innerhalb seines bestehenden 250-ms-Debounce auf.
+- Abnahme: Production-Build, 21 Vitest-Dateien mit 47/47 Tests, ESLint mit 0 Fehlern und 310 bekannten Warnungen sowie Frontend-Inventar mit exakt 13 Vuex-Modulen sind grün.
+- Offenes gekoppeltes Gate: Der Repository-Bestand enthält noch keine Browserfixture für Suche, Speichern und Löschen eines Materialnutzungseintrags. Diese Nutzerreise wird zusammen mit dem unmittelbar zugehörigen `materialusages`-Store ergänzt und muss beide Stores gemeinsam abnehmen. Bis dahin belegen Unit-Test und vollständiger SFC-Build den Users-Slice, nicht die gesamte Usage-Interaktion.
+
+Rückbau: Der Teilstufencommit stellt das alte Vuex-Modul, seine Registrierung und den Dispatch in `usageListElement.vue` wieder her; andere Pinia-Stores bleiben unverändert.
+
 ## Noch zu migrieren
 
-Nach Teilstufe 6.2 verbleiben 14 registrierte Vuex-Module: `resources`, `materials`, `materialusages`, `materialapp`, `keywords`, `keywordsSuggestions`, `bibleverses`, `bibleverseCrossReferences`, `search`, `bundles`, `biblecontents`, `general`, `bibles` und `users`. Die Reihenfolge bleibt risikobasiert: zuerst read-mostly beziehungsweise isolierte Module, dann gekoppelte Cache-/Relationsmodule und zuletzt die zentralen Material-/Resource-/General-Pfade. Vuex wird erst nach dem letzten migrierten Konsumenten entfernt.
+Nach Teilstufe 6.3 verbleiben 13 registrierte Vuex-Module: `resources`, `materials`, `materialusages`, `materialapp`, `keywords`, `keywordsSuggestions`, `bibleverses`, `bibleverseCrossReferences`, `search`, `bundles`, `biblecontents`, `general` und `bibles`. Die Reihenfolge bleibt risikobasiert: zuerst read-mostly beziehungsweise isolierte Module, dann gekoppelte Cache-/Relationsmodule und zuletzt die zentralen Material-/Resource-/General-Pfade. Vuex wird erst nach dem letzten migrierten Konsumenten entfernt.

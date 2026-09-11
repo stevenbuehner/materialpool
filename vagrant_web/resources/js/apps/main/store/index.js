@@ -11,7 +11,6 @@ import bundles                   from './modules/bundles';
 import biblecontents             from './modules/biblecontents';
 import general                   from './modules/general';
 import bibles                    from './modules/bibles';
-import users                     from './modules/users';
 import keywordsSuggestions       from './modules/keywordsSuggestions';
 
 export const store = createStore({
@@ -30,6 +29,5 @@ export const store = createStore({
 		biblecontents,
 		general,
 		bibles,
-		users
 	}
 });

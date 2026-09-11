@@ -139,6 +139,7 @@ import checkCircleIcon from '@icons/vendor/svg-icon/svg/material/save.svg';
 import vueSelect       from '@/adapters/vue-select';
 import _debounce       from "lodash/debounce";
 import {cloneDeep}     from "lodash";
+import {useUsersStore} from '../../../apps/main/stores/users';
 
 export default {
   name: "usageListElement",
@@ -309,8 +310,8 @@ export default {
 
       loadingCallback(true);
 
-      this.$store
-          .dispatch('users/search', {
+      useUsersStore()
+          .search({
             search: query
           })
           .then((users) => {
