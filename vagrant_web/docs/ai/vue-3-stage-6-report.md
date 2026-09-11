@@ -1,6 +1,6 @@
 # Vue-3-Migration – Stufe 6: Vuex zu Pinia
 
-Status: In Arbeit. Die Migration erfolgt Store für Store; jeder Abschnitt nennt den alleinigen schreibenden Store, seine migrierten Konsumenten und die Abnahme. Dieser Bericht ergänzt den verbindlichen [Vue-3-Migrationsvertrag](vue-3-migration-contract.md). Letzter vollständig committeter Teilstufenstand ist 6.12 (`78a55c7c`).
+Status: In Arbeit. Die Migration erfolgt Store für Store; jeder Abschnitt nennt den alleinigen schreibenden Store, seine migrierten Konsumenten und die Abnahme. Dieser Bericht ergänzt den verbindlichen [Vue-3-Migrationsvertrag](vue-3-migration-contract.md). Letzter vollständig committeter Teilstufenstand ist 6.13 (`151fd37e`).
 
 ## Pinia-Basis und Parallelbetrieb
 
@@ -183,6 +183,18 @@ Abnahme: Production-Build mit 967 transformierten Modulen, 32 Vitest-Dateien mit
 
 Rückbau: Der Teilstufencommit registriert das Vuex-Modul erneut, stellt den Dispatch in `MaterialList.vue` wieder her und entfernt Pinia-Store und Unit-Tests. Der bereits migrierte Materialstore bleibt bestehen; wie in Teilstufe 6.12 wird der gerichtete Preview-Writer beim Rückbau weiterhin direkt an Pinia übergeben.
 
+## Teilstufe 6.14 – Materialsuche
+
+`search` verwaltet den auf 20 Einträge begrenzten LRU-Promise-Cache der Materialsuche, die unveränderte POST-Payload an `/pool/search/get`, die Laravel-Paginator-Abbildung und die Übergabe gefundener Materialpreviews an den allein schreibenden Pinia-Store `materials`. Alle vier Konsumenten – Suchseite, Bibelleser, Bibelstellen-Popover und Materialauswahl – verwenden den neuen Pinia-Store; das Vuex-Modul und seine Root-Registrierung sind entfernt. Die historisch doppelt geschachtelte Queryform von `materialsWithParams`, Fallbacks für falsy `page`/`per_page`, Fehlermeldungswert und der derzeit nicht extern verwendete State `selectedSearchValues` bleiben erhalten.
+
+Ein lokaler Cachedefekt wurde testgedeckt behoben: Eine fehlgeschlagene Suche blieb früher als abgewiesenes Promise dauerhaft im Cache. Jeder spätere identische Aufruf scheiterte ohne neuen Request. Der Pinia-Store entfernt ausschließlich den fehlgeschlagenen Cacheeintrag einschließlich LRU-Historie und ermöglicht damit einen gezielten Retry; erfolgreiche parallele Aufrufe werden weiterhin zusammengeführt und erfolgreiche Cachetreffer an das Ende der LRU-Reihenfolge verschoben.
+
+Vier Unit-Tests schützen Requestpfad, Defaultpayload, Paginatorvertrag, Preview-Übergabe ohne Detailflag, Zusammenführung identischer Requests, 20er-LRU samt Promotion und Ersetzung, Retry nach Rejection, Titelqueryform und `selectedSearchValues`. Die Browserabnahme deckt die initiale Suchseite, asynchrone Suchvorschläge und Auswahl sowie die Bibelstellen- und Schlagwortoptimierung ab.
+
+Abnahme: Production-Build mit 967 transformierten Modulen, 33 Vitest-Dateien mit 122/122 Tests, ESLint mit 0 Fehlern und 203 bekannten Warnungen, Frontend-Inventar und Diff-Check sind grün. Vier Suchreisen bestehen in Desktop- und Mobile-WebKit mit 8/8 Prüfungen; die vorhandene visuelle Startseitenreferenz bleibt unverändert. Backend-Route, Controller, Authentifizierung, Queryformat, Pagination und Daten wurden nicht verändert. Das Inventar meldet keine Vue-2-/Compat-Muster und noch exakt 1 registriertes Vuex-Modul.
+
+Rückbau: Der Teilstufencommit registriert das frühere Vuex-Modul erneut, stellt die vier Dispatch-Aufrufe wieder her und entfernt Pinia-Store und Unit-Tests. Der bereits migrierte Materialstore bleibt bestehen; der gerichtete Preview-Writer wird beim Rückbau wie in Teilstufe 6.12 weiterhin direkt an Pinia übergeben.
+
 ## Noch zu migrieren
 
-Nach Teilstufe 6.13 verbleiben 2 registrierte Vuex-Module: `search` und `general`. `search` kann nun ohne Cross-Store-Brücke migriert werden; `general` bleibt bis nach dem fachlichen Store. Vuex wird erst nach dessen letztem Konsumenten entfernt.
+Nach Teilstufe 6.14 verbleibt ausschließlich das registrierte Vuex-Modul `general`. Nach Migration seiner sämtlichen Konsumenten wird Vuex als eigener, abschließend geprüfter Schritt entfernt.

@@ -46,6 +46,7 @@ import {
   searchQueryToSearchArrayObjects
 }                          from "../../../../components/search/searchHelper";
 import MaterialpoolSpinner from "../../../../components/spinner/materialpool-spinner";
+import {useSearchStore}    from '../../stores/search';
 
 export default {
 
@@ -175,7 +176,7 @@ export default {
       this.isLoading   = true;
       this.hasError    = false;
 
-      this.$store.dispatch('search/materials', {
+      useSearchStore().materials({
         query: searchData,
         page: this.page
       }).then(({materials, paging}) => {

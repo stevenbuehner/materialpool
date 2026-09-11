@@ -135,6 +135,7 @@ import {copyStringToClipboard}                                   from "../../hel
 import {BibleVerse, BibleVerseService}                           from "../../helper/BibleverseHelper";
 import {useBiblesStore}                                          from '../../apps/main/stores/bibles';
 import {useBibleContentsStore}                                   from '../../apps/main/stores/bibleContents';
+import {useSearchStore}                                          from '../../apps/main/stores/search';
 
 
 export default {
@@ -348,7 +349,7 @@ export default {
     materialCount: {
       get() {
 
-        return this.$store.dispatch('search/materials', {
+        return useSearchStore().materials({
           query: {
             1:
                 [{

@@ -80,6 +80,7 @@ import _debounce                                                from 'lodash/deb
 import MaterialpoolSpinner                                      from "../../spinner/materialpool-spinner";
 import {useRecentMaterialsStore}                                from '../../../apps/main/stores/recentMaterials';
 import {useMaterialsStore}                                      from '../../../apps/main/stores/materials';
+import {useSearchStore}                                         from '../../../apps/main/stores/search';
 
 export default {
   name: "materialSelector",
@@ -161,7 +162,7 @@ export default {
             .catch(this._materialearchNegative);
       } else if (this.form.title) {
         this.searchOngoing = true;
-        this.$store.dispatch('search/materialsWithParams', {
+        useSearchStore().materialsWithParams({
           material: {
             title: this.form.title
           }

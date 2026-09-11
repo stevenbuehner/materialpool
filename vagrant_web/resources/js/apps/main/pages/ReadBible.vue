@@ -42,6 +42,7 @@ import {fromRangeArrayToString}                                             from
 import {useBiblesStore}                                                     from '../stores/bibles';
 import {useBibleContentsStore}                                              from '../stores/bibleContents';
 import {useBibleversesStore}                                                from '../stores/bibleverses';
+import {useSearchStore}                                                     from '../stores/search';
 
 export default {
   name: "ReadBible",
@@ -95,7 +96,7 @@ export default {
 
         const searchData = searchArrayObjectsToSearchArrayItems([this.bibleVerses]);
 
-        return this.$store.dispatch('search/materials', {query: searchData});
+        return useSearchStore().materials({query: searchData});
       },
       default: null,
       watch() {

@@ -24,16 +24,17 @@ Abgeschlossen:
 - Teilstufe 6.11 implementiert: `keywordsSuggestions` und beide Konsumenten verwenden Pinia; Pagination, Count, Queue, Fehlerwert und parallele Request-Zusammenführung sind testgedeckt, die Optimierung zeigt Count, Vorschlag und Relevanz responsiv.
 - Teilstufe 6.12 implementiert: Die atomar gekoppelten Caches `materials` und `resources`, alle Konsumenten sowie die Writer aus Bootstrap, `search` und `materialapp` verwenden Pinia; 13 Store-Tests und acht responsive Kernreise-Prüfungen schützen den Verbund.
 - Teilstufe 6.13 implementiert: Der isolierte `materialapp`-Seitencache und sein einziger Konsument verwenden Pinia; Cache-Key, Pagination-Response und Preview-Übergabe sind unit- und responsiv browsergetestet.
+- Teilstufe 6.14 implementiert: Der Materialsuchcache und alle vier Konsumenten verwenden Pinia; Request-/Paginatorvertrag, 20er-LRU, parallele Aufrufe und Retry nach Rejection sind unit- und mit acht responsiven Browserprüfungen abgesichert.
 
 Offene Gates:
 
-- Teilstufe 6.13: Commit.
-- Stufe 6: weitere 2 Vuex-Module samt sämtlichen Konsumenten; danach Entfernung von Vuex.
+- Teilstufe 6.14: Commit.
+- Stufe 6: letztes Vuex-Modul `general` samt sämtlichen Konsumenten; danach Entfernung von Vuex.
 - Stufe 7: vollständige Releasegates einschließlich `migrate:fresh` und `db:seed` ausschließlich gegen die verifizierte, entbehrliche Sail-MySQL-Datenbank `testing`.
 
 Compat-/Paket-Ausnahmen: Keine Vue-2-/`@vue/compat`-Ausnahme. Vuex 4.1.0 bleibt nur bis zur Migration des letzten Moduls parallel zu Pinia 4.0.3 installiert.
 
-Nächster Schritt: Teilstufe 6.13 committen; anschließend den Suchcache `search` samt LRU- und Promise-Verträgen migrieren.
+Nächster Schritt: Teilstufe 6.14 committen; anschließend das letzte Modul `general` mit seinen Options-, Benutzer- und UI-Settings-Verträgen vollständig inventarisieren und migrieren.
 
 Rückbau: Letzter vollständig grüner Stufenstand ist `9e2593b5`. Pinia-Teilstufen bleiben bis zur finalen Vuex-Entfernung einzeln rückbaubar.
 
