@@ -463,7 +463,7 @@ export default {
         // ... dann zeige die schon mal an, bis der Rest geladen wurde
         if (!materialStore.hasMaterialDetails(this.id) && materialStore.hasMaterialPreview(this.id)) {
 
-          // Stelle sicher, dass Material aus dem VueX-Store aktualisiert wird, sobald es geladen wurde
+          // Aktualisiere die Async-Computed-Ansicht, sobald Pinia die Details geladen hat.
           materialDetailPromise.then(() => {
             // console.log("Detailliertes Material wurde nachgeladen");
             this.$asyncComputed.material.update();

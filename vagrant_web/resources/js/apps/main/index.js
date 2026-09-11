@@ -1,7 +1,6 @@
 import {createApp, h} from 'vue';
 import {createPinia} from 'pinia';
 import {createRouter, createWebHistory} from 'vue-router';
-import {store}   from './store'; // Before routes to use in BeforeRouting-Functions
 import {routes}  from './routes';
 import mainApp   from './App.vue';
 // Styling
@@ -29,7 +28,6 @@ const app = createApp({
 });
 const pinia = createPinia();
 installLegacyPlugins(app, vueLangConfig);
-app.use(store);
 app.use(pinia);
 app.use(router);
 app.mount('#app');

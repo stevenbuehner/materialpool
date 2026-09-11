@@ -46,8 +46,7 @@
     "vue": "3.5.42",
     "vue-async-computed": "4.0.1",
     "vue-router": "4.6.4",
-    "vue-star-rating": "2.1.0",
-    "vuex": "4.1.0"
+    "vue-star-rating": "2.1.0"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

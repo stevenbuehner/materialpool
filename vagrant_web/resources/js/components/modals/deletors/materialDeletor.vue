@@ -105,7 +105,6 @@ export default {
 
       materialIsReloading: false,
       resourcesAreReloading: false,
-      forceVueXUpdate: 0,
     };
   },
 

@@ -6,7 +6,7 @@ Auftrag: Vollständige schrittweise Umsetzung des [Vue-3-Migrationsvertrags](vue
 
 Referenz: Stufenberichte 0 bis 5; Vite-Cutover `9e2593b5`; PHP 8.4.25, Node 24.21.0, npm 11.19.0, Vue 3.5.42, Vite 8.2.2, WebKit aus Playwright 1.63.0.
 
-Aktuelle Stufe: 6 – Vuex 4 modulweise auf Pinia, in Arbeit.
+Aktuelle Stufe: 7 – vollständige Releaseabnahme, Vorbereitung.
 
 Abgeschlossen:
 
@@ -26,16 +26,16 @@ Abgeschlossen:
 - Teilstufe 6.13 implementiert: Der isolierte `materialapp`-Seitencache und sein einziger Konsument verwenden Pinia; Cache-Key, Pagination-Response und Preview-Übergabe sind unit- und responsiv browsergetestet.
 - Teilstufe 6.14 implementiert: Der Materialsuchcache und alle vier Konsumenten verwenden Pinia; Request-/Paginatorvertrag, 20er-LRU, parallele Aufrufe und Retry nach Rejection sind unit- und mit acht responsiven Browserprüfungen abgesichert.
 - Teilstufe 6.15 implementiert: Das letzte Fachmodul `general` und alle elf Aufrufe verwenden Pinia; Options-, Benutzer-, Uploadlimit- und verschachtelte Settings-Verträge sowie retryfähige Ladefehler sind unit- und responsiv browsergetestet.
+- Teilstufe 6.16 implementiert: Vuex ist aus App, Source, Manifest, Lockfile und Dependency-Tree entfernt; reproduzierbare Installation, vollständige Frontendgates und alle unveränderten visuellen Referenzen sind geprüft. Stufe 6 ist abgeschlossen.
 
 Offene Gates:
 
-- Teilstufe 6.15: Commit.
-- Stufe 6: leere Vuex-Hülle, App-Installation und Paket samt Lockfile entfernen; anschließend vollständige Frontendgates.
+- Teilstufe 6.16: Commit.
 - Stufe 7: vollständige Releasegates einschließlich `migrate:fresh` und `db:seed` ausschließlich gegen die verifizierte, entbehrliche Sail-MySQL-Datenbank `testing`.
 
-Compat-/Paket-Ausnahmen: Keine Vue-2-/`@vue/compat`-Ausnahme. Vuex 4.1.0 bleibt nur bis zur Migration des letzten Moduls parallel zu Pinia 4.0.3 installiert.
+Compat-/Paket-Ausnahmen: Keine Vue-2-/`@vue/compat`-Ausnahme. Vuex ist vollständig entfernt; Pinia 4.0.3 ist der einzige Store.
 
-Nächster Schritt: Teilstufe 6.15 committen; anschließend Vuex mechanisch entfernen und prüfen, dass Source, Build und Lockfile keine Vuex-Reste enthalten.
+Nächster Schritt: Teilstufe 6.16 committen; anschließend Stufe 7 nach dem Migrationsvertrag gegen die isolierte `testing`-Datenbank abnehmen, einschließlich `migrate:fresh`, `db:seed`, repräsentativer Seed-Assertions, vollständiger Backend- und Frontendtests.
 
 Rückbau: Letzter vollständig grüner Stufenstand ist `9e2593b5`. Pinia-Teilstufen bleiben bis zur finalen Vuex-Entfernung einzeln rückbaubar.
 

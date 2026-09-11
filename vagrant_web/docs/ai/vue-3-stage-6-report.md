@@ -1,6 +1,6 @@
 # Vue-3-Migration – Stufe 6: Vuex zu Pinia
 
-Status: In Arbeit. Die Migration erfolgt Store für Store; jeder Abschnitt nennt den alleinigen schreibenden Store, seine migrierten Konsumenten und die Abnahme. Dieser Bericht ergänzt den verbindlichen [Vue-3-Migrationsvertrag](vue-3-migration-contract.md). Letzter vollständig committeter Teilstufenstand ist 6.14 (`5e39bd2d`).
+Status: Abgeschlossen. Die Migration erfolgte Store für Store; jeder Abschnitt nennt den alleinigen schreibenden Store, seine migrierten Konsumenten und die Abnahme. Dieser Bericht ergänzt den verbindlichen [Vue-3-Migrationsvertrag](vue-3-migration-contract.md).
 
 ## Pinia-Basis und Parallelbetrieb
 
@@ -209,6 +209,18 @@ Abnahme: Production-Build mit 967 transformierten Modulen, 34 Vitest-Dateien mit
 
 Rückbau: Der Teilstufencommit registriert `general` erneut, stellt die elf Dispatch-Aufrufe in sechs Bereichen wieder her und entfernt Pinia-Store und Unit-Tests. Die in früheren Teilstufen migrierten Fachstores bleiben unabhängig.
 
-## Noch zu migrieren
+## Teilstufe 6.16 – Vuex vollständig entfernt
 
-Nach Teilstufe 6.15 existiert kein Vuex-Konsument und kein registriertes Vuex-Modul mehr. Als eigene mechanische Teilstufe folgen Entfernung der leeren Root-Store-Hülle, `app.use(store)`, npm-Paket und Lockfile-Einträge sowie vollständige Gates.
+Nach der Migration des letzten Fachmoduls wurden die leere Root-Store-Hülle, ihr App-Import, `app.use(store)` sowie Vuex 4.1.0 aus `package.json` und Lockfile entfernt. `npm uninstall vuex` entfernte außerdem die nur über Vuex vorhandene Devtools-API-Unterabhängigkeit. Ein veralteter Vuex-Kommentar und das nachweislich ungenutzte Datenfeld `forceVueXUpdate` wurden mechanisch bereinigt; funktionaler Code, Backend, API, Daten und UI blieben unverändert.
+
+Lockfile und Installierbarkeit wurden mit `npm ci --ignore-scripts` verifiziert. `npm ls vuex --all`, Volltextsuche in Source, Tests, Manifest, Lockfile, Vite-Konfiguration und Skripten sowie das Frontend-Inventar enthalten kein Vuex und keinen `$store`-Zugriff mehr. Das Inventar zählt 85 JS- und 139 Vue-Dateien, keine registrierten Storemodule und keine Vue-2-/Compat-Muster. Pinia 4.0.3 löst weiterhin exakt Vue 3.5.42 auf.
+
+Abnahme: 34 Vitest-Dateien mit 129/129 Tests, ESLint mit 0 Fehlern und 197 bekannten Warnungen, Production-Build mit nun 952 transformierten Modulen, Frontend-Inventar, Lockfile- und Diff-Check sind grün. Die vollständige nicht-destruktive Browser-Suite besteht mit 26/26 Prüfungen in Desktop- und Mobile-WebKit. Das separate visuelle Login-Gate wich am Debug-Server ausschließlich durch die eingeblendete Laravel-Debugbar ab; Soll-/Ist-/Diff-Prüfung bestätigte die Ursache. Gegen einen separat gestarteten Server mit `APP_DEBUG=0` bestehen beide unveränderten Referenzen mit 2/2 Prüfungen. Es wurden keine Snapshots aktualisiert.
+
+Der aktuelle Registry-Audit bleibt bei 10 bereits dokumentierten Befunden (1 low, 4 moderate, 5 high). Vuex-Entfernung führt keinen neuen Befund ein; `npm audit fix` wurde nicht ausgeführt. Die direkten Altversionen Axios und DOMPurify benötigen laut Audit jeweils ein SemVer-Major-Upgrade und bleiben deshalb entsprechend dem Verbot ungeplanter Major-Upgrades außerhalb dieser mechanischen Teilstufe.
+
+Rückbau: Der Teilstufencommit stellt ausschließlich Vuex 4.1.0, Root-Store-Datei, App-Installation und Lockfile-Einträge wieder her. Für einen funktionalen Rückbau auf Vuex müssen zusätzlich die jeweils fachlich betroffenen Teilstufen 6.1 bis 6.15 in umgekehrter Reihenfolge zurückgebaut werden.
+
+## Abschluss Stufe 6
+
+Alle Anwendungsstores laufen ausschließlich auf Pinia. Kein paralleler Storebetrieb, keine Synchronisationswatcher und keine temporäre Vuex-Abhängigkeit verbleiben. Die offenen Release-, Datenbank-, Seeder- und Backendregressionsgates sind Bestandteil von Stufe 7 und verändern den abgeschlossenen Frontendzustand nicht.
