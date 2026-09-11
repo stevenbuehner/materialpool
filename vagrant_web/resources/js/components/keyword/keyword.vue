@@ -44,6 +44,7 @@ import {draggingSupport}                                              from "./dr
 import {RELEVANCE_USER_MAX}                                           from "../../apps/config";
 import {cloneDeep}                                                    from "lodash";
 import {defineAsyncComponent}                                        from 'vue';
+import {useKeywordsStore}                                            from '../../apps/main/stores/keywords';
 
 export default {
 
@@ -163,7 +164,7 @@ export default {
 
       if (this.materialId) {
 
-        const promise = this.$store.dispatch('keywords/updateRelevance', {
+        const promise = useKeywordsStore().updateRelevance({
           materialId: this.materialId,
           keywordId: this.keyword.id,
           relevance: relevance
@@ -201,7 +202,7 @@ export default {
     removeKeyword() {
 
       if (this.materialId) {
-        this.$store.dispatch('keywords/deleteAssignment', {
+        useKeywordsStore().deleteAssignment({
           materialId: this.materialId,
           keywordId: this.myKeyword.id
         })

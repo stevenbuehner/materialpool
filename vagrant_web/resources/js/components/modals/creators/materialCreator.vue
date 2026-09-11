@@ -255,6 +255,7 @@ import {RELEVANCE_USER_AVG}    from "../../../apps/config";
 import {savingDialogs}         from "../../../helper/flashMessages";
 import MaterialpoolSpinner     from "../../spinner/materialpool-spinner";
 import {useRecentMaterialsStore} from '../../../apps/main/stores/recentMaterials';
+import {useKeywordsStore}        from '../../../apps/main/stores/keywords';
 
 // Icons
 import trashIcon   from '@icons/vendor/svg-icon/svg/oct/trashcan.svg';
@@ -705,7 +706,7 @@ export default {
         this.form.author = materialTemplate.author;
 
         if (materialTemplate.author.id) {
-          this.$store.dispatch('keywords/get', materialTemplate.author.id)
+          useKeywordsStore().get(materialTemplate.author.id)
               .then((keyword) => {
                 this.form.author = keyword;
               })

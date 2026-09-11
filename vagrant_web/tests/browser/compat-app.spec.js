@@ -499,6 +499,92 @@ test('Bundle overview loads and completes an update through Pinia', async ({page
     expect(pageErrors).toEqual([]);
 });
 
+test('Keyword tree loads, filters and force-refreshes through Pinia', async ({page}) => {
+    const pageErrors = [];
+    const keywordIndexRequests = [];
+    page.on('pageerror', error => pageErrors.push(error.stack || error.message));
+
+    await page.route('**/vue/**', route => route.fulfill({
+        contentType: 'text/html',
+        body: `<!doctype html>
+            <html lang="de">
+                <head>
+                    <meta charset="utf-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1">
+                    <title>Materialpool Keyword Store Test</title>
+                    ${viteStylesheetTags}
+                </head>
+                <body>
+                    <div id="app"></div>
+                    <script>
+                        window.Laravel = {csrfToken: 'synthetic-csrf-token'};
+                        window.materialpool = {route: '/keyword', store: {materials: []}};
+                    </script>
+                    ${viteScriptTag}
+                </body>
+            </html>`,
+    }));
+    await page.route('**/api/**', async route => {
+        const pathname = new URL(route.request().url()).pathname;
+
+        if (pathname === '/api/v1/general/options') {
+            await route.fulfill({
+                contentType: 'application/json',
+                body: JSON.stringify({
+                    systemname: 'MaterialPool Default',
+                    server: {max_upload: 10485760},
+                    user: {
+                        id: 1,
+                        name: 'Synthetic User',
+                        email: 'synthetic@example.invalid',
+                        is_admin: false,
+                        frontend_user_settings: {},
+                    },
+                }),
+            });
+            return;
+        }
+
+        if (pathname === '/api/v1/keywords/') {
+            keywordIndexRequests.push(route.request().url());
+            await route.fulfill({
+                contentType: 'application/json',
+                body: JSON.stringify({
+                    data: [{
+                        id: 55,
+                        title: 'Compat keyword',
+                        lc_title: 'compat keyword',
+                        type: 'key',
+                        parent_id: null,
+                    }],
+                    current_page: 1,
+                    last_page: 1,
+                }),
+            });
+            return;
+        }
+
+        await route.fulfill({contentType: 'application/json', body: '[]'});
+    });
+
+    await page.goto('/vue/');
+
+    const keywordNode = page.locator('.sbTreeNode:not(.hasChildren)').filter({hasText: 'Compat keyword'});
+    await expect(keywordNode).toBeVisible();
+    await expect.poll(() => keywordIndexRequests.length).toBe(1);
+    const treeSearch = page.getByPlaceholder('Suchen', {exact: true});
+    await treeSearch.fill('Compat');
+    await expect(keywordNode).toBeVisible();
+    await treeSearch.fill('Nicht vorhanden');
+    await expect(treeSearch).toHaveValue('Nicht vorhanden');
+    expect(pageErrors).toEqual([]);
+    await expect(keywordNode).toHaveCount(0);
+    await page.locator('.refreshIcon').click();
+    await expect.poll(() => keywordIndexRequests.length).toBe(2);
+    await expectResolvedNavigation(page);
+    expect(pageErrors).toEqual([]);
+});
+
 test('Vue 3 datepicker keeps the German input and calendar interaction', async ({page}) => {
     const pageErrors = [];
     const attachRequests = [];
@@ -621,6 +707,21 @@ test('Vue 3 datepicker keeps the German input and calendar interaction', async (
                     lc_title: 'compat keyword',
                     type: 'key',
                     pivot: {relevance: payload.relevance},
+                }),
+            });
+            return;
+        }
+
+        if (pathname === '/api/v1/keywords/55' && route.request().method() === 'GET') {
+            await route.fulfill({
+                contentType: 'application/json',
+                body: JSON.stringify({
+                    id: 55,
+                    title: 'Compat keyword',
+                    lc_title: 'compat keyword',
+                    type: 'key',
+                    descendants: [],
+                    ancestors: [],
                 }),
             });
             return;
@@ -801,6 +902,10 @@ test('Vue 3 datepicker keeps the German input and calendar interaction', async (
     await expect.poll(() => usageDeleteRequests.length).toBe(1);
     expect(usageDeleteRequests[0]).toEqual({_method: 'DELETE'});
     await expect(page.locator('.usage-edit-list-el')).toHaveCount(0);
+    for (const closeButton of await page.locator('.flash__close-button').all()) {
+        await closeButton.click();
+    }
+    await expect(page.locator('.flash__message')).toHaveCount(0);
 
     const tabs = page.locator('.sideTab [role="tab"]');
     await expect(tabs).toHaveCount(3);
@@ -874,6 +979,7 @@ test('Vue 3 datepicker keeps the German input and calendar interaction', async (
     await contextMenu.getByRole('link', {name: 'Suche nach "Compat keyword"'}).click();
     await expect(contextMenu).toBeHidden();
     await expect(page).toHaveURL(/\/vue\/search\/1k55$/);
+    await expect(page.locator('.searchInputSelect .sb-search-input-tag')).toContainText('Compat keyword');
     expect(pageErrors).toEqual([]);
 });
 

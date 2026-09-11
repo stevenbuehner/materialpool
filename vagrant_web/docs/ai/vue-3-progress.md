@@ -4,7 +4,7 @@ Stand: 11. September 2026, `master`, Ausgangs-HEAD `9e2593b5`; `.env.dev` und di
 
 Auftrag: Vollständige schrittweise Umsetzung des [Vue-3-Migrationsvertrags](vue-3-migration-contract.md), mit Git-Commit nach jeder grünen Stufe beziehungsweise klar abgegrenzten Teilstufe.
 
-Referenz: Stufenberichte 0 bis 5; Vite-Cutover `9e2593b5`; PHP 8.4.25, Node 24.21.0, npm 11.19.0, Vue 3.5.42, Vite 8.2.2, WebKit aus Playwright 1.58.2.
+Referenz: Stufenberichte 0 bis 5; Vite-Cutover `9e2593b5`; PHP 8.4.25, Node 24.21.0, npm 11.19.0, Vue 3.5.42, Vite 8.2.2, WebKit aus Playwright 1.63.0.
 
 Aktuelle Stufe: 6 – Vuex 4 modulweise auf Pinia, in Arbeit.
 
@@ -20,16 +20,17 @@ Abgeschlossen:
 - Teilstufe 6.7 implementiert: `bibleverseCrossReferences` und beide Komponenten-Konsumenten verwenden Pinia; Pagination, Queue, Cache und Zero-Count sind testgedeckt, die Schlagwortoptimierung zeigt Querverweis und Bibeltext responsiv im Browser.
 - Teilstufe 6.8 implementiert: `bibleverses` und alle fünf Komponenten-Konsumenten verwenden Pinia; Cache, CRUD-Payloads, Queue und Fehlerverträge sind testgedeckt, die Bibelleser-Reise schützt Suche, Route und neuen Versinhalt responsiv.
 - Teilstufe 6.9 implementiert: `bundles` und alle vier Komponenten-Konsumenten verwenden Pinia; Promise-/Daten-/Icon-Caches und Job-Payloads sind testgedeckt, ein vollständig gemocktes Update wechselt die sichtbare Version responsiv.
+- Teilstufe 6.10 implementiert: `keywords`, elf direkte Konsumenten und der Übergabewriter aus `keywordsSuggestions` verwenden Pinia; Cache, CRUD, Queue, Suche und Fehlerverträge sind testgedeckt, Keyword-Tree und Materialdetail sind responsiv im Browser abgenommen.
 
 Offene Gates:
 
-- Teilstufe 6.9: Commit.
-- Stufe 6: weitere 7 Vuex-Module samt sämtlichen Konsumenten; danach Entfernung von Vuex.
+- Teilstufe 6.10: Commit.
+- Stufe 6: weitere 6 Vuex-Module samt sämtlichen Konsumenten; danach Entfernung von Vuex.
 - Stufe 7: vollständige Releasegates einschließlich `migrate:fresh` und `db:seed` ausschließlich gegen die verifizierte, entbehrliche Sail-MySQL-Datenbank `testing`.
 
 Compat-/Paket-Ausnahmen: Keine Vue-2-/`@vue/compat`-Ausnahme. Vuex 4.1.0 bleibt nur bis zur Migration des letzten Moduls parallel zu Pinia 4.0.3 installiert.
 
-Nächster Schritt: Teilstufe 6.9 committen; anschließend den zentralen `keywords`-Store vor seinem schreibenden Sekundärstore `keywordsSuggestions` migrieren.
+Nächster Schritt: Teilstufe 6.10 committen; anschließend den nun isolierten Sekundärstore `keywordsSuggestions` migrieren.
 
 Rückbau: Letzter vollständig grüner Stufenstand ist `9e2593b5`. Pinia-Teilstufen bleiben bis zur finalen Vuex-Entfernung einzeln rückbaubar.
 

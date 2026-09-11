@@ -71,9 +71,7 @@ export default {
 
   watch: {
     searchPhrase: {
-      handler: function (newValue) {
-
-        this.page = 1;
+      handler: function () {
         this.updateKeywordTree();
 
       },

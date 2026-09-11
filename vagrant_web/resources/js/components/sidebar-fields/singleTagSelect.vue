@@ -1,5 +1,6 @@
 <script>
 import tagEdit from "./tagEdit";
+import {useKeywordsStore} from '../../apps/main/stores/keywords';
 
 export default {
 
@@ -55,7 +56,7 @@ export default {
         // Keyword first has to be created first
         try {
 
-          keyword = await this.$store.dispatch('keywords/create', {
+          keyword = await useKeywordsStore().create({
             title: input.title,
             type: input.type
           });

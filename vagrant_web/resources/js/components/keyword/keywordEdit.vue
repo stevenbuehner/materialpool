@@ -119,6 +119,7 @@
 import {BButton, BFormInput, BFormSelect} from '@/adapters/bootstrap';
 import Keyword                            from "./keyword";
 import MaterialpoolSpinner                from "../spinner/materialpool-spinner";
+import {useKeywordsStore}                 from '../../apps/main/stores/keywords';
 
 
 export default {
@@ -149,7 +150,7 @@ export default {
     parent: {
       get() {
         if (this.keyword && this.keyword.parent_id) {
-          return this.$store.dispatch('keywords/get', this.keyword.parent_id);
+          return useKeywordsStore().get(this.keyword.parent_id);
         } else {
           return null;
         }
@@ -162,7 +163,7 @@ export default {
 
     relationsCount: {
       get() {
-        return this.$store.dispatch('keywords/relationsCount', this.id);
+        return useKeywordsStore().relationsCount(this.id);
       },
       default: null,
     }
@@ -191,7 +192,7 @@ export default {
     getKeyword() {
       this.errorOnLoadingMessage = null;
 
-      this.$store.dispatch('keywords/get', this.id).then((keyword) => {
+      useKeywordsStore().get(this.id).then((keyword) => {
         this.setKeyword(keyword);
         this.errorOnLoadingMessage = null;
       }).catch((response) => {
@@ -240,7 +241,7 @@ export default {
       if (answer === true) {
         this.disableForm = true;
 
-        this.$store.dispatch('keywords/delete', this.id)
+        useKeywordsStore().delete(this.id)
             .then((deletionConfirmed) => {
               this.$emit('deleted');
             })
@@ -256,7 +257,7 @@ export default {
 
       this.$emit('saving', properties);
 
-      const promise = this.$store.dispatch('keywords/update', {id: this.id, data: properties});
+      const promise = useKeywordsStore().update({id: this.id, data: properties});
 
       promise.then((keyword) => {
 

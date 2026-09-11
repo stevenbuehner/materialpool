@@ -12,6 +12,7 @@
 
 <script>
 import KeywordEdit from "../../../components/keyword/keywordEdit";
+import {useKeywordsStore} from '../stores/keywords';
 
 
 export default {
@@ -34,7 +35,7 @@ export default {
   asyncComputed: {
     keyword: {
       get() {
-        return this.$store.dispatch('keywords/get', this.id);
+        return useKeywordsStore().get(this.id);
       },
       default: null,
       /* watch() {

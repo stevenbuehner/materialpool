@@ -367,6 +367,7 @@ import MaterialDeletor            from "../../../components/modals/deletors/mate
 import Bundle                     from "../../../components/bundles/bundle";
 import RelevanceSelector          from "../../../components/modals/dialogs/relevanceSeletor.vue";
 import {useBibleversesStore}      from '../stores/bibleverses';
+import {useKeywordsStore}         from '../stores/keywords';
 
 // https://github.com/craigh411/vue-star-rating/#props
 export default {
@@ -695,7 +696,7 @@ export default {
 
           const startFlash = this.flashStartSaving(this.$t('pool.keyword'));
 
-          resolve(this.$store.dispatch('keywords/create', {
+          resolve(useKeywordsStore().create({
             title: keywordObject.title,
             type: keywordObject.type
           }).then((keyword) => {
@@ -722,7 +723,7 @@ export default {
         this.material.keywords.splice(i, 1);
       }
 
-      this.$store.dispatch('keywords/deleteAssignment', {
+      useKeywordsStore().deleteAssignment({
         materialId: this.id,
         keywordId: keywordObject.id
       }).then((response) => {
@@ -740,7 +741,7 @@ export default {
     updateKeywordRelevance(keywordObject, newRelevance) {
       const startFlash = this.flashStartSaving(this.$t('pool.keyword'));
 
-      return this.$store.dispatch('keywords/updateRelevance', {
+      return useKeywordsStore().updateRelevance({
         materialId: this.id,
         keywordId: keywordObject.id,
         relevance: newRelevance

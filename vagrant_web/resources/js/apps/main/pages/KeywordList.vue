@@ -41,11 +41,11 @@
 
 <script>
 
-import editIcon            from '@icons/vendor/svg-icon/svg/ionic/edit.svg';
 import refreshIcon         from '@icons/vendor/svg-icon/svg/awesome/refresh.svg';
 import Tree                from "../../../components/keyword/tree/Tree";
 import {BFormInput}        from '@/adapters/bootstrap';
 import MaterialpoolSpinner from "../../../components/spinner/materialpool-spinner";
+import {useKeywordsStore}  from '../stores/keywords';
 
 export default {
   name: "KeywordList",
@@ -170,7 +170,7 @@ export default {
       backKW.temp = true;
       this.attachKeyword(backKW, targetId);
 
-      this.$store.dispatch('keywords/update', {
+      useKeywordsStore().update({
         id: sourceId,
         data: {
           parent_id: Number.isInteger(targetId) ? targetId : null
@@ -185,11 +185,11 @@ export default {
         this.attachKeyword(keyword, keyword.parent_id);
         this.flashSuccess(this.$t('pool.Keyword-saved'), {timeout: 3000});
 
-      }).catch((response) => {
+      }).catch(() => {
         // Reattach keyword at the end of the DOM
-        delete backKw.temp;
+        delete backKW.temp;
 
-        this.detachKeyword(backKw.id);
+        this.detachKeyword(backKW.id);
         this.attachKeyword(backKW, backParentId);
         this.flashError(this.$t('pool.Error-while-moving-keyword'));
 
@@ -251,7 +251,7 @@ export default {
 
       this.treeStillLoading = true;
 
-      this.$store.dispatch('keywords/getAll', forceReload)
+      useKeywordsStore().getAll(forceReload)
           .then((allKeywords) => {
             this.createModelFromKeywords(allKeywords);
             this.treeStillLoading = false;
@@ -270,7 +270,6 @@ export default {
   components: {
     MaterialpoolSpinner,
     Tree,
-    editIcon,
     refreshIcon,
     BFormInput
   }

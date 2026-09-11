@@ -269,7 +269,7 @@ export function searchArrayObjectsToSearchQuery(searchObjects) {
 }
 
 
-import {store} from '../../apps/main/store';
+import {useKeywordsStore} from '../../apps/main/stores/keywords';
 
 export function searchQueryToSearchArrayObjects(query) {
 
@@ -290,8 +290,8 @@ export function searchQueryToSearchArrayObjects(query) {
 				case 'k':
 					searchPromises.push(
 						new Promise((resolve, reject) => {
-							store
-								.dispatch('keywords/get', search)
+							useKeywordsStore()
+								.get(search)
 								.then((keyword) => {
 									resolve({
 										line: lineId,
@@ -349,4 +349,3 @@ export function searchQueryToSearchArrayObjects(query) {
 	              });
 
 }
-

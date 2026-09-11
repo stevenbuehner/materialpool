@@ -4,6 +4,7 @@ import {api_v2_keywords_suggestions,} from '../../../../components/serverRoutes'
 import {queue}                         from "../networkQueue";
 import {convertErrorResponseToMessage} from "./handleErrorsHelper";
 import {cloneDeep}                     from 'lodash';
+import {useKeywordsStore}              from '../../stores/keywords';
 
 const state = {
 	// "ID" => {'count' => int, 'items' => []}
@@ -78,7 +79,7 @@ const mutations = {
 
 const actions = {
 
-	get: async ({getters, commit, dispatch}, {id, maximum}) => {
+	get: async ({getters, commit}, {id, maximum}) => {
 
 		// Parse Params
 		if (maximum === undefined) {
@@ -136,7 +137,7 @@ const actions = {
 
 			return kw;
 		});
-		dispatch('keywords/setMultipleKeywords', keywordsPub, {root: true})
+		useKeywordsStore().setMultipleKeywords(keywordsPub);
 
 		return collection.slice(0, maximum);
 

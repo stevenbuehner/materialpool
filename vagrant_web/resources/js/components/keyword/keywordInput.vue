@@ -94,6 +94,7 @@ import {RELEVANCE_USER_MAX} from "../../apps/config";
 import MaterialpoolSpinner  from "../spinner/materialpool-spinner";
 import {savingDialogs}      from "../../helper/flashMessages";
 import {cloneDeep}          from "lodash";
+import {useKeywordsStore}   from '../../apps/main/stores/keywords';
 
 
 export default {
@@ -208,7 +209,7 @@ export default {
       // Split search into multiple keyword-searches by COMMA and SEMICOLON
       const multiKeywordParts = search.split(/\s*[,;]\s*/);
 
-      vm.$store.dispatch('keywords/searchMultiple',
+      useKeywordsStore().searchMultiple(
           multiKeywordParts.map((searchText) => {
             return {searchText, limit: 40};
           }))
@@ -241,7 +242,7 @@ export default {
       let promise;
 
       if (this.materialId) {
-        promise = this.$store.dispatch('keywords/createAndAssign', {
+        promise = useKeywordsStore().createAndAssign({
           title,
           type: 'key',
           materialId: this.materialId,
@@ -249,7 +250,7 @@ export default {
         });
       } else {
         console.info('Missing Material ID: Association is not stored remotely!');
-        promise = this.$store.dispatch('keywords/create', {
+        promise = useKeywordsStore().create({
           title,
           type: 'key',
         }).then((kw) => {
@@ -286,7 +287,7 @@ export default {
         }
 
         if (this.materialId) {
-          this.$store.dispatch('keywords/updateRelevance', {
+          useKeywordsStore().updateRelevance({
             materialId: this.materialId,
             keywordId: kw.id
           }).then((data) => {
@@ -348,7 +349,7 @@ export default {
       const prom = new Promise((resolve, reject) => {
 
         if (this.materialId) {
-          return this.$store.dispatch('keywords/deleteMultipleAssignemts',
+          return useKeywordsStore().deleteMultipleAssignemts(
               {
                 keywordIds: this.myKeywords.map(bv => bv.id),
                 materialId: this.materialId

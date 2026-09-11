@@ -1,6 +1,6 @@
 # Vue-3-Migration – Stufe 6: Vuex zu Pinia
 
-Status: In Arbeit. Die Migration erfolgt Store für Store; jeder Abschnitt nennt den alleinigen schreibenden Store, seine migrierten Konsumenten und die Abnahme. Dieser Bericht ergänzt den verbindlichen [Vue-3-Migrationsvertrag](vue-3-migration-contract.md). Letzter vollständig abgeschlossener Stufenstand ist `9e2593b5`.
+Status: In Arbeit. Die Migration erfolgt Store für Store; jeder Abschnitt nennt den alleinigen schreibenden Store, seine migrierten Konsumenten und die Abnahme. Dieser Bericht ergänzt den verbindlichen [Vue-3-Migrationsvertrag](vue-3-migration-contract.md). Letzter vollständig committeter Teilstufenstand ist 6.9 (`aaedd9b9`).
 
 ## Pinia-Basis und Parallelbetrieb
 
@@ -124,6 +124,21 @@ Abnahme: Production-Build mit 967 transformierten Modulen, 27 Vitest-Dateien mit
 
 Rückbau: Der Teilstufencommit registriert das frühere Vuex-Modul erneut, stellt die neun direkten Komponenten-Dispatches wieder her und entfernt Pinia-Store, Tests und die isolierte Bundle-Browserreise. Andere Pinia-Slices bleiben unabhängig.
 
+## Teilstufe 6.10 – Schlagwörter
+
+`keywords` verwaltet den zentralen ID-Cache sowie Laden, Suche, Anlegen, Bearbeiten, Zuordnen, Relevanzänderung und Löschen von Schlagwörtern. Der Pinia-Port erhält die bestehenden v1- und Such-API-Pfade, Requestparameter, Method-Spoofing-Payloads, Seitennavigation, Queue-Reihenfolge, Serverdefault bei falsy Relevanz und die historischen erfüllten beziehungsweise geworfenen Fehlerverträge. Die 24 direkten Komponenten- und Helper-Aufrufe in elf Konsumenten verwenden Pinia; das Vuex-Modul und seine Root-Registrierung sind entfernt. Der noch nicht migrierte Store `keywordsSuggestions` schreibt geladene Vorschläge über die Pinia-Action in denselben Cache. Damit bleibt Pinia auch während des Parallelbetriebs der einzige Writer für Schlagwortdaten.
+
+Zwei lokale Fehler wurden im unmittelbar betroffenen Ablauf behoben:
+
+- Der alte Delete-Pfad wandelte ein fachlich fehlgeschlagenes HTTP-200-Ergebnis zunächst in eine aussagekräftige Meldung um, fing diese anschließend erneut ab und konvertierte sie zu `undefined error`. Requestfehler und fachliche Fehler durchlaufen den Konverter jetzt jeweils genau einmal.
+- Der Keyword-Tree schrieb bei jeder Filteränderung in sein read-only `page`-Prop. Unter Vue 3 brach dadurch die reaktive Filteraktualisierung ab. Die wirkungslose Prop-Mutation ist entfernt; Laden, Filtern und Force-Refresh sind responsiv im Browser geprüft. Beim Warnungsabgleich wurde außerdem der fehlerhafte Bezeichner `backKw` im API-Fehler-Rollback des Drag-and-drop-Pfads auf das tatsächlich vorhandene Backup `backKW` korrigiert.
+
+13 Unit-Tests schützen Clone-ohne-Pivot, Einzel-, Mehrfach- und Vollabruf einschließlich Force-Reload, Relationszählung, Create-and-Assign, Update samt Merge-Invalidierung, Relevanzpayload, Einzel- und Mehrfachentfernung, die beiden Löschfehlerklassen, paginierte Suche und deduplizierte Mehrfachsuche. Eine neue Browserreise prüft Keyword-Tree, Filter und erzwungenes Neuladen. Die bestehende Materialdetail-Reise deckt zusätzlich Laden eines Schlagworts, Relevanzänderung per Drag und Übergabe an die Suche ab; ihre flüchtigen Erfolgsmeldungen werden vor dem bestehenden Modal-Screenshot explizit geschlossen, damit die visuelle Referenz deterministisch bleibt.
+
+Abnahme: Production-Build mit 967 transformierten Modulen, 28 Vitest-Dateien mit 97/97 Tests, ESLint mit 0 Fehlern und 238 bekannten Warnungen, Frontend-Inventar und Diff-Check sind grün. Keyword-Tree und Materialdetail bestehen in Desktop- und Mobile-WebKit (4/4 Prüfungen); die visuellen Referenzen bleiben unverändert. Das Inventar meldet keine Vue-2-/Compat-Muster und noch exakt 6 registrierte Vuex-Module. Backend-Routen, Controller, Policies, `CheckLonelyKeyword`, Datenbank, Events und Queues wurden nicht verändert. Die bekannten Sass-Deprecations und der Chunkgrößenhinweis bleiben unverändert.
+
+Rückbau: Der Teilstufencommit registriert das frühere Vuex-Modul erneut, stellt die 25 Aufrufe in zwölf Konsumenten einschließlich des Übergabewriters aus `keywordsSuggestions` wieder her und entfernt Pinia-Store, Unit-Tests und die Keyword-Browserreise. Andere Pinia-Slices bleiben unabhängig.
+
 ## Noch zu migrieren
 
-Nach Teilstufe 6.9 verbleiben 7 registrierte Vuex-Module: `resources`, `materials`, `materialapp`, `keywords`, `keywordsSuggestions`, `search` und `general`. Die verbleibende Reihenfolge berücksichtigt nun ihre Kopplung: `keywords` vor `keywordsSuggestions`, `materials` und `resources` vor ihren schreibenden Sekundärstores `search` und `materialapp`, `general` nach den fachlichen Stores. Vuex wird erst nach dem letzten migrierten Konsumenten entfernt.
+Nach Teilstufe 6.10 verbleiben 6 registrierte Vuex-Module: `resources`, `materials`, `materialapp`, `keywordsSuggestions`, `search` und `general`. Als Nächstes kann `keywordsSuggestions` migriert werden; anschließend folgen `materials` und `resources` vor ihren schreibenden Sekundärstores `search` und `materialapp`, `general` nach den fachlichen Stores. Vuex wird erst nach dem letzten migrierten Konsumenten entfernt.

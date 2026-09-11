@@ -183,6 +183,7 @@ import {getOptionKeyFromKeywordObject, getTagLabelFromKeywordObject} from "./tag
 import {savingDialogs}                                               from "../../helper/flashMessages";
 import RelevanceSelector                                             from "../modals/dialogs/relevanceSeletor.vue";
 import {BButton}                                                     from "@/adapters/bootstrap";
+import {useKeywordsStore}                                            from '../../apps/main/stores/keywords';
 
 
 export default {
@@ -487,8 +488,8 @@ export default {
 
       // console.log('Loading No' + counter + '...: "' + query + '"', 'Page ' + page);
 
-      queryCache.promise = this.$store
-                               .dispatch('keywords/search', {
+      queryCache.promise = useKeywordsStore()
+                               .search({
                                  searchText: query,
                                  type: this.typefilter || false,
                                  limit: 20,

@@ -49,6 +49,7 @@
 
 import VueSelect from '@/adapters/vue-select';
 import _debounce from 'lodash/debounce';
+import {useKeywordsStore} from '../../apps/main/stores/keywords';
 
 let myTimeout = null;
 
@@ -137,7 +138,7 @@ export default {
 
     search: _debounce((loading, search, type, vm) => {
 
-      vm.$store.dispatch('keywords/search', {searchText: search, type})
+      useKeywordsStore().search({searchText: search, type})
         .then(({keywords}) => {
           keywords.push({
             title: search,
@@ -179,7 +180,7 @@ export default {
         this.editModeActive = false;
       } else if (input && input.new === true) {
         // Keyword first has to be created
-        this.$store.dispatch('keywords/create', {
+        useKeywordsStore().create({
           title: input.title,
           type: this.filterType
         }).then((keyword) => {
