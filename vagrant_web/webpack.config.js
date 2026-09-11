@@ -82,13 +82,6 @@ module.exports = {
 			{
 				test: /\.vue$/,
 				loader: 'vue-loader',
-				options: {
-					compilerOptions: {
-						compatConfig: {
-							MODE: 2,
-						},
-					},
-				},
 			},
 		]
 	},
@@ -125,8 +118,7 @@ module.exports = {
 		alias: {
 			'@': path.resolve(__dirname, 'resources/js'),
 			'@icons': path.resolve(__dirname, 'resources/icons'),
-			'vue$': '@vue/compat/dist/vue.esm-bundler.js' // Vue 3 migration build
-			// 'vue$': 'vue/dist/vue.runtime.esm.js' // Use runtime only
+			'vue$': 'vue/dist/vue.runtime.esm-bundler.js'
 		}
 	},
 	devServer: {

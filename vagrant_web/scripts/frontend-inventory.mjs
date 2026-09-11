@@ -34,11 +34,15 @@ for (const { text } of sources) {
 
 const patterns = {
     bootstrapVueImports: /from\s+['"]bootstrap-vue['"]|require\(['"]bootstrap-vue['"]\)/,
+    compatUsage: /@vue\/compat|\bconfigureCompat\b|\bcompatConfig\s*:/,
+    componentModelOptions: /(?<![\w$])model\s*:\s*\{/,
     // Component $emit calls are normal in Vue 3; only removed instance-bus APIs
     // identify a legacy event bus.
     eventBusUsage: /\$on\s*\(|\$off\s*\(|\$once\s*\(/,
     filters: /\bfilters\s*:/,
     functionalComponents: /\bfunctional\s*:\s*true/,
+    legacyDirectiveHooks: /(?<![.$\w])(?:bind|inserted|componentUpdated|unbind)\s*\(/,
+    legacyLifecycleHooks: /\b(?:beforeDestroy|destroyed)\s*(?:\(|:)/,
     renderFunctions: /\brender\s*\(/,
     runtimeTemplates: /\btemplate\s*:\s*[`'"]/,
     scopedSlots: /\$scopedSlots\b|slot-scope\s*=/,

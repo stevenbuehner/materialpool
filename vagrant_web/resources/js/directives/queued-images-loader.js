@@ -20,7 +20,7 @@ const CLASS_ERROR   = 'q-error';
 const queue = new PQueue({concurrency: MAX_SIMULTANEOUS_IMAGES_LOADING});
 
 export default {
-	bind(el, binding, vnode) {
+	mounted(el, binding) {
 
 		// Verify Parameter and setup Config
 
@@ -112,13 +112,9 @@ export default {
 
 	},
 
-	unbind(el, binding, vnode) {
+	unmounted(el) {
 		// console.log("unbind", binding);
 
 		el.dispatchEvent(new CustomEvent(EVENT_ABORT, {reason: 'unbind'}));
 	}
-}
-
-function sleep(ms) {
-	return new Promise(resolve => setTimeout(resolve, ms));
 }

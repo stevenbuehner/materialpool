@@ -17,6 +17,11 @@ test.afterEach(({page}) => {
     expect(compatWarningsByPage.get(page)).toEqual([]);
 });
 
+async function expectResolvedNavigation(page) {
+    await expect(page.locator('nav').first().locator('.b-nav-dropdown').last().locator('.dropdown-toggle'))
+        .toContainText('Synthetic User');
+}
+
 test('Vue application mounts with synthetic bootstrap data', async ({page}, testInfo) => {
     const pageErrors = [];
     const compatWarnings = [];
@@ -92,6 +97,8 @@ test('Vue application mounts with synthetic bootstrap data', async ({page}, test
     await expect(page.locator('.main-area')).toBeVisible();
     await expect(page.getByRole('link', {name: 'Suchen'})).toBeVisible();
     await expect(page.locator('svg.sb-navbar-icon')).toHaveCount(2);
+    await expectResolvedNavigation(page);
+    await expect(page.locator('.homeContainer .title')).toHaveText('MaterialPool Default');
     await expect(page).toHaveScreenshot('compat-app-home.png', {
         animations: 'disabled',
         caret: 'hide',
@@ -354,6 +361,7 @@ test('Vue 3 datepicker keeps the German input and calendar interaction', async (
     const dateInput = page.getByPlaceholder('Datum');
     await expect(dateInput).toBeVisible();
     await expect(dateInput).toHaveValue('01.09.2026');
+    await expectResolvedNavigation(page);
     await expect(page).toHaveScreenshot('material-detail.png', {
         animations: 'disabled',
         caret: 'hide',
@@ -637,6 +645,7 @@ test('Resource detail cards and multi-page pagination keep their application con
     await expect(resourceCard.getByRole('heading', {name: 'Synthetic resource'})).toBeVisible();
     await resourceCard.getByRole('tab', {name: 'MetaInfo'}).click();
     await expect(resourceCard).toContainText('synthetic-content-hash');
+    await expectResolvedNavigation(page);
     await expect(page).toHaveScreenshot('resource-detail.png', {
         animations: 'disabled',
         caret: 'hide',
@@ -957,6 +966,7 @@ test('Material creator keeps preset selection, material preload and preset stora
     await expect(templateMenu.getByRole('menuitem', {name: /Existing/})).toBeVisible();
     const [modalBox, menuBox] = await Promise.all([modal.boundingBox(), templateMenu.boundingBox()]);
     expect(menuBox.x + menuBox.width).toBeLessThanOrEqual(modalBox.x + modalBox.width);
+    await expectResolvedNavigation(page);
     await expect(page).toHaveScreenshot('material-creator-presets.png', {
         animations: 'disabled',
         caret: 'hide',
@@ -1169,6 +1179,7 @@ test('Assign app keeps page selection, attachment and nested image dialogs', asy
     await displayDropdown.locator('.dropdown-toggle').click();
     await displayDropdown.getByRole('menuitem', {name: 'groß'}).click();
     await expect(pageCells.first()).toHaveClass(/\bcol-md-6\b/);
+    await expectResolvedNavigation(page);
     await expect(page).toHaveScreenshot('assign-app-pages.png', {
         animations: 'disabled',
         caret: 'hide',

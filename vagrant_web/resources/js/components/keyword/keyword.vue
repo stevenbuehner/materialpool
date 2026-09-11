@@ -43,6 +43,7 @@ import {searchArrayObjectsToSearchQuery}                              from "../s
 import {draggingSupport}                                              from "./dragging.mixin";
 import {RELEVANCE_USER_MAX}                                           from "../../apps/config";
 import {cloneDeep}                                                    from "lodash";
+import {defineAsyncComponent}                                        from 'vue';
 
 export default {
 
@@ -272,7 +273,7 @@ export default {
   components: {
     // To avoid recursive imports of "keyword" Component
     // see: https://vuejs.org/v2/guide/components-edge-cases.html#Recursive-Components
-    KeywordEditor: () => import("../modals/editors/keywordEditor"),
+    KeywordEditor: defineAsyncComponent(() => import("../modals/editors/keywordEditor")),
 
     ContextMenuItem: contextMenuItem,
     BFormInput,

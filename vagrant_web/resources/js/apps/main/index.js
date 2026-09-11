@@ -1,4 +1,4 @@
-import {configureCompat, createApp, h} from 'vue';
+import {createApp, h} from 'vue';
 import '@babel/polyfill';
 import {createRouter, createWebHistory} from 'vue-router';
 import {store}   from './store'; // Before routes to use in BeforeRouting-Functions
@@ -13,8 +13,6 @@ import {sessionKeepAlive}            from "../../helper/sessionKeepAlive";
 import {keepalive_seconds_intervall} from "../config";
 import {installLegacyPlugins}        from './installLegacyPlugins';
 
-configureCompat({MODE: 2});
-
 const router = createRouter({
 	history: createWebHistory('/vue'),
 	scrollBehavior(to, from, savedPosition) {
@@ -26,9 +24,6 @@ const router = createRouter({
 
 const app = createApp({
 	name: 'Materialpool',
-	// The render function already uses Vue 3 semantics. Other instance APIs on
-	// the root remain in compat mode until BootstrapVue is replaced in stage 3.
-	compatConfig: {RENDER_FUNCTION: false},
 	render: () => h(mainApp),
 });
 installLegacyPlugins(app, vueLangConfig);

@@ -47,7 +47,6 @@ class FlashMessage {
 
 const FlashMessageList = {
     name: 'FlashMessageList',
-    compatConfig: {MODE: 3},
     props: {
         transitionName: {
             type: String,

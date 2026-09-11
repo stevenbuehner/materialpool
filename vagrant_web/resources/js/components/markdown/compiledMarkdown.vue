@@ -47,8 +47,6 @@ function renderSanitizedNode(node) {
 
 export default {
   name: "compiledMarkdown",
-  compatConfig: {MODE: 3},
-
   props: {
     text: {
       type: String,
