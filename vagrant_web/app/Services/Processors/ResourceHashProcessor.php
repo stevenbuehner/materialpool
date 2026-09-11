@@ -29,14 +29,18 @@ class ResourceHashProcessor {
 					$stream = $resource->getRemoteFileStream();
 				}
 
-				if ($stream === FALSE) {
+				if (!is_resource($stream)) {
 					throw new ResourceNotHashable($resource);
 				}
 
 				$algo = 'sha1';
 				$hc   = hash_init($algo); // hash_algos()
 
-				hash_update_stream($hc, $stream);
+				try {
+					hash_update_stream($hc, $stream);
+				} finally {
+					fclose($stream);
+				}
 
 				$sha1 = hash_final($hc);
 
