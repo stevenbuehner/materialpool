@@ -46,6 +46,7 @@ import myTextBlock         from '../../my-text-block.vue';
 import Markdown            from "../../markdown/compiledMarkdown";
 import {savingDialogs}     from "../../../helper/flashMessages";
 import {BibleVerseService} from "../../../helper/BibleverseHelper";
+import {useResourcesStore} from '../../../apps/main/stores/resources';
 
 const regexp     = BibleVerseService.biblePattern;
 window.bibletest = regexp;
@@ -105,7 +106,7 @@ export default {
 
       const startFlash = this.flashActionStartedWaiting(this.$t('pool.Saving-content-changes'));
 
-      this.$store.dispatch('resources/update', {
+      useResourcesStore().update({
         id: this.resource.id,
         data: {
           content: this.myTextContent

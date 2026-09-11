@@ -32,6 +32,7 @@
 
 import ResourceUploader        from "../../../components/uploader/resourceUploader";
 import {BAlert, BFormCheckbox} from '@/adapters/bootstrap';
+import {useResourcesStore}     from '../stores/resources';
 
 export default {
   name: "resourceUpload",
@@ -52,7 +53,7 @@ export default {
 
         this.materialCreationRunning = true;
 
-        this.$store.dispatch('resources/autoCreateMaterial', {resourceIds: resources.map((r) => r.id)})
+        useResourcesStore().autoCreateMaterial({resourceIds: resources.map((r) => r.id)})
             .then((material) => {
 
               this.$router.push({

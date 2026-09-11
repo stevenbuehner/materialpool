@@ -1,5 +1,6 @@
 import {searchUrl} from '../../../../components/serverRoutes';
 import axios       from '../../axiosInstance';
+import {useMaterialsStore} from '../../stores/materials';
 
 const MAX_CACHE_HISTORY = 20;
 
@@ -122,9 +123,7 @@ const actions = {
 					                     total: data.total,
 				                     };
 
-				                     for (let i in materials) {
-					                     dispatch('materials/setMaterial', materials[i], {root: true});
-				                     }
+					                     for (let i in materials) useMaterialsStore().setMaterial(materials[i]);
 
 				                     return {materials, paging};
 

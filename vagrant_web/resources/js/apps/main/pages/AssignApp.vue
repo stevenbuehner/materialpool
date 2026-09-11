@@ -128,6 +128,8 @@ import {
   api_v1_resource_tags
 }                       from "../../../components/serverRoutes";
 import axios            from '../axiosInstance';
+import {useMaterialsStore} from '../stores/materials';
+import {useResourcesStore} from '../stores/resources';
 import {
   savingDialogs
 }                       from "../../../helper/flashMessages";
@@ -222,7 +224,7 @@ export default {
       this.loadingMsg  = this.$t('pool.Loading-resource');
       this.loadingType = 'info';
 
-      return this.$store.dispatch('resources/get', id)
+      return useResourcesStore().get(id)
                  .then((resource) => {
                    return this.resource = resource;
                  }).catch(() => {
@@ -276,7 +278,7 @@ export default {
       if (newPageLimitation.length === 0) {
 
         if (confirm('Wirklich Material komplett von dieser Datei lösen?') === true) {
-          this.$store.dispatch('materials/detachResource', {materialId: matId, resourceId: this.id})
+          useMaterialsStore().detachResource({materialId: matId, resourceId: this.id})
               .then(({resource}) => {
                 this.resource = resource;
               });
@@ -356,7 +358,7 @@ export default {
         }
       }
 
-      return this.$store.dispatch('materials/attachResource', {
+      return useMaterialsStore().attachResource({
         materialId,
         resourceId,
         limitation

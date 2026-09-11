@@ -26,6 +26,7 @@
 import {BButton, BPaginationNav} from '@/adapters/bootstrap';
 import ResourcePreview           from "../../../components/resource/show/resource-preview";
 import {savingDialogs}           from "../../../helper/flashMessages";
+import {useResourcesStore}       from '../stores/resources';
 
 export default {
   name: "ResourceNewest",
@@ -49,7 +50,7 @@ export default {
       get() {
         this.isLoading = true;
 
-        return this.$store.dispatch('resources/find', {
+        return useResourcesStore().find({
           order_by: 'id',
           order_dir: 'desc',
           page: this.page

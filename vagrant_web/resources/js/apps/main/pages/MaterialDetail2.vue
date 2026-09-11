@@ -368,6 +368,8 @@ import Bundle                     from "../../../components/bundles/bundle";
 import RelevanceSelector          from "../../../components/modals/dialogs/relevanceSeletor.vue";
 import {useBibleversesStore}      from '../stores/bibleverses';
 import {useKeywordsStore}         from '../stores/keywords';
+import {useMaterialsStore}        from '../stores/materials';
+import {useResourcesStore}        from '../stores/resources';
 
 // https://github.com/craigh411/vue-star-rating/#props
 export default {
@@ -444,7 +446,8 @@ export default {
         this.errorOnLoadingMessage = null;
         this.materialDetailsLoaded = false;
 
-        const materialDetailPromise = this.$store.dispatch('materials/getMaterialDetailed', this.id)
+        const materialStore = useMaterialsStore();
+        const materialDetailPromise = materialStore.getMaterialDetailed(this.id)
                                           .then((material) => {
                                             this.errorOnLoadingMessage = null;
                                             this.materialDetailsLoaded = true;
@@ -458,7 +461,7 @@ export default {
 
         // Wenn die MaterialDetails noch nicht im Cache geladen sind, aber Preview-Daten schon da sind
         // ... dann zeige die schon mal an, bis der Rest geladen wurde
-        if (!this.$store.getters['materials/hasMaterialDetails'](this.id) && this.$store.getters['materials/hasMaterialPreview'](this.id)) {
+        if (!materialStore.hasMaterialDetails(this.id) && materialStore.hasMaterialPreview(this.id)) {
 
           // Stelle sicher, dass Material aus dem VueX-Store aktualisiert wird, sobald es geladen wurde
           materialDetailPromise.then(() => {
@@ -467,7 +470,7 @@ export default {
           });
 
           // console.log("Zeige erst mal Preview-Material an und beginne mit dem Nachladen der Details");
-          return this.$store.getters['materials/getMaterial'](this.id);
+          return materialStore.getMaterial(this.id);
         }
 
         // Wenn weder Material-Preview noch Material-Detail zur Verfügung stehen, dann hilft alles nichts
@@ -521,7 +524,7 @@ export default {
 
     submitMaterialUpdate(data, propertyName) {
 
-      const result = this.$store.dispatch('materials/updateMaterial', {id: this.material.id, data});
+      const result = useMaterialsStore().updateMaterial({id: this.material.id, data});
 
       if (propertyName) {
         const startSavingMessage = this.flashStartSaving(propertyName);
@@ -561,7 +564,7 @@ export default {
     },
 
     uploadResourceToThisMaterial(resource) {
-      this.$store.dispatch('materials/attachResource',
+      useMaterialsStore().attachResource(
           {materialId: this.id, resourceId: resource.id}
       ).then(({material}) => {
         this.material = material;
@@ -576,7 +579,7 @@ export default {
             if (this.material.resources.find(mr => mr.id == resource.id)) {
               alert('This resource exists already in this material');
             } else {
-              this.$store.dispatch('materials/attachResource', {
+              useMaterialsStore().attachResource({
                 materialId: this.id,
                 resourceId: resource.id
               }).then(({material}) => {
@@ -593,9 +596,9 @@ export default {
 
       const flashMessage = this.flashActionStartedWaiting(this.$t('pool.Create-text'));
 
-      this.$store.dispatch('resources/createTextResource', {text: 'Lorem ipsum'})
+      useResourcesStore().createTextResource({text: 'Lorem ipsum'})
           .then((resource) => {
-            return this.$store.dispatch('materials/attachResource',
+            return useMaterialsStore().attachResource(
                 {materialId: this.id, resourceId: resource.id})
                        .then(() => {
                          this.flashActionSuccessfullyFinished(this.$t('pool.Text-created-and-assigned'), flashMessage);
@@ -609,7 +612,7 @@ export default {
 
     btnDetachResource(resource) {
 
-      this.$store.dispatch('materials/detachResource',
+      useMaterialsStore().detachResource(
           {materialId: this.id, resourceId: resource.id}
       ).then(({material, resource}) => {
         this.material = material;
@@ -635,7 +638,7 @@ export default {
               }).catch(() => {
               });
 
-              this.$store.dispatch('resources/deleteResource', resource.id)
+              useResourcesStore().deleteResource(resource.id)
                   .then(() => {
                     this.$refs.customDialog.show({
                       title: 'Resource gelöscht',
@@ -860,7 +863,7 @@ export default {
 
       const startFlash = this.flashActionStartedWaiting(this.$t('pool.Copying-material'));
 
-      this.$store.dispatch('materials/copyMaterial', this.material.id)
+      useMaterialsStore().copyMaterial(this.material.id)
           .then((material) => {
             this.flashActionSuccessfullyFinished(this.$t('pool.Material-successfully-copied'), startFlash);
 

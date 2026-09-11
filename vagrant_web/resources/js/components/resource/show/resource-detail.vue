@@ -88,6 +88,7 @@ import fileDetail    from './file-detail.vue'
 import resourceLinks from '../resource-links.mixin';
 
 import filesize from "../../../helper/filesize.mixin";
+import {useResourcesStore} from '../../../apps/main/stores/resources';
 
 export default {
 
@@ -143,14 +144,14 @@ export default {
       resource = resource || this.resource;
 
       if (resource.materials === undefined) {
-        this.$store.dispatch('resources/get', this.resource.id)
+        useResourcesStore().get(this.resource.id)
             .then((resource) => {
               this.btnDeleteResource(resource);
             });
       } else if (resource.materials.length > 0) {
         alert('Löschen nicht möglich. Materialien sind noch zugewwiesen!')
       } else {
-        this.$store.dispatch('resources/deleteResource', resource.id)
+        useResourcesStore().deleteResource(resource.id)
             .then(() => {
               this.$router.go(-1);
             });

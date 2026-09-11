@@ -256,6 +256,7 @@ import {savingDialogs}         from "../../../helper/flashMessages";
 import MaterialpoolSpinner     from "../../spinner/materialpool-spinner";
 import {useRecentMaterialsStore} from '../../../apps/main/stores/recentMaterials';
 import {useKeywordsStore}        from '../../../apps/main/stores/keywords';
+import {useMaterialsStore}       from '../../../apps/main/stores/materials';
 
 // Icons
 import trashIcon   from '@icons/vendor/svg-icon/svg/oct/trashcan.svg';
@@ -424,7 +425,7 @@ export default {
         this.materialCreationRunning = true;
         const flashSave              = this.flashStartSaving(this.$t('pool.Material'));
 
-        this.$store.dispatch('materials/create', this.formData)
+        useMaterialsStore().create(this.formData)
             .then((material) => {
 
               this.flashSaved(this.$t('pool.Material'), flashSave);
@@ -662,7 +663,7 @@ export default {
 
       this.preloadDropdown.materialIdIsLoading = true;
 
-      this.$store.dispatch('materials/getMaterial', materialId)
+      useMaterialsStore().getMaterialById(materialId)
           .then((material) => {
 
             this._initMaterialFormWithTemplateData(material);

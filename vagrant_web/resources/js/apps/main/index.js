@@ -12,6 +12,7 @@ import {vueLangConfig} from './localisation';
 import {sessionKeepAlive}            from "../../helper/sessionKeepAlive";
 import {keepalive_seconds_intervall} from "../config";
 import {installLegacyPlugins}        from './installLegacyPlugins';
+import {useMaterialsStore}           from './stores/materials';
 
 const router = createRouter({
 	history: createWebHistory('/vue'),
@@ -36,13 +37,13 @@ app.mount('#app');
 
 if (window.materialpool) {
 
-	/* Auto load stuff into vuex store */
+	/* Auto load server-rendered material previews into the application store. */
 	if (window.materialpool.store) {
 		if (window.materialpool.store.materials && window.materialpool.store.materials.length > 0) {
 			const mat = window.materialpool.store.materials;
 
 			for (let i in mat) {
-				store.commit('materials/setMaterial', mat[i]);
+				useMaterialsStore().setMaterial(mat[i]);
 			}
 		}
 	}

@@ -42,6 +42,7 @@
 <script>
 import {BButton, BPaginationNav} from '@/adapters/bootstrap';
 import {previewImageFirstPage}   from "../../../components/serverRoutes";
+import {useResourcesStore}       from '../stores/resources';
 
 export default {
   name: "ResourceLonely",
@@ -63,7 +64,7 @@ export default {
       get() {
         this.isLoading = true;
 
-        return this.$store.dispatch('resources/lonely', {page: this.page})
+        return useResourcesStore().lonely({page: this.page})
                    .then(({data, current_page, last_page, total}) => {
                      this.page      = current_page;
                      this.numPages  = last_page;
@@ -97,7 +98,7 @@ export default {
 
     btnDelete(resource) {
       if (confirm('Resource sicher löschen?')) {
-        this.$store.dispatch('resources/deleteResource', resource.id)
+        useResourcesStore().deleteResource(resource.id)
             .then(() => {
               this.refreshResources++;
             })

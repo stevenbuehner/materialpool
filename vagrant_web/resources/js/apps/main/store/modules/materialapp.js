@@ -1,5 +1,6 @@
 import {api_v1_materials_index} from '../../../../components/serverRoutes'
 import axios                    from '../../axiosInstance';
+import {useMaterialsStore}      from '../../stores/materials';
 
 const state = {
 	pageMaterial: {},
@@ -28,9 +29,7 @@ const actions = {
 			commit('setMaterialPage', {page: pageNo, data: data});
 
 			const materials = data.data;
-			for (let i in materials) {
-				commit('materials/setMaterial', materials[i], {root: true});
-			}
+			for (let i in materials) useMaterialsStore().setMaterial(materials[i]);
 
 			return data;
 		}

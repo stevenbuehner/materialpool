@@ -100,6 +100,7 @@ import {BAlert, BButton, BForm, BFormCheckbox, BFormGroup, BFormInput, BFormSele
 import _debounce                                                                            from 'lodash/debounce';
 import MaterialpoolSpinner
                                                                                             from "../../spinner/materialpool-spinner";
+import {useResourcesStore}                                                                  from '../../../apps/main/stores/resources';
 
 export default {
   name: "resourceSelector",
@@ -174,7 +175,7 @@ export default {
       this.searchErrorMessage = '';
       this.searchOngoing      = true;
 
-      this.$store.dispatch('resources/find', this.findResourceQuery)
+      useResourcesStore().find(this.findResourceQuery)
           .then(({data}) => {
             return data;
           })
@@ -269,3 +270,4 @@ ul {
   }
 }
 </style>
+import {useResourcesStore}                                                                  from '../../../apps/main/stores/resources';

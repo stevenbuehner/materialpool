@@ -72,6 +72,7 @@ import {BAlert, BButton, BFormGroup, BFormInput} from '@/adapters/bootstrap';
 import ResourcePreview                           from "../../../components/resource/show/resource-preview";
 import ArrowLeftIcon                             from '@icons/vendor/svg-icon/svg/mfglabs/arrow_left.svg'
 import {savingDialogs}                           from "../../../helper/flashMessages";
+import {useResourcesStore}                       from '../stores/resources';
 
 export default {
   name: "ResourceReplace",
@@ -123,7 +124,7 @@ export default {
         return null;
       }
 
-      return this.$store.dispatch('resources/get', this.id1)
+      return useResourcesStore().get(this.id1)
                  .then((resource) => {
                    this.error1 = '';
                    return resource;
@@ -138,7 +139,7 @@ export default {
         return null;
       }
 
-      return this.$store.dispatch('resources/get', this.id2)
+      return useResourcesStore().get(this.id2)
                  .then((resource) => {
                    this.error2 = '';
                    return resource;
@@ -175,7 +176,7 @@ export default {
 
       const info = this.flashActionStartedWaiting(this.$t('pool.start-replacing-resource'));
 
-      this.$store.dispatch('resources/replaceResource', {
+      useResourcesStore().replaceResource({
         oldResourceId: this.id1,
         newResourceId: this.id2,
       })

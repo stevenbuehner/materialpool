@@ -79,6 +79,7 @@ import {BAlert, BButton, BForm, BFormGroup, BFormInput, BModal} from '@/adapters
 import _debounce                                                from 'lodash/debounce';
 import MaterialpoolSpinner                                      from "../../spinner/materialpool-spinner";
 import {useRecentMaterialsStore}                                from '../../../apps/main/stores/recentMaterials';
+import {useMaterialsStore}                                      from '../../../apps/main/stores/materials';
 
 export default {
   name: "materialSelector",
@@ -152,7 +153,7 @@ export default {
 
       if (this.form.id) {
         this.searchOngoing = true;
-        this.$store.dispatch('materials/getMaterial', this.form.id)
+        useMaterialsStore().getMaterialById(this.form.id)
             .then((mat) => {
               return [mat];
             })

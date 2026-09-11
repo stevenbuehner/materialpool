@@ -83,6 +83,7 @@ import materialStoreMixin       from './materialStore.mixin';
 import playIcon                 from '@icons/vendor/svg-icon/svg/icomoon/play2.svg'
 import fromBotIcon              from '@icons/vendor/svg-icon/svg/awesome/database.svg'
 import {useBundlesStore}        from '../../apps/main/stores/bundles';
+import {useMaterialsStore}      from '../../apps/main/stores/materials';
 
 
 function sortByRelevance(t1, t2) {
@@ -188,7 +189,7 @@ export default {
 
     material: {
       get() {
-        return this.$store.dispatch('materials/getMaterial', this.id);
+        return useMaterialsStore().getMaterialById(this.id);
       },
       default: null,
       watch() {

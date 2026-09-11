@@ -66,6 +66,7 @@
 import {BFormGroup, BFormInput, BFormTextarea} from '@/adapters/bootstrap';
 import CustomDialog                            from "../../../components/modals/dialogs/customDialog";
 import CompiledMarkdown                        from "../../../components/markdown/compiledMarkdown";
+import {useResourcesStore}                     from '../stores/resources';
 
 export default {
   name: "ResourceTextCreateWithMaterial",
@@ -124,7 +125,7 @@ export default {
       }).catch(() => {
       });
 
-      this.$store.dispatch('resources/createTextResource', {
+      useResourcesStore().createTextResource({
         text: this.textInput
       })
           .then((resource) => {
@@ -159,7 +160,7 @@ export default {
       }).catch(() => {
       });
 
-      this.$store.dispatch('resources/autoCreateMaterial', {
+      useResourcesStore().autoCreateMaterial({
         resourceIds: [resource.id],
         meta: this.metaData,
         from_bot: false

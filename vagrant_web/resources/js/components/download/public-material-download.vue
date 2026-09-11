@@ -25,6 +25,7 @@ import cloudCheckIcon          from '@icons/vendor/svg-icon/svg/icomoon/cloud-ch
 import cloudDownloadIcon       from '@icons/vendor/svg-icon/svg/icomoon/cloud-download.svg';
 import {copyStringToClipboard} from "../../helper/copyToClipboard";
 import MaterialpoolSpinner     from "../spinner/materialpool-spinner";
+import {useMaterialsStore}     from '../../apps/main/stores/materials';
 
 export default {
   name: "public-material-download",
@@ -75,7 +76,7 @@ export default {
     },
 
     generateDownloadLink() {
-      this.$store.dispatch('materials/createDownloadLink', this.materialId)
+      useMaterialsStore().createDownloadLink(this.materialId)
           .then(({link, until}) => {
             this.link                    = link;
             this.linkGenerationIsRunning = false;

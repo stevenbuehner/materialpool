@@ -177,6 +177,8 @@ import resourceLinks         from '../../../components/resource/resource-links.m
 import {formatLocalizedDate} from "../../../helper/datetime.mixin";
 import {savingDialogs}       from "../../../helper/flashMessages";
 import filesize              from "../../../helper/filesize.mixin";
+import {useMaterialsStore}   from '../stores/materials';
+import {useResourcesStore}   from '../stores/resources';
 
 
 export default {
@@ -241,7 +243,7 @@ export default {
     loadResource() {
       this.isLoading = true;
 
-      return this.$store.dispatch('resources/get', this.id)
+      return useResourcesStore().get(this.id)
           .then((data) => {
             this.resource = data;
             this.errorMsg = null;
@@ -260,7 +262,7 @@ export default {
 
       this.$refs.materialSelector.showPromise().then((material) => {
 
-        return this.$store.dispatch('materials/attachResource', {
+        return useMaterialsStore().attachResource({
           materialId: material.id,
           resourceId: this.id
         }).then(({resource}) => {
@@ -275,7 +277,7 @@ export default {
 
     btnDetachMaterialFromResource(material) {
 
-      this.$store.dispatch('materials/detachResource',
+      useMaterialsStore().detachResource(
           {materialId: material.id, resourceId: this.id}
       ).then(({material, resource}) => {
         this.resource = resource;
@@ -301,7 +303,7 @@ export default {
               }).catch(() => {
               });
 
-              this.$store.dispatch('materials/deleteMaterial', material.id)
+              useMaterialsStore().deleteMaterial(material.id)
                   .then(() => {
                     this.$refs.myDialog.show({
                       title: 'Material gelöscht',
@@ -333,7 +335,7 @@ export default {
 
     btnCreateAutoMaterialFromResource() {
 
-      this.$store.dispatch('resources/autoCreateMaterial', {resourceIds: [this.id]})
+      useResourcesStore().autoCreateMaterial({resourceIds: [this.id]})
           .then((material) => {
 
             this.$router.push({
@@ -350,7 +352,7 @@ export default {
     btnCreateAndAssignMaterialManually() {
       this.$refs.materialCreator.showPromise()
           .then((material) => {
-            return this.$store.dispatch('materials/attachResource', {
+            return useMaterialsStore().attachResource({
               materialId: material.id,
               resourceId: this.id,
             })
@@ -361,7 +363,7 @@ export default {
     },
 
     btnCopyMaterial(material) {
-      this.$store.dispatch('materials/copyMaterial', material.id)
+      useMaterialsStore().copyMaterial(material.id)
           .then((material) => {
             this.forceReload++;
           });
@@ -389,7 +391,7 @@ export default {
 
       const startDialog = this.flashStartSaving(flashLabel);
 
-      this.$store.dispatch('resources/update', {id: this.resource.id, data})
+      useResourcesStore().update({id: this.resource.id, data})
           .then((resource) => {
             this.forceReload++;
             this.flashSaved(flashLabel);

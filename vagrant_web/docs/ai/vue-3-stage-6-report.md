@@ -1,6 +1,6 @@
 # Vue-3-Migration – Stufe 6: Vuex zu Pinia
 
-Status: In Arbeit. Die Migration erfolgt Store für Store; jeder Abschnitt nennt den alleinigen schreibenden Store, seine migrierten Konsumenten und die Abnahme. Dieser Bericht ergänzt den verbindlichen [Vue-3-Migrationsvertrag](vue-3-migration-contract.md). Letzter vollständig committeter Teilstufenstand ist 6.10 (`c5a93799`).
+Status: In Arbeit. Die Migration erfolgt Store für Store; jeder Abschnitt nennt den alleinigen schreibenden Store, seine migrierten Konsumenten und die Abnahme. Dieser Bericht ergänzt den verbindlichen [Vue-3-Migrationsvertrag](vue-3-migration-contract.md). Letzter vollständig committeter Teilstufenstand ist 6.11 (`d8b5990c`).
 
 ## Pinia-Basis und Parallelbetrieb
 
@@ -154,6 +154,25 @@ Abnahme: Production-Build mit 967 transformierten Modulen, 29 Vitest-Dateien mit
 
 Rückbau: Der Teilstufencommit registriert das frühere Vuex-Modul erneut, stellt die drei Dispatch-Aufrufe in zwei Komponenten wieder her und entfernt Pinia-Store, Unit-Tests und die isolierte Browserreise. Der zentrale Pinia-Store `keywords` bleibt bestehen; beim Rückbau schreibt das Vuex-Modul wie in Teilstufe 6.10 dokumentiert über dessen gerichtete Übergabe-Action.
 
+## Teilstufe 6.12 – Materialien und Ressourcen
+
+`materials` und `resources` bilden wegen ihrer Attach-/Detach-, Auto-Create-, Copy- und Replace-Abläufe einen atomaren Cacheverbund. Sie wurden deshalb gemeinsam migriert: Beide Pinia-Stores aktualisieren innerhalb ihrer Actions den jeweils anderen Store, ohne Watch oder doppelte Zuständigkeit. Die externen Material-Writer aus App-Bootstrap, `materialapp` und `search` schreiben im selben Slice direkt in Pinia. Alle Komponenten-Konsumenten verwenden die neuen Stores; beide Vuex-Module und ihre Root-Registrierungen sind entfernt. Insgesamt wurden 52 Vuex-Zugriffe in 21 Dateien einschließlich der internen Cross-Writer ersetzt.
+
+Erhalten bleiben Detail-/Preview-Flags, Promise-Zusammenführung paralleler Detailabrufe, Queue-Reihenfolge, optionale Create-/Find-Parameter, Method-Spoofing beim Materialupdate, rohe Axios-Erfolgsantwort des Updates, konvertierte Fehler der übrigen Actions, Limitation-Payload, vollständige Attach-/Detach-Rückgabe, `success === true`-Semantik sowie alle bestehenden API-Pfade. Backend-Routen, `MaterialRequest`, `MaterialResourceRequest`, Policies, Passport-Guard, Events `MaterialWasCreated`, `MaterialWasChanged`, `ResourceWasAttached` und `ResourceWasDetached`, Lonely-Checks, Download-Job, Datenbank und Dateiablage wurden nicht verändert.
+
+Vier lokale Defekte wurden im direkt betroffenen Cache- und Fehlerfluss behoben:
+
+- `create` versuchte das Ergebnis per `commit('setMaterialDetailed')` zu speichern, obwohl `setMaterialDetailed` eine Action und keine Mutation war. Neu erstellte Materialien werden jetzt tatsächlich als vollständig geladen gecacht.
+- Ein abgewiesenes Resource-Detail-Promise blieb bisher dauerhaft im Cache; jeder spätere Aufruf erhielt dieselbe Rejection. Der Eintrag wird bei Fehler entfernt und ein bewusster Retry ist wieder möglich, analog zum Material-Detailcache.
+- `autoCreateMaterial` und `replaceResource` übergaben ganze Resource-/Materialobjekte an die jeweilige Cache-Invalidierung. Die Pinia-Actions verwenden die belegten Objekt-IDs und akzeptieren defensiv weiterhin eine bereits numerische ID.
+- Der fachliche Fehler `success: false` beim Downloadlink wurde nach dem Throw erneut durch den HTTP-Fehlerkonverter geschickt. HTTP-Rejections werden nun vor Auswertung der Erfolgsantwort konvertiert; die konkrete Meldung `invalid download link` bleibt erhalten. Beim Materialupdate entfällt außerdem eine vom Rückgabepromise abgetrennte Catch-Kette, die eine zusätzliche unbeobachtete Rejection erzeugen konnte; der für die UI notwendige rohe Axios-Fehlervertrag bleibt unverändert.
+
+13 Unit-Tests schützen Preview-/Detailcache, Coalescing und Retry, Create-Payload und Detailcache, Update-Rückgabe, Keywordbeziehungen, Attach/Detach samt beider Caches, Delete/Copy/Download, Resource-CRUD, Queue, Auto-Create, Find/Lonely und Replace-Invalidierung. Vier vorhandene Kernreisen prüfen Materialdetail, Resourcekarten samt Materialpagination, Material-Creator und Assign-App gegen den Production-Build in Desktop und Mobile.
+
+Abnahme: Production-Build mit 967 transformierten Modulen, 31 Vitest-Dateien mit 116/116 Tests, ESLint mit 0 Fehlern und 209 bekannten Warnungen, Frontend-Inventar und Diff-Check sind grün. Die vier Kernreisen bestehen responsiv mit 8/8 Prüfungen und unveränderten visuellen Referenzen. Das Inventar meldet keine Vue-2-/Compat-Muster und noch exakt 3 registrierte Vuex-Module.
+
+Rückbau: Der gemeinsame Teilstufencommit muss als Einheit zurückgebaut werden. Er registriert beide Vuex-Module erneut, stellt die 52 Zugriffe einschließlich der Cross-Writer und der gerichteten Writer aus `search`, `materialapp` und App-Bootstrap wieder her und entfernt beide Pinia-Stores und ihre Tests. Die bereits migrierten fachfremden Pinia-Stores bleiben unabhängig.
+
 ## Noch zu migrieren
 
-Nach Teilstufe 6.11 verbleiben 5 registrierte Vuex-Module: `resources`, `materials`, `materialapp`, `search` und `general`. Als Nächstes werden die eng gekoppelten Stores `materials` und `resources` samt ihren gegenseitigen Cache-Schreibpfaden vermessen und in möglichst kleinen, jeweils allein schreibenden Slices migriert. Erst danach folgen die schreibenden Sekundärstores `search` und `materialapp`; `general` bleibt bis nach den fachlichen Stores. Vuex wird erst nach dem letzten migrierten Konsumenten entfernt.
+Nach Teilstufe 6.12 verbleiben 3 registrierte Vuex-Module: `materialapp`, `search` und `general`. Da Materialdaten jetzt ausschließlich Pinia gehören, können `materialapp` und `search` nacheinander ohne Cross-Store-Brücke migriert werden. `general` bleibt bis nach den fachlichen Stores; Vuex wird erst nach dessen letztem Konsumenten entfernt.

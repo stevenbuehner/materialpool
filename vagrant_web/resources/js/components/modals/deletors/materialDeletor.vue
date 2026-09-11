@@ -90,6 +90,8 @@
 import {BAlert, BButton, BFormGroup, BModal} from '@/adapters/bootstrap';
 import MaterialpoolSpinner                   from "../../spinner/materialpool-spinner";
 import {savingDialogs}                       from "../../../helper/flashMessages";
+import {useMaterialsStore}                   from '../../../apps/main/stores/materials';
+import {useResourcesStore}                   from '../../../apps/main/stores/resources';
 
 export default {
   name: "materialDeletor",
@@ -152,7 +154,7 @@ export default {
         this.materialIsReloading = true;
 
         // Reload
-        return this.$store.dispatch('materials/getMaterial', this.materialId)
+        return useMaterialsStore().getMaterialById(this.materialId)
                    .catch((message) => {
                      this.flashActionFailed(message);
                    })
@@ -174,7 +176,7 @@ export default {
         this.resourcesAreReloading = true;
 
         const materialIds = (this.material === null) ? [] : this.material.resources.map(({id}) => id);
-        return this.$store.dispatch('resources/getMultiple', materialIds)
+        return useResourcesStore().getMultiple(materialIds)
                    .catch((message) => {
                      this.flashActionFailed(message);
                    })
@@ -201,7 +203,7 @@ export default {
             } else {
               const deleteFlash = this.flashActionStartedWaiting(this.$t('pool.Delete-resource'));
 
-              return this.$store.dispatch('resources/deleteResource', resource.id)
+              return useResourcesStore().deleteResource(resource.id)
                          .catch((message) => {
                            this.flashActionFailed(message, deleteFlash);
                          })
@@ -216,7 +218,7 @@ export default {
 
       const detachingFlash = this.flashActionStartedWaiting(this.$t('pool.Detach-resource'));
 
-      return this.$store.dispatch('materials/detachResource',
+      return useMaterialsStore().detachResource(
           {materialId: this.materialId, resourceId: resource.id})
                  .catch((message) => {
                    this.flashActionFailed(message, detachingFlash);
@@ -236,7 +238,7 @@ export default {
       } else {
         const deleteFlash = this.flashActionStartedWaiting(this.$t('pool.material-delete'));
 
-        this.$store.dispatch('materials/deleteMaterial', this.materialId)
+        useMaterialsStore().deleteMaterial(this.materialId)
             .then((message) => {
               this.flashActionSuccessfullyFinished(this.$t('pool.material-deleted'), deleteFlash);
             })
@@ -295,7 +297,7 @@ export default {
       this.resourcesAreReloading = false;
 
       // Clear Cache
-      this.$store.dispatch('materials/clearMaterial', this.materialId);
+      useMaterialsStore().clearMaterial(this.materialId);
     }
   },
 

@@ -22,16 +22,17 @@ Abgeschlossen:
 - Teilstufe 6.9 implementiert: `bundles` und alle vier Komponenten-Konsumenten verwenden Pinia; Promise-/Daten-/Icon-Caches und Job-Payloads sind testgedeckt, ein vollständig gemocktes Update wechselt die sichtbare Version responsiv.
 - Teilstufe 6.10 implementiert: `keywords`, elf direkte Konsumenten und der Übergabewriter aus `keywordsSuggestions` verwenden Pinia; Cache, CRUD, Queue, Suche und Fehlerverträge sind testgedeckt, Keyword-Tree und Materialdetail sind responsiv im Browser abgenommen.
 - Teilstufe 6.11 implementiert: `keywordsSuggestions` und beide Konsumenten verwenden Pinia; Pagination, Count, Queue, Fehlerwert und parallele Request-Zusammenführung sind testgedeckt, die Optimierung zeigt Count, Vorschlag und Relevanz responsiv.
+- Teilstufe 6.12 implementiert: Die atomar gekoppelten Caches `materials` und `resources`, alle Konsumenten sowie die Writer aus Bootstrap, `search` und `materialapp` verwenden Pinia; 13 Store-Tests und acht responsive Kernreise-Prüfungen schützen den Verbund.
 
 Offene Gates:
 
-- Teilstufe 6.11: Commit.
-- Stufe 6: weitere 5 Vuex-Module samt sämtlichen Konsumenten; danach Entfernung von Vuex.
+- Teilstufe 6.12: Commit.
+- Stufe 6: weitere 3 Vuex-Module samt sämtlichen Konsumenten; danach Entfernung von Vuex.
 - Stufe 7: vollständige Releasegates einschließlich `migrate:fresh` und `db:seed` ausschließlich gegen die verifizierte, entbehrliche Sail-MySQL-Datenbank `testing`.
 
 Compat-/Paket-Ausnahmen: Keine Vue-2-/`@vue/compat`-Ausnahme. Vuex 4.1.0 bleibt nur bis zur Migration des letzten Moduls parallel zu Pinia 4.0.3 installiert.
 
-Nächster Schritt: Teilstufe 6.11 committen; anschließend die gegenseitigen Schreibpfade und Konsumenten von `materials` und `resources` vollständig vermessen und den kleinsten sicheren nächsten Slice umsetzen.
+Nächster Schritt: Teilstufe 6.12 committen; anschließend den nun isolierten Seiten-Cache `materialapp` migrieren.
 
 Rückbau: Letzter vollständig grüner Stufenstand ist `9e2593b5`. Pinia-Teilstufen bleiben bis zur finalen Vuex-Entfernung einzeln rückbaubar.
 
