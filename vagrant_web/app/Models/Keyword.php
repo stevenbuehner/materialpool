@@ -162,7 +162,7 @@ class Keyword extends Model {
 
 
 		/** @var Builder $builder */
-		if (strlen(trim($text)) > 0) {
+		if (strlen(trim($text ?? '')) > 0) {
 			$builder->where('title', 'like', '%' . $text . '%');
 		}
 
@@ -262,7 +262,7 @@ class Keyword extends Model {
 
 		$search  = ["Ä", "Ö", "Ü", "ä", "ö", "ü", "ß"];
 		$replace = ["Ae", "Oe", "Ue", "ae", "oe", "ue", "ss"];
-		$str     = str_replace($search, $replace, $this->title);
+		$str     = str_replace($search, $replace, $this->attributes['title'] ?? '');
 
 		$str = trim(strtolower($str));
 		$str = preg_replace('~[^a-z_0-9-]+~i', '_', $str);

@@ -11,7 +11,7 @@ use Throwable;
 
 class NotPreviewAbleException extends \Exception {
 
-	public function __construct($message = "No Preview can be created from this", $code = 0, Throwable $previous = NULL) {
+	public function __construct($message = "No Preview can be created from this", $code = 0, ?Throwable $previous = NULL) {
 		parent::__construct($message, $code, $previous);
 	}
 

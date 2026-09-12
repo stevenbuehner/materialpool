@@ -96,7 +96,7 @@ class AudioPreviewGenerator implements PreviewGeneratorInterface {
 	 * @param string|null $context
 	 * @return string|false
 	 */
-	public function renderHTMLPreview(ResourceEntity $resource, ResourceLimitationInterface $limitation = NULL, $context = NULL) {
+	public function renderHTMLPreview(ResourceEntity $resource, ?ResourceLimitationInterface $limitation = NULL, $context = NULL) {
 		return FALSE;
 	}
 

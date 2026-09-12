@@ -27,7 +27,7 @@ class TextThumbPreviewGenerator extends TextLargePreviewGenerator {
 	 * @param string|null $context
 	 * @return string|false
 	 */
-	public function renderHTMLPreview(ResourceEntity $resource, ResourceLimitationInterface $limitation = NULL, $context = NULL) {
+	public function renderHTMLPreview(ResourceEntity $resource, ?ResourceLimitationInterface $limitation = NULL, $context = NULL) {
 
 		/** @var $resource Text */
 

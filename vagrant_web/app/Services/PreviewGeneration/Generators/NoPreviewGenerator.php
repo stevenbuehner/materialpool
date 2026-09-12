@@ -56,7 +56,7 @@ class NoPreviewGenerator implements PreviewGeneratorInterface {
 	 * @return false|string|void
 	 * @throws NotPreviewAbleException
 	 */
-	public function renderHTMLPreview(ResourceEntity $resource, ResourceLimitationInterface $limitation = NULL, $context = NULL) {
+	public function renderHTMLPreview(ResourceEntity $resource, ?ResourceLimitationInterface $limitation = NULL, $context = NULL) {
 		throw new NotPreviewAbleException();
 	}
 

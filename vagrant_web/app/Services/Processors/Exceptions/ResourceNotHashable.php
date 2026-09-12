@@ -12,7 +12,7 @@ use Throwable;
 
 class ResourceNotHashable extends \Exception {
 
-	public function __construct(Resource $resource, $code = 0, Throwable $previous = NULL) {
+	public function __construct(Resource $resource, $code = 0, ?Throwable $previous = NULL) {
 		parent::__construct("This Resource (id: {$resource->id}) is not hashable", $code, $previous);
 	}
 

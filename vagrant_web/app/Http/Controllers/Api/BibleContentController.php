@@ -60,7 +60,7 @@ class BibleContentController extends BaseController {
 
 	public function searchAndGet(Request $request, $bibleUid = NULL) {
 
-		$search = $request->get('search', '');
+		$search = $request->get('search') ?? '';
 		$bvs    = $this->bibleVerseService->stringToBibleVerse($search);
 
 		// Max 20 Querried Bibleverses

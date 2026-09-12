@@ -19,7 +19,7 @@ class UserController extends BaseController {
 
 	public function find(Request $request) {
 
-		$search = $request->get('s', '');
+		$search = $request->get('s') ?? '';
 		$limit  = (int)$request->get('limit', 50);
 
 		// Add wildcards for search

@@ -26,7 +26,7 @@ class ResourcePreviewHelper {
 		return $this->previewService->getImagePreviewByWidthAndHeight($resource, $width, $height);
 	}
 
-	public function html(ResourceEntity $resource, ResourceLimitationInterface $limitation = NULL, $context = NULL, $size = 'large') {
+	public function html(ResourceEntity $resource, ?ResourceLimitationInterface $limitation = NULL, $context = NULL, $size = 'large') {
 		return $this->previewService->renderHTMLPreview($resource, $limitation, $context, $size);
 	}
 

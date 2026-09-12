@@ -110,7 +110,7 @@ class DocumentPreviewGenerator extends PdfPreviewGenerator implements PreviewGen
 	 * @return string|false
 	 * @throws NotPreviewAbleException
 	 */
-	public function renderHTMLPreview(ResourceEntity $resource, ResourceLimitationInterface $limitation = NULL, $context = NULL) {
+	public function renderHTMLPreview(ResourceEntity $resource, ?ResourceLimitationInterface $limitation = NULL, $context = NULL) {
 		throw new NotPreviewAbleException();
 	}
 

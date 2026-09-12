@@ -112,7 +112,7 @@ class VideoPreviewGenerator implements PreviewGeneratorInterface {
 	 * @param string|null $context
 	 * @return string|false
 	 */
-	public function renderHTMLPreview(ResourceEntity $resource, ResourceLimitationInterface $limitation = NULL, $context = NULL) {
+	public function renderHTMLPreview(ResourceEntity $resource, ?ResourceLimitationInterface $limitation = NULL, $context = NULL) {
 
 		/** @var $resource Text */
 		$view = View::make('resources.generators.video')

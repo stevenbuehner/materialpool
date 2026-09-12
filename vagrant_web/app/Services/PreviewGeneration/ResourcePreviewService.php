@@ -157,7 +157,7 @@ class ResourcePreviewService extends AbstractPreviewService {
 	 * @param null $context
 	 * @return false|string
 	 */
-	public function renderHTMLPreview(ResourceEntity $resource, ?ResourceLimitationInterface $limitation = NULL, $context = NULL, $size) {
+	public function renderHTMLPreview(ResourceEntity $resource, ?ResourceLimitationInterface $limitation = NULL, $context = NULL, $size = 'large') {
 
 		$generator = $resource->getPreviewGenerator($size);
 		$result    = "";

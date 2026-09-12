@@ -71,7 +71,7 @@ trait ResourceHelperTrait {
 		return $resources;
 	}
 
-	protected function handleResourceFileUpload(UploadedFile $file, Resource $resource = NULL) {
+	protected function handleResourceFileUpload(UploadedFile $file, ?Resource $resource = NULL) {
 
 		/** @var ResourceRecognitionService $recognitionService */
 		/** @var UploadedFile $file */
@@ -155,7 +155,7 @@ trait ResourceHelperTrait {
 	 *
 	 * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException
 	 */
-	protected function handleSingleResourceFileData(Request $request, Resource $resource = NULL) {
+	protected function handleSingleResourceFileData(Request $request, ?Resource $resource = NULL) {
 
 		$postEvent = $resource === NULL ? ResourceWasCreated::class : ResourceWasChanged::class;
 
@@ -200,11 +200,11 @@ trait ResourceHelperTrait {
 		return $material;
 	}
 
-	protected function handleContentResourceUpload(Request $request, Resource $resource = NULL) {
+	protected function handleContentResourceUpload(Request $request, ?Resource $resource = NULL) {
 		/** @var ResourceRecognitionService $recognitionService */
 		$recognitionService = resolve(ResourceRecognitionService::class);
-		$content            = $request->get('content',
-			$resource instanceof TextContentInterface ? $resource->getContent() : '');
+		$content            = $request->get('content')
+			?? ($resource instanceof TextContentInterface ? $resource->getContent() : '');
 		$resourceClass      = $recognitionService->guessResourceContent($content);
 		$postEvent          = $resource === NULL ? ResourceWasCreated::class : ResourceWasChanged::class;
 

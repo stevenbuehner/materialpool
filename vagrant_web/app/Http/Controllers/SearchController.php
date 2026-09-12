@@ -25,7 +25,7 @@ class SearchController extends Controller {
 
 	public function guess(Request $request) {
 		/** @var BibleVerseService $bibleVerseExtraction */
-		$queryString          = $request->get('q', '');
+		$queryString          = $request->get('q') ?? '';
 		$queryString          = str_replace('*', '%', $queryString);
 		$cleanedQueryString   = preg_replace('~[\%\*\'\"\\\]+~', '', $queryString);
 		$queryPage            = $request->get('page', 1);
@@ -141,7 +141,7 @@ class SearchController extends Controller {
 
 	public function guessKeywords(Request $request) {
 
-		$queryString    = $request->get('q', '');
+		$queryString    = $request->get('q') ?? '';
 		$queryString    = str_replace('%', '*', $queryString);
 		$queryType      = $request->get('t', FALSE);
 		$queryPage      = $request->get('page', 1);
@@ -166,7 +166,7 @@ class SearchController extends Controller {
 
 	public function guessBibleverse(Request $request) {
 
-		$queryString = $request->get('q', '');
+		$queryString = $request->get('q') ?? '';
 
 		/** @var BibleVerseService $bibleVerseExtraction */
 		$bibleVerseExtraction = resolve('BibleVerseService');
@@ -216,7 +216,7 @@ class SearchController extends Controller {
 	}
 
 	protected function turnRequestIntoQuery(Request $request) {
-		$searchBars = $request->get('q', []);
+		$searchBars = $request->get('q') ?? [];
 		$matQuery   = Material::query()
 			->select('materials.*')
 			->with(['author', 'keywords', 'bibleverses', 'resources'])
