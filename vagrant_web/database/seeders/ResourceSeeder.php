@@ -107,9 +107,7 @@ class ResourceSeeder extends Seeder {
 
 		VideoFile::factory()
 			->count(5)
-			->create([
-				'local_path' => 'resources::1/video/uAUN7GA7kZyTzfhoEcfKxApvzLGiPMbzdQi367LK.mp4'
-			])
+			->create()
 			->each(function (VideoFile $r) {
 				$material = self::makeMaterialWithRandomUser();
 				$material->save();
@@ -153,12 +151,6 @@ class ResourceSeeder extends Seeder {
 				self::addRandomMaterialUid($material, $material->creator);
 				self::addRandomResourceUid($r, $material->creator);
 			});
-
-		PdfFile::factory()
-			->count(1)
-			->create([
-				'local_path' => NULL
-			]);
 
 		PdfFile::factory()
 			->count(5)

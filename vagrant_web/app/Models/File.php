@@ -9,6 +9,7 @@ use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use League\Flysystem\UnableToRetrieveMetadata;
 use Parental\HasChildren;
 
 /**
@@ -97,11 +98,41 @@ class File extends Resource {
 		if ($this->hasLocalFile()) {
 			try {
 				$filesize = $this->getLocalDisk()->size($this->getLocalFilePath());
-			} catch (FileNotFoundException $e) {
+			} catch (FileNotFoundException|UnableToRetrieveMetadata $e) {
+				$this->logUnavailableLocalMetadata('file_size');
 			}
 		}
 
 		return $filesize;
+	}
+
+	protected function logUnavailableLocalMetadata(string $metadataType): void {
+		Log::warning('Unable to retrieve local file metadata.', [
+			'resource_id' => $this->getKey(),
+			'metadata'    => $metadataType,
+		]);
+	}
+
+	protected function getLocalMimeTypeOrFallback(): string {
+		if (!$this->hasLocalFile()) {
+			return '';
+		}
+
+		try {
+			$mimeType = $this->getLocalMimeType();
+		} catch (FileNotFoundException|UnableToRetrieveMetadata $e) {
+			$this->logUnavailableLocalMetadata('mime_type');
+
+			return '';
+		}
+
+		if (!is_string($mimeType) || $mimeType === '') {
+			$this->logUnavailableLocalMetadata('mime_type');
+
+			return '';
+		}
+
+		return $mimeType;
 	}
 
 	public function setLocalStorageAndPath($storageName, $path) {

@@ -5,9 +5,11 @@ namespace Database\Factories;
 use App\Events\ResourceWasCreated;
 use App\Models\AudioFile;
 use App\Models\User;
+use Database\Factories\Concerns\CreatesLocalFileFixture;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class AudioFileFactory extends Factory {
+	use CreatesLocalFileFixture;
 
 	protected $model = AudioFile::class;
 
@@ -18,19 +20,21 @@ class AudioFileFactory extends Factory {
 	 */
 	public function definition() {
 		return [
-			'remote_path'  => 'http://some/file/path',
-			'local_path'   => 'some/file/path',
+			'remote_path'  => NULL,
+			'local_path'   => $this->localFixturePath('wav'),
 			'content_hash' => 'just a fake hash',
 			'notes'        => $this->faker->sentences(3, TRUE),
 			'is_public'    => $this->faker->boolean(),
+			'original_filename' => 'Testaudio.wav',
 			'created_by'   => User::all()->random()->id
 		];
 	}
 
 	public function configure() {
-		return $this->afterCreating(function (AudioFile $resource) {
-			event(new ResourceWasCreated($resource));
-		});
+		return $this->withLocalFileFixture('Audio.wav')
+			->afterCreating(function (AudioFile $resource) {
+				event(new ResourceWasCreated($resource));
+			});
 	}
 
 

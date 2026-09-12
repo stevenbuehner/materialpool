@@ -31,10 +31,11 @@ Antworte und dokumentiere auf Deutsch; belasse etablierte technische Bezeichner,
 - Tests, Dokumentation, Typ-/Kommentarverbesserungen und konsistente Übersetzungen.
 - Lokale Stilkorrekturen innerhalb eines vorhandenen Komponenten- oder Code-Musters.
 - Lesen, statische Analyse und nicht destruktive Prüfungen.
+- Destruktives Zurücksetzen, Neuerzeugen und Bereinigen ausschließlich von eindeutig isolierten, entbehrlichen Testdaten und dedizierten Testdatenbanken, nachdem Ziel und Testumgebung verifiziert wurden. Entwicklungs-, Staging- und Produktionsdaten sind davon ausdrücklich ausgeschlossen.
 
 ## Immer vorher fragen
 
-- Neue oder veränderte Datenbanktabellen/-spalten, Migrationen, Datenkorrekturen, Lösch- oder Massenoperationen.
+- Neue oder veränderte Datenbanktabellen/-spalten, Migrationen, Datenkorrekturen, Lösch- oder Massenoperationen; ausgenommen sind die oben freigegebenen Operationen auf eindeutig isolierten Testdaten.
 - Änderungen an API-Routen, Payloads, Authentifizierung/Passport, Policies, Rollen oder Sichtbarkeitsregeln.
 - Änderungen an Resource-/Material-/Keyword-/Bibledaten-Beziehungen, Queues, Eventketten, Dateiablage, Import/Export, Caches oder Vorschau-Erzeugung.
 - Neues Layout, Farben, Typografie, Navigation, mobile Interaktion, Icons oder komponentenübergreifende Designregeln.
@@ -56,7 +57,7 @@ Antworte und dokumentiere auf Deutsch; belasse etablierte technische Bezeichner,
 ## Sicherheits- und Datenregeln
 
 - Niemals Zugangsdaten, API-Tokens, reale Nutzerdaten, lokale Datenbanken oder Inhalte aus `storage/` in Dokumentation, Commits oder Antworten ausgeben.
-- Keine destruktiven Datenbank-, Datei-, Cache- oder Queue-Operationen ohne ausdrückliche Freigabe und klaren Zielumfang.
+- Keine destruktiven Datenbank-, Datei-, Cache- oder Queue-Operationen ohne ausdrückliche Freigabe und klaren Zielumfang. Ausgenommen sind ausschließlich eindeutig isolierte, entbehrliche Testdaten und dedizierte Testdatenbanken nach verifizierter Zielkontrolle.
 - Keine Secrets in `.env.example`; neue Konfiguration nur dokumentiert und mit sicheren Platzhaltern.
 - Bei Unsicherheit über Produktionsauswirkung: stoppen, Optionen vorlegen und fragen.
 

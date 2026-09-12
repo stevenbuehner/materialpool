@@ -5,10 +5,11 @@ namespace Database\Factories;
 use App\Events\ResourceWasCreated;
 use App\Models\PdfFile;
 use App\Models\User;
+use Database\Factories\Concerns\CreatesLocalFileFixture;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Support\Facades\Storage;
 
 class PdfFileFactory extends Factory {
+	use CreatesLocalFileFixture;
 	protected $model = PdfFile::class;
 
 	/**
@@ -17,16 +18,9 @@ class PdfFileFactory extends Factory {
 	 * @return array
 	 */
 	public function definition() {
-		$testStorage = Storage::disk(config('app.disks.testfiles'));
-		$liveStorage = Storage::disk(config('app.disks.resources'));
-
-		$src        = $testStorage->read('PDF.pdf');
-		$targetPath = uniqid('testing/') . '.pdf';
-		$liveStorage->write($targetPath, $src);
-
 		return [
 			'remote_path'  => 'http://www.ubtech.eu/wp-content/uploads/2013/02/BuecherBLUB.pdf',
-			'local_path'   => config('app.disks.resources') . '::' . $targetPath,
+			'local_path'   => $this->localFixturePath('pdf'),
 			'content_hash' => 'just a fake hash',
 			'notes'        => $this->faker->sentences(3, TRUE),
 			'is_public'    => $this->faker->boolean(),
@@ -35,9 +29,10 @@ class PdfFileFactory extends Factory {
 	}
 
 	public function configure() {
-		return $this->afterCreating(function (PdfFile $resource) {
-			event(new ResourceWasCreated($resource));
-		});
+		return $this->withLocalFileFixture('PDF.pdf')
+			->afterCreating(function (PdfFile $resource) {
+				event(new ResourceWasCreated($resource));
+			});
 	}
 
 }

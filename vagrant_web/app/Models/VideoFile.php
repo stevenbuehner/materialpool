@@ -6,7 +6,6 @@ use App\Models\Traits\TimeCountTrait;
 use App\Services\PreviewGeneration\Generators\VideoPreviewGenerator;
 use App\Services\PreviewGeneration\Interfaces\PreviewGeneratorInterface;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Parental\HasParent;
 
 /**
@@ -37,10 +36,6 @@ class VideoFile extends File {
 	}
 
 	public function getMimeTypeAttribute() {
-		try {
-			return $this->hasLocalFile() ? $this->getLocalMimeType() : '';
-		} catch (FileNotFoundException $e) {
-			return '';
-		}
+		return $this->getLocalMimeTypeOrFallback();
 	}
 }
