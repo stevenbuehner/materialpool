@@ -77,6 +77,7 @@ import asyncIsAdminMixin
                                                                                       from "../../general/async-isAdmin-mixin";
 import axiosInstance
                                                                                       from "../../../apps/main/axiosInstance";
+import {limitedPreviewPages}                                                          from './pdfPreviewPages';
 
 export default {
   name: 'PdfDetail',
@@ -113,7 +114,7 @@ export default {
           page_no: 1
         });
       } else {
-        urls = this.previewablePages.splice(0, Math.min(this.maxPagesToDisplay, this.previewablePages.length)).map((pageNo) => {
+        urls = limitedPreviewPages(this.previewablePages, this.maxPagesToDisplay).map((pageNo) => {
           return this.generatePreviewObject(this.resource, pageNo);
         });
       }

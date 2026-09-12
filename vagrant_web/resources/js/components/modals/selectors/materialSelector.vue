@@ -43,6 +43,7 @@
 
       <ul v-if="!searchOngoing">
         <li v-for="mat in materialSuggestions"
+            :key="mat.id"
             class="material"
             @click="_selectAndReturnMaterial(mat)">
           ({{ $t('pool.ID') }}: {{ mat.id }}) {{ mat.title }}
@@ -62,6 +63,7 @@
         <span class="labelLastMaterials">{{ $t('pool.last-used-materials') }}:</span>
         <ul>
           <li v-for="mat in lastMaterials"
+              :key="mat.id"
               class="material"
               @click="_selectAndReturnMaterial(mat)">
             ({{ $t('pool.ID') }}: {{ mat.id }}) {{ mat.title }}

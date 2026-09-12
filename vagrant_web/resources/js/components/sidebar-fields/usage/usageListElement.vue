@@ -141,6 +141,7 @@ import _debounce       from "lodash/debounce";
 import {cloneDeep}     from "lodash";
 import {useUsersStore} from '../../../apps/main/stores/users';
 import {useMaterialUsagesStore} from '../../../apps/main/stores/materialUsages';
+import {isValidUsedBy} from './usageHelpers';
 
 export default {
   name: "usageListElement",
@@ -173,10 +174,7 @@ export default {
     },
 
     used_by: {
-      validator: (prop) => {
-        return typeof (prop === 'object' && prop.hasOwnProperty('id'))
-               || prop === null;
-      },
+      validator: isValidUsedBy,
       required: true
     },
 

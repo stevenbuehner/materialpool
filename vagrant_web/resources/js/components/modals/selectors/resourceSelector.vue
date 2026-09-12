@@ -76,6 +76,7 @@
 
       <ul v-if="!searchOngoing">
         <li v-for="res in resourceSuggestions"
+            :key="res.id"
             class="resource"
             @click="_selectAndReturnResource(res)">
           ({{ $t('pool.ID') }}: {{ res.id }}) {{ res.notes }}

@@ -1,7 +1,7 @@
 <template>
   <div class="container-fluid">
     <div class="sbResourceNewestList row" v-if="resources.length > 0">
-      <div class="col col-xl-2 col-md-3 col-sm-4 col-6 pb-4" v-for="r in resources">
+      <div class="col col-xl-2 col-md-3 col-sm-4 col-6 pb-4" v-for="r in resources" :key="r.id">
         <resource-preview :resource="r"/>
       </div>
     </div>

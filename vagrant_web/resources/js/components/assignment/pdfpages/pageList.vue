@@ -29,10 +29,10 @@
              @click="hideZoom()"></b-img>
       <span class="previous"
             @click.prevent="showZoom(zoomedImage.previous)"
-            v-if="zoomedImage.previous >= 0"><</span>
+            v-if="zoomedImage.previous >= 0">&lt;</span>
       <span class="next"
             @click.prevent="showZoom(zoomedImage.next)"
-            v-if="zoomedImage.next >= 0">></span>
+            v-if="zoomedImage.next >= 0">&gt;</span>
       <template v-if="zoomedImage.current >= 0" #modal-header>
         <div class="checked-modal-page"
              :class="{selected: pages[zoomedImage.current].isSelected}"

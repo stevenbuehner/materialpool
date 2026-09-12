@@ -46,7 +46,8 @@
             <div class="row"
                  v-if="material.resources && material.resources.length > 1">
               <div class="col-xl-3 col-lg-4 col-md-4 col-sm-6 col-12 p-2"
-                   v-for="resource in material.resources">
+                   v-for="resource in material.resources"
+                   :key="resource.id">
                 <resource-preview :resource="resource" :edit-disabled="material.from_bot">
                   <template v-slot:additional-buttons>
                     <button class="btn btn-sm btn-outline-danger mb-1"
@@ -246,9 +247,6 @@
 
             <usage-edit
                 :material-id="material.id"
-                @input:add-usage=""
-                @input:update-usage=""
-                @input:remove-usage=""
             />
 
           </b-tab>

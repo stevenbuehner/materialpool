@@ -18,6 +18,7 @@
 <script type="text/javascript">
 import star from '@/adapters/star'
 import {setReactive} from '@/adapters/reactivity';
+import {isValidMaxRating} from './ratingValidation';
 
 export default {
   name: 'five-star-rating',
@@ -45,17 +46,7 @@ export default {
     maxRating: {
       type: Number,
       validator(value) {
-        if (!typeof value === 'number') {
-          console.error('maxRating needs to be of type Number');
-          return false;
-        }
-
-        if (value <= 0) {
-          console.error('maxRating needs to > 0');
-          return false;
-        }
-
-        return true;
+        return isValidMaxRating(value);
       },
       default: 20
     },

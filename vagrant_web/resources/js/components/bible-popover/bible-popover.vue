@@ -224,6 +224,7 @@ export default {
         return new BibleVerse(this.bibleverse.from, this.bibleverse.to);
       } else {
         console.error('Could not normalize bibleverse!');
+        return null;
       }
     },
     from() {

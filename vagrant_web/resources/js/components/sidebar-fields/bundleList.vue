@@ -15,7 +15,7 @@
 
     <div class="editField" :class="{disabled}">
       <ol class="content-area">
-        <li v-for="bundle in bundles">
+        <li v-for="(bundle, index) in bundles" :key="bundle?.id ?? index">
           {{ bundle && bundle.name ? bundle.name : "Unknown bundle name" }}
         </li>
       </ol>

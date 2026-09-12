@@ -58,9 +58,9 @@ import usageListElement from "./usage/usageListElement";
 import OccasionIcon     from '@icons/vendor/svg-icon/svg/icomoon/bubble2.svg';
 import {BButton}        from '@/adapters/bootstrap';
 import {savingDialogs}  from "../../helper/flashMessages";
-import {moment}         from "../../apps/main/localisation";
 import {useMaterialUsagesStore} from '../../apps/main/stores/materialUsages';
 import {useGeneralStore}        from '../../apps/main/stores/general';
+import {displayedUsages}        from './usage/usageHelpers';
 
 export default {
   name: "usageEdit",
@@ -93,45 +93,7 @@ export default {
     },
 
     displayedList() {
-      const orderedUsages = this.usages.sort((e1, e2) => {
-        return moment(e1.datetime).unix() - moment(e2.datetime).unix();
-      });
-
-      let getElementsCount = this.displayMax;
-      let resultElements   = [];
-      let foundElementId   = null;
-
-      if (this.usages.length > this.displayMax) {
-
-        // 1) find selected Element
-        if (this.currentActiveUsageId !== null) {
-          const foundElement = this.usages.find((el) => el.id === this.currentActiveUsageId);
-
-          if (foundElement !== undefined) {
-            resultElements.push(foundElement)
-            foundElementId = foundElement.id;
-            getElementsCount--;
-          }
-        }
-
-        // 2) Fill with the last x entries
-        for (let i = orderedUsages.length - 1; i >= 0 && getElementsCount > 0; i--) {
-          const el = orderedUsages[i];
-
-          if (el?.id !== foundElementId) {
-            resultElements.push(el);
-            getElementsCount--;
-          }
-        }
-
-        return resultElements.sort((e1, e2) => {
-          return moment(e1.datetime).unix() - moment(e2.datetime).unix();
-        });
-
-      } else {
-        return orderedUsages;
-      }
-
+      return displayedUsages(this.usages, this.displayMax, this.currentActiveUsageId);
     },
 
     usagesCount() {

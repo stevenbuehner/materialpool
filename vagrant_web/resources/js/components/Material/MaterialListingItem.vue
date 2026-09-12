@@ -69,7 +69,7 @@
     </div>
 
     <div class="more" @click.prevent="showMore = !showMore">
-      <span class="arrow" :class="{down:showMore, left: !showMore}"> < </span>
+      <span class="arrow" :class="{down:showMore, left: !showMore}"> &lt; </span>
     </div>
 
   </router-link>

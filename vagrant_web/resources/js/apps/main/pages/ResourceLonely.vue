@@ -1,7 +1,7 @@
 <template>
   <div class="container">
     <div class="sbResourceLonelyList materialpool-card-columns" v-if="resources.length > 0">
-      <div class="card lonelyResource" v-for="r in resources">
+      <div class="card lonelyResource" v-for="r in resources" :key="r.id">
         <img :src="previewImage(r)" class="card-img-top" alt="No Resource Preview available">
         <div class="card-body">
           <h5 class="card-title">

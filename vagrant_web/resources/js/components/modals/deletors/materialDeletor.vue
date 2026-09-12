@@ -40,7 +40,7 @@
     <div class="assignedResources">
       <hr>
 
-      <div class="row resource py-2" v-for="r in resources">
+      <div class="row resource py-2" v-for="r in resources" :key="r.id">
         <div class="col col-2 col-md-1">{{ r.id }}</div>
         <div class="col col-4 col-md-5 ">
           <div v-if="r.original_filename" class="filename">{{ r.original_filename }}</div>

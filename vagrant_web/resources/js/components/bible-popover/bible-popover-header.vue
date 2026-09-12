@@ -1,14 +1,8 @@
-<template>
-
-</template>
-
 <script>
 	export default {
-		name: "bible-popover-header"
+		name: "bible-popover-header",
+		render() {
+			return null;
+		},
 	}
 </script>
-
-<style lang="scss">
-
-
-</style>

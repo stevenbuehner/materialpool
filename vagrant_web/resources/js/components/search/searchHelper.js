@@ -336,7 +336,7 @@ export function searchQueryToSearchArrayObjects(query) {
 					break;
 
 				default:
-					console.error('Unknown searchItemType', searchItem);
+					console.error('Unknown searchItemType', objStr);
 			}
 		}
 
