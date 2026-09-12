@@ -15,6 +15,7 @@
     "hot": "npm run dev",
     "inventory:frontend": "node scripts/frontend-inventory.mjs",
     "inventory:dependencies": "npm sbom --sbom-format cyclonedx",
+    "check:bundle": "node scripts/check-frontend-bundle.mjs",
     "lint": "eslint resources/js scripts tests/js *.config.mjs",
     "test:ci": "npm run lint && npm run test:unit",
     "test:unit": "vitest run",
@@ -22,7 +23,7 @@
     "test:visual": "playwright test --grep @visual",
     "prod": "npm run production",
     "production": "npm run build",
-    "build": "php artisan lang:js -c --no-lib && vite build"
+    "build": "php artisan lang:js -c --no-lib && vite build && npm run check:bundle"
   },
   "dependencies": {
     "@primer/octicons": "^9.6.0",

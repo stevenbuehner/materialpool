@@ -31,6 +31,10 @@ export default defineConfig({
         preprocessorOptions: {
             scss: {
                 loadPaths: [fileURLToPath(new URL('.', import.meta.url))],
+                // Bootstrap 5.3 still uses APIs deprecated by Dart Sass. Keep
+                // dependency warnings quiet while application Sass remains
+                // protected by the Sass architecture tests.
+                quietDeps: true,
             },
         },
     },
@@ -40,6 +44,19 @@ export default defineConfig({
         },
     },
     build: {
-        sourcemap: true,
+        // Source maps must not be published with production assets. If private
+        // error monitoring is added later, upload maps there during deployment.
+        sourcemap: false,
+        // The only deliberately large chunk is the lazy-loaded Video.js
+        // player. Project-specific raw and gzip budgets are enforced after
+        // every production build by check-frontend-bundle.mjs.
+        chunkSizeWarningLimit: 650,
+        rolldownOptions: {
+            checks: {
+                // This host-dependent timing heuristic is noisy in CI. Bundle
+                // size and correctness are enforced by deterministic checks.
+                pluginTimings: false,
+            },
+        },
     },
 });
