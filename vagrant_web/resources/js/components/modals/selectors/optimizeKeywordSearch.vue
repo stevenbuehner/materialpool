@@ -83,7 +83,7 @@ import SearchInputTag                                            from "../../sea
 import {objectToSearchItem}                                      from "../../search/searchHelper";
 import {BibleVerse, BibleVerseService}                           from "../../../helper/BibleverseHelper";
 import truncateFilterMixin                                       from "../../../filters/truncate-filter.mixin";
-import {cloneDeep}                                               from "lodash";
+import cloneDeep                                                 from 'lodash/cloneDeep';
 import {useBiblesStore}                                          from '../../../apps/main/stores/bibles';
 import {useBibleContentsStore}                                   from '../../../apps/main/stores/bibleContents';
 import {useBibleverseCrossReferencesStore}                       from '../../../apps/main/stores/bibleverseCrossReferences';

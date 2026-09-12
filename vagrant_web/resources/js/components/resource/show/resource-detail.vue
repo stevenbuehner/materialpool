@@ -77,11 +77,10 @@
 </template>
 
 <script>
+import {defineAsyncComponent} from 'vue';
 import imageDetail   from './image-detail.vue'
 import textDetail    from './text-detail.vue'
 import pdfDetail     from './pdf-detail.vue'
-import audioDetail   from './video-preview.vue'
-import videoDetail   from './video-preview.vue'
 import docDetail     from './doc-detail.vue'
 import resDetail     from './res-preview.vue'
 import fileDetail    from './file-detail.vue'
@@ -89,6 +88,9 @@ import resourceLinks from '../resource-links.mixin';
 
 import filesize from "../../../helper/filesize.mixin";
 import {useResourcesStore} from '../../../apps/main/stores/resources';
+
+// Keep the media player outside document, image and text resource bundles.
+const videoDetail = defineAsyncComponent(() => import('./video-preview.vue'));
 
 export default {
 
@@ -165,7 +167,7 @@ export default {
     imageDetail,
     textDetail,
     pdfDetail,
-    audioDetail,
+    audioDetail: videoDetail,
     videoDetail,
     docDetail,
     resDetail,

@@ -1,5 +1,5 @@
 import {defineStore} from 'pinia';
-import _clone from 'lodash/_baseClone';
+import clone from 'lodash/clone';
 import axios from '../axiosInstance';
 import {queue} from '../store/networkQueue';
 import {getAllPages} from '../store/helper/paginationHelperQueued';
@@ -30,7 +30,7 @@ export const useKeywordsStore = defineStore('keywords', {
 
 	actions: {
 		setKeyword(keyword) {
-			this.keywords[keyword.id] = _clone(keyword);
+			this.keywords[keyword.id] = clone(keyword);
 
 			if (this.keywords[keyword.id].pivot) {
 				delete this.keywords[keyword.id].pivot;

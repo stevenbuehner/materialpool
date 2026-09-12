@@ -1,5 +1,5 @@
 import {defineStore} from 'pinia';
-import {cloneDeep} from 'lodash';
+import cloneDeep from 'lodash/cloneDeep';
 import axios from '../axiosInstance';
 import {queue} from '../store/networkQueue';
 import {convertErrorResponseToMessage} from '../store/modules/handleErrorsHelper';

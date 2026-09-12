@@ -1,138 +1,137 @@
-import MaterialDetail     from './pages/MaterialDetail2.vue';
-import SearchPage         from './pages/search/searchPage.vue';
-import ResourceDetail     from './pages/Resource.vue';
-import AssignApp          from './pages/AssignApp.vue';
-import ResourceCreate     from './pages/ResourceCreate.vue';
-import KeywordDetail      from './pages/KeywordDetail.vue'
-import ResourceTextCreate from './pages/ResourceTextCreateWithMaterial.vue';
-import LandingPage        from "./pages/LandingPage";
-import SystemShutdown     from './pages/RequestShutdown';
-// import PassportClient from '../../components/passport/Clients.vue';
-// import PassportAuthorizedClient from '../../components/passport/AuthorizedClients.vue';
-// import PassportPersonalAccessTokens from '../../components/passport/PersonalAccessTokens.vue';
-
-const KeywordList     = () => import('./pages/KeywordList.vue');
-const ReadBible       = () => import('./pages/ReadBible');
-const BundleList      = () => import('./pages/BundleList.vue');
-const MaterialApp     = () => import('./pages/MaterialList.vue');
-const ResourceLonely  = () => import('./pages/ResourceLonely.vue');
-const ResourceNewest  = () => import('./pages/ResourceNewest.vue');
+// Page-level components are lazy-loaded so that feature-specific dependencies
+// are fetched only when their route is opened.
+const LandingPage = () => import('./pages/LandingPage.vue');
+const SearchPage = () => import('./pages/search/searchPage.vue');
+const MaterialDetail = () => import('./pages/MaterialDetail2.vue');
+const KeywordList = () => import('./pages/KeywordList.vue');
+const ReadBible = () => import('./pages/ReadBible.vue');
+const BundleList = () => import('./pages/BundleList.vue');
+const MaterialApp = () => import('./pages/MaterialList.vue');
+const ResourceCreate = () => import('./pages/ResourceCreate.vue');
+const ResourceTextCreate = () => import('./pages/ResourceTextCreateWithMaterial.vue');
+const ResourceDetail = () => import('./pages/Resource.vue');
+const AssignApp = () => import('./pages/AssignApp.vue');
+const ResourceLonely = () => import('./pages/ResourceLonely.vue');
+const ResourceNewest = () => import('./pages/ResourceNewest.vue');
 const ResourceReplace = () => import('./pages/ResourceReplace.vue');
+const KeywordDetail = () => import('./pages/KeywordDetail.vue');
+const SystemShutdown = () => import('./pages/RequestShutdown.vue');
 
+const numericIdProps = (route) => ({id: parseInt(route.params.id)});
 
 export const routes = [
-
-	       {
-		       path: '/', component: LandingPage, name: 'landingpage'
-	       },
-
-	       {
-		       path: '/search/:search?', component: SearchPage, name: 'search', props: (route) => {
-
-			       let page = 1;
-
-			       if (route.query.page) {
-				       page = parseInt(route.query.page);
-			       }
-
-			       return {
-				       query: route.params.search || '',
-				       page: page
-			       };
-		       },
-	       },
-
-	       {
-		       path: '/material', component: MaterialApp, name: 'material', alias: '/materials'
-	       },
-	       {
-		       path: '/material/:id', component: MaterialDetail, name: 'material-detail', props: (route) => {
-			       return {
-			        id: parseInt(route.params.id),
-			        tabIndex: parseInt(route.query.tabIndex) || 0,
-			       };
-		       }
-	       },
-	       {
-		       path: '/resource/create', component: ResourceCreate, name: 'resource-create', props: false
-	       },
-	       {
-		       path: '/resource/text/create', component: ResourceTextCreate, name: 'resource-text-create', props: false
-	       },
-	       {
-		       path: '/resource/lonely', component: ResourceLonely, name: 'resource-lonely', props: false
-	       },
-	       {
-		       path: '/resource/newest', component: ResourceNewest, name: 'resource-newest', props: false
-	       },
-	       {
-		       path: '/resource/:id', component: ResourceDetail, name: 'resource-detail', props: (route) => {
-			       return {id: parseInt(route.params.id)};
-		       }
-	       },
-	       {
-		       path: '/resource/:id/assign', component: AssignApp, name: 'resource-assign', props: (route) => {
-			       return {id: parseInt(route.params.id)};
-		       }
-	       },
-	       {
-		       path: '/resource/:id/page-assign', name: 'resource-page-assign', component: AssignApp, props: (route) => {
-			       return {id: parseInt(route.params.id)};
-		       }
-	       },
-
-	       {
-		       path: '/resource/:r1/replace-with/:r2?',
-		       name: 'resource-replace',
-		       component: ResourceReplace,
-		       props: (route) => {
-			       return {
-				       r1: parseInt(route.params.r1),
-				       r2: route.params.r2 ? parseInt(route.params.r2) : null,
-			       };
-		       }
-
-	       },
-
-	       {
-		       path: '/keyword', name: 'keyword-list', component: KeywordList, alias: '/keywords'
-	       },
-	       {
-		       path: '/keyword/:id', name:
-			       'keyword-detail', component:
-		       KeywordDetail, props:
-			       (route) => {
-				       return {id: parseInt(route.params.id)};
-			       }
-	       }
-	       ,
-	       {
-		       path: '/bundle', name: 'bundle-list', component: BundleList, alias: '/bundles'
-	       },
-	       {
-		       path: '/readbible/:searchquery?', component: ReadBible, name: 'readbible', props: true
-	       },
-
-	       {
-		       path: '/system/shutdown', component: SystemShutdown, name: 'system-shutdown', props: false
-	       },
-
-	       /*
-		   {
-			   path: '/passport/client', component: PassportClient, name: 'passport-client'
-		   },
-		   {
-			   path: '/passport/authorizedclient', component: PassportAuthorizedClient, name: 'passport-authorizedclient'
-		   },
-		   {
-			   path: '/passport/personalaccesstokens',
-			   component: PassportPersonalAccessTokens,
-			   name: 'passport-personalaccesstokens'
-		   },
-		   */
-	       {
-		       path: '/:pathMatch(.*)*', redirect: '/search'
-	       }
-
-       ]
-;
+	{
+		path: '/',
+		component: LandingPage,
+		name: 'landingpage',
+	},
+	{
+		path: '/search/:search?',
+		component: SearchPage,
+		name: 'search',
+		props: (route) => ({
+			query: route.params.search || '',
+			page: route.query.page ? parseInt(route.query.page) : 1,
+		}),
+	},
+	{
+		path: '/material',
+		component: MaterialApp,
+		name: 'material',
+		alias: '/materials',
+	},
+	{
+		path: '/material/:id',
+		component: MaterialDetail,
+		name: 'material-detail',
+		props: (route) => ({
+			id: parseInt(route.params.id),
+			tabIndex: parseInt(route.query.tabIndex) || 0,
+		}),
+	},
+	{
+		path: '/resource/create',
+		component: ResourceCreate,
+		name: 'resource-create',
+		props: false,
+	},
+	{
+		path: '/resource/text/create',
+		component: ResourceTextCreate,
+		name: 'resource-text-create',
+		props: false,
+	},
+	{
+		path: '/resource/lonely',
+		component: ResourceLonely,
+		name: 'resource-lonely',
+		props: false,
+	},
+	{
+		path: '/resource/newest',
+		component: ResourceNewest,
+		name: 'resource-newest',
+		props: false,
+	},
+	{
+		path: '/resource/:id',
+		component: ResourceDetail,
+		name: 'resource-detail',
+		props: numericIdProps,
+	},
+	{
+		path: '/resource/:id/assign',
+		component: AssignApp,
+		name: 'resource-assign',
+		props: numericIdProps,
+	},
+	{
+		path: '/resource/:id/page-assign',
+		component: AssignApp,
+		name: 'resource-page-assign',
+		props: numericIdProps,
+	},
+	{
+		path: '/resource/:r1/replace-with/:r2?',
+		component: ResourceReplace,
+		name: 'resource-replace',
+		props: (route) => ({
+			r1: parseInt(route.params.r1),
+			r2: route.params.r2 ? parseInt(route.params.r2) : null,
+		}),
+	},
+	{
+		path: '/keyword',
+		component: KeywordList,
+		name: 'keyword-list',
+		alias: '/keywords',
+	},
+	{
+		path: '/keyword/:id',
+		component: KeywordDetail,
+		name: 'keyword-detail',
+		props: numericIdProps,
+	},
+	{
+		path: '/bundle',
+		component: BundleList,
+		name: 'bundle-list',
+		alias: '/bundles',
+	},
+	{
+		path: '/readbible/:searchquery?',
+		component: ReadBible,
+		name: 'readbible',
+		props: true,
+	},
+	{
+		path: '/system/shutdown',
+		component: SystemShutdown,
+		name: 'system-shutdown',
+		props: false,
+	},
+	{
+		path: '/:pathMatch(.*)*',
+		redirect: '/search',
+	},
+];

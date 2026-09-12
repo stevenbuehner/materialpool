@@ -106,7 +106,7 @@ import {RELEVANCE_USER_MAX} from "../../apps/config";
 import _debounce            from 'lodash/debounce';
 import MaterialpoolSpinner  from "../spinner/materialpool-spinner";
 import {savingDialogs}      from "../../helper/flashMessages";
-import {cloneDeep}          from "lodash";
+import cloneDeep            from 'lodash/cloneDeep';
 import {useBibleversesStore} from '../../apps/main/stores/bibleverses';
 
 export default {

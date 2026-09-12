@@ -138,7 +138,7 @@ import cancelIcon      from '@icons/vendor/svg-icon/svg/material/undo.svg';
 import checkCircleIcon from '@icons/vendor/svg-icon/svg/material/save.svg';
 import vueSelect       from '@/adapters/vue-select';
 import _debounce       from "lodash/debounce";
-import {cloneDeep}     from "lodash";
+import cloneDeep       from 'lodash/cloneDeep';
 import {useUsersStore} from '../../../apps/main/stores/users';
 import {useMaterialUsagesStore} from '../../../apps/main/stores/materialUsages';
 import {isValidUsedBy} from './usageHelpers';

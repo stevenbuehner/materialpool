@@ -168,7 +168,9 @@ import generalMixin                                                      from '.
 import VueSelect                                                         from '@/adapters/vue-select';
 import tagIcon                                                           from '@icons/vendor/svg-icon/svg/material/style.svg';
 import {keywordTypes}                                                    from "../keyword/keywordDefaultIcons";
-import {cloneDeep, debounce as _debounce, differenceBy as _differenceBy} from 'lodash';
+import cloneDeep                                                         from 'lodash/cloneDeep';
+import _debounce                                                         from 'lodash/debounce';
+import _differenceBy                                                     from 'lodash/differenceBy';
 import DragableElement                                                   from "./vue-select/dragable-element";
 import ContextMenu                                                       from "../context-menu/context-menu";
 import ContextMenuItem                                                   from "../context-menu/context-menu-item";

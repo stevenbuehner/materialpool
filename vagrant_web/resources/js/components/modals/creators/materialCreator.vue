@@ -262,7 +262,7 @@ import {useGeneralStore}         from '../../../apps/main/stores/general';
 // Icons
 import trashIcon   from '@icons/vendor/svg-icon/svg/oct/trashcan.svg';
 import repeatIcon  from '@icons/vendor/svg-icon/svg/typcn/arrow-repeat.svg';
-import {cloneDeep} from "lodash";
+import cloneDeep from 'lodash/cloneDeep';
 
 
 const USER_SETTINGS_MATERIAL_TEMPLATE_ID         = 'assign.material.templates';

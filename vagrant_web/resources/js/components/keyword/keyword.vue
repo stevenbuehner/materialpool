@@ -42,7 +42,7 @@ import {ayceIcon, iconName, keyIcon, langIcon, personIcon, placeIcon} from './ke
 import {searchArrayObjectsToSearchQuery}                              from "../search/searchHelper";
 import {draggingSupport}                                              from "./dragging.mixin";
 import {RELEVANCE_USER_MAX}                                           from "../../apps/config";
-import {cloneDeep}                                                    from "lodash";
+import cloneDeep                                                      from 'lodash/cloneDeep';
 import {defineAsyncComponent}                                        from 'vue';
 import {useKeywordsStore}                                            from '../../apps/main/stores/keywords';
 

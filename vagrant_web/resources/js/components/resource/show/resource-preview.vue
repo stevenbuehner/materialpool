@@ -50,11 +50,10 @@
 </template>
 
 <script>
+import {defineAsyncComponent}        from 'vue';
 import imagePreview                  from './image-preview.vue'
 import textPreview                   from './text-preview.vue'
 import pdfPreview                    from './pdf-preview.vue'
-import audioPreview                  from './video-preview.vue'
-import videoPreview                  from './video-preview.vue'
 import docPreview                    from './doc-preview.vue'
 import filePreview                   from './file-preview.vue'
 import resPreview                    from './res-preview.vue'
@@ -64,6 +63,9 @@ import {getOrderedPreviewZoomImages} from "../resource-preview-zoom";
 import ImageZoom                     from "../../modals/imageZoom";
 import {isTouch}                     from "../../../helper/mobileHelper";
 
+// Video.js is substantially larger than the other preview implementations.
+// Load it only when an audio or video resource is actually rendered.
+const videoPreview = defineAsyncComponent(() => import('./video-preview.vue'));
 
 export default {
 
@@ -139,7 +141,7 @@ export default {
     imagePreview,
     textPreview,
     pdfPreview,
-    audioPreview,
+    audioPreview: videoPreview,
     videoPreview,
     docPreview,
     resPreview,

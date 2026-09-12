@@ -40,7 +40,7 @@ import {draggingSupport}                 from "../keyword/dragging.mixin";
 import {RELEVANCE_USER_MAX}              from "../../apps/config";
 import BiblePopover                    from "./../bible-popover/bible-popover.vue";
 import {BibleVerse, BibleVerseService} from "../../helper/BibleverseHelper";
-import {cloneDeep}                     from 'lodash';
+import cloneDeep                       from 'lodash/cloneDeep';
 import {useBibleversesStore}           from '../../apps/main/stores/bibleverses';
 
 export default {

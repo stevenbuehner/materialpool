@@ -93,7 +93,7 @@ import eraseSvg             from '@icons/vendor/svg-icon/svg/zero/clear.svg';
 import {RELEVANCE_USER_MAX} from "../../apps/config";
 import MaterialpoolSpinner  from "../spinner/materialpool-spinner";
 import {savingDialogs}      from "../../helper/flashMessages";
-import {cloneDeep}          from "lodash";
+import cloneDeep            from 'lodash/cloneDeep';
 import {useKeywordsStore}   from '../../apps/main/stores/keywords';
 
 
