@@ -119,7 +119,8 @@ export default {
 </script>
 
 <style lang="scss">
-@import "resources/sass/theme";
+@use "sass:map";
+@use "resources/sass/theme" as *;
 
 .systemDownContainer {
   height: 100%;
@@ -140,7 +141,7 @@ export default {
   margin: 0;
   font-size: 60px;
 
-  @media(min-width: map-get($grid-breakpoints, "sm")) {
+  @media(min-width: map.get($grid-breakpoints, "sm")) {
     font-size: 84px;
   }
 

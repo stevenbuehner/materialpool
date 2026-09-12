@@ -251,7 +251,7 @@ export default {
 
 <style lang="scss">
 
-@import "../../../sass/theme";
+@use "../../../sass/theme" as *;
 
 .bibleverse-wrapper {
   position: relative;

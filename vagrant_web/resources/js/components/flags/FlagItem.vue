@@ -59,7 +59,7 @@ export default {
 
 <style lang="scss">
 
-@import "../../../sass/theme";
+@use "../../../sass/theme" as *;
 
 .sb-flagitem-wrapper {
   cursor: pointer;

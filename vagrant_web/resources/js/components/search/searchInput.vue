@@ -124,7 +124,7 @@ export default {
 
 
 <style lang="scss">
-@import "resources/sass/theme";
+@use "resources/sass/theme" as *;
 .searchInputSelect {
 
   .vs__selected-options {

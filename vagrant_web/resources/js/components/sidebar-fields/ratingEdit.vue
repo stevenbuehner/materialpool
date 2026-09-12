@@ -67,7 +67,6 @@
 </script>
 
 <style lang="scss">
-    //    @import "resources/sass/theme";
 
     .ratingEditSidebarField {
         .vue-star-rating {

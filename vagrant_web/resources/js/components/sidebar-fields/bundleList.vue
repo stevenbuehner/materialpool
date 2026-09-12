@@ -73,7 +73,7 @@ export default {
 </script>
 
 <style lang="scss">
-@import "resources/sass/theme";
+@use "resources/sass/theme" as *;
 
 .bundleListSidebarField {
 
@@ -85,7 +85,7 @@ export default {
       background-color: $sidebar-input-background-colour-active;
       padding: $input-padding-top $input-padding-right $input-padding-bottom $input-padding-left;
 
-      @include border-radius($input-border-radius-sm);
+      border-radius: $input-border-radius-sm;
 
       list-style-type: decimal;
       list-style-position: inside;

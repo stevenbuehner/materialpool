@@ -36,7 +36,7 @@ export default {
 
 <style scoped lang="scss">
 
-@import "../../sass/theme";
+@use "../../sass/theme" as *;
 
 .from-bot-wrapper {
   float: left;

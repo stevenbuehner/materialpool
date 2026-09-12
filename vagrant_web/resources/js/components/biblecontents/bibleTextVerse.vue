@@ -54,7 +54,7 @@
 
 
 <style lang="scss">
-    @import "../../../sass/theme";
+    @use "../../../sass/theme" as *;
 
     .bibleTextVerse {
         display: inline;

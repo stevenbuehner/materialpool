@@ -229,7 +229,7 @@ export default {
 
 <style lang="scss">
 
-@import "../../../sass/theme";
+@use "../../../sass/theme" as *;
 
 $preview-font-color: #DEE2E6;
 $preview-background-color: #868E96;

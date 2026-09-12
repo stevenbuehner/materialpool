@@ -141,7 +141,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import "resources/sass/theme.scss";
+@use "resources/sass/theme" as *;
 
 .dropdown-hover:hover {
   background-color: lightgrey;

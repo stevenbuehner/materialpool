@@ -172,7 +172,7 @@ export default {
 
 <style lang="scss">
 
-@import "resources/sass/theme";
+@use "resources/sass/theme" as *;
 
 .pdfDetailWrapper {
   margin: 0;

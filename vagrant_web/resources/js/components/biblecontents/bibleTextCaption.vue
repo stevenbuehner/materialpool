@@ -40,7 +40,7 @@ import {BibleVerse, BibleVerseService} from "../../helper/BibleverseHelper";
 </script>
 
 <style lang="scss">
-    @import "../../../sass/theme";
+    @use "../../../sass/theme" as *;
 
     .bibleTextCaption {
         color: $cyan;

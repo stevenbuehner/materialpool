@@ -628,7 +628,7 @@ export default {
 
 <style lang="scss">
 
-@import "../../../sass/theme";
+@use "../../../sass/theme" as *;
 
 $bible-popover-theme-color: $gray-600;
 $bible-popover-text-color: $black;

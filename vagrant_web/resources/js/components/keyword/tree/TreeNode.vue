@@ -155,7 +155,7 @@ export default {
 </script>
 
 <style lang="scss">
-@import "../../../../sass/theme";
+@use "../../../../sass/theme" as *;
 
 .sbTreeNode {
   display: block;

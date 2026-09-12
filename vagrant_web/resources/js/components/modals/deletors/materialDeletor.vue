@@ -313,7 +313,7 @@ export default {
 </script>
 
 <style scoped lang="scss">
-@import "resources/sass/theme";
+@use "resources/sass/theme" as *;
 
 .assignedResources {
   .resource {

@@ -1,11 +1,29 @@
+@use "sass:map";
+@use "sass:math";
+@use "sass:meta";
+@use "theme" as *;
+
 @import url(https://fonts.googleapis.com/css?family=Raleway:300,400,600);
-// My Bootstrap Overriding style stuff
-@import 'theme.scss';
-/* Bootstrap 5 */
-@import "bootstrap/scss/bootstrap.scss";
+
+// Bootstrap 5.3 still uses legacy imports internally. Load its entrypoint
+// through Sass' module bridge and keep all compatibility configuration here.
+@include meta.load-css("bootstrap/scss/bootstrap", $with: (
+  "enable-rfs": $enable-rfs,
+  "enable-negative-margins": $enable-negative-margins,
+  "grid-gutter-width": $grid-gutter-width,
+  "container-max-widths": $container-max-widths,
+  "container-padding-x": $container-padding-x,
+  "border-radius": $border-radius,
+  "border-radius-sm": $border-radius-sm,
+  "border-radius-lg": $border-radius-lg,
+  "navbar-padding-x": $navbar-padding-x,
+  "input-placeholder-color": $input-placeholder-color,
+  "card-group-margin": $card-group-margin,
+  "toast-spacing": $toast-spacing,
+));
 @import "bootstrap-vue-next/dist/bootstrap-vue-next.css";
-@import "bootstrap-5-compat";
-@import "resources/js/components/sidebar-fields/globalCss";
+@include meta.load-css("bootstrap-5-compat");
+@include meta.load-css("resources/js/components/sidebar-fields/globalCss");
 
 
 .text-wrap {
@@ -30,13 +48,16 @@
 
 
 // Popover (bibelstellen-Popup)
-@each $breakpoint in map-keys($grid-breakpoints) {
-  @if map_get($container-max-widths, $breakpoint) != null {
-    @include media-breakpoint-up($breakpoint) {
+@each $breakpoint in map.keys($grid-breakpoints) {
+  @if map.get($container-max-widths, $breakpoint) != null {
+    @media (min-width: map.get($grid-breakpoints, $breakpoint)) {
       // $infix: breakpoint-infix($breakpoint, $grid-breakpoints);
 
       .popover {
-        max-width: map_get($container-max-widths, $breakpoint)* 0.5;
+        max-width: math.min(
+          map.get($container-max-widths, $breakpoint),
+          $materialpool-container-max-width
+        ) * 0.5;
       }
     }
   }

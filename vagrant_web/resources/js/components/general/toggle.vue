@@ -81,7 +81,7 @@ export default {
 
 
 <style lang="scss">
-@import "../../../sass/theme";
+@use "../../../sass/theme" as *;
 
 // CSS Templates from: https://codepen.io/mallendeo/pen/eLIiG?editors=1100
 

@@ -114,7 +114,7 @@ export default {
 
 <style lang="scss">
 
-@import "../../../sass/theme";
+@use "../../../sass/theme" as *;
 
 .sb-search-input-tag {
 

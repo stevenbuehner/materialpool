@@ -915,7 +915,9 @@ export default {
 </script>
 
 <style lang="scss">
-@import "resources/sass/theme.scss";
+@use "sass:color";
+@use "sass:map";
+@use "resources/sass/theme" as *;
 
 .materialDetail2 {
 
@@ -940,7 +942,7 @@ export default {
         white-space: nowrap;
         max-width: 100%;
 
-        @media(min-width: map-get($grid-breakpoints, "sm")) {
+        @media(min-width: map.get($grid-breakpoints, "sm")) {
           float: right;
           padding-left: 1em;
         }
@@ -994,7 +996,7 @@ export default {
 
   &.materialEditLockActive {
     .contentContainer {
-      background-color: mix($jumbotron-bg, $red, 70%);
+      background-color: color.mix($jumbotron-bg, $red, 70%);
     }
   }
 }

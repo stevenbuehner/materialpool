@@ -1,88 +1,133 @@
-@import "../../node_modules/bootstrap/scss/functions";
-@import "../../node_modules/bootstrap/scss/variables";
-@import "../../node_modules/bootstrap/scss/mixins";
-@import "vue-select-compat-variables";
+@use "sass:color";
 
-// Keep the established Bootstrap 4 geometry while Bootstrap 5 supplies the
-// maintained component and utility implementation.
+@forward "vue-select-compat-variables";
+
+// Public Materialpool design tokens. Keep this module independent from
+// Bootstrap's legacy Sass imports so Vue components can consume it with
+// `@use` without recompiling the complete framework for every component.
+$white: #fff;
+$black: #000;
+
+$gray-200: #e9ecef;
+$gray-400: #ced4da;
+$gray-500: #adb5bd;
+$gray-600: #6c757d;
+$gray-700: #495057;
+$gray-900: #212529;
+
+$blue: #0d6efd;
+$indigo: #6610f2;
+$purple: #6f42c1;
+$red: #dc3545;
+$orange: #fd7e14;
+$yellow: #ffc107;
+$green: #198754;
+$cyan: #0dcaf0;
+
+$primary: $blue;
+$secondary: $gray-600;
+$success: $green;
+$warning: $yellow;
+$danger: $red;
+
+$blue-hover: color.adjust($blue, $lightness: -5%);
+$indigo-hover: color.adjust($indigo, $lightness: -5%);
+$purple-hover: color.adjust($purple, $lightness: -5%);
+$red-hover: color.adjust($red, $lightness: -5%);
+$orange-hover: color.adjust($orange, $lightness: -5%);
+$yellow-hover: color.adjust($yellow, $lightness: -5%);
+$green-hover: color.adjust($green, $lightness: -5%);
+$cyan-hover: color.adjust($cyan, $lightness: -5%);
+$dark-hover: color.adjust($gray-900, $lightness: -5%);
+
+// Bootstrap configuration preserved from the verified Bootstrap 4 geometry.
 $enable-rfs: false;
 $enable-negative-margins: true;
 $grid-gutter-width: 30px;
+$grid-breakpoints: (
+  xs: 0,
+  sm: 576px,
+  md: 768px,
+  lg: 992px,
+  xl: 1200px,
+  xxl: 1400px,
+);
 $container-max-widths: (
   sm: 540px,
   md: 720px,
   lg: 960px,
   xl: 1140px,
-  xxl: 1140px,
+  xxl: 1320px,
 );
+$materialpool-container-max-width: 1140px;
 $container-padding-x: 30px;
 $border-radius: .25rem;
 $border-radius-sm: .2rem;
 $border-radius-lg: .3rem;
 $navbar-padding-x: 1rem;
 
+// Stable Bootstrap-compatible component tokens used by local Vue styles.
+$body-color: $gray-900;
+$body-bg: $white;
+$link-color: $primary;
+$border-width: 1px;
+$border-color: #dee2e6;
+$card-bg: var(--bs-body-bg);
+$card-border-color: var(--bs-border-color-translucent);
+$card-border-radius: var(--bs-border-radius);
+$card-group-margin: .75rem;
+$toast-spacing: 1.5rem;
+$btn-transition: color .15s ease-in-out, background-color .15s ease-in-out,
+  border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+$input-padding-y: .375rem;
+$input-padding-x: .75rem;
+$input-line-height: 1.5;
+$input-color: var(--bs-body-color);
+$input-border-color: var(--bs-border-color);
+$input-border-width: var(--bs-border-width);
+$input-border-radius: var(--bs-border-radius);
+$input-border-radius-sm: var(--bs-border-radius-sm);
+$input-placeholder-color: $gray-500;
+$navbar-light-color: rgba(var(--bs-emphasis-color-rgb), .65);
+$navbar-light-hover-color: rgba(var(--bs-emphasis-color-rgb), .8);
+$navbar-light-active-color: rgba(var(--bs-emphasis-color-rgb), 1);
 
-// Hover Colors
-$blue-hover: darken($blue, 5%);
-$indigo-hover: darken($indigo, 5%);
-$purple-hover: darken($purple, 5%);
-$red-hover: darken($red, 5%);
-$orange-hover: darken($orange, 5%);
-$yellow-hover: darken($yellow, 5%);
-$green-hover: darken($green, 5%);
-$cyan-hover: darken($cyan, 5%);
-$dark-hover: darken($dark, 5%);
-
-// Input defaults
+// Materialpool input geometry.
 $input-padding-top: 8px;
 $input-padding-right: 10px;
 $input-padding-bottom: 4px;
 $input-padding-left: 10px;
-
-$input-placeholder-color: $gray-500;
 $input-margin-top: 0;
 $input-margin-right: 0;
 $input-margin-bottom: 0;
 $input-margin-left: 0;
 
-
-// Jumbotron Color
-$jumbotron-bg: $gray-200 !default;
-
-// Notes
-$notes-font-color: lighten($body-color, 30%);
-
-// Tagging
+// Materialpool semantic colors.
+$jumbotron-bg: $gray-200;
+$notes-font-color: color.adjust($body-color, $lightness: 30%);
 $tag-background-colour: $gray-600;
-$tag-background-colour-hover: darken($tag-background-colour, 5%);
+$tag-background-colour-hover: color.adjust($tag-background-colour, $lightness: -5%);
 $tag-progressbar-colour: $green;
 $tag-progressbar-colour-hover: $green-hover;
 $tag-progressbar-dragging-colour: $orange;
-$tag-font-colour: white;
+$tag-font-colour: $white;
 
-
-// Sidebar
-$sidebar-input-background-colour-active: white;
+// Sidebar states.
+$sidebar-input-background-colour-active: $white;
 $sidebar-input-background-colour-disabled: $gray-400;
 $sidebar-input-text-colour-placeholder: $input-placeholder-color;
-
-$sidebar-input-value-not-saved-yet-background-color: lighten($red, 35%);
-$sidebar-input-value-not-saved-yet-border-color: darken($gray-400, 30%);
-
-// Sidebar-Tagging
+$sidebar-input-value-not-saved-yet-background-color: color.adjust($red, $lightness: 35%);
+$sidebar-input-value-not-saved-yet-border-color: color.adjust($gray-400, $lightness: -30%);
 $sidebar-input-font-color-active: #333;
-$sidebar-tag-background-color-active: $gray-300;
+$sidebar-tag-background-color-active: #dee2e6;
 $sidebar-tag-relevance-colour-active: $tag-progressbar-colour;
-
-$sidebar-input-font-color-active-hover: darken($sidebar-input-font-color-active, 5%);
-$sidebar-tag-background-color-active-hover: darken($sidebar-tag-background-color-active, 5%);
-$sidebar-tag-relevance-colour-active-hover: darken($sidebar-tag-relevance-colour-active, 5%);
+$sidebar-input-font-color-active-hover: color.adjust($sidebar-input-font-color-active, $lightness: -5%);
+$sidebar-tag-background-color-active-hover: color.adjust($sidebar-tag-background-color-active, $lightness: -5%);
+$sidebar-tag-relevance-colour-active-hover: color.adjust($sidebar-tag-relevance-colour-active, $lightness: -5%);
 $sidebar-tag-relevance-colour-active-dragging: $tag-progressbar-dragging-colour;
-
 $sidebar-input-font-color-disabled: $input-color;
-$sidebar-tag-background-color-disabled: $gray-300;
+$sidebar-tag-background-color-disabled: #dee2e6;
 $sidebar-tag-relevance-colour-disabled: $gray-400;
-
 $sidebar-input-padding-top: 1px;
 $sidebar-input-padding-right: $input-padding-right;
 $sidebar-input-padding-bottom: 1px;

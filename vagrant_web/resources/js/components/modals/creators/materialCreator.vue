@@ -769,7 +769,7 @@ export default {
 </script>
 
 <style lang="scss">
-@import "resources/sass/theme";
+@use "resources/sass/theme" as *;
 
 .sb_materialcreator_header {
 

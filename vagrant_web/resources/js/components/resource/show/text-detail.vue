@@ -132,7 +132,7 @@ export default {
 
 <style lang="scss">
 
-@import "../../../../sass/theme";
+@use "../../../../sass/theme" as *;
 
 .liveEditor, .livePreview {
   display: inline-block;

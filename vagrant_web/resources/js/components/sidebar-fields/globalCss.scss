@@ -1,4 +1,4 @@
-@import "resources/sass/theme";
+@use "resources/sass/theme" as *;
 .sideBarField {
   font-size: 0.8em;
   margin-bottom: 1em;

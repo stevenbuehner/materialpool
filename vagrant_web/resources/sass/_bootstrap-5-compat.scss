@@ -1,14 +1,17 @@
+@use "sass:math";
+@use "theme" as *;
+
 // Materialpool components whose Bootstrap 4 layout primitive no longer exists
 // in Bootstrap 5. These rules preserve the verified geometry without loading a
 // second Bootstrap generation.
-@include media-breakpoint-down(sm) {
+@media (max-width: 575.98px) {
   .navbar-expand-sm > .container {
     padding-right: 0;
     padding-left: 0;
   }
 }
 
-@include media-breakpoint-down(md) {
+@media (max-width: 767.98px) {
   .navbar-expand-md > .container {
     padding-right: 0;
     padding-left: 0;
@@ -60,7 +63,7 @@ a:hover,
 @for $column from 1 through 12 {
   .form-select.col-#{$column} {
     display: inline-block;
-    width: percentage(calc($column / 12));
+    width: math.percentage(math.div($column, 12));
     vertical-align: middle;
   }
 }
@@ -77,13 +80,13 @@ a:hover,
   background-color: $jumbotron-bg;
   border-radius: $border-radius-lg;
 
-  @include media-breakpoint-up(sm) {
+  @media (min-width: 576px) {
     padding: 4rem 2rem;
   }
 }
 
 .materialpool-card-columns {
-  @include media-breakpoint-up(sm) {
+  @media (min-width: 576px) {
     column-count: 3;
     column-gap: 1.25rem;
     orphans: 1;
@@ -93,6 +96,19 @@ a:hover,
       display: inline-block;
       width: 100%;
     }
+  }
+}
+
+// Bootstrap requires ascending container widths. Materialpool deliberately
+// keeps the established 1140px content cap at the xxl breakpoint.
+@media (min-width: 1400px) {
+  .container-xxl,
+  .container-xl,
+  .container-lg,
+  .container-md,
+  .container-sm,
+  .container {
+    max-width: $materialpool-container-max-width;
   }
 }
 

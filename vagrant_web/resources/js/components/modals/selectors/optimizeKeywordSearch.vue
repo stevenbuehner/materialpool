@@ -380,7 +380,7 @@ export default {
 </script>
 
 <style scoped lang="scss">
-@import "../../../../sass/theme";
+@use "../../../../sass/theme" as *;
 
 .sb-optimize-keywords {
 
