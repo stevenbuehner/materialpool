@@ -39,6 +39,24 @@ describe('Sass architecture', () => {
     expect(legacyImports).toEqual([]);
   });
 
+  it('keeps component-owned icon assets inside the Vite dependency graph', () => {
+    const unresolvedIconReferences = [];
+
+    for (const file of sourceFiles(resourceRoot).filter(file => file.endsWith('.vue'))) {
+      const contents = fs.readFileSync(file, 'utf8');
+      const styleBlocks = contents.matchAll(/<style[^>]*>([\s\S]*?)<\/style>/gi);
+
+      for (const [, styles] of styleBlocks) {
+        if (/url\(\s*["']?\/img\/icons\//i.test(styles)) {
+          unresolvedIconReferences.push(path.relative(projectRoot, file));
+          break;
+        }
+      }
+    }
+
+    expect(unresolvedIconReferences).toEqual([]);
+  });
+
   it('exposes stable Materialpool tokens without loading Bootstrap', () => {
     const themeFile = path.join(resourceRoot, 'sass/theme.scss');
     const themeSource = fs.readFileSync(themeFile, 'utf8');

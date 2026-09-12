@@ -26,6 +26,26 @@ Die zentralen Sass-Regeln liegen in `resources/sass/theme.scss` und `resources/s
 
 Keine eigenen Hex-Farben, Schatten, Abstände oder UI-Bibliotheken einführen, wenn ein vorhandenes Bootstrap-/Sass-Token oder eine bestehende Komponente passt.
 
+## Quellcode-Eigentum von Komponenten
+
+- Komponentenbezogenes Markup, Verhalten und Styling werden gemeinsam in der
+  jeweiligen Vue-SFC gepflegt. Ein lokaler Style-Block verwendet grundsätzlich
+  `scoped`, sofern er nicht bewusst teleportierte Inhalte oder das DOM einer
+  gekapselten Drittkomponente gestaltet.
+- Globale Bootstrap-, Kompatibilitäts- und Designsystem-Regeln bleiben in
+  `resources/sass/main.scss`; wiederverwendbare Sass-Tokens kommen ausschließlich
+  aus `resources/sass/theme.scss`. Framework-CSS wird nicht pro Komponente neu
+  kompiliert.
+- Drittanbieter-CSS bleibt beim zuständigen Materialpool-Adapter importiert.
+  Fremdcode wird nicht zur scheinbaren Ein-Datei-Struktur in eine Fachkomponente
+  kopiert.
+- Gemeinsam genutzte oder fachliche Logik bleibt in Pinia-Stores, Composables
+  und getesteten Helpern. Sie wird nicht zur lokalen Bündelung in mehreren SFCs
+  dupliziert.
+- Der Production-Build darf CSS für Caching und Lazy Loading in separate Assets
+  extrahieren. Die Zusammengehörigkeit wird im Quellcode hergestellt, nicht
+  durch ein erzwungenes gemeinsames JavaScript-/CSS-Ausgabeartefakt.
+
 ## Interaktion und Zugänglichkeit
 
 - Bestehende BootstrapVueNext-/Materialpool-Controls, Dialoge, Spinner, Flash-Meldungen und Ladezustände wiederverwenden.

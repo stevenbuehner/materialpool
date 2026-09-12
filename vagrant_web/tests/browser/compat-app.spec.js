@@ -4,9 +4,16 @@ import {viteScriptTag, viteStylesheetTags} from './viteAssets.js';
 
 const compatWarningsByPage = new WeakMap();
 
-test.beforeEach(({page}) => {
+test.beforeEach(async ({page}) => {
     const compatWarnings = [];
     compatWarningsByPage.set(page, compatWarnings);
+    // External font availability must not decide whether local UI regression
+    // tests reach the load event. Visual baselines use the same fallback.
+    await page.route('https://fonts.googleapis.com/**', route => route.fulfill({
+        body: '',
+        contentType: 'text/css',
+        status: 200,
+    }));
     page.on('console', message => {
         if (message.type() === 'warning' && message.text().startsWith('[Vue warn]: (deprecation ')) {
             compatWarnings.push(message.text());
@@ -64,7 +71,7 @@ test('Vue application mounts with synthetic bootstrap data', async ({page}, test
                 </html>`,
         });
     });
-    await page.route('**/api/v1/general/options?*', route => route.fulfill({
+    await page.route('**/api/v1/general/options*', route => route.fulfill({
         contentType: 'application/json',
         body: JSON.stringify({
             systemname: 'MaterialPool Default',
@@ -188,7 +195,7 @@ test('Bible reader loads and selects cached translations', async ({page}) => {
                 </body>
             </html>`,
     }));
-    await page.route('**/api/v1/general/options?*', route => route.fulfill({
+    await page.route('**/api/v1/general/options*', route => route.fulfill({
         contentType: 'application/json',
         body: JSON.stringify({
             systemname: 'MaterialPool Default',
@@ -302,7 +309,7 @@ test('Bible search optimization loads cross references through Pinia', async ({p
                 </body>
             </html>`,
     }));
-    await page.route('**/api/v1/general/options?*', route => route.fulfill({
+    await page.route('**/api/v1/general/options*', route => route.fulfill({
         contentType: 'application/json',
         body: JSON.stringify({
             systemname: 'MaterialPool Default',
@@ -1121,7 +1128,7 @@ test('Vue 3 select keeps asynchronous search and object selection', async ({page
                 </body>
             </html>`,
     }));
-    await page.route('**/api/v1/general/options?*', route => route.fulfill({
+    await page.route('**/api/v1/general/options*', route => route.fulfill({
         contentType: 'application/json',
         body: JSON.stringify({
             systemname: 'MaterialPool Default',

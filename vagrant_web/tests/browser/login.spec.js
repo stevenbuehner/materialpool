@@ -1,5 +1,13 @@
 import { expect, test } from '@playwright/test';
 
+test.beforeEach(async ({page}) => {
+    await page.route('https://fonts.googleapis.com/**', route => route.fulfill({
+        body: '',
+        contentType: 'text/css',
+        status: 200,
+    }));
+});
+
 test('login page remains usable', async ({ page }) => {
     await page.goto('/login', { waitUntil: 'domcontentloaded' });
 
@@ -10,11 +18,6 @@ test('login page remains usable', async ({ page }) => {
 });
 
 test('@visual login page baseline', async ({ page }) => {
-    await page.route('https://fonts.googleapis.com/**', route => route.fulfill({
-        body: '',
-        contentType: 'text/css',
-        status: 200,
-    }));
     await page.goto('/login', { waitUntil: 'domcontentloaded' });
     await page.waitForLoadState('load');
     await page.evaluate(() => document.activeElement?.blur());
