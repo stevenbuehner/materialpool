@@ -16,6 +16,8 @@ class DatabaseSeeder extends Seeder {
 		$this->call(ResourceSeeder::class);
 		$this->call(ApiKeysSeeder::class);
 		$this->call(KeywordsSeeder::class);
-		$this->call(ImportBibleContent::class);
+
+		// Das braucht jedes Mal ziemlich lang -> beim testen möchte ich das nicht jedes Mal drin haben
+		// $this->call(ImportBibleContent::class);
 	}
 }
