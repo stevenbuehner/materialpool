@@ -299,5 +299,12 @@ export default {
 };
 </script>
 
-<style src="@vueform/multiselect/themes/default.css"></style>
-<style src="../legacy-ports/vue-select-3.20.4/vue-select.css"></style>
+<style>
+/*
+ * Vendor styles intentionally live at the adapter boundary. Keeping the
+ * imports here makes the component's complete visual contract discoverable
+ * without copying third-party CSS into application-owned source code.
+ */
+@import "@vueform/multiselect/themes/default.css";
+@import "../legacy-ports/vue-select-3.20.4/vue-select.css";
+</style>

@@ -60,17 +60,17 @@
                     :title="$t('pool.auto-create-material')"
                     v-if="resource.materials.length === 0"
                     @click="btnCreateAutoMaterialFromResource">
-              <span class="icon autocreation"/>
+              <rocket-icon class="icon"/>
             </button>
             <button class="btn btn-outline-secondary m-1"
                     :title="$t('pool.create-and-assign-material')"
                     @click="btnCreateAndAssignMaterialManually">
-              <span class="icon manualcreation"/>
+              <new-message-icon class="icon"/>
             </button>
             <button class="btn btn-outline-secondary m-1"
                     :title="$t('pool.assign-material')"
                     @click="btnAddMaterialToResource">
-              <span class="icon assign"/>
+              <flow-tree-icon class="icon"/>
             </button>
           </div>
         </b-tab>
@@ -179,6 +179,9 @@ import {savingDialogs}       from "../../../helper/flashMessages";
 import filesize              from "../../../helper/filesize.mixin";
 import {useMaterialsStore}   from '../stores/materials';
 import {useResourcesStore}   from '../stores/resources';
+import RocketIcon            from '@icons/entypo-plus/rocket.svg';
+import NewMessageIcon        from '@icons/entypo-plus/new-message.svg';
+import FlowTreeIcon          from '@icons/entypo-plus/flow-tree.svg';
 
 
 export default {
@@ -414,6 +417,9 @@ export default {
   },
 
   components: {
+    FlowTreeIcon,
+    NewMessageIcon,
+    RocketIcon,
     Edditable,
     Toggle,
     MaterialCreator,
@@ -454,24 +460,9 @@ export default {
 .icon {
   position: relative;
   display: inline-block;
-  background-size: contain;
-  background-position: 0 0;
   height: 1rem;
-  background-repeat: no-repeat;
   top: 0.1rem;
   width: 1rem;
-}
-
-.autocreation {
-  background-image: url(/img/icons/entypo-plus/rocket.svg);
-}
-
-.manualcreation {
-  background-image: url(/img/icons/entypo-plus/new-message.svg);
-}
-
-.assign {
-  background-image: url(/img/icons/entypo-plus/flow-tree.svg);
 }
 
 </style>

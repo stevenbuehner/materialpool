@@ -24,9 +24,14 @@
     </div>
 
     <div class="menue-container d-flex justify-content-around">
-      <div :class="isSelected ? 'minus' : 'plus'" @click="addPageSelected"></div>
+      <div class="page-action" :class="isSelected ? 'minus' : 'plus'" @click="addPageSelected">
+        <minus-icon v-if="isSelected"/>
+        <plus-icon v-else/>
+      </div>
       <div class="middle">{{ label }}</div>
-      <div class="zoom" @click="zoomInRequested"></div>
+      <div class="page-action zoom" @click="zoomInRequested">
+        <resize-full-screen-icon/>
+      </div>
     </div>
 
   </div>
@@ -36,6 +41,9 @@
 
 import {BBadge}            from '@/adapters/bootstrap';
 import MaterialpoolSpinner from "../../spinner/materialpool-spinner";
+import MinusIcon           from '@icons/entypo-plus/minus.svg';
+import PlusIcon            from '@icons/entypo-plus/plus.svg';
+import ResizeFullScreenIcon from '@icons/entypo-plus/resize-full-screen.svg';
 
 export default {
 
@@ -123,7 +131,10 @@ export default {
   },
 
   components: {
+    MinusIcon,
     MaterialpoolSpinner,
+    PlusIcon,
+    ResizeFullScreenIcon,
     BBadge,
   }
 }
@@ -200,23 +211,18 @@ export default {
   height: 100%;
 }
 
-.menue-container .zoom {
-  background: url(/img/icons/entypo-plus/resize-full-screen.svg) no-repeat;
-  cursor: pointer;
-}
-
 .menue-container .middle {
   text-align: center;
 }
 
-.menue-container .plus {
-  background: url(/img/icons/entypo-plus/plus.svg) no-repeat;
+.menue-container .page-action {
   cursor: pointer;
 }
 
-.menue-container .minus {
-  background: url(/img/icons/entypo-plus/minus.svg) no-repeat;
-  cursor: pointer;
+.menue-container .page-action svg {
+  display: block;
+  height: 100%;
+  width: 100%;
 }
 
 .fade-enter-active, .fade-leave-active {

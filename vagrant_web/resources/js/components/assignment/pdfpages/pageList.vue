@@ -285,13 +285,12 @@ export default {
 }
 </script>
 
-<style>
-.zoomImageModal header.modal-header {
+<style scoped>
+
+/* The modal is teleported outside this component's scoped DOM subtree. */
+:global(.zoomImageModal header.modal-header) {
   padding: 0;
 }
-</style>
-
-<style scoped>
 
 .previous, .next {
   position: absolute;

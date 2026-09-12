@@ -276,23 +276,6 @@ export default {
 }
 </script>
 
-<style>
-.keywordlisticon {
-  position: relative;
-  display: inline-block;
-  background-size: contain;
-  background-position: 0 0;
-  height: 0.9rem;
-  background-repeat: no-repeat;
-  top: 0.1rem;
-  width: 1rem;
-  background-image: url(/img/icons/tag.svg);
-  margin-right: 0.5rem;
-  margin-left: 0;
-}
-
-</style>
-
 <style scoped>
 .waitmessage {
   min-height: 50vh;
