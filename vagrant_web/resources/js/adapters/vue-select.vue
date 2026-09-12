@@ -1,6 +1,7 @@
 <template>
   <Multiselect
       ref="multiselect"
+      :key="modelValueVersion"
       :class="{
         'vs--single': !multiple,
         'vs--multiple': multiple,
@@ -208,6 +209,12 @@ export default {
       return this.currentValue === null || this.currentValue === undefined
           ? null
           : this.normalize(this.currentValue);
+    },
+    // @vueform/multiselect hält ausgewählte Objektwerte als internen Zustand.
+    // Bei Änderungen am externen Modell neu erzeugen, damit ausgewählte Slots
+    // verschachtelte Werte wie pivot.relevance eines Material-Tags aktualisieren.
+    modelValueVersion() {
+      return stableOptionKey(this.currentValue);
     },
     emptySlotBindings() {
       return {

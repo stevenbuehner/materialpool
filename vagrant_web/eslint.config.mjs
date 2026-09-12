@@ -16,7 +16,13 @@ export default [
     js.configs.recommended,
     ...pluginVue.configs['flat/essential'],
     {
-        files: ['resources/js/**/*.{js,vue}', 'scripts/**/*.mjs', 'tests/js/**/*.js', '*.config.mjs'],
+        files: [
+            'resources/js/**/*.{js,vue}',
+            'scripts/**/*.mjs',
+            'tests/js/**/*.js',
+            'tests/browser/**/*.{js,mjs}',
+            '*.config.mjs',
+        ],
         languageOptions: {
             ecmaVersion: 'latest',
             sourceType: 'module',

@@ -29,7 +29,17 @@ npm run test:ci
 npm run inventory:frontend
 npm run inventory:dependencies > frontend-sbom.cdx.json
 npm run build
+npm run test:e2e
+npm run test:visual
 ```
+
+Die Playwright-Befehle starten lokal selbstständig einen PHP-Server auf
+`127.0.0.1:8000`. Mit `PLAYWRIGHT_BASE_URL` prüfen sie stattdessen eine bereits
+gestartete Testumgebung. WebKit benötigt unter macOS einen Prozesskontext mit
+AppKit-/Mach-Port-Zugriff; ein `Abort trap: 6` bei `RegisterApplication` weist
+auf eine zu restriktive Ausführungssandbox und nicht auf einen fehlerhaften
+Browser-Download hin. Die Browserfixtures ersetzen externe Fonts und
+dynamische Debugbar-Zeitwerte, damit Bildvergleiche reproduzierbar bleiben.
 
 Vor gezielten PHP-Änderungen sind mindestens die Syntaxprüfung im PHP-8.4-Container und die passende Testklasse auszuführen. Ein lokales Host-PHP unter 8.4 darf Composer oder Artisan für diese Anwendung nicht ausführen.
 

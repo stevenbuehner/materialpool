@@ -1,5 +1,6 @@
 import {expect, test} from '@playwright/test';
 import {Buffer} from 'node:buffer';
+import {installRalewayFixture} from './ralewayFixture.mjs';
 import {viteScriptTag, viteStylesheetTags} from './viteAssets.js';
 
 const compatWarningsByPage = new WeakMap();
@@ -7,13 +8,7 @@ const compatWarningsByPage = new WeakMap();
 test.beforeEach(async ({page}) => {
     const compatWarnings = [];
     compatWarningsByPage.set(page, compatWarnings);
-    // External font availability must not decide whether local UI regression
-    // tests reach the load event. Visual baselines use the same fallback.
-    await page.route('https://fonts.googleapis.com/**', route => route.fulfill({
-        body: '',
-        contentType: 'text/css',
-        status: 200,
-    }));
+    await installRalewayFixture(page);
     page.on('console', message => {
         if (message.type() === 'warning' && message.text().startsWith('[Vue warn]: (deprecation ')) {
             compatWarnings.push(message.text());
@@ -1086,6 +1081,9 @@ test('Vue 3 datepicker keeps the German input and calendar interaction', async (
     expect(relevanceRequests[0]._method).toBe('PUT');
     expect(relevanceRequests[0].relevance).toBeGreaterThan(150);
     expect(relevanceRequests[0].relevance).toBeLessThanOrEqual(300);
+    await expect.poll(() => draggableTag.locator('.selected-relevance').evaluate(element =>
+        Number.parseFloat(element.style.width)
+    )).toBeGreaterThan(50);
 
     await draggableTag.click({button: 'right'});
     const contextMenu = page.locator('.sb-context-menu');
