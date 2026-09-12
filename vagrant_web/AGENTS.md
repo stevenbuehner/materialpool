@@ -46,8 +46,8 @@ Antworte und dokumentiere auf Deutsch; belasse etablierte technische Bezeichner,
 
 - **Backend:** Laravel 13 und PHP 8.4. Nutze aktuelle Laravel-13-/PHP-8.4-Konventionen, wenn sie im betroffenen Bereich vollständig umsetzbar und verhaltensneutral sind. Beobachtbare Default-Änderungen bleiben entscheidungspflichtig.
 - **OAuth:** Laravel Passport 13 bleibt der API-Guard. Neue Clients verwenden UUIDs und gehashte Secrets; die Legacy-JSON-Verwaltungsrouten sind deaktiviert. Der Password Grant, bestehende Token-Laufzeiten und `materialpool_token` sind bewusst erhaltene Produktverträge; Änderungen daran verlangen Freigabe und den Ablauf aus `docs/ai/passport-13-client-migration.md`.
-- **Frontend:** Bis zum jeweils freigegebenen Migrationsschritt gelten Vue 2, Vue Router 3, Vuex 3, Bootstrap 4/Bootstrap-Vue und Webpack. Planung, Umsetzung und Abnahme der Vue-3-/Vite-Migration richten sich verbindlich nach `docs/ai/vue-3-migration-contract.md`; der Vertrag ersetzt keine dort verlangte Stufen- oder Entscheidungsfreigabe.
-- **API:** Versionen `v1` und `v2` sind bestehende Verträge. Prüfe vor jeder API-Änderung Route, Controller, Request, Policy und alle aufrufenden Vuex-Module/Komponenten.
+- **Frontend:** Der migrierte Stand verwendet Vue 3, Vue Router 4, Pinia, Bootstrap 5 mit BootstrapVueNext beziehungsweise lokalen Materialpool-Adaptern und Vite. `@vue/compat`, Vuex, BootstrapVue, Webpack und Laravel Mix dürfen nicht erneut eingeführt werden. Weitere Arbeiten und Abnahme richten sich nach `docs/ai/vue-3-migration-contract.md` und den Stufenberichten.
+- **API:** Versionen `v1` und `v2` sind bestehende Verträge. Prüfe vor jeder API-Änderung Route, Controller, Request, Policy und alle aufrufenden Pinia-Stores/Komponenten.
 - **Autorisierung:** Serverseitige Authentifizierung und Policies sind maßgeblich. UI-Ausblendung ist kein Sicherheitsmechanismus.
 - **Dateien:** Ressourcen können lokale Dateien, URLs oder Text sein. Behandle den `local_path`-Wert, die konfigurierten Disks und Archive als persistenten Datenvertrag.
 - **Asynchronität:** Bei Änderungen an Material oder Resource die zugehörigen Events, Listener, Queues und Cache-Invaliderungen prüfen. Keine Events stillschweigend umgehen.
@@ -62,7 +62,7 @@ Antworte und dokumentiere auf Deutsch; belasse etablierte technische Bezeichner,
 
 ## UI- und Designregeln
 
-- Bestehende Bootstrap-4- und Bootstrap-Vue-Komponenten, Variablen und Interaktionsmuster wiederverwenden.
+- Bestehende Bootstrap-5-, BootstrapVueNext- und Materialpool-Adapter, Sass-Variablen und Interaktionsmuster wiederverwenden.
 - Designentscheidungen stets mit einer Empfehlung und mindestens einer Alternative begründen, bevor sie umgesetzt werden.
 - Responsive Verhalten, Tastaturbedienung, Fokus, Kontraste, Fehlermeldungen und Ladezustände bei UI-Änderungen mitdenken.
 - Sichtbare Texte über die bestehenden Sprachdateien führen; keine neuen hartcodierten UI-Texte, wenn ein passender Übersetzungsmechanismus besteht.

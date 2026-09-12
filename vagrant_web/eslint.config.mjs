@@ -7,14 +7,14 @@ const warningRules = rules => Object.fromEntries(Object.entries(rules).map(([nam
     Array.isArray(value) ? ['warn', ...value.slice(1)] : 'warn',
 ]));
 
-const vue2EssentialRules = Object.assign(
+const vueEssentialRules = Object.assign(
     {},
-    ...pluginVue.configs['flat/vue2-essential'].map(config => config.rules || {}),
+    ...pluginVue.configs['flat/essential'].map(config => config.rules || {}),
 );
 
 export default [
     js.configs.recommended,
-    ...pluginVue.configs['flat/vue2-essential'],
+    ...pluginVue.configs['flat/essential'],
     {
         files: ['resources/js/**/*.{js,vue}', 'scripts/**/*.mjs', 'tests/js/**/*.js', '*.config.mjs'],
         languageOptions: {
@@ -39,7 +39,7 @@ export default [
         files: ['resources/js/**/*.{js,vue}'],
         rules: {
             ...warningRules(js.configs.recommended.rules),
-            ...warningRules(vue2EssentialRules),
+            ...warningRules(vueEssentialRules),
             'no-unused-vars': ['warn', { argsIgnorePattern: '^_', caughtErrors: 'none' }],
             'vue/multi-word-component-names': 'off',
             'vue/no-deprecated-slot-attribute': 'warn',

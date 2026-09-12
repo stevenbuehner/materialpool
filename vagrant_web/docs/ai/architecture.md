@@ -2,14 +2,14 @@
 
 ## Gültigkeitsbereich
 
-Diese Karte ist gegen den Laravel-13-Implementierungscommit [`28f4ec4`](baseline-b8dd716.md) auf `master` verifiziert. Sie ist weiterhin ausdrücklich eine **Vue-2-Referenz**. Erkenntnisse oder Dateien aus `develop` und `Vue3_Upgrade` sind keine Grundlage für Architektur-, Design- oder Umsetzungsentscheidungen, bis sie separat beauftragt und freigegeben werden.
+Diese Karte beschreibt den nach der Vue-3-Migration verifizierten Stand auf `master`. Die historische Laravel-13- und Vue-2-Ausgangsbasis bleibt in [`baseline-b8dd716.md`](baseline-b8dd716.md) erhalten; nicht integrierte Inhalte anderer Branches sind keine Grundlage für Entscheidungen.
 
 ## Systemüberblick
 
-Materialpool ist eine serverseitig geschützte Materialverwaltung. Laravel 13 stellt klassische Web-Endpunkte und eine versionierte JSON-API bereit. Die Hauptoberfläche ist weiterhin eine Vue-2-Single-Page-App unter `/vue`; Laravel liefert den SPA-Einstieg und zusätzliche klassische Verwaltungs-/Dateirouten.
+Materialpool ist eine serverseitig geschützte Materialverwaltung. Laravel 13 stellt klassische Web-Endpunkte und eine versionierte JSON-API bereit. Die Hauptoberfläche ist eine Vue-3-Single-Page-App unter `/vue`; Laravel liefert den SPA-Einstieg und zusätzliche klassische Verwaltungs-/Dateirouten.
 
 ```text
-Browser → Laravel Web-Routen → Vue 2 SPA (/vue)
+Browser → Laravel Web-Routen → Vue 3 SPA (/vue)
        → API v1/v2 → Controller → Requests/Policies → Services/Modelle
                                               ↓
                               Events → Listener/Jobs/Queues/Caches
@@ -22,8 +22,8 @@ Browser → Laravel Web-Routen → Vue 2 SPA (/vue)
 - Produktion läuft auf einem einzelnen Ubuntu-24.04-LTS-Server mit Nginx, PHP-FPM `8.4` und MySQL 8 hinter einem externen TLS-Reverse-Proxy. Nginx liefert ausschließlich `public/` aus. Atomare Releases, Shared-Pfade, Proxy-Trust, Queue/Scheduler sowie Backup/Restore sind verbindlich in [`production-deployment-contract.md`](production-deployment-contract.md) festgelegt.
 - Docker/Sail ist ausschließlich die lokale Entwicklungs- und Testlaufzeit. Lokales Backend-Referenzsystem ist der PHP-8.4-Sail-Container; ein älteres Host-PHP ist nicht maßgeblich. Sail oder `php artisan serve` sind kein Produktions-Webserver.
 - PHPUnit 12.5 testet ausschließlich gegen die dedizierte MySQL-Datenbank `testing`; Ressourcen-, Archiv- und Backup-Dateien werden gefakt oder isoliert.
-- Frontend: Vue 2, Vuex 3, Vue Router 3, Bootstrap 4, Bootstrap-Vue, Sass und Webpack/Laravel Mix.
-- Die schrittweise Modernisierung auf Vue 3, Pinia und Laravels Vite-Integration ist ausschließlich nach dem [`Vue-3-Migrationsvertrag`](vue-3-migration-contract.md) zulässig. Bis zur Abnahme der jeweiligen Stufe bleibt der vorherige grüne Stand maßgeblich.
+- Frontend: Vue 3.5, Vue Router 4, Pinia 4, Bootstrap 5, BootstrapVueNext, lokale Materialpool-Adapter, Sass und Vite über `laravel-vite-plugin`.
+- `@vue/compat`, Vuex, BootstrapVue, Webpack und Laravel Mix sind entfernt. Der Verlauf, die Abnahmegrenzen und Rücksprungpunkte stehen im [`Vue-3-Migrationsvertrag`](vue-3-migration-contract.md) und den Stufenberichten.
 - Paketdefinitionen: `composer.json`, `package.json`; Lock-Dateien sind Teil des reproduzierbaren Builds.
 - `npm run build` erzeugt das Produktionsbundle und führt vorher `php artisan lang:js -c --no-lib` aus.
 
@@ -32,7 +32,7 @@ Browser → Laravel Web-Routen → Vue 2 SPA (/vue)
 | Bereich | Einstieg |
 | --- | --- |
 | Browser-SPA | `routes/web.php` → `/vue/{vue_capture?}` → `resources/views/vuerouter/index.blade.php` |
-| Vue-Anwendung | `resources/js/apps/main/index.js`, Router in `routes.js`, Store in `store/` |
+| Vue-Anwendung | `resources/js/apps/main/index.js`, Router in `routes.js`, Pinia-Stores in `stores/` |
 | JSON-API | `routes/api.php`, Controller unter `app/Http/Controllers/Api/` |
 | Klassische Oberfläche | Controller unter `app/Http/Controllers/` und Blade-Views |
 | Domänenlogik | `app/Services/`, `app/ResourceLimitations/`, `app/Models/` |

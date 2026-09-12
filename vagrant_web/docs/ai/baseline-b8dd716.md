@@ -29,7 +29,7 @@ Dieser Commit ist der grüne Laravel-13-/Passport-13-Implementierungsstand auf `
 | Persistente Disks für Ressourcen, Archive und Bundles existieren | bestätigt | `config/filesystems.php`; Tests verwenden Fakes oder isolierte Test-Disks |
 | Tests basieren auf PHPUnit 12 und der Laravel-Testumgebung | bestätigt | PHPUnit 12.5.35; 156 Tests und 1.588 Assertions gegen MySQL `testing` grün |
 
-Die nachgelagerte Produktionsvertrags-Etappe ergänzt neun Tests; der aktuelle ausführbare Stand umfasst 165 Tests und 1.641 Assertions. Die ursprüngliche Laravel-13-Basiszahl bleibt in der Tabelle als historischer Nachweis erhalten.
+Die nachgelagerten Produktions- und Vue-3-Release-Verträge ergänzen weitere Tests; die aktuelle Untergrenze umfasst 170 Tests und 1.658 Assertions. Die ursprüngliche Laravel-13-Basiszahl bleibt in der Tabelle als historischer Nachweis erhalten.
 
 ## Bewusste Kompatibilitätsentscheidungen
 
@@ -38,7 +38,11 @@ Die nachgelagerte Produktionsvertrags-Etappe ergänzt neun Tests; der aktuelle a
 - Session-Serialisierung bleibt vorerst `php`; Cache-Serialisierung und bestehende Prefixes sind explizit abgesichert.
 - Die klassische Laravel-Anwendungsstruktur mit Kerneln, Providern und Konfigurationsdateien bleibt erhalten. Innerhalb dieser Struktur werden aktuelle Laravel-13-Konventionen bevorzugt, sofern sie vollständig und verhaltensneutral übernommen werden können.
 - `stevenbuehner/bible-verse-bundle` ist über den stabilen Constraint `^3.0` auf Release `3.0.0` (Commit `c9757851ee69220293223728e1db525951e60da8`) gelockt. Die frühere Dev-/Commit-Ausnahme ist vollständig entfallen.
-- Das Frontend bleibt bewusst auf Vue 2/Laravel Mix. Der erfolgreiche isolierte Build ändert nichts daran, dass die Modernisierung ein separates Projekt ist.
+- Am dokumentierten Backend-Checkpoint blieb das Frontend bewusst auf Vue 2/Laravel Mix. Diese Aussage ist historisch; der aktuelle Stand nach dem separat beauftragten Migrationsprojekt ist im folgenden Abschnitt dokumentiert.
+
+## Aktueller Frontend-Stand nach der Migration
+
+Der historische Backend-Checkpoint bleibt unverändert nachvollziehbar. Der aktuelle `master`-Stand verwendet Vue 3.5.42, Vue Router 4.6.4, Pinia 4.0.3, Bootstrap 5.3.8, BootstrapVueNext 1.1.0 und Vite 8.3.0. Vue 2, `@vue/compat`, Vuex, BootstrapVue, Webpack und Laravel Mix sind aus Laufzeit, Manifest und Lockfile entfernt. `package-lock.json`, Node 24.21.0 und npm 11.19.0 bilden den reproduzierbaren Frontendvertrag; Einzelheiten stehen in den Berichten `vue-3-stage-0-report.md` bis `vue-3-stage-7-report.md`.
 
 ## Verifikationsgrenze und Deployment-Status
 
@@ -47,10 +51,10 @@ Die vollständige Suite, Fresh-Migration, befüllte Passport-Altschema-Migration
 - Der Passport-Cutover muss mit Clientinventar, verifiziertem Datenbankbackup, Wartungsfenster und Restore-Probe produktionsnah geprobt werden.
 - Die produktive Runtime muss PHP 8.4.x, die benötigten Erweiterungen, Composer 2 und MySQL 8 in der geprüften Semantik bereitstellen.
 - `setasign/fpdi-fpdf` ist ausschließlich ein aufgegebenes Composer-Metapaket, aktuell ohne bekanntes Security-Advisory. FPDI 2.6.8 und FPDF 1.9.0 bleiben funktionsfähig und separat gepflegt; die spätere Bereinigung besteht nur aus ihrer direkten Composer-Deklaration und ist im Laravel-13-Vertrag festgelegt.
-- Das Host-PHP 8.0 und Node 26 sind keine gültige Backend-/Legacy-Frontend-Referenz. Backendprüfungen laufen über Sail/PHP 8.4; der Legacy-Build wurde isoliert mit Node 16 ausgeführt.
+- Host-PHP und eine zufällige Host-Node-Version sind keine gültige Release-Referenz. Backendprüfungen laufen über Sail/PHP 8.4; der aktuelle Frontend-Releasebuild verwendet die festgelegte Node-24.21.0-/npm-11.19.0-Laufzeit. Der historische Legacy-Build wurde isoliert mit Node 16 ausgeführt.
 
 Details stehen in `docs/ai/upgrade-stage-5-report.md` und `docs/ai/passport-13-client-migration.md`.
 
 ## Pflege bei künftigen Änderungen
 
-Wenn die technische Basis bewusst geändert wird, sind diese Baseline, `architecture.md`, `design-system.md`, `quality-gates.md` und `AGENTS.md` gemeinsam zu prüfen. Bis zu einer ausdrücklich freigegebenen Vue-3-/Build-Migration gilt Vue 2 als verbindlicher Frontendstandard. Passport-, Datenbank-, Session-, Storage- und Nested-Set-Verträge bleiben entscheidungspflichtig.
+Wenn die technische Basis bewusst geändert wird, sind diese Baseline, `architecture.md`, `design-system.md`, `quality-gates.md` und `AGENTS.md` gemeinsam zu prüfen. Vue 3, Pinia und Vite sind nun der verbindliche Frontendstandard. Passport-, Datenbank-, Session-, Storage- und Nested-Set-Verträge bleiben entscheidungspflichtig.

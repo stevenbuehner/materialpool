@@ -1,12 +1,12 @@
 # Vue-Migration – Fortschritt
 
-Stand: 11. September 2026, `master`, Ausgangs-HEAD `9e2593b5`; `.env.dev` und die außerhalb des Projekts liegende XML-Datei sind unangetastete Nutzerdateien.
+Stand: 12. September 2026, `master`, Ausgangs-HEAD `9e2593b5`; `.env.dev` und die außerhalb des Projekts liegende XML-Datei sind unangetastete Nutzerdateien.
 
 Auftrag: Vollständige schrittweise Umsetzung des [Vue-3-Migrationsvertrags](vue-3-migration-contract.md), mit Git-Commit nach jeder grünen Stufe beziehungsweise klar abgegrenzten Teilstufe.
 
-Referenz: Stufenberichte 0 bis 5; Vite-Cutover `9e2593b5`; PHP 8.4.25, Node 24.21.0, npm 11.19.0, Vue 3.5.42, Vite 8.2.2, WebKit aus Playwright 1.63.0.
+Referenz: Stufenberichte 0 bis 6; Vite-Cutover `9e2593b5`; PHP 8.4.25, Node 24.21.0, npm 11.19.0, Vue 3.5.42, Vite 8.3.0, WebKit aus Playwright 1.63.0.
 
-Aktuelle Stufe: 7 – vollständige Releaseabnahme, Vorbereitung.
+Aktuelle Stufe: 7 – technische Konsolidierung und Releaseabnahme.
 
 Abgeschlossen:
 
@@ -28,15 +28,25 @@ Abgeschlossen:
 - Teilstufe 6.15 implementiert: Das letzte Fachmodul `general` und alle elf Aufrufe verwenden Pinia; Options-, Benutzer-, Uploadlimit- und verschachtelte Settings-Verträge sowie retryfähige Ladefehler sind unit- und responsiv browsergetestet.
 - Teilstufe 6.16 implementiert: Vuex ist aus App, Source, Manifest, Lockfile und Dependency-Tree entfernt; reproduzierbare Installation, vollständige Frontendgates und alle unveränderten visuellen Referenzen sind geprüft. Stufe 6 ist abgeschlossen.
 
-Offene Gates:
+Stufe 7, bereits abgeschlossen:
 
-- Teilstufe 6.16: Commit.
-- Stufe 7: vollständige Releasegates einschließlich `migrate:fresh` und `db:seed` ausschließlich gegen die verifizierte, entbehrliche Sail-MySQL-Datenbank `testing`.
+- `migrate:fresh` und `db:seed` liefen ausschließlich gegen die nachgewiesen getrennte Sail-MySQL-Datenbank `testing`; repräsentative Benutzer-, OAuth-, Resource-, Material-, Keyword-, Bibel- und Pivotdaten sind read-only nachgewiesen.
+- Ein durch den Seed-Lauf gefundener fehlender Dateistream wird nun kontrolliert als `ResourceNotHashable` behandelt und ist testgedeckt (`eae0272b`).
+- Eine reale Laravel/MySQL-Kernreise schützt authentifiziertes Lesen, Speichern, persistentes Neuladen sowie 422- und 403-Pfade.
+- Vite und date-fns wurden innerhalb ihres Major-Vertrags aktualisiert, der Lockstand dedupliziert und ein reproduzierbares CycloneDX-Inventar ergänzt.
+- ESLint verwendet das Vue-3-Profil; `npm run test:ci` ist der providerneutrale CI-Einstieg.
+- Die Abschlussgates sind grün: 129 Vitest-Tests, 26 funktionale und 2 visuelle Browserprüfungen, Production-Build sowie 170 PHPUnit-Tests mit 1.658 Assertions.
+
+Offene Freigabegrenzen:
+
+- Der npm-Audit enthält weiterhin 5 High-Befunde. Die angebotenen direkten Fixes für Axios und DOMPurify sind Major-Upgrades und wurden vertragsgemäß nicht ausgeführt. Ohne Behebung oder formale befristete Ausnahme keine Releasefreigabe.
+- Im Repository ist weder CI-Anbieter noch Remote konfiguriert. Der CI-Befehl ist vorhanden, kann aber erst nach Wahl des Zielsystems in dessen Pipeline eingebunden werden.
+- Stufe 0 enthält keine vergleichbaren Laufzeitmesswerte. Der Bundlevergleich und drei aktuelle Laufserien sind dokumentiert; eine prozentuale Laufzeitregression gegenüber Stufe 0 kann rückwirkend nicht seriös behauptet werden.
 
 Compat-/Paket-Ausnahmen: Keine Vue-2-/`@vue/compat`-Ausnahme. Vuex ist vollständig entfernt; Pinia 4.0.3 ist der einzige Store.
 
-Nächster Schritt: Teilstufe 6.16 committen; anschließend Stufe 7 nach dem Migrationsvertrag gegen die isolierte `testing`-Datenbank abnehmen, einschließlich `migrate:fresh`, `db:seed`, repräsentativer Seed-Assertions, vollständiger Backend- und Frontendtests.
+Nächster Schritt: Stufe-7-Bericht committen und anschließend die gebündelte Entscheidung zu Security-Majors/Risikoausnahme sowie CI-Zielsystem treffen.
 
-Rückbau: Letzter vollständig grüner Stufenstand ist `9e2593b5`. Pinia-Teilstufen bleiben bis zur finalen Vuex-Entfernung einzeln rückbaubar.
+Rückbau: Letzter vollständig grüner Stufenstand vor Stufe 7 ist `9ba8248a`. Paket-/Lint-/Dokumentationskonsolidierung kann gemeinsam auf diesen Stand zurückgesetzt werden; der eigenständige Seeder-Fix `eae0272b` ist separat rückbaubar.
 
-Entscheidungen: Die fünf freigegebenen Optionen A gelten unverändert; es ist keine neue Produkt-, UI-, API-, Daten- oder Infrastrukturentscheidung hinzugekommen.
+Entscheidungen: Die fünf freigegebenen Optionen A gelten unverändert. Neu offen sind ausschließlich die vom Auftrag bewusst ausgeschlossenen Security-Major-Upgrades beziehungsweise eine befristete Risikoausnahme sowie die Auswahl eines CI-Anbieters.

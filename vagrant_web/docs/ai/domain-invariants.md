@@ -34,6 +34,6 @@ Vor einer Änderung an einem Kernprozess prüfen:
 1. Welche Modelle, Pivots und Foreign-ID-Mappings sind betroffen?
 2. Welche Events, Listener, Jobs, Queues und Caches folgen daraus?
 3. Welche Dateien auf welchem Disk und welche abgeleiteten Vorschauen sind betroffen?
-4. Welche Web-/API-Routen, Requests, Policies, Vuex-Module und Komponenten nutzen den Ablauf?
+4. Welche Web-/API-Routen, Requests, Policies, Pinia-Stores und Komponenten nutzen den Ablauf?
 5. Welche Bereinigung verwaister Daten könnte dadurch ausgelöst werden?
 6. Gibt es einen passenden Test oder muss einer ergänzt werden?

@@ -2,15 +2,16 @@
 
 ## Grundsatz
 
-Die Oberfläche ist eine funktionale, informationsdichte Vue-2-Anwendung. Ihr Bestandsschutz beruht auf **Bootstrap 4**, **Bootstrap-Vue**, Sass-Variablen und wiederverwendbaren Vue-Komponenten. Neue Oberflächen müssen sich einfügen, nicht ein neues Designsystem begründen.
+Die Oberfläche ist eine funktionale, informationsdichte Vue-3-Anwendung. Ihr Bestandsschutz beruht auf **Bootstrap 5**, **BootstrapVueNext**, lokalen Materialpool-Adaptern, Kompatibilitäts-Sass und wiederverwendbaren Vue-Komponenten. Neue Oberflächen müssen sich einfügen, nicht ein neues Designsystem begründen.
 
-Für die geplante technische Migration auf Vue 3 ist identische Funktionalität und identisches Erscheinungsbild verbindlich. Referenzaufnahmen, Komponentenersatz, Bootstrap-5-Kompatibilität und visuelle Abnahme folgen dem [`Vue-3-Migrationsvertrag`](vue-3-migration-contract.md). Die Migration ist keine Freigabe für ein Redesign.
+Die abgeschlossene technische Migration auf Vue 3 bewahrt identische Funktionalität und identisches Erscheinungsbild. Referenzaufnahmen, Komponentenersatz, Bootstrap-5-Kompatibilität und visuelle Abnahme folgen weiterhin dem [`Vue-3-Migrationsvertrag`](vue-3-migration-contract.md). Die Migration ist keine Freigabe für ein Redesign.
 
 ## Bausteine und Struktur
 
 - Der Einstieg `App.vue` besteht aus Hauptnavigation, globalen Flash-Meldungen und Router-Inhalt. Der Inhaltsbereich hat einen festen oberen Abstand für die Navigation.
 - Seiten liegen unter `resources/js/apps/main/pages/`; wiederkehrende Fachbausteine unter `resources/js/components/`.
-- Vuex-Module sind die gemeinsame Datenquelle. Komponenten sollen vorhandene Store- und API-Muster verwenden statt parallele Zustände oder direkte, uneinheitliche HTTP-Zugriffe einzuführen.
+- Pinia-Stores unter `resources/js/apps/main/stores/` sind die gemeinsame Datenquelle. Komponenten sollen vorhandene Store- und API-Muster verwenden statt parallele Zustände oder direkte, uneinheitliche HTTP-Zugriffe einzuführen.
+- Vue-fähige UI-Pakete werden nicht direkt in Fachkomponenten importiert, wenn ein Materialpool-Adapter besteht. Die Adapter bewahren Props, Emits, Slots, Fokus und das historische Erscheinungsbild und sind eine dauerhafte Anwendungsgrenze, kein automatisch zu löschender Übergangscode.
 - Der Router nutzt HTML5-History mit Basis `/vue`; Pfad- und Alias-Konventionen respektieren.
 
 ## Gestaltungstoken
@@ -27,7 +28,7 @@ Keine eigenen Hex-Farben, Schatten, Abstände oder UI-Bibliotheken einführen, w
 
 ## Interaktion und Zugänglichkeit
 
-- Bestehende Bootstrap-Vue-Controls, Dialoge, Spinner, Flash-Meldungen und Ladezustände wiederverwenden.
+- Bestehende BootstrapVueNext-/Materialpool-Controls, Dialoge, Spinner, Flash-Meldungen und Ladezustände wiederverwenden.
 - Jede neue Interaktion benötigt verständliche Erfolg-/Fehlermeldungen, Tastaturbedienbarkeit, sichtbaren Fokus, ausreichenden Kontrast und einen Lade-/Deaktiviert-Zustand.
 - Responsive Verhalten an kleinen und großen Viewports mit den vorhandenen Bootstrap-Breakpoints prüfen.
 - Icons aus dem vorhandenen Bestand nutzen und deren Lizenzdateien respektieren.

@@ -10,23 +10,30 @@ Die Reihenfolge ist bewusst risikobewusst. Backendprüfungen laufen im Sail-PHP-
 ./vendor/bin/sail php -v
 ./vendor/bin/sail artisan --version
 
-# Frisches Testschema und vollständige PHPUnit-Suite
-./vendor/bin/sail artisan migrate:fresh --env=testing --force
-./vendor/bin/sail artisan db:seed --env=testing --force
+# Aufgelöste Verbindung prüfen; ohne explizite Werte fällt --env=testing bei
+# fehlender .env.testing auf die Entwicklungsdatenbank zurück.
+./vendor/bin/sail exec -e APP_ENV=testing -e DB_CONNECTION=mysql -e DB_HOST=mysql -e DB_DATABASE=testing laravel.test php artisan config:show database --env=testing
+
+# Frisches Testschema und Seeder ausschließlich mit denselben expliziten Werten
+./vendor/bin/sail exec -e APP_ENV=testing -e DB_CONNECTION=mysql -e DB_HOST=mysql -e DB_DATABASE=testing laravel.test php artisan migrate:fresh --env=testing --force
+./vendor/bin/sail exec -e APP_ENV=testing -e DB_CONNECTION=mysql -e DB_HOST=mysql -e DB_DATABASE=testing laravel.test php artisan db:seed --env=testing --force
 ./vendor/bin/sail test
 
 # Composer-Verträge
 ./vendor/bin/sail composer validate --strict
 ./vendor/bin/sail composer audit --locked
 
-# Produktions-Build für Vue/Sass/Übersetzungen; bis zum Frontend-Upgrade
-# nur in der dokumentierten isolierten Node-16-Umgebung ausführen
+# Frontend-Gates in der durch package.json/.node-version festgelegten Node-Laufzeit
+npm ci --ignore-scripts
+npm run test:ci
+npm run inventory:frontend
+npm run inventory:dependencies > frontend-sbom.cdx.json
 npm run build
 ```
 
 Vor gezielten PHP-Änderungen sind mindestens die Syntaxprüfung im PHP-8.4-Container und die passende Testklasse auszuführen. Ein lokales Host-PHP unter 8.4 darf Composer oder Artisan für diese Anwendung nicht ausführen.
 
-`db:seed` ist wegen `ClearAllTablesSeeder` destruktiv und darf ausschließlich nach Kontrolle von `APP_ENV=testing` und der aufgelösten Verbindung gegen die dedizierte, entbehrliche Testdatenbank laufen. Ein erfolgreicher Exit-Code wird durch read-only Assertions auf repräsentative Benutzer-, OAuth-, Resource-, Material-, Keyword- und Bibeldaten ergänzt. Seed-Ausgaben mit einmaligen Test-Client-Secrets dürfen nicht in Logs, Screenshots oder Commits übernommen werden. Für die Vue-3-Migration ist dieses Gate mindestens an der Vue-2-Ausgangsbasis und vor der Releasefreigabe verbindlich; ist Sail/MySQL nicht verfügbar, bleibt es offen.
+`db:seed` ist wegen `ClearAllTablesSeeder` destruktiv und darf ausschließlich nach Kontrolle von `APP_ENV=testing` und der aufgelösten Verbindung gegen die dedizierte, entbehrliche Testdatenbank laufen. `--env=testing` allein ist ohne `.env.testing` **kein** Isolationsnachweis; deshalb verwenden die Befehle oben zusätzlich explizite Container-Variablen. Ein erfolgreicher Exit-Code wird durch read-only Assertions auf repräsentative Benutzer-, OAuth-, Resource-, Material-, Keyword- und Bibeldaten ergänzt. Seed-Ausgaben mit einmaligen Test-Client-Secrets dürfen nicht in Logs, Screenshots oder Commits übernommen werden. Für die Vue-3-Migration ist dieses Gate mindestens an der Vue-2-Ausgangsbasis und vor der Releasefreigabe verbindlich; ist Sail/MySQL nicht verfügbar, bleibt es offen.
 
 ## Bereichsspezifische Gates
 
@@ -74,7 +81,7 @@ Der verifizierte Laravel-13-Stand umfasst mindestens:
 
 Die vollständige Referenz am Implementierungscommit `28f4ec4` lautet 156 Tests mit 1.588 Assertions. Eine niedrigere Zahl ist zu erklären; Tests dürfen bei Paket- oder Frameworkänderungen nicht stillschweigend entfallen oder abgeschwächt werden.
 
-Nach Ergänzung des Produktionsvertrags und der Release-Regressionsprüfungen lautet die aktuelle Untergrenze 165 Tests mit 1.641 Assertions. Die historische Zahl bleibt zur Einordnung des reinen Laravel-13-Checkpoints dokumentiert.
+Nach Ergänzung des Produktionsvertrags und der Vue-3-Release-Regressionsprüfungen lautet die aktuelle Untergrenze 170 Tests mit 1.658 Assertions. Die historische Zahl bleibt zur Einordnung des reinen Laravel-13-Checkpoints dokumentiert.
 
 ## Abschlussbericht
 

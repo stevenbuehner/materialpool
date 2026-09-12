@@ -4,9 +4,9 @@
 
 Dieser Vertrag ist die verbindliche Arbeitsgrundlage für die Modernisierung des Materialpool-Frontends. Ziel ist dieselbe fachliche Funktionalität und dasselbe Erscheinungsbild auf Vue 3, integriert über den aktuellen Laravel-13-Vite-Standard und einen reproduzierbaren npm-Build. Die Migration ist eine technische Erneuerung, kein Redesign und keine Produktänderung.
 
-**Vertragsrevision:** 10. September 2026. Die technische Grundlage wurde an diesem Datum gegen den Repository-Stand auf `master`, die offiziellen Vue-, Vue-Router-, Pinia-, Laravel-13-, npm-, BootstrapVue- und BootstrapVueNext-Dokumentationen geprüft. Vor jeder Stufe sind die betroffenen offiziellen Leitfäden erneut online zu prüfen; konkrete Zielversionen werden erst dann anhand der zu diesem Zeitpunkt stabilen Releases und ihrer Peer-Dependencies gelockt.
+**Vertragsrevision:** 12. September 2026. Die technische Grundlage wurde gegen den Repository-Stand auf `master`, die offiziellen Vue-, Vue-Router-, Pinia-, Laravel-13-, npm-, BootstrapVue- und BootstrapVueNext-Dokumentationen sowie die npm-Registry-Metadaten der tatsächlich gelockten Pakete geprüft. Vor weiteren Paketstufen sind die betroffenen offiziellen Leitfäden erneut online zu prüfen.
 
-Die fünf Zielentscheidungen A sind freigegeben. Dieser Dokumentationsauftrag startet noch keine Implementierung. Sobald der Auftraggeber die Umsetzung einer Stufe oder der gesamten Migration beauftragt, sind dafür notwendige Paketwechsel, Tests und interne Anpassungen innerhalb dieses Vertrags eingeschlossen; bereits entschiedene Optionen werden nicht erneut abgefragt. Bei einem Gesamtauftrag geht es nach grünen Stufengates selbstständig weiter. Änderungen an Backendverträgen, Daten, Datenbank, API, Authentifizierung, Berechtigungen, Storage, Queues oder Produktgestaltung bleiben außerhalb des Auftrags.
+Die fünf Zielentscheidungen A sind freigegeben und die Stufen 1 bis 6 sind umgesetzt. Stufe 7 konsolidiert den Endstand. Notwendige Paketwechsel, Tests und interne Anpassungen innerhalb dieses Vertrags sind eingeschlossen; Änderungen an Backendverträgen, Daten, Datenbank, API, Authentifizierung, Berechtigungen, Storage, Queues oder Produktgestaltung bleiben außerhalb des Auftrags. Die Releasefreigabe bleibt bis zur Beseitigung oder formal befristeten Akzeptanz offener High-Security-Befunde gesperrt.
 
 **Pragmatische Revision:** Die Ausführungsregeln wurden am 10. September 2026 präzisiert: kleine Arbeitspakete, risikogerechte Prüfungen, frühzeitiger Kompatibilitätsnachweis und ein eigener [Arbeitsleitfaden für GPT-5.6 Sol](vue-3-sol-workflow.md). Die fünf freigegebenen Zielentscheidungen bleiben erhalten.
 
@@ -280,11 +280,12 @@ npm run build
 ./vendor/bin/sail test
 ```
 
-Das Backend-Gate umfasst an Stufe 0 und Stufe 7 zusätzlich den Seed-Lauf. Er darf wegen des löschenden `ClearAllTablesSeeder` ausschließlich gegen die dedizierte, entbehrliche Testdatenbank erfolgen:
+Das Backend-Gate umfasst an Stufe 0 und Stufe 7 zusätzlich den Seed-Lauf. Er darf wegen des löschenden `ClearAllTablesSeeder` ausschließlich gegen die dedizierte, entbehrliche Testdatenbank erfolgen. Weil `--env=testing` ohne `.env.testing` auf andere `.env`-Werte zurückfallen kann, sind die Verbindungswerte zusätzlich im Container explizit zu setzen:
 
 ```sh
-./vendor/bin/sail artisan migrate:fresh --env=testing --force
-./vendor/bin/sail artisan db:seed --env=testing --force
+./vendor/bin/sail exec -e APP_ENV=testing -e DB_CONNECTION=mysql -e DB_HOST=mysql -e DB_DATABASE=testing laravel.test php artisan config:show database --env=testing
+./vendor/bin/sail exec -e APP_ENV=testing -e DB_CONNECTION=mysql -e DB_HOST=mysql -e DB_DATABASE=testing laravel.test php artisan migrate:fresh --env=testing --force
+./vendor/bin/sail exec -e APP_ENV=testing -e DB_CONNECTION=mysql -e DB_HOST=mysql -e DB_DATABASE=testing laravel.test php artisan db:seed --env=testing --force
 ```
 
 Vor dem ersten Befehl müssen `APP_ENV=testing` und die tatsächlich aufgelöste Datenbankverbindung kontrolliert sein; Entwicklungs-, Staging- und Produktionsdatenbanken sind ausdrücklich ausgeschlossen. Erfolg bedeutet mehr als Exit-Code 0: repräsentative Benutzer-, Resource-, Material-, Keyword- und Bibeldaten sowie der für Test-Authentifizierung benötigte OAuth-Client werden durch Tests oder read-only Assertions nachgewiesen. Zufällig erzeugte IDs oder Inhalte werden nicht als feste Snapshotwerte vorausgesetzt. Der Seed-Lauf darf keine Secrets, lokale Datenbankdateien oder echte Nutzerdaten in Logs, Screenshots oder Commits übernehmen; einmalig ausgegebene Test-Client-Secrets werden nicht protokolliert.
