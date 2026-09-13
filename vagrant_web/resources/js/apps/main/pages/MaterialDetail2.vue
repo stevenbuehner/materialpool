@@ -68,7 +68,7 @@
                 <resource-detail :resource="material.resources[0]" :showDelete="false"
                                  :edit-disabled="material.from_bot">
                   <template v-slot:additional-buttons>
-                    <button class="btn btn-outline-danger mb-1"
+                    <button class="btn btn-sm btn-outline-danger"
                             @click.prevent="btnDetachResource(material.resources[0])"
                             v-if="!materialEditLockActive"
                             :title="$t('pool.Detach-resource')">
