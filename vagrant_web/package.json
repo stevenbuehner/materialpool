@@ -16,6 +16,8 @@
     "inventory:frontend": "node scripts/frontend-inventory.mjs",
     "inventory:dependencies": "npm sbom --sbom-format cyclonedx",
     "check:bundle": "node scripts/check-frontend-bundle.mjs",
+    "docs:check": "node scripts/check-readme.mjs",
+    "docs:screenshots": "npm run build && MATERIALPOOL_README_SCREENSHOTS=1 playwright test tests/browser/login.spec.js tests/browser/compat-app.spec.js tests/browser/readme-screenshots.spec.js",
     "lint": "eslint resources/js scripts tests/js tests/browser *.config.mjs --max-warnings=0",
     "test:ci": "npm run lint && npm run test:unit",
     "test:unit": "vitest run",

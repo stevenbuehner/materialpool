@@ -13,6 +13,7 @@ Die Dokumentation unter [`docs/ai/`](docs/ai/) ist Teil dieser Anweisung und vor
 - [Qualitätssicherung](docs/ai/quality-gates.md)
 - [Vue-3-Migrationsvertrag](docs/ai/vue-3-migration-contract.md)
 - [Produktions- und Deploymentvertrag](docs/ai/production-deployment-contract.md)
+- [README-Pflege und Dokumentationsscreenshots](docs/ai/readme-maintenance.md)
 - [Entscheidungsvorlage](docs/ai/decision-template.md)
 
 Antworte und dokumentiere auf Deutsch; belasse etablierte technische Bezeichner, API-Namen und Code-Konventionen in Englisch.

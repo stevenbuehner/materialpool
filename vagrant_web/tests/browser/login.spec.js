@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import {saveReadmeScreenshot} from './readmeScreenshot.mjs';
 
 test.beforeEach(async ({page}) => {
     await page.route('https://fonts.googleapis.com/**', route => route.fulfill({
@@ -28,7 +29,7 @@ test('login page remains usable', async ({ page }) => {
     await expect(page.getByRole('button', { name: 'Login' })).toBeVisible();
 });
 
-test('@visual login page baseline', async ({ page }) => {
+test('@visual login page baseline', async ({ page }, testInfo) => {
     await page.goto('/login', { waitUntil: 'domcontentloaded' });
     await page.waitForLoadState('load');
     await page.evaluate(() => document.activeElement?.blur());
@@ -38,4 +39,10 @@ test('@visual login page baseline', async ({ page }) => {
         caret: 'hide',
         timeout: 15_000,
     });
+    if (process.env.MATERIALPOOL_README_SCREENSHOTS === '1') {
+        await page.addStyleTag({
+            content: '.phpdebugbar, #phpdebugbar-openhandler { display: none !important; }',
+        });
+    }
+    await saveReadmeScreenshot(page, testInfo, 'login-desktop.png');
 });

@@ -1,6 +1,7 @@
 import {expect, test} from '@playwright/test';
 import {Buffer} from 'node:buffer';
 import {installRalewayFixture} from './ralewayFixture.mjs';
+import {saveReadmeScreenshot} from './readmeScreenshot.mjs';
 import {viteScriptTag, viteStylesheetTags} from './viteAssets.js';
 
 const compatWarningsByPage = new WeakMap();
@@ -106,6 +107,7 @@ test('Vue application mounts with synthetic bootstrap data', async ({page}, test
         animations: 'disabled',
         caret: 'hide',
     });
+    await saveReadmeScreenshot(page, testInfo, 'start-navigation-desktop.png');
 
     const speedSearch = page.getByPlaceholder('Schnellsuche');
     const navbarToggle = page.locator('.navbar-toggler');
@@ -117,6 +119,12 @@ test('Vue application mounts with synthetic bootstrap data', async ({page}, test
         await navbarToggle.click();
         await expect(navbarToggle).toHaveAttribute('aria-expanded', 'true');
         await expect(navbarCollapse).toHaveClass(/\bshow\b/);
+        await saveReadmeScreenshot(
+            page,
+            testInfo,
+            'start-navigation-mobile.png',
+            ['mobile-webkit'],
+        );
     } else {
         await expect(navbarToggle).toBeHidden();
     }
@@ -163,7 +171,7 @@ test('Vue application mounts with synthetic bootstrap data', async ({page}, test
     expect(unexpectedWarnings).toEqual([]);
 });
 
-test('Bible reader loads and selects cached translations', async ({page}) => {
+test('Bible reader loads and selects cached translations', async ({page}, testInfo) => {
     const pageErrors = [];
     const bibleListRequests = [];
     const bibleContentRequests = [];
@@ -269,6 +277,7 @@ test('Bible reader loads and selects cached translations', async ({page}) => {
     await translation.click();
     await page.getByRole('menuitem', {name: 'BasisBibel'}).click();
     await expect(translation).toContainText('BasisBibel');
+    await saveReadmeScreenshot(page, testInfo, 'bible-reader-desktop.png');
     const bibleSearch = page.getByPlaceholder('Bibelvers hier eingeben');
     await bibleSearch.fill('1. Mose 1,3');
     await bibleSearch.press('Enter');
@@ -482,7 +491,7 @@ test('Keyword search optimization loads suggestions through Pinia', async ({page
     expect(pageErrors).toEqual([]);
 });
 
-test('Bundle overview loads and completes an update through Pinia', async ({page}) => {
+test('Bundle overview loads and completes an update through Pinia', async ({page}, testInfo) => {
     const pageErrors = [];
     const updateRequests = [];
     page.on('pageerror', error => pageErrors.push(error.stack || error.message));
@@ -603,6 +612,7 @@ test('Bundle overview loads and completes an update through Pinia', async ({page
     await expect(bundleCard).toContainText('Version 1.0');
     await expect(bundleCard).toContainText('3 Materialien');
     const updateButton = bundleCard.getByRole('button', {name: /update auf V2\.0 durchführen/i});
+    await saveReadmeScreenshot(page, testInfo, 'bundle-management-desktop.png');
     await updateButton.click();
     await expect.poll(() => updateRequests.map(({kind}) => kind)).toEqual(['init', 'run']);
     await expect(bundleCard).toContainText('Version 2.0');
@@ -612,7 +622,7 @@ test('Bundle overview loads and completes an update through Pinia', async ({page
     expect(pageErrors).toEqual([]);
 });
 
-test('Keyword tree loads, filters and force-refreshes through Pinia', async ({page}) => {
+test('Keyword tree loads, filters and force-refreshes through Pinia', async ({page}, testInfo) => {
     const pageErrors = [];
     const keywordIndexRequests = [];
     page.on('pageerror', error => pageErrors.push(error.stack || error.message));
@@ -688,6 +698,7 @@ test('Keyword tree loads, filters and force-refreshes through Pinia', async ({pa
     const treeSearch = page.getByPlaceholder('Suchen', {exact: true});
     await treeSearch.fill('Compat');
     await expect(keywordNode).toBeVisible();
+    await saveReadmeScreenshot(page, testInfo, 'keyword-management-desktop.png');
     await treeSearch.fill('Nicht vorhanden');
     await expect(treeSearch).toHaveValue('Nicht vorhanden');
     expect(pageErrors).toEqual([]);
@@ -698,7 +709,7 @@ test('Keyword tree loads, filters and force-refreshes through Pinia', async ({pa
     expect(pageErrors).toEqual([]);
 });
 
-test('Vue 3 datepicker keeps the German input and calendar interaction', async ({page}) => {
+test('Vue 3 datepicker keeps the German input and calendar interaction', async ({page}, testInfo) => {
     const pageErrors = [];
     const attachRequests = [];
     const relevanceRequests = [];
@@ -979,10 +990,13 @@ test('Vue 3 datepicker keeps the German input and calendar interaction', async (
     await expect(dateInput).toBeVisible();
     await expect(dateInput).toHaveValue('01.09.2026');
     await expectResolvedNavigation(page);
-    await expect(page).toHaveScreenshot('material-detail.png', {
-        animations: 'disabled',
-        caret: 'hide',
-    });
+    await saveReadmeScreenshot(page, testInfo, 'material-detail-desktop.png');
+    if (process.env.MATERIALPOOL_README_SCREENSHOTS !== '1') {
+        await expect(page).toHaveScreenshot('material-detail.png', {
+            animations: 'disabled',
+            caret: 'hide',
+        });
+    }
     await dateInput.click();
     await expect(page.locator('.vdp-datepicker__calendar').first()).toBeVisible();
 
@@ -1181,7 +1195,7 @@ test('Vue 3 select keeps asynchronous search and object selection', async ({page
     expect(pageErrors).toEqual([]);
 });
 
-test('Resource detail cards and multi-page pagination keep their application contracts', async ({page}) => {
+test('Resource detail cards and multi-page pagination keep their application contracts', async ({page}, testInfo) => {
     const pageErrors = [];
     const consoleErrors = [];
     const unexpectedWarnings = [];
@@ -1306,6 +1320,7 @@ test('Resource detail cards and multi-page pagination keep their application con
         animations: 'disabled',
         caret: 'hide',
     });
+    await saveReadmeScreenshot(page, testInfo, 'resource-detail-desktop.png');
 
     resourceFilesize = null;
     await page.reload();
@@ -1341,7 +1356,7 @@ test('Resource detail cards and multi-page pagination keep their application con
     expect(unexpectedWarnings).toEqual([]);
 });
 
-test('Vue 3 uploader keeps multipart success and error handling', async ({page}) => {
+test('Vue 3 uploader keeps multipart success and error handling', async ({page}, testInfo) => {
     const pageErrors = [];
     const uploadRequests = [];
     let rejectUpload = false;
@@ -1439,6 +1454,7 @@ test('Vue 3 uploader keeps multipart success and error handling', async ({page})
     await uploadArea.dispatchEvent('dragleave');
     await expect(uploadArea).not.toHaveClass(/v-transmit__upload-area--is-dragging/);
     const autoCreateCheckbox = page.getByRole('checkbox', {name: 'Erstelle Material automatisch'});
+    await saveReadmeScreenshot(page, testInfo, 'resource-upload-desktop.png');
     await page.locator('label', {hasText: 'Erstelle Material automatisch'}).click();
     await expect(autoCreateCheckbox).not.toBeChecked();
     await fileInput.setInputFiles([
@@ -1671,7 +1687,7 @@ test('Material creator keeps preset selection, material preload and preset stora
     expect(unexpectedWarnings).toEqual([]);
 });
 
-test('Assign app keeps page selection, attachment and nested image dialogs', async ({page}) => {
+test('Assign app keeps page selection, attachment and nested image dialogs', async ({page}, testInfo) => {
     const pageErrors = [];
     const consoleErrors = [];
     const unexpectedWarnings = [];
@@ -1848,6 +1864,7 @@ test('Assign app keeps page selection, attachment and nested image dialogs', asy
         animations: 'disabled',
         caret: 'hide',
     });
+    await saveReadmeScreenshot(page, testInfo, 'pdf-page-assignment-desktop.png');
 
     await subMenu.getByRole('button', {name: 'alles auswählen'}).click();
     await expect(page.locator('.content > .row > .cell.selected')).toHaveCount(3);
