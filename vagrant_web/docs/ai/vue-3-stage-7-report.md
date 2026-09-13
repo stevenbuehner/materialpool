@@ -74,7 +74,13 @@ Die vollständigen Endgates sind auf dem abschließenden Lockstand grün: frisch
 
 Bekannte, nicht stillschweigend unterdrückte Hinweise:
 
-- ESLint hat 0 Fehler und 196 historische Warnungen. Das Vue-3-Regelprofil ist aktiv; ein repositoryweiter Formatierungs-/Warnungsumbau wäre ein unprüfbarer Rauschcommit und ist nicht Teil dieser Stufe.
+- Historischer Abschlussstand dieser Stufe: ESLint hatte 0 Fehler und 196
+  dokumentierte Warnungen; ihre Bereinigung war nicht Teil der damaligen
+  Migration.
+- Follow-up vom 13. September 2026: Der verbliebene Bestand von 164 Warnungen
+  wurde in `f5302f3b` vollständig und verhaltensneutral bereinigt. Das Gate
+  akzeptiert seit `eb82b140` mit `--max-warnings=0` weder neue Warnungen noch
+  Fehler. Der ESLint-Finding ist damit geschlossen.
 - Sass meldet weiterhin `@import`- und Bootstrap-Upstream-Deprecations sowie den bewusst paritätischen `xxl`-Wert. Dart Sass 3 oder eine visuell wirksame Breakpointänderung sind separate Major-/Designentscheidungen.
 - Vite meldet den Hauptchunk über 500 kB. Die initialen Gesamtbytes sind gegenüber Stufe 0 gesunken; fachliche Code-Splitting-Grenzen erfordern einen eigenen Laufzeit-/Caching-Schritt.
 - Eine nach einem abgebrochenen Dev-Prozess verbliebene ignorierte `public/hot`-Datei wurde erkannt und entfernt. Der production-artige Browserlauf lädt danach ausschließlich gehashte Manifest-Assets.

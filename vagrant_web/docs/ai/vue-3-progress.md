@@ -35,6 +35,9 @@ Stufe 7, bereits abgeschlossen:
 - Eine reale Laravel/MySQL-Kernreise schützt authentifiziertes Lesen, Speichern, persistentes Neuladen sowie 422- und 403-Pfade.
 - Vite und date-fns wurden innerhalb ihres Major-Vertrags aktualisiert, der Lockstand dedupliziert und ein reproduzierbares CycloneDX-Inventar ergänzt.
 - ESLint verwendet das Vue-3-Profil; `npm run test:ci` ist der providerneutrale CI-Einstieg.
+- Der historische ESLint-Bestand ist seit dem Follow-up vom 13. September 2026
+  vollständig bereinigt; `npm run lint` erzwingt dauerhaft 0 Fehler und
+  0 Warnungen.
 - Die Abschlussgates sind grün: 129 Vitest-Tests, 26 funktionale und 2 visuelle Browserprüfungen, Production-Build sowie 170 PHPUnit-Tests mit 1.658 Assertions.
 
 Offene Freigabegrenzen:
