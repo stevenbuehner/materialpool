@@ -118,31 +118,31 @@ export default {
 
   methods: {
 
-    btnYes(event) {
+    btnYes() {
       this.opt.busy = true;
       this.$emit('onBtnYes');
       this.hideSuccessfull(this.opt.yesResult);
     },
 
-    btnNo(event) {
+    btnNo() {
       this.opt.busy = true;
       this.$emit('onBtnNo');
       this.hideSuccessfull(this.opt.noResult);
     },
 
-    btnCancel(event) {
+    btnCancel() {
       this.opt.busy = true;
       this.$emit('onBtnCancel');
       this.hideWithCancel(this.opt.cancelResult);
     },
 
-    onHide(event) {
+    onHide() {
       this.opt.busy = true;
       this.$emit('onHide');
       this._cancelPromise('closed early');
     },
 
-    onCancel(event) {
+    onCancel() {
       this.opt.busy = true;
       this.$emit('onCancel');
       this.hideWithCancel('closed early');
@@ -154,10 +154,10 @@ export default {
 
       for (let i in this.defaultOptions) {
 
-        if (tempOptions.hasOwnProperty(i)) {
+        if (Object.hasOwn(tempOptions, i)) {
           setReactive(this.opt, i, tempOptions[i]);
           // this.opt[i] = tempOptions[i];
-        } else if (this.defaultOptions.hasOwnProperty(i)) {
+        } else if (Object.hasOwn(this.defaultOptions, i)) {
           // this.opt[i] = this.defaultOptions[i];
           setReactive(this.opt, i, this.defaultOptions[i]);
 

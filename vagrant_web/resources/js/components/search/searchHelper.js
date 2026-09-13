@@ -176,8 +176,8 @@ export function searchQueryStringToSearchQueryArray(query) {
 
 	query            = query || '';
 	const queryItems = query.split(QUERY_SEPARATOR);
-	let tempQuery    = [];
-	const regExp     = /([0-9]+)([kbt\*])(.*)/i;
+	const tempQuery  = [];
+	const regExp     = /([0-9]+)([kbt*])(.*)/i;
 
 	queryItems.forEach((objStr) => {
 		const found = objStr.match(regExp);
@@ -198,8 +198,7 @@ export function searchQueryStringToSearchQueryArray(query) {
 							}
 						});
 					break;
-
-				case 'b':
+				case 'b': {
 					const fromTo = search.match(/(\d+)-(\d+)/);
 
 					if (fromTo) {
@@ -213,6 +212,7 @@ export function searchQueryStringToSearchQueryArray(query) {
 						})
 					}
 					break;
+				}
 
 				case 't':
 				case '*':
@@ -275,8 +275,8 @@ export function searchQueryToSearchArrayObjects(query) {
 
 	query              = query || '';
 	const queryItems   = query.split(QUERY_SEPARATOR);
-	let searchPromises = [];
-	const regExp       = /([0-9]+)([kbt\*])(.*)/i;
+	const searchPromises = [];
+	const regExp       = /([0-9]+)([kbt*])(.*)/i;
 
 	queryItems.forEach((objStr) => {
 		const found = objStr.match(regExp);
@@ -289,7 +289,7 @@ export function searchQueryToSearchArrayObjects(query) {
 			switch (type) {
 				case 'k':
 					searchPromises.push(
-						new Promise((resolve, reject) => {
+						new Promise((resolve) => {
 							useKeywordsStore()
 								.get(search)
 								.then((keyword) => {
@@ -303,7 +303,7 @@ export function searchQueryToSearchArrayObjects(query) {
 					);
 					break;
 
-				case 'b':
+				case 'b': {
 					const fromTo = search.match(/(\d+)-(\d+)/);
 
 					if (fromTo) {
@@ -318,8 +318,9 @@ export function searchQueryToSearchArrayObjects(query) {
 								to: bibleverse.getTo()
 							})
 						});
+						}
+						break;
 					}
-					break;
 
 				case 't':
 					searchPromises.push({

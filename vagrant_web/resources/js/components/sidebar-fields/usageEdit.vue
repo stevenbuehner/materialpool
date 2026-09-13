@@ -116,7 +116,7 @@ export default {
                      this.$forceUpdate();
                      return d;
                    })
-                   .catch((message) => {
+                   .catch(() => {
                      this.flashError(this.$t('pool.Usage'), this.$t('pool.Could-not-load-Material-Usages'));
                    });
       },

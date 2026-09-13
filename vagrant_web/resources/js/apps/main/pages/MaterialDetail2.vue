@@ -320,20 +320,11 @@
 </template>
 
 <script>
-import Keyword                 from '../../../components/keyword/keyword.vue';
-import keywordInput            from '../../../components/keyword/keywordInput.vue';
-import bibleverse              from '../../../components/bibleverse/biblevers.vue';
-import bibleverseInput         from '../../../components/bibleverse/bibleverseInput.vue';
 import resourcePreview         from '../../../components/resource/show/resource-preview.vue';
 import resourceDetail          from '../../../components/resource/show/resource-detail.vue';
-import editableText            from '../../../components/general/edditable.vue';
-import fromBot                 from '../../../components/fromBot.vue';
 import ResourceUploader        from "../../../components/uploader/resourceUploader";
 import customDialog            from '../../../components/modals/dialogs/customDialog';
-import MaterialRating          from "../../../components/Material/MaterialRating";
-import Flag                    from "../../../components/flags/Flag";
 import {flagColors}            from "../../../components/flags/flagOptions";
-import KeywordToggleTextSelect from "../../../components/keyword/keywordToggleTextSelect";
 import {savingDialogs}         from "../../../helper/flashMessages";
 import PublicMaterialDownload  from "../../../components/download/public-material-download";
 import {formatLocalizedDate}   from '../../../helper/datetime.mixin'
@@ -344,9 +335,7 @@ import usageEdit               from "../../../components/sidebar-fields/usageEdi
 import trashIcon       from '@icons/vendor/svg-icon/svg/oct/trashcan.svg';
 import titleIcon       from '@icons/vendor/svg-icon/svg/material/title.svg';
 import calendarIcon    from '@icons/vendor/svg-icon/svg/material/today.svg';
-import descriptionIcon from '@icons/vendor/svg-icon/svg/material/description.svg';
 import placeIcon       from '@icons/vendor/svg-icon/svg/material/place.svg';
-import authorIcon      from '@icons/vendor/svg-icon/svg/material/person.svg';
 import personIcon      from '@icons/vendor/svg-icon/svg/material/person.svg';
 import languageIcon    from '@icons/vendor/svg-icon/svg/material/language.svg';
 import bibleverseIcon  from '../../../../icons/bibleverse/bible.svg'
@@ -362,8 +351,6 @@ import bundleList                 from '../../../components/sidebar-fields/bundl
 import SingleTagSelect            from "../../../components/sidebar-fields/singleTagSelect";
 import ResourceSelector           from "../../../components/modals/selectors/resourceSelector";
 import MaterialDeletor            from "../../../components/modals/deletors/materialDeletor";
-import Bundle                     from "../../../components/bundles/bundle";
-import RelevanceSelector          from "../../../components/modals/dialogs/relevanceSeletor.vue";
 import {useBibleversesStore}      from '../stores/bibleverses';
 import {useKeywordsStore}         from '../stores/keywords';
 import {useMaterialsStore}        from '../stores/materials';
@@ -670,7 +657,7 @@ export default {
     btnDeleteMaterial() {
 
       this.$refs.materialDeletor.showPromise()
-          .then((message) => {
+          .then(() => {
             // Material was deleted - jump somewhere
             this.$router.go(-1);
           })
@@ -691,24 +678,21 @@ export default {
         }
       }
 
-      const prm = new Promise((resolve, reject) => {
+      let keywordPromise = Promise.resolve(keywordObject);
 
-        if (keywordObject.isNew === true) {
+      if (keywordObject.isNew === true) {
+        const startFlash = this.flashStartSaving(this.$t('pool.keyword'));
 
-          const startFlash = this.flashStartSaving(this.$t('pool.keyword'));
+        keywordPromise = useKeywordsStore().create({
+          title: keywordObject.title,
+          type: keywordObject.type
+        }).then((keyword) => {
+          startFlash.destroy();
+          return keyword;
+        });
+      }
 
-          resolve(useKeywordsStore().create({
-            title: keywordObject.title,
-            type: keywordObject.type
-          }).then((keyword) => {
-            startFlash.destroy();
-            return keyword;
-          }));
-
-        } else {
-          resolve(keywordObject);
-        }
-      }).then((keyword) => {
+      keywordPromise.then((keyword) => {
         return this.updateKeywordRelevance(keyword, keywordObject.pivot.relevance);
       });
 
@@ -727,10 +711,10 @@ export default {
       useKeywordsStore().deleteAssignment({
         materialId: this.id,
         keywordId: keywordObject.id
-      }).then((response) => {
+      }).then(() => {
         this.materialWasModified();
         this.flashRemoved(this.$t('pool.keyword') + ' ' + keywordObject.title, startFlash);
-      }).catch((response) => {
+      }).catch(() => {
         this.flashActionFailed(this.$t('pool.Error-while-deleting-tag') + ' ' + keywordObject.title, startFlash);
 
         // Re-Insert element to array on error at last index (not tested yet)
@@ -783,11 +767,11 @@ export default {
       useBibleversesStore().deleteAssignment({
         materialId: this.id,
         bibleverseId: bibleVerseObject.id
-      }).then((response) => {
+      }).then(() => {
         this.materialWasModified();
         startFlash.destroy();
         this.flashRemoved(this.$t('pool.Bibleverse') + ' ' + bibleVerseObject.label);
-      }).catch((response) => {
+      }).catch(() => {
         this.flashActionFailed(this.$t('pool.Error-while-deleting-tag') + ' ' + bibleVerseObject.label, startFlash);
 
         // Re-Insert element to array on error at last index (not tested yet)
@@ -878,8 +862,6 @@ export default {
 
 
   components: {
-    RelevanceSelector,
-    Bundle,
     MaterialDeletor,
     ResourceSelector,
     BButton,
@@ -891,24 +873,15 @@ export default {
     BibleverseEditSidebarField,
     TextEditSidebarField,
     PublicMaterialDownload,
-    KeywordToggleTextSelect,
-    Flag,
-    MaterialRating,
     ResourceUploader,
-    Keyword,
-    keywordInput,
-    bibleverse,
-    bibleverseInput,
     resourcePreview,
     resourceDetail,
-    edditableText: editableText,
     bundleList,
     usageEdit,
-    fromBot,
     customDialog,
     trashIcon,
     cloneIcon,
-    calendarIcon, titleIcon, descriptionIcon, placeIcon, authorIcon, personIcon, languageIcon, bibleverseIcon,
+    calendarIcon, titleIcon, placeIcon, personIcon, languageIcon, bibleverseIcon,
   },
 
 }

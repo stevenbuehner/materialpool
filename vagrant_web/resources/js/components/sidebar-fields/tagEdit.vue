@@ -430,7 +430,7 @@ export default {
 
         // console.log('is INTERSECTING', this, this.searchTerm, this.page);
 
-        if (this.queryHandler.hasOwnProperty(this.queryCounter)) {
+        if (Object.hasOwn(this.queryHandler, this.queryCounter)) {
           if (this.queryHandler[this.queryCounter].isLoading === true) {
             // console.log('Cancel Infinite load before starting it - page one has not loaded yet');
             return;

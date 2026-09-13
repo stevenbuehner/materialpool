@@ -160,7 +160,7 @@ export default {
   },
 
   watch: {
-    keywordInput(newValue, oldValue) {
+    keywordInput(newValue) {
 
       if (newValue.length > 1) {
         this.setStillLoading(true);

@@ -180,7 +180,7 @@ export default {
       }
     },
 
-    onEnter(event) {
+    onEnter() {
       this.$emit('on-enter', this.cleanedValue);
       this.sendSaveRequest();
     },

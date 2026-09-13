@@ -11,7 +11,6 @@
 <script>
 	import BibleTextCaption    from "./bibleTextCaption";
 	import BibleTextPortion    from "./bibleTextPortion";
-	import BibleTextVerse      from "./bibleTextVerse";
 	import BibleVerse          from '../../../../vendor/stevenbuehner/bible-verse-bundle/js/in/BibleVerse.js';
 	import MaterialpoolSpinner from "../spinner/materialpool-spinner";
 	import {useBiblesStore}    from '../../apps/main/stores/bibles';
@@ -21,7 +20,7 @@
 		name: "bibleText",
 		components: {
 			MaterialpoolSpinner,
-			BibleTextVerse, BibleTextPortion, BibleTextCaption
+			BibleTextPortion, BibleTextCaption
 		},
 
 		props: {

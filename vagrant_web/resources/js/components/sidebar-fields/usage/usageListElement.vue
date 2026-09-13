@@ -130,7 +130,7 @@ import {getLocale, getLocaleDateFormat, moment} from "../../../apps/main/localis
 import OccasionIcon                             from '@icons/vendor/svg-icon/svg/icomoon/bubble2.svg';
 
 import Datepicker from '../../datepicker/datepicker';
-import {BButton, BFormInput} from '@/adapters/bootstrap';
+import {BFormInput} from '@/adapters/bootstrap';
 import trashIcon  from '@icons/vendor/svg-icon/svg/oct/trashcan.svg';
 
 import {savingDialogs} from "../../../helper/flashMessages";
@@ -327,7 +327,7 @@ export default {
 
     _getTagLabelFromUserObject(value) {
       if (typeof value === 'object') {
-        if (!value.hasOwnProperty('name')) {
+        if (!Object.hasOwn(value, 'name')) {
           return console.warn(
               `[vue-select warn]: Label key "option.name" does not` +
               ` exist in options object ${JSON.stringify(value)}.\n` +
@@ -413,7 +413,7 @@ export default {
               material_id: this.material_id,
               id: this.id
             })
-            .then((data) => {
+            .then(() => {
               this.flashRemoved(this.$t('pool.Usage'), msg);
               this.$emit('input:removed');
             })
@@ -430,15 +430,15 @@ export default {
 
     },
 
-    onDatetimeChanged(value) {
+    onDatetimeChanged() {
 
     },
 
-    onPlaceChanged(value) {
+    onPlaceChanged() {
 
     },
 
-    onReasonChanged(value) {
+    onReasonChanged() {
 
     },
 
@@ -454,7 +454,6 @@ export default {
     trashIcon,
     cancelIcon,
     checkCircleIcon,
-    BButton,
     BFormInput
   }
 

@@ -3,9 +3,9 @@ export const previewRegistrationContainer = [];
 export function getOrderedPreviewZoomImages(startComponent) {
 
 	let startIndex = 0;
-	let allImages  = [];
+	const allImages = [];
 
-	previewRegistrationContainer.forEach((comp, ind) => {
+	previewRegistrationContainer.forEach((comp) => {
 		if (comp === startComponent) {
 			startIndex = allImages.length;
 		}

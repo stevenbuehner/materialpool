@@ -98,7 +98,7 @@ export default {
      */
     revoke(token) {
       axios.delete('/oauth/tokens/' + token.id)
-           .then(response => {
+           .then(() => {
              this.getTokens();
            });
     }

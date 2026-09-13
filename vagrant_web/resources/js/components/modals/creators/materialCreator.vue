@@ -686,7 +686,7 @@ export default {
 
       let id = titleOrTempateId || 'no_title_default';
       id     = id.trim();
-      id     = id.replace(/[+#,./\\!"§$%&\(\)=\?-]+/g, '_');
+      id     = id.replace(/[+#,./\\!"§$%&()=?-]+/g, '_');
       id     = USER_SETTINGS_MATERIAL_TEMPLATE_ID + '.' + id;
 
       return id;

@@ -60,7 +60,7 @@ export default {
   },
 
   watch: {
-    value(newVal, oldVal) {
+    value(newVal) {
       this.text     = newVal;
       this.editText = newVal;
     }

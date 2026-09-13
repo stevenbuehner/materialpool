@@ -99,15 +99,15 @@ export default {
       }
     },
 
-    onDragend(event) {
+    onDragend() {
       this.isDragged = false;
     },
 
-    onDragenter(event) {
+    onDragenter() {
       this.isDragover = true;
     },
 
-    onDragleave(event) {
+    onDragleave() {
       this.isDragover = false;
     },
 

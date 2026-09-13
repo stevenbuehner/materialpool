@@ -112,8 +112,6 @@ Events:
 */
 
 <script>
-import BiblePopoverHeader                                        from "./bible-popover-header";
-import BiblePopoverContent                                       from "./bible-popover-content";
 import {
   emitBiblePopoverNext,
   emitBiblePopoverOpening,
@@ -359,7 +357,7 @@ export default {
                   to: parseInt(this.to).toString()
                 }]
           }
-        }).then(({materials, paging}) => {
+        }).then(({paging}) => {
           return paging.total;
         });
 
@@ -431,7 +429,7 @@ export default {
       this._checkSizeAndPositionRestrictions();
 
     },
-    _dragStop(event) {
+    _dragStop() {
       if (!this.isDragging) {
         return;
       }
@@ -542,7 +540,7 @@ export default {
 
     },
 
-    _onMouseout(event) {
+    _onMouseout() {
 
       if (!this.isPinned) {
         // console.log(event);
@@ -614,8 +612,6 @@ export default {
 
   components: {
     MaterialpoolSpinner,
-    BiblePopoverContent,
-    BiblePopoverHeader,
     doubleLeftIcon, doubleRightIcon,
     pinIcon, pinRemoveIcon,
     copyIcon,

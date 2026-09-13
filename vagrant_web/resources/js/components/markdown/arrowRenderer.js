@@ -6,18 +6,12 @@ export function getArrowMarkdownRenderer() {
 		start(src) {
 			return src.match(/^\s*(--?|==?)>/)?.index;
 		},
-		tokenizer(src, tokens) {
+		tokenizer(src, _tokens) {
 			const rule  = /^(-{1,2}|={1,2})>\s*([^\n]*(?:\n|$))/
 			const match = rule.exec(src);
 			if (match) {
 
-				let arrowUnicode = 10153
-
-				if (match[1][0] === '-') {
-					arrowUnicode = 8594;
-				} else {
-					arrowUnicode = 8680;
-				}
+				const arrowUnicode = match[1][0] === '-' ? 8594 : 8680;
 
 				const token = {                        // Token to generate
 					type: 'arrowList',                  // Should match "name" above
@@ -37,4 +31,3 @@ export function getArrowMarkdownRenderer() {
 		childTokens: [],                 // Any child tokens to be visited by walkTokens
 	};
 }
-

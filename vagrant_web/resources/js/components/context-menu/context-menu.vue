@@ -45,23 +45,14 @@ export default {
   methods: {
     setMenu: function (top, left) {
 
-      const fensterHohe = window.innerHeight;
-
-      // const fensterBreite = window.innerWidth;
       const fensterBreite = document.documentElement.clientWidth || document.body.clientWidth; // El. width minus scrollbar width
 
       const domRect = this.$el.getBoundingClientRect();
 
-      const menuHoehe  = domRect.height;
       const menuBreite = domRect.width;
-      const menuLeft   = domRect.left;
-      const menuTop    = domRect.top;
 
-      const menuLeftOf = this.$el.offsetLeft;
-      const menuTopOf  = this.$el.offsetTop;
-
-      let moveTop  = top /* - menuTop + menuTopOf */ + this.menuOffsetY;
-      let moveLeft = left /* - menuLeft + menuLeftOf */ + this.menuOffsetX;
+      const moveTop = top + this.menuOffsetY;
+      let moveLeft  = left + this.menuOffsetX;
 
       if ((moveLeft + menuBreite) > fensterBreite) {
         moveLeft = fensterBreite - menuBreite;

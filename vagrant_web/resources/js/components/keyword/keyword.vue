@@ -206,7 +206,7 @@ export default {
           materialId: this.materialId,
           keywordId: this.myKeyword.id
         })
-            .then((response) => {
+            .then(() => {
               this.$emit('removed', this.myKeyword);
             });
       } else {

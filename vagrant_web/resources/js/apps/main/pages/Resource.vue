@@ -360,14 +360,14 @@ export default {
               resourceId: this.id,
             })
           })
-          .then(({material, resource}) => {
+          .then(() => {
             this.forceReload++;
           });
     },
 
     btnCopyMaterial(material) {
       useMaterialsStore().copyMaterial(material.id)
-          .then((material) => {
+          .then(() => {
             this.forceReload++;
           });
     },
@@ -395,7 +395,7 @@ export default {
       const startDialog = this.flashStartSaving(flashLabel);
 
       useResourcesStore().update({id: this.resource.id, data})
-          .then((resource) => {
+          .then(() => {
             this.forceReload++;
             this.flashSaved(flashLabel);
           })
@@ -409,7 +409,7 @@ export default {
 
     },
 
-    onResourceUpdated(resource) {
+    onResourceUpdated(_resource) {
       this.forceReload++;
     }
 

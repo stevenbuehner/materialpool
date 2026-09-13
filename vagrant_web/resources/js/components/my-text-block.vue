@@ -1,11 +1,11 @@
-<template>
-    <component :is="component" v-html="myText"></component>
-</template>
-
 <script>
 	import striptags from 'striptags';
+	import {h, resolveDynamicComponent} from 'vue';
 
 	export default {
+		render() {
+			return h(resolveDynamicComponent(this.component), {innerHTML: this.myText});
+		},
 
 		props: {
 			text: {
@@ -58,7 +58,7 @@
 				var listIsOpen = false;
 
 				for (let i in lines) {
-					lines[i].replace(/^\s*\-\s*(.*)\s*$/, function (match, p1) {
+					lines[i].replace(/^\s*-\s*(.*)\s*$/, function (match, p1) {
 
 
 						if (listIsOpen === false) {

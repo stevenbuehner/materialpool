@@ -196,7 +196,7 @@ export default {
         this.isInitializing = true;
 
         useBundlesStore().initUpdateJobs(this.bundle.id)
-            .then(({deleteJobs, updateJobs, deletedJobs, openJobs, continueUpdate, updateAvailable}) => {
+            .then(({openJobs}) => {
                   this.isInitializing = false;
                   this.max            = openJobs;
                   // this.max            = (deleteJobs || 0) + (updateJobs || 0);
@@ -204,7 +204,7 @@ export default {
                   this.runNextJobs();
                 }
             )
-            .catch((e) => {
+            .catch(() => {
               this.isRunning = false;
               this.flashError('Error while initializing Install-Jobs!');
             });
@@ -260,14 +260,14 @@ export default {
         this.isInitializing = true;
 
         useBundlesStore().initUninstallJobs(this.bundle.id)
-            .then(({deleteJobs, updateJobs, deletedJobs, openJobs, continueUpdate, updateAvailable}) => {
+            .then(({openJobs}) => {
                   this.isInitializing = false;
                   this.max            = openJobs;
                   this.current        = 0;
                   this.runNextJobs();
                 }
             )
-            .catch((e) => {
+            .catch(() => {
               this.isRunning = false;
               this.flashError('Error while initializing Unintsall-Jobs!');
             });

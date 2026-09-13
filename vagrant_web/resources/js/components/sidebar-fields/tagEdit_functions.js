@@ -1,6 +1,6 @@
 export function getTagLabelFromKeywordObject(value) {
 	if (typeof value === 'object') {
-		if (!value.hasOwnProperty('title')) {
+		if (!Object.hasOwn(value, 'title')) {
 			return console.warn(
 				`[vue-select warn]: Label key "option.title" does not` +
 				` exist in options object ${JSON.stringify(value)}.\n` +

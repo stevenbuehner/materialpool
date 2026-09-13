@@ -60,7 +60,7 @@ export default {
       get() {
         return useBibleContentsStore()
                    .searchAndGet({search: this.text})
-                   .then(({bible, bibleverses}) => {
+                   .then(({bibleverses}) => {
 
                      if (Array.isArray(bibleverses) && bibleverses.length > 0) {
                        return new BibleVerse(bibleverses[0].from, bibleverses[0].to);

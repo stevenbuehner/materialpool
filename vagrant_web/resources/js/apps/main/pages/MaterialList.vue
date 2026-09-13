@@ -43,7 +43,7 @@ export default {
   },
 
   watch: {
-    '$route.query.page': function (newVal, oldVal) {
+    '$route.query.page': function (newVal) {
       this.loadMaterialPage(newVal);
     }
   },

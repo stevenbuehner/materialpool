@@ -9,7 +9,7 @@
       header-class="d-block"
   >
 
-    <template #modal-header="{ close }" class="d-block">
+    <template #modal-header>
       <!-- Emulate built in modal header close button action -->
 
       <div class="d-flex align-items-start justify-content-between mb-2">
@@ -77,8 +77,7 @@
 
 <script>
 
-import {BButton, BFormInput, BListGroup, BListGroupItem, BModal} from '@/adapters/bootstrap';
-import MaterialpoolSpinner                                       from "../../spinner/materialpool-spinner";
+import {BFormInput, BListGroup, BListGroupItem, BModal} from '@/adapters/bootstrap';
 import SearchInputTag                                            from "../../search/searchInputTag";
 import {objectToSearchItem}                                      from "../../search/searchHelper";
 import {BibleVerse, BibleVerseService}                           from "../../../helper/BibleverseHelper";
@@ -167,12 +166,14 @@ export default {
       async get() {
         let result = '';
         switch (this.selectedTag?.item?.type) {
-          case 'b':
+          case 'b': {
             const verses = await useBibleContentsStore().get(
                 {from: this.selectedTag?.item?.from, to: this.selectedTag?.item?.to}
             );
 
             result = verses.map(b => b.text).join(' ');
+            break;
+          }
         }
 
         return result;
@@ -186,11 +187,12 @@ export default {
       async get() {
         let count = 1;
         switch (this.selectedTag?.item?.type) {
-          case 'b':
+          case 'b': {
             count = await useBibleverseCrossReferencesStore().getCount(
                 {from: this.selectedTag?.item?.from, to: this.selectedTag?.item?.to}
             );
             break;
+          }
 
           case 'k':
             count = await useKeywordSuggestionsStore().getCount(this.selectedTag?.item?.id);
@@ -223,7 +225,7 @@ export default {
          */
 
         switch (this.selectedTag?.item?.type) {
-          case 'b':
+          case 'b': {
 
             const crossRefs = await useBibleverseCrossReferencesStore().get(
                 {
@@ -259,9 +261,10 @@ export default {
               return result;
 
             }));
+          }
 
 
-          case 'k':
+          case 'k': {
 
             const keywordSug = await useKeywordSuggestionsStore().get({
               id: this.selectedTag?.item?.id,
@@ -281,6 +284,7 @@ export default {
                 extra: {kw}
               }
             });
+          }
 
           default:
             return [];
@@ -298,7 +302,7 @@ export default {
   methods: {
 
     _removeKeywordFromSelection(index) {
-      const removed = this.currentKeywordSelection.splice(index, 1);
+      this.currentKeywordSelection.splice(index, 1);
     },
 
     _addKeywordToSelection(searchItem) {
@@ -368,9 +372,7 @@ export default {
 
   components: {
     SearchInputTag,
-    MaterialpoolSpinner,
     BModal,
-    BButton,
     BListGroup, BListGroupItem,
     BFormInput
   }

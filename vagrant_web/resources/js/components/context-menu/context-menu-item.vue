@@ -48,7 +48,7 @@ export default {
           return true;
         }
 
-        if (!value.hasOwnProperty('name')) {
+        if (!Object.hasOwn(value, 'name')) {
           console.error('Link misses "name" attribute in to property');
           return false;
         }

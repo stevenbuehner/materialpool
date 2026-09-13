@@ -170,12 +170,12 @@ export default {
   },
 
   watch: {
-    id(newValue) {
+    id() {
       this.keyword = null;
       this.getKeyword();
     },
     keyword: {
-      handler: function (newVal, oldVal) {
+      handler() {
         this.updateKeywordModified();
       },
       deep: true
@@ -218,13 +218,13 @@ export default {
 
       this.disableForm = true;
       const originalK  = JSON.parse(this.backupJsonKeyword);
-      let modifiedData = {};
+      const modifiedData = {};
 
-      const mod = ['title', 'type', 'custom_icon'].filter((p) => {
-        return originalK[p] !== this.keyword[p]
-      }).forEach((p) => {
-        modifiedData[p] = this.keyword[p];
-      });
+      for (const property of ['title', 'type', 'custom_icon']) {
+        if (originalK[property] !== this.keyword[property]) {
+          modifiedData[property] = this.keyword[property];
+        }
+      }
 
       this.updateKeywordData(modifiedData)
           .then(() => {
@@ -242,7 +242,7 @@ export default {
         this.disableForm = true;
 
         useKeywordsStore().delete(this.id)
-            .then((deletionConfirmed) => {
+            .then(() => {
               this.$emit('deleted');
             })
             .catch((errorMessage) => {

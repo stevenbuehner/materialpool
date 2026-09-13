@@ -87,7 +87,7 @@
 </template>
 <script>
 
-import {BAlert, BButton, BFormGroup, BModal} from '@/adapters/bootstrap';
+import {BAlert, BButton, BModal} from '@/adapters/bootstrap';
 import MaterialpoolSpinner                   from "../../spinner/materialpool-spinner";
 import {savingDialogs}                       from "../../../helper/flashMessages";
 import {useMaterialsStore}                   from '../../../apps/main/stores/materials';
@@ -238,7 +238,7 @@ export default {
         const deleteFlash = this.flashActionStartedWaiting(this.$t('pool.material-delete'));
 
         useMaterialsStore().deleteMaterial(this.materialId)
-            .then((message) => {
+            .then(() => {
               this.flashActionSuccessfullyFinished(this.$t('pool.material-deleted'), deleteFlash);
             })
             .catch((message) => {
@@ -302,7 +302,6 @@ export default {
 
   components: {
     MaterialpoolSpinner,
-    BFormGroup,
     BModal,
     BButton,
     BAlert

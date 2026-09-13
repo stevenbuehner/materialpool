@@ -1,6 +1,6 @@
 import {BibleVerseService} from "../../helper/BibleverseHelper";
 
-const startRegexp = /([1-5]\.?\s*)?[a-zäöü\.]{2,15}[ \t]([1-9][0-9]{0,2}[,;\. 0-9-]*)/i;
+const startRegexp = /([1-5]\.?\s*)?[a-zäöü.]{2,15}[ \t]([1-9][0-9]{0,2}[,;. 0-9-]*)/i;
 
 // Der Lexer funktioniert nur, wenn am Anfang eines Strings gesucht wird (mit ^)
 const regexp = new RegExp('^(' + BibleVerseService?.biblePattern?.source + ')', BibleVerseService?.biblePattern?.flags);
@@ -32,7 +32,7 @@ export function getBibleverseTokenizer(doAutoload) {
 			}
 
 		},
-		tokenizer(src, tokens) {
+		tokenizer(src, _tokens) {
 			const match = regexp.exec(src);
 			if (match) {
 				return {                                         // Token to generate

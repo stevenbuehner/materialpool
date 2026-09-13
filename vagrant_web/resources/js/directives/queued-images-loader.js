@@ -57,7 +57,7 @@ export default {
 			el.dispatchEvent(new Event(EVENT_QUEUED));
 			el.classList.add(CLASS_QUEUED);
 
-			queue.add(async ({signal}) => {
+			queue.add(async () => {
 				// console.log('Queue: ' + src);
 				// console.log(EVENT_LOADING);
 				el.dispatchEvent(new Event(EVENT_LOADING));

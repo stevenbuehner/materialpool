@@ -63,7 +63,7 @@ var BibleTooltips = {
 		BibleTooltips._AddEvent(document.body, 'mousemove', function (e) {
 			BibleTooltips._CheckMousePosition(e);
 		});
-		BibleTooltips._AddEvent(document.body, 'click', function (e) {
+		BibleTooltips._AddEvent(document.body, 'click', function () {
 			if (BibleTooltips._Dragging) return;
 			BibleTooltips.HideTooltip();
 		});
@@ -280,7 +280,6 @@ var BibleTooltips = {
 		if (BibleTooltips._ActiveRef === null || BibleTooltips._TooltipFrame === null || BibleTooltips._TooltipFrame.style.display === 'none') return;
 		var f    = BibleTooltips._TooltipFrame;
 		var fx   = parseInt(f.style.left.substr(0, f.style.left.length - 2));
-		var fy   = parseInt(f.style.top.substr(0, f.style.top.length - 2));
 		var fw   = f.offsetWidth;
 		var fh   = f.offsetHeight;
 		var mx   = e.pageX;
@@ -340,7 +339,7 @@ var BibleTooltips = {
 		f.style.left = m.style.left;
 		f.style.top  = m.style.top;
 	},
-	_StopDrag: function (e) {
+	_StopDrag: function () {
 		if (!BibleTooltips._Dragging) return;
 		document.removeEventListener('mouseup', BibleTooltips._DragMove, true);
 		window.removeEventListener('mousemove', BibleTooltips._DragMove, true);

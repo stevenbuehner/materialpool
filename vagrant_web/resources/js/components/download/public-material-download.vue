@@ -55,13 +55,13 @@ export default {
 
     doAction(e) {
       if (this.isLinkGenerated === false) {
-        event.preventDefault();
+        e.preventDefault();
         if (!this.linkGenerationIsRunning) {
           this.generateDownloadLink();
         }
         // do nothing --> wait
       } else if (this.isLinkCopiedToClipboard === false) {
-        event.preventDefault();
+        e.preventDefault();
         this.copyDownloadLink();
       } else {
 
@@ -77,7 +77,7 @@ export default {
 
     generateDownloadLink() {
       useMaterialsStore().createDownloadLink(this.materialId)
-          .then(({link, until}) => {
+          .then(({link}) => {
             this.link                    = link;
             this.linkGenerationIsRunning = false;
           })

@@ -208,7 +208,7 @@ export default {
           bibleverseId: this.myBibleverse.id
         }).then(() => {
           this.emitRemoved();
-        }).catch((response) => {
+        }).catch(() => {
           console.error('Failed to remove bibleverse', this.myBibleverse);
         });
 

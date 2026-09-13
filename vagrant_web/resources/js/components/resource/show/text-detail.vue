@@ -42,7 +42,6 @@
 
 <script>
 
-import myTextBlock         from '../../my-text-block.vue';
 import Markdown            from "../../markdown/compiledMarkdown";
 import {savingDialogs}     from "../../../helper/flashMessages";
 import {BibleVerseService} from "../../../helper/BibleverseHelper";
@@ -124,7 +123,6 @@ export default {
 
   components: {
     Markdown,
-    myTextBlock,
   }
 
 }

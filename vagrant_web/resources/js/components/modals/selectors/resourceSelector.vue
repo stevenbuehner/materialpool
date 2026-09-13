@@ -97,7 +97,7 @@
 
 <script>
 
-import {BAlert, BButton, BForm, BFormCheckbox, BFormGroup, BFormInput, BFormSelect, BModal} from '@/adapters/bootstrap';
+import {BAlert, BForm, BFormGroup, BFormInput, BFormSelect, BModal} from '@/adapters/bootstrap';
 import _debounce                                                                            from 'lodash/debounce';
 import MaterialpoolSpinner
                                                                                             from "../../spinner/materialpool-spinner";
@@ -135,7 +135,7 @@ export default {
 
   watch: {
     form: {
-      handler(newValue, oldValue) {
+      handler() {
         this.debounceUpdateMaterialSuggestions();
       },
       deep: true,
@@ -245,9 +245,7 @@ export default {
     BFormInput,
     BFormSelect,
     BModal,
-    BButton,
-    BAlert,
-    BFormCheckbox
+    BAlert
   }
 
 

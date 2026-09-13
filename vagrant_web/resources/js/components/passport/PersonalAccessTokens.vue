@@ -64,7 +64,7 @@
               Create Token
             </h4>
 
-            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <button type="button" class="close" data-bs-dismiss="modal" aria-hidden="true">&times;</button>
           </div>
 
           <div class="modal-body">
@@ -114,7 +114,7 @@
 
           <!-- Modal Actions -->
           <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
 
             <button type="button" class="btn btn-primary" @click="store">
               Create
@@ -133,7 +133,7 @@
               Personal Access Token
             </h4>
 
-            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <button type="button" class="close" data-bs-dismiss="modal" aria-hidden="true">&times;</button>
           </div>
 
           <div class="modal-body">
@@ -143,12 +143,12 @@
               You may now use this token to make API requests.
             </p>
 
-            <textarea class="form-control" rows="10">{{ accessToken }}</textarea>
+            <textarea class="form-control" rows="10" :value="accessToken" readonly></textarea>
           </div>
 
           <!-- Modal Actions -->
           <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
           </div>
         </div>
       </div>
@@ -157,6 +157,8 @@
 </template>
 
 <script>
+import {focusWhenModalIsShown, hideModal, showModal} from './modal';
+
 export default {
   /*
        * The component's data.
@@ -164,6 +166,7 @@ export default {
   data() {
     return {
       accessToken: null,
+      modalCleanup: null,
 
       tokens: [],
       scopes: [],
@@ -190,6 +193,10 @@ export default {
     this.prepareComponent();
   },
 
+  beforeUnmount() {
+    this.modalCleanup?.();
+  },
+
   methods: {
     /**
      * Prepare the component.
@@ -198,9 +205,7 @@ export default {
       this.getTokens();
       this.getScopes();
 
-      $('#modal-create-token').on('shown.bs.modal', () => {
-        $('#create-token-name').focus();
-      });
+      this.modalCleanup = focusWhenModalIsShown('#modal-create-token', '#create-token-name');
     },
 
     /**
@@ -227,7 +232,7 @@ export default {
      * Show the form for creating new tokens.
      */
     showCreateTokenForm() {
-      $('#modal-create-token').modal('show');
+      showModal('#modal-create-token');
     },
 
     /**
@@ -250,7 +255,7 @@ export default {
            })
            .catch(error => {
              if (typeof error.response.data === 'object') {
-               this.form.errors = _.flatten(_.toArray(error.response.data.errors));
+               this.form.errors = Object.values(error.response.data.errors).flat();
              } else {
                this.form.errors = ['Something went wrong. Please try again.'];
              }
@@ -262,7 +267,7 @@ export default {
      */
     toggleScope(scope) {
       if (this.scopeIsAssigned(scope)) {
-        this.form.scopes = _.reject(this.form.scopes, s => s == scope);
+        this.form.scopes = this.form.scopes.filter(assignedScope => assignedScope != scope);
       } else {
         this.form.scopes.push(scope);
       }
@@ -272,18 +277,18 @@ export default {
      * Determine if the given scope has been assigned to the token.
      */
     scopeIsAssigned(scope) {
-      return _.indexOf(this.form.scopes, scope) >= 0;
+      return this.form.scopes.includes(scope);
     },
 
     /**
      * Show the given access token to the user.
      */
     showAccessToken(accessToken) {
-      $('#modal-create-token').modal('hide');
+      hideModal('#modal-create-token');
 
       this.accessToken = accessToken;
 
-      $('#modal-access-token').modal('show');
+      showModal('#modal-access-token');
     },
 
     /**
@@ -291,7 +296,7 @@ export default {
      */
     revoke(token) {
       axios.delete('/oauth/personal-access-tokens/' + token.id)
-           .then(response => {
+           .then(() => {
              this.getTokens();
            });
     }

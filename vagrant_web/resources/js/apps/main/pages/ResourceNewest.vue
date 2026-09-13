@@ -23,7 +23,7 @@
 </template>
 
 <script>
-import {BButton, BPaginationNav} from '@/adapters/bootstrap';
+import {BPaginationNav}         from '@/adapters/bootstrap';
 import ResourcePreview           from "../../../components/resource/show/resource-preview";
 import {savingDialogs}           from "../../../helper/flashMessages";
 import {useResourcesStore}       from '../stores/resources';
@@ -86,8 +86,7 @@ export default {
 
   components: {
     ResourcePreview,
-    BPaginationNav,
-    BButton
+    BPaginationNav
   }
 }
 </script>

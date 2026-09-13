@@ -141,7 +141,7 @@ export default {
 
     pageSizeClass() {
 
-      let myClass = 'col-12 col-sm-6 col-md-3 col-lg-3 col-xl-2';
+      let myClass;
 
       switch (this.previewSize) {
         case 'xs':
@@ -165,7 +165,7 @@ export default {
 
   watch: {
     'selectedPages': {
-      handler: function (newVal, oldVal) {
+      handler() {
         // console.log('Selection changed', newVal);
 
         this.$emit('page-selection-updated', this.selectedPagesArray);

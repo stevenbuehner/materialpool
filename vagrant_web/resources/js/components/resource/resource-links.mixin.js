@@ -23,7 +23,7 @@ export default {
 
 			switch (resource.type) {
 				case 'pdf':
-				case 'doc':
+				case 'doc': {
 
 					let query = {};
 					let pivot = undefined;
@@ -46,6 +46,7 @@ export default {
 						},
 						query: query
 					};
+				}
 				default:
 					return {};
 			}

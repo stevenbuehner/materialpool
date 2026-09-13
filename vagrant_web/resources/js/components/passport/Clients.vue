@@ -81,7 +81,7 @@
               Create Client
             </h4>
 
-            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <button type="button" class="close" data-bs-dismiss="modal" aria-hidden="true">&times;</button>
           </div>
 
           <div class="modal-body">
@@ -147,7 +147,7 @@
 
           <!-- Modal Actions -->
           <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
 
             <button type="button" class="btn btn-primary" @click="store">
               Create
@@ -166,7 +166,7 @@
               Edit Client
             </h4>
 
-            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <button type="button" class="close" data-bs-dismiss="modal" aria-hidden="true">&times;</button>
           </div>
 
           <div class="modal-body">
@@ -215,7 +215,7 @@
 
           <!-- Modal Actions -->
           <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
 
             <button type="button" class="btn btn-primary" @click="update">
               Save Changes
@@ -228,6 +228,8 @@
 </template>
 
 <script>
+import {focusWhenModalIsShown, hideModal, showModal} from './modal';
+
 export default {
   /*
        * The component's data.
@@ -235,6 +237,7 @@ export default {
   data() {
     return {
       clients: [],
+      modalCleanup: [],
 
       createForm: {
         errors: [],
@@ -265,6 +268,10 @@ export default {
     this.prepareComponent();
   },
 
+  beforeUnmount() {
+    this.modalCleanup.forEach(cleanup => cleanup());
+  },
+
   methods: {
     /**
      * Prepare the component.
@@ -272,13 +279,10 @@ export default {
     prepareComponent() {
       this.getClients();
 
-      $('#modal-create-client').on('shown.bs.modal', () => {
-        $('#create-client-name').focus();
-      });
-
-      $('#modal-edit-client').on('shown.bs.modal', () => {
-        $('#edit-client-name').focus();
-      });
+      this.modalCleanup.push(
+          focusWhenModalIsShown('#modal-create-client', '#create-client-name'),
+          focusWhenModalIsShown('#modal-edit-client', '#edit-client-name'),
+      );
     },
 
     /**
@@ -295,7 +299,7 @@ export default {
      * Show the form for creating new clients.
      */
     showCreateClientForm() {
-      $('#modal-create-client').modal('show');
+      showModal('#modal-create-client');
     },
 
     /**
@@ -316,7 +320,7 @@ export default {
       this.editForm.name     = client.name;
       this.editForm.redirect = client.redirect;
 
-      $('#modal-edit-client').modal('show');
+      showModal('#modal-edit-client');
     },
 
     /**
@@ -336,18 +340,18 @@ export default {
       form.errors = [];
 
       axios[method](uri, form)
-          .then(response => {
+          .then(() => {
             this.getClients();
 
             form.name     = '';
             form.redirect = '';
             form.errors   = [];
 
-            $(modal).modal('hide');
+            hideModal(modal);
           })
           .catch(error => {
             if (typeof error.response.data === 'object') {
-              form.errors = _.flatten(_.toArray(error.response.data.errors));
+              form.errors = Object.values(error.response.data.errors).flat();
             } else {
               form.errors = ['Something went wrong. Please try again.'];
             }
@@ -359,7 +363,7 @@ export default {
      */
     destroy(client) {
       axios.delete('/oauth/clients/' + client.id)
-           .then(response => {
+           .then(() => {
              this.getClients();
            });
     }

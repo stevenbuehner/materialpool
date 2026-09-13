@@ -74,7 +74,7 @@ export default {
     // Override from tagEdit
     _getTagLabelFromObject(value) {
       if (typeof value === 'object') {
-        if (!value.hasOwnProperty('label')) {
+        if (!Object.hasOwn(value, 'label')) {
           return console.warn(
               `[vue-select warn]: Label key "option.label" does not` +
               ` exist in options object ${JSON.stringify(value)}.\n` +

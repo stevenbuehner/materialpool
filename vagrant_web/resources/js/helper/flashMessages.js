@@ -71,7 +71,7 @@ export const savingDialogs = {
 			this.flashActionFailed('An error accured while while saving ' + propertyName.toLowerCase() + (msg || ''));
 		},
 
-		flashUpdateTagError({tag, msg}) {
+		flashUpdateTagError({msg}) {
 			this.flashActionFailed(msg);
 		},
 

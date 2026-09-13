@@ -63,7 +63,7 @@
 
 <script>
 
-import {BFormGroup, BFormInput, BFormTextarea} from '@/adapters/bootstrap';
+import {BFormGroup, BFormTextarea} from '@/adapters/bootstrap';
 import CustomDialog                            from "../../../components/modals/dialogs/customDialog";
 import CompiledMarkdown                        from "../../../components/markdown/compiledMarkdown";
 import {useResourcesStore}                     from '../stores/resources';
@@ -197,7 +197,6 @@ export default {
     CustomDialog,
     BFormGroup,
     BFormTextarea,
-    BFormInput,
 
 
   }

@@ -179,7 +179,7 @@ export default {
   },
 
   watch: {
-    searchInput(newValue, oldValue) {
+    searchInput(newValue) {
       this.setStillLoading(true);
       this.search(this.setStillLoading, newValue, this);
     },
@@ -259,7 +259,7 @@ export default {
 
     addBibleverseToMaterial(bv) {
 
-      return new Promise((resolve, reject) => {
+      return new Promise((resolve) => {
 
         if (bv.id === undefined) {
           resolve(this.createNewBibleverse(bv.from, bv.to));

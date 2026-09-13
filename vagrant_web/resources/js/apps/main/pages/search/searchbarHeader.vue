@@ -72,7 +72,7 @@ export default {
 
   watch: {
     searchObjects: {
-      handler(newValue, oldValue) {
+      handler(newValue) {
         this.searchParams = this.fromPropsToData(newValue);
       },
       deep: true
@@ -117,7 +117,7 @@ export default {
 
     },
 
-    requestAdditionalSearchInputAfter(idParam) {
+    requestAdditionalSearchInputAfter() {
 
       let nextCounter = 0;
       Object.keys(this.searchParams).forEach((key) => {
@@ -131,7 +131,7 @@ export default {
       // this.emitSearchUpdated(undefined, nextCounter);
     },
 
-    emitSearchUpdated(data, id) {
+    emitSearchUpdated() {
 
       let searchLineItems = [];
 

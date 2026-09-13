@@ -15,7 +15,7 @@ import {useMaterialsStore}           from './stores/materials';
 
 const router = createRouter({
 	history: createWebHistory('/vue'),
-	scrollBehavior(to, from, savedPosition) {
+	scrollBehavior() {
 		// console.info(to, from, savedPosition);
 		return {left: 0, top: 0}
 	},
