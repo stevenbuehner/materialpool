@@ -5,7 +5,6 @@ namespace App\Models;
 use App\Services\TagExtraction\ResourceHandles\FileExifHandler;
 use App\Services\TagExtraction\ResourceHandles\FileNameHandler;
 use App\Services\TagExtraction\ResourceHandles\HandlerInterface;
-use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -51,9 +50,6 @@ class File extends Resource {
 		$this->appends[]  = 'original_filename';
 		$this->fillable[] = 'original_filename';
 
-		// Nicht automatisch bei JSON-Ausgabe hinzufügen
-		$this->appends[] = 'filesize';
-
 		$this->additionalEditViews[] = 'resources.files.edit-partial';
 	}
 
@@ -82,28 +78,6 @@ class File extends Resource {
 
 	public function getOriginalFilenameAttribute() {
 		return $this->getOption(self::$ORIGINAL_FILENAME, NULL);
-	}
-
-	/**
-	 * @param $filesize
-	 * @throws \Exception
-	 */
-	public function setFilesizeAttribute($filesize) {
-		throw  new \Exception('Filesize can not be set');
-	}
-
-	public function getFilesizeAttribute() {
-		$filesize = 0;
-
-		if ($this->hasLocalFile()) {
-			try {
-				$filesize = $this->getLocalDisk()->size($this->getLocalFilePath());
-			} catch (FileNotFoundException|UnableToRetrieveMetadata $e) {
-				$this->logUnavailableLocalMetadata('file_size');
-			}
-		}
-
-		return $filesize;
 	}
 
 	protected function logUnavailableLocalMetadata(string $metadataType): void {

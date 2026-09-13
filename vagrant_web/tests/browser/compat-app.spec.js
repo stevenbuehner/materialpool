@@ -1194,6 +1194,7 @@ test('Resource detail cards and multi-page pagination keep their application con
     });
 
     let initialRoute = '/resource/42';
+    let resourceFilesize = 1024;
     await page.route('**/vue/**', route => {
         return route.fulfill({
             contentType: 'text/html',
@@ -1254,7 +1255,7 @@ test('Resource detail cards and multi-page pagination keep their application con
                     created_at: '2026-09-01 12:00:00',
                     updated_at: '2026-09-02 13:00:00',
                     content_hash: 'synthetic-content-hash',
-                    filesize: 1024,
+                    filesize: resourceFilesize,
                     page_count: null,
                 }),
             });
@@ -1305,6 +1306,14 @@ test('Resource detail cards and multi-page pagination keep their application con
         animations: 'disabled',
         caret: 'hide',
     });
+
+    resourceFilesize = null;
+    await page.reload();
+    const reloadedResourceCard = page.locator('.resource > .card');
+    await reloadedResourceCard.getByRole('tab', {name: 'MetaInfo'}).click();
+    await expect(reloadedResourceCard.locator('.filesize')).toHaveText('Dateigröße: noch nicht ausgerechnet');
+    await expect(reloadedResourceCard.getByRole('tabpanel').locator('.list-group-item').filter({hasText: 'Dateigröße'}))
+        .toContainText('noch nicht ausgerechnet');
 
     initialRoute = '/material?page=6';
     await page.goto('/vue/');

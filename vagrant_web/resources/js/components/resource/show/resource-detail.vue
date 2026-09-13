@@ -30,8 +30,9 @@
           <div class="creator">{{$t('pool.Creator-ID')}}: {{resource.created_by}}</div>
           -->
 
-          <div class="filesize" v-if="resource.filesize">
-            {{ $t('pool.Filesize') }}: {{ readableBytes(resource.filesize) }}
+          <div class="filesize">
+            {{ $t('pool.Filesize') }}:
+            {{ displayFilesize(resource.filesize, $t('pool.Filesize-not-calculated')) }}
           </div>
 
           <div class="resource-id">{{ $t('pool.Resource-ID') }}: {{ resource.id }}</div>

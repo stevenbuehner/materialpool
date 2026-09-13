@@ -19,6 +19,7 @@ use Parental\HasChildren;
  * @property string $remote_path
  * @property string $local_path
  * @property string $content_hash
+ * @property int|null $filesize
  * @property string $notes
  * @property string $type
  * @property bool $is_public
@@ -52,10 +53,11 @@ class Resource extends Model {
 	protected $casts               = [
 		'is_public' => 'boolean',
 		'options'   => 'array',
+		'filesize'  => 'integer',
 		// 'created_at' => 'Date'
 	];
 	protected $guarded             = [
-		'id', 'created_by', 'options', 'content_hash', 'type', 'created_at', 'updated_at'
+		'id', 'created_by', 'options', 'content_hash', 'filesize', 'type', 'created_at', 'updated_at'
 	];
 
 	protected $fillable = [

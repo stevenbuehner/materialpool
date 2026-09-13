@@ -96,6 +96,7 @@ return [
 	'large'                                                    => 'large',
 	'preview-size'                                             => 'Preview Size',
 	'Filesize'                                                 => 'Filesize',
+	'Filesize-not-calculated'                                  => 'not calculated yet',
 	'create-new-resource'                                      => 'Create New Resource',
 	'drop-file-to-upload-resource'                             => 'Drop file to upload resource',
 	'auto-create-material'                                     => 'Automatically create material',

@@ -90,6 +90,7 @@ return [
 	'large'                                                    => 'groß',
 	'preview-size'                                             => 'Vorschau',
 	'Filesize'                                                 => 'Dateigröße',
+	'Filesize-not-calculated'                                  => 'noch nicht ausgerechnet',
 	'create-new-resource'                                      => 'Neue Resource erstellen',
 	'drop-file-to-upload-resource'                             => 'Datei hier fallen lassen um neue Resource zu erstellen',
 	'auto-create-material'                                     => 'Erstelle Material automatisch',

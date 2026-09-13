@@ -10,19 +10,16 @@ use Tests\TestCase;
 
 class FileMetadataFallbackTest extends TestCase
 {
-    public function test_missing_file_size_returns_zero_and_is_logged(): void
+    public function test_missing_persisted_file_size_does_not_read_storage_or_log(): void
     {
         Log::shouldReceive('warning')
-            ->once()
-            ->with('Unable to retrieve local file metadata.', [
-                'resource_id' => null,
-                'metadata' => 'file_size',
-            ]);
+            ->never();
 
         $file = new File();
         $file->setAttribute('local_path', config('app.disks.resources').'::missing.bin');
+        $file->setAttribute('filesize', null);
 
-        $this->assertSame(0, $file->filesize);
+        $this->assertNull($file->filesize);
     }
 
     public function test_missing_audio_mime_type_returns_empty_string_and_is_logged(): void

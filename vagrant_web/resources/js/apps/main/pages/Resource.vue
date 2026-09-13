@@ -107,8 +107,9 @@
               <b>{{ $t('pool.Content-Hash') }}:</b> {{ resource.content_hash || $t('pool.missing') }}
             </b-list-group-item>
 
-            <b-list-group-item v-if="resource.filesize">
-              <b>{{ $t('pool.Filesize') }}:</b> {{ readableBytes(resource.filesize) }}
+            <b-list-group-item>
+              <b>{{ $t('pool.Filesize') }}:</b>
+              {{ displayFilesize(resource.filesize, $t('pool.Filesize-not-calculated')) }}
             </b-list-group-item>
 
             <b-list-group-item class="d-flex">

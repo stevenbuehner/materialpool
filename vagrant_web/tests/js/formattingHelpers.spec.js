@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 
 import { trim } from '../../resources/js/filters/truncate-filter.mixin.js';
-import { readableBytes } from '../../resources/js/helper/filesize.mixin.js';
+import { displayFilesize, readableBytes } from '../../resources/js/helper/filesize.mixin.js';
 
 let dayjs;
 let format;
@@ -30,5 +30,11 @@ describe('formatting helper contracts', () => {
         expect(readableBytes(0)).toBe('0 B');
         expect(readableBytes(1500)).toBe('1.5 KB');
         expect(readableBytes(-1500)).toBe('-1.5 KB');
+    });
+
+    it('distinguishes pending filesizes from valid empty resources', () => {
+        expect(displayFilesize(null, 'noch nicht ausgerechnet')).toBe('noch nicht ausgerechnet');
+        expect(displayFilesize(undefined, 'noch nicht ausgerechnet')).toBe('noch nicht ausgerechnet');
+        expect(displayFilesize(0, 'noch nicht ausgerechnet')).toBe('0 B');
     });
 });

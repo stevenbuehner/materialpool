@@ -103,6 +103,8 @@ sudo /usr/local/sbin/materialpool-activate-release /srv/materialpool/shared/inco
 
 Die Aktivierung prüft Archiv und Manifest, verbindet Shared-Pfade, setzt Rechte, installiert ausschließlich aus `composer.lock`, führt den Preflight und `php artisan optimize` aus und schaltet `current` atomar um. Danach werden Laravels `php artisan reload`, PHP-FPM-Reload und Supervisor-Neustart ausgeführt.
 
+Nach der Migration, welche `resources.filesize` ergänzt, wird der idempotente Backfill bewusst separat mit `php artisan resources:backfill-filesizes` gestartet. Der Befehl stellt berechenbare Altbestände gebündelt in die persistente `database/default`-Queue; der Default-Worker arbeitet sie im Hintergrund ab. Er ist kein Bestandteil der Migration oder des atomaren Aktivierungsskripts.
+
 Verboten sind im Produktions-Deploy `composer update`, `npm install`, `npm update`, `migrate:fresh`, `db:seed`, `key:generate` und `passport:install`. Der bestehende `DatabaseSeeder` enthält löschende und synthetische Testdaten erzeugende Schritte und ist ausschließlich ein Gate für isolierte Testdatenbanken. Das Aktivierungsskript führt Migrationen nur mit `--migrate` und zusätzlich gesetztem `MATERIALPOOL_RESTORE_PROOF_CONFIRMED=yes` aus. Diese Variable bestätigt ausschließlich den zuvor protokollierten Restore-Test; sie erzeugt keinen Nachweis.
 
 ## Backup- und Restore-Gate

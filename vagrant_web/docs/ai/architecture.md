@@ -68,6 +68,7 @@ Material- und Relation-Services lösen `MaterialWas…`, `ResourceWasAttached` u
 - Die primären Tabellen entstehen aus `database/migrations/`; bestehende Migrationen sind historische Fakten. Änderungen benötigen Freigabe. Dokumentierte Ausnahmen des Laravel-Upgrades sind die schemaäquivalente `nullable()`-Korrektur und die neuen Passport-13-Cutover-/Device-Code-Migrationen.
 - `config/filesystems.php` definiert relevante Disks: `resources`, `archive`, `bundles`, `local_tmp`, `backup`, `backup_s3` und `testfiles`. `backup_s3` ist ausschließlich Offsite-Backupziel; Ressourcen bleiben lokal.
 - Bei Dateien ist `resources.local_path` ein persistenter Vertrag: üblicherweise `disk::relative/path`. Speicherpfade, Archivierung und Löschverhalten nie isoliert ändern.
+- `resources.filesize` speichert die Byteanzahl lokaler Dateien beziehungsweise von Textinhalten. Reine Remote-Ressourcen verwenden `NULL`; API- und Frontend-Lesezugriffe dürfen die Größe nicht aus dem Storage oder Netzwerk nachladen. Altbestände werden nach einer Migration explizit mit `resources:backfill-filesizes` über die Default-Queue ergänzt.
 - Preview- und Cache-Dateien sind abgeleitet, aber ihre Invalidation ist Teil des sichtbaren Verhaltens.
 
 ## Authentifizierung und Berechtigungen

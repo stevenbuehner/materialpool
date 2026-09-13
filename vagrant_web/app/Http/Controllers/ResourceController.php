@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\ResourceWasChanged;
 use App\Models\Resource;
 use App\Models\Resource as ResourceEntity;
 use App\Models\Text;
@@ -111,6 +112,7 @@ class ResourceController extends Controller {
 
 		$resource->fill($request->all());
 		$resource->save();
+		event(new ResourceWasChanged($resource));
 
 		return redirect(route('pool.resource.edit', $resource->id));
 	}

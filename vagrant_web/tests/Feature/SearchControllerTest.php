@@ -59,7 +59,7 @@ class SearchControllerTest extends TestCase
 
         $response->assertOk();
         $response->assertJsonPath('data.0.id', $material->id);
-        $response->assertJsonPath('data.0.resources.0.filesize', 0);
+        $response->assertJsonPath('data.0.resources.0.filesize', null);
         $response->assertJsonPath('data.0.resources.0.mime_type', '');
     }
 }

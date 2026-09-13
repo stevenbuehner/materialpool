@@ -90,11 +90,16 @@ class ApiResourceControllerTest extends TestCase {
 			$response->assertJsonFragment(
 				['original_filename' => $file->getClientOriginalName()]
 			);
+			$this->assertSame($file->getSize(), $responseData['filesize']);
 			$this->assertFalse(isset($responseData['content']), 'content not allowed here');
 		} else if (isset($data['content'])) {
 			$responseContent = $responseData['content'];
 			$this->assertGreaterThanOrEqual(0, strpos($data['content'], $responseContent),
 											'Content is included propperly');
+			$expectedFilesize = $responseData['type'] === 'text'
+				? strlen($responseContent)
+				: NULL;
+			$this->assertSame($expectedFilesize, $responseData['filesize']);
 			$this->assertFalse(isset($responseData['original_filename']), 'original_filename not allowed here');
 		}
 
@@ -142,7 +147,8 @@ class ApiResourceControllerTest extends TestCase {
 			'remote_path',
 			'notes',
 			'is_public',
-			'content_hash'
+			'content_hash',
+			'filesize'
 		];
 
 		if (TRUE === $isFileResource) {

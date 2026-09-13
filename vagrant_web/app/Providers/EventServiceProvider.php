@@ -17,6 +17,7 @@ use App\Listeners\CalculatePdfPageSize;
 use App\Listeners\ClearResourcePreviewCache;
 use App\Listeners\Queued\CheckDuplicateResources;
 use App\Listeners\UpdateResourceHashes;
+use App\Listeners\UpdateResourceFilesize;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Event;
 
@@ -46,6 +47,7 @@ class EventServiceProvider extends ServiceProvider {
 		],
 
 		ResourceWasCreated::class => [
+			UpdateResourceFilesize::class,
 			// Create Hash
 			UpdateResourceHashes::class,
 
@@ -59,6 +61,7 @@ class EventServiceProvider extends ServiceProvider {
 			//
 		],
 		ResourceWasChanged::class => [
+			UpdateResourceFilesize::class,
 			// Update Hash and if changed =>  Do Media-Specific stuff: Count PDF-Pages / Video-Seconds / Audio-Seconds / ...
 			UpdateResourceHashes::class,
 

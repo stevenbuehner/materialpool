@@ -22,9 +22,16 @@ export function readableBytes(num) {
 	return (neg ? '-' : '') + num + ' ' + unit;
 }
 
+export function displayFilesize(filesize, notCalculatedLabel) {
+	return filesize === null || filesize === undefined
+		? notCalculatedLabel
+		: readableBytes(filesize);
+}
+
 export default {
 	methods: {
 		readableBytes,
+		displayFilesize,
 
 		/**
 		 * Converts a long string of bytes into a readable format e.g KB, MB, GB, TB, YB

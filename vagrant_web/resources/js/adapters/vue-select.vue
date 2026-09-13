@@ -177,7 +177,7 @@ export default {
         search: 'multiselect-search vs__search',
         tags: 'multiselect-tags vs__selected-options',
         tagsSearch: 'multiselect-tags-search vs__search',
-        placeholder: 'multiselect-placeholder vs__selected vs__placeholder',
+        placeholder: 'multiselect-placeholder',
         caret: 'multiselect-caret vs__open-indicator',
         clear: 'multiselect-clear vs__clear',
         spinner: 'multiselect-spinner vs__spinner',
