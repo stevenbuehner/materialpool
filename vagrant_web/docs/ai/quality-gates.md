@@ -33,6 +33,10 @@ npm run test:e2e
 npm run test:visual
 ```
 
+Das ESLint-Gate umfasst Anwendungs-, Skript-, Unit- und Browsertestcode und
+akzeptiert weder Fehler noch Warnungen (`--max-warnings=0`). Neue Befunde sind
+vor dem Merge im verursachenden Arbeitspaket zu beheben.
+
 Die Playwright-Befehle starten lokal selbstständig einen PHP-Server auf
 `127.0.0.1:8000`. Mit `PLAYWRIGHT_BASE_URL` prüfen sie stattdessen eine bereits
 gestartete Testumgebung. WebKit benötigt unter macOS einen Prozesskontext mit
