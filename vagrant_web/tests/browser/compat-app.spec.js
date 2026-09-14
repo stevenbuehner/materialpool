@@ -777,6 +777,7 @@ test('Vue 3 datepicker keeps the German input and calendar interaction', async (
                 body: JSON.stringify({
                     id: 1,
                     title: 'Testmaterial',
+                    created_by: 1,
                     description: '',
                     rating: 10,
                     flag: null,
@@ -804,6 +805,7 @@ test('Vue 3 datepicker keeps the German input and calendar interaction', async (
                 body: JSON.stringify({
                     id: 2,
                     title: 'Compat interactions',
+                    created_by: 1,
                     description: '',
                     rating: 10,
                     flag: null,
@@ -1378,6 +1380,7 @@ test('Resource detail cards and multi-page pagination keep their application con
                 body: JSON.stringify({
                     id: 42,
                     type: 'text',
+                    created_by: 1,
                     original_filename: 'synthetic-resource.txt',
                     content: '# Synthetic resource\n\nStable content.',
                     notes: 'Stable note',

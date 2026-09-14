@@ -44,8 +44,17 @@ describe('general Pinia store', () => {
         await expect(store.currentUser()).resolves.toEqual(response.user);
         await expect(store.currentUserId()).resolves.toBe(1);
         await expect(store.isAdmin()).resolves.toBe(true);
+		await expect(store.hasPermission('materials.create')).resolves.toBe(true);
         await expect(store.systemName()).resolves.toBe('Materialpool Test');
     });
+
+	it('evaluates effective permissions for non-admin users', async () => {
+		const store = useGeneralStore();
+		store.setOptions(options(user({is_admin: false, permissions: ['resources.create']})));
+
+		await expect(store.hasPermission('resources.create')).resolves.toBe(true);
+		await expect(store.hasPermission('system.shutdown')).resolves.toBe(false);
+	});
 
     it('keeps the fulfilled options-error contract while allowing a retry', async () => {
         const store = useGeneralStore();

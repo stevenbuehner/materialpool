@@ -2,13 +2,20 @@
 
 namespace Tests\Feature;
 
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Testing\TestResponse;
+use Laravel\Passport\Passport;
 use Tests\TestCase;
 
 class BibleverseApiControllerTest extends TestCase {
 
 	use RefreshDatabase;
+
+	protected function setUp(): void {
+		parent::setUp();
+		Passport::actingAs(User::factory()->create());
+	}
 
 	public function testBibleverseCreateWithFromAndTo() {
 

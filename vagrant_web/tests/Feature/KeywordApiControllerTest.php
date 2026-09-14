@@ -4,9 +4,11 @@ namespace Tests\Feature;
 
 use App\Models\Keyword;
 use App\Models\User;
+use App\Support\Authorization\SystemPermissions;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Testing\TestResponse;
 use Laravel\Passport\Passport;
+use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
 class KeywordApiControllerTest extends TestCase {
@@ -16,7 +18,11 @@ class KeywordApiControllerTest extends TestCase {
 	protected function setUp(): void {
 		parent::setUp();
 
-		Passport::actingAs(User::factory()->create());
+		$user = User::factory()->create();
+		$manager = Role::create(['name' => 'Tag-Verwaltung Test', 'guard_name' => 'web']);
+		$manager->givePermissionTo(SystemPermissions::KEYWORDS_MANAGE);
+		$user->assignRole($manager);
+		Passport::actingAs($user);
 	}
 
 	public function testKeywordCreatePersonWithType() {

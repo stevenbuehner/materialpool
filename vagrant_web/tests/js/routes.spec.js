@@ -30,6 +30,7 @@ describe('main application routes', () => {
             'keyword-detail',
             'bundle-list',
             'readbible',
+			'admin-users',
             'system-shutdown',
         ]);
     });

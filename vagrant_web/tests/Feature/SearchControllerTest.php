@@ -20,7 +20,7 @@ class SearchControllerTest extends TestCase
         $user = User::factory()->create();
         $keyword = Keyword::factory()->create(['type' => 'person']);
 
-        $response = $this->actingAs($user)->getJson(route('searchbar.guessKeywords', [
+        $response = $this->actingAs($user)->getJson(route('pool.searchbar.guessKeywords', [
             'q' => '',
             'limit' => 20,
             'page' => 1,
@@ -37,8 +37,8 @@ class SearchControllerTest extends TestCase
 
         $user = User::factory()->create();
 
-        $this->actingAs($user)->getJson(route('searchbar.guess', ['q' => '']))->assertOk();
-        $this->actingAs($user)->postJson(route('searchbar.guessBibleverses'), ['q' => ''])->assertOk();
+        $this->actingAs($user)->getJson(route('pool.searchbar.guess', ['q' => '']))->assertOk();
+        $this->actingAs($user)->postJson(route('pool.searchbar.guessBibleverses'), ['q' => ''])->assertOk();
         $this->actingAs($user)->postJson(route('pool.searchbar.get'), ['q' => ''])->assertOk();
     }
 
