@@ -1067,7 +1067,7 @@ test('Vue 3 datepicker keeps the German input and calendar interaction', async (
 
     const personSelect = page.locator('.tagEditSidebarField').filter({hasText: 'Personen'});
     await personSelect.locator('.multiselect-wrapper').click();
-    const minimumCharacterHint = personSelect.locator('.loader').filter({hasText: 'Bitte gib 2 weitere Zeichen ein'});
+    const minimumCharacterHint = personSelect.locator('.loader').filter({hasText: 'Bitte gib 1 weiteres Zeichen ein'});
     await expect(minimumCharacterHint).toBeVisible();
     const minimumCharacterHintStyle = await minimumCharacterHint.evaluate(hint => ({
         color: getComputedStyle(hint).color,

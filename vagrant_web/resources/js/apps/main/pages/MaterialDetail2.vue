@@ -145,6 +145,7 @@
                 :placeholder="$t('pool.Unknown')"
                 :disabled="materialEditLockActive"
                 typefilter="person"
+                :min-input="1"
                 @input:associated="submitAuthor"
                 @input:dissociated="submitAuthor"
             >
@@ -198,6 +199,7 @@
                 :placeholder="$t('pool.enter-tags')"
                 :disabled="materialEditLockActive"
                 typefilter="person"
+                :min-input="1"
                 @input:added="addKeyword"
                 @input:removed="removeKeyword"
                 @request-update-relevance="updateKeywordRelevance($event.tag, $event.relevance)"
