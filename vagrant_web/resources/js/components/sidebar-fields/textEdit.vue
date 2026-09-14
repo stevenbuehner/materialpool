@@ -41,7 +41,7 @@
         <slot name="input">
           <b-form-input
               v-if="type === 'text'"
-              :class="[{valueChanged : valueHasChanged}, 'textInput']"
+              :class="[{valueChanged : valueHasChanged, hasClearButton: clearable}, 'textInput']"
               @input="onInputChanged"
               @keyup.enter="onEnter"
               @keyup.esc="cancelAndResetValue"
@@ -53,6 +53,17 @@
               ref="input_field"
               autocorrect="off"
           />
+
+          <b-button
+              v-if="type === 'text' && clearable && currentValue && !disabled"
+              class="clear-button"
+              size="sm"
+              variant="link"
+              :title="$t('pool.clear-field')"
+              :aria-label="$t('pool.clear-field')"
+              @click="clearAndFocusInput">
+            <clear-icon class="clear-button-icon" aria-hidden="true"/>
+          </b-button>
 
           <datepicker v-if="type === 'date'"
                       :disabled="disabled"
@@ -91,6 +102,7 @@
 <script>
 import {BButton, BFormInput, BFormTextarea}           from '@/adapters/bootstrap';
 import textFieldIcon                                  from '@icons/vendor/svg-icon/svg/material/text-fields.svg'
+import clearIcon                                      from '../bible-popover/close.svg';
 import generalMixin                                   from './generalSidebarFields.mixin';
 import Datepicker                                     from '../datepicker/datepicker';
 import {server_datetime_format}                       from "../../apps/config";
@@ -124,6 +136,12 @@ export default {
       type: Boolean,
       required: false,
       default: true
+    },
+
+    clearable: {
+      type: Boolean,
+      required: false,
+      default: false
     },
 
     /** Nur für type='textarea' */
@@ -195,6 +213,11 @@ export default {
       // Reset
       this.currentValue = this.value;
       this.$emit('canceled', this.value);
+    },
+
+    clearAndFocusInput() {
+      this.onInputChanged('');
+      this.$nextTick(() => this.$refs.input_field.focus());
     }
 
   },
@@ -220,6 +243,7 @@ export default {
 
   components: {
     textFieldIcon,
+    clearIcon,
     BButton,
     BFormInput,
     BFormTextarea,
@@ -227,3 +251,60 @@ export default {
   }
 }
 </script>
+
+<style lang="scss" scoped>
+.inputWrapper {
+  position: relative;
+
+  .textInput.hasClearButton {
+    padding-right: 2rem;
+  }
+
+  .clear-button {
+    align-items: center;
+    background-color: transparent;
+    border: 0;
+    color: var(--bs-secondary-color);
+    display: flex;
+    height: 2rem;
+    justify-content: center;
+    padding: 0;
+    position: absolute;
+    right: 0;
+    text-decoration: none;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 2rem;
+    touch-action: manipulation;
+
+    &::before {
+      content: '';
+      inset: -.375rem;
+      position: absolute;
+    }
+
+    &:hover,
+    &:focus-visible {
+      background-color: transparent;
+      color: var(--bs-body-color);
+      text-decoration: none;
+    }
+
+    &:focus-visible {
+      outline: var(--bs-focus-ring-width) solid var(--bs-focus-ring-color);
+      outline-offset: -2px;
+    }
+  }
+
+  .clear-button-icon {
+    background-color: var(--bs-secondary-bg);
+    border-radius: 50%;
+    box-sizing: border-box;
+    fill: currentColor;
+    height: .875rem;
+    padding: .1875rem;
+    position: relative;
+    width: .875rem;
+  }
+}
+</style>

@@ -158,6 +158,7 @@ return [
 	'Keywords'                                                 => 'Keywords',
 	'relevance'                                                => 'Relevance',
 	'remove-all'                                               => 'remove all',
+	'clear-field'                                              => 'Clear input field',
 	'Really-delete-count-bibleverses'                          => 'Do you really want to remove :count bibleverses at once?',
 	'Really-delete-count-keywords'                             => 'Do you really want to remove :count keywords at once?',
 	'Realy-shutdown?'                                          => 'Do you really want to shutdown the server?',

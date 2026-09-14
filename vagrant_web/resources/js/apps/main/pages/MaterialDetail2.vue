@@ -118,6 +118,7 @@
                 :name="$t('pool.Title')"
                 :placeholder="$t('pool.enter-name')"
                 :disabled="materialEditLockActive"
+                :clearable="true"
                 @save-request="submitTitle"
             >
               <template v-slot:icon>

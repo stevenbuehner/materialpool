@@ -1044,6 +1044,19 @@ test('Vue 3 datepicker keeps the German input and calendar interaction', async (
 
         return caret.getBoundingClientRect().left > wrapper.getBoundingClientRect().left + wrapper.getBoundingClientRect().width / 2;
     })).toBe(true);
+    const clearTitleButton = page.locator('.textEditSidebarField').filter({hasText: 'Titel'}).getByRole('button', {name: 'Eingabefeld leeren'});
+    await expect(clearTitleButton).toBeVisible();
+    const clearTitleTouchTargetSize = await clearTitleButton.evaluate(button => {
+        const style = getComputedStyle(button, '::before');
+
+        return {width: parseFloat(style.width), height: parseFloat(style.height)};
+    });
+    expect(clearTitleTouchTargetSize.width).toBeGreaterThanOrEqual(44);
+    expect(clearTitleTouchTargetSize.height).toBeGreaterThanOrEqual(44);
+    await clearTitleButton.click();
+    await expect(titleControl).toHaveValue('');
+    await expect(titleControl).toBeFocused();
+
     await expect(page.locator('.selected-relevance').first()).toHaveCSS('background-color', 'rgb(40, 167, 69)');
 
     const personSelect = page.locator('.tagEditSidebarField').filter({hasText: 'Personen'});

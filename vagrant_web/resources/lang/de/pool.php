@@ -151,6 +151,7 @@ return [
 	'Bibleverse'                                               => 'Bibelvers',
 	'Keywords'                                                 => 'Tags',
 	'remove-all'                                               => 'alle entfernen',
+	'clear-field'                                              => 'Eingabefeld leeren',
 	'Really-delete-count-bibleverses'                          => 'Willst du wirklich :count Bibelverse auf einmal entfernen?',
 	'Really-delete-count-keywords'                             => 'Willst du wirklich :count Tags auf einmal entfernen?',
 	'Realy-shutdown?'                                          => 'Willst du den Server wirklich unwiderruflich herunterfahren?',
