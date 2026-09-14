@@ -1,5 +1,7 @@
 <template>
-  <div ref="sideBarField" class="sideBarField tagEditSidebarField">
+  <div ref="sideBarField"
+       class="sideBarField tagEditSidebarField"
+       :class="{singleTagSelect: !multipleTags}">
 
     <div class="label">
       <slot name="label">
@@ -79,14 +81,16 @@
           </template>
 
           <template v-slot:no-options>
-            <template v-if="!isSearchTermValid">
-              {{
-                $tc('pool.insert-more-character', minInput - searchTerm.length, {character: minInput - searchTerm.length})
-              }}
-            </template>
-            <template v-else>
-              {{ $t('pool.no-results') }}
-            </template>
+            <li class="loader">
+              <template v-if="!isSearchTermValid">
+                {{
+                  $tc('pool.insert-more-character', minInput - searchTerm.length, {character: minInput - searchTerm.length})
+                }}
+              </template>
+              <template v-else>
+                {{ $t('pool.no-results') }}
+              </template>
+            </li>
           </template>
 
           <template v-slot:list-footer="{filteredOptions}">
@@ -632,12 +636,26 @@ export default {
 .tagEditSidebarField {
   .editField {
 
-    .vs__dropdown-toggle {
-      background-color: $sidebar-input-background-colour-active;
+    .multiselect {
+      --ms-bg: #{$sidebar-input-background-colour-active};
+      --ms-border-width: 0px;
+      --ms-font-size: 1em;
+      --ms-line-height: 1.4;
+      --ms-max-height: 350px;
+      --ms-option-font-size: 1em;
+      --ms-option-line-height: 1.42857143;
+      --ms-option-px: 20px;
+      --ms-option-py: 3px;
+      background: none;
+      border: 0;
+      border-radius: 0;
+      display: block;
+      min-height: 0;
 
-      .vs__selected-options {
-
+      .multiselect-tags {
         margin-top: 3px;
+        padding: 0 2px;
+        position: relative;
 
         input {
           min-width: 50%;
@@ -647,19 +665,28 @@ export default {
           }
         }
 
-        button.vs__deselect {
+        button.selected-tag-remove {
           color: $sidebar-input-font-color-active-hover;
         }
+      }
+
+      .multiselect-wrapper {
+        background-color: $sidebar-input-background-colour-active;
+        border: $input-border-width solid $input-border-color;
+        border-radius: $input-border-radius;
+        justify-content: flex-end;
+        min-height: calc(#{$input-line-height}em + #{$input-padding-top} + #{$input-padding-bottom});
+        padding: 0 0 $input-padding-bottom;
       }
     }
 
     .hasElements {
-      .vs__selected-options {
+      .multiselect-tags {
         padding: $sidebar-input-padding-top $sidebar-input-padding-right $sidebar-input-padding-bottom $sidebar-input-padding-left;
       }
     }
 
-    .vs--disabled {
+    .multiselect.is-disabled {
       .selected-tag {
         background-color: $sidebar-tag-background-color-disabled;
         color: $sidebar-input-font-color-disabled;
@@ -669,22 +696,21 @@ export default {
         background-color: $sidebar-tag-relevance-colour-disabled;
       }
 
-      .vs__search {
+      .multiselect-tags-search {
         display: none;
       }
 
-      .vs__actions {
+      .multiselect-caret {
         display: none;
       }
 
-      .vs__dropdown-toggle {
-        // background-color: $vs-state-disabled-bg;
+      .multiselect-wrapper {
         cursor: not-allowed;
       }
 
     }
 
-    .vs__dropdown-option {
+    .multiselect-option {
 
       padding-left: .5em;
 
@@ -693,7 +719,7 @@ export default {
         height: 1em;
       }
 
-      &.vs__dropdown-option--selected {
+      &.is-selected {
         color: $sidebar-input-text-colour-placeholder;
         cursor: default;
 
@@ -701,12 +727,12 @@ export default {
           fill: $sidebar-input-text-colour-placeholder;
         }
 
-        &.vs__dropdown-option--highlight {
+        &.is-pointed {
           background-color: $sidebar-input-background-colour-disabled;
         }
       }
 
-      &.vs__dropdown-option--highlight {
+      &.is-pointed {
         background-color: $primary;
 
         svg path {

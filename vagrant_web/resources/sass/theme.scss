@@ -1,7 +1,5 @@
 @use "sass:color";
 
-@forward "vue-select-compat-variables";
-
 // Public Materialpool design tokens. Keep this module independent from
 // Bootstrap's legacy Sass imports so Vue components can consume it with
 // `@use` without recompiling the complete framework for every component.
@@ -107,8 +105,8 @@ $jumbotron-bg: $gray-200;
 $notes-font-color: color.adjust($body-color, $lightness: 30%);
 $tag-background-colour: $gray-600;
 $tag-background-colour-hover: color.adjust($tag-background-colour, $lightness: -5%);
-$tag-progressbar-colour: $green;
-$tag-progressbar-colour-hover: $green-hover;
+$tag-progressbar-colour: #28a745;
+$tag-progressbar-colour-hover: color.adjust($tag-progressbar-colour, $lightness: -5%);
 $tag-progressbar-dragging-colour: $orange;
 $tag-font-colour: $white;
 

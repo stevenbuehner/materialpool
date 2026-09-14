@@ -519,16 +519,14 @@ li.usage-edit-list-el {
   }
 
   .used_by {
-    .vs__dropdown-toggle {
-      border: none;
-    }
+    border: none;
 
-    .vs__search {
+    .multiselect-search {
       // Suchfeld verstecken, wenn nicht aktiv draufgeklickt wurde
       display: none;
     }
 
-    &.vs--open .vs__search {
+    &.is-open .multiselect-search {
       // Suchfeld wieder einblenden, wenn das Feld aktiv aktiviert wurde
       display: block;
     }

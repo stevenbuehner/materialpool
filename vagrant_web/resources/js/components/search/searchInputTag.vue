@@ -28,7 +28,7 @@
 
     <button v-if="showDisable && !disabled" @click.stop="$emit('deselect', item)"
             type="button"
-            class="vs__deselect"
+            class="search-input-tag-remove"
             aria-label="Remove option">
       <span aria-hidden="true"><slot name="close">&times;</slot></span>
     </button>
@@ -120,10 +120,10 @@ export default {
 
   align-items: center;
   display: inline-flex;
-  background-color: $vs-selected-bg;
-  border: $vs-selected-border-width $vs-selected-border-style $vs-selected-border-color;
-  border-radius: $vs-border-radius;
-  line-height: $vs-component-line-height;
+  background-color: $gray-200;
+  border: $border-width solid $border-color;
+  border-radius: $border-radius;
+  line-height: $input-line-height;
   margin: 4px 2px 0 2px;
   padding: 0 0.25em;
   z-index: 0;
@@ -133,13 +133,13 @@ export default {
   }
 
   &.disabled {
-    background-color: $vs-state-disabled-bg;
-    color: $vs-state-disabled-color;
-    cursor: $vs-state-disabled-cursor;
+    background-color: $gray-200;
+    color: $gray-600;
+    cursor: not-allowed;
 
     .icon path {
-      stroke: $vs-state-disabled-color;
-      fill: $vs-state-disabled-color;
+      stroke: $gray-600;
+      fill: $gray-600;
     }
   }
 
@@ -165,7 +165,7 @@ export default {
     margin: 0 .25em;
   }
 
-  button.vs__deselect {
+  button.search-input-tag-remove {
     color: #3c3c3c;
   }
 

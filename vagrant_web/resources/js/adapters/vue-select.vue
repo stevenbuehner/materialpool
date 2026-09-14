@@ -2,12 +2,6 @@
   <Multiselect
       ref="multiselect"
       :key="modelValueVersion"
-      :class="{
-        'vs--single': !multiple,
-        'vs--multiple': multiple,
-        'vs--searchable': true,
-        'vs--loading': loading,
-      }"
       :model-value="normalizedValue"
       :options="normalizedOptions"
       :mode="multiple ? 'tags' : 'single'"
@@ -26,7 +20,6 @@
       :disabled="disabled"
       :loading="loading"
       :placeholder="placeholder"
-      :classes="compatibilityClasses"
       :attrs="searchAttributes"
       @update:model-value="onUpdate"
       @search-change="onSearch"
@@ -54,14 +47,14 @@
           :multiple="multiple"
           :deselect="deselect"
       >
-        <span class="vs__selected">
+        <span class="multiselect-tag">
           <slot name="selected-option" v-bind="slotBindings(option)">
             {{ option[LABEL_KEY] }}
           </slot>
           <button
               v-if="!optionDisabled"
               type="button"
-              class="vs__deselect"
+              class="multiselect-tag-remove"
               :aria-label="`Deselect ${option[LABEL_KEY]}`"
               @click.stop="deselect(option)"
           >
@@ -165,32 +158,6 @@ export default {
         autocorrect: 'off',
         autocapitalize: 'off',
         spellcheck: 'false',
-      },
-      compatibilityClasses: {
-        container: 'multiselect v-select',
-        containerDisabled: 'is-disabled vs--disabled',
-        containerOpen: 'is-open vs--open',
-        containerActive: 'is-active',
-        wrapper: 'multiselect-wrapper vs__dropdown-toggle',
-        singleLabel: 'multiselect-single-label vs__selected-options',
-        singleLabelText: 'multiselect-single-label-text',
-        search: 'multiselect-search vs__search',
-        tags: 'multiselect-tags vs__selected-options',
-        tagsSearch: 'multiselect-tags-search vs__search',
-        placeholder: 'multiselect-placeholder',
-        caret: 'multiselect-caret vs__open-indicator',
-        clear: 'multiselect-clear vs__clear',
-        spinner: 'multiselect-spinner vs__spinner',
-        dropdown: 'multiselect-dropdown',
-        dropdownHidden: 'is-hidden',
-        options: 'multiselect-options vs__dropdown-menu',
-        option: 'multiselect-option vs__dropdown-option',
-        optionPointed: 'is-pointed vs__dropdown-option--highlight',
-        optionSelected: 'is-selected vs__dropdown-option--selected',
-        optionDisabled: 'is-disabled vs__dropdown-option--disabled',
-        optionSelectedPointed: 'is-selected is-pointed vs__dropdown-option--selected vs__dropdown-option--highlight',
-        noOptions: 'multiselect-no-options vs__no-options',
-        noResults: 'multiselect-no-results vs__no-options',
       },
     };
   },
@@ -313,5 +280,4 @@ export default {
  * without copying third-party CSS into application-owned source code.
  */
 @import "@vueform/multiselect/themes/default.css";
-@import "../legacy-ports/vue-select-3.20.4/vue-select.css";
 </style>

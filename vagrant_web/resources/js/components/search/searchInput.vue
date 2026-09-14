@@ -127,16 +127,13 @@ export default {
 @use "resources/sass/theme" as *;
 .searchInputSelect {
 
-  .vs__selected-options {
+  .multiselect-tags {
     .selected .close {
       margin-left: 0.25rem;
       top: -.15rem;
       position: relative;
     }
 
-    button.vs__deselect {
-      color: $sidebar-input-font-color-active-hover;
-    }
   }
 
   img {
@@ -151,7 +148,7 @@ export default {
   }
 
 
-  .vs__dropdown-menu {
+  .multiselect-dropdown {
 
     .icon {
       display: inline-block;

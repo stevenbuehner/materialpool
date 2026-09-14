@@ -16,7 +16,7 @@
       <button @click.left.stop="$emit('deselect')"
               type="button"
               v-if="!disableRemoveElement"
-              class="vs__deselect"
+              class="selected-tag-remove"
               aria-label="Remove option">
 
         <span aria-hidden="true"><slot name="label">&times;</slot></span>
@@ -104,10 +104,10 @@ export default {
   display: inline-block;
   position: relative;
   background-color: $sidebar-tag-background-color-active;
-  border: $vs-selected-border-width $vs-selected-border-style $vs-selected-border-color;
-  border-radius: $vs-border-radius;
+  border: $border-width solid $border-color;
+  border-radius: $border-radius;
   color: $sidebar-input-font-color-active;
-  line-height: $vs-component-line-height;
+  line-height: $input-line-height;
   margin: .25em .25em 0 0;
   padding: 0 0.25em;
 
@@ -152,6 +152,17 @@ export default {
     display: inline;
     position: relative;
     user-select: none;
+  }
+
+  .selected-tag-remove {
+    appearance: none;
+    background: none;
+    border: 0;
+    color: currentColor;
+    cursor: pointer;
+    display: inline-flex;
+    margin-left: .25rem;
+    padding: 0;
   }
 
 }

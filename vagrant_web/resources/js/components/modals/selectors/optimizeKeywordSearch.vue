@@ -391,8 +391,8 @@ export default {
     display: flex;
     flex-wrap: wrap;
     padding: 0 0 4px 0;
-    background: $vs-component-bg;
-    border: $vs-border-width $vs-border-style $vs-border-color;
+    background: transparent;
+    border: $border-width solid $border-color;
     border-radius: $border-radius;
     white-space: normal;
 
