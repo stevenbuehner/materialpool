@@ -417,11 +417,13 @@ export default {
     },
 
     bundleIds() {
-      if (this.material && this.material.foreign_ids && Array.isArray(this.material.foreign_ids) && this.material.foreign_ids.length > 0) {
-        return this.material.foreign_ids.map((forId) => forId.bundle_id);
-      } else {
+      if (!this.material || !Array.isArray(this.material.foreign_ids)) {
         return [];
       }
+
+      return this.material.foreign_ids
+        .map((foreignId) => foreignId.bundle_id)
+        .filter((bundleId) => Number.isInteger(bundleId) && bundleId > 0);
     }
   },
 
