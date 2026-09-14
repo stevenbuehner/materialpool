@@ -785,7 +785,11 @@ test('Vue 3 datepicker keeps the German input and calendar interaction', async (
                     resources: [],
                     keywords: [],
                     bibleverses: [],
-                    foreign_ids: [],
+                    foreign_ids: [{
+                        id: 1,
+                        foreign_id: 'external-material-id',
+                        bundle_id: null,
+                    }],
                 }),
             });
             return;
@@ -973,16 +977,26 @@ test('Vue 3 datepicker keeps the German input and calendar interaction', async (
 
         await route.fulfill({contentType: 'application/json', body: '[]'});
     });
-    await page.route('**/pool/search/**', route => route.fulfill({
-        contentType: 'application/json',
-        body: JSON.stringify({
-            data: [],
-            current_page: 1,
-            last_page: 1,
-            per_page: 20,
-            total: 0,
-        }),
-    }));
+    await page.route('**/pool/search/**', route => {
+        const url = new URL(route.request().url());
+        const languageOptions = url.searchParams.get('t') === 'lang'
+            ? [
+                {id: 1, title: 'Deutsch', type: 'lang', pivot: {relevance: 100}},
+                {id: 2, title: 'Englisch', type: 'lang', pivot: {relevance: 100}},
+            ]
+            : [];
+
+        return route.fulfill({
+            contentType: 'application/json',
+            body: JSON.stringify({
+                data: languageOptions,
+                current_page: 1,
+                last_page: 1,
+                per_page: 20,
+                total: languageOptions.length,
+            }),
+        });
+    });
 
     await page.goto('/vue/');
 
@@ -990,6 +1004,8 @@ test('Vue 3 datepicker keeps the German input and calendar interaction', async (
     await expect(dateInput).toBeVisible();
     await expect(dateInput).toHaveValue('01.09.2026');
     await expectResolvedNavigation(page);
+    await expect(page.getByText('Zugeordnete Bundles', {exact: true})).toHaveCount(0);
+
     await saveReadmeScreenshot(page, testInfo, 'material-detail-desktop.png');
     if (process.env.MATERIALPOOL_README_SCREENSHOTS !== '1') {
         await expect(page).toHaveScreenshot('material-detail.png', {
@@ -997,6 +1013,59 @@ test('Vue 3 datepicker keeps the German input and calendar interaction', async (
             caret: 'hide',
         });
     }
+
+    const languageSelect = page.locator('.tagEditSidebarField').filter({hasText: 'Sprachen'});
+    await languageSelect.locator('.multiselect-wrapper').click();
+    const languageDropdown = languageSelect.locator('.multiselect-dropdown');
+    const languageOptions = languageDropdown.locator('.multiselect-options');
+    const languageFooter = languageDropdown.locator('.loader').filter({hasText: 'Keine weiteren Ergebnisse'});
+    await expect(languageOptions.getByText('Deutsch')).toBeVisible();
+    await expect(languageFooter).toBeVisible();
+    await expect(page.locator('[class*="vs__"], [class*="vs--"], .v-select')).toHaveCount(0);
+    await expect(languageDropdown).toHaveCSS('position', 'absolute');
+    await expect(languageOptions).toHaveCSS('position', 'static');
+    await expect(languageOptions.getByText('Deutsch')).toHaveCSS('font-size', '12.8px');
+    await expect(languageSelect.locator('.multiselect')).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
+    await expect(languageSelect.locator('.multiselect-wrapper')).toHaveCSS('background-color', 'rgb(255, 255, 255)');
+    expect(await languageDropdown.evaluate(dropdown => {
+        const options = dropdown.querySelector('.multiselect-options');
+        const footer = dropdown.querySelector('.loader:not([style*="display: none"])');
+
+        return options.getBoundingClientRect().top < footer.getBoundingClientRect().top;
+    })).toBe(true);
+
+    const titleControl = page.locator('.textEditSidebarField').filter({hasText: 'Titel'}).locator('input');
+    const authorControl = page.locator('.singleTagSelect .multiselect-wrapper');
+    expect(await authorControl.evaluate(control => control.getBoundingClientRect().height))
+        .toBe(await titleControl.evaluate(control => control.getBoundingClientRect().height));
+    await expect(authorControl).toHaveCSS('font-size', '12.8px');
+    expect(await authorControl.evaluate(wrapper => {
+        const caret = wrapper.querySelector('.multiselect-caret');
+
+        return caret.getBoundingClientRect().left > wrapper.getBoundingClientRect().left + wrapper.getBoundingClientRect().width / 2;
+    })).toBe(true);
+    await expect(page.locator('.selected-relevance').first()).toHaveCSS('background-color', 'rgb(40, 167, 69)');
+
+    const personSelect = page.locator('.tagEditSidebarField').filter({hasText: 'Personen'});
+    await personSelect.locator('.multiselect-wrapper').click();
+    const minimumCharacterHint = personSelect.locator('.loader').filter({hasText: 'Bitte gib 2 weitere Zeichen ein'});
+    await expect(minimumCharacterHint).toBeVisible();
+    const minimumCharacterHintStyle = await minimumCharacterHint.evaluate(hint => ({
+        color: getComputedStyle(hint).color,
+        fontSize: getComputedStyle(hint).fontSize,
+        margin: getComputedStyle(hint).margin,
+        padding: getComputedStyle(hint).padding,
+        textAlign: getComputedStyle(hint).textAlign,
+    }));
+    const languageFooterStyle = await languageFooter.evaluate(footer => ({
+        color: getComputedStyle(footer).color,
+        fontSize: getComputedStyle(footer).fontSize,
+        margin: getComputedStyle(footer).margin,
+        padding: getComputedStyle(footer).padding,
+        textAlign: getComputedStyle(footer).textAlign,
+    }));
+    expect(minimumCharacterHintStyle).toEqual(languageFooterStyle);
+
     await dateInput.click();
     await expect(page.locator('.vdp-datepicker__calendar').first()).toBeVisible();
 
