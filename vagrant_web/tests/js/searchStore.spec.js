@@ -110,4 +110,17 @@ describe('search Pinia store', () => {
         store.setSelectedSearchValues({type: 'keyword'});
         expect(store.selectedSearchValues).toEqual({type: 'keyword'});
     });
+
+    it('passes an explicitly requested material order through to the search endpoint', async () => {
+        axios.post.mockResolvedValue(searchResponse([]));
+
+        await useSearchStore().materials({query: [], orderBy: 'created_at'});
+
+        expect(axios.post).toHaveBeenCalledWith('/pool/search/get', {
+            q: [],
+            page: 1,
+            per_page: 30,
+            order_by: 'created_at',
+        });
+    });
 });

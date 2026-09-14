@@ -62,4 +62,27 @@ class SearchControllerTest extends TestCase
         $response->assertJsonPath('data.0.resources.0.filesize', null);
         $response->assertJsonPath('data.0.resources.0.mime_type', '');
     }
+
+    public function test_search_can_order_materials_by_creation_or_modification_date(): void
+    {
+        $user = User::factory()->create();
+        $older = Material::factory()->create([
+            'created_at' => now()->subDays(2),
+            'updated_at' => now()->subDay(),
+        ]);
+        $newer = Material::factory()->create([
+            'created_at' => now()->subDay(),
+            'updated_at' => now()->subDays(2),
+        ]);
+
+        $this->actingAs($user)->postJson(route('pool.searchbar.get'), [
+            'q' => [],
+            'order_by' => 'created_at',
+        ])->assertOk()->assertJsonPath('data.0.id', $newer->id);
+
+        $this->actingAs($user)->postJson(route('pool.searchbar.get'), [
+            'q' => [],
+            'order_by' => 'updated_at',
+        ])->assertOk()->assertJsonPath('data.0.id', $older->id);
+    }
 }

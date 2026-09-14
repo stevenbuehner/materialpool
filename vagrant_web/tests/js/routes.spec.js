@@ -15,6 +15,8 @@ describe('main application routes', () => {
             'landingpage',
             'search',
             'material',
+			'material-newest',
+			'material-recently-updated',
             'material-detail',
             'resource-create',
             'resource-text-create',

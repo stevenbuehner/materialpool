@@ -271,6 +271,7 @@ return [
 	'Lonely-Resources'                                         => 'Einsame Resourcen',
 	'Newest-Resources'                                         => 'Neuste Resource',
 	'Newest-Materials'                                         => 'Neuste Materialien',
+	'Recently-Updated-Materials'                               => 'Zuletzt geänderte Materialien',
 	'Shutdown'                                                 => 'Ausschalten',
 	'Congratulations-No-lonely-Resources-found'                => 'Herzlichen Glückwünsch! Keine einsamen Resourcen gefunden.',
 	'Loading'                                                  => 'Lade ...',

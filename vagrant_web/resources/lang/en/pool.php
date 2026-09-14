@@ -277,6 +277,7 @@ return [
 	'Lonely-Resources'                                         => 'Lonely Resources',
 	'Newest-Resources'                                         => 'Newest Resources',
 	'Newest-Materials'                                         => 'Newest Materials',
+	'Recently-Updated-Materials'                               => 'Recently Updated Materials',
 	'Shutdown'                                                 => 'Shutdown',
 	'Congratulations-No-lonely-Resources-found'                => 'Congratulations! No lonely resources found.',
 	'Loading'                                                  => 'Loading ...',

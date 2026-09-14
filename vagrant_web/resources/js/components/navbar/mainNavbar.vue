@@ -32,9 +32,11 @@
             <b-dropdown-item :to="{name: 'resource-newest'}" class="dropdown-hover" v-if="isAdmin">
               {{ $t('pool.Newest-Resources') }}
             </b-dropdown-item>
-            <!-- Todo: Newest Materials Seite -->
-            <b-dropdown-item class="dropdown-hover" :disabled="true">
+            <b-dropdown-item :to="{name: 'material-newest'}" class="dropdown-hover" v-if="isAdmin">
               {{ $t('pool.Newest-Materials') }}
+            </b-dropdown-item>
+            <b-dropdown-item :to="{name: 'material-recently-updated'}" class="dropdown-hover" v-if="isAdmin">
+              {{ $t('pool.Recently-Updated-Materials') }}
             </b-dropdown-item>
           </b-nav-item-dropdown>
 

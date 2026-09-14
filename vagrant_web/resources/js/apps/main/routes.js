@@ -13,6 +13,7 @@ const ResourceDetail = () => import('./pages/Resource.vue');
 const AssignApp = () => import('./pages/AssignApp.vue');
 const ResourceLonely = () => import('./pages/ResourceLonely.vue');
 const ResourceNewest = () => import('./pages/ResourceNewest.vue');
+const MaterialOrderedListing = () => import('./pages/MaterialOrderedListing.vue');
 const ResourceReplace = () => import('./pages/ResourceReplace.vue');
 const KeywordDetail = () => import('./pages/KeywordDetail.vue');
 const SystemShutdown = () => import('./pages/RequestShutdown.vue');
@@ -39,6 +40,26 @@ export const routes = [
 		component: MaterialApp,
 		name: 'material',
 		alias: '/materials',
+	},
+	{
+		path: '/material/newest',
+		component: MaterialOrderedListing,
+		name: 'material-newest',
+		props: (route) => ({
+			orderBy: 'created_at',
+			titleKey: 'Newest-Materials',
+			page: route.query.page ? parseInt(route.query.page) : 1,
+		}),
+	},
+	{
+		path: '/material/recently-updated',
+		component: MaterialOrderedListing,
+		name: 'material-recently-updated',
+		props: (route) => ({
+			orderBy: 'updated_at',
+			titleKey: 'Recently-Updated-Materials',
+			page: route.query.page ? parseInt(route.query.page) : 1,
+		}),
 	},
 	{
 		path: '/material/:id',

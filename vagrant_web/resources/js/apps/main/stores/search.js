@@ -53,12 +53,16 @@ export const useSearchStore = defineStore('search', {
 			this.selectedSearchValues = value;
 		},
 
-		materials({query, page = 1, per_page = 30}) {
+		materials({query, page = 1, per_page = 30, orderBy = null}) {
 			const requestData = {
 				q: query,
 				page: page || 1,
 				per_page: per_page || 30,
 			};
+
+			if (orderBy) {
+				requestData.order_by = orderBy;
+			}
 
 			if (this.hasCacheEntry(requestData)) {
 				return this.getCacheEntry(requestData);

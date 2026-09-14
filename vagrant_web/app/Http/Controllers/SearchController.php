@@ -211,6 +211,12 @@ class SearchController extends Controller {
 	public function get(Request $request) {
 		$query          = $this->turnRequestIntoQuery($request);
 		$paginationSize = min((int)$request->get('per_page', 30), 100);
+		$orderBy        = $request->get('order_by');
+
+		if (in_array($orderBy, ['created_at', 'updated_at'], TRUE)) {
+			$query->reorderDesc('materials.' . $orderBy)
+				->orderByDesc('materials.id');
+		}
 
 		return $query->paginate($paginationSize);
 	}
