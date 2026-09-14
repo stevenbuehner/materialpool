@@ -28,10 +28,12 @@ async function expectResolvedNavigation(page) {
 
 test('Vue application mounts with synthetic bootstrap data', async ({page}, testInfo) => {
     const pageErrors = [];
+    const consoleErrors = [];
     const compatWarnings = [];
     const unexpectedWarnings = [];
     page.on('pageerror', error => pageErrors.push(error.stack || error.message));
     page.on('console', message => {
+        if (message.type() === 'error') consoleErrors.push(message.text());
         if (message.type() === 'warning') {
             const warning = message.text();
             const isKnownCompatWarning = warning.startsWith('[Vue warn]: (deprecation ')
@@ -167,6 +169,7 @@ test('Vue application mounts with synthetic bootstrap data', async ({page}, test
         contentType: 'application/json',
     });
     expect(pageErrors).toEqual([]);
+    expect(consoleErrors).toEqual([]);
     expect(compatWarnings).toEqual([]);
     expect(unexpectedWarnings).toEqual([]);
 });

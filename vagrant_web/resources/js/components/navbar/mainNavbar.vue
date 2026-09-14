@@ -33,7 +33,7 @@
               {{ $t('pool.Newest-Resources') }}
             </b-dropdown-item>
             <!-- Todo: Newest Materials Seite -->
-            <b-dropdown-item :to="{name: 'newest-materials'}" class="dropdown-hover" :disabled="true">
+            <b-dropdown-item class="dropdown-hover" :disabled="true">
               {{ $t('pool.Newest-Materials') }}
             </b-dropdown-item>
           </b-nav-item-dropdown>
