@@ -8,6 +8,7 @@ use App\Http\Requests\MaterialRequest;
 use App\Jobs\DeletePublicDownloadFile;
 use App\Models\Material;
 use App\Services\MaterialHandling\MaterialHandlingService;
+use App\Support\Authorization\SystemPermissions;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Support\Facades\Auth;
@@ -38,7 +39,8 @@ class MaterialController extends BaseController {
 	 */
 	public function index() {
 
-		$materials = Material::where('created_by', Auth::id())
+		$materials = Material::query()
+			->when(!Auth::user()->can(SystemPermissions::MATERIALS_VIEW_ALL), fn($query) => $query->where('created_by', Auth::id()))
 			->with($this->withAttributes)
 			->orderBy('updated_at')
 			->paginate(50);

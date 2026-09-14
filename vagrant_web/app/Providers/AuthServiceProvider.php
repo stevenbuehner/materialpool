@@ -16,8 +16,10 @@ use App\Policies\MaterialPolicy;
 use App\Policies\MaterialUsagePolicy;
 use App\Policies\ResourcePolicy;
 use App\Policies\UserPolicy;
+use App\Support\Authorization\SystemPermissions;
 use Carbon\Carbon;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
+use Illuminate\Support\Facades\Gate;
 use Laravel\Passport\Passport;
 
 class AuthServiceProvider extends ServiceProvider {
@@ -43,6 +45,25 @@ class AuthServiceProvider extends ServiceProvider {
 	 * @return void
 	 */
 	public function boot(): void {
+		Gate::before(function (User $user): ?bool {
+			if (!$user->isActive()) {
+				return false;
+			}
+
+			return $user->isSuperAdmin() ? true : null;
+		});
+		Gate::define('keywords.create-value', fn(User $user): bool =>
+			$user->can(SystemPermissions::KEYWORDS_MANAGE)
+			|| $user->can(SystemPermissions::MATERIALS_CREATE)
+			|| $user->can(SystemPermissions::MATERIALS_UPDATE_METADATA_OWN)
+			|| $user->can(SystemPermissions::MATERIALS_UPDATE_METADATA_ALL)
+		);
+		Gate::define('bibleverses.create-value', fn(User $user): bool =>
+			$user->can(SystemPermissions::MATERIALS_CREATE)
+			|| $user->can(SystemPermissions::MATERIALS_UPDATE_METADATA_OWN)
+			|| $user->can(SystemPermissions::MATERIALS_UPDATE_METADATA_ALL)
+		);
+
 		// Die Material-Grabber-Integration benötigt weiterhin den optionalen
 		// Password Grant. Alle übrigen Passport-13-Defaults bleiben unverändert.
 		Passport::enablePasswordGrant();

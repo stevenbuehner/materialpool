@@ -4,12 +4,16 @@ namespace App\Policies;
 
 use App\Models\Bundle;
 use App\Models\User;
+use App\Support\Authorization\SystemPermissions;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 class BundlePolicy {
 	use HandlesAuthorization;
 
 	public function before($user, $ability) {
+		if (!$user->isActive()) {
+			return FALSE;
+		}
 		if ($user->isSuperAdmin()) {
 			return TRUE;
 		}
@@ -33,7 +37,7 @@ class BundlePolicy {
 	 * @return mixed
 	 */
 	public function create(User $user) {
-		return $user->isSuperAdmin();
+		return $user->can(SystemPermissions::BUNDLES_MANAGE);
 	}
 
 	/**
@@ -44,7 +48,7 @@ class BundlePolicy {
 	 * @return mixed
 	 */
 	public function update(User $user, Bundle $bundle) {
-		return $user->isSuperAdmin();
+		return $user->can(SystemPermissions::BUNDLES_MANAGE);
 	}
 
 	/**
@@ -55,7 +59,7 @@ class BundlePolicy {
 	 * @return mixed
 	 */
 	public function delete(User $user, Bundle $bundle) {
-		return $user->isSuperAdmin();
+		return $user->can(SystemPermissions::BUNDLES_MANAGE);
 	}
 
 	protected function matchOrDenyCreator(User $user, Bundle $bundle) {

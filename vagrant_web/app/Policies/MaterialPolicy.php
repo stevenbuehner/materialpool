@@ -2,15 +2,18 @@
 
 namespace App\Policies;
 
-use App\Models\ForeignResourceId;
 use App\Models\Material;
 use App\Models\User;
+use App\Support\Authorization\SystemPermissions;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 class MaterialPolicy {
 	use HandlesAuthorization;
 
 	public function before($user, $ability) {
+		if (!$user->isActive()) {
+			return FALSE;
+		}
 		if ($user->isSuperAdmin()) {
 			return TRUE;
 		}
@@ -24,7 +27,9 @@ class MaterialPolicy {
 	 * @return mixed
 	 */
 	public function view(User $user, Material $material) {
-		return $this->matchOrDenyCreator($user, $material);
+		// Materialien besitzen derzeit kein eigenes Sichtbarkeitsmerkmal und sind
+		// damit im bestehenden Produktvertrag öffentlich lesbar.
+		return TRUE;
 	}
 
 	/**
@@ -34,7 +39,7 @@ class MaterialPolicy {
 	 * @return mixed
 	 */
 	public function create(User $user) {
-		return TRUE;
+		return $user->can(SystemPermissions::MATERIALS_CREATE);
 	}
 
 	/**
@@ -45,7 +50,13 @@ class MaterialPolicy {
 	 * @return mixed
 	 */
 	public function update(User $user, Material $material) {
-		return $this->matchOrDenyCreator($user, $material);
+		return $user->can(SystemPermissions::MATERIALS_UPDATE_ALL)
+			|| ($user->id === $material->created_by && $user->can(SystemPermissions::MATERIALS_UPDATE_OWN));
+	}
+
+	public function updateMetadata(User $user, Material $material) {
+		return $user->can(SystemPermissions::MATERIALS_UPDATE_METADATA_ALL)
+			|| ($user->id === $material->created_by && $user->can(SystemPermissions::MATERIALS_UPDATE_METADATA_OWN));
 	}
 
 	/**
@@ -56,15 +67,8 @@ class MaterialPolicy {
 	 * @return mixed
 	 */
 	public function delete(User $user, Material $material) {
-		return $this->matchOrDenyCreator($user, $material);
-	}
-
-	protected function matchOrDenyCreator(User $user, Material $material) {
-		if ($user->id === $material->created_by) {
-			return TRUE;
-		} else {
-			$this->deny('The requested action is only allowed for the creator of this material.');
-		}
+		return $user->can(SystemPermissions::MATERIALS_DELETE_ALL)
+			|| ($user->id === $material->created_by && $user->can(SystemPermissions::MATERIALS_DELETE_OWN));
 	}
 
 

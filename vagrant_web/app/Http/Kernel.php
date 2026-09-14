@@ -3,6 +3,7 @@
 namespace App\Http;
 
 use App\Http\Middleware\Admin;
+use App\Http\Middleware\EnsureUserIsActive;
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
 
 class Kernel extends HttpKernel {
@@ -65,6 +66,7 @@ class Kernel extends HttpKernel {
 		'throttle'      => \Illuminate\Routing\Middleware\ThrottleRequests::class,
 		'verified'      => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
 		'admin'         => Admin::class,
+		'active'        => EnsureUserIsActive::class,
 	];
 
 	/**
@@ -78,6 +80,7 @@ class Kernel extends HttpKernel {
 		\Illuminate\Session\Middleware\StartSession::class,
 		\Illuminate\View\Middleware\ShareErrorsFromSession::class,
 		\App\Http\Middleware\Authenticate::class,
+		EnsureUserIsActive::class,
 		\Illuminate\Session\Middleware\AuthenticateSession::class,
 		\Illuminate\Routing\Middleware\SubstituteBindings::class,
 		\Illuminate\Auth\Middleware\Authorize::class,

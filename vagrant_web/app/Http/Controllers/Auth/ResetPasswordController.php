@@ -2,8 +2,12 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Enums\UserStatus;
 use App\Http\Controllers\Controller;
+use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Foundation\Auth\ResetsPasswords;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 class ResetPasswordController extends Controller {
 	/*
@@ -33,5 +37,20 @@ class ResetPasswordController extends Controller {
 	 */
 	public function __construct() {
 		$this->middleware('guest');
+	}
+
+	protected function resetPassword($user, $password): void {
+		$user->password = Hash::make($password);
+		$user->setRememberToken(Str::random(60));
+		if ($user->status === UserStatus::Invited) {
+			$user->status = UserStatus::Active;
+		}
+		$user->save();
+
+		event(new PasswordReset($user));
+
+		if ($user->isActive()) {
+			$this->guard()->login($user);
+		}
 	}
 }

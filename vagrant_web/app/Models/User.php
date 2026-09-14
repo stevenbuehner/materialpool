@@ -2,12 +2,15 @@
 
 namespace App\Models;
 
+use App\Enums\UserStatus;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Hash;
 use Laravel\Passport\Contracts\OAuthenticatable as PassportAuthenticatable;
 use Laravel\Passport\HasApiTokens;
+use Spatie\Permission\Traits\HasRoles;
 
 
 /**
@@ -30,7 +33,10 @@ use Laravel\Passport\HasApiTokens;
 class User extends Authenticatable implements PassportAuthenticatable {
 	use HasFactory;
 	use HasApiTokens;
+	use HasRoles;
 	use Notifiable;
+
+	protected string $guard_name = 'web';
 
 	/**
 	 * The attributes that are mass assignable.
@@ -38,7 +44,7 @@ class User extends Authenticatable implements PassportAuthenticatable {
 	 * @var array
 	 */
 	protected $fillable = [
-		'name', 'email', 'password', 'is_admin'
+		'name', 'email', 'password', 'is_admin', 'status'
 	];
 
 	/**
@@ -59,6 +65,7 @@ class User extends Authenticatable implements PassportAuthenticatable {
 
 	protected $casts = [
 		'is_admin'               => 'boolean',
+		'status'                 => UserStatus::class,
 		'frontend_user_settings' => 'array',
 		'use_for_mat_usage'      => 'boolean'
 	];
@@ -73,6 +80,25 @@ class User extends Authenticatable implements PassportAuthenticatable {
 
 	public function isSuperAdmin() {
 		return $this->getAttribute('is_admin') === TRUE;
+	}
+
+	public function isActive(): bool {
+		return $this->status === UserStatus::Active;
+	}
+
+	public function findForPassport(string $username, mixed $client = null): ?self {
+		return static::query()
+			->where('email', $username)
+			->where('status', UserStatus::Active->value)
+			->first();
+	}
+
+	public function validateForPassportPasswordGrant(string $password): bool {
+		return $this->isActive() && Hash::check($password, $this->password);
+	}
+
+	protected function getDefaultGuardName(): string {
+		return 'web';
 	}
 
 	public function resources() {

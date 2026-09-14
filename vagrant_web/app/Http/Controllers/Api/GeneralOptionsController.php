@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller as BaseController;
 use Illuminate\Support\Facades\Auth;
+use App\Support\Authorization\SystemPermissions;
 
 
 class GeneralOptionsController extends BaseController {
@@ -13,9 +14,11 @@ class GeneralOptionsController extends BaseController {
 	}
 
 	public function index() {
+		$user = $this->getUserInformation();
 
 		return [
-			'user'       => $this->getUserInformation(),
+			'user'       => $user,
+			'permissions' => $user['permissions'],
 			'server'     => [
 				'max_upload' => $this->file_upload_max_size()
 			],
@@ -25,7 +28,13 @@ class GeneralOptionsController extends BaseController {
 	}
 
 	protected function getUserInformation() {
-		return Auth::user()->makeVisible(['frontend_user_settings', 'email', 'is_admin'])->toArray();
+		$user = Auth::user();
+		$data = $user->makeVisible(['frontend_user_settings', 'email', 'is_admin'])->toArray();
+		$data['permissions'] = $user->isSuperAdmin()
+			? SystemPermissions::all()
+			: $user->getAllPermissions()->pluck('name')->sort()->values()->all();
+
+		return $data;
 	}
 
 	// Returns a file size limit in bytes based on the PHP upload_max_filesize

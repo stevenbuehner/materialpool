@@ -6,8 +6,10 @@ use App\Events\ResourceWasChanged;
 use App\Models\Resource;
 use App\Models\Resource as ResourceEntity;
 use App\Models\Text;
+use App\Support\Authorization\SystemPermissions;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Response;
 
 class ResourceController extends Controller {
@@ -16,6 +18,11 @@ class ResourceController extends Controller {
 
 	public function __construct() {
 		$this->middleware(['auth']);
+		$this->middleware('can:create,App\Models\Resource')->only(['create', 'store']);
+		$this->middleware('can:create,App\Models\Material')->only(['store']);
+		$this->middleware('can:view,resource')->only(['show', 'download']);
+		$this->middleware('can:update,resource')->only(['edit', 'update']);
+		$this->middleware('can:delete,resource')->only(['destroy']);
 	}
 
 	/**
@@ -26,7 +33,11 @@ class ResourceController extends Controller {
 	public function index() {
 
 		// $resources = DB::table('resources')->paginate(15);
-		$resources = DB::table('resources')->paginate(20);
+		$resources = DB::table('resources')
+			->when(!Auth::user()->can(SystemPermissions::RESOURCES_VIEW_ALL), fn($query) => $query->where(function ($query): void {
+				$query->where('created_by', Auth::id())->orWhere('is_public', true);
+			}))
+			->paginate(20);
 
 		return view('resources.index', compact('resources'));
 	}

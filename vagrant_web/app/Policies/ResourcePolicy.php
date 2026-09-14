@@ -4,12 +4,16 @@ namespace App\Policies;
 
 use App\Models\Resource;
 use App\Models\User;
+use App\Support\Authorization\SystemPermissions;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 class ResourcePolicy {
 	use HandlesAuthorization;
 
 	public function before(User $user, $ability) {
+		if (!$user->isActive()) {
+			return FALSE;
+		}
 		if ($user->isSuperAdmin()) {
 			return TRUE;
 		}
@@ -27,7 +31,7 @@ class ResourcePolicy {
 			return TRUE;
 		}
 
-		return $this->matchOrDenyCreator($user, $resource);
+		return $user->id === $resource->created_by || $user->can(SystemPermissions::RESOURCES_VIEW_ALL);
 	}
 
 	/**
@@ -37,7 +41,7 @@ class ResourcePolicy {
 	 * @return mixed
 	 */
 	public function create(User $user) {
-		return TRUE;
+		return $user->can(SystemPermissions::RESOURCES_CREATE);
 	}
 
 	/**
@@ -48,7 +52,8 @@ class ResourcePolicy {
 	 * @return mixed
 	 */
 	public function update(User $user, Resource $resource) {
-		return $this->matchOrDenyCreator($user, $resource);
+		return $user->can(SystemPermissions::RESOURCES_UPDATE_ALL)
+			|| ($user->id === $resource->created_by && $user->can(SystemPermissions::RESOURCES_UPDATE_OWN));
 	}
 
 	/**
@@ -59,14 +64,7 @@ class ResourcePolicy {
 	 * @return mixed
 	 */
 	public function delete(User $user, Resource $resource) {
-		return $this->matchOrDenyCreator($user, $resource);
-	}
-
-	protected function matchOrDenyCreator(User $user, Resource $resource) {
-		if ($user->id === $resource->created_by) {
-			return TRUE;
-		} else {
-			$this->deny('The requested action is only allowed for the creator of this resource.');
-		}
+		return $user->can(SystemPermissions::RESOURCES_DELETE_ALL)
+			|| ($user->id === $resource->created_by && $user->can(SystemPermissions::RESOURCES_DELETE_OWN));
 	}
 }

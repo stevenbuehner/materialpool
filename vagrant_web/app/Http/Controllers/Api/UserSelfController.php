@@ -14,11 +14,14 @@ class UserSelfController extends BaseController {
 		$this->middleware('auth:api');
 	}
 
-	public function index() {
-		return Auth::user()->toArray();
+	public function index(User $user) {
+		$this->authorize('view', $user);
+
+		return $user->toArray();
 	}
 
 	public function storeSettings(User $user, Request $request) {
+		$this->authorize('update', $user);
 
 		$request->validate([
 			'data' => 'array'

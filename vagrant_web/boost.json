@@ -2,7 +2,20 @@
     "agents": [
         "codex"
     ],
+    "cloud": true,
     "mcp": true,
     "nightwatch": false,
-    "sail": true
+    "sail": true,
+    "skills": [
+        "infer-conventions",
+        "deploying-to-cloud",
+        "laravel-best-practices",
+        "testing-best-practices",
+        "passport-development",
+        "laravel-patterns",
+        "laravel-security",
+        "laravel-specialist",
+        "laravel-tdd",
+        "laravel-verification"
+    ]
 }

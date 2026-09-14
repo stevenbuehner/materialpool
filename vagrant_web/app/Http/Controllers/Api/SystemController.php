@@ -15,8 +15,6 @@ class SystemController extends BaseController {
 	 * @return void
 	 */
 	public function __construct(SystemShutdownService $systemShutdownService) {
-		$this->middleware('auth');
-		$this->middleware('admin');
 		$this->systemShutdownService = $systemShutdownService;
 	}
 

@@ -22,6 +22,10 @@ class MaterialController extends Controller {
 	public function __construct() {
 		$this->withAttributes = self::withAttributes();
 		$this->middleware(['auth']);
+		$this->middleware('can:create,App\Models\Material')->only(['create', 'store']);
+		$this->middleware('can:view,material')->only(['show']);
+		$this->middleware('can:updateMetadata,material')->only(['edit', 'update']);
+		$this->middleware('can:delete,material')->only(['delete', 'destroy']);
 	}
 
 	public static function withAttributes() {
@@ -253,6 +257,9 @@ class MaterialController extends Controller {
 		$deletedMaterials = 0;
 
 		if ($delResources === TRUE) {
+			foreach ($material->resources as $resource) {
+				$this->authorize('delete', $resource);
+			}
 
 			/** @var FileHandlingService $service */
 			$service = resolve(FileHandlingService::class);

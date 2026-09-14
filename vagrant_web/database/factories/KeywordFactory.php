@@ -15,7 +15,7 @@ class KeywordFactory extends Factory {
 	 */
 	public function definition() {
 		return [
-			'title' => $this->faker->unique()->word,
+			'title' => $this->faker->unique()->word(),
 			'type'  => 'key'
 		];
 	}

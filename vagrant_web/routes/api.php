@@ -14,7 +14,7 @@
 use Illuminate\Support\Facades\Route;
 
 Route::group([
-	'middleware' => 'auth:api',
+	'middleware' => ['auth:api', 'active'],
 	'prefix'     => 'v2',
 	'namespace'  => 'Api',
 	'as'         => 'api.v2.'
@@ -88,17 +88,30 @@ Route::group([
 
 	// Users
 	Route::get('users/find', 'UserController@find')
-		->name('api.v2.users.find');
+		->name('users.find');
 
 	// Shutdown System
 	Route::get('system/shutdown', 'SystemController@shutdown')
+		->middleware('can:system.shutdown')
 		->name('api.v2.system.shutdown');
+
+	Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => 'admin'], function () {
+		Route::get('users', 'Admin\AdminUserController@index')->name('users.index');
+		Route::post('users', 'Admin\AdminUserController@store')->name('users.store');
+		Route::patch('users/{user}', 'Admin\AdminUserController@update')->name('users.update');
+		Route::post('users/{user}/invitation', 'Admin\AdminUserController@invitation')->name('users.invitation');
+		Route::get('groups', 'Admin\AdminGroupController@index')->name('groups.index');
+		Route::post('groups', 'Admin\AdminGroupController@store')->name('groups.store');
+		Route::patch('groups/{group}', 'Admin\AdminGroupController@update')->name('groups.update');
+		Route::delete('groups/{group}', 'Admin\AdminGroupController@destroy')->name('groups.destroy');
+		Route::get('permissions', 'Admin\AdminPermissionController@index')->name('permissions.index');
+	});
 
 });
 
 
 Route::group([
-	// 'middleware' => 'auth:api', // im Konstruktor der Klassen eingebettet
+	'middleware' => ['auth:api', 'active'],
 	'prefix'    => 'v1',
 	'namespace' => 'Api',
 	'as'        => 'api.v1.'
@@ -124,6 +137,7 @@ Route::group([
 	Route::post('resources/replace/{oldResource}/with/{newResource}', 'ResourceController@replace')
 		->where('oldResource', '[0-9]+')
 		->where('newResource', '[0-9]+')
+		->middleware(['can:update,oldResource', 'can:view,newResource'])
 		->name('resources.replace-with');
 
 
@@ -132,20 +146,26 @@ Route::group([
 		->name('materials.index');
 	Route::get('materials/{material}', 'MaterialController@show')
 		->where(['material' => '[0-9]+'])
+		->middleware('can:view,material')
 		->name('materials.show');
 	Route::post('materials', 'MaterialController@store')
+		->middleware('can:create,App\Models\Material')
 		->name('materials.store');
 	Route::put('materials/{material}', 'MaterialController@update')
 		->where(['material' => '[0-9]+'])
+		->middleware('can:updateMetadata,material')
 		->name('materials.update');
 	Route::put('materials/{material}/resources', 'MaterialController@associateResources')
 		->where(['material' => '[0-9]+'])
+		->middleware('can:update,material')
 		->name('materials.associateResources');
 	Route::get('materials/{material}/copy', 'MaterialController@copy')
 		->where(['material' => '[0-9]+'])
+		->middleware(['can:view,material', 'can:create,App\Models\Material'])
 		->name('materials.copy');
 	Route::get('materials/{material}/create-download', 'MaterialController@createPublicZipDownload')
 		->where(['material' => '[0-9]+'])
+		->middleware('can:view,material')
 		->name('materials.createPublicZipDownload');
 
 	// Bibleverses
@@ -155,6 +175,7 @@ Route::group([
 		->where(['bibleverse' => '[0-9]+'])
 		->name('bibleverses.show');
 	Route::post('bibleverses', 'BibleverseController@store')
+		->middleware('can:bibleverses.create-value')
 		->name('bibleverses.store');
 
 
@@ -168,28 +189,35 @@ Route::group([
 		->where(['keyword' => '[0-9]+'])
 		->name('keywords.relations_count');
 	Route::post('keywords', 'KeywordController@create')
+		->middleware('can:keywords.create-value')
 		->name('keywords.create');
 	Route::put('keywords/{keyword}', 'KeywordController@update')
 		->where(['keyword' => '[0-9]+'])
+		->middleware('can:keywords.manage')
 		->name('keywords.update');
 	Route::delete('keywords/{keyword}', 'KeywordController@delete')
 		->where(['keyword' => '[0-9]+'])
+		->middleware('can:keywords.manage')
 		->name('keywords.delete');
 
 	// Material <- Keywords-Relevance
 	Route::put('material/{material}/keyword/{keyword?}', 'KeywordController@createOrUpdateAssignment')
 		->where(['material' => '[0-9]+'])
 		->where(['keyword' => '[0-9]+'])
+		->middleware('can:updateMetadata,material')
 		->name('keywords.updateAssignment');
 	Route::delete('material/{material}/keyword/{keyword}', 'KeywordController@deleteAssignment')
 		->where(['material' => '[0-9]+'])
 		->where(['keyword' => '[0-9]+'])
+		->middleware('can:updateMetadata,material')
 		->name('keywords.deleteAssignment');
 
 	// Material <- Bibleverse-Relevance
 	Route::put('material/{material}/bibleverse/{bibleverse?}', 'BibleverseController@createOrUpdateAssignment')
+		->middleware('can:updateMetadata,material')
 		->name('bibleverses.createOrUpdateAssignment');
 	Route::delete('material/{material}/bibleverse/{bibleverse}', 'BibleverseController@deleteAssignment')
+		->middleware('can:updateMetadata,material')
 		->name('bibleverses.deleteAssignment');
 
 	/*
@@ -204,6 +232,7 @@ Route::group([
 	Route::post('foreign-materials/{foreignMaterialId}', 'ForeignMaterialController@store')
 		->where('foreignMaterialId', '[0-9a-zA-Z_-]+')
 		->middleware('can:create,App\Models\ForeignMaterialId')
+		->middleware('can:create,App\Models\Material')
 		->name('foreignMaterialStore');
 	Route::put('foreign-materials/{foreignMaterialId}', 'ForeignMaterialController@update')
 		->where('foreignMaterialId', '[0-9a-zA-Z_-]+')
@@ -218,6 +247,7 @@ Route::group([
 		'ForeignMaterialController@createFromResources')
 		->where('foreignMaterialId', '[0-9a-zA-Z_-]+')
 		->middleware('can:create,App\Models\ForeignMaterialId')
+		->middleware('can:create,App\Models\Material')
 		->name('foreignMaterialCreateFromResource');
 
 	// Neu - Ressourcen
@@ -235,6 +265,7 @@ Route::group([
 		->name('resources.store');
 	Route::post('foreign-resources/', 'ForeignResourceController@storeForeign')
 		->middleware('can:create,App\Models\ForeignResourceId')
+		->middleware('can:create,App\Models\Resource')
 		->name('foreignResources.store');
 	Route::post('resources/create-material', 'ResourceController@createMaterialFromResourceIds')
 		->middleware('can:create,App\Models\Material')
@@ -292,17 +323,22 @@ Route::group([
 
 	// Bundle import and update
 	Route::get('bundles', 'BundleImportController@index')
+		->middleware('can:bundles.manage')
 		->name('bundles.index');
 	Route::get('bundles/{bundle}', 'BundleImportController@show')
+		->middleware('can:bundles.manage')
 		->where('bundle', '[0-9]+')
 		->name('bundles.show');
 	Route::post('bundles/{bundle}/init-update', 'BundleImportController@initUpdate')
+		->middleware('can:bundles.manage')
 		->name('bundles.update.init')
 		->where('bundle', '[0-9]+');
 	Route::post('bundles/{bundle}/init-uninstall', 'BundleImportController@initUninstall')
+		->middleware('can:bundles.manage')
 		->name('bundles.uninstall.init')
 		->where('bundle', '[0-9]+');
 	Route::post('bundles/{bundle}/run-update', 'BundleImportController@runJobs')
+		->middleware('can:bundles.manage')
 		->name('bundles.update.run')
 		->where('bundle', '[0-9]+');
 	Route::get('bundles/{bundle}/icon', 'BundleImportController@getBundleIcon')

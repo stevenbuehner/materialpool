@@ -6,14 +6,17 @@ use App\Events\ResourceWasChanged;
 use App\Http\Controllers\ResourceHelperTrait;
 use App\Models\File;
 use App\Models\ForeignMaterialId;
+use App\Models\Material;
 use App\Models\Resource;
 use App\Services\ResourceHandling\Exceptions\ResourceNotReplaceable;
 use App\Services\ResourceHandling\FileHandlingService;
 use App\Services\ResourceHandling\ResourceHandlingService;
+use App\Support\Authorization\SystemPermissions;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Validator;
 
 class ResourceController extends BaseController {
@@ -85,10 +88,12 @@ class ResourceController extends BaseController {
 
 		// DB::enableQueryLog();
 		// Check Authorisation
-		$builder->where(function ($q) {
-			$q->orWhere("created_by", Auth::id());
-			$q->orWhere('is_public', TRUE);
-		});
+		if (!Auth::user()->can(SystemPermissions::RESOURCES_VIEW_ALL)) {
+			$builder->where(function ($q) {
+				$q->orWhere("created_by", Auth::id());
+				$q->orWhere('is_public', TRUE);
+			});
+		}
 
 		if ($request->has('id')) {
 			$builder->where('id', $request->get('id'));
@@ -142,6 +147,9 @@ class ResourceController extends BaseController {
 	}
 
 	public function store(Request $request) {
+		if ($request->boolean('create_material_from_resource')) {
+			Gate::authorize('create', Material::class);
+		}
 
 		$this->validateResourceRequest($request, Resource::class, $allowPartialUpdate = FALSE);
 
@@ -211,7 +219,7 @@ class ResourceController extends BaseController {
 		$resourceIds = $request->get('resourceIds', []);
 		$resources   = Resource::findMany($resourceIds);
 
-		// ToDo: Prüfen, ob der Nutzer alle Ressourcen verwenden darf
+		$resources->each(fn(Resource $resource) => Gate::authorize('view', $resource));
 
 		$material = $this->createMaterialFromResources($resources->all(), $meta);
 

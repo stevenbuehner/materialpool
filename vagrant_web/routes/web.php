@@ -30,19 +30,19 @@ Route::group(['prefix' => 'vue', 'as' => 'vue.'], function () {
 	Route::get('{vue_capture?}', function () {
 		return view('vuerouter.index');
 	})->where('vue_capture', '[^<>]*')
-		->middleware(['auth']);
+		->middleware(['auth', 'active']);
 
 });
 
-Route::get('/home', 'HomeController@index');
+Route::get('/home', 'HomeController@index')->middleware(['auth', 'active']);
 
 Route::get('/keepalive', 'HomeController@keepalive')
 	->name('token_keepalive')
-	->middleware(['auth']);
+	->middleware(['auth', 'active']);
 
 
 // Admin Interface Routes
-Route::group(['prefix' => 'pool', 'as' => 'pool.'], function () {
+Route::group(['prefix' => 'pool', 'as' => 'pool.', 'middleware' => ['auth', 'active']], function () {
 
 	// route name: "pool.material.index", ...
 	Route::resource('material', 'MaterialController');
@@ -63,10 +63,12 @@ Route::group(['prefix' => 'pool', 'as' => 'pool.'], function () {
 	Route::get('resource/{resource}/download', 'ResourceController@download')
 		->name('resource.download');
 	Route::get('resource/{resource}/mediastream', 'MediaStreamController@stream')
+		->middleware('can:view,resource')
 		->name('resource.mediastream');
 	Route::get('resource/{resource}/material/{material}/pdfdownload', 'PdfResourceController@downloadPages')
 		->where('resource', '[0-9]+')
 		->where('material', '[0-9]+')
+		->middleware(['can:view,resource', 'can:view,material'])
 		->name('resource.limitedpdf.download');
 
 
@@ -88,7 +90,7 @@ Route::group(['prefix' => 'pool', 'as' => 'pool.'], function () {
 Route::get('/resource/{resource}/image/{width?}/{height?}', 'ResourcePreviewController@getImage')
 	->where('width', '[0-9]+')
 	->where('height', '[0-9]+')
-	->middleware('auth')
+	->middleware(['auth', 'active', 'can:view,resource'])
 	->middleware(\App\Http\Middleware\CacheControlHeaders::class) // Tell browser to keep cache for one week
 	->name('resource.image.preview');
 
@@ -97,12 +99,12 @@ Route::get('/resource/{resource}/image/page-{page}/{clearCache?}', 'ResourcePrev
 	->where('page', '[0-9]+')
 	->where('clearCache', 'refresh')
 	->name('PdfPreview/ImagePreview')
-	->middleware('auth')
+	->middleware(['auth', 'active', 'can:view,resource'])
 	->middleware(\App\Http\Middleware\CacheControlHeaders::class); // Tell browser to keep cache for one week
 
 Route::get('material/{material}/preview', 'MaterialPreviewController@getMaterialPreview')
 	->where('material', '[0-9]+')
-	->middleware('auth')
+	->middleware(['auth', 'active', 'can:view,material'])
 	->middleware(\App\Http\Middleware\CacheControlHeaders::class)// Tell browser to keep cache for one week
 	->name('material.preview');
 
@@ -110,7 +112,7 @@ Route::get('material/{material}/preview', 'MaterialPreviewController@getMaterial
 Route::get('/bibleverse/{from}-{to}', 'Api\BibleverseController@show')
 	->where('from', '[0-9]+')
 	->where('to', '[0-9]+')
-	->middleware('auth')
+	->middleware(['auth', 'active'])
 	->name('bibleverse');
 
 

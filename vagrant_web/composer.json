@@ -28,6 +28,7 @@
     "phpexiftool/exiftool": "^10.16",
     "setasign/fpdi-fpdf": "^2.0",
     "spatie/laravel-backup": "^10.3",
+    "spatie/laravel-permission": "^8.3",
     "spatie/pdf-to-text": "^1.1",
     "stevenbuehner/bible-verse-bundle": "^3.0",
     "tightenco/parental": "^1.6"
