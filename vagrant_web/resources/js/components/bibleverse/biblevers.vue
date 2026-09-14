@@ -316,13 +316,15 @@ export default {
     }
 
     .icon {
+      filter: drop-shadow(.05em .05em .2em $tag-background-colour-hover);
       position: relative;
       height: 1rem;
+      width: 1rem;
       margin-right: 0.1rem;
       top: -.1rem;
 
       path {
-        fill: black;
+        fill: $tag-font-colour;
       }
     }
 

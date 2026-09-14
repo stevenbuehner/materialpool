@@ -120,26 +120,31 @@ export default {
 
   align-items: center;
   display: inline-flex;
-  background-color: $gray-200;
-  border: $border-width solid $border-color;
+  background-color: $sidebar-tag-background-color-active;
+  border: $border-width solid rgba($sidebar-input-font-color-active, .26);
   border-radius: $border-radius;
-  line-height: $input-line-height;
+  color: $sidebar-input-font-color-active;
+  line-height: 1.4;
   margin: 4px 2px 0 2px;
   padding: 0 0.25em;
   z-index: 0;
 
   &.is-selectable {
     cursor: pointer;
+
+    &:hover {
+      background-color: $sidebar-tag-background-color-active-hover;
+    }
   }
 
   &.disabled {
-    background-color: $gray-200;
-    color: $gray-600;
+    background-color: $sidebar-tag-background-color-disabled;
+    color: $sidebar-input-font-color-disabled;
     cursor: not-allowed;
 
     .icon path {
-      stroke: $gray-600;
-      fill: $gray-600;
+      stroke: $sidebar-input-font-color-disabled;
+      fill: $sidebar-input-font-color-disabled;
     }
   }
 
@@ -166,7 +171,20 @@ export default {
   }
 
   button.search-input-tag-remove {
-    color: #3c3c3c;
+    appearance: none;
+    background: none;
+    border: 0;
+    color: $sidebar-input-font-color-active-hover;
+    cursor: pointer;
+    display: inline-flex;
+    margin-left: 4px;
+    padding: 0;
+    text-shadow: 0 1px 0 $white;
+
+    &:hover,
+    &:focus-visible {
+      color: $sidebar-input-font-color-active;
+    }
   }
 
 }

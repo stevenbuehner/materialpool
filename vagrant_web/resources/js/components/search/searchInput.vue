@@ -128,11 +128,11 @@ export default {
 .searchInputSelect {
 
   .multiselect-tags {
-    .selected .close {
-      margin-left: 0.25rem;
-      top: -.15rem;
-      position: relative;
-    }
+    // @vueform/multiselect adds its default tag spacing even when the tag
+    // content is supplied by Materialpool. Keep the compact vue-select
+    // geometry used by the search tags before the adapter change.
+    margin: 0;
+    padding-left: 2px;
 
   }
 
