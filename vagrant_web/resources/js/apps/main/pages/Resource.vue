@@ -10,6 +10,7 @@
       <b-tabs card>
         <b-tab title="Vorschau">
           <resource-detail :resource="resource" v-if="resource" :showOpen="false"
+                           :show-delete="canDeleteResource" :edit-disabled="!canUpdateResource"
                            @resource-updated="onResourceUpdated"/>
         </b-tab>
 
@@ -31,19 +32,19 @@
               </div>
 
               <span class="materialNavi w-75 ps-lg-3 ps-1">
-                <router-link v-if="material.pivot.limitation && isLimitable"
+                <router-link v-if="canUpdateMaterial(material) && material.pivot.limitation && isLimitable"
                              class="btn btn-warning btn-sm mb-1 me-1"
                              :to="routerEditLimitationObject(resource, material.pivot)">
                   {{ $t('pool.Edit-Limitation') }}</router-link>
                 <router-link
-                    v-if="!material.pivot.limitation && isLimitable"
+                    v-if="canUpdateMaterial(material) && !material.pivot.limitation && isLimitable"
                     class="btn btn-success btn-sm mb-1 me-1"
                     :to="routerEditLimitationObject(resource, material.pivot)">
                   {{ $t('pool.Create-Limitation') }}
                 </router-link>
-                <button @click="btnDetachMaterialFromResource(material)"
+                <button v-if="canUpdateMaterial(material)" @click="btnDetachMaterialFromResource(material)"
                         class="btn btn-outline-danger btn-sm mb-1 me-1">{{ $t('pool.remove') }}</button>
-                <button @click="btnCopyMaterial(material)"
+                <button v-if="canCreateMaterials" @click="btnCopyMaterial(material)"
                         :title="$t('pool.Copy-material')"
                         class="btn btn-outline-danger btn-sm mb-1 me-1">{{ $t('pool.copy') }}</button>
                 <router-link :to="{name: 'material-detail', params: {id: material.id}}"
@@ -58,16 +59,16 @@
           <div class="d-flex justify-content-center pt-2">
             <button class="btn btn-outline-secondary m-1"
                     :title="$t('pool.auto-create-material')"
-                    v-if="resource.materials.length === 0"
+                    v-if="canCreateMaterials && resource.materials.length === 0"
                     @click="btnCreateAutoMaterialFromResource">
               <rocket-icon class="icon"/>
             </button>
-            <button class="btn btn-outline-secondary m-1"
+            <button v-if="canCreateAndUpdateOwnMaterials" class="btn btn-outline-secondary m-1"
                     :title="$t('pool.create-and-assign-material')"
                     @click="btnCreateAndAssignMaterialManually">
               <new-message-icon class="icon"/>
             </button>
-            <button class="btn btn-outline-secondary m-1"
+            <button v-if="canUpdateAnyMaterial" class="btn btn-outline-secondary m-1"
                     :title="$t('pool.assign-material')"
                     @click="btnAddMaterialToResource">
               <flow-tree-icon class="icon"/>
@@ -89,11 +90,12 @@
 
             <b-list-group-item class="d-flex">
               <b>{{ $t('pool.Notes') }}:</b>&nbsp;
-              <edditable type="span"
+              <edditable v-if="canUpdateResource" type="span"
                          :value="resource.notes"
                          @value-changed="updateNotes"
                          :placeholder="$t('pool.Click-to-insert-a-note')"
                          class="flex-grow-1 ms-1"/>
+			  <span v-else class="flex-grow-1 ms-1">{{ resource.notes || '–' }}</span>
             </b-list-group-item>
 
             <b-list-group-item>
@@ -114,16 +116,17 @@
 
             <b-list-group-item class="d-flex">
               <b>{{ $t('pool.Web-URL') }}:</b>&nbsp;
-              <edditable type="a"
+              <edditable v-if="canUpdateResource" type="a"
                          :value="resource.remote_path"
                          @value-changed="updateRemotePath"
                          :placeholder="$t('pool.Click-to-insert-an-URL')"
                          :key="forceReload"
                          class="flex-grow-1 ms-1"/>
+			  <a v-else-if="resource.remote_path" :href="resource.remote_path" class="flex-grow-1 ms-1">{{ resource.remote_path }}</a>
             </b-list-group-item>
             <b-list-group-item>
               <b>{{ $t('pool.Publicity') }}:</b>
-              <toggle :value="resource.is_public" id="is_public" type="light"
+              <toggle v-if="canUpdateResource" :value="resource.is_public" id="is_public" type="light"
                       style="font-size: .6em; position: relative; top: .4em;"
                       :key="forceReload"
                       @isToggled="updateIsPublic"/>
@@ -180,6 +183,8 @@ import {savingDialogs}       from "../../../helper/flashMessages";
 import filesize              from "../../../helper/filesize.mixin";
 import {useMaterialsStore}   from '../stores/materials';
 import {useResourcesStore}   from '../stores/resources';
+import {useGeneralStore}     from '../stores/general';
+import {userHasPermission}   from '../authorization';
 import RocketIcon            from '@icons/entypo-plus/rocket.svg';
 import NewMessageIcon        from '@icons/entypo-plus/new-message.svg';
 import FlowTreeIcon          from '@icons/entypo-plus/flow-tree.svg';
@@ -203,6 +208,7 @@ export default {
       isLoading: false,
       errorMsg: null,
       resource: null,
+	  authorization: {id: null, is_admin: false, permissions: []},
 
       forceReload: 0,
     };
@@ -240,10 +246,33 @@ export default {
       }
 
       return info;
-    }
+	},
+
+	canUpdateResource() {
+	  return this.hasPermission('resources.update-all')
+	    || (this.resource?.created_by === this.authorization.id && this.hasPermission('resources.update-own'));
+	},
+	canDeleteResource() {
+	  return this.hasPermission('resources.delete-all')
+	    || (this.resource?.created_by === this.authorization.id && this.hasPermission('resources.delete-own'));
+	},
+	canCreateMaterials() { return this.hasPermission('materials.create'); },
+	canUpdateAnyMaterial() { return this.hasPermission('materials.update-own') || this.hasPermission('materials.update-all'); },
+	canCreateAndUpdateOwnMaterials() { return this.canCreateMaterials && this.canUpdateAnyMaterial; },
   },
 
+	created() {
+	  useGeneralStore().currentUser().then(user => { this.authorization = user; });
+	},
+
   methods: {
+	hasPermission(permission) {
+	  return userHasPermission(this.authorization, permission);
+	},
+	canUpdateMaterial(material) {
+	  return this.hasPermission('materials.update-all')
+	    || (material?.created_by === this.authorization.id && this.hasPermission('materials.update-own'));
+	},
     loadResource() {
       this.isLoading = true;
 

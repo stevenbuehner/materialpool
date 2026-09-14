@@ -11,20 +11,21 @@
 
         <b-navbar-nav>
 
-          <b-nav-item :to="{name: 'resource-create'}" :title="$t('pool.Upload')">
+          <b-nav-item v-if="canCreateResources" :to="{name: 'resource-create'}" :title="$t('pool.Upload')">
             <upload-icon class="sb-icon sb-navbar-icon"/>
           </b-nav-item>
 
-          <b-nav-item :to="{name: 'resource-text-create'}" :title="$t('pool.New')">
+          <b-nav-item v-if="canCreateResources" :to="{name: 'resource-text-create'}" :title="$t('pool.New')">
             <new-text-icon class="sb-icon sb-navbar-icon"/>
           </b-nav-item>
 
-          <b-nav-item-dropdown right :text="$t('pool.Edit')" v-if="isAdmin">
-            <b-dropdown-item :to="{name: 'keyword-list'}" class="dropdown-hover" v-if="isAdmin">{{
+          <b-nav-item-dropdown right :text="$t('pool.Edit')" v-if="isAdmin || canManageKeywords || canManageBundles">
+            <b-dropdown-item :to="{name: 'admin-users'}" class="dropdown-hover" v-if="isAdmin">{{ $t('pool.User-management') }}</b-dropdown-item>
+            <b-dropdown-item :to="{name: 'keyword-list'}" class="dropdown-hover" v-if="canManageKeywords">{{
                 $t('pool.Keywords')
               }}
             </b-dropdown-item>
-            <b-dropdown-item :to="{name: 'bundle-list'}" class="dropdown-hover" v-if="isAdmin">{{ $t('pool.Bundle') }}
+            <b-dropdown-item :to="{name: 'bundle-list'}" class="dropdown-hover" v-if="canManageBundles">{{ $t('pool.Bundle') }}
             </b-dropdown-item>
             <b-dropdown-item :to="{name: 'resource-lonely'}" class="dropdown-hover" v-if="isAdmin">
               {{ $t('pool.Lonely-Resources') }}
@@ -67,7 +68,7 @@
             <b-dropdown-item disabled href="#" class="dropdown-hover">{{ $t('pool.Settings') }}
             </b-dropdown-item>
             <b-dropdown-item :to="{name: 'system-shutdown'}" class="dropdown-hover bg-danger"
-                             v-if="isAdmin">
+                             v-if="canShutdown">
               {{ $t('pool.Shutdown') }}
             </b-dropdown-item>
           </b-nav-item-dropdown>
@@ -99,11 +100,19 @@ import uploadIcon                        from '@icons/vendor/svg-icon/svg/icomoo
 import newTextIcon                       from '@icons/vendor/svg-icon/svg/zero/custom-text.svg';
 import asyncIsAdminMixin                 from "../general/async-isAdmin-mixin";
 import asyncUsernameMixin                from "../general/async-username-mixin";
+import {useGeneralStore}                 from '../../apps/main/stores/general';
 
 export default {
   name: "mainNavbar",
 
   mixins: [asyncIsAdminMixin, asyncUsernameMixin],
+
+  asyncComputed: {
+    canCreateResources: {get: () => useGeneralStore().hasPermission('resources.create'), default: false},
+    canManageKeywords: {get: () => useGeneralStore().hasPermission('keywords.manage'), default: false},
+    canManageBundles: {get: () => useGeneralStore().hasPermission('bundles.manage'), default: false},
+    canShutdown: {get: () => useGeneralStore().hasPermission('system.shutdown'), default: false},
+  },
 
   data() {
     return {

@@ -50,12 +50,12 @@
                            class="btn btn-sm btn-outline-primary">{{ $t('pool.open') }}
               </router-link>
 
-              <router-link v-if="resource.type==='pdf' || resource.type==='doc'"
+              <router-link v-if="!structureEditDisabled && (resource.type==='pdf' || resource.type==='doc')"
                            :to="routerEditLimitationObject(resource, resource.pivot)"
                            class="btn btn-sm btn-outline-primary">{{ $t('pool.page-assignments') }}
               </router-link>
 
-              <router-link :to="{name:'resource-replace', params: {r1 : resource.id, r2 : null}}"
+              <router-link v-if="!editDisabled" :to="{name:'resource-replace', params: {r1 : resource.id, r2 : null}}"
                            class="btn btn-sm btn-outline-danger">
                 {{ $t('pool.replace-this-resource') }}
               </router-link>
@@ -128,6 +128,12 @@ export default {
       required: false,
       default: false
     },
+
+	structureEditDisabled: {
+	  type: Boolean,
+	  required: false,
+	  default: false,
+	},
 
   },
 

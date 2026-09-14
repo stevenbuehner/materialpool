@@ -24,13 +24,13 @@
                 <public-material-download :material-id="id"/>
               </button>
 
-              <button class="btn btn-sm" :title="$t('pool.Delete-material')"
+              <button v-if="canDeleteMaterial" class="btn btn-sm" :title="$t('pool.Delete-material')"
                       @click="btnDeleteMaterial"
                       :disabled="!material">
                 <trash-icon class="trash-icon buttonIcon"/>
               </button>
 
-              <button class="btn btn-sm" :title="$t('pool.duplicate-material')"
+              <button v-if="canCreateMaterials" class="btn btn-sm" :title="$t('pool.duplicate-material')"
                       @click="duplicateAndOpenMaterial"
                       :disabled="!material">
                 <clone-icon class="cloneIcon buttonIcon"/>
@@ -48,11 +48,11 @@
               <div class="col-xl-3 col-lg-4 col-md-4 col-sm-6 col-12 p-2"
                    v-for="resource in material.resources"
                    :key="resource.id">
-                <resource-preview :resource="resource" :edit-disabled="material.from_bot">
+                <resource-preview :resource="resource" :edit-disabled="(material.from_bot && !authorization.is_admin) || !canUpdateResource(resource)">
                   <template v-slot:additional-buttons>
                     <button class="btn btn-sm btn-outline-danger mb-1"
                             @click.prevent="btnDetachResource(resource)"
-                            v-if="!materialEditLockActive"
+                            v-if="canUpdateStructure"
                             :title="$t('pool.Detach-resource')">
                       {{ $t('pool.detach') }}
                     </button>
@@ -66,11 +66,12 @@
                  v-if="material.resources && material.resources.length === 1">
               <div class="col-xl-12 col-12 p-0">
                 <resource-detail :resource="material.resources[0]" :showDelete="false"
-                                 :edit-disabled="material.from_bot">
+                                 :edit-disabled="(material.from_bot && !authorization.is_admin) || !canUpdateResource(material.resources[0])"
+				                 :structure-edit-disabled="!canUpdateStructure">
                   <template v-slot:additional-buttons>
                     <button class="btn btn-sm btn-outline-danger"
                             @click.prevent="btnDetachResource(material.resources[0])"
-                            v-if="!materialEditLockActive"
+                            v-if="canUpdateStructure"
                             :title="$t('pool.Detach-resource')">
                       {{ $t('pool.detach') }}
                     </button>
@@ -84,7 +85,7 @@
             <div class="row" v-if="material.resources && material.resources.length === 0">
               <div class="col-12 py-2">
                 {{ $t('pool.Material-without-resources') }}
-                <button class="btn btn-sm btn-danger btn-sm"
+                <button v-if="canDeleteMaterial" class="btn btn-sm btn-danger btn-sm"
                         @click="btnDeleteMaterial"
                         :title="$t('pool.Delete-resource')">{{ $t('pool.delete') }}
                 </button>
@@ -117,7 +118,7 @@
                 :value="material.title"
                 :name="$t('pool.Title')"
                 :placeholder="$t('pool.enter-name')"
-                :disabled="materialEditLockActive"
+                :disabled="materialMetadataEditLockActive"
                 :clearable="true"
                 @save-request="submitTitle"
             >
@@ -130,7 +131,7 @@
                 :value="material.created_at"
                 :name="$t('pool.date')"
                 :required="true"
-                :disabled="materialEditLockActive"
+                :disabled="materialMetadataEditLockActive"
                 type="date"
                 @save-request="submitDate"
             >
@@ -143,7 +144,7 @@
                 :value="material.author"
                 :name="$t('pool.Author')"
                 :placeholder="$t('pool.Unknown')"
-                :disabled="materialEditLockActive"
+                :disabled="materialMetadataEditLockActive"
                 typefilter="person"
                 :min-input="1"
                 @input:associated="submitAuthor"
@@ -159,7 +160,7 @@
                 :value="material.description"
                 :name="$t('pool.description')"
                 :placeholder="$t('pool.enter-description')"
-                :disabled="materialEditLockActive"
+                :disabled="materialMetadataEditLockActive"
                 type="textarea"
                 @save-request="submitDescription"
             />
@@ -168,7 +169,7 @@
                 :value="material.bibleverses"
                 :name="$t('pool.Bibleverses')"
                 :placeholder="$t('pool.enter-bibleverse')"
-                :disabled="materialEditLockActive"
+                :disabled="materialMetadataEditLockActive"
                 :batch-new-tags-enabled="true"
                 :batch-edit-relevance-enabled="material.bibleverses.length > 2"
                 @input:added="addBibleverse"
@@ -185,7 +186,7 @@
                 :value="material.keywords"
                 :name="$t('pool.tags')"
                 :placeholder="$t('pool.enter-tags')"
-                :disabled="materialEditLockActive"
+                :disabled="materialMetadataEditLockActive"
                 typefilter="key"
                 :batch-edit-relevance-enabled="material.keywords.length > 3"
                 @input:added="addKeyword"
@@ -197,7 +198,7 @@
                 :value="material.keywords"
                 :name="$t('pool.Persons')"
                 :placeholder="$t('pool.enter-tags')"
-                :disabled="materialEditLockActive"
+                :disabled="materialMetadataEditLockActive"
                 typefilter="person"
                 :min-input="1"
                 @input:added="addKeyword"
@@ -213,7 +214,7 @@
                 :value="material.keywords"
                 :name="$t('pool.Places')"
                 :placeholder="$t('pool.enter-tags')"
-                :disabled="materialEditLockActive"
+                :disabled="materialMetadataEditLockActive"
                 typefilter="place"
                 @input:added="addKeyword"
                 @input:removed="removeKeyword"
@@ -232,7 +233,7 @@
                 typefilter="lang"
                 :min-input="0"
                 :new-tags-enabled="false"
-                :disabled="materialEditLockActive"
+                :disabled="materialMetadataEditLockActive"
                 @input:added="addKeyword"
                 @input:removed="removeKeyword"
                 @request-update-relevance="updateKeywordRelevance($event.tag, $event.relevance)"
@@ -243,7 +244,7 @@
             </tag-edit-sidebar-field>
 
 
-            <rating-edit
+            <rating-edit v-if="!materialMetadataEditLockActive"
                 :value="material.rating"
                 :name="$t('pool.Rating')"
                 @input="submitRating"/>
@@ -258,12 +259,12 @@
 
               <div class="col-12 col-sm-6 col-mb-4 mb-2 mb-sm-0 py-2">
                 <resource-uploader
-                    v-if="!materialEditLockActive"
+                    v-if="canUpdateStructure && canCreateResources"
                     @resource-created="uploadResourceToThisMaterial"/>
               </div>
 
               <div class="col-12 col-sm-6 col-mb-4 py-2"
-                   v-if="!materialEditLockActive">
+                   v-if="canUpdateStructure">
                 <div class="dashedBorder p-2 d-flex align-items-center justify-content-center">
                   <b-button @click="assignResourceToThisMaterial">
                     {{ $t('pool.Assign-resource') }}
@@ -272,7 +273,7 @@
               </div>
 
               <div class="col-12 col-sm-6 col-mb-4 py-2"
-                   v-if="!materialEditLockActive">
+                   v-if="canUpdateStructure && canCreateResources">
                 <div class="dashedBorder p-2 d-flex align-items-center justify-content-center">
                   <b-button @click="createAndAttachTextResourceToThisMaterial">
                     {{ $t('pool.Create-text') }}
@@ -358,6 +359,8 @@ import {useBibleversesStore}      from '../stores/bibleverses';
 import {useKeywordsStore}         from '../stores/keywords';
 import {useMaterialsStore}        from '../stores/materials';
 import {useResourcesStore}        from '../stores/resources';
+import {useGeneralStore}          from '../stores/general';
+import {userHasPermission}       from '../authorization';
 
 // https://github.com/craigh411/vue-star-rating/#props
 export default {
@@ -383,6 +386,7 @@ export default {
       material: null,
       materialDetailsLoaded: false,
       errorOnLoadingMessage: null,
+	  authorization: {id: null, is_admin: false, permissions: []},
     };
   },
 
@@ -416,8 +420,39 @@ export default {
     },
 
     materialEditLockActive() {
-      return this.material && this.material.from_bot === true;
-    },
+	  return this.materialMetadataEditLockActive;
+	},
+
+	materialMetadataEditLockActive() {
+	  return !this.canEditMetadata || (this.material?.from_bot === true && !this.authorization.is_admin);
+	},
+
+	canEditMetadata() {
+	  return this.hasPermission('materials.update-metadata-all')
+	    || (this.ownsMaterial && this.hasPermission('materials.update-metadata-own'));
+	},
+
+	canUpdateStructure() {
+	  return this.hasPermission('materials.update-all')
+	    || (this.ownsMaterial && this.hasPermission('materials.update-own'));
+	},
+
+	canDeleteMaterial() {
+	  return this.hasPermission('materials.delete-all')
+	    || (this.ownsMaterial && this.hasPermission('materials.delete-own'));
+	},
+
+	canCreateMaterials() {
+	  return this.hasPermission('materials.create');
+	},
+
+	canCreateResources() {
+	  return this.hasPermission('resources.create');
+	},
+
+	ownsMaterial() {
+	  return this.material?.created_by === this.authorization.id;
+	},
 
     bundleIds() {
       if (!this.material || !Array.isArray(this.material.foreign_ids)) {
@@ -475,11 +510,25 @@ export default {
 
   watch: {},
 
-  created() {
+	created() {
+	  useGeneralStore().currentUser().then(user => {
+	    this.authorization = user;
+	  });
   },
 
 
   methods: {
+	hasPermission(permission) {
+	  return userHasPermission(this.authorization, permission);
+	},
+	canUpdateResource(resource) {
+	  return this.hasPermission('resources.update-all')
+	    || (resource?.created_by === this.authorization.id && this.hasPermission('resources.update-own'));
+	},
+	canDeleteResource(resource) {
+	  return this.hasPermission('resources.delete-all')
+	    || (resource?.created_by === this.authorization.id && this.hasPermission('resources.delete-own'));
+	},
 
     submitFlag(newFlag) {
       this.submitMaterialUpdate({flag: newFlag, from_bot: false}, 'Flag');

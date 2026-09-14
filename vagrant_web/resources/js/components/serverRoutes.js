@@ -75,6 +75,23 @@ export function api_v1_resources_replace_with(oldResourceId, newResourceId) {
 // General Options
 export const api_v1_general_options = '/api/v1/general/options';
 
+// Admin
+export const api_v2_admin_users = '/api/v2/admin/users';
+export const api_v2_admin_groups = '/api/v2/admin/groups';
+export const api_v2_admin_permissions = '/api/v2/admin/permissions';
+
+export function api_v2_admin_user(userId) {
+	return `${api_v2_admin_users}/${userId}`;
+}
+
+export function api_v2_admin_user_invitation(userId) {
+	return `${api_v2_admin_user(userId)}/invitation`;
+}
+
+export function api_v2_admin_group(groupId) {
+	return `${api_v2_admin_groups}/${groupId}`;
+}
+
 
 // User settings
 export function api_v1_users_view(userId) {

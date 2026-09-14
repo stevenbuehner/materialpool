@@ -17,6 +17,7 @@ const MaterialOrderedListing = () => import('./pages/MaterialOrderedListing.vue'
 const ResourceReplace = () => import('./pages/ResourceReplace.vue');
 const KeywordDetail = () => import('./pages/KeywordDetail.vue');
 const SystemShutdown = () => import('./pages/RequestShutdown.vue');
+const AdminUsers = () => import('./pages/AdminUsers.vue');
 
 const numericIdProps = (route) => ({id: parseInt(route.params.id)});
 
@@ -144,6 +145,12 @@ export const routes = [
 		component: ReadBible,
 		name: 'readbible',
 		props: true,
+	},
+	{
+		path: '/admin/users',
+		component: AdminUsers,
+		name: 'admin-users',
+		props: false,
 	},
 	{
 		path: '/system/shutdown',

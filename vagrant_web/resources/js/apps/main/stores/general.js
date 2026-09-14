@@ -7,6 +7,7 @@ import {
 import axios from '../axiosInstance';
 import {convertErrorResponseToMessage} from '../store/modules/handleErrorsHelper';
 import {extractValueById, overrideValueById, removeValueById, verifyStructure} from '../store/helper/idExplode';
+import {userHasPermission} from '../authorization';
 
 const USER_SETTINGS_ID = 'frontend_user_settings';
 
@@ -90,6 +91,9 @@ export const useGeneralStore = defineStore('general', {
 
 		isAdmin() {
 			return this.currentUser().then(({is_admin}) => is_admin || false);
+		},
+		hasPermission(permission) {
+			return this.currentUser().then(user => userHasPermission(user, permission));
 		},
 		systemName() {
 			return this.options().then(allOptions => allOptions.systemname || 'MaterialPool Default');
