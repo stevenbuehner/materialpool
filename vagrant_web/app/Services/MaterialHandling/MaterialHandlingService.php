@@ -105,6 +105,7 @@ class MaterialHandlingService {
 
 		/** @var Material $clone */
 		$clone = $material->replicate();
+		$clone->created_at = $material->created_at;
 		$clone->save();
 		// $clone->setRelations([]);
 
