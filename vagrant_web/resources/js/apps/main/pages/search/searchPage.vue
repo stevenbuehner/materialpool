@@ -28,8 +28,7 @@
         :limit="10"
         :number-of-pages="paging.last_page"
         use-router
-        :link-gen="linkGeneration"
-        align="center">
+        :link-gen="linkGeneration">
     </b-pagination-nav>
 
   </div>
