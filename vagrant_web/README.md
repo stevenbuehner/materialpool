@@ -505,7 +505,7 @@ WebKit benötigt AppKit-/Mach-Port-Zugriff. Der Fehler bei `RegisterApplication`
 
 ### Anmeldung und Navigation
 
-Materialpool ist geschützt. Nach erfolgreicher Anmeldung öffnet `/vue` die Startseite. Oben stehen Upload, neue Textressource, Bibel, Suchmaske, Schnellsuche und das Benutzerkonto zur Verfügung. Administratoren sehen zusätzlich das Menü **Bearbeiten**. Auf kleinen Bildschirmen wird die Navigation über den Menüschalter geöffnet.
+Materialpool ist geschützt. Nach erfolgreicher Anmeldung öffnet `/vue` die Startseite. Oben stehen – abhängig von den zugewiesenen Berechtigungen – Upload, neue Textressource, Bibel, Suchmaske, Schnellsuche und das Benutzerkonto zur Verfügung. Das Menü **Bearbeiten** erscheint für Global-Admins und Benutzer mit passenden Verwaltungsrechten. Auf kleinen Bildschirmen wird die Navigation über den Menüschalter geöffnet.
 
 <!-- README-SCREENSHOT
 id: login
@@ -549,7 +549,7 @@ refresh: Mobile Navigation, Breakpoints, Startseite oder globale Styles geänder
 
 *Mobil: Der Menüschalter blendet Navigation, Suche und Benutzerkonto ein.*
 
-Im Benutzermenü befindet sich **Abmelden**. **Einstellungen** ist derzeit sichtbar, aber deaktiviert. Administratoren sehen dort zusätzlich den System-Shutdown.
+Im Benutzermenü befindet sich **Abmelden**. **Einstellungen** ist derzeit sichtbar, aber deaktiviert. Der System-Shutdown erscheint nur mit dem Recht `system.shutdown`; Global-Admins besitzen dieses Recht stets.
 
 ### Begriffe
 
@@ -607,6 +607,8 @@ refresh: Materialdetail, Sidebar, Resource-Karte oder Materialaktionen geändert
 *Materialdetail: Der Inhaltsbereich und die direkt bearbeitbaren Metadaten stehen nebeneinander; hier ist noch keine Resource zugeordnet.*
 
 Im Tab **Material** lassen sich Titel, Datum, Autor, Beschreibung, Bibelstellen, Themen, Personen, Orte, Sprachen und Bewertung pflegen. Änderungen werden über die vorhandenen Feldaktionen gespeichert; ungespeicherte Werte sind farblich markiert.
+
+Welche Aktionen verfügbar sind, wird serverseitig aus den Gruppenrechten ermittelt. Erstellen, Metadatenpflege, Resource-Zuordnungen und Löschen sind getrennte Rechte; `*-own` gilt nur für selbst erstellte Datensätze, `*-all` zusätzlich für fremde. Ausgeblendete oder deaktivierte UI-Aktionen ersetzen nie die serverseitige Prüfung.
 
 Im Tab **Zuordnungen** werden unter anderem Nutzungen und Resource-Beziehungen verwaltet. Relevanzen von Schlagwörtern und Bibelstellen beeinflussen ihre Gewichtung. Bei einer Resource-Zuordnung kann **Resource zuordnen** eine vorhandene Resource suchen und verbinden. Begrenzbare PDFs, Videos und Audios können pro Material auf Seiten oder Zeiträume eingeschränkt werden.
 
@@ -689,10 +691,16 @@ refresh: Bibelleser, Übersetzungsauswahl, Versdarstellung oder Bibelsuche geän
 
 *Bibelleser: Versbereich und Übersetzung können unabhängig voneinander gewählt werden.*
 
-### Administratorfunktionen
+### Verwaltung und administrative Funktionen
 
 > [!IMPORTANT]
-> Die folgenden Funktionen sind nur für Administratoren sichtbar. Die serverseitige Autorisierung bleibt maßgeblich; ein verborgenes Menü ist kein Sicherheitsmechanismus.
+> Die Benutzer- und Gruppenverwaltung ist ausschließlich für Global-Admins sichtbar. Schlagwort-, Bundle- und Shutdown-Funktionen können über eigene Gruppenrechte freigegeben werden. Die serverseitige Autorisierung bleibt maßgeblich; ein verborgenes Menü ist kein Sicherheitsmechanismus.
+
+#### Benutzer und Gruppen
+
+Global-Admins öffnen unter **Bearbeiten → Benutzerverwaltung** die Seite `/vue/admin/users`. Dort können sie Benutzer suchen, nach Status filtern, einladen, Gruppen zuweisen, sperren oder wieder aktivieren sowie Einladungen erneut senden. Neue Konten bleiben bis zum erfolgreichen Festlegen eines Passworts im Status **Eingeladen**; der Einladungslink ist 60 Minuten gültig. Gesperrte Konten können sich weder über Web noch Passport anmelden, und bestehende Access-/Refresh-Tokens werden beim Sperren widerrufen.
+
+Im Bereich **Gruppen** werden ausschließlich die fest definierten Systemrechte zugeordnet. Direkte Benutzerrechte sind nicht vorgesehen. Die Gruppe **Standardnutzer** schützt den bisherigen Arbeitsablauf für eigene Materialien und Resources. Eine noch verwendete Gruppe kann nicht gelöscht werden; der letzte aktive Global-Admin kann weder gesperrt noch herabgestuft werden.
 
 #### Schlagwörter
 
