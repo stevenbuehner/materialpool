@@ -1056,6 +1056,12 @@ test('Vue 3 datepicker keeps the German input and calendar interaction', async (
     await clearTitleButton.click();
     await expect(titleControl).toHaveValue('');
     await expect(titleControl).toBeFocused();
+    const titleField = page.locator('.textEditSidebarField').filter({hasText: 'Titel'});
+    await expect(titleField.locator('.inputWrapper')).toHaveCSS('border-color', 'rgb(220, 53, 69)');
+    await expect(titleControl).toHaveCSS('color', 'rgb(88, 21, 28)');
+    expect(await titleControl.evaluate(control => getComputedStyle(control, '::placeholder').color))
+        .toBe('rgb(88, 21, 28)');
+    await expect(titleField.locator('.buttons')).toHaveCSS('gap', '4px');
 
     await expect(page.locator('.selected-relevance').first()).toHaveCSS('background-color', 'rgb(40, 167, 69)');
 

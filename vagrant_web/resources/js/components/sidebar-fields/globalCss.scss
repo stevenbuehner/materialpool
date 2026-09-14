@@ -27,6 +27,11 @@
       border: solid $input-border-color $input-border-width;
       background-color: $sidebar-input-background-colour-active;
 
+      &.valueChanged,
+      &:has(.valueChanged) {
+        border-color: var(--bs-danger);
+      }
+
       input, textarea {
         font-size: 1em;
         line-height: $input-line-height;
@@ -38,12 +43,21 @@
 
         &.valueChanged {
           background-color: $sidebar-input-value-not-saved-yet-background-color;
-          border-color: $sidebar-input-value-not-saved-yet-border-color;
+          color: var(--bs-danger-text-emphasis);
         }
 
-        ::placeholder {
+        &::placeholder {
           color: $sidebar-input-text-colour-placeholder;
         }
+
+        &.valueChanged::placeholder {
+          color: var(--bs-danger-text-emphasis);
+          opacity: 1;
+        }
+      }
+
+      .used_by.valueChanged {
+        --ms-color: var(--bs-danger-text-emphasis);
       }
     }
 

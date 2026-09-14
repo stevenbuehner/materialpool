@@ -12,7 +12,7 @@
         </span>
       </slot>
 
-      <div class="buttons">
+      <div class="buttons d-flex gap-1">
         <b-button
             v-if="valueHasChanged && enableSaveButton && !disabled"
             size="sm"
@@ -34,7 +34,7 @@
     </div>
 
     <div class="editField"
-         :class="{disabled}">
+         :class="{disabled, valueChanged: valueHasChanged}">
 
       <div class="inputWrapper">
 
