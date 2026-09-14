@@ -979,6 +979,24 @@ test('Vue 3 datepicker keeps the German input and calendar interaction', async (
     });
     await page.route('**/pool/search/**', route => {
         const url = new URL(route.request().url());
+        const searchResults = url.pathname === '/pool/search/get'
+            ? [{
+                id: 2,
+                title: 'Compat interactions',
+                description: '',
+                author: null,
+                from_bot: false,
+                resources: [],
+                keywords: [{
+                    id: 55,
+                    title: 'Compat keyword',
+                    lc_title: 'compat keyword',
+                    type: 'key',
+                    pivot: {relevance: 100},
+                }],
+                bibleverses: [],
+            }]
+            : [];
         const languageOptions = url.searchParams.get('t') === 'lang'
             ? [
                 {id: 1, title: 'Deutsch', type: 'lang', pivot: {relevance: 100}},
@@ -989,11 +1007,11 @@ test('Vue 3 datepicker keeps the German input and calendar interaction', async (
         return route.fulfill({
             contentType: 'application/json',
             body: JSON.stringify({
-                data: languageOptions,
+                data: searchResults.length > 0 ? searchResults : languageOptions,
                 current_page: 1,
                 last_page: 1,
                 per_page: 20,
-                total: languageOptions.length,
+                total: searchResults.length > 0 ? searchResults.length : languageOptions.length,
             }),
         });
     });
@@ -1198,6 +1216,16 @@ test('Vue 3 datepicker keeps the German input and calendar interaction', async (
     await expect(contextMenu).toBeHidden();
     await expect(page).toHaveURL(/\/vue\/search\/1k55$/);
     await expect(page.locator('.searchInputSelect .sb-search-input-tag')).toContainText('Compat keyword');
+
+    const searchResultTag = page.locator('.materialListingItem .sb-keyword').filter({hasText: 'Compat keyword'});
+    await expect(searchResultTag).toBeVisible();
+    await searchResultTag.click({button: 'right'});
+    const searchMenuItem = contextMenu.getByRole('button', {name: 'Suche nach "Compat keyword"'});
+    await expect(searchMenuItem).toBeVisible();
+    await searchMenuItem.hover();
+    await expect(searchMenuItem).toHaveCSS('background-color', 'rgb(206, 212, 218)');
+    await searchMenuItem.click();
+    await expect(page).toHaveURL(/\/vue\/search\/1k55$/);
     expect(pageErrors).toEqual([]);
 });
 

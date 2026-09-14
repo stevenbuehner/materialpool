@@ -1,14 +1,19 @@
 <template>
-  <component
-      :is="mainComponent"
-      class="menuItem"
-      @click.stop="menuItemClicked"
-      :class="{disabled: disabled, 'with-icon' : icon !== ''}"
-      :to="to"
-      tabindex="0">
-    <span class="icon" v-if="icon !== ''" :style="{backgroundImage : 'url(' + icon + ')'}"/>
-    <slot :optional-data="optionalData"></slot>
-  </component>
+  <li role="presentation">
+    <component
+        :is="mainComponent"
+        class="dropdown-item"
+        :class="{disabled: disabled, 'with-icon' : icon !== ''}"
+        :to="to"
+        :type="isLink ? null : 'button'"
+        :disabled="disabled"
+        :aria-disabled="disabled ? 'true' : null"
+        role="menuitem"
+        @click.stop="menuItemClicked">
+      <span class="icon" v-if="icon !== ''" :style="{backgroundImage : 'url(' + icon + ')'}"/>
+      <slot :optional-data="optionalData"></slot>
+    </component>
+  </li>
 </template>
 
 <script>
@@ -60,6 +65,11 @@ export default {
 
   methods: {
     menuItemClicked(event) {
+      if (this.disabled) {
+        event.preventDefault();
+        return;
+      }
+
       this.contextMenuItemClicked?.(this);
       this.$emit('click', event);
 
@@ -72,7 +82,7 @@ export default {
     },
 
     mainComponent() {
-      return this.isLink ? 'router-link' : 'li';
+      return this.isLink ? 'router-link' : 'button';
     }
 
   },
@@ -81,39 +91,19 @@ export default {
 }
 </script>
 
-<style scoped>
-.menuItem {
-  border-bottom: 1px solid #E0E0E0;
-  margin: 0;
-  padding: 0.5em;
-  line-height: 1em;
-  color: black;
-  text-decoration: none;
-  display: list-item;
+<style lang="scss" scoped>
+@use "../../../sass/theme" as *;
+
+.dropdown-item:hover,
+.dropdown-item:focus {
+  background-color: $gray-400;
 }
 
 .with-icon {
   background-repeat: no-repeat;
-  background-position: 0.5em 0.3em;
+  background-position: 1rem center;
   background-size: 1.5em;
-  padding-left: 2em;
+  padding-left: 3rem;
 }
-
-.menuItem:last-child {
-  border-bottom: none;
-}
-
-.menuItem:hover {
-  background-color: #1E88E5;
-  color: #FAFAFA;
-  cursor: pointer;
-}
-
-.menuItem.disabled {
-  cursor: default;
-  color: grey;
-  background-color: lightgrey;
-}
-
 
 </style>

@@ -1,11 +1,14 @@
 <template>
-  <ul class="sb-context-menu"
-      tabindex="-1"
-      v-if="menuOpen"
-      :style="{top:menuTop, left:menuLeft}">
-    <slot :optional-data="optionalData"></slot>
-
-  </ul>
+  <teleport to="body">
+    <ul ref="menu"
+        class="dropdown-menu sb-context-menu show"
+        tabindex="-1"
+        v-if="menuOpen"
+        :style="{top:menuTop, left:menuLeft}"
+        role="menu">
+      <slot :optional-data="optionalData"></slot>
+    </ul>
+  </teleport>
 </template>
 
 <script>
@@ -47,9 +50,7 @@ export default {
 
       const fensterBreite = document.documentElement.clientWidth || document.body.clientWidth; // El. width minus scrollbar width
 
-      const domRect = this.$el.getBoundingClientRect();
-
-      const menuBreite = domRect.width;
+      const menuBreite = this.$refs.menu?.getBoundingClientRect().width || 0;
 
       const moveTop = top + this.menuOffsetY;
       let moveLeft  = left + this.menuOffsetX;
@@ -90,7 +91,7 @@ export default {
       openMenus.add(this);
 
       this.$nextTick(function () {
-        this.$el.focus();
+        this.$refs.menu?.focus();
         this.setMenu(event.y, event.x)
       });
 
@@ -127,19 +128,6 @@ export default {
   top: 100%;
   left: 0;
   z-index: 999999;
-  display: block;
-  float: left;
-  min-width: 10rem;
-  padding: .25em 0;
-  margin: .125rem 0 0;
-  font-size: 1rem;
-  color: #212529;
-  text-align: left;
-  list-style: none;
-  background-color: #fff;
-  background-clip: padding-box;
-  border: 1px solid rgba(0, 0, 0, .15);
-  border-radius: .25rem;
 }
 
 </style>
