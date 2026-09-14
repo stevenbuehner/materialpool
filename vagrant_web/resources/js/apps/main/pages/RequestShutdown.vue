@@ -134,7 +134,7 @@ export default {
 
 .systemIsDown {
   background-color: $sidebar-input-background-colour-disabled;
-  color: #636b6f;
+  color: $gray-600;
   font-family: 'Raleway', sans-serif;
   font-weight: 100;
   height: 100vh;

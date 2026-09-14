@@ -231,8 +231,8 @@ export default {
 
 @use "../../../sass/theme" as *;
 
-$preview-font-color: #DEE2E6;
-$preview-background-color: #868E96;
+$preview-font-color: $gray-200;
+$preview-background-color: $gray-600;
 
 
 .materialListingItem {
