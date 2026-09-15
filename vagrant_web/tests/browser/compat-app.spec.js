@@ -26,6 +26,11 @@ async function expectResolvedNavigation(page) {
         .toContainText('Synthetic User');
 }
 
+function isVitePreloadDiagnostic(warning) {
+    return warning.startsWith('The resource http://127.0.0.1:8000/build/assets/')
+        && warning.includes('was preloaded using link preload but not used within a few seconds');
+}
+
 test('Vue application mounts with synthetic bootstrap data', async ({page}, testInfo) => {
     const pageErrors = [];
     const consoleErrors = [];
@@ -41,7 +46,7 @@ test('Vue application mounts with synthetic bootstrap data', async ({page}, test
 
             if (isKnownCompatWarning) {
                 compatWarnings.push(warning);
-            } else {
+            } else if (!isVitePreloadDiagnostic(warning)) {
                 unexpectedWarnings.push(warning);
             }
         }
