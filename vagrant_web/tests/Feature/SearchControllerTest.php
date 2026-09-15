@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\Material;
 use App\Models\Keyword;
+use App\Models\Resource;
 use App\Models\User;
 use App\Models\VideoFile;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -84,5 +85,81 @@ class SearchControllerTest extends TestCase
             'q' => [],
             'order_by' => 'updated_at',
         ])->assertOk()->assertJsonPath('data.0.id', $older->id);
+    }
+
+    public function test_search_does_not_return_a_foreign_material_without_the_public_material_permission(): void
+    {
+        $owner = User::factory()->create();
+        $viewer = User::factory()->create();
+        $viewer->syncRoles([]);
+        $material = Material::factory()->create([
+            'created_by' => $owner->id,
+            'modified_by' => $owner->id,
+            'title' => 'Nur mit Public-Material-Recht sichtbar',
+        ]);
+
+        $response = $this->actingAs($viewer)->postJson(route('pool.searchbar.get'), [
+            'q' => [[['type' => '*', 'text' => $material->title]]],
+        ]);
+
+        $response->assertOk();
+        $response->assertJsonCount(0, 'data');
+        $response->assertJsonPath('total', 0);
+    }
+
+    public function test_search_does_not_serialize_a_private_foreign_resource(): void
+    {
+        $owner = User::factory()->create();
+        $viewer = User::factory()->create();
+        $material = Material::factory()->create([
+            'created_by' => $owner->id,
+            'modified_by' => $owner->id,
+        ]);
+        $resource = Resource::factory()->create([
+            'created_by' => $owner->id,
+            'is_public' => false,
+        ]);
+        $material->resources()->attach($resource);
+
+        $response = $this->actingAs($viewer)->postJson(route('pool.searchbar.get'), [
+            'q' => [],
+        ]);
+
+        $response->assertOk();
+        $response->assertJsonPath('data.0.id', $material->id);
+        $response->assertJsonPath('data.0.resources', []);
+    }
+
+    public function test_resource_type_search_does_not_match_a_private_foreign_resource(): void
+    {
+        $owner = User::factory()->create();
+        $viewer = User::factory()->create();
+        $material = Material::factory()->create([
+            'created_by' => $owner->id,
+            'modified_by' => $owner->id,
+        ]);
+        $resource = Resource::factory()->create([
+            'created_by' => $owner->id,
+            'is_public' => false,
+        ]);
+        $material->resources()->attach($resource);
+
+        $response = $this->actingAs($viewer)->postJson(route('pool.searchbar.get'), [
+            'q' => [[['type' => 't', 'text' => 'res']]],
+        ]);
+
+        $response->assertOk();
+        $response->assertJsonCount(0, 'data');
+        $response->assertJsonPath('total', 0);
+    }
+
+    public function test_search_rejects_an_unknown_sort_column(): void
+    {
+        $user = User::factory()->create();
+
+        $this->actingAs($user)->postJson(route('pool.searchbar.get'), [
+            'q' => [],
+            'order_by' => 'created_at; drop table materials',
+        ])->assertUnprocessable()->assertJsonValidationErrors(['order_by']);
     }
 }

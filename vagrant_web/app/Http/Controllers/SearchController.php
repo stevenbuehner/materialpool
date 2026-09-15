@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\SearchMaterialsRequest;
 use App\Models\Bibleverse;
 use App\Models\Keyword;
 use App\Models\Material;
@@ -205,10 +206,10 @@ class SearchController extends Controller {
 	/**
 	 * Suche
 	 *
-	 * @param Request $request
+	 * @param SearchMaterialsRequest $request
 	 * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
 	 */
-	public function get(Request $request) {
+	public function get(SearchMaterialsRequest $request) {
 		$query          = $this->turnRequestIntoQuery($request);
 		$paginationSize = min((int)$request->get('per_page', 30), 100);
 		$orderBy        = $request->get('order_by');
@@ -221,11 +222,18 @@ class SearchController extends Controller {
 		return $query->paginate($paginationSize);
 	}
 
-	protected function turnRequestIntoQuery(Request $request) {
-		$searchBars = $request->get('q') ?? [];
+	protected function turnRequestIntoQuery(SearchMaterialsRequest $request) {
+		$user       = $request->user();
+		$searchBars = $request->validated('q', []);
 		$matQuery   = Material::query()
+			->visibleTo($user)
 			->select('materials.*')
-			->with(['author', 'keywords', 'bibleverses', 'resources'])
+			->with([
+				'author',
+				'keywords',
+				'bibleverses',
+				'resources' => fn(Builder $query) => $query->visibleTo($user),
+			])
 			->groupBy(['materials.id']);
 
 		$sumUpQueryParts = [];
@@ -277,8 +285,8 @@ class SearchController extends Controller {
 				}
 
 				// DB::enableQueryLog();
-				$matQuery->where(function ($q) use (&$keywordIds, &$bibleverseRanges, &$resourceTypes, &$matchAllStrings, $index) {
-					/** @var $q \Illuminate\Database\Query\Builder */
+				$matQuery->where(function ($q) use (&$keywordIds, &$bibleverseRanges, &$resourceTypes, &$matchAllStrings, $index, $user) {
+					/** @var Builder $q */
 					if (count($keywordIds) > 0) {
 						$q->orWhereIn("keyword_material{$index}.keyword_id", $keywordIds);
 						$q->orWhereIn('materials.author_id', $keywordIds->all());
@@ -313,13 +321,14 @@ class SearchController extends Controller {
 
 					// Im Resource-Type suchen
 					if (count($resourceTypes) > 0) {
-						$q->orWhereIn("resources{$index}.type", $resourceTypes);
+						$q->orWhereHas('resources', function (Builder $resourceQuery) use ($user, $resourceTypes): void {
+							$resourceQuery->visibleTo($user)->whereIn('resources.type', $resourceTypes);
+						});
 					}
 
 					// Im Titel suchen
 					if (count($matchAllStrings) > 0) {
 						foreach ($matchAllStrings as $string) {
-							// ToDo: Check if $string is Querry-Injection-Save!
 							$q->orWhere('materials.title', 'like', "%$string%");
 						}
 					}
@@ -345,14 +354,6 @@ class SearchController extends Controller {
 					$sumUpQueryParts[] = "sum(bibleverse_material{$index}.relevance)";
 				}
 
-				if (count($resourceTypes) > 0) {
-					/** @var Builder $matQuery */
-					$matQuery->leftJoin("material_resource as material_resource{$index}", 'materials.id', '=',
-						"material_resource{$index}.material_id");
-					$matQuery->join("resources as resources{$index}",
-						"material_resource{$index}.resource_id", '=',
-						"resources{$index}.id");
-				}
 			}
 		}
 
