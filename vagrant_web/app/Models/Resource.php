@@ -5,6 +5,9 @@ namespace App\Models;
 use App\Services\PreviewGeneration\Generators\NoPreviewGenerator;
 use App\Services\PreviewGeneration\Interfaces\PreviewGeneratorInterface;
 use App\Services\TagExtraction\ResourceHandles\HandlerInterface;
+use App\Support\Authorization\SystemPermissions;
+use Illuminate\Database\Eloquent\Attributes\Scope;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -65,6 +68,24 @@ class Resource extends Model {
 	];
 
 	protected $hidden = ['options', 'local_path'];
+
+	#[Scope]
+	protected function visibleTo(Builder $query, User $user): void {
+		if (!$user->isActive()) {
+			$query->whereRaw('1 = 0');
+
+			return;
+		}
+
+		if ($user->isSuperAdmin() || $user->can(SystemPermissions::RESOURCES_VIEW_ALL)) {
+			return;
+		}
+
+		$query->where(function (Builder $query) use ($user): void {
+			$query->where('resources.created_by', $user->id)
+				->orWhere('resources.is_public', true);
+		});
+	}
 
 	public function __construct(array $attributes = []) {
 		$this->options   = [];

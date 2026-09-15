@@ -5,6 +5,7 @@ namespace App\Policies;
 use App\Models\Material;
 use App\Models\User;
 use App\Support\Authorization\SystemPermissions;
+use Illuminate\Auth\Access\Response;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 class MaterialPolicy {
@@ -27,9 +28,19 @@ class MaterialPolicy {
 	 * @return mixed
 	 */
 	public function view(User $user, Material $material) {
-		// Materialien besitzen derzeit kein eigenes Sichtbarkeitsmerkmal und sind
-		// damit im bestehenden Produktvertrag öffentlich lesbar.
-		return TRUE;
+		if ($user->id === $material->created_by) {
+			return TRUE;
+		}
+
+		if ($material->is_public && $user->can(SystemPermissions::MATERIALS_VIEW_PUBLIC)) {
+			return TRUE;
+		}
+
+		if ($user->can(SystemPermissions::MATERIALS_VIEW_ALL)) {
+			return TRUE;
+		}
+
+		return Response::denyAsNotFound();
 	}
 
 	/**

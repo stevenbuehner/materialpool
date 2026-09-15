@@ -2,6 +2,9 @@
 
 namespace App\Models;
 
+use App\Support\Authorization\SystemPermissions;
+use Illuminate\Database\Eloquent\Attributes\Scope;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -68,6 +71,27 @@ class Material extends Model {
 	protected $hidden = [
 		'author_id'
 	];
+
+	#[Scope]
+	protected function visibleTo(Builder $query, User $user): void {
+		if (!$user->isActive()) {
+			$query->whereRaw('1 = 0');
+
+			return;
+		}
+
+		if ($user->isSuperAdmin() || $user->can(SystemPermissions::MATERIALS_VIEW_ALL)) {
+			return;
+		}
+
+		$query->where(function (Builder $query) use ($user): void {
+			$query->where('materials.created_by', $user->id);
+
+			if ($user->can(SystemPermissions::MATERIALS_VIEW_PUBLIC)) {
+				$query->orWhere('materials.is_public', true);
+			}
+		});
+	}
 
 	public function __construct(array $attributes = []) {
 		parent::__construct($attributes);

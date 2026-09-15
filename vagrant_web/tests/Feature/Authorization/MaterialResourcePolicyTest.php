@@ -60,4 +60,87 @@ class MaterialResourcePolicyTest extends TestCase {
 		$admin->save();
 		$this->assertFalse(Gate::allows('create', Material::class));
 	}
+
+	public function test_material_visibility_scope_matches_the_view_policy(): void {
+		$owner = User::factory()->create();
+		$withoutPublicPermission = User::factory()->create();
+		$withoutPublicPermission->syncRoles([]);
+		$withPublicPermission = User::factory()->create();
+		$withViewAllPermission = User::factory()->create();
+		$withViewAllPermission->syncRoles([]);
+		$viewAllRole = Role::create(['name' => 'Alle Materialien lesen', 'guard_name' => 'web']);
+		$viewAllRole->givePermissionTo(SystemPermissions::MATERIALS_VIEW_ALL);
+		$withViewAllPermission->assignRole($viewAllRole);
+		$admin = User::factory()->create(['is_admin' => true]);
+		$suspended = User::factory()->create(['status' => UserStatus::Suspended]);
+
+		$ownerPrivate = Material::factory()->privatelyVisible()->create(['created_by' => $owner->id, 'modified_by' => $owner->id]);
+		$ownerPublic = Material::factory()->publiclyVisible()->create(['created_by' => $owner->id, 'modified_by' => $owner->id]);
+		$viewerPrivate = Material::factory()->privatelyVisible()->create(['created_by' => $withoutPublicPermission->id, 'modified_by' => $withoutPublicPermission->id]);
+
+		$cases = [
+			[$owner, [$ownerPrivate->id, $ownerPublic->id]],
+			[$withoutPublicPermission, [$viewerPrivate->id]],
+			[$withPublicPermission, [$ownerPublic->id]],
+			[$withViewAllPermission, [$ownerPrivate->id, $ownerPublic->id, $viewerPrivate->id]],
+			[$admin, [$ownerPrivate->id, $ownerPublic->id, $viewerPrivate->id]],
+			[$suspended, []],
+		];
+
+		foreach ($cases as [$user, $expectedIds]) {
+			$visibleIds = Material::visibleTo($user)->orderBy('id')->pluck('id')->all();
+			sort($expectedIds);
+
+			$this->assertSame($expectedIds, $visibleIds);
+
+			foreach ([$ownerPrivate, $ownerPublic, $viewerPrivate] as $material) {
+				$this->assertSame(
+					in_array($material->id, $expectedIds, true),
+					Gate::forUser($user)->allows('view', $material)
+				);
+			}
+		}
+
+		$this->assertSame(404, Gate::forUser($withoutPublicPermission)->inspect('view', $ownerPrivate)->status());
+	}
+
+	public function test_resource_visibility_scope_matches_the_view_policy(): void {
+		$owner = User::factory()->create();
+		$viewer = User::factory()->create();
+		$withViewAllPermission = User::factory()->create();
+		$withViewAllPermission->syncRoles([]);
+		$viewAllRole = Role::create(['name' => 'Alle Ressourcen lesen', 'guard_name' => 'web']);
+		$viewAllRole->givePermissionTo(SystemPermissions::RESOURCES_VIEW_ALL);
+		$withViewAllPermission->assignRole($viewAllRole);
+		$admin = User::factory()->create(['is_admin' => true]);
+		$suspended = User::factory()->create(['status' => UserStatus::Suspended]);
+
+		$ownerPrivate = Resource::factory()->create(['created_by' => $owner->id, 'is_public' => false]);
+		$ownerPublic = Resource::factory()->create(['created_by' => $owner->id, 'is_public' => true]);
+		$viewerPrivate = Resource::factory()->create(['created_by' => $viewer->id, 'is_public' => false]);
+
+		$cases = [
+			[$owner, [$ownerPrivate->id, $ownerPublic->id]],
+			[$viewer, [$ownerPublic->id, $viewerPrivate->id]],
+			[$withViewAllPermission, [$ownerPrivate->id, $ownerPublic->id, $viewerPrivate->id]],
+			[$admin, [$ownerPrivate->id, $ownerPublic->id, $viewerPrivate->id]],
+			[$suspended, []],
+		];
+
+		foreach ($cases as [$user, $expectedIds]) {
+			$visibleIds = Resource::visibleTo($user)->orderBy('id')->pluck('id')->all();
+			sort($expectedIds);
+
+			$this->assertSame($expectedIds, $visibleIds);
+
+			foreach ([$ownerPrivate, $ownerPublic, $viewerPrivate] as $resource) {
+				$this->assertSame(
+					in_array($resource->id, $expectedIds, true),
+					Gate::forUser($user)->allows('view', $resource)
+				);
+			}
+		}
+
+		$this->assertSame(404, Gate::forUser($viewer)->inspect('view', $ownerPrivate)->status());
+	}
 }

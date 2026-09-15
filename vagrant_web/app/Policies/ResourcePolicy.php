@@ -6,6 +6,7 @@ use App\Models\Resource;
 use App\Models\User;
 use App\Support\Authorization\SystemPermissions;
 use Illuminate\Auth\Access\HandlesAuthorization;
+use Illuminate\Auth\Access\Response;
 
 class ResourcePolicy {
 	use HandlesAuthorization;
@@ -31,7 +32,11 @@ class ResourcePolicy {
 			return TRUE;
 		}
 
-		return $user->id === $resource->created_by || $user->can(SystemPermissions::RESOURCES_VIEW_ALL);
+		if ($user->id === $resource->created_by || $user->can(SystemPermissions::RESOURCES_VIEW_ALL)) {
+			return TRUE;
+		}
+
+		return Response::denyAsNotFound();
 	}
 
 	/**
