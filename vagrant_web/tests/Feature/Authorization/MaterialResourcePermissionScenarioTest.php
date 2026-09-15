@@ -41,6 +41,9 @@ class MaterialResourcePermissionScenarioTest extends TestCase {
 			'title' => 'Material mit initialen Metadaten',
 			'is_public' => false,
 		]);
+		$material = Material::query()->with('author')->findOrFail($materialId);
+		$this->assertNotNull($material->author_id);
+		$this->assertSame('Initialer Autor', $material->author->title);
 		$this->assertDatabaseHas('keywords', ['title' => 'Initiales Schlagwort', 'type' => 'key']);
 	}
 
