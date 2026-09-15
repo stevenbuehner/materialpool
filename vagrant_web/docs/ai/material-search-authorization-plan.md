@@ -619,16 +619,25 @@ Die relevanten aktuellen Query-Formen sind:
 - Keyword- und Bibelstellensuche: Sichtbarkeitsbedingung plus Pivot-Joins und
   Relevanzsortierung.
 
-Die lokale Sail-/MySQL-Testumgebung ist inzwischen verfügbar. Nach den
-isolierten Feature-Tests enthielt die Datenbank `testing` jedoch keine
-Materials oder Resources. Deshalb wurden keine nicht aussagekräftigen
-`EXPLAIN`-Pläne oder Laufzeitmessungen erzeugt und bewusst keine
-Indexmigration angelegt. Ein zusammengesetzter Index wäre ohne
-repräsentative Daten spekulativ und könnte die Schreibkosten unnötig erhöhen.
-Die Entscheidung bleibt offen, bis ein repräsentativer, anonymisierter
-Testdatenbestand bereitsteht; dann sind die im Abschnitt „Indizes und
-Abfrageplan“ genannten Varianten mit `EXPLAIN` nachzuholen und nur der
-nachweislich wirksame Index separat freizugeben.
+Die lokale Sail-/MySQL-Testumgebung wurde mit einem ausschließlich
+synthetischen, isolierten Bestand aus 5.032 Materials, 2.034 Resources und
+2.027 Resource-Material-Verknüpfungen geprüft. `EXPLAIN ANALYZE` ergab:
+
+- Die Material-Sichtbarkeitsliste (`created_by OR is_public`, Sortierung nach
+  `updated_at`) liest wegen der OR-Bedingung alle 5.032 Zeilen und sortiert
+  sie. Sie lieferte die ersten 50 Datensätze nach rund 4,2 ms.
+- Die Resource-Typ-Suche verwendete den vorhandenen `resources_type_ind` und
+  `matres_res_id_ind`, materialisierte 1.103 passende Resource-Verknüpfungen
+  und lieferte die ersten 50 Materials nach rund 13,3 ms.
+
+Damit ist kein einzelner zusammengesetzter Index nachweisbar, der beide
+Queryformen verbessert: Ein Index auf `created_by, updated_at` hilft den
+öffentlichen Zweig nicht; ein Index auf `is_public, updated_at` bleibt wegen
+der niedrigen Selektivität und des Eigentümer-Zweigs unvollständig. Eine
+Indexmigration wurde deshalb bewusst nicht angelegt. Bei produktionsnahen
+Volumina oder auffälligen Latenzen sind die Messungen mit anonymisierten
+Produktionscharakteristika zu wiederholen; erst danach kommt gegebenenfalls
+eine separat freizugebende Query-Umformung oder reversible Migration infrage.
 
 ### AP 8 – Vollständige Verifikation und Übergabe
 
