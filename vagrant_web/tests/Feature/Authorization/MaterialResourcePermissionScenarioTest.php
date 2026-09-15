@@ -196,6 +196,64 @@ class MaterialResourcePermissionScenarioTest extends TestCase {
 		$this->get(route('pool.resource.show', $resource))->assertNotFound();
 	}
 
+	public function test_classic_material_creation_does_not_attach_a_private_foreign_resource(): void {
+		$creator = $this->userWithOnlyPermissions([SystemPermissions::MATERIALS_CREATE]);
+		$foreignResource = Resource::factory()->create(['created_by' => User::factory()->create()->id, 'is_public' => false]);
+
+		$this->actingAs($creator)->post(route('pool.material.store'), [
+			'title' => 'Nicht sichtbare Resource',
+			'resources' => [$foreignResource->id],
+		])->assertNotFound();
+
+		// Die unsichtbare ID darf weder eine Relation noch einen angelegten Material-Datensatz bewirken.
+		$this->assertDatabaseMissing('materials', ['title' => 'Nicht sichtbare Resource']);
+		$this->assertDatabaseMissing('material_resource', ['resource_id' => $foreignResource->id]);
+	}
+
+	public function test_classic_material_creation_does_not_attach_a_private_foreign_resource_through_a_limitation(): void {
+		$creator = $this->userWithOnlyPermissions([SystemPermissions::MATERIALS_CREATE]);
+		$foreignResource = Resource::factory()->create(['created_by' => User::factory()->create()->id, 'is_public' => false]);
+
+		$this->actingAs($creator)->post(route('pool.material.store'), [
+			'title' => 'Nicht sichtbare Limitierung',
+			'limit' => [$foreignResource->id => ['type' => 'page', 'value' => 1]],
+		])->assertNotFound();
+
+		$this->assertDatabaseMissing('materials', ['title' => 'Nicht sichtbare Limitierung']);
+		$this->assertDatabaseMissing('material_resource', ['resource_id' => $foreignResource->id]);
+	}
+
+	public function test_classic_material_creation_can_attach_a_visible_public_resource(): void {
+		$creator = $this->userWithOnlyPermissions([SystemPermissions::MATERIALS_CREATE]);
+		$publicResource = Resource::factory()->create(['created_by' => User::factory()->create()->id, 'is_public' => true]);
+
+		$response = $this->actingAs($creator)->post(route('pool.material.store'), [
+			'title' => 'Sichtbare Resource anhaengen',
+			'resources' => [$publicResource->id],
+		]);
+
+		$material = Material::query()->where('title', 'Sichtbare Resource anhaengen')->sole();
+		$response->assertRedirect(route('pool.material.edit', $material));
+		$this->assertDatabaseHas('material_resource', ['material_id' => $material->id, 'resource_id' => $publicResource->id]);
+	}
+
+	public function test_classic_material_creation_can_attach_a_private_foreign_resource_with_view_all_permission(): void {
+		$creator = $this->userWithOnlyPermissions([
+			SystemPermissions::MATERIALS_CREATE,
+			SystemPermissions::RESOURCES_VIEW_ALL,
+		]);
+		$foreignResource = Resource::factory()->create(['created_by' => User::factory()->create()->id, 'is_public' => false]);
+
+		$response = $this->actingAs($creator)->post(route('pool.material.store'), [
+			'title' => 'Fremde sichtbare Resource anhaengen',
+			'resources' => [$foreignResource->id],
+		]);
+
+		$material = Material::query()->where('title', 'Fremde sichtbare Resource anhaengen')->sole();
+		$response->assertRedirect(route('pool.material.edit', $material));
+		$this->assertDatabaseHas('material_resource', ['material_id' => $material->id, 'resource_id' => $foreignResource->id]);
+	}
+
 	public function test_delete_permissions_keep_own_and_all_records_separate(): void {
 		$owner = User::factory()->create();
 		$material = Material::factory()->create(['created_by' => $owner->id, 'modified_by' => $owner->id]);

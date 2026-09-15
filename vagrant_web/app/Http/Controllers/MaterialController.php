@@ -6,6 +6,7 @@ use App\Http\Requests\MaterialRequest;
 use App\Models\Bibleverse;
 use App\Models\Keyword;
 use App\Models\Material;
+use App\Models\Resource;
 use App\Models\User;
 use App\ResourceLimitations\ResourceLimitationService;
 use App\Services\MaterialHandling\MaterialHandlingService;
@@ -134,6 +135,9 @@ class MaterialController extends Controller {
 	 * @return \Illuminate\Http\Response
 	 */
 	public function store(MaterialRequest $request) {
+		$resourceIds    = $request->get('resources', FALSE);
+		$resourceLimits = $request->get('limit', FALSE);
+		$this->ensureRequestedResourcesAreVisible($resourceIds, $resourceLimits);
 
 		$material              = new Material($request->only(['title', 'rating', 'description', 'from_bot']));
 		$material->created_by  = Auth::id();
@@ -158,25 +162,20 @@ class MaterialController extends Controller {
 		$resources = [];
 
 		// prepare resource assignment
-		$resourceIds = $request->get('resources', FALSE);
 		if ($resourceIds !== FALSE && is_array($resourceIds) && count($resourceIds) > 0) {
 
 			foreach ($resourceIds as $id) {
-				// Todo Check Authors Resource-Priviledges
 				$resources[$id] = [];
 			}
 		}
 
 		// prepare resource limitation
-		$resourceLimits = $request->get('limit', FALSE);
 		if ($resourceLimits !== FALSE && is_array($resourceLimits) && count($resourceLimits) > 0) {
 
 			/** @var ResourceLimitationService $limitationService */
 			$limitationService = resolve(ResourceLimitationService::class);
 
 			foreach ($resourceLimits as $id => $data) {
-				// Todo Check Authors Resource-Priviledges
-
 				if (!isset($resources[$id])) {
 					$resources[$id] = [];
 				}
@@ -196,6 +195,33 @@ class MaterialController extends Controller {
 
 		return response()->redirectToRoute('pool.material.edit', [$material->id]);
 
+	}
+
+	/**
+	 * Referenzierte Ressourcen dürfen nur sichtbar sein. Nicht sichtbare und
+	 * unbekannte IDs werden gleich behandelt, damit deren Existenz nicht über
+	 * die Materialanlage offengelegt wird.
+	 */
+	private function ensureRequestedResourcesAreVisible($resourceIds, $resourceLimits): void {
+		$requestedResourceIds = [];
+		if (is_array($resourceIds)) {
+			$requestedResourceIds = $resourceIds;
+		}
+		if (is_array($resourceLimits)) {
+			$requestedResourceIds = array_merge($requestedResourceIds, array_keys($resourceLimits));
+		}
+
+		$requestedResourceIds = array_values(array_unique($requestedResourceIds));
+		if (count($requestedResourceIds) === 0) {
+			return;
+		}
+
+		$visibleResourceCount = Resource::query()
+			->visibleTo(Auth::user())
+			->whereKey($requestedResourceIds)
+			->count();
+
+		abort_if($visibleResourceCount !== count($requestedResourceIds), 404);
 	}
 
 // TODO: protected function assignResourcesToMaterial(){}
