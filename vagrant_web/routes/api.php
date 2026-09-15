@@ -67,6 +67,7 @@ Route::group([
 	Route::post('material/{material}/usage/{materialUsage}', 'MaterialUsageController@update')
 		->where('material', '[0-9]+')
 		->where('materialUsage', '[0-9]+')
+		->middleware('can:view,material')
 		->middleware('can:update,materialUsage')
 		->name('api.v2.materialusage.update');
 
@@ -74,6 +75,7 @@ Route::group([
 		'MaterialUsageController@destroy')
 		->where('material', '[0-9]+')
 		->where('materialUsage', '[0-9]+')
+		->middleware('can:view,material')
 		->middleware('can:delete,materialUsage')
 		->name('api.v2.materialusage.delete');
 

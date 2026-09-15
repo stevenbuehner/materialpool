@@ -3,6 +3,7 @@
 namespace Tests\Feature\Authorization;
 
 use App\Models\Material;
+use App\Models\MaterialUsage;
 use App\Models\Resource;
 use App\Models\User;
 use App\Support\Authorization\SystemPermissions;
@@ -79,5 +80,35 @@ class PermissionProtectedRoutesTest extends TestCase {
 			'material_id' => $privateMaterial->id,
 			'created_by' => $owner->id,
 		]);
+	}
+
+	public function test_updating_or_deleting_a_material_usage_requires_visibility_of_the_material(): void {
+		$owner = User::factory()->create();
+		$viewer = User::factory()->create();
+		$privateMaterial = Material::factory()->privatelyVisible()->create([
+			'created_by' => $owner->id,
+			'modified_by' => $owner->id,
+		]);
+		$usage = new MaterialUsage([
+			'material_id' => $privateMaterial->id,
+			'used_by_id' => $viewer->id,
+			'datetime' => now(),
+			'place' => 'Testort',
+		]);
+		$usage->created_by = $viewer->id;
+		$usage->updated_by = $viewer->id;
+		$usage->save();
+
+		Passport::actingAs($viewer);
+		$this->postJson(route('api.v2.api.v2.materialusage.update', [$privateMaterial, $usage]), [
+			'datetime' => now()->addDay()->toDateString(),
+		])->assertNotFound();
+		$this->deleteJson(route('api.v2.api.v2.materialusage.delete', [$privateMaterial, $usage]))->assertNotFound();
+
+		Passport::actingAs($owner);
+		$this->postJson(route('api.v2.api.v2.materialusage.update', [$privateMaterial, $usage]), [
+			'datetime' => now()->addDay()->toDateString(),
+		])->assertOk();
+		$this->deleteJson(route('api.v2.api.v2.materialusage.delete', [$privateMaterial, $usage]))->assertOk();
 	}
 }
