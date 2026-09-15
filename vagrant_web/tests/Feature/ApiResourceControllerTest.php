@@ -342,7 +342,7 @@ class ApiResourceControllerTest extends TestCase {
 	}
 
 
-	public function testGetResourceForbidden() {
+	public function testGetPrivateForeignResourceIsNotFound() {
 
 		$this->authenticatePassport();
 
@@ -358,7 +358,7 @@ class ApiResourceControllerTest extends TestCase {
 		$uri      = route('api.v1.resources.show', ['resource' => $resource->id]);
 		$response = $this->json('get', $uri);
 
-		$response->assertStatus(403); // Forbidden
+		$response->assertNotFound();
 	}
 
 	public function testGetResourceUnauthorized() {

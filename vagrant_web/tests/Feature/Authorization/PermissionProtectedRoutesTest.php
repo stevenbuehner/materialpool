@@ -38,6 +38,9 @@ class PermissionProtectedRoutesTest extends TestCase {
 		$material = Material::factory()->create(['created_by' => $owner->id, 'modified_by' => $owner->id]);
 		$user = User::factory()->create();
 		$user->syncRoles([]);
+		$reader = Role::create(['name' => 'Öffentliche Materialien lesen', 'guard_name' => 'web']);
+		$reader->givePermissionTo(SystemPermissions::MATERIALS_VIEW_PUBLIC);
+		$user->assignRole($reader);
 		Passport::actingAs($user);
 
 		$this->postJson(route('api.v1.materials.store'), ['title' => 'Neu'])->assertForbidden();

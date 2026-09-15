@@ -45,7 +45,7 @@ class FrontendBackendJourneyContractTest extends TestCase
         ])->assertUnprocessable()->assertJsonValidationErrors('data');
     }
 
-    public function test_private_resource_returns_a_real_permission_error_for_another_user(): void
+    public function test_private_resource_is_not_found_for_another_user(): void
     {
         $owner = User::factory()->create();
         $viewer = User::factory()->create();
@@ -56,6 +56,6 @@ class FrontendBackendJourneyContractTest extends TestCase
         Passport::actingAs($viewer, []);
 
         $this->getJson(route('api.v1.resources.show', ['resource' => $resource]))
-            ->assertForbidden();
+            ->assertNotFound();
     }
 }
