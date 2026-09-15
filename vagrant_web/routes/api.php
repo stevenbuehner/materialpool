@@ -60,6 +60,7 @@ Route::group([
 
 	Route::post('material/{material}/usage', 'MaterialUsageController@store')
 		->where('material', '[0-9]+')
+		->middleware('can:view,material')
 		->middleware('can:create,App\Models\MaterialUsage')
 		->name('api.v2.materialusage.store');
 

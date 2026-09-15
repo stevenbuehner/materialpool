@@ -52,4 +52,32 @@ class PermissionProtectedRoutesTest extends TestCase {
 		$this->postJson(route('api.v1.materials.store'), ['title' => 'Neu'])->assertOk();
 		$this->getJson(route('api.v1.materials.copy', $material))->assertOk();
 	}
+
+	public function test_creating_a_material_usage_requires_visibility_of_the_material(): void {
+		$owner = User::factory()->create();
+		$viewer = User::factory()->create();
+		$privateMaterial = Material::factory()->privatelyVisible()->create([
+			'created_by' => $owner->id,
+			'modified_by' => $owner->id,
+		]);
+		$payload = [
+			'used_by_id' => $viewer->id,
+			'datetime' => now()->toDateString(),
+			'place' => 'Testort',
+		];
+
+		Passport::actingAs($viewer);
+		$this->postJson(route('api.v2.api.v2.materialusage.store', $privateMaterial), $payload)->assertNotFound();
+		$this->assertDatabaseMissing('material_usages', ['material_id' => $privateMaterial->id]);
+
+		Passport::actingAs($owner);
+		$this->postJson(route('api.v2.api.v2.materialusage.store', $privateMaterial), [
+			...$payload,
+			'used_by_id' => $owner->id,
+		])->assertOk();
+		$this->assertDatabaseHas('material_usages', [
+			'material_id' => $privateMaterial->id,
+			'created_by' => $owner->id,
+		]);
+	}
 }
