@@ -7,7 +7,9 @@ use App\Models\Keyword;
 use App\Models\Resource;
 use App\Models\User;
 use App\Models\VideoFile;
+use App\Support\Authorization\SystemPermissions;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
 class SearchControllerTest extends TestCase
@@ -105,6 +107,47 @@ class SearchControllerTest extends TestCase
         $response->assertOk();
         $response->assertJsonCount(0, 'data');
         $response->assertJsonPath('total', 0);
+    }
+
+    public function test_search_with_public_material_permission_returns_only_public_and_own_materials(): void
+    {
+        $owner = User::factory()->create();
+        $viewer = User::factory()->create();
+        $viewer->syncRoles([]);
+        $role = Role::create(['name' => 'Nur öffentliche Materialien lesen', 'guard_name' => 'web']);
+        $role->givePermissionTo(SystemPermissions::MATERIALS_VIEW_PUBLIC);
+        $viewer->assignRole($role);
+        $ownPrivate = Material::factory()->privatelyVisible()->create(['created_by' => $viewer->id, 'modified_by' => $viewer->id]);
+        $foreignPublic = Material::factory()->publiclyVisible()->create(['created_by' => $owner->id, 'modified_by' => $owner->id]);
+        $foreignPrivate = Material::factory()->privatelyVisible()->create(['created_by' => $owner->id, 'modified_by' => $owner->id]);
+
+        $response = $this->actingAs($viewer)->postJson(route('pool.searchbar.get'), ['q' => []]);
+
+        $response->assertOk()->assertJsonPath('total', 2);
+        $visibleIds = collect($response->json('data'))->pluck('id')->sort()->values()->all();
+        $expectedIds = collect([$ownPrivate->id, $foreignPublic->id])->sort()->values()->all();
+        $this->assertSame($expectedIds, $visibleIds);
+        $this->assertNotContains($foreignPrivate->id, $visibleIds);
+    }
+
+    public function test_search_pagination_total_does_not_count_private_foreign_materials(): void
+    {
+        $owner = User::factory()->create();
+        $viewer = User::factory()->create();
+        $viewer->syncRoles([]);
+        $role = Role::create(['name' => 'Öffentliche Materialsuche', 'guard_name' => 'web']);
+        $role->givePermissionTo(SystemPermissions::MATERIALS_VIEW_PUBLIC);
+        $viewer->assignRole($role);
+        Material::factory()->count(2)->publiclyVisible()->create(['created_by' => $owner->id, 'modified_by' => $owner->id]);
+        Material::factory()->privatelyVisible()->create(['created_by' => $owner->id, 'modified_by' => $owner->id]);
+
+        $response = $this->actingAs($viewer)->postJson(route('pool.searchbar.get'), [
+            'q' => [],
+            'per_page' => 1,
+            'page' => 2,
+        ]);
+
+        $response->assertOk()->assertJsonPath('total', 2)->assertJsonCount(1, 'data');
     }
 
     public function test_search_does_not_serialize_a_private_foreign_resource(): void
