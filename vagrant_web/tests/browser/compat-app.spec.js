@@ -1086,8 +1086,6 @@ test('Vue 3 datepicker keeps the German input and calendar interaction', async (
         .toBe('rgb(88, 21, 28)');
     await expect(titleField.locator('.buttons')).toHaveCSS('gap', '4px');
 
-    await expect(page.locator('.selected-relevance').first()).toHaveCSS('background-color', 'rgb(40, 167, 69)');
-
     const personSelect = page.locator('.tagEditSidebarField').filter({hasText: 'Personen'});
     await personSelect.locator('.multiselect-wrapper').click();
     const minimumCharacterHint = personSelect.locator('.loader').filter({hasText: 'Bitte gib 1 weiteres Zeichen ein'});
@@ -1123,7 +1121,7 @@ test('Vue 3 datepicker keeps the German input and calendar interaction', async (
     await usage.locator('.used_by .multiselect-wrapper').click();
     await usage.locator('.used_by input').fill('Second');
     await expect.poll(() => userSearchRequests).toContain('Second');
-    await usage.locator('.vs__dropdown-option').filter({hasText: 'Second User'}).click();
+    await usage.locator('.multiselect-option').filter({hasText: 'Second User'}).click();
     await usage.getByTitle('Speichern').click();
 
     await expect.poll(() => usageUpdateRequests.length).toBe(1);
@@ -1196,6 +1194,7 @@ test('Vue 3 datepicker keeps the German input and calendar interaction', async (
     });
     const draggableTag = page.locator('.selected-tag.draggable').filter({hasText: 'Compat keyword'});
     await expect(draggableTag).toBeVisible();
+    await expect(draggableTag.locator('.selected-relevance')).toHaveCSS('background-color', 'rgb(25, 135, 84)');
     const tagBox = await draggableTag.boundingBox();
     expect(tagBox).not.toBeNull();
     await page.mouse.move(tagBox.x + 2, tagBox.y + (tagBox.height / 2));
@@ -1217,7 +1216,7 @@ test('Vue 3 datepicker keeps the German input and calendar interaction', async (
     await expect(contextMenu).toBeHidden();
 
     await draggableTag.click({button: 'right'});
-    await contextMenu.getByRole('link', {name: 'Suche nach "Compat keyword"'}).click();
+    await contextMenu.getByRole('menuitem', {name: 'Suche nach "Compat keyword"'}).click();
     await expect(contextMenu).toBeHidden();
     await expect(page).toHaveURL(/\/vue\/search\/1k55$/);
     await expect(page.locator('.searchInputSelect .sb-search-input-tag')).toContainText('Compat keyword');
@@ -1225,7 +1224,7 @@ test('Vue 3 datepicker keeps the German input and calendar interaction', async (
     const searchResultTag = page.locator('.materialListingItem .sb-keyword').filter({hasText: 'Compat keyword'});
     await expect(searchResultTag).toBeVisible();
     await searchResultTag.click({button: 'right'});
-    const searchMenuItem = contextMenu.getByRole('button', {name: 'Suche nach "Compat keyword"'});
+    const searchMenuItem = contextMenu.getByRole('menuitem', {name: 'Suche nach "Compat keyword"'});
     await expect(searchMenuItem).toBeVisible();
     await searchMenuItem.hover();
     await expect(searchMenuItem).toHaveCSS('background-color', 'rgb(206, 212, 218)');
@@ -1304,12 +1303,11 @@ test('Vue 3 select keeps asynchronous search and object selection', async ({page
 
     const select = page.locator('.searchInputSelect');
     const searchInput = page.locator('.searchInputSelect input[role="combobox"]');
-    await expect(select).toHaveCSS('display', 'block');
-    await expect(select).toHaveCSS('border-top-width', '0px');
-    await expect(select.locator('.vs__dropdown-toggle')).toHaveCSS('border-top-width', '1px');
+    await expect(select).toHaveCSS('display', 'flex');
+    await expect(select).toHaveCSS('border-top-width', '1px');
     await expect(searchInput).toBeVisible();
     await searchInput.fill('Alp');
-    await expect(page.locator('.vs__dropdown-option').filter({hasText: 'Alpha'})).toBeVisible();
+    await expect(page.locator('.multiselect-option').filter({hasText: 'Alpha'})).toBeVisible();
     await searchInput.press('Tab');
     await expect(page.locator('.searchInputSelect .sb-search-input-tag')).toContainText('Alpha');
     await expect(page).toHaveURL(/\/vue\/search\/1\*Alpha$/);
