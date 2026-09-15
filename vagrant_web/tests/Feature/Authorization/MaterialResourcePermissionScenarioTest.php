@@ -2,6 +2,8 @@
 
 namespace Tests\Feature\Authorization;
 
+use App\Models\Bibleverse;
+use App\Models\Keyword;
 use App\Models\Material;
 use App\Models\Resource;
 use App\Models\User;
@@ -158,6 +160,40 @@ class MaterialResourcePermissionScenarioTest extends TestCase {
 			'material_id' => $material->id,
 			'resource_id' => $resource->id,
 		]);
+	}
+
+	public function test_metadata_permission_controls_keyword_bibleverse_and_author_changes(): void {
+		$owner = $this->userWithOnlyPermissions([SystemPermissions::MATERIALS_UPDATE_METADATA_OWN]);
+		$foreignOwner = User::factory()->create();
+		$ownMaterial = Material::factory()->create(['created_by' => $owner->id, 'modified_by' => $owner->id]);
+		$foreignMaterial = Material::factory()->create(['created_by' => $foreignOwner->id, 'modified_by' => $foreignOwner->id]);
+		$keyword = Keyword::factory()->create(['type' => 'key']);
+		$bibleverse = Bibleverse::factory()->create();
+		$author = Keyword::factory()->create(['type' => 'person']);
+
+		Passport::actingAs($owner);
+		// Tags, Bibelstellen und Autoren sind Metadaten und folgen derselben Own-/All-Grenze.
+		$this->putJson(route('api.v1.keywords.updateAssignment', [$ownMaterial, $keyword]), ['relevance' => 100])->assertOk();
+		$this->putJson(route('api.v1.bibleverses.createOrUpdateAssignment', [$ownMaterial, $bibleverse]), ['relevance' => 100])->assertOk();
+		$this->putJson(route('api.v1.materials.update', $ownMaterial), ['author' => ['id' => $author->id]])->assertOk();
+		$this->assertDatabaseHas('keyword_material', ['material_id' => $ownMaterial->id, 'keyword_id' => $keyword->id]);
+		$this->assertDatabaseHas('bibleverse_material', ['material_id' => $ownMaterial->id, 'bibleverse_id' => $bibleverse->id]);
+		$this->assertDatabaseHas('materials', ['id' => $ownMaterial->id, 'author_id' => $author->id]);
+
+		$this->putJson(route('api.v1.keywords.updateAssignment', [$foreignMaterial, $keyword]), ['relevance' => 100])->assertForbidden();
+		$this->assertDatabaseMissing('keyword_material', ['material_id' => $foreignMaterial->id, 'keyword_id' => $keyword->id]);
+	}
+
+	public function test_classic_private_material_and_resource_links_return_404_for_foreign_users(): void {
+		$owner = User::factory()->create();
+		$viewer = $this->userWithOnlyPermissions([]);
+		$material = Material::factory()->privatelyVisible()->create(['created_by' => $owner->id, 'modified_by' => $owner->id]);
+		$resource = Resource::factory()->create(['created_by' => $owner->id, 'is_public' => false]);
+
+		$this->actingAs($viewer);
+		// Die klassischen Links dürfen genauso wenig wie die API die Existenz privater Fremddaten verraten.
+		$this->get(route('pool.material.show', $material))->assertNotFound();
+		$this->get(route('pool.resource.show', $resource))->assertNotFound();
 	}
 
 	public function test_delete_permissions_keep_own_and_all_records_separate(): void {
