@@ -52,4 +52,20 @@ describe('frontend bundle budgets', () => {
 
         expect(() => verifyBundle(buildDirectory)).toThrow(/initial JavaScript/);
     });
+
+    it('allows only the lazy-loaded video preview chunk to use its dedicated budget', () => {
+        const buildDirectory = createBuild({
+            extraAssets: {'video-preview-hash.js': Buffer.alloc(680 * 1024)},
+        });
+
+        expect(() => verifyBundle(buildDirectory)).not.toThrow();
+    });
+
+    it('rejects another JavaScript chunk at the video preview size', () => {
+        const buildDirectory = createBuild({
+            extraAssets: {'unexpected-hash.js': Buffer.alloc(680 * 1024)},
+        });
+
+        expect(() => verifyBundle(buildDirectory)).toThrow(/unexpected-hash\.js \(raw\)/);
+    });
 });
