@@ -4,6 +4,7 @@ namespace App\Support\Authorization;
 
 final class SystemPermissions {
 	public const MATERIALS_CREATE = 'materials.create';
+	public const MATERIALS_VIEW_PUBLIC = 'materials.view-public';
 	public const MATERIALS_VIEW_ALL = 'materials.view-all';
 	public const MATERIALS_UPDATE_OWN = 'materials.update-own';
 	public const MATERIALS_UPDATE_ALL = 'materials.update-all';
@@ -31,6 +32,7 @@ final class SystemPermissions {
 		return [
 			'materials' => [
 				self::MATERIALS_CREATE,
+				self::MATERIALS_VIEW_PUBLIC,
 				self::MATERIALS_VIEW_ALL,
 				self::MATERIALS_UPDATE_OWN,
 				self::MATERIALS_UPDATE_ALL,
@@ -56,6 +58,7 @@ final class SystemPermissions {
 	public static function defaultGroup(): array {
 		return [
 			self::MATERIALS_CREATE,
+			self::MATERIALS_VIEW_PUBLIC,
 			self::MATERIALS_UPDATE_OWN,
 			self::MATERIALS_UPDATE_METADATA_OWN,
 			self::MATERIALS_DELETE_OWN,

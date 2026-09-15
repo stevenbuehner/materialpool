@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\DB;
  * @property string $description
  * @property int $rating (0-20)
  * @property boolean $from_bot
+ * @property boolean $is_public
  * @property int $created_by
  * @property int $modified_by
  * @property int $author_id
@@ -43,6 +44,7 @@ class Material extends Model {
 
 	protected $casts = [
 		'from_bot'       => 'boolean',
+		'is_public'      => 'boolean',
 		'description'    => 'string',
 		'flag'           => 'integer',
 		'icon_of_bundle' => 'integer',
@@ -51,7 +53,8 @@ class Material extends Model {
 	protected $attributes = [
 		'rating'      => NULL,
 		'description' => '',
-		'from_bot'    => FALSE
+		'from_bot'    => FALSE,
+		'is_public'  => TRUE
 	];
 
 	protected $fillable = [

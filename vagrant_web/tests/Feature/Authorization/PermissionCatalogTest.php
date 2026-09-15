@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Authorization;
 
+use App\Models\Material;
 use App\Models\User;
 use App\Support\Authorization\SystemPermissions;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -18,6 +19,7 @@ class PermissionCatalogTest extends TestCase {
 			$this->assertTrue(Schema::hasTable($table));
 		}
 		$this->assertTrue(Schema::hasColumn('users', 'status'));
+		$this->assertTrue(Schema::hasColumn('materials', 'is_public'));
 		$this->assertEqualsCanonicalizing(SystemPermissions::all(), Permission::pluck('name')->all());
 
 		$role = Role::findByName(SystemPermissions::DEFAULT_GROUP);
@@ -26,9 +28,12 @@ class PermissionCatalogTest extends TestCase {
 
 	public function test_regular_factory_user_receives_default_group_and_effective_permissions(): void {
 		$user = User::factory()->create();
+		$material = Material::factory()->create();
 
 		$this->assertTrue($user->hasRole(SystemPermissions::DEFAULT_GROUP));
 		$this->assertTrue($user->can(SystemPermissions::MATERIALS_CREATE));
+		$this->assertTrue($user->can(SystemPermissions::MATERIALS_VIEW_PUBLIC));
 		$this->assertFalse($user->can(SystemPermissions::MATERIALS_UPDATE_ALL));
+		$this->assertTrue($material->is_public);
 	}
 }

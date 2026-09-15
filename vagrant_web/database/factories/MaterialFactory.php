@@ -21,10 +21,19 @@ class MaterialFactory extends Factory {
 			'title'       => $this->faker->text(255),
 			'description' => $this->faker->sentences(2, TRUE),
 			'from_bot'    => $this->faker->boolean(),
+			'is_public'   => TRUE,
 			'rating'      => rand(0, 20),
 			'created_by'  => $creatorId,
 			'modified_by' => $creatorId,
 		];
+	}
+
+	public function publiclyVisible() {
+		return $this->state(['is_public' => TRUE]);
+	}
+
+	public function privatelyVisible() {
+		return $this->state(['is_public' => FALSE]);
 	}
 
 	public function configure() {
