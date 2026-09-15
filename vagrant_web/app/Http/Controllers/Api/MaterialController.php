@@ -8,7 +8,6 @@ use App\Http\Requests\MaterialRequest;
 use App\Jobs\DeletePublicDownloadFile;
 use App\Models\Material;
 use App\Services\MaterialHandling\MaterialHandlingService;
-use App\Support\Authorization\SystemPermissions;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Support\Facades\Auth;
@@ -19,7 +18,6 @@ class MaterialController extends BaseController {
 
 	use MaterialHelperTrait, ResourceMaterialTrait;
 
-	protected $withAttributes = [];
 	protected $bibleVerseService;
 	protected $materialHandlingService;
 
@@ -27,8 +25,6 @@ class MaterialController extends BaseController {
 
 		$this->bibleVerseService       = $bibleVerseService;
 		$this->materialHandlingService = $materialHandlingService;
-		$this->withAttributes          = \App\Http\Controllers\MaterialController::withAttributes();
-
 		$this->middleware(['auth:api']);
 	}
 
@@ -40,8 +36,8 @@ class MaterialController extends BaseController {
 	public function index() {
 
 		$materials = Material::query()
-			->when(!Auth::user()->can(SystemPermissions::MATERIALS_VIEW_ALL), fn($query) => $query->where('created_by', Auth::id()))
-			->with($this->withAttributes)
+			->visibleTo(Auth::user())
+			->with($this->visibleWithAttributes())
 			->orderBy('updated_at')
 			->paginate(50);
 
@@ -69,7 +65,7 @@ class MaterialController extends BaseController {
 		$this->syncBibleverses($request, $material);
 
 		// Reload from DB with Relations
-		$material = $material->fresh($this->withAttributes);
+		$material = $material->fresh($this->visibleWithAttributes());
 
 		event(new MaterialWasCreated($material));
 
@@ -95,7 +91,7 @@ class MaterialController extends BaseController {
 	 */
 	public function show(Material $material) {
 
-		$material->load($this->withAttributes);
+		$material->load($this->visibleWithAttributes());
 
 		return $material;
 	}
@@ -123,7 +119,7 @@ class MaterialController extends BaseController {
 
 		event(new MaterialWasChanged($material));
 
-		return $material->fresh($this->withAttributes);
+		return $material->fresh($this->visibleWithAttributes());
 	}
 
 	/**
@@ -145,7 +141,11 @@ class MaterialController extends BaseController {
 	 * @return Material
 	 */
 	public function copy(Material $material) {
-		return $this->materialHandlingService->copyMaterial($material);
+		return $this->materialHandlingService->copyMaterial($material)->fresh($this->visibleWithAttributes());
+	}
+
+	protected function visibleWithAttributes(): array {
+		return \App\Http\Controllers\MaterialController::withVisibleAttributes(Auth::user());
 	}
 
 	public function createPublicZipDownload(Material $material) {

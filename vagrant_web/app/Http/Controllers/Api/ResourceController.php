@@ -11,7 +11,6 @@ use App\Models\Resource;
 use App\Services\ResourceHandling\Exceptions\ResourceNotReplaceable;
 use App\Services\ResourceHandling\FileHandlingService;
 use App\Services\ResourceHandling\ResourceHandlingService;
-use App\Support\Authorization\SystemPermissions;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller as BaseController;
@@ -64,7 +63,7 @@ class ResourceController extends BaseController {
 			$useRelations = self::DEFAULT_RELATIONS;
 		}
 
-		return $resource->load($useRelations);
+		return $resource->load($this->visibleRelations($useRelations));
 
 	}
 
@@ -84,16 +83,7 @@ class ResourceController extends BaseController {
 
 		/** @var Builder $builder */
 		// $builder = Resource::query();
-		$builder = (new Resource())->newQueryWithoutScopes();
-
-		// DB::enableQueryLog();
-		// Check Authorisation
-		if (!Auth::user()->can(SystemPermissions::RESOURCES_VIEW_ALL)) {
-			$builder->where(function ($q) {
-				$q->orWhere("created_by", Auth::id());
-				$q->orWhere('is_public', TRUE);
-			});
-		}
+		$builder = Resource::query()->visibleTo(Auth::user());
 
 		if ($request->has('id')) {
 			$builder->where('id', $request->get('id'));
@@ -139,7 +129,7 @@ class ResourceController extends BaseController {
 
 		$builder->orderBy($request->get('order_by', 'id'), $request->get('order_dir', 'asc'));
 
-		$blub = $builder->with(self::DEFAULT_RELATIONS)->paginate(25);
+		$blub = $builder->with($this->visibleRelations(self::DEFAULT_RELATIONS))->paginate(25);
 
 		// $log = DB::getQueryLog();
 
@@ -208,7 +198,7 @@ class ResourceController extends BaseController {
 
 
 		// Also load attributes that have not been touched (like remote_path)
-		return $resource->fresh(self::DEFAULT_RELATIONS);
+		return $resource->fresh($this->visibleRelations(self::DEFAULT_RELATIONS));
 
 	}
 
@@ -232,7 +222,7 @@ class ResourceController extends BaseController {
 
 		$material->save();
 
-		return $material->fresh(\App\Http\Controllers\MaterialController::withAttributes());
+		return $material->fresh(\App\Http\Controllers\MaterialController::withVisibleAttributes(Auth::user()));
 
 	}
 
@@ -265,7 +255,7 @@ class ResourceController extends BaseController {
 			return response(['message' => $e->getMessage()])->setStatusCode(500);
 		}
 
-		$resource = $resource->fresh(self::DEFAULT_RELATIONS);
+		$resource = $resource->fresh($this->visibleRelations(self::DEFAULT_RELATIONS));
 
 		return $resource;
 	}
@@ -297,8 +287,29 @@ class ResourceController extends BaseController {
 			return response()->json(['success' => FALSE, 'message' => $e->getMessage()])->setStatusCode(500);
 		}
 
-		$resource->loadMissing(self::DEFAULT_RELATIONS);
+		$resource->loadMissing($this->visibleRelations(self::DEFAULT_RELATIONS));
 		return $resource;
+	}
+
+	/**
+	 * Eine sichtbare Ressource kann einem für den aktuellen Benutzer unsichtbaren
+	 * Material zugeordnet sein. Deshalb wird die Relation in jeder API-Antwort
+	 * eingeschränkt geladen.
+	 */
+	protected function visibleRelations(array $relations): array {
+		$loadsMaterials = false;
+
+		foreach ($relations as $key => $relation) {
+			$name = is_int($key) ? $relation : $key;
+			$loadsMaterials = $loadsMaterials || (is_string($name) && str_starts_with($name, 'materials'));
+		}
+
+		if ($loadsMaterials) {
+			$relations = array_filter($relations, static fn($relation): bool => $relation !== 'materials');
+			$relations['materials'] = fn(Builder $query): Builder => $query->visibleTo(Auth::user());
+		}
+
+		return $relations;
 	}
 
 

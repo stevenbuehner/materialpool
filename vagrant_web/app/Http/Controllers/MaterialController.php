@@ -6,21 +6,20 @@ use App\Http\Requests\MaterialRequest;
 use App\Models\Bibleverse;
 use App\Models\Keyword;
 use App\Models\Material;
+use App\Models\User;
 use App\ResourceLimitations\ResourceLimitationService;
 use App\Services\MaterialHandling\MaterialHandlingService;
 use App\Services\ResourceHandling\FileHandlingService;
 use App\Services\TagExtraction\Properties\Property;
 use App\Services\TagExtraction\TagExtractionService;
 use Illuminate\Http\Request;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class MaterialController extends Controller {
 
-	protected $withAttributes = [];
-
 	public function __construct() {
-		$this->withAttributes = self::withAttributes();
 		$this->middleware(['auth']);
 		$this->middleware('can:create,App\Models\Material')->only(['create', 'store']);
 		$this->middleware('can:view,material')->only(['show']);
@@ -45,12 +44,28 @@ class MaterialController extends Controller {
 	}
 
 	/**
+	 * Lädt Materialdetails, ohne Ressourcen sichtbar zu machen, für die der
+	 * aktuelle Benutzer kein Leserecht hat. Antwortpfade verwenden diese
+	 * Variante anstelle von withAttributes().
+	 */
+	public static function withVisibleAttributes(User $user): array {
+		$relations = array_filter(self::withAttributes(), static fn($relation): bool => $relation !== 'resources');
+		$relations['resources'] = static fn(Builder $query): Builder => $query->visibleTo($user);
+
+		return $relations;
+	}
+
+	/**
 	 * Display a listing of the resource.
 	 *
 	 * @return \Illuminate\Http\Response
 	 */
 	public function index() {
-		$materials = Material::with($this->withAttributes)->orderBy('updated_at')->paginate(50);
+		$materials = Material::query()
+			->visibleTo(Auth::user())
+			->with(self::withVisibleAttributes(Auth::user()))
+			->orderBy('updated_at')
+			->paginate(50);
 		$title     = "Alle Materialien";
 
 		return view('materials.listing', compact('materials', 'title'));
@@ -60,7 +75,8 @@ class MaterialController extends Controller {
 
 		$kw        = Keyword::where(['lc_title' => $lcKeyword])->first();
 		$materials = $kw->materials()
-			->with($this->withAttributes)
+			->visibleTo(Auth::user())
+			->with(self::withVisibleAttributes(Auth::user()))
 			->orderBy('pivot_relevance', 'desc')
 			->paginate(50);
 
@@ -74,7 +90,8 @@ class MaterialController extends Controller {
 		$matQuery = Material::query()
 			->select(['materials.*', DB::raw('max(bibleverse_material.relevance) as relevance')])
 			->distinct()
-			->with($this->withAttributes)
+			->visibleTo(Auth::user())
+			->with(self::withVisibleAttributes(Auth::user()))
 			->orderBy('relevance', 'desc')
 			->groupBy('materials.id')
 			->where(function ($q) use ($from, $to) {
@@ -187,15 +204,17 @@ class MaterialController extends Controller {
 	 * @return \Illuminate\Http\Response
 	 */
 	public function show(Material $material) {
-		$material->load($this->withAttributes);
+		$material->load(self::withVisibleAttributes(Auth::user()));
 
 		// Zeige andere Materialien, die ebenfalls mit diesen Ressourcen verknüpft sind
 		$resourceIds       = $material->resources->pluck('id');
-		$andereMaterialien = DB::table('material_resource')
-			->select('material_id')
-			->whereIn('resource_id', $resourceIds)
-			->where('material_id', '!=', $material->id)
-			->groupBy('material_id')->get();
+		$andereMaterialien = Material::query()
+			->visibleTo(Auth::user())
+			->whereKeyNot($material->id)
+			->whereHas('resources', fn(Builder $query) => $query->whereIn('resources.id', $resourceIds))
+			->select('materials.id')
+			->distinct()
+			->get();
 
 
 		return view('materials.show', ['material' => $material, 'andereMaterialien' => $andereMaterialien]);
@@ -208,7 +227,7 @@ class MaterialController extends Controller {
 	 * @return \Illuminate\Http\Response
 	 */
 	public function edit(Material $material) {
-		$material->load($this->withAttributes);
+		$material->load(self::withVisibleAttributes(Auth::user()));
 
 		return view('materials.edit', ['material' => $material]);
 	}

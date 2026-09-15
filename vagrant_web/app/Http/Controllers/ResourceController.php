@@ -3,12 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Events\ResourceWasChanged;
-use App\Models\Resource;
 use App\Models\Resource as ResourceEntity;
 use App\Models\Text;
-use App\Support\Authorization\SystemPermissions;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Response;
 
@@ -31,12 +29,8 @@ class ResourceController extends Controller {
 	 * @return \Illuminate\Http\Response
 	 */
 	public function index() {
-
-		// $resources = DB::table('resources')->paginate(15);
-		$resources = DB::table('resources')
-			->when(!Auth::user()->can(SystemPermissions::RESOURCES_VIEW_ALL), fn($query) => $query->where(function ($query): void {
-				$query->where('created_by', Auth::id())->orWhere('is_public', true);
-			}))
+		$resources = ResourceEntity::query()
+			->visibleTo(Auth::user())
 			->paginate(20);
 
 		return view('resources.index', compact('resources'));
@@ -79,7 +73,7 @@ class ResourceController extends Controller {
 		return view('vuerouter.index', [
 			'store' => [
 				'materials' => [
-					$material->load(MaterialController::withAttributes()),
+					$material->load(MaterialController::withVisibleAttributes(Auth::user())),
 				]],
 			'route' => ['name' => 'material-detail', 'params' => ['id' => $material->id]]
 		]);
@@ -93,7 +87,7 @@ class ResourceController extends Controller {
 	 * @return \Illuminate\Http\Response
 	 */
 	public function show(ResourceEntity $resource) {
-		$resource->load(['materials', 'materials.keywords', 'materials.bibleverses']);
+		$resource->load($this->visibleMaterialRelations());
 
 		return view('resources.show')->with('resource', $resource);
 	}
@@ -105,11 +99,23 @@ class ResourceController extends Controller {
 	 * @return \Illuminate\Http\Response
 	 */
 	public function edit(ResourceEntity $resource) {
-		$resource->load(['materials.keywords', 'materials.bibleverses']);
+		$resource->load($this->visibleMaterialRelations());
 
 		return view('resources.edit', [
 			'resource' => $resource
 		]);
+	}
+
+	/**
+	 * Verknüpfte Materialien dürfen die Sichtbarkeitsprüfung nicht umgehen,
+	 * nur weil die Ressource selbst sichtbar ist.
+	 */
+	protected function visibleMaterialRelations(): array {
+		return [
+			'materials' => static fn(Builder $query): Builder => $query->visibleTo(Auth::user()),
+			'materials.keywords',
+			'materials.bibleverses',
+		];
 	}
 
 	/**
