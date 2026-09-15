@@ -619,14 +619,16 @@ Die relevanten aktuellen Query-Formen sind:
 - Keyword- und Bibelstellensuche: Sichtbarkeitsbedingung plus Pivot-Joins und
   Relevanzsortierung.
 
-Die lokale Sail-/MySQL-Testumgebung war bei der Inventur nicht verfügbar
-(`Docker or Podman is not running`). Deshalb wurden weder `EXPLAIN`-Pläne noch
-Laufzeitmessungen erzeugt und bewusst keine Indexmigration angelegt. Ein
-zusammengesetzter Index wäre ohne repräsentative Daten spekulativ und könnte
-die Schreibkosten unnötig erhöhen. Die Entscheidung bleibt offen, bis die
-isolierte Datenbank `testing` gemäß Qualitätssicherung verfügbar ist; dann sind
-die in Abschnitt „Indizes und Abfrageplan“ genannten Varianten mit `EXPLAIN`
-nachzuholen und nur der nachweislich wirksame Index separat freizugeben.
+Die lokale Sail-/MySQL-Testumgebung ist inzwischen verfügbar. Nach den
+isolierten Feature-Tests enthielt die Datenbank `testing` jedoch keine
+Materials oder Resources. Deshalb wurden keine nicht aussagekräftigen
+`EXPLAIN`-Pläne oder Laufzeitmessungen erzeugt und bewusst keine
+Indexmigration angelegt. Ein zusammengesetzter Index wäre ohne
+repräsentative Daten spekulativ und könnte die Schreibkosten unnötig erhöhen.
+Die Entscheidung bleibt offen, bis ein repräsentativer, anonymisierter
+Testdatenbestand bereitsteht; dann sind die im Abschnitt „Indizes und
+Abfrageplan“ genannten Varianten mit `EXPLAIN` nachzuholen und nur der
+nachweislich wirksame Index separat freizugeben.
 
 ### AP 8 – Vollständige Verifikation und Übergabe
 
