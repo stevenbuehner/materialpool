@@ -600,6 +600,34 @@ bewertet.
 
 **Abhängigkeiten:** AP 4; neue Indexmigration erneut freigabepflichtig.
 
+#### Ausführungsstand 2026-09-15
+
+Die statische Inventur der Migrationen ergab für `materials` ausschließlich
+den Primärschlüssel sowie den vorhandenen Index `material_flag`. Insbesondere
+existieren derzeit keine Indizes auf `materials.created_by`,
+`materials.is_public` oder `materials.updated_at`. Die für
+`material_resource` und `bibleverse_material` benötigten Pivot-Indizes sind
+vorhanden; bei `resources` bestehen bereits Indizes auf `type`, `created_by`,
+`updated_at` und die Kombination `is_public, created_by`.
+
+Die relevanten aktuellen Query-Formen sind:
+
+- Materiallisten: Sichtbarkeitsbedingung auf `created_by` und optional
+  `is_public`, sortiert nach `updated_at`.
+- Suche: dieselbe Sichtbarkeitsbedingung, optional `whereHas(resources)` mit
+  Resource-Sichtbarkeit und `resources.type`.
+- Keyword- und Bibelstellensuche: Sichtbarkeitsbedingung plus Pivot-Joins und
+  Relevanzsortierung.
+
+Die lokale Sail-/MySQL-Testumgebung war bei der Inventur nicht verfügbar
+(`Docker or Podman is not running`). Deshalb wurden weder `EXPLAIN`-Pläne noch
+Laufzeitmessungen erzeugt und bewusst keine Indexmigration angelegt. Ein
+zusammengesetzter Index wäre ohne repräsentative Daten spekulativ und könnte
+die Schreibkosten unnötig erhöhen. Die Entscheidung bleibt offen, bis die
+isolierte Datenbank `testing` gemäß Qualitätssicherung verfügbar ist; dann sind
+die in Abschnitt „Indizes und Abfrageplan“ genannten Varianten mit `EXPLAIN`
+nachzuholen und nur der nachweislich wirksame Index separat freizugeben.
+
 ### AP 8 – Vollständige Verifikation und Übergabe
 
 **Ziel:** Sicherheits-, Regressions- und Deploymentreife nachweisen.
