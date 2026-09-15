@@ -306,7 +306,7 @@ class ResourceController extends BaseController {
 
 		if ($loadsMaterials) {
 			$relations = array_filter($relations, static fn($relation): bool => $relation !== 'materials');
-			$relations['materials'] = fn(Builder $query): Builder => $query->visibleTo(Auth::user());
+			$relations['materials'] = fn($query) => $query->visibleTo(Auth::user());
 		}
 
 		return $relations;

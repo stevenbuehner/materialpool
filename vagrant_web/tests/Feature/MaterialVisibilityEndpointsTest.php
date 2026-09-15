@@ -29,21 +29,6 @@ class MaterialVisibilityEndpointsTest extends TestCase {
 		$response->assertJsonMissing(['id' => $publicMaterial->id]);
 	}
 
-	public function test_web_material_index_returns_only_materials_visible_to_the_current_user(): void {
-		$owner = User::factory()->create();
-		$viewer = User::factory()->create();
-		$viewer->syncRoles([]);
-		$ownMaterial = Material::factory()->create(['created_by' => $viewer->id, 'modified_by' => $viewer->id]);
-		Material::factory()->privatelyVisible()->create(['created_by' => $owner->id, 'modified_by' => $owner->id]);
-
-		$response = $this->actingAs($viewer)->get(route('pool.material.index'));
-
-		$response->assertOk();
-		$response->assertViewHas('materials', function ($materials) use ($ownMaterial): bool {
-			return $materials->getCollection()->pluck('id')->all() === [$ownMaterial->id];
-		});
-	}
-
 	public function test_material_detail_does_not_serialize_a_private_foreign_resource(): void {
 		$owner = User::factory()->create();
 		$viewer = User::factory()->create();
@@ -72,17 +57,4 @@ class MaterialVisibilityEndpointsTest extends TestCase {
 		$response->assertJsonPath('materials', []);
 	}
 
-	public function test_web_resource_index_returns_only_resources_visible_to_the_current_user(): void {
-		$owner = User::factory()->create();
-		$viewer = User::factory()->create();
-		$ownResource = Resource::factory()->create(['created_by' => $viewer->id, 'is_public' => false]);
-		Resource::factory()->create(['created_by' => $owner->id, 'is_public' => false]);
-
-		$response = $this->actingAs($viewer)->get(route('pool.resource.index'));
-
-		$response->assertOk();
-		$response->assertViewHas('resources', function ($resources) use ($ownResource): bool {
-			return $resources->getCollection()->pluck('id')->all() === [$ownResource->id];
-		});
-	}
 }

@@ -50,7 +50,7 @@ class MaterialController extends Controller {
 	 */
 	public static function withVisibleAttributes(User $user): array {
 		$relations = array_filter(self::withAttributes(), static fn($relation): bool => $relation !== 'resources');
-		$relations['resources'] = static fn(Builder $query): Builder => $query->visibleTo($user);
+		$relations['resources'] = static fn($query) => $query->visibleTo($user);
 
 		return $relations;
 	}

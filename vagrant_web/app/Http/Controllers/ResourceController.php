@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Events\ResourceWasChanged;
 use App\Models\Resource as ResourceEntity;
 use App\Models\Text;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Response;
@@ -112,7 +111,7 @@ class ResourceController extends Controller {
 	 */
 	protected function visibleMaterialRelations(): array {
 		return [
-			'materials' => static fn(Builder $query): Builder => $query->visibleTo(Auth::user()),
+			'materials' => static fn($query) => $query->visibleTo(Auth::user()),
 			'materials.keywords',
 			'materials.bibleverses',
 		];

@@ -224,7 +224,7 @@ class SearchController extends Controller {
 
 	protected function turnRequestIntoQuery(SearchMaterialsRequest $request) {
 		$user       = $request->user();
-		$searchBars = $request->validated('q', []);
+		$searchBars = $request->validated('q') ?? [];
 		$matQuery   = Material::query()
 			->visibleTo($user)
 			->select('materials.*')
@@ -232,7 +232,7 @@ class SearchController extends Controller {
 				'author',
 				'keywords',
 				'bibleverses',
-				'resources' => fn(Builder $query) => $query->visibleTo($user),
+				'resources' => fn($query) => $query->visibleTo($user),
 			])
 			->groupBy(['materials.id']);
 
