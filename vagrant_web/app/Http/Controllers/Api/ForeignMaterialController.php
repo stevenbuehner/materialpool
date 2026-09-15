@@ -23,6 +23,7 @@ use App\Services\TagExtraction\Properties\TitleProperty;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Validator;
 use StevenBuehner\BibleVerseBundle\Service\BibleVerseService;
 
@@ -154,6 +155,7 @@ class ForeignMaterialController extends BaseController {
 			'title'          => 'bail|string|min:3|max:255',
 			'rating'         => 'bail|nullable|numeric|between:0,20',
 			'from_bot'       => 'bail|boolean',
+			'is_public'      => 'bail|sometimes|boolean',
 			'description'    => 'bail|nullable|string',
 			'author'         => 'bail|nullable|string|min:2|max:191',
 			'resources.*.id' => 'required|max:255',
@@ -238,6 +240,10 @@ class ForeignMaterialController extends BaseController {
 		}
 
 		$material = $materialService->createGuessedMaterialFromResource($resources, $tagExtractionProperties);
+		if (isset($data['is_public'])) {
+			$material->is_public = (bool)$data['is_public'];
+			$material->save();
+		}
 
 		if (isset($data['from_bot'])) {
 			// Todo: Does this work or is there parsing needed?
@@ -283,6 +289,9 @@ class ForeignMaterialController extends BaseController {
 		);
 		$mat->created_by  = Auth::id();
 		$mat->modified_by = Auth::id();
+		if ($request->has('is_public')) {
+			$mat->is_public = $request->boolean('is_public');
+		}
 
 		if ($request->has('author')) {
 			$this->fillAuthor($request->get('author'), $mat);
@@ -321,6 +330,10 @@ class ForeignMaterialController extends BaseController {
 				409);
 		}
 
+		if ($request->has('is_public')) {
+			Gate::authorize('updateMetadata', $material);
+		}
+
 		// Update data
 		$material->fill(
 			array_merge(
@@ -330,6 +343,9 @@ class ForeignMaterialController extends BaseController {
 				]
 			)
 		);
+		if ($request->has('is_public')) {
+			$material->is_public = $request->boolean('is_public');
+		}
 
 
 		if ($request->has('author')) {

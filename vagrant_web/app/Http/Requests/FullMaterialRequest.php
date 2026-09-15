@@ -26,6 +26,7 @@ class FullMaterialRequest extends FormRequest {
 			'title'       => 'bail|required|string|min:3|max:255',
 			'rating'      => 'bail|nullable|numeric|between:0,20',
 			'from_bot'    => 'bail|boolean',
+			'is_public'   => 'bail|sometimes|boolean',
 			'description' => 'bail|nullable|string',
 			'author'      => 'bail|nullable|string|min:2|max:191',
 

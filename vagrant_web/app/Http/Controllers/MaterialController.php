@@ -138,6 +138,9 @@ class MaterialController extends Controller {
 		$material              = new Material($request->only(['title', 'rating', 'description', 'from_bot']));
 		$material->created_by  = Auth::id();
 		$material->modified_by = Auth::id();
+		if ($request->has('is_public')) {
+			$material->is_public = $request->boolean('is_public');
+		}
 		$material->save();
 
 		// Extract meta-data from string and assign it to material
@@ -242,6 +245,9 @@ class MaterialController extends Controller {
 	public function update(MaterialRequest $request, Material $material) {
 
 		$material->fill($request->all());
+		if ($request->has('is_public')) {
+			$material->is_public = $request->boolean('is_public');
+		}
 		$material->save();
 
 		return redirect(route('pool.material.show', $material));

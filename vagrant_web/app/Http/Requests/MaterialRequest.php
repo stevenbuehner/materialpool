@@ -25,6 +25,7 @@ class MaterialRequest extends FormRequest {
 			'description' => 'bail|nullable|string',
 			'rating'      => 'bail|nullable|integer|between:0,20',
 			'flag'        => 'bail|nullable|integer|min:0',
+			'is_public'   => 'bail|sometimes|boolean',
 			'created_at'  => 'bail:'
 		];
 	}

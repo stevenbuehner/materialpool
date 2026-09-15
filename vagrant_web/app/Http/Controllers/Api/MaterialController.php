@@ -49,12 +49,15 @@ class MaterialController extends BaseController {
 	 * Store a newly created material in storage.
 	 *
 	 */
-	public function store(Request $request) {
+	public function store(MaterialRequest $request) {
 
 		$material              = new Material($request->all());
 		$material->created_by  = Auth::id();
 		$material->modified_by = Auth::id();
 		$material->from_bot    = $request->get('from_bot', TRUE);
+		if ($request->has('is_public')) {
+			$material->is_public = $request->boolean('is_public');
+		}
 
 
 		$this->fillAuthor($request->get('author'), $material);
@@ -107,6 +110,9 @@ class MaterialController extends BaseController {
 	public function update(MaterialRequest $request, Material $material) {
 
 		$material->fill($request->all());
+		if ($request->has('is_public')) {
+			$material->is_public = $request->boolean('is_public');
+		}
 
 		if ($request->has('author')) {
 			$this->fillAuthor($request->get('author'), $material);
