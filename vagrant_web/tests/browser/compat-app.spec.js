@@ -727,6 +727,7 @@ test('Vue 3 datepicker keeps the German input and calendar interaction', async (
     const userSearchRequests = [];
     let returnResourceSuggestion = false;
     page.on('pageerror', error => pageErrors.push(error.stack || error.message));
+    await page.clock.install({time: '2026-09-16T10:00:00Z'});
 
     await page.route('**/vue/**', async route => {
         await route.fulfill({
@@ -1030,6 +1031,7 @@ test('Vue 3 datepicker keeps the German input and calendar interaction', async (
 
     const dateInput = page.getByPlaceholder('Datum');
     await expect(dateInput).toBeVisible();
+    await expect(dateInput).toHaveAttribute('required', '');
     await expect(dateInput).toHaveValue('01.09.2026');
     await expectResolvedNavigation(page);
     await expect(page.getByText('Zugeordnete Bundles', {exact: true})).toHaveCount(0);
@@ -1112,7 +1114,13 @@ test('Vue 3 datepicker keeps the German input and calendar interaction', async (
     expect(minimumCharacterHintStyle).toEqual(languageFooterStyle);
 
     await dateInput.click();
-    await expect(page.locator('.vdp-datepicker__calendar').first()).toBeVisible();
+    const datepickerDialog = page.getByRole('dialog', {name: 'Datepicker menu'});
+    await expect(datepickerDialog).toBeVisible();
+    await expect(datepickerDialog.getByRole('gridcell', {name: /September 17/})).toHaveAttribute('aria-disabled', 'true');
+    await datepickerDialog.getByRole('gridcell', {name: /September 10/}).click();
+    await expect(dateInput).toHaveValue('10.09.2026');
+    await expect(dateInput).toHaveClass(/\bvalueChanged\b/);
+    await expect(datepickerDialog).toBeHidden();
 
     await page.getByTitle('Anlass hinzufügen').click();
     await expect.poll(() => usageCreateRequests.length).toBe(1);
@@ -1120,6 +1128,16 @@ test('Vue 3 datepicker keeps the German input and calendar interaction', async (
 
     const usage = page.locator('.usage-edit-list-el').first();
     await expect(usage.getByPlaceholder('Grund')).toBeVisible();
+    const usageDateInput = usage.getByPlaceholder('Termin');
+    await expect(usageDateInput).toHaveValue('10.09.2026');
+    await usageDateInput.click();
+    await expect(datepickerDialog).toBeVisible();
+    await datepickerDialog.getByRole('button', {name: 'Next month'}).click();
+    await datepickerDialog.getByRole('button', {name: 'Next month'}).click();
+    await datepickerDialog.getByRole('button', {name: 'Next month'}).click();
+    await expect(datepickerDialog.getByRole('gridcell', {name: /Dezember 16/})).toHaveAttribute('aria-disabled', 'true');
+    await datepickerDialog.getByRole('gridcell', {name: /Dezember 15/}).click();
+    await expect(usageDateInput).toHaveValue('15.12.2026');
     await usage.getByPlaceholder('Grund').fill('Jugendgruppe');
     await usage.getByPlaceholder('Örtlichkeit').fill('Berlin');
     await usage.locator('.multiselect-clear').click();
@@ -1158,6 +1176,10 @@ test('Vue 3 datepicker keeps the German input and calendar interaction', async (
     await expect(page).toHaveURL(/tabIndex=2/);
     await expect(tabs.nth(2)).toBeFocused();
     await expect(tabs.nth(2)).toHaveAttribute('aria-selected', 'true');
+    const disabledDateInput = page.getByPlaceholder('Zuletzt bearbeitet am');
+    await expect(disabledDateInput).toBeVisible();
+    await expect(disabledDateInput).toBeDisabled();
+    await expect(disabledDateInput).toHaveValue('01.09.2026');
 
     await tabs.nth(1).click();
     const assignButton = page.getByRole('button', {name: 'Resource zuordnen'});
