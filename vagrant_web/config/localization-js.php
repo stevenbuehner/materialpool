@@ -18,5 +18,5 @@ return [
     /*
      * The default path to use for the generated javascript.
      */
-    'path' => resource_path('/js/lang-js-translation.js'),
+    'path' => resource_path('/js/lang-js-translation.json'),
 ];

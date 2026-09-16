@@ -8,7 +8,7 @@
     "npm": ">=11.19.0 <12"
   },
   "scripts": {
-    "dev": "php artisan lang:js -c --no-lib && vite",
+    "dev": "php artisan lang:js --json && vite",
     "development": "npm run dev",
     "watch": "npm run dev",
     "watch-poll": "npm run dev",
@@ -25,7 +25,7 @@
     "test:visual": "playwright test --grep @visual",
     "prod": "npm run production",
     "production": "npm run build",
-    "build": "php artisan lang:js -c --no-lib && vite build && npm run check:bundle"
+    "build": "php artisan lang:js --json && vite build && npm run check:bundle"
   },
   "dependencies": {
     "@primer/octicons": "^9.6.0",

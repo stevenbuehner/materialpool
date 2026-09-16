@@ -1,5 +1,5 @@
 // @see https://github.com/martinlindhe/laravel-vue-i18n-generator
-import translations from './../../lang-js-translation.js';
+import translations from './../../lang-js-translation.json';
 import Moment from 'moment';
 import 'moment/locale/de';
 
