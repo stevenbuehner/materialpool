@@ -42,7 +42,7 @@ class AuthenticationAndRouteContractTest extends TestCase
         $this->assertFalse(config('hashing.rehash_on_login'));
         $this->assertSame('laravel:', config('cache.prefix'));
         $this->assertFalse(config('cache.serializable_classes'));
-        $this->assertSame('php', config('session.serialization'));
+        $this->assertSame('json', config('session.serialization'));
         $this->assertSame('materialpool_session', config('session.cookie'));
         $this->assertFalse(config('queue.connections.sync.after_commit'));
         $this->assertFalse(config('queue.connections.database.after_commit'));

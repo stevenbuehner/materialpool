@@ -69,7 +69,7 @@ Die folgenden Punkte sind harte Abnahmekriterien. Eine Abweichung ist kein „Up
 - Resource-STI behält alle vorhandenen Kurzcodes und Zuordnungen, insbesondere `res`, `link`, `file`, `text`, `book` sowie die Datei-Untertypen.
 - `MaterialResource.limitation`, Keyword-/Bibleverse-`relevance`, `options`, Zeitstempel und alle bisher serialisierten Werte bleiben les- und schreibkompatibel.
 - Laravel-13-Härtungen für Cache-Serialisierung werden explizit konfiguriert und getestet. Bestehende erlaubte Anwendungsobjekte dürfen nicht stillschweigend unlesbar werden.
-- Die Session-Serialisierung bleibt zunächst PHP-kompatibel. Eine spätere Umstellung auf JSON ist ein separater, geplanter Session-Cutover und nicht Teil dieses Upgrades.
+- Die Session-Serialisierung verwendet nach einem separat autorisierten Cutover `json`. Bestehende PHP-serialisierte Browser-Sessions werden nicht migriert.
 - Explizite Session-Cookie- und Cache-Prefix-Werte bleiben erhalten, damit keine ungewollte Namespace-Änderung entsteht.
 
 ### Verbindlicher Nested-Set-Vertrag
@@ -215,7 +215,7 @@ Die Abnahme erfolgt in dieser Reihenfolge: Der Regressionstest `PdfHandlingServi
 - Die veralteten Passport-JSON-Verwaltungsrouten bleiben gemäß Paketdefault deaktiviert. Passport bleibt headless; eine eigene Authorization-View wird nicht ohne separaten UI-Auftrag eingeführt. Betroffene Clients und der Betriebsablauf werden in `docs/ai/passport-13-client-migration.md` dokumentiert.
 - Den CSRF-Middleware-Namenswechsel auf `PreventRequestForgery` modernisieren und die neue Origin-Prüfung über `Sec-Fetch-Site` mit Erfolgs- und Ablehnungstest aktivieren.
 - Cache- und Session-Serialisierung sowie Prefix-Kontinuität explizit konfigurieren und testen.
-- Cache-Objekte auf eine explizite `serializable_classes`-Allowlist begrenzen. Die Session-Serialisierung bleibt für einen unterbrechungsfreien Upgradepfad ausdrücklich `php`; ein Wechsel zu `json` bleibt ein separater Session-Cutover.
+- Cache-Objekte auf eine explizite `serializable_classes`-Allowlist begrenzen. Die Session-Serialisierung verwendet nach dem separat autorisierten Cutover `json`; Cookie- und Cache-Prefixe bleiben unverändert.
 - Parental-STI und Nestedset 7 anhand ihrer vollständigen Vertragsgruppen abnehmen.
 - `minimum-stability` auf `stable` setzen. Der temporäre Bible-Paket-Commit-Pin wurde nach Bereitstellung des stabilen Tags durch `^3.0` ersetzt; der gelockte Endstand ist `3.0.0`.
 
@@ -257,7 +257,7 @@ Ein Schritt darf erst begonnen werden, wenn der vorherige vollständig grün ist
 - Neue Funktionen, API-Versionen oder Datenmodelle.
 - Bereinigung, Neuordnung oder Reparatur produktiver Nested Sets.
 - Wechsel von Passport zu einem anderen Authentifizierungssystem.
-- Umstellung der Session-Serialisierung auf JSON.
+- Die Session-Serialisierung wurde nach dem Laravel-13-Upgrade separat auf JSON umgestellt.
 - Ausführung eines Deployments auf einem realen Produktionsserver. Die dafür freigegebene technische Vorbereitung und der verpflichtende Rollout-/Backup-/Rollbackablauf stehen in [`production-deployment-contract.md`](production-deployment-contract.md); reale Zugänge und der nachgewiesene S3-Restore bleiben Voraussetzung.
 
 ## Referenzen

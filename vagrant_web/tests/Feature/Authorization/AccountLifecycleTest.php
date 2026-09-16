@@ -14,6 +14,22 @@ use Tests\TestCase;
 class AccountLifecycleTest extends TestCase {
 	use RefreshDatabase;
 
+	public function test_active_user_can_log_in_access_a_protected_page_and_log_out_with_json_sessions(): void {
+		$user = User::factory()->create([
+			'status' => UserStatus::Active,
+			'password' => Hash::make('secret'),
+		]);
+
+		$this->post('/login', ['email' => $user->email, 'password' => 'secret'])
+			->assertRedirect('/home');
+		$this->assertAuthenticatedAs($user);
+
+		$this->get('/home')->assertOk();
+
+		$this->post('/logout')->assertRedirect('/');
+		$this->assertGuest();
+	}
+
 	public function test_invited_and_suspended_users_cannot_log_in_or_use_authenticated_api(): void {
 		$invited = User::factory()->create(['status' => UserStatus::Invited, 'password' => Hash::make('secret')]);
 		$this->post('/login', ['email' => $invited->email, 'password' => 'secret'])

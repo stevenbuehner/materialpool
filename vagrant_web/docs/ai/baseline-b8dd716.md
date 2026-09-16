@@ -35,7 +35,7 @@ Die nachgelagerten Produktions- und Vue-3-Release-Verträge ergänzen weitere Te
 
 - Passport folgt bei UUIDs, Secret-Hashing, Client-Schema, Device Codes, Headless-Betrieb und deaktivierter Legacy-JSON-API den Version-13-Defaults.
 - Als einzige Abweichung bei den aktivierten OAuth-Grants bleibt der für den Material Grabber benötigte Password Grant aktiv. Bestehende Token-Laufzeiten, `CreateFreshApiToken` und der Cookie-Name `materialpool_token` bleiben ebenfalls als zuvor vorhandene Kompatibilitätskonfiguration erhalten.
-- Session-Serialisierung bleibt vorerst `php`; Cache-Serialisierung und bestehende Prefixes sind explizit abgesichert.
+- Die Session-Serialisierung verwendet `json`; Cache-Serialisierung sowie bestehende Cookie- und Cache-Prefixes sind explizit abgesichert.
 - Die klassische Laravel-Anwendungsstruktur mit Kerneln, Providern und Konfigurationsdateien bleibt erhalten. Innerhalb dieser Struktur werden aktuelle Laravel-13-Konventionen bevorzugt, sofern sie vollständig und verhaltensneutral übernommen werden können.
 - `stevenbuehner/bible-verse-bundle` ist über den stabilen Constraint `^3.0` auf Release `3.0.0` (Commit `c9757851ee69220293223728e1db525951e60da8`) gelockt. Die frühere Dev-/Commit-Ausnahme ist vollständig entfallen.
 - Am dokumentierten Backend-Checkpoint blieb das Frontend bewusst auf Vue 2/Laravel Mix. Diese Aussage ist historisch; der aktuelle Stand nach dem separat beauftragten Migrationsprojekt ist im folgenden Abschnitt dokumentiert.

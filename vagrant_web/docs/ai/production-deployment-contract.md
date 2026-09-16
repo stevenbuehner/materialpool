@@ -141,4 +141,4 @@ Ohne reale Domain, Proxy-CIDR, SSH-Ziel, SMTP- und S3-Zugang können nur Reposit
 
 ## Nachgelagerte P1-Arbeiten
 
-Die FPDI-/FPDF-Metapaketbereinigung ist im Repository bereits verhaltensneutral durch direkte Abhängigkeiten ersetzt und vor einem Deployment über die PHP-8.4-Sail-Gates abzunehmen. Erst nach stabilem Produktionsbetrieb folgen die verbleibenden P1-Arbeiten: Session kontrolliert auf JSON umstellen, GET-Logout kontrolliert durch POST ersetzen, historische Passport-Hilfstabelle nach Beobachtungszeit entfernen und OAuth-Consent-/Device-UI nur bei echtem Bedarf entscheiden.
+Die FPDI-/FPDF-Metapaketbereinigung ist im Repository bereits verhaltensneutral durch direkte Abhängigkeiten ersetzt und die Session-Serialisierung verwendet nach einem separat autorisierten Cutover JSON. Beide Änderungen sind vor einem Deployment über die PHP-8.4-Sail-Gates abzunehmen. Erst nach stabilem Produktionsbetrieb folgen die verbleibenden P1-Arbeiten: GET-Logout kontrolliert durch POST ersetzen, historische Passport-Hilfstabelle nach Beobachtungszeit entfernen und OAuth-Consent-/Device-UI nur bei echtem Bedarf entscheiden.
