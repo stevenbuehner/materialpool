@@ -362,7 +362,7 @@ import {useResourcesStore}        from '../stores/resources';
 import {useGeneralStore}          from '../stores/general';
 import {userHasPermission}       from '../authorization';
 
-// https://github.com/craigh411/vue-star-rating/#props
+// Rating props are provided by the local rating adapter.
 export default {
 
   name: 'MaterialDetail2',

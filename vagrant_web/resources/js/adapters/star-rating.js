@@ -1,1 +1,1 @@
-export { default } from 'vue-star-rating';
+export { default } from '../components/Rating/RatingControl.vue';

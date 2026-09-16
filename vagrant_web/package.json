@@ -51,8 +51,7 @@
     "video.js": "^8.24.0",
     "vue": "3.5.42",
     "vue-async-computed": "4.0.1",
-    "vue-router": "4.6.4",
-    "vue-star-rating": "2.1.0"
+    "vue-router": "4.6.4"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

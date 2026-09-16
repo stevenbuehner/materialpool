@@ -6,12 +6,11 @@ export default {
   name: "MaterialRating",
   extends: starRating,
 
-  computed: {
-    formattedRating() {
-      const rating = (this.fixedPoints === null) ? this.currentRating : this.currentRating.toFixed(this.fixedPoints)
+  methods: {
+    formatRating(rating) {
       return this.$t('pool.rating-' + rating);
     },
-  }
+  },
 }
 </script>
 

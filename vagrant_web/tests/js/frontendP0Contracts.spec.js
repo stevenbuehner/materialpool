@@ -1,6 +1,7 @@
 import {afterAll, beforeAll, describe, expect, it, vi} from 'vitest';
 
 import {isValidMaxRating} from '../../resources/js/components/Rating/ratingValidation';
+import {fillPercentage, ratingFromPointer} from '../../resources/js/components/Rating/ratingMath';
 import {limitedPreviewPages} from '../../resources/js/components/resource/show/pdfPreviewPages';
 
 let displayedUsages;
@@ -23,6 +24,14 @@ describe('frontend P0 contracts', () => {
     expect(isValidMaxRating(0)).toBe(false);
     expect(isValidMaxRating(Number.POSITIVE_INFINITY)).toBe(false);
     expect(isValidMaxRating('20')).toBe(false);
+  });
+
+  it('maps five visual stars to the persisted zero-to-twenty rating scale', () => {
+    expect(fillPercentage(10, 0, 5, 20)).toBe(100);
+    expect(fillPercentage(10, 1, 5, 20)).toBe(100);
+    expect(fillPercentage(10, 2, 5, 20)).toBe(50);
+    expect(fillPercentage(10, 3, 5, 20)).toBe(0);
+    expect(ratingFromPointer(0.5, 2, 5, 20, 1)).toBe(10);
   });
 
   it('accepts nullable users with their own id property', () => {
