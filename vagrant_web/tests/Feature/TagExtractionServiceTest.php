@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\Keyword;
 use App\Services\TagExtraction\Properties\KeywordProperty;
 use App\Services\TagExtraction\Properties\Property;
+use App\Services\TagExtraction\TagRecognition\Created;
 use App\Services\TagExtraction\TagExtractionService;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -30,6 +31,13 @@ class TagExtractionServiceTest extends TestCase {
 
 	public function testServiceProvider() {
 		$this->assertInstanceOf(TagExtractionService::class, $this->service);
+	}
+
+	public function testCreatedRecognitionPreProcessesNullInputWithoutDeprecationWarning() {
+		[$result, $tags] = (new Created())->preProcessInput(NULL, []);
+
+		$this->assertSame('', $result);
+		$this->assertSame([], $tags);
 	}
 
 	public function testExtractSingleKeyword() {

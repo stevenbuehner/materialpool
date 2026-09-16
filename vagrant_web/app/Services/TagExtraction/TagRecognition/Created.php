@@ -91,6 +91,8 @@ class Created extends AbstractTagRecognition implements PreRecognitionProcessInt
 	 * @return string
 	 */
 	public function preProcessInput($inputValue, $context) {
+		$inputValue = $inputValue ?? '';
+
 		$resultString = preg_replace('~(^|(?![0-9]))(am)(: ?| )(' . self::GERMAN_DATE_REGEX . '|' . self::ENG_GERM_DATE_REGEX . ')~i',
 			'erstellt: $4', $inputValue);
 
