@@ -3,6 +3,7 @@
 namespace Tests\Feature\UpgradeBaseline;
 
 use App\Models\User;
+use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Route;
@@ -78,6 +79,23 @@ class AuthenticationAndRouteContractTest extends TestCase
         $this->assertSame('materialpool_session', config('session.cookie'));
         $this->assertFalse(config('queue.connections.sync.after_commit'));
         $this->assertFalse(config('queue.connections.database.after_commit'));
+    }
+
+    public function test_default_string_length_preserves_historical_schema_compatibility(): void
+    {
+        $table = 'schema_default_string_length_contract';
+
+        Schema::dropIfExists($table);
+
+        try {
+            Schema::create($table, function (Blueprint $table): void {
+                $table->string('value')->index();
+            });
+
+            $this->assertSame('varchar(191)', Schema::getColumnType($table, 'value', true));
+        } finally {
+            Schema::dropIfExists($table);
+        }
     }
 
     public function test_historical_passport_migrations_remain_unchanged_and_the_new_device_migration_matches_passport(): void
