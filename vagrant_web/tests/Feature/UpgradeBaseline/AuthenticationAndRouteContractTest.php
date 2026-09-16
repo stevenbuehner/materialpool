@@ -8,6 +8,9 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Schema;
 use Laravel\Passport\ClientRepository;
+use Laravel\Passport\Contracts\AuthorizationViewResponse;
+use Laravel\Passport\Contracts\DeviceAuthorizationViewResponse;
+use Laravel\Passport\Contracts\DeviceUserCodeViewResponse;
 use Laravel\Passport\Contracts\OAuthenticatable;
 use Laravel\Passport\HasApiTokens;
 use Laravel\Passport\Passport;
@@ -35,6 +38,35 @@ class AuthenticationAndRouteContractTest extends TestCase
         $this->assertContains(HasApiTokens::class, class_uses_recursive(User::class));
         $this->assertTrue(is_a(User::class, OAuthenticatable::class, true));
         $this->assertTrue(Passport::$passwordGrantEnabled);
+    }
+
+    public function test_passport_authorization_and_device_view_responses_are_registered(): void
+    {
+        $this->assertTrue(app()->bound(AuthorizationViewResponse::class));
+        $this->assertTrue(app()->bound(DeviceAuthorizationViewResponse::class));
+        $this->assertTrue(app()->bound(DeviceUserCodeViewResponse::class));
+    }
+
+    public function test_passport_consent_routes_require_an_active_account(): void
+    {
+        foreach ([
+            'passport.authorizations.authorize',
+            'passport.authorizations.approve',
+            'passport.authorizations.deny',
+            'passport.device.authorizations.authorize',
+            'passport.device.authorizations.approve',
+            'passport.device.authorizations.deny',
+        ] as $name) {
+            $this->assertContains('active', Route::getRoutes()->getByName($name)->middleware());
+        }
+    }
+
+    public function test_passport_device_entrypoint_renders_the_application_owned_user_code_view(): void
+    {
+        $this->get(route('passport.device'))
+            ->assertOk()
+            ->assertViewIs('auth.oauth.device.user-code')
+            ->assertSeeText(__('oauth.device.enter_code'));
     }
 
     public function test_framework_defaults_that_would_change_runtime_behavior_remain_explicit(): void

@@ -9,7 +9,7 @@ Materialpool verwendet ab Laravel 13 Laravel Passport 13 möglichst ohne Abweich
 - `oauth_clients` verwendet `owner_type`/`owner_id`, JSON-basierte `redirect_uris` und `grant_types`;
 - die Device-Code-Tabelle und die offiziellen Device-Routen sind vorhanden;
 - die veralteten JSON-Verwaltungsrouten für Clients und Tokens bleiben deaktiviert;
-- Passport bleibt headless und bringt keine anwendungseigene Authorization- oder Device-View mit.
+- Materialpool registriert anwendungseigene, servergerenderte Authorization-Code- und Device-Code-Views über die offiziellen Passport-13-View-Hooks.
 
 Die einzige bewusste Abweichung bei den aktivierten OAuth-Grants ist `Passport::enablePasswordGrant()`. Der externe Material Grabber benötigt diesen OAuth-Flow weiterhin. Zusätzlich bleiben aus Kompatibilitätsgründen die bereits zuvor gesetzten Token-Laufzeiten (Access Token fünf Tage, Refresh Token 30 Tage, Personal Access Token sechs Monate), `CreateFreshApiToken` und der Cookie-Name `materialpool_token` erhalten. Diese Einstellungen sind keine neu eingeführten Abweichungen des Upgrades; ihre spätere Annäherung an Passport-Defaults wäre jedoch eine eigene Client-/Session-Entscheidung. Grant, Laufzeiten und Cookie-Integration sind durch Authentifizierungs- und Routentests abgedeckt.
 
@@ -27,7 +27,7 @@ php artisan passport:client --password
 
 Die bisherigen Endpunkte `oauth/clients`, `oauth/personal-access-tokens` und `oauth/tokens` werden von Passport 13 standardmäßig nicht mehr registriert. Clients müssen ihre Verwaltung auf einen kontrollierten Betriebsprozess oder eine später bewusst entworfene eigene API umstellen. `Passport::$registersJsonApiRoutes` wird nicht aktiviert.
 
-Authorization-Code- und Device-Flows benötigen bei Passport 13 eine anwendungseigene Zustimmungsoberfläche. Materialpool registriert im Backend-Upgrade absichtlich keine neue View, weil dies eine separate UI- und Sicherheitsentscheidung wäre. Bis zu einem solchen Auftrag dürfen Clients nur die tatsächlich eingerichteten headless Flows verwenden; insbesondere bleibt der bestehende Password Grant verfügbar.
+Authorization-Code- und Device-Flows verwenden die anwendungseigenen Bootstrap-Views unter `resources/views/auth/oauth/`. `Passport::viewPrefix('auth.oauth')` bindet sie ohne zusätzliche Routen oder Controller ein. Die Zustimmungsformulare nutzen CSRF-Schutz sowie das von Passport erzeugte einmalige `auth_token`; Clientname und Scopes werden escaped angezeigt. Neue Scopes, eine Clientverwaltungs-API und automatische Freigaben sind nicht Teil dieses Auftrags. Der bestehende Password Grant bleibt unverändert verfügbar.
 
 ## Verbindlicher Deployment-Ablauf
 

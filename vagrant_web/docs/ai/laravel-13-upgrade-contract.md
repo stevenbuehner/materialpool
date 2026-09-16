@@ -212,7 +212,7 @@ Die Abnahme erfolgt in dieser Reihenfolge: Der Regressionstest `PdfHandlingServi
 - `laravel/framework ^13.0`, `laravel/tinker ^3.0`, PHPUnit 12 und alle finalen Paketziele locken.
 - Passport 13 einschließlich `OAuthenticatable` integrieren.
 - Den freigegebenen Passport-Standard-Cutover umsetzen: bestehende IDs wertgleich nach `CHAR(36)` migrieren, neue Clients als UUID anlegen, Secrets hashen, `owner`/`redirect_uris`/`grant_types` übernehmen und die Device-Code-Tabelle veröffentlichen.
-- Die veralteten Passport-JSON-Verwaltungsrouten bleiben gemäß Paketdefault deaktiviert. Passport bleibt headless; eine eigene Authorization-View wird nicht ohne separaten UI-Auftrag eingeführt. Betroffene Clients und der Betriebsablauf werden in `docs/ai/passport-13-client-migration.md` dokumentiert.
+- Die veralteten Passport-JSON-Verwaltungsrouten bleiben gemäß Paketdefault deaktiviert. Die separat freigegebene Anwendung registriert servergerenderte Authorization-Code- und Device-Code-Consent-Views über die offiziellen Passport-13-View-Hooks. Betroffene Clients und der Betriebsablauf werden in `docs/ai/passport-13-client-migration.md` dokumentiert.
 - Den CSRF-Middleware-Namenswechsel auf `PreventRequestForgery` modernisieren und die neue Origin-Prüfung über `Sec-Fetch-Site` mit Erfolgs- und Ablehnungstest aktivieren.
 - Cache- und Session-Serialisierung sowie Prefix-Kontinuität explizit konfigurieren und testen.
 - Cache-Objekte auf eine explizite `serializable_classes`-Allowlist begrenzen. Die Session-Serialisierung verwendet nach dem separat autorisierten Cutover `json`; Cookie- und Cache-Prefixe bleiben unverändert.

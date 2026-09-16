@@ -75,6 +75,6 @@ Material- und Relation-Services lösen `MaterialWas…`, `ResourceWasAttached` u
 
 - Browser-Zugang ist geschützt; die SPA-Route nutzt `auth`.
 - APIs verwenden Laravel Passport 13 (`auth:api`) und teilweise explizite Policies (`can:*`). OAuth-Clients nutzen das Passport-13-Schema mit UUID-fähigen IDs, gehashten Secrets, Owner-, Redirect- und Grant-Feldern.
-- Passport bleibt headless; die veralteten JSON-Verwaltungsrouten sind deaktiviert. Der Material Grabber nutzt weiterhin den ausdrücklich aktivierten Password Grant. Token-Laufzeiten, `CreateFreshApiToken` und `materialpool_token` bleiben kompatibel zum bisherigen Betrieb.
+- Passport nutzt anwendungseigene, servergerenderte Consent- und Device-Code-Views über die offiziellen Passport-13-View-Hooks; die veralteten JSON-Verwaltungsrouten bleiben deaktiviert. Der Material Grabber nutzt weiterhin den ausdrücklich aktivierten Password Grant. Token-Laufzeiten, `CreateFreshApiToken` und `materialpool_token` bleiben kompatibel zum bisherigen Betrieb.
 - Policies liegen unter `app/Policies/`; Guards/Provider stehen in `config/auth.php`.
 - Jede neue oder veränderte API-Aktion benötigt eine explizite Autorisierungsprüfung, passende Tests und Freigabe, wenn sich Sichtbarkeit oder Berechtigung ändert.

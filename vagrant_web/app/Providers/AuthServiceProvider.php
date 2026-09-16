@@ -20,6 +20,7 @@ use App\Support\Authorization\SystemPermissions;
 use Carbon\Carbon;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Route;
 use Laravel\Passport\Passport;
 
 class AuthServiceProvider extends ServiceProvider {
@@ -67,6 +68,24 @@ class AuthServiceProvider extends ServiceProvider {
 		// Die Material-Grabber-Integration benötigt weiterhin den optionalen
 		// Password Grant. Alle übrigen Passport-13-Defaults bleiben unverändert.
 		Passport::enablePasswordGrant();
+
+		// Passport 13 liefert die OAuth-Views nicht mehr selbst aus. Die Anwendung
+		// stellt die Consent- und Device-Code-Oberflächen unter diesem Präfix bereit.
+		Passport::viewPrefix('auth.oauth');
+
+		// Passport registriert die Consent-Routen ohne den anwendungsspezifischen
+		// Aktivstatus-Schutz. Ein zwischenzeitlich gesperrter Web-Login darf keine
+		// OAuth-Freigabe mehr bestätigen oder sehen.
+		foreach ([
+			'passport.authorizations.authorize',
+			'passport.authorizations.approve',
+			'passport.authorizations.deny',
+			'passport.device.authorizations.authorize',
+			'passport.device.authorizations.approve',
+			'passport.device.authorizations.deny',
+		] as $routeName) {
+			Route::getRoutes()->getByName($routeName)?->middleware('active');
+		}
 
 		// Expire tokens after one day
 		Passport::tokensExpireIn(Carbon::now()->addDays(5));
