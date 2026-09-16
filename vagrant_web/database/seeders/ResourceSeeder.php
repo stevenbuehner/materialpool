@@ -143,7 +143,7 @@ class ResourceSeeder extends Seeder {
 				$material = self::makeMaterialWithRandomUser();
 				$material->save();
 				$limitation = new \App\ResourceLimitations\PageLimitation();
-				$limitation->setPages([1, 3, 4, 5]);
+				$limitation->setPages([1]);
 				$material->resources()
 					->attach($r, ['limitation' => $limitation]);
 				$material->keywords()->save(self::getRandomKeyword(), ['relevance' => rand(0, 255)]);
@@ -159,7 +159,7 @@ class ResourceSeeder extends Seeder {
 				$material = self::makeMaterialWithRandomUser();
 				$material->save();
 				$limitation = new \App\ResourceLimitations\PageLimitation();
-				$limitation->setPages([1, 3, 4, 5]);
+				$limitation->setPages([1]);
 				$material->resources()
 					->attach($r, ['limitation' => $limitation]);
 				$material->keywords()->save(self::getRandomKeyword(), ['relevance' => rand(0, 255)]);
