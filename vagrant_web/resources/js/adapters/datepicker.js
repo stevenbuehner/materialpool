@@ -1,1 +1,1 @@
-export { default } from '@wslyhbb/vuejs-datepicker';
+export {VueDatePicker as default} from '@vuepic/vue-datepicker';

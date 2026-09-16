@@ -30,7 +30,7 @@
   "dependencies": {
     "@primer/octicons": "^9.6.0",
     "@vueform/multiselect": "2.6.11",
-    "@wslyhbb/vuejs-datepicker": "4.3.1",
+    "@vuepic/vue-datepicker": "14.0.0",
     "axios": "^1.20.0",
     "bootstrap": "5.3.8",
     "bootstrap-vue-next": "1.1.0",
