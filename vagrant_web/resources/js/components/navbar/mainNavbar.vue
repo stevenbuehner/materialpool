@@ -64,7 +64,9 @@
           </b-nav-form>
 
           <b-nav-item-dropdown right :text="username">
-            <b-dropdown-item href="/logout" class="dropdown-hover">{{ $t('pool.Logout') }}</b-dropdown-item>
+            <b-dropdown-item-button class="dropdown-hover" :disabled="isLoggingOut" @click="logout">
+              {{ $t('pool.Logout') }}
+            </b-dropdown-item-button>
             <b-dropdown-item disabled href="#" class="dropdown-hover">{{ $t('pool.Settings') }}
             </b-dropdown-item>
             <b-dropdown-item :to="{name: 'system-shutdown'}" class="dropdown-hover bg-danger"
@@ -85,6 +87,7 @@ import {
   BButton,
   BCollapse,
   BDropdownItem,
+  BDropdownItemButton,
   BFormInput,
   BInputGroup,
   BNavbar,
@@ -101,6 +104,7 @@ import newTextIcon                       from '@icons/vendor/svg-icon/svg/zero/c
 import asyncIsAdminMixin                 from "../general/async-isAdmin-mixin";
 import asyncUsernameMixin                from "../general/async-username-mixin";
 import {useGeneralStore}                 from '../../apps/main/stores/general';
+import axios                              from '../../apps/main/axiosInstance';
 
 export default {
   name: "mainNavbar",
@@ -116,7 +120,8 @@ export default {
 
   data() {
     return {
-      schnellsuche: ''
+      schnellsuche: '',
+      isLoggingOut: false,
     };
   },
 
@@ -128,6 +133,14 @@ export default {
           search: searchArrayObjectsToSearchQuery([[this.schnellsuche]])
         }
       });
+    },
+
+    async logout() {
+      this.isLoggingOut = true;
+
+      await axios.post('/logout');
+
+      window.location.assign('/');
     },
 
 
@@ -142,6 +155,7 @@ export default {
     BNavForm,
     BNavItemDropdown,
     BDropdownItem,
+    BDropdownItemButton,
     BCollapse,
     BFormInput,
     BButton,

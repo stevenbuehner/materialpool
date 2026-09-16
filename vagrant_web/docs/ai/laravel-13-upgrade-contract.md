@@ -53,7 +53,7 @@ Die folgenden Punkte sind harte Abnahmekriterien. Eine Abweichung ist kein „Up
 
 ### API, Authentifizierung und Sicherheit
 
-- Alle bestehenden Web-, API-v1- und API-v2-Pfade, HTTP-Methoden, Middleware-Anforderungen, Statuscodes und JSON-Strukturen bleiben erhalten. Die zwei bislang doppelt vergebenen Routennamen werden eindeutig (`materials.copy`, `bundles.index`); Laravel UI behält `logout`, während der unveränderte Vue-2-GET-Endpunkt vorübergehend `logout.legacy` heißt.
+- Alle bestehenden Web-, API-v1- und API-v2-Pfade, HTTP-Methoden, Middleware-Anforderungen, Statuscodes und JSON-Strukturen bleiben erhalten. Die zwei bislang doppelt vergebenen Routennamen werden eindeutig (`materials.copy`, `bundles.index`). Der Vue-Logout verwendet die von Laravel UI bereitgestellte CSRF-geschützte POST-Route `logout`; der frühere GET-Endpunkt ist entfernt.
 - Passport bleibt der `api`-Guard. Bestehende numerische OAuth-Client-IDs werden wertgleich in `CHAR(36)` überführt; zugehörige Tokenreferenzen bleiben erhalten. Client-Secrets werden einmalig gehasht und weiterhin mit demselben Klartext-Credential verwendet. Neue Clients nutzen UUIDs.
 - `User`, Policies, Gates, Rollen, Eigentümerschaft, `is_public` und Sichtbarkeitsregeln behalten ihre Semantik.
 - Die für Passport 13 erforderliche Modellanpassung auf `OAuthenticatable` ist erlaubt, sofern die beschriebenen Verträge durch Tests nachgewiesen unverändert bleiben.

@@ -142,6 +142,16 @@ class AuthenticationAndRouteContractTest extends TestCase
         }
     }
 
+    public function test_logout_uses_the_csrf_protected_post_route_without_a_legacy_get_alias(): void
+    {
+        $route = Route::getRoutes()->getByName('logout');
+
+        $this->assertNotNull($route);
+        $this->assertContains('POST', $route->methods());
+        $this->assertNull(Route::getRoutes()->getByName('logout.legacy'));
+        $this->get('/logout')->assertMethodNotAllowed();
+    }
+
     public function test_route_names_are_unique_and_resolve_to_their_explicit_targets(): void
     {
         $this->assertSame(
