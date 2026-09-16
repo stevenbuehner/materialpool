@@ -76,6 +76,7 @@ class AuthenticationAndRouteContractTest extends TestCase
         $this->assertFalse(Schema::hasColumn('oauth_clients', 'redirect'));
         $this->assertFalse(Schema::hasColumn('oauth_clients', 'personal_access_client'));
         $this->assertFalse(Schema::hasColumn('oauth_clients', 'password_client'));
+        $this->assertFalse(Schema::hasTable('oauth_personal_access_clients'));
         $this->assertTrue(Schema::hasTable('oauth_device_codes'));
         $this->assertSame('char(36)', Schema::getColumnType('oauth_clients', 'id', true));
         $this->assertSame('char(36)', Schema::getColumnType('oauth_access_tokens', 'client_id', true));
