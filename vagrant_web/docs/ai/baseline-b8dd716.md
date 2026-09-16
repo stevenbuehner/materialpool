@@ -42,7 +42,7 @@ Die nachgelagerten Produktions- und Vue-3-Release-Verträge ergänzen weitere Te
 
 ## Aktueller Frontend-Stand nach der Migration
 
-Der historische Backend-Checkpoint bleibt unverändert nachvollziehbar. Der aktuelle `master`-Stand verwendet Vue 3.5.42, Vue Router 4.6.4, Pinia 4.0.3, Bootstrap 5.3.8, BootstrapVueNext 1.1.0 und Vite 8.3.0. Vue 2, `@vue/compat`, Vuex, BootstrapVue, Webpack und Laravel Mix sind aus Laufzeit, Manifest und Lockfile entfernt. `package-lock.json`, Node 24.21.0 und npm 11.19.0 bilden den reproduzierbaren Frontendvertrag; Einzelheiten stehen in den Berichten `vue-3-stage-0-report.md` bis `vue-3-stage-7-report.md`.
+Der historische Backend-Checkpoint bleibt unverändert nachvollziehbar. Der aktuelle `master`-Stand verwendet Vue 3.5.42, Vue Router 4.6.4, Pinia 4.0.3, Bootstrap 5.3.8, BootstrapVueNext 1.1.0 und Vite 8.3.0. Vue 2, `@vue/compat`, Vuex, BootstrapVue, Webpack und Laravel Mix sind aus Laufzeit, Manifest und Lockfile entfernt. `package-lock.json`, Node 24.21.0 und npm 11.19.0 bilden den reproduzierbaren Frontendvertrag; der verbindliche Endzustand steht in `docs/ai/vue-3-migration-contract.md`. Historische Vue-Migrationsberichte bleiben über Git nachvollziehbar und werden nicht als aktiver Agentenkontext geführt.
 
 ## Verifikationsgrenze und Deployment-Status
 
