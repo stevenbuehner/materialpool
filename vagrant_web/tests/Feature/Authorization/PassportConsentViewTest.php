@@ -81,4 +81,37 @@ class PassportConsentViewTest extends TestCase
 
         $this->assertDatabaseCount('oauth_auth_codes', 1);
     }
+
+    public function test_active_user_can_approve_a_device_code_request_and_the_device_can_exchange_it_for_tokens(): void
+    {
+        $user = User::factory()->create(['status' => UserStatus::Active]);
+        $client = (new ClientRepository())->createDeviceAuthorizationGrantClient('Living room display');
+
+        $deviceResponse = $this->postJson(route('passport.device.code'), [
+            'client_id' => $client->getKey(),
+            'client_secret' => $client->plainSecret,
+        ])->assertOk()->json();
+
+        $this->actingAs($user)->get(route('passport.device.authorizations.authorize', [
+            'user_code' => $deviceResponse['user_code'],
+        ]))->assertViewIs('auth.oauth.device.authorize');
+
+        $authToken = $this->app['session.store']->get('authToken');
+
+        $this->assertIsString($authToken);
+
+        $this->post(route('passport.device.authorizations.approve'), [
+            'auth_token' => $authToken,
+            'client_id' => $client->getKey(),
+        ])->assertRedirect(route('passport.device'));
+
+        $this->postJson(route('passport.token'), [
+            'grant_type' => 'urn:ietf:params:oauth:grant-type:device_code',
+            'device_code' => $deviceResponse['device_code'],
+            'client_id' => $client->getKey(),
+            'client_secret' => $client->plainSecret,
+        ])->assertOk()->assertJsonStructure([
+            'token_type', 'expires_in', 'access_token', 'refresh_token',
+        ]);
+    }
 }
