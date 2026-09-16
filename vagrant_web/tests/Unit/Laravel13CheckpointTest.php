@@ -28,6 +28,8 @@ class Laravel13CheckpointTest extends TestCase
         $this->assertSame('^7.0', $composer['require']['kalnoy/nestedset']);
         $this->assertSame('^10.3', $composer['require']['spatie/laravel-backup']);
         $this->assertSame('^1.6', $composer['require']['tightenco/parental']);
+        $this->assertSame('^2.6.8', $composer['require']['setasign/fpdi']);
+        $this->assertSame('^1.9', $composer['require']['setasign/fpdf']);
         $this->assertSame('^2.8', $composer['require-dev']['laravel/boost']);
         $this->assertSame('^8.9.5', $composer['require-dev']['nunomaduro/collision']);
         $this->assertSame('^12.5.12', $composer['require-dev']['phpunit/phpunit']);
@@ -36,12 +38,16 @@ class Laravel13CheckpointTest extends TestCase
         $this->assertArrayNotHasKey('nanigans/single-table-inheritance', $composer['require']);
         $this->assertArrayNotHasKey('barryvdh/laravel-debugbar', $composer['require-dev']);
         $this->assertArrayNotHasKey('spatie/laravel-ignition', $composer['require-dev']);
+        $this->assertArrayNotHasKey('setasign/fpdi-fpdf', $composer['require']);
 
-        $this->assertSame('v13.31.0', InstalledVersions::getPrettyVersion('laravel/framework'));
+        $this->assertSame('v13.32.0', InstalledVersions::getPrettyVersion('laravel/framework'));
         $this->assertSame('v13.8.0', InstalledVersions::getPrettyVersion('laravel/passport'));
         $this->assertSame('v7.0.0', InstalledVersions::getPrettyVersion('kalnoy/nestedset'));
-        $this->assertSame('10.3.2', InstalledVersions::getPrettyVersion('spatie/laravel-backup'));
-        $this->assertSame('v2.8.0', InstalledVersions::getPrettyVersion('laravel/boost'));
+        $this->assertSame('10.3.3', InstalledVersions::getPrettyVersion('spatie/laravel-backup'));
+        $this->assertSame('v2.6.8', InstalledVersions::getPrettyVersion('setasign/fpdi'));
+        $this->assertSame('1.9.0', InstalledVersions::getPrettyVersion('setasign/fpdf'));
+        $this->assertFalse(InstalledVersions::isInstalled('setasign/fpdi-fpdf'));
+        $this->assertSame('v2.9.0', InstalledVersions::getPrettyVersion('laravel/boost'));
         $this->assertSame('12.5.35', InstalledVersions::getPrettyVersion('phpunit/phpunit'));
     }
 

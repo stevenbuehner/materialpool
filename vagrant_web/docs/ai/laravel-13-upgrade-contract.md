@@ -121,21 +121,21 @@ Folgende Ziel-Hauptversionen sind vereinbart. Pro Upgrade-Schritt werden grunds�
 | `mariuzzo/laravel-js-localization` | kompatible stabile 2.x-Version; generierte JS-Schnittstelle muss gleich bleiben |
 | Sail, Collision, Mockery | jeweils neueste stabile Version, die Laravel 13, PHP 8.4 und PHPUnit 12 gemeinsam unterstützt |
 | `stevenbuehner/bible-verse-bundle` | `^3.0`; gelockt auf den stabilen Tag `3.0.0`/Commit `c9757851ee69220293223728e1db525951e60da8` |
-| `setasign/fpdi-fpdf` | ausschließliches, aufgegebenes Composer-Metapaket; in P1 entfernen |
-| `setasign/fpdi` | in P1 als direkte Abhängigkeit `^2.6` deklarieren |
-| `setasign/fpdf` | in P1 als direkte Abhängigkeit `^1.9` deklarieren |
+| `setasign/fpdi-fpdf` | ausschließliches, aufgegebenes Composer-Metapaket; nicht mehr als Root-Abhängigkeit deklarieren |
+| `setasign/fpdi` | direkte Abhängigkeit `^2.6.8` |
+| `setasign/fpdf` | direkte Abhängigkeit `^1.9` |
 
 Medien- und Konvertierungsbibliotheken (`intervention/image`, EXIF/ExifTool, FFmpeg, FPDI/FPDF, PDF-to-text und Office-Konvertierung) werden auf die jeweils neueste stabile PHP-8.4-kompatible Version aktualisiert, soweit ihre bestehende öffentliche API erhalten bleibt. Ein API-brechender Wechsel – insbesondere Intervention Image 2 auf 3 – wird als separates Backend-Teilprojekt behandelt und nur dann in P1 aufgenommen, wenn Laravel 13/PHP 8.4 sonst nicht erreichbar ist. In diesem Fall ist vor der Umsetzung eine neue Entscheidung mit Migrations- und Rückbauplan erforderlich.
 
 ### P1-PDF-Abhängigkeitsbereinigung
 
-`setasign/fpdi-fpdf` enthält keine eigene PDF-Implementierung. Es ist ein seit 2020 aufgegebenes Metapaket, das lediglich `setasign/fpdi` und `setasign/fpdf` nachzieht. Dies bedeutet weder, dass FPDI/FPDF nicht mehr funktionieren, noch dass ihre Nutzung eingestellt wäre: FPDI und FPDF werden als eigenständige Pakete weiterhin veröffentlicht und sind im Laravel-13-Endstand bereits in den kompatiblen Versionen FPDI 2.6.8 und FPDF 1.9.0 installiert.
+`setasign/fpdi-fpdf` enthält keine eigene PDF-Implementierung. Es ist ein seit 2020 aufgegebenes Metapaket, das lediglich `setasign/fpdi` und `setasign/fpdf` nachzieht. Die Anwendung verwendet `setasign\\Fpdi\\Fpdi` unmittelbar in `PdfHandlingService::extractPdfPagesInFilepath()`; diese Klasse erbt über `FpdfTpl` von `FPDF`. Deshalb sind `setasign/fpdi` und `setasign/fpdf` die erforderlichen Laufzeitabhängigkeiten, das Metapaket jedoch nicht.
 
-Der verbindliche P1-Schritt ist daher keine PDF-API-Migration, sondern eine verhaltensneutrale Composer-Bereinigung: `setasign/fpdi-fpdf` entfernen und stattdessen `setasign/fpdi:^2.6` sowie `setasign/fpdf:^1.9` direkt deklarieren. Vorher und nachher müssen dieselben Klassen autoloadbar sein und aufgelöste FPDI-/FPDF-Versionen innerhalb der vereinbarten Constraints liegen. Der aktuelle Bestand enthält keine eigenen `FPDI`-/`FPDF`-Aufrufstellen; wird bei einer erneuten Composer-/Autoload-Analyse oder in einer indirekten Integration doch eine Nutzung festgestellt, werden repräsentative PDF-Import-/Ausgabeartefakte vor dem Wechsel charakterisiert. Öffentliche PDF-Ausgaben, Speicherorte und Integrationen dürfen sich nicht ändern.
+Der verbindliche P1-Schritt ist keine PDF-API-Migration, sondern eine verhaltensneutrale Composer-Bereinigung: `setasign/fpdi-fpdf` entfernen und stattdessen `setasign/fpdi:^2.6.8` sowie `setasign/fpdf:^1.9` direkt deklarieren. Die FPDI-Untergrenze schließt die aktuell bekannten DoS-Advisories der Versionen vor 2.6.7 aus. Öffentliche PDF-Ausgaben, Speicherorte, Routen und Integrationen dürfen sich nicht ändern.
 
-Die Bereinigung darf nur zusammen mit `composer validate --strict`, `composer audit --locked`, einem reproduzierbaren Lockfile-Aufbau, der vollständigen PHPUnit-Suite sowie einer Autoload-Prüfung der Klassen `setasign\\Fpdi\\Fpdi` und `FPDF` erfolgen. Bei einer dadurch sichtbar werdenden API- oder Ausgabeabweichung pausiert der Schritt und verlangt eine neue Entscheidung; ein API-brechender PDF-Bibliothekswechsel ist nicht durch diese Bereinigung autorisiert.
+Die Abnahme erfolgt in dieser Reihenfolge: Der Regressionstest `PdfHandlingServiceTest` muss mit dem vorhandenen PDF-Fixture sowohl die explizite als auch die nicht eingeschränkte Seitenauswahl, ein erneut lesbares Ausgabedokument, dessen Seitenformat sowie die Fehlerbehandlung bei einer ungültigen Seite nachweisen. Danach müssen `composer validate --strict`, `composer audit --locked`, ein reproduzierbarer Lockfile-Aufbau, die Autoload-Prüfung der Klassen `setasign\\Fpdi\\Fpdi` und `FPDF` sowie die vollständige PHPUnit-Suite grün sein. Der Lockfile-Diff darf außer dem Entfernen des Metapakets, dem Root-Content-Hash und den beiden direkten Abhängigkeiten keine unbeteiligten Pakete ändern. Bei einer API-, Ausgabe- oder unerwarteten Lockfile-Abweichung pausiert der Schritt und verlangt eine neue Entscheidung; ein API-brechender PDF-Bibliothekswechsel ist nicht autorisiert.
 
-`howtomakeaturn/pdfinfo` ist nach aktueller statischer Analyse nicht im Anwendungscode referenziert. Seine Entfernung ist erst nach Composer-/Autoload-Laufzeitanalyse zulässig; wird eine indirekte Nutzung gefunden, bleibt es auf einer kompatiblen stabilen Version. Das Entfernen anderer vermeintlich ungenutzter Pakete ist nicht durch diesen Vertrag autorisiert.
+`howtomakeaturn/pdfinfo` bleibt unabhängig von dieser Bereinigung erforderlich: `PdfHandlingService::countPdfPagesInFilepath()` verwendet dessen `PDFInfo` zur Seitenermittlung. `spatie/pdf-to-text` bleibt für die Textextraktion erforderlich. Das Entfernen weiterer PDF-Abhängigkeiten ist nicht Teil dieses P1-Schritts.
 
 ## Verbindliche Reihenfolge
 
