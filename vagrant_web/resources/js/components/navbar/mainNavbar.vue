@@ -20,7 +20,6 @@
           </b-nav-item>
 
           <b-nav-item-dropdown right :text="$t('pool.Edit')" v-if="isAdmin || canManageKeywords || canManageBundles">
-            <b-dropdown-item :to="{name: 'admin-users'}" class="dropdown-hover" v-if="isAdmin">{{ $t('pool.User-management') }}</b-dropdown-item>
             <b-dropdown-item :to="{name: 'keyword-list'}" class="dropdown-hover" v-if="canManageKeywords">{{
                 $t('pool.Keywords')
               }}
@@ -64,6 +63,9 @@
           </b-nav-form>
 
           <b-nav-item-dropdown right :text="username">
+            <b-dropdown-item :to="{name: 'admin-users'}" class="dropdown-hover" v-if="isAdmin">
+              {{ $t('pool.User-management') }}
+            </b-dropdown-item>
             <b-dropdown-item-button class="dropdown-hover" :disabled="isLoggingOut" @click="logout">
               {{ $t('pool.Logout') }}
             </b-dropdown-item-button>
