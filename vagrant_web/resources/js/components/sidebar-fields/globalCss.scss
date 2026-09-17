@@ -56,6 +56,12 @@
         }
       }
 
+      // VueDatePicker supplies a system font by default. In the sidebar its
+      // idle input must match the other metadata controls.
+      .dp--input {
+        font-family: inherit;
+      }
+
       .used_by.valueChanged {
         --ms-color: var(--bs-danger-text-emphasis);
       }
