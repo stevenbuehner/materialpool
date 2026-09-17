@@ -110,6 +110,15 @@ test('Vue application mounts with synthetic bootstrap data', async ({page}, test
     await expect(page.locator('svg.sb-navbar-icon')).toHaveCount(2);
     await expectResolvedNavigation(page);
     await expect(page.locator('.homeContainer .title')).toHaveText('MaterialPool Default');
+    const containerGeometry = await page.locator('.homeContainer').evaluate((element) => {
+        const bounds = element.getBoundingClientRect();
+
+        return {
+            left: bounds.left,
+            right: window.innerWidth - bounds.right,
+        };
+    });
+    expect(Math.abs(containerGeometry.left - containerGeometry.right)).toBeLessThanOrEqual(1);
     await expect(page).toHaveScreenshot('compat-app-home.png', {
         animations: 'disabled',
         caret: 'hide',

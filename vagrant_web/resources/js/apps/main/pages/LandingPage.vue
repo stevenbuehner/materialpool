@@ -81,7 +81,6 @@ export default {
   font-family: 'Raleway', sans-serif;
   font-weight: 100;
   height: 100vh;
-  margin: 0;
 
   .position-ref {
     position: relative;
