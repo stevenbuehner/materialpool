@@ -44,6 +44,7 @@
 <script>
 import CustomDialog                             from "./customDialog.vue";
 import {RELEVANCE_USER_AVG, RELEVANCE_USER_MAX} from "../../../apps/config";
+import {BFormInput}                             from "@/adapters/bootstrap";
 
 export default {
   name: "relevanceSelector",
@@ -82,6 +83,7 @@ export default {
   },
 
   components: {
+    BFormInput,
     CustomDialog,
   }
 }
