@@ -796,7 +796,11 @@ test('Vue 3 datepicker keeps the German input and calendar interaction', async (
                     description: '',
                     rating: 10,
                     flag: null,
-                    author: null,
+                    author: {
+                        id: 17,
+                        title: 'Sichtbare Autorin',
+                        type: 'person',
+                    },
                     creator: null,
                     from_bot: false,
                     created_at: '2026-09-01 12:00:00',
@@ -1038,6 +1042,9 @@ test('Vue 3 datepicker keeps the German input and calendar interaction', async (
 
     await page.goto('/vue/');
 
+    await expect(page.locator('.singleTagSelect .multiselect-single-label-text'))
+        .toHaveText('Sichtbare Autorin');
+
     const dateInput = page.getByPlaceholder('Datum');
     await expect(dateInput).toBeVisible();
     await expect(dateInput).toHaveAttribute('required', '');
@@ -1075,6 +1082,8 @@ test('Vue 3 datepicker keeps the German input and calendar interaction', async (
 
     const titleControl = page.locator('.textEditSidebarField').filter({hasText: 'Titel'}).locator('input');
     const authorControl = page.locator('.singleTagSelect .multiselect-wrapper');
+    expect(await dateInput.evaluate(input => getComputedStyle(input).fontFamily))
+        .toBe(await titleControl.evaluate(input => getComputedStyle(input).fontFamily));
     expect(await authorControl.evaluate(control => control.getBoundingClientRect().height))
         .toBe(await titleControl.evaluate(control => control.getBoundingClientRect().height));
     await expect(authorControl).toHaveCSS('font-size', '12.8px');

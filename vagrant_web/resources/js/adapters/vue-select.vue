@@ -35,7 +35,9 @@
 
     <template #singlelabel="{value}">
       <slot name="selected-option" v-bind="slotBindings(value)">
-        {{ value[LABEL_KEY] }}
+        <div class="multiselect-single-label">
+          <span class="multiselect-single-label-text">{{ value[LABEL_KEY] }}</span>
+        </div>
       </slot>
     </template>
 
