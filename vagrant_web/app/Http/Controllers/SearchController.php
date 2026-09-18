@@ -372,7 +372,10 @@ class SearchController extends Controller {
 			$matQuery->orderByDesc(DB::raw(join(' + ', $sumUpQueryParts)));
 		}
 
-		$matQuery->orderByDesc(DB::raw('COALESCE(current_user_ranking.rating, materials.rating)'));
+		// Die Suchabfrage gruppiert Materialien wegen optionaler Keyword-/Bibelstellen-Joins.
+		// Das persönliche Ranking ist pro Material und Benutzer eindeutig; MAX macht den
+		// Sortierausdruck dennoch mit MySQLs only_full_group_by kompatibel.
+		$matQuery->orderByDesc(DB::raw('COALESCE(MAX(current_user_ranking.rating), MAX(materials.rating))'));
 		$matQuery->orderByDesc('materials.id');
 
 		return $matQuery;
