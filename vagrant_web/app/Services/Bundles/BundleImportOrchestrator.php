@@ -7,6 +7,7 @@ use App\Enums\BundleImportPhase;
 use App\Enums\BundleImportStatus;
 use App\Jobs\Bundle\DeleteMaterialIfNeeded;
 use App\Jobs\Bundle\DeleteResourceIfNeeded;
+use App\Jobs\Bundle\AdvanceBundleImportPhase;
 use App\Jobs\Bundle\InsertOrUpdateMaterial;
 use App\Jobs\Bundle\InsertOrUpdateResource;
 use App\Jobs\Bundle\ValidateBundleSource;
@@ -108,6 +109,30 @@ class BundleImportOrchestrator {
 		}
 	}
 
+	/**
+	 * Advance a completed batch after its ID has been persisted on the run.
+	 *
+	 * Laravel invokes batch callbacks from queue workers. A very fast worker can
+	 * therefore finish between batch dispatch and storeBatch(). This coordinator
+	 * is deliberately idempotent and closes that window.
+	 */
+	public function advanceCompletedBatch(string $runId, string $batchId): bool {
+		$batch = Bus::findBatch($batchId);
+		if ($batch === NULL || !$batch->finished()) {
+			return FALSE;
+		}
+
+		if ($batch->cancelled() || $batch->failedJobs > 0) {
+			$this->fail($runId);
+
+			return TRUE;
+		}
+
+		$this->phaseSucceeded($runId, $batchId);
+
+		return TRUE;
+	}
+
 	private function dispatchCurrentPhase(string $runId): void {
 		$run = BundleImportRun::query()->with('bundle')->findOrFail($runId);
 		if ($run->status !== BundleImportStatus::Running) {
@@ -137,6 +162,10 @@ class BundleImportOrchestrator {
 			->dispatch();
 
 		$this->storeBatch($runId, $run->phase, $batch->id);
+		AdvanceBundleImportPhase::dispatch($runId, $batch->id)
+			->onConnection('database')
+			->onQueue($run->queue_name)
+			->delay(now()->addSeconds(5));
 	}
 
 	private function jobsFor(BundleImportRun $run): array {

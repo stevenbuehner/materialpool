@@ -5,6 +5,7 @@ namespace Tests\Feature\Bundles;
 use App\Enums\BundleImportOperation;
 use App\Enums\BundleImportPhase;
 use App\Enums\BundleImportStatus;
+use App\Jobs\Bundle\AdvanceBundleImportPhase;
 use App\Models\Bundle;
 use App\Models\BundleImportRun;
 use App\Services\Bundles\BundleImportOrchestrator;
@@ -33,5 +34,8 @@ class BundleImportOrchestratorTest extends TestCase {
 		$this->assertNotNull($run->validation_batch_id);
 		$this->assertSame($run->validation_batch_id, $run->current_batch_id);
 		Bus::assertBatched(fn($batch) => $batch->name === 'bundle:' . $bundle->id . ':run:' . $run->id . ':validating');
+		Bus::assertDispatched(AdvanceBundleImportPhase::class, function (AdvanceBundleImportPhase $job) use ($run): bool {
+			return $job->queue === $run->queue_name && $job->connection === 'database';
+		});
 	}
 }
