@@ -11,13 +11,17 @@ use App\Services\Bundles\BundlesService;
 use App\Services\ResourceHandling\FileHandlingService;
 use App\Services\ResourceHandling\ResourceHandlingService;
 use Illuminate\Bus\Queueable;
+use Illuminate\Bus\Batchable;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 
 class DeleteResourceIfNeeded implements ShouldQueue, VersionInterface {
-	use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+	use Batchable, Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+
+	public $timeout = 120;
 
 
 	/** @var  Bundle $bundle */
@@ -47,6 +51,9 @@ class DeleteResourceIfNeeded implements ShouldQueue, VersionInterface {
 	 * @throws \Exception
 	 */
 	public function handle(BundlesService $bundlesService, FileHandlingService $fileHandlingService) {
+		if ($this->batch()?->cancelled()) {
+			return;
+		}
 
 		$uuid = $this->foreignResourceId->foreign_id;
 
@@ -67,6 +74,13 @@ class DeleteResourceIfNeeded implements ShouldQueue, VersionInterface {
 		}
 
 
+	}
+
+	public function middleware(): array {
+		return [(new WithoutOverlapping('bundle:' . $this->bundle->id . ':delete-resource:' . $this->foreignResourceId->id))
+			->shared()
+			->releaseAfter(5)
+			->expireAfter(180)];
 	}
 
 	public function getVersion() {

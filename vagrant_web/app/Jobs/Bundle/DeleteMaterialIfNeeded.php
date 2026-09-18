@@ -10,13 +10,17 @@ use App\Models\Material;
 use App\Services\Bundles\BundlesService;
 use App\Services\MaterialHandling\MaterialHandlingService;
 use Illuminate\Bus\Queueable;
+use Illuminate\Bus\Batchable;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 
 class DeleteMaterialIfNeeded implements ShouldQueue, VersionInterface {
-	use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+	use Batchable, Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+
+	public $timeout = 120;
 
 
 	/** @var  Bundle $bundle */
@@ -40,6 +44,9 @@ class DeleteMaterialIfNeeded implements ShouldQueue, VersionInterface {
 	 *
 	 */
 	public function handle(BundlesService $bundlesService, MaterialHandlingService $materialHandlingService) {
+		if ($this->batch()?->cancelled()) {
+			return;
+		}
 
 		$uuid = $this->foreignMaterialId->foreign_id;
 
@@ -70,6 +77,13 @@ class DeleteMaterialIfNeeded implements ShouldQueue, VersionInterface {
 		}
 
 
+	}
+
+	public function middleware(): array {
+		return [(new WithoutOverlapping('bundle:' . $this->bundle->id . ':delete-material:' . $this->foreignMaterialId->id))
+			->shared()
+			->releaseAfter(5)
+			->expireAfter(180)];
 	}
 
 	public function getVersion() {

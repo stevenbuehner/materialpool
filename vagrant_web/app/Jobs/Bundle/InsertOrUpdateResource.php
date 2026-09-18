@@ -15,8 +15,10 @@ use App\Services\ResourceRecognition\ResourceRecognitionService;
 use App\Services\TagExtraction\ResourceHandles\TextContentInterface;
 use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
+use Illuminate\Bus\Batchable;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
@@ -24,7 +26,9 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 class InsertOrUpdateResource implements ShouldQueue, VersionInterface {
-	use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, ResourceHelperTrait;
+	use Batchable, Dispatchable, InteractsWithQueue, Queueable, SerializesModels, ResourceHelperTrait;
+
+	public $timeout = 120;
 
 
 	/** @var  Bundle $bundle */
@@ -53,6 +57,9 @@ class InsertOrUpdateResource implements ShouldQueue, VersionInterface {
 	 * @throws \Throwable
 	 */
 	public function handle(BundlesService $bundlesService) {
+		if ($this->batch()?->cancelled()) {
+			return;
+		}
 
 
 		/** @var ForeignResourceId $foreignRes */
@@ -122,6 +129,13 @@ class InsertOrUpdateResource implements ShouldQueue, VersionInterface {
 		}
 
 
+	}
+
+	public function middleware(): array {
+		return [(new WithoutOverlapping('bundle:' . $this->bundle->id . ':upsert-resource:' . $this->getUUID()))
+			->shared()
+			->releaseAfter(5)
+			->expireAfter(180)];
 	}
 
 

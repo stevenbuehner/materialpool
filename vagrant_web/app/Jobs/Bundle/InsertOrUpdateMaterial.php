@@ -13,7 +13,9 @@ use App\Models\Keyword;
 use App\Models\Material;
 use App\Services\Bundles\BundlesService;
 use Illuminate\Bus\Queueable;
+use Illuminate\Bus\Batchable;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
@@ -22,7 +24,9 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class InsertOrUpdateMaterial implements ShouldQueue, VersionInterface {
-	use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+	use Batchable, Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+
+	public $timeout = 120;
 
 
 	/** @var  Bundle $bundle */
@@ -49,6 +53,9 @@ class InsertOrUpdateMaterial implements ShouldQueue, VersionInterface {
 	 *
 	 */
 	public function handle(BundlesService $bundlesService) {
+		if ($this->batch()?->cancelled()) {
+			return;
+		}
 
 		/** @var ForeignMaterialId $foreignMat */
 		$foreignMat = ForeignMaterialId::where(['foreign_id' => $this->getUUID()])
@@ -109,6 +116,13 @@ class InsertOrUpdateMaterial implements ShouldQueue, VersionInterface {
 			throw $e;
 		}
 
+	}
+
+	public function middleware(): array {
+		return [(new WithoutOverlapping('bundle:' . $this->bundle->id . ':upsert-material:' . $this->getUUID()))
+			->shared()
+			->releaseAfter(5)
+			->expireAfter(180)];
 	}
 
 	protected function getUUID() {
