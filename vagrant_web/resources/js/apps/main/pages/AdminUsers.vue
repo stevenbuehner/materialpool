@@ -190,3 +190,24 @@ export default {
 	},
 };
 </script>
+
+<style scoped>
+.admin-user-groups-select {
+  --ms-bg: var(--bs-body-bg);
+  --ms-border-color: var(--bs-border-color);
+  --ms-border-color-active: var(--bs-primary);
+  --ms-radius: var(--bs-border-radius);
+  --ms-ring-color: var(--bs-focus-ring-color);
+  --ms-line-height: 1.5;
+  --ms-px: 0.75rem;
+  --ms-py: 0.375rem;
+  --ms-dropdown-bg: var(--bs-body-bg);
+  --ms-dropdown-border-color: var(--bs-border-color);
+  --ms-option-bg-pointed: var(--bs-tertiary-bg);
+  --ms-option-color-pointed: var(--bs-body-color);
+  --ms-option-bg-selected: var(--bs-primary);
+  --ms-option-bg-selected-pointed: var(--bs-primary);
+  --ms-tag-bg: var(--bs-secondary);
+  --ms-tag-color: var(--bs-white);
+}
+</style>
