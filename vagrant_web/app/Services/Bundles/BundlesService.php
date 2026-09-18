@@ -128,8 +128,8 @@ class BundlesService {
 			$myBundle['container_root']  = dirname($dbPath);
 			$myBundle['disk_files']      = dirname(($dbPath)) . '/files';
 			$myBundle['connection']      = $containerName;
-			$myBundle['count_materials'] = (int)$dbConnection->selectOne('SELECT COUNT(*) as Anzahl FROM material WHERE bundle_id=' . $bundleInfo->id)->Anzahl;
-			$myBundle['count_files']     = (int)$dbConnection->selectOne('SELECT COUNT(mf.file_id) as Anzahl FROM material m INNER JOIN material_files mf ON (m.id = mf.material_id) WHERE m.bundle_id=' . $bundleInfo->id)->Anzahl;
+			$myBundle['count_materials'] = (int)$dbConnection->selectOne('SELECT COUNT(*) as Anzahl FROM material WHERE bundle_id=:bundle_id', ['bundle_id' => $bundleInfo->id])->Anzahl;
+			$myBundle['count_files']     = (int)$dbConnection->selectOne('SELECT COUNT(mf.file_id) as Anzahl FROM material m INNER JOIN material_files mf ON (m.id = mf.material_id) WHERE m.bundle_id=:bundle_id', ['bundle_id' => $bundleInfo->id])->Anzahl;
 			$myBundle['icons']           = isset($bundleInfo->icons) ? json_decode($bundleInfo->icons) : [];
 
 			$containerBundles->put($bundleInfo->uuid, $myBundle);
@@ -154,9 +154,9 @@ class BundlesService {
 
 		// Pagination
 		$page             = ($page <= 0) ? 1 : (int)$page;  // Start at 1
-		$resourcesPerPage = ($resourcesPerPage <= 0) ? 100 : $resourcesPerPage;
-		$start            = $start = ($page - 1) * $resourcesPerPage;
-		$limit            = " LIMIT " . $start . "," . $resourcesPerPage;
+		$resourcesPerPage = ($resourcesPerPage <= 0) ? 100 : (int)$resourcesPerPage;
+		$start            = ($page - 1) * $resourcesPerPage;
+		$limit            = " ORDER BY files.id ASC, files.uuid ASC LIMIT " . $start . "," . $resourcesPerPage;
 
 		$data = $connection->select($query . $limit, ['BUNDLE_ID' => $bundleInfo["id"]]);
 
@@ -192,8 +192,7 @@ class BundlesService {
 	 * @throws FileNotFoundException
 	 */
 	public function getLocalBundleData(Bundle $bundle) {
-		$bundleService = resolve(BundlesService::class);
-		$bundleInfo    = $bundleService->getBundles($bundle->container_root, $bundle->uuid);
+		$bundleInfo = $this->getBundles($bundle->container_root, $bundle->uuid);
 
 		return $bundleInfo;
 	}
@@ -217,7 +216,7 @@ class BundlesService {
 		$multipleBundleInfos = $this->loadContainerBundleInfos($this->getBundleDisk(), $dbPath);
 
 
-		if (!$filterUuid !== NULL) {
+		if ($filterUuid !== NULL) {
 			$oneBundleInfo = $multipleBundleInfos->get($filterUuid, FALSE);
 
 			return $oneBundleInfo;
@@ -247,9 +246,9 @@ class BundlesService {
 
 		// Pagination
 		$page    = ($page <= 0) ? 1 : (int)$page;  // Start at 1
-		$perPage = ($perPage <= 0) ? 100 : $perPage;
-		$start   = $start = ($page - 1) * $perPage;
-		$limit   = " LIMIT " . $start . "," . $perPage;
+		$perPage = ($perPage <= 0) ? 100 : (int)$perPage;
+		$start   = ($page - 1) * $perPage;
+		$limit   = " ORDER BY material.id ASC, material.uuid ASC LIMIT " . $start . "," . $perPage;
 
 		$data = $connection->select($query . $limit, ['BUNDLE_ID' => $bundleInfo['id']]);
 
