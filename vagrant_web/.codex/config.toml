@@ -1,3 +1,5 @@
+sandbox_mode = "workspace-write"
+web_search = "indexed"
 [mcp_servers.laravel-boost]
 command = "vendor/bin/sail"
 args = ["artisan", "boost:mcp"]
