@@ -158,6 +158,14 @@ Route::group([
 		->where(['material' => '[0-9]+'])
 		->middleware('can:updateMetadata,material')
 		->name('materials.update');
+	Route::put('materials/{material}/user-ranking', 'MaterialUserRankingController@update')
+		->where(['material' => '[0-9]+'])
+		->middleware('can:view,material')
+		->name('materials.user-ranking.update');
+	Route::delete('materials/{material}/user-ranking', 'MaterialUserRankingController@destroy')
+		->where(['material' => '[0-9]+'])
+		->middleware('can:view,material')
+		->name('materials.user-ranking.destroy');
 	Route::put('materials/{material}/resources', 'MaterialController@associateResources')
 		->where(['material' => '[0-9]+'])
 		->middleware('can:update,material')

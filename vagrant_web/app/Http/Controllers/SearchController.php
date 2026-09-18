@@ -6,6 +6,7 @@ use App\Http\Requests\SearchMaterialsRequest;
 use App\Models\Bibleverse;
 use App\Models\Keyword;
 use App\Models\Material;
+use App\Services\MaterialHandling\MaterialUserRankingService;
 use App\Models\Resource;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
@@ -219,7 +220,10 @@ class SearchController extends Controller {
 				->orderByDesc('materials.id');
 		}
 
-		return $query->paginate($paginationSize);
+		$materials = $query->paginate($paginationSize);
+		app(MaterialUserRankingService::class)->presentCollection($materials->getCollection(), $request->user());
+
+		return $materials;
 	}
 
 	protected function turnRequestIntoQuery(SearchMaterialsRequest $request) {
@@ -228,11 +232,16 @@ class SearchController extends Controller {
 		$matQuery   = Material::query()
 			->visibleTo($user)
 			->select('materials.*')
+			->leftJoin('material_user_ranking as current_user_ranking', function ($join) use ($user): void {
+				$join->on('current_user_ranking.material_id', '=', 'materials.id')
+					->where('current_user_ranking.user_id', '=', $user->id);
+			})
 			->with([
 				'author',
 				'keywords',
 				'bibleverses',
 				'resources' => fn($query) => $query->visibleTo($user),
+				'userRankings' => fn($query) => $query->where('user_id', $user->id),
 			])
 			->groupBy(['materials.id']);
 
@@ -363,7 +372,8 @@ class SearchController extends Controller {
 			$matQuery->orderByDesc(DB::raw(join(' + ', $sumUpQueryParts)));
 		}
 
-		$matQuery->orderByDesc('rating');
+		$matQuery->orderByDesc(DB::raw('COALESCE(current_user_ranking.rating, materials.rating)'));
+		$matQuery->orderByDesc('materials.id');
 
 		return $matQuery;
 	}

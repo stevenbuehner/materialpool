@@ -335,9 +335,13 @@ class ForeignMaterialController extends BaseController {
 		}
 
 		// Update data
+		$attributes = $request->all();
+		if ($material->userRankings()->exists()) {
+			unset($attributes['rating']);
+		}
 		$material->fill(
 			array_merge(
-				$request->all(),
+				$attributes,
 				$override = [
 					'modified_by' => Auth::id()
 				]

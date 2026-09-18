@@ -3,11 +3,14 @@
 namespace App\Models;
 
 use App\Enums\UserStatus;
+use App\Events\MaterialWasChanged;
+use App\Services\MaterialHandling\MaterialUserRankingService;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
 use Laravel\Passport\Contracts\OAuthenticatable as PassportAuthenticatable;
 use Laravel\Passport\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
@@ -103,5 +106,28 @@ class User extends Authenticatable implements PassportAuthenticatable {
 
 	public function resources() {
 		return $this->hasMany(Resource::class, 'created_by');
+	}
+
+	public function userRankings() {
+		return $this->hasMany(MaterialUserRanking::class);
+	}
+
+	/**
+	 * Eine finale Löschung entfernt persönliche Rankings transaktional und
+	 * aktualisiert die abgeleiteten Material-Defaults vor dem FK-Cascade-Fallback.
+	 */
+	public function delete() {
+		$changedMaterials = new Collection();
+		$deleted = DB::transaction(function () use (&$changedMaterials) {
+			$changedMaterials = app(MaterialUserRankingService::class)->removeForUser($this);
+
+			return parent::delete();
+		});
+
+		if ($deleted) {
+			$changedMaterials->each(fn(Material $material) => event(new MaterialWasChanged($material)));
+		}
+
+		return $deleted;
 	}
 }

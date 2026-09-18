@@ -8,6 +8,7 @@ use App\Http\Requests\MaterialRequest;
 use App\Jobs\DeletePublicDownloadFile;
 use App\Models\Material;
 use App\Services\MaterialHandling\MaterialHandlingService;
+use App\Services\MaterialHandling\MaterialUserRankingService;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Support\Facades\Auth;
@@ -20,11 +21,13 @@ class MaterialController extends BaseController {
 
 	protected $bibleVerseService;
 	protected $materialHandlingService;
+	protected $materialUserRankingService;
 
-	public function __construct(BibleVerseService $bibleVerseService, MaterialHandlingService $materialHandlingService) {
+	public function __construct(BibleVerseService $bibleVerseService, MaterialHandlingService $materialHandlingService, MaterialUserRankingService $materialUserRankingService) {
 
 		$this->bibleVerseService       = $bibleVerseService;
 		$this->materialHandlingService = $materialHandlingService;
+		$this->materialUserRankingService = $materialUserRankingService;
 		$this->middleware(['auth:api']);
 	}
 
@@ -40,6 +43,8 @@ class MaterialController extends BaseController {
 			->with($this->visibleWithAttributes())
 			->orderBy('updated_at')
 			->paginate(50);
+
+		$this->materialUserRankingService->presentCollection($materials->getCollection(), Auth::user());
 
 		return $materials;
 	}
@@ -72,7 +77,7 @@ class MaterialController extends BaseController {
 
 		event(new MaterialWasCreated($material));
 
-		return $material;
+		return $this->materialUserRankingService->present($material, Auth::user());
 	}
 
 	/*
@@ -96,7 +101,7 @@ class MaterialController extends BaseController {
 
 		$material->load($this->visibleWithAttributes());
 
-		return $material;
+		return $this->materialUserRankingService->present($material, Auth::user());
 	}
 
 	/**
@@ -109,7 +114,9 @@ class MaterialController extends BaseController {
 	 */
 	public function update(MaterialRequest $request, Material $material) {
 
-		$material->fill($request->all());
+		$hasLegacyRating = $request->exists('rating');
+		$legacyRating = $request->input('rating');
+		$material->fill($request->except('rating'));
 		if ($request->has('is_public')) {
 			$material->is_public = $request->boolean('is_public');
 		}
@@ -123,9 +130,17 @@ class MaterialController extends BaseController {
 		$this->syncKeywords($request, $material);
 		$this->syncBibleverses($request, $material);
 
+		if ($hasLegacyRating) {
+			if ($legacyRating === null) {
+				$this->materialUserRankingService->remove($material, Auth::user());
+			} else {
+				$this->materialUserRankingService->set($material, Auth::user(), (int) $legacyRating);
+			}
+		}
+
 		event(new MaterialWasChanged($material));
 
-		return $material->fresh($this->visibleWithAttributes());
+		return $this->materialUserRankingService->present($material->fresh($this->visibleWithAttributes()), Auth::user());
 	}
 
 	/**
@@ -147,7 +162,7 @@ class MaterialController extends BaseController {
 	 * @return Material
 	 */
 	public function copy(Material $material) {
-		return $this->materialHandlingService->copyMaterial($material)->fresh($this->visibleWithAttributes());
+		return $this->materialUserRankingService->present($this->materialHandlingService->copyMaterial($material)->fresh($this->visibleWithAttributes()), Auth::user());
 	}
 
 	protected function visibleWithAttributes(): array {

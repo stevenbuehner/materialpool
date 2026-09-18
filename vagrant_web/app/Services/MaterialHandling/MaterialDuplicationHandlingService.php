@@ -15,9 +15,11 @@ use Illuminate\Support\Facades\DB;
 class MaterialDuplicationHandlingService {
 
 	protected $materialHandlingService;
+	protected $materialUserRankingService;
 
-	public function __construct(MaterialHandlingService $materialHandlingService) {
+	public function __construct(MaterialHandlingService $materialHandlingService, MaterialUserRankingService $materialUserRankingService) {
 		$this->materialHandlingService = $materialHandlingService;
+		$this->materialUserRankingService = $materialUserRankingService;
 	}
 
 	/**
@@ -140,7 +142,6 @@ class MaterialDuplicationHandlingService {
 	}
 
 	protected function mergeMaterials(Material $main, Material $second) {
-
 		if ($main->author_id === NULL && $second->author_id !== NULL) {
 			$main->author_id = $second->author_id;
 		}
@@ -174,6 +175,8 @@ class MaterialDuplicationHandlingService {
 			$fid->material_id = $main->id;
 			$fid->saveOrFail();
 		}
+
+		$this->materialUserRankingService->merge($main, $second);
 
 		event(new MaterialWasChanged($main));
 

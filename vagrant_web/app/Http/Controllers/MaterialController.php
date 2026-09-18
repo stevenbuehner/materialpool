@@ -10,6 +10,7 @@ use App\Models\Resource;
 use App\Models\User;
 use App\ResourceLimitations\ResourceLimitationService;
 use App\Services\MaterialHandling\MaterialHandlingService;
+use App\Services\MaterialHandling\MaterialUserRankingService;
 use App\Services\ResourceHandling\FileHandlingService;
 use App\Services\TagExtraction\Properties\Property;
 use App\Services\TagExtraction\TagExtractionService;
@@ -52,6 +53,7 @@ class MaterialController extends Controller {
 	public static function withVisibleAttributes(User $user): array {
 		$relations = array_filter(self::withAttributes(), static fn($relation): bool => $relation !== 'resources');
 		$relations['resources'] = static fn($query) => $query->visibleTo($user);
+		$relations['userRankings'] = static fn($query) => $query->where('user_id', $user->id);
 
 		return $relations;
 	}
@@ -269,12 +271,22 @@ class MaterialController extends Controller {
 	 * @return \Illuminate\Http\Response
 	 */
 	public function update(MaterialRequest $request, Material $material) {
+		$hasLegacyRating = $request->exists('rating');
+		$legacyRating = $request->input('rating');
 
-		$material->fill($request->all());
+		$material->fill($request->except('rating'));
 		if ($request->has('is_public')) {
 			$material->is_public = $request->boolean('is_public');
 		}
 		$material->save();
+		if ($hasLegacyRating) {
+			$rankings = resolve(MaterialUserRankingService::class);
+			if ($legacyRating === null) {
+				$rankings->remove($material, Auth::user());
+			} else {
+				$rankings->set($material, Auth::user(), (int) $legacyRating);
+			}
+		}
 
 		return redirect(route('pool.material.show', $material));
 	}

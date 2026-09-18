@@ -140,7 +140,7 @@ class InsertOrUpdateMaterial implements ShouldQueue, VersionInterface {
 			$material->description = $this->localMatInfo->description;
 		}
 
-		if ($material->rating !== (int)$this->localMatInfo->author_rating) {
+		if (!$material->userRankings()->exists() && $material->rating !== (int)$this->localMatInfo->author_rating) {
 			$material->rating = (int)$this->localMatInfo->author_rating;
 		}
 
