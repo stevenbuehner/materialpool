@@ -23,6 +23,7 @@ class BundlesServiceSourceQueryTest extends TestCase {
 		$this->assertSame([20], collect($service->getBundleFiles($bundleInfo, 2, 1))->pluck('id')->all());
 		$this->assertSame([1], collect($service->getBundleMaterials($bundleInfo, 1, 1))->pluck('id')->all());
 		$this->assertSame([2], collect($service->getBundleMaterials($bundleInfo, 2, 1))->pluck('id')->all());
+		$this->assertSame([], collect($service->getBundleMaterials($bundleInfo, 3, 1))->pluck('id')->all());
 	}
 
 	public function test_source_validator_accepts_a_complete_source_and_excludes_a_missing_file(): void {
@@ -64,6 +65,7 @@ class BundlesServiceSourceQueryTest extends TestCase {
 		$pdo->exec("INSERT INTO bundle VALUES (1, '[]', 'source-query-fixture', 'Fixture', '1.0.0', NULL, NULL, '2026-09-18')");
 		$pdo->exec("INSERT INTO material VALUES (2, 1, '2026-09-18', 'Second', NULL, '2026-09-18', NULL, NULL, 1, 'material-2')");
 		$pdo->exec("INSERT INTO material VALUES (1, 1, '2026-09-18', 'First', NULL, '2026-09-18', NULL, NULL, 1, 'material-1')");
+		$pdo->exec("INSERT INTO material VALUES (3, 1, '2026-09-18', 'Without resource', NULL, '2026-09-18', NULL, NULL, 1, 'material-3')");
 		$pdo->exec("INSERT INTO files VALUES (20, 'file-20', '2026-09-18', '2026-09-18', '2026-09-18', NULL, 1, 'second.pdf', NULL, NULL, NULL, 'application/pdf')");
 		$pdo->exec("INSERT INTO files VALUES (10, 'file-10', '2026-09-18', '2026-09-18', '2026-09-18', NULL, 1, 'first.pdf', NULL, NULL, NULL, 'application/pdf')");
 		$pdo->exec('INSERT INTO material_files VALUES (1, 10)');

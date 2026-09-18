@@ -243,7 +243,7 @@ class BundlesService {
 	public function getBundleMaterials($bundleInfo, $page = 1, $perPage = 100) {
 		$connection = $this->getBundleConnection($bundleInfo['connection']);
 
-		$query = 'SELECT DISTINCT material.* FROM material WHERE bundle_id=:BUNDLE_ID ';
+		$query = 'SELECT DISTINCT material.* FROM material INNER JOIN material_files ON material.id = material_files.material_id WHERE material.bundle_id=:BUNDLE_ID ';
 
 		// Pagination
 		$page    = ($page <= 0) ? 1 : (int)$page;  // Start at 1
