@@ -16,13 +16,13 @@ use Intervention\Image\Size;
 class GenerateResourcePreviewVariant implements ShouldQueue, ShouldBeUnique {
 	use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-	public $connection = 'database';
-	public $queue = 'resource-previews-low';
 	public $timeout = 110;
 	public $tries = 3;
 	public $backoff = [30, 120];
 
 	public function __construct(protected int $resourceId, protected ?int $page = NULL) {
+		$this->onConnection('database');
+		$this->onQueue('resource-previews-low');
 	}
 
 	public function uniqueId(): string {
