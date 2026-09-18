@@ -24,8 +24,6 @@
                 $t('pool.Keywords')
               }}
             </b-dropdown-item>
-            <b-dropdown-item :to="{name: 'bundle-list'}" class="dropdown-hover" v-if="canManageBundles">{{ $t('pool.Bundle') }}
-            </b-dropdown-item>
             <b-dropdown-item :to="{name: 'resource-lonely'}" class="dropdown-hover" v-if="isAdmin">
               {{ $t('pool.Lonely-Resources') }}
             </b-dropdown-item>
@@ -63,6 +61,9 @@
           </b-nav-form>
 
           <b-nav-item-dropdown right :text="username">
+            <b-dropdown-item :to="{name: 'bundle-list'}" class="dropdown-hover" v-if="canManageBundles">
+              {{ $t('pool.Bundle') }}
+            </b-dropdown-item>
             <b-dropdown-item :to="{name: 'admin-users'}" class="dropdown-hover" v-if="isAdmin">
               {{ $t('pool.User-management') }}
             </b-dropdown-item>
