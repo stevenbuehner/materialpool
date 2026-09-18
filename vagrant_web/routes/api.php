@@ -344,6 +344,10 @@ Route::group([
 		->middleware('can:bundles.manage')
 		->name('bundles.update.run')
 		->where('bundle', '[0-9]+');
+	Route::get('bundles/{bundle}/runs/{run}', 'BundleImportController@status')
+		->middleware('can:bundles.manage')
+		->name('bundles.runs.status')
+		->where('bundle', '[0-9]+');
 	Route::get('bundles/{bundle}/icon', 'BundleImportController@getBundleIcon')
 		->where('bundle', '[0-9]+')
 		->name('bundles.geticon');

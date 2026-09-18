@@ -2,304 +2,162 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Enums\BundleImportOperation;
+use App\Exceptions\Bundles\BundleImportConflictException;
+use App\Exceptions\Bundles\BundleSourceValidationException;
 use App\Http\Controllers\Controller as BaseController;
-use App\Jobs\Bundle\DeleteMaterialIfNeeded;
-use App\Jobs\Bundle\DeleteResourceIfNeeded;
-use App\Jobs\Bundle\FinishBundleUninstall;
-use App\Jobs\Bundle\FinishImportAfterUpdate;
-use App\Jobs\Bundle\InsertOrUpdateMaterial;
-use App\Jobs\Bundle\InsertOrUpdateResource;
 use App\Models\Bundle;
-use App\Models\ForeignMaterialId;
-use App\Models\ForeignResourceId;
+use App\Models\BundleImportRun;
+use App\Services\Bundles\BundleImportOrchestrator;
+use App\Services\Bundles\BundleImportRunService;
 use App\Services\Bundles\BundleQueueService;
 use App\Services\Bundles\BundlesService;
-use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Http\Request;
+use Illuminate\Bus\Batch;
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Queue\Worker;
 use Illuminate\Queue\WorkerOptions;
-use Illuminate\Contracts\Filesystem\FileNotFoundException;
+use Illuminate\Support\Facades\Bus;
 
 class BundleImportController extends BaseController {
-
-	protected $bundlesService;
-	protected $bundleQueueService;
-
-	public function __construct(BundlesService $bundlesService, BundleQueueService $bundleQueueService) {
-		$this->bundlesService     = $bundlesService;
-		$this->bundleQueueService = $bundleQueueService;
-
+	public function __construct(
+		private BundlesService $bundlesService,
+		private BundleQueueService $bundleQueueService,
+		private BundleImportRunService $runService,
+		private BundleImportOrchestrator $orchestrator,
+	) {
 		$this->middleware(['auth:api']);
 	}
 
-	public function index() {
-
+	public function index(): array {
 		$bundles = $this->bundlesService->updateInstalledBundleInfos();
-
 		$localInfos = collect();
 
-		/** @var Bundle $bundle */
 		foreach ($bundles as $bundle) {
 			try {
-
 				$info = $this->bundlesService->getLocalBundleData($bundle);
-
 				if ($info['version'] !== $bundle->installed_version && $bundle->update_available !== TRUE) {
-					$bundle->update_available = TRUE;
-					$bundle->save();
+					$bundle->update(['update_available' => TRUE]);
 				}
-
-
-				if ($info !== FALSE) {
-					$localInfos->push($info);
-				}
-
-			} catch (FileNotFoundException $e) {
-
+				$localInfos->push($info);
+			} catch (FileNotFoundException) {
+				// Fehlende Quellen bleiben für eine spätere Deinstallation sichtbar.
 			}
 		}
 
-		return ['bundles' => $bundles,
-		        'infos'   => $localInfos];
-
+		return ['bundles' => $bundles, 'infos' => $localInfos];
 	}
 
 	public function getBundleIcon(Bundle $bundle) {
-
 		if ($bundle->icon !== NULL) {
-
-			$disk = $this->bundlesService->getBundleDisk();
 			$path = $bundle->container_root . '/' . $bundle->icon;
-
+			$disk = $this->bundlesService->getBundleDisk();
 			if ($disk->exists($path)) {
 				return $disk->response($path);
 			}
 		}
 
+		abort(404);
 	}
 
-	public function show(Bundle $bundle) {
+	public function show(Bundle $bundle): Bundle {
 		return $bundle;
 	}
 
-	public function initUpdate(Bundle $bundle) {
-
-		// Init output
-		$updateInProgress    = FALSE;
-		$countDeletedJobs    = 0;
-		$deleteJobs          = 0;
-		$updateJobs          = 0;
-		$alreadyExistingJobs = 0;
-		$finishJobs          = 0;
-		// $updateAvailable  = FALSE;
-
+	public function initUpdate(Bundle $bundle): JsonResponse {
 		try {
-			$bundleInfo = $this->bundlesService->getLocalBundleData($bundle);
-		} catch (FileNotFoundException $e) {
-			return response()->setStatusCode(505, $e->getMessage());
+			$source = $this->bundlesService->getLocalBundleData($bundle);
+		} catch (FileNotFoundException) {
+			return $this->error('bundle_source_missing', 422);
 		}
 
-		// Check if there is an update available
-		$updateAvailable = ($bundleInfo['version'] !== $bundle->installed_version);
-
-
-		if ($updateAvailable === TRUE) {
-
-			// 1) Check if update is already in progress => continue
-			$queueName           = $this->bundleQueueService->getQueueName($bundle);
-			$alreadyExistingJobs = $this->bundleQueueService->countJobsInQueue($queueName);
-			if ($alreadyExistingJobs > 0) {
-				$jobVersion                           = $this->bundleQueueService->getFirstJobVersion($queueName);
-				$lastUpdateJobsHaveBinSetUpCompletely = $this->bundleQueueService->hasFinishImportAfterUpdateJob($queueName);
-
-				// If Versions are the same
-				if ($bundleInfo['version'] == $jobVersion && $lastUpdateJobsHaveBinSetUpCompletely === TRUE) {
-					$updateInProgress = TRUE;
-				} else {
-					$updateInProgress = FALSE;
-
-					// 2) Delete all old queue entires of this bundle
-					$countDeletedJobs = $this->bundleQueueService->deleteOldBundleJobs($bundle);
-				}
-
-			} else {
-				$updateInProgress = FALSE;
-			}
-
-			if ($updateInProgress === FALSE) {
-
-				// 3) Insert all needed Jobs into queue
-				$deleteJobs = $this->createDeleteJobs($bundle, $bundleInfo);
-				$updateJobs = $this->createInsertOrUpdateJobs($bundle, $bundleInfo);
-				$this->createFinishUpdateJob($bundle, $bundleInfo);
-				$finishJobs++;
-			}
-
+		if ($source['version'] === $bundle->installed_version) {
+			return response()->json(['updateAvailable' => FALSE, 'continueUpdate' => FALSE, 'openJobs' => 0, 'run' => NULL]);
 		}
 
-
-		// 4) Redirect to Processing the queue
-		return $this->redirectToProcessQueue($updateAvailable, $updateInProgress, $countDeletedJobs, $deleteJobs, $updateJobs, $alreadyExistingJobs + $deleteJobs + $updateJobs + $finishJobs);
-
-
+		return $this->startRun($bundle, BundleImportOperation::Update, $source['version']);
 	}
 
-	public function initUninstall(Bundle $bundle) {
-
-		$bundleInfo       = $this->bundlesService->getLocalBundleData($bundle);
-		$countDeletedJobs = $this->bundleQueueService->deleteOldBundleJobs($bundle);
-		$deleteJobs       = $this->createDeleteJobs($bundle, $bundleInfo, TRUE);
-		$finishJobs       = 1;
-		$this->createFinishUninstallJob($bundle, $bundleInfo);
-
-		$bundle->installed_version = 'incomplete';
-		$bundle->save();
-
-		$test = $this->redirectToProcessQueue(TRUE, FALSE, $countDeletedJobs, $deleteJobs, 0, $deleteJobs + $finishJobs);
-
-		return $test;
+	public function initUninstall(Bundle $bundle): JsonResponse {
+		return $this->startRun($bundle, BundleImportOperation::Uninstall, $bundle->installed_version);
 	}
 
-	protected function redirectToProcessQueue($updateAvailable, $continueUpdate, $deletedJobs, $deleteJobs, $updateJobs, $openJobs) {
-		return [
-			// 'bundle'      => $bundle,
-			'updateAvailable' => $updateAvailable,
-			'continueUpdate'  => $continueUpdate,
-			'deletedJobs'     => $deletedJobs,
-			'deleteJobs'      => $deleteJobs,
-			'updateJobs'      => $updateJobs,
-			'openJobs'        => $openJobs
-			// 'info'        => $info
-		];
+	public function status(Bundle $bundle, BundleImportRun $run): array {
+		abort_unless($run->bundle_id === $bundle->id, 404);
 
+		return $this->serializeRun($run);
 	}
 
-	protected function createDeleteJobs($bundle, &$bundleInfo, $uninstall = FALSE) {
-
-		$queueName = $this->bundleQueueService->getQueueName($bundle);
-		$count     = 0;
-		$version   = $bundleInfo['version'];
-
-		ForeignMaterialId::where('bundle_id', $bundle->id)
-			->chunk(100, function (Collection $fmids) use ($bundle, $queueName, &$count, $version, $uninstall) {
-
-				foreach ($fmids as $fmid) {
-					DeleteMaterialIfNeeded::dispatch($bundle, $fmid, $version, $uninstall)
-						->onQueue($queueName)
-						->onConnection('database');
-				}
-
-				$count += $fmids->count();
-
-			});
-
-		ForeignResourceId::where('bundle_id', $bundle->id)
-			->chunk(100, function (Collection $frids) use ($bundle, $queueName, &$count, $version, $uninstall) {
-
-				foreach ($frids as $frid) {
-					DeleteResourceIfNeeded::dispatch($bundle, $frid, $version, $uninstall)
-						->onQueue($queueName)
-						->onConnection('database');
-				}
-
-				$count += $frids->count();
-
-			});
-
-
-		return $count;
-
-	}
-
-	protected function createInsertOrUpdateJobs($bundle, &$bundleInfo) {
-		$page      = 1;
-		$perPage   = 100;
-		$queueName = $this->bundleQueueService->getQueueName($bundle);
-		$version   = $bundleInfo['version'];
-
-		$count = 0;
-
-		while (($files = collect($this->bundlesService->getBundleFiles($bundleInfo, $page++,
-			$perPage)))->isNotEmpty()) {
-			$count += $files->count();
-
-			$files->each(function ($file) use ($bundle, $queueName, $version) {
-				InsertOrUpdateResource::dispatch($bundle, $file, $version)
-					->onQueue($queueName)
-					->onConnection('database');
-			});
-
+	public function runJobs(Bundle $bundle): array {
+		$run = BundleImportRun::query()->where('bundle_id', $bundle->id)->whereNotNull('active_slot')->latest('created_at')->first();
+		if ($run === NULL) {
+			return ['done' => 0, 'open' => 0, 'bundle' => $bundle->fresh()];
 		}
 
-		$page    = 1;
-		$perPage = 100;
-		while (($files = collect($this->bundlesService->getBundleMaterials($bundleInfo, $page++,
-			$perPage)))->isNotEmpty()) {
-			$count += $files->count();
-
-			$files->each(function ($material) use ($bundle, $queueName, $version) {
-				InsertOrUpdateMaterial::dispatch($bundle, $material, $version)
-					->onQueue($queueName)
-					->onConnection('database');
-			});
-
-		}
-
-		return $count;
-	}
-
-	protected function createFinishUpdateJob($bundle, $bundleInfo) {
-
-		$queueName = $this->bundleQueueService->getQueueName($bundle);
-		FinishImportAfterUpdate::dispatch($bundle, $bundleInfo['version'])
-			->onQueue($queueName)
-			->onConnection('database');
-
-	}
-
-	protected function createFinishUninstallJob($bundle, $bundleInfo) {
-
-		$queueName = $this->bundleQueueService->getQueueName($bundle);
-		FinishBundleUninstall::dispatch($bundle, $bundleInfo['version'])
-			->onQueue($queueName)
-			->onConnection('database');
-
-	}
-
-	public function runJobs(Bundle $bundle, Request $request) {
-
-		$start          = microtime(TRUE);
-		$connectionName = 'database';
-		$queueName      = $this->bundleQueueService->getQueueName($bundle);
-		$options        = new WorkerOptions(2, 128, 30, 0, 15);
-
-		/** @var Worker $worker */
-		$worker       = resolve('queue.worker');
+		$start = microtime(TRUE);
+		$options = new WorkerOptions(name: 'bundle-browser', backoff: 5, memory: 128, timeout: 120, sleep: 0, maxTries: 0);
+		$worker = resolve('queue.worker');
 		$finishedJobs = 0;
-		$openJobs     = $this->bundleQueueService->countJobsInBundleQueue($bundle);
+		$openJobs = $this->bundleQueueService->countJobsInBundleQueue($bundle);
 
 		while (microtime(TRUE) - $start <= 5 && $openJobs > 0) {
-			$worker->runNextJob($connectionName, $queueName, $options);
+			/** @var Worker $worker */
+			$worker->runNextJob('database', $run->queue_name, $options);
 			$finishedJobs++;
-			$openJobs--;
-		}
-
-		// Aktualisieren, falls in der Zwischenzeit wieder neue Jobs angelegt wurden
-		if ($openJobs == 0) {
 			$openJobs = $this->bundleQueueService->countJobsInBundleQueue($bundle);
 		}
 
-		$result = [
-			'done' => $finishedJobs,
-			'open' => $openJobs
-		];
-
-		if ($openJobs === 0) {
+		$freshRun = $run->fresh();
+		$result = ['done' => $finishedJobs, 'open' => $openJobs, 'run' => $this->serializeRun($freshRun)];
+		if ($openJobs === 0 && $freshRun->active_slot === NULL) {
 			$result['bundle'] = $bundle->fresh();
 		}
 
 		return $result;
-
 	}
 
+	private function startRun(Bundle $bundle, BundleImportOperation $operation, ?string $targetVersion): JsonResponse {
+		try {
+			$run = $this->runService->start($bundle, $operation, $targetVersion, request()->user());
+			$this->orchestrator->start($run);
+		} catch (BundleImportConflictException $exception) {
+			return response()->json(['error' => ['code' => 'bundle_import_conflict', 'message' => 'Für dieses Bundle läuft bereits eine andere Operation.', 'run_id' => $exception->activeRun->id]], 409);
+		} catch (BundleSourceValidationException $exception) {
+			return $this->error($exception->failureCode, 422);
+		}
+
+		return response()->json([
+			'updateAvailable' => TRUE,
+			'continueUpdate' => $run->wasRecentlyCreated === FALSE,
+			'openJobs' => $this->bundleQueueService->countJobsInBundleQueue($bundle),
+			'run' => $this->serializeRun($run->fresh()),
+		], 202);
+	}
+
+	private function serializeRun(BundleImportRun $run): array {
+		$batch = $run->current_batch_id === NULL ? NULL : Bus::findBatch($run->current_batch_id);
+		$total = $run->expected_jobs;
+		$processed = $run->processed_jobs;
+		$failed = 0;
+		if ($batch instanceof Batch) {
+			$total = max($total, $batch->totalJobs);
+			$processed = max($processed, $batch->processedJobs());
+			$failed = $batch->failedJobs;
+		}
+
+		return [
+			'id' => $run->id,
+			'bundle_id' => $run->bundle_id,
+			'operation' => $run->operation->value,
+			'status' => $run->status->value,
+			'phase' => $run->phase->value,
+			'target_version' => $run->target_version,
+			'progress' => ['total' => $total, 'processed' => $processed, 'failed' => $failed, 'percentage' => $total === 0 ? 0 : (int)floor($processed / $total * 100)],
+			'failure' => $run->failure_code === NULL ? NULL : ['code' => $run->failure_code, 'message' => $run->failure_message],
+		];
+	}
+
+	private function error(string $code, int $status): JsonResponse {
+		return response()->json(['error' => ['code' => $code, 'message' => 'Das Bundle kann nicht verarbeitet werden.', 'run_id' => NULL]], $status);
+	}
 }
