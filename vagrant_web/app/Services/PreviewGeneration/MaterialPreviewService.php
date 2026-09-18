@@ -25,20 +25,19 @@ class MaterialPreviewService extends AbstractPreviewService {
 	 * @return bool
 	 */
 	public function hasPreview(Material $material): bool {
+		return $this->getPreviewResource($material) !== NULL;
 
+	}
+
+	public function getPreviewResource(Material $material): ?Resource {
 		/** @var Resource $resource */
 		foreach ($material->resources as $resource) {
-			$generator = $resource->getPreviewGenerator();
-
-			if (!$generator->imagePreviewAble($resource)) {
-				continue;
+			if ($resource->getPreviewGenerator()->imagePreviewAble($resource)) {
+				return $resource;
 			}
-
-			return TRUE;
 		}
 
-		return FALSE;
-
+		return NULL;
 	}
 
 	/**
@@ -67,15 +66,9 @@ class MaterialPreviewService extends AbstractPreviewService {
 	 */
 	public function getFreshMaterialPreview(Material $material) {
 
-		/**
-		 * @var Resource $resource
-		 */
-		foreach ($material->resources as $resource) {
+		$resource = $this->getPreviewResource($material);
+		if ($resource !== NULL) {
 			$generator = $resource->getPreviewGenerator();
-
-			if (!$generator->imagePreviewAble($resource)) {
-				continue;
-			}
 
 			$limitationStartValue = $this->getLimitationPreviewValue($resource);
 			$size                 = new Size(
@@ -86,7 +79,6 @@ class MaterialPreviewService extends AbstractPreviewService {
 			$preview = $generator->getImagePreview($resource, $size, $limitationStartValue);
 
 			return $preview;
-
 		}
 
 		throw new NotPreviewAbleException();

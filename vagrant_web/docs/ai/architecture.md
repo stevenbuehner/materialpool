@@ -53,7 +53,7 @@ Details und unveränderliche Beziehungen: `docs/ai/domain-invariants.md`.
 
 ### Resource anlegen oder ändern
 
-Controller-/Trait-Logik verarbeitet Daten und Dateien, erzeugt `ResourceWasCreated` oder `ResourceWasChanged`. Listener aktualisieren Hashes, Medienmetadaten, Dublettenprüfungen und Vorschau-Caches. Nach erfolgreichem Commit plant ein deduplizierter Job fehlende Resource-Vorschauen auf `resource-previews-low`; für PDFs und Dokumente wird jede bekannte Seite als eigene Variante eingeplant. Der Worker konsumiert weiterhin `default` vor dieser niedrigen Queue. Änderungen müssen diese Kette erhalten.
+Controller-/Trait-Logik verarbeitet Daten und Dateien, erzeugt `ResourceWasCreated` oder `ResourceWasChanged`. Listener aktualisieren Hashes, Medienmetadaten, Dublettenprüfungen und Vorschau-Caches. Nach erfolgreichem Commit plant ein deduplizierter Job fehlende Resource-Vorschauen auf `resource-previews-low`; für PDFs und Dokumente wird jede bekannte Seite als eigene Variante eingeplant. Bei Änderungen wird zusätzlich das Vorschaubild jedes zugeordneten Materials eingeplant, sofern die geänderte Resource dessen tatsächlich verwendete Preview-Quelle ist. Der Worker konsumiert weiterhin `default` vor dieser niedrigen Queue. Änderungen müssen diese Kette erhalten.
 
 ### Material ändern oder Ressourcen zuordnen
 

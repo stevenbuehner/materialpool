@@ -262,7 +262,7 @@ sudo -u www-data php /srv/materialpool/current/artisan <befehl>
 
 #### Resource-Vorschauen
 
-Geänderte oder neu angelegte Resources planen ihre Vorschauen nach dem Datenbank-Commit automatisch auf der nachrangigen Queue `resource-previews-low` ein. Der Worker verarbeitet weiterhin `default` zuerst; Vorschauen dürfen deshalb bei regulärer Last warten.
+Geänderte oder neu angelegte Resources planen ihre Vorschauen nach dem Datenbank-Commit automatisch auf der nachrangigen Queue `resource-previews-low` ein. Ändert sich die Resource, aus der ein Material seine Vorschau bezieht, wird auch dessen Vorschaubild auf dieser Queue neu erzeugt. Der Worker verarbeitet weiterhin `default` zuerst; Vorschauen dürfen deshalb bei regulärer Last warten.
 
 | Befehl | Umgebung/Benutzer | Wann verwenden? | Wirkung | Risiko |
 | --- | --- | --- | --- | --- |

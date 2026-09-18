@@ -16,6 +16,7 @@ use App\Listeners\CalculateDocPageSize;
 use App\Listeners\CalculatePdfPageSize;
 use App\Listeners\ClearResourcePreviewCache;
 use App\Listeners\QueueResourcePreviewGeneration;
+use App\Listeners\QueueAssignedMaterialPreviewGeneration;
 use App\Listeners\Queued\CheckDuplicateResources;
 use App\Listeners\UpdateResourceHashes;
 use App\Listeners\UpdateResourceFilesize;
@@ -76,6 +77,7 @@ class EventServiceProvider extends ServiceProvider {
 			// Clear caches
 			ClearResourcePreviewCache::class,
 			ClearAssignedMaterialPreviewCache::class,
+			QueueAssignedMaterialPreviewGeneration::class,
 			QueueResourcePreviewGeneration::class
 
 			// CheckDuplicateMaterials::class,
