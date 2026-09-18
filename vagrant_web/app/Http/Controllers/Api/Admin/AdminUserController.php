@@ -87,25 +87,31 @@ class AdminUserController extends Controller {
 	public function update(User $user, Request $request): array {
 		$validated = $this->validateUser($request, $user, true);
 		$actor = $request->user();
-		$nextStatus = isset($validated['status']) ? UserStatus::from($validated['status']) : $user->status;
-		$nextIsAdmin = $validated['is_admin'] ?? $user->is_admin;
+		$wasSuspended = false;
+		$user = DB::transaction(function () use ($user, $validated, &$wasSuspended): User {
+			// Konsistente Sperrreihenfolge verhindert, dass parallele Änderungen den letzten aktiven Admin entfernen.
+			$activeAdmins = User::query()
+				->where('is_admin', true)
+				->where('status', UserStatus::Active->value)
+				->orderBy('id')
+				->lockForUpdate()
+				->get();
+			$user = $activeAdmins->firstWhere('id', $user->id)
+				?? User::query()->lockForUpdate()->findOrFail($user->getKey());
+			$nextStatus = isset($validated['status']) ? UserStatus::from($validated['status']) : $user->status;
+			$nextIsAdmin = $validated['is_admin'] ?? $user->is_admin;
 
-		if ($actor->is($user) && $nextStatus !== UserStatus::Active) {
-			abort(422, 'Das eigene Benutzerkonto kann nicht deaktiviert werden.');
-		}
-		if ($user->status === UserStatus::Invited && $nextStatus === UserStatus::Active) {
-			abort(422, 'Ein eingeladener Benutzer wird ausschließlich durch den Abschluss der Einladung aktiviert.');
-		}
-		if ($user->status !== UserStatus::Invited && $nextStatus === UserStatus::Invited) {
-			abort(422, 'Ein bestehender Benutzer kann nicht erneut in den Status „eingeladen“ versetzt werden.');
-		}
+			if ($user->status === UserStatus::Invited && $nextStatus === UserStatus::Active) {
+				abort(422, 'Ein eingeladener Benutzer wird ausschließlich durch den Abschluss der Einladung aktiviert.');
+			}
+			if ($user->status !== UserStatus::Invited && $nextStatus === UserStatus::Invited) {
+				abort(422, 'Ein bestehender Benutzer kann nicht erneut in den Status „eingeladen“ versetzt werden.');
+			}
+			if ($user->is_admin && $user->isActive() && (!$nextIsAdmin || $nextStatus !== UserStatus::Active)) {
+				abort_unless($activeAdmins->contains(fn(User $admin): bool => !$admin->is($user)), 422, 'Der letzte aktive Global-Admin darf nicht gesperrt oder herabgestuft werden.');
+			}
 
-		if ($user->is_admin && $user->isActive() && (!$nextIsAdmin || $nextStatus !== UserStatus::Active)) {
-			$this->ensureAnotherActiveAdmin($user);
-		}
-
-		$wasSuspended = $user->status === UserStatus::Suspended;
-		DB::transaction(function () use ($user, $validated, $nextStatus, $nextIsAdmin): void {
+			$wasSuspended = $user->status === UserStatus::Suspended;
 			$user->fill(array_filter([
 				'name' => $validated['name'] ?? null,
 				'email' => isset($validated['email']) ? mb_strtolower($validated['email']) : null,
@@ -121,6 +127,8 @@ class AdminUserController extends Controller {
 			if ($nextStatus === UserStatus::Suspended) {
 				$this->revokeTokens($user);
 			}
+
+			return $user;
 		});
 
 		Log::notice('admin.user.updated', [
@@ -156,15 +164,6 @@ class AdminUserController extends Controller {
 	private function sendInvitation(User $user): void {
 		$token = Password::broker()->createToken($user);
 		$user->notify(new UserInvitation($token));
-	}
-
-	private function ensureAnotherActiveAdmin(User $user): void {
-		$exists = User::query()
-			->whereKeyNot($user->getKey())
-			->where('is_admin', true)
-			->where('status', UserStatus::Active->value)
-			->exists();
-		abort_unless($exists, 422, 'Der letzte aktive Global-Admin darf nicht gesperrt oder herabgestuft werden.');
 	}
 
 	private function revokeTokens(User $user): void {

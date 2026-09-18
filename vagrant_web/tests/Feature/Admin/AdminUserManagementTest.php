@@ -47,6 +47,25 @@ class AdminUserManagementTest extends TestCase {
 		$this->assertTrue($admin->fresh()->is_admin);
 	}
 
+	public function test_last_active_admin_cannot_be_suspended(): void {
+		$admin = User::factory()->create(['is_admin' => true]);
+		Passport::actingAs($admin);
+
+		$this->patchJson(route('api.v2.admin.users.update', $admin), ['status' => UserStatus::Suspended->value])
+			->assertUnprocessable();
+		$this->assertSame(UserStatus::Active, $admin->fresh()->status);
+	}
+
+	public function test_admin_can_suspend_their_own_account_when_another_active_admin_exists(): void {
+		$admin = User::factory()->create(['is_admin' => true]);
+		User::factory()->create(['is_admin' => true]);
+		Passport::actingAs($admin);
+
+		$this->patchJson(route('api.v2.admin.users.update', $admin), ['status' => UserStatus::Suspended->value])
+			->assertOk();
+		$this->assertSame(UserStatus::Suspended, $admin->fresh()->status);
+	}
+
 	public function test_group_with_users_cannot_be_deleted(): void {
 		$admin = User::factory()->create(['is_admin' => true]);
 		$user = User::factory()->create();
