@@ -37,6 +37,7 @@
 
 <script>
 import {BImg, BModal} from '@/adapters/bootstrap';
+import {setReactive}  from '@/adapters/reactivity';
 import undoIcon       from '@icons/vendor/svg-icon/svg/subway/undo-1.svg'
 import redoIcon       from '@icons/vendor/svg-icon/svg/subway/redo-1.svg'
 import backArrow      from '@icons/vendor/svg-icon/svg/typcn/arrow-back.svg'
@@ -67,16 +68,20 @@ export default {
   data() {
     return {
       currentIndex: Math.min(this.start, this.data.length),
+      loadedImageSources: {},
+      pendingImageSources: {},
     };
   },
 
   computed: {
 
     image() {
-      if (this.data && this.data[this.currentIndex] && this.data[this.currentIndex].src)
-        return this.data[this.currentIndex].src;
-      else
+      const image = this.data?.[this.currentIndex];
+      if (!image?.src) {
         return '';
+      }
+
+      return this.loadedImageSources[image.src] ? image.src : (image.thumbnailSrc || image.src);
     },
 
     title() {
@@ -130,6 +135,7 @@ export default {
     _showZoom(arrayIndex) {
 
       this.currentIndex = arrayIndex;
+      this.preloadLargeImage();
       this.$refs.imageZoomModal.show();
 
     },
@@ -151,6 +157,26 @@ export default {
 
       this._hideZoom();
 
+    },
+
+    preloadLargeImage() {
+      const image = this.data?.[this.currentIndex];
+      if (!image?.src || !image.thumbnailSrc || image.src === image.thumbnailSrc
+          || this.loadedImageSources[image.src] || this.pendingImageSources[image.src]) {
+        return;
+      }
+
+      setReactive(this.pendingImageSources, image.src, true);
+
+      const preloader = new Image();
+      preloader.onload = () => {
+        setReactive(this.loadedImageSources, image.src, true);
+        delete this.pendingImageSources[image.src];
+      };
+      preloader.onerror = () => {
+        delete this.pendingImageSources[image.src];
+      };
+      preloader.src = image.src;
     }
 
   },
