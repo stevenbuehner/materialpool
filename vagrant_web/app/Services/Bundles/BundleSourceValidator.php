@@ -37,10 +37,8 @@ class BundleSourceValidator {
 		$connection = DB::connection($bundleInfo['connection']);
 		$this->assertSchema($connection);
 		$this->assertIdentifiers($connection, $bundleInfo['id']);
-		$warnings = [
-			'material_ids' => $this->invalidMaterialIds($connection, $bundleInfo['id']),
-			'file_uuids' => $this->invalidFileUuids($bundle, $connection, $bundleInfo['id']),
-		];
+		$this->assertMaterialDataIsValid($connection, $bundleInfo['id']);
+		$this->assertReferencedFilesAreValid($bundle, $connection, $bundleInfo['id']);
 
 		$databasePath = $bundle->container_root . '/' . BundlesService::LOCAL_DB_FILENAME;
 		$sourceFingerprint = hash_file('sha256', $this->bundlesService->getBundleDisk()->path($databasePath));
@@ -48,7 +46,7 @@ class BundleSourceValidator {
 			throw new BundleSourceValidationException('bundle_source_fingerprint_failed');
 		}
 
-		return ['bundle_info' => $bundleInfo, 'source_fingerprint' => $sourceFingerprint, 'warnings' => $warnings];
+		return ['bundle_info' => $bundleInfo, 'source_fingerprint' => $sourceFingerprint, 'warnings' => ['material_ids' => [], 'file_uuids' => []]];
 	}
 
 	private function assertSchema(ConnectionInterface $connection): void {
@@ -79,7 +77,7 @@ class BundleSourceValidator {
 		return count($rows) > 0;
 	}
 
-	private function invalidMaterialIds(ConnectionInterface $connection, int $sourceBundleId): array {
+	private function assertMaterialDataIsValid(ConnectionInterface $connection, int $sourceBundleId): void {
 		$invalidIds = $connection->select('SELECT id FROM material WHERE bundle_id=:bundle_id AND author_rating IS NOT NULL AND (author_rating < 0 OR author_rating > :max_rating)', ['bundle_id' => $sourceBundleId, 'max_rating' => Material::MAX_RATING]);
 		$metadata = $connection->select('SELECT material.id AS material_id, meta_data.type, meta_data.value FROM meta_data INNER JOIN material ON material.id=meta_data.material_id WHERE material.bundle_id=:bundle_id', ['bundle_id' => $sourceBundleId]);
 		foreach ($metadata as $metadataEntry) {
@@ -93,29 +91,26 @@ class BundleSourceValidator {
 			$invalidIds[] = (object)['id' => $metadataEntry->material_id];
 		}
 
-		return collect($invalidIds)->pluck('id')->map(fn($id) => (int)$id)->unique()->values()->all();
+		if ($invalidIds !== []) {
+			throw new BundleSourceValidationException('bundle_source_material_invalid');
+		}
 	}
 
-	private function invalidFileUuids(Bundle $bundle, ConnectionInterface $connection, int $sourceBundleId): array {
+	private function assertReferencedFilesAreValid(Bundle $bundle, ConnectionInterface $connection, int $sourceBundleId): void {
 		$files = $connection->select('SELECT DISTINCT files.uuid, files.file_path, files.mime_type FROM files INNER JOIN material_files ON material_files.file_id=files.id INNER JOIN material ON material.id=material_files.material_id WHERE material.bundle_id=:bundle_id', ['bundle_id' => $sourceBundleId]);
 		$disk = $this->bundlesService->getBundleDisk();
-		$invalidUuids = [];
 
 		foreach ($files as $file) {
 			if (!$this->isSafeRelativePath($file->file_path)) {
-				$invalidUuids[] = $file->uuid;
-				continue;
+				throw new BundleSourceValidationException('bundle_source_resource_invalid');
 			}
 			if (!$disk->exists($bundle->container_root . '/' . BundlesService::BUNDLE_FILES_DIR . '/' . $file->file_path)) {
-				$invalidUuids[] = $file->uuid;
-				continue;
+				throw new BundleSourceValidationException('bundle_source_resource_invalid');
 			}
 			if (!class_exists($this->resourceRecognitionService->guessResourceFileFromMimeType($file->mime_type))) {
-				$invalidUuids[] = $file->uuid;
+				throw new BundleSourceValidationException('bundle_source_resource_invalid');
 			}
 		}
-
-		return array_values(array_unique($invalidUuids));
 	}
 
 	private function isSafeRelativePath(string $path): bool {

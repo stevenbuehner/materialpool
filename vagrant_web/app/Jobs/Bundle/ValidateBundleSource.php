@@ -3,7 +3,9 @@
 namespace App\Jobs\Bundle;
 
 use App\Enums\BundleImportOperation;
+use App\Exceptions\Bundles\BundleSourceValidationException;
 use App\Models\BundleImportRun;
+use App\Services\Bundles\BundleImportOrchestrator;
 use App\Services\Bundles\BundleSourceValidator;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
@@ -33,7 +35,14 @@ class ValidateBundleSource implements ShouldQueue {
 			return;
 		}
 
-		$source = $validator->validate($run->bundle);
+		try {
+			$source = $validator->validate($run->bundle);
+		} catch (BundleSourceValidationException $exception) {
+			app(BundleImportOrchestrator::class)->fail($run->id, $exception->failureCode);
+
+			throw $exception;
+		}
+
 		$run->update(['source_fingerprint' => $source['source_fingerprint'], 'source_warnings' => $source['warnings']]);
 	}
 

@@ -2,7 +2,12 @@
 
 namespace Tests\Feature\Bundles;
 
+use App\Exceptions\Bundles\BundleSourceValidationException;
+use App\Enums\BundleImportOperation;
+use App\Enums\BundleImportStatus;
+use App\Jobs\Bundle\ValidateBundleSource;
 use App\Models\Bundle;
+use App\Models\BundleImportRun;
 use App\Services\Bundles\BundleSourceValidator;
 use App\Services\Bundles\BundlesService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -26,7 +31,7 @@ class BundlesServiceSourceQueryTest extends TestCase {
 		$this->assertSame([], collect($service->getBundleMaterials($bundleInfo, 3, 1))->pluck('id')->all());
 	}
 
-	public function test_source_validator_accepts_a_complete_source_and_excludes_a_missing_file(): void {
+	public function test_source_validator_rejects_a_source_with_a_missing_referenced_file(): void {
 		$bundle = $this->createBundleSource();
 		$validator = resolve(BundleSourceValidator::class);
 
@@ -37,9 +42,34 @@ class BundlesServiceSourceQueryTest extends TestCase {
 
 		Storage::disk('bundles')->delete('source-query-fixture/files/first.pdf');
 
-		$validatedSource = $validator->validate($bundle);
-		$this->assertSame(['file-10'], $validatedSource['warnings']['file_uuids']);
-		$this->assertSame([], $validatedSource['warnings']['material_ids']);
+		try {
+			$validator->validate($bundle);
+			$this->fail('Die fehlende Bundle-Datei muss den gesamten Import verhindern.');
+		} catch (BundleSourceValidationException $exception) {
+			$this->assertSame('bundle_source_resource_invalid', $exception->failureCode);
+		}
+	}
+
+	public function test_validation_job_marks_the_run_as_failed_before_any_import_job_can_run(): void {
+		$bundle = $this->createBundleSource();
+		$run = BundleImportRun::query()->create([
+			'bundle_id' => $bundle->id,
+			'operation' => BundleImportOperation::Update,
+			'target_version' => '1.0.0',
+			'queue_name' => 'bundle_' . $bundle->id . '_queue',
+		]);
+		Storage::disk('bundles')->delete('source-query-fixture/files/first.pdf');
+
+		try {
+			(new ValidateBundleSource($run->id))->handle(resolve(BundleSourceValidator::class));
+			$this->fail('Die Validierung muss vor dem Ressourcen- und Materialimport abbrechen.');
+		} catch (BundleSourceValidationException $exception) {
+			$this->assertSame('bundle_source_resource_invalid', $exception->failureCode);
+		}
+
+		$run->refresh();
+		$this->assertSame(BundleImportStatus::Failed, $run->status);
+		$this->assertSame('bundle_source_resource_invalid', $run->failure_code);
 	}
 
 	private function createBundleSource(): Bundle {

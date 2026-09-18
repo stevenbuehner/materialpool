@@ -15,8 +15,6 @@ Material-Usage
 - Auto-Complete von Orten und Anlässen, aus der Datenbank?
 
 
-Resourcen (in der MaterialDetail-Ansicht) ausklappen
-- Sodass bei Bildern alle Bilder / Seiten angezeigt werden
 
 
 Schöneres Styling für Markdown (gibt es da fertige CSS?)
@@ -35,21 +33,13 @@ DayJS durch Momentum ersetzen
 
 In der Suchmaske brauche ich einen Haken, der standardmäßig aktiv ist: Bundles einbeziehen
 
-
-Bug: Tags endless-scrolling in der Seitenleiste ... da springt die Liste jedes Mal wieder nach oben (sie sollte gleich unten bleiben)
-
-
 Feature: Wenn man bei einem großen PDF in der Materialvorschau auf "weitere Seiten verfügbar" klickt, dann soll er die nächsten 50 Seiten auch noch anzeigen ...
 
 Feature: Wenn einem Material keine Ressource zugeordnet ist, dann zeige die gleichen Felder wie bei Zuordnung (Neue Text-Ressource | Material-Upload | Verknüpfungssuche)
 
 Fix: Erkenne Duplicate bei ZIP-Dateien korrekt (bzw. Omni-Graffle Dateien, die wohl als ZIP-Dateien hochgeladen werden ...)
 
-Feature: Bewertung eines Materials je Autor vornehmen ... automatisch dann ein Event mit Recalculate-Material-Rating vornehmen ...
-
 Feature / BUG: Cancel Bild-Lade-Prozesse in der Queue, wenn sie nicht mehr gebraucht werden
-
-Feature: Beim Navigieren aus der Suchliste in ein Material hinein und dann wieder zurück, soll der Scroll-Zustand der nach unten gescholten Suchliste wieder hergestellt werden.
 
 Feature: Vorschaubilder per "Force" neu laden können
 

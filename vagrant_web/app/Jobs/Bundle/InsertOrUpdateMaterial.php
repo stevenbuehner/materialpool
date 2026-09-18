@@ -4,6 +4,7 @@ namespace App\Jobs\Bundle;
 
 use App\Jobs\CheckLonelyBibleverse;
 use App\Jobs\CheckLonelyKeyword;
+use App\Exceptions\Bundles\BundleSourceValidationException;
 use App\Models\Bibleverse;
 use App\Models\Bundle;
 use App\Models\Exceptions\InvalidKeywordTypeException;
@@ -306,11 +307,7 @@ class InsertOrUpdateMaterial implements ShouldQueue, VersionInterface {
 			if ($frid) {
 				$resourceIDs[] = $frid->resource_id;
 			} else {
-				Log::error('It seems like there is a resource missing, which should have been synced',
-					[
-						'material'    => $material,
-						'missingUUID' => $uuid
-					]);
+				throw new BundleSourceValidationException('bundle_source_resource_mapping_invalid');
 			}
 		}
 
