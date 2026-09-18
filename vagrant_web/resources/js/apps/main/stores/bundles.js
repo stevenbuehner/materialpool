@@ -5,6 +5,7 @@ import {
 	api_v1_bundles_get_icon,
 	api_v1_bundles_index,
 	api_v1_bundles_uninstall_init,
+	api_v1_bundles_run_status,
 	api_v1_bundles_update_init,
 	api_v1_bundles_update_run,
 } from '../../../components/serverRoutes';
@@ -103,20 +104,17 @@ export const useBundlesStore = defineStore('bundles', {
 
 		initUpdateJobs(id) {
 			return axios.post(api_v1_bundles_update_init(id), {}, {timeout: 0})
-				.then(({data}) => data)
-				.catch(response => convertErrorResponseToMessage(response));
+				.then(({data}) => data);
 		},
 
 		initUninstallJobs(id) {
 			return axios.post(api_v1_bundles_uninstall_init(id), {}, {timeout: 0})
-				.then(({data}) => data)
-				.catch(response => convertErrorResponseToMessage(response));
+				.then(({data}) => data);
 		},
 
 		runJobs(bundleId) {
 			const response = axios.post(api_v1_bundles_update_run(bundleId), {}, {timeout: 0})
-				.then(({data}) => data)
-				.catch(error => convertErrorResponseToMessage(error));
+				.then(({data}) => data);
 
 			response.then(({bundle}) => {
 				if (bundle) {
@@ -125,6 +123,11 @@ export const useBundlesStore = defineStore('bundles', {
 			});
 
 			return response;
+		},
+
+		getRunStatus(bundleId, runId) {
+			return axios.get(api_v1_bundles_run_status(bundleId, runId))
+				.then(({data}) => data);
 		},
 
 		getBundleIcon(bundleId) {

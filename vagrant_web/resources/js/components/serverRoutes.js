@@ -274,6 +274,10 @@ export function api_v1_bundles_update_run(bundleId) {
 	return '/api/v1/bundles/' + bundleId + '/run-update';
 }
 
+export function api_v1_bundles_run_status(bundleId, runId) {
+	return '/api/v1/bundles/' + bundleId + '/runs/' + runId;
+}
+
 export function api_v1_bundles_get_icon(bundleId) {
 	return '/api/v1/bundles/' + bundleId + '/icon';
 }

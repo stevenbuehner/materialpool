@@ -72,10 +72,17 @@ describe('bundles Pinia store', () => {
         expect(axios.post).toHaveBeenNthCalledWith(2, '/api/v1/bundles/7/init-uninstall', {}, {timeout: 0});
     });
 
-    it('returns converted initialization errors as fulfilled values', async () => {
+    it('rejects initialization errors so components can display the server failure', async () => {
         axios.post.mockRejectedValue({response: {data: {error: 'Queue nicht erreichbar'}}});
 
-        await expect(useBundlesStore().initUpdateJobs(7)).resolves.toBe('Queue nicht erreichbar');
+        await expect(useBundlesStore().initUpdateJobs(7)).rejects.toMatchObject({response: {data: {error: 'Queue nicht erreichbar'}}});
+    });
+
+    it('loads a persisted bundle import run status', async () => {
+        axios.get.mockResolvedValue({data: {id: 'run-uuid', status: 'running'}});
+
+        await expect(useBundlesStore().getRunStatus(7, 'run-uuid')).resolves.toMatchObject({status: 'running'});
+        expect(axios.get).toHaveBeenCalledWith('/api/v1/bundles/7/runs/run-uuid');
     });
 
     it('runs jobs and merges the completed server bundle into the existing cache object', async () => {
