@@ -1,8 +1,3 @@
-Limitiere Image-Preview Requests, sodass sie keine XHR Aufrufe blockieren ...
-- am besten Client-Seitig ... das maximal 3 Bilder gleichzeitig geladen werden
-- Besser noch: Im Hintergrundprozess neue Vorschaubilder generieren -> als Job anlegen
--> Wie lange hält der Cache? (Kann man Hintergrundbilder auf einem anderen Speichersystem ablegen?)
-
 Feature: BEi Doppelklick auf TextResource an die richtige Stelle im Edit-Text springen ...
 
 Bug: Wenn eine Zeitüberschreibung bei der Suche (Tagerkennung) auftritt, wird keine Fehlermeldung angezeigt ...!
@@ -13,8 +8,6 @@ b) Material
 
 Material-Usage
 - Auto-Complete von Orten und Anlässen, aus der Datenbank?
-
-
 
 
 Schöneres Styling für Markdown (gibt es da fertige CSS?)
@@ -29,13 +22,9 @@ Server automatisch ausschalten nach einer gewissen Laufzeit (z.B. 2h)
 Auto-Überschrift Erkennung aus einem Markup-Text
 ⇨ Verwende die erste Überschrift mit einem #
 
-DayJS durch Momentum ersetzen
-
 In der Suchmaske brauche ich einen Haken, der standardmäßig aktiv ist: Bundles einbeziehen
 
 Feature: Wenn man bei einem großen PDF in der Materialvorschau auf "weitere Seiten verfügbar" klickt, dann soll er die nächsten 50 Seiten auch noch anzeigen ...
-
-Feature: Wenn einem Material keine Ressource zugeordnet ist, dann zeige die gleichen Felder wie bei Zuordnung (Neue Text-Ressource | Material-Upload | Verknüpfungssuche)
 
 Fix: Erkenne Duplicate bei ZIP-Dateien korrekt (bzw. Omni-Graffle Dateien, die wohl als ZIP-Dateien hochgeladen werden ...)
 
@@ -49,6 +38,8 @@ Fix: Backups nicht täglich machen ... es reicht alle paar Tage.
 
 Feature: Automatisch ausschalten am Abend, wenn das Backup gelaufen ist?
 
+Automatische Spracherkennung anhand eines Modells bei neuen Ressourcen -> queued
 
 
+Booost und laravel/ai installieren und passend konfigurieren
 
