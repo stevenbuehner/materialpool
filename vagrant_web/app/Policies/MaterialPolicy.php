@@ -4,6 +4,7 @@ namespace App\Policies;
 
 use App\Models\Material;
 use App\Models\User;
+use App\Services\Bundles\BundlePermissionService;
 use App\Support\Authorization\SystemPermissions;
 use Illuminate\Auth\Access\Response;
 use Illuminate\Auth\Access\HandlesAuthorization;
@@ -28,6 +29,16 @@ class MaterialPolicy {
 	 * @return mixed
 	 */
 	public function view(User $user, Material $material) {
+		$bundleIds = $material->foreignIds()->whereNotNull('bundle_id')->pluck('bundle_id');
+		if ($bundleIds->isNotEmpty()) {
+			if ($user->can(SystemPermissions::MATERIALS_VIEW_ALL)
+				|| app(BundlePermissionService::class)->canReadAnyBundle($user, $bundleIds)) {
+				return TRUE;
+			}
+
+			return Response::denyAsNotFound();
+		}
+
 		if ($user->id === $material->created_by) {
 			return TRUE;
 		}

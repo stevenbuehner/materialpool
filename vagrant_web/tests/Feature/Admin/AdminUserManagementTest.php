@@ -3,8 +3,10 @@
 namespace Tests\Feature\Admin;
 
 use App\Enums\UserStatus;
+use App\Models\Bundle;
 use App\Models\User;
 use App\Notifications\UserInvitation;
+use App\Services\Bundles\BundlePermissionService;
 use App\Support\Authorization\SystemPermissions;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Notification;
@@ -65,6 +67,42 @@ class AdminUserManagementTest extends TestCase {
 		])->assertUnprocessable();
 
 		$this->assertDatabaseMissing('roles', ['name' => 'Ungültige Gruppe']);
+	}
+
+	public function test_admin_can_assign_existing_bundle_read_permissions_and_the_catalog_describes_uninstalled_bundles(): void {
+		$admin = User::factory()->create(['is_admin' => true]);
+		$bundle = Bundle::factory()->create(['name' => 'Archiv-Bundle', 'installed_version' => '2.3.0', 'is_installed' => false]);
+		$permission = app(BundlePermissionService::class)->ensureFor($bundle);
+		Passport::actingAs($admin);
+
+		$this->getJson(route('api.v2.admin.permissions.index'))
+			->assertOk()
+			->assertJsonFragment([
+				'code' => $permission->name,
+				'area' => 'bundle-read',
+				'bundle' => [
+					'id' => $bundle->id,
+					'uuid' => $bundle->uuid,
+					'name' => 'Archiv-Bundle',
+					'installed_version' => '2.3.0',
+					'is_installed' => false,
+				],
+			]);
+
+		$this->postJson(route('api.v2.admin.groups.store'), [
+			'name' => 'Archivleser',
+			'permissions' => [$permission->name],
+		])->assertCreated()->assertJsonPath('group.permissions.0', $permission->name);
+	}
+
+	public function test_group_api_rejects_bundle_permission_without_a_matching_bundle(): void {
+		$admin = User::factory()->create(['is_admin' => true]);
+		Passport::actingAs($admin);
+
+		$this->postJson(route('api.v2.admin.groups.store'), [
+			'name' => 'Ungültiger Bundle-Code',
+			'permissions' => ['bundles.view.00000000-0000-0000-0000-000000000000'],
+		])->assertUnprocessable();
 	}
 
 	public function test_user_cannot_write_another_users_settings(): void {

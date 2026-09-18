@@ -373,4 +373,7 @@ return [
 	'User-status-invited'                                      => 'Invited',
 	'User-status-active'                                       => 'Active',
 	'User-status-suspended'                                    => 'Suspended',
+	'Bundle-read-permissions'                                  => 'Bundle read permissions',
+	'Bundle-installed'                                         => 'Installed',
+	'Bundle-uninstalled'                                       => 'Uninstalled',
 ];

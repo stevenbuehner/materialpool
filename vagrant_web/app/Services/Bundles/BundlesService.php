@@ -17,7 +17,7 @@ class BundlesService {
 	protected $cachedContainerBundleInfos = NULL;
 
 
-	public function __construct() {
+	public function __construct(private readonly BundlePermissionService $bundlePermissionService) {
 		$this->cachedContainerBundleInfos = collect();
 	}
 
@@ -52,6 +52,7 @@ class BundlesService {
 
 
 			$bundleEntity->save();
+			$this->bundlePermissionService->ensureFor($bundleEntity);
 
 			$dbBundles[] = $bundleEntity;
 		}

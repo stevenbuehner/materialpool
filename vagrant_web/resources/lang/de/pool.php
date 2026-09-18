@@ -369,5 +369,8 @@ return [
 	'User-status-invited'                                      => 'Eingeladen',
 	'User-status-active'                                       => 'Aktiv',
 	'User-status-suspended'                                    => 'Gesperrt',
+	'Bundle-read-permissions'                                  => 'Bundle-Leserechte',
+	'Bundle-installed'                                         => 'Installiert',
+	'Bundle-uninstalled'                                       => 'Deinstalliert',
 
 ];

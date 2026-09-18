@@ -79,11 +79,21 @@
         <form class="border rounded p-3 mb-3" @submit.prevent="saveGroup">
           <h3 class="h5">{{ groupForm.id ? $t('pool.Edit-group') : $t('pool.Create-group') }}</h3>
           <label class="form-label">{{ $t('pool.Name') }}<input v-model="groupForm.name" class="form-control" required></label>
-          <fieldset v-for="(permissions, area) in permissionsByArea" :key="area" class="mt-3">
+          <fieldset v-for="(permissions, area) in staticPermissionsByArea" :key="area" class="mt-3">
             <legend class="h6 text-capitalize">{{ area }}</legend>
             <div class="row">
               <div v-for="permission in permissions" :key="permission.code" class="col-lg-6">
                 <b-form-checkbox :model-value="groupForm.permissions.includes(permission.code)" @update:model-value="togglePermission(permission.code, $event)">{{ permission.code }}</b-form-checkbox>
+              </div>
+            </div>
+          </fieldset>
+          <fieldset v-if="bundleReadPermissions.length" class="mt-3">
+            <legend class="h6">{{ $t('pool.Bundle-read-permissions') }}</legend>
+            <div class="row">
+              <div v-for="permission in bundleReadPermissions" :key="permission.code" class="col-lg-6">
+                <b-form-checkbox :model-value="groupForm.permissions.includes(permission.code)" @update:model-value="togglePermission(permission.code, $event)">
+                  {{ permission.bundle.name }} <span class="text-muted">({{ permission.bundle.is_installed ? $t('pool.Bundle-installed') : $t('pool.Bundle-uninstalled') }}<template v-if="permission.bundle.installed_version"> · {{ permission.bundle.installed_version }}</template>)</span>
+                </b-form-checkbox>
               </div>
             </div>
           </fieldset>
@@ -116,7 +126,8 @@ export default {
 	computed: {
 		...mapStores(useAdminStore),
 		store() { return this.adminStore; },
-		permissionsByArea() { return this.store.permissions.reduce((groups, permission) => ({...groups, [permission.area]: [...(groups[permission.area] || []), permission]}), {}); },
+		staticPermissionsByArea() { return this.store.permissions.filter(permission => permission.area !== 'bundle-read').reduce((groups, permission) => ({...groups, [permission.area]: [...(groups[permission.area] || []), permission]}), {}); },
+		bundleReadPermissions() { return this.store.permissions.filter(permission => permission.area === 'bundle-read'); },
 	},
 	async mounted() {
 		await this.store.loadReferenceData();

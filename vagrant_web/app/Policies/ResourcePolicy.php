@@ -4,6 +4,7 @@ namespace App\Policies;
 
 use App\Models\Resource;
 use App\Models\User;
+use App\Services\Bundles\BundlePermissionService;
 use App\Support\Authorization\SystemPermissions;
 use Illuminate\Auth\Access\HandlesAuthorization;
 use Illuminate\Auth\Access\Response;
@@ -28,6 +29,16 @@ class ResourcePolicy {
 	 * @return mixed
 	 */
 	public function view(User $user, Resource $resource) {
+		$bundleIds = $resource->foreignIds()->whereNotNull('bundle_id')->pluck('bundle_id');
+		if ($bundleIds->isNotEmpty()) {
+			if ($user->can(SystemPermissions::RESOURCES_VIEW_ALL)
+				|| app(BundlePermissionService::class)->canReadAnyBundle($user, $bundleIds)) {
+				return TRUE;
+			}
+
+			return Response::denyAsNotFound();
+		}
+
 		if ($resource->is_public) {
 			return TRUE;
 		}

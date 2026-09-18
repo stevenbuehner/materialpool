@@ -6,6 +6,7 @@ use App\Services\PreviewGeneration\Generators\NoPreviewGenerator;
 use App\Services\PreviewGeneration\Interfaces\PreviewGeneratorInterface;
 use App\Services\TagExtraction\ResourceHandles\HandlerInterface;
 use App\Support\Authorization\SystemPermissions;
+use App\Services\Bundles\BundlePermissionService;
 use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -81,9 +82,19 @@ class Resource extends Model {
 			return;
 		}
 
-		$query->where(function (Builder $query) use ($user): void {
-			$query->where('resources.created_by', $user->id)
-				->orWhere('resources.is_public', true);
+		$readableBundleIds = app(BundlePermissionService::class)->readableBundleIds($user);
+
+		$query->where(function (Builder $query) use ($user, $readableBundleIds): void {
+			$query->whereHas('foreignIds', fn(Builder $foreignIds) => $foreignIds
+				->whereNotNull('bundle_id')
+				->whereIn('bundle_id', $readableBundleIds)
+			)->orWhere(function (Builder $query) use ($user): void {
+				$query->whereDoesntHave('foreignIds', fn(Builder $foreignIds) => $foreignIds->whereNotNull('bundle_id'))
+					->where(fn(Builder $query) => $query
+						->where('resources.created_by', $user->id)
+						->orWhere('resources.is_public', true)
+					);
+			});
 		});
 	}
 

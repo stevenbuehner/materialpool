@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Services\Bundles\BundlePermissionService;
 use App\Support\Authorization\SystemPermissions;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
@@ -63,8 +64,16 @@ class AdminGroupController extends Controller {
 		return $request->validate([
 			'name' => [$partial ? 'sometimes' : 'required', 'string', 'max:255', Rule::unique('roles', 'name')->where('guard_name', 'web')->ignore($role?->id)],
 			'permissions' => ['sometimes', 'array'],
-			'permissions.*' => ['string', Rule::in(SystemPermissions::all())],
+			'permissions.*' => ['string', Rule::in($this->assignablePermissions())],
 		]);
+	}
+
+	/** @return array<string> */
+	private function assignablePermissions(): array {
+		return array_values(array_unique([
+			...SystemPermissions::all(),
+			...app(BundlePermissionService::class)->assignablePermissionNames(),
+		]));
 	}
 
 	private function serialize(Role $role): array {

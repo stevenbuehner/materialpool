@@ -3,9 +3,13 @@
 namespace Tests\Feature\Authorization;
 
 use App\Enums\UserStatus;
+use App\Models\Bundle;
+use App\Models\ForeignMaterialId;
+use App\Models\ForeignResourceId;
 use App\Models\Material;
 use App\Models\Resource;
 use App\Models\User;
+use App\Services\Bundles\BundlePermissionService;
 use App\Support\Authorization\SystemPermissions;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Gate;
@@ -142,5 +146,50 @@ class MaterialResourcePolicyTest extends TestCase {
 		}
 
 		$this->assertSame(404, Gate::forUser($viewer)->inspect('view', $ownerPrivate)->status());
+	}
+
+	public function test_bundle_materials_require_their_bundle_read_permission_even_when_public_or_owned(): void {
+		$owner = User::factory()->create();
+		$reader = User::factory()->create();
+		$admin = User::factory()->create(['is_admin' => true]);
+		$bundle = Bundle::factory()->create(['is_installed' => false]);
+		$material = Material::factory()->publiclyVisible()->create(['created_by' => $owner->id, 'modified_by' => $owner->id]);
+		ForeignMaterialId::create([
+			'material_id' => $material->id,
+			'foreign_id' => 'bundle-material-' . $material->id,
+			'user_id' => $owner->id,
+			'bundle_id' => $bundle->id,
+		]);
+
+		$this->assertFalse(Gate::forUser($owner)->allows('view', $material));
+		$this->assertFalse(Gate::forUser($reader)->allows('view', $material));
+		$this->assertTrue(Gate::forUser($admin)->allows('view', $material));
+		$this->assertSame([], Material::visibleTo($reader)->pluck('id')->all());
+
+		$reader->givePermissionTo(app(BundlePermissionService::class)->ensureFor($bundle));
+		$this->assertTrue(Gate::forUser($reader)->allows('view', $material));
+		$this->assertSame([$material->id], Material::visibleTo($reader)->pluck('id')->all());
+	}
+
+	public function test_bundle_resources_require_their_bundle_read_permission_and_permissions_survive_uninstallation(): void {
+		$owner = User::factory()->create();
+		$reader = User::factory()->create();
+		$bundle = Bundle::factory()->create(['is_installed' => false]);
+		$resource = Resource::factory()->create(['created_by' => $owner->id, 'is_public' => true]);
+		ForeignResourceId::create([
+			'resource_id' => $resource->id,
+			'foreign_id' => 'bundle-resource-' . $resource->id,
+			'user_id' => $owner->id,
+			'bundle_id' => $bundle->id,
+		]);
+
+		$this->assertFalse(Gate::forUser($reader)->allows('view', $resource));
+		$this->assertSame([], Resource::visibleTo($reader)->pluck('id')->all());
+
+		$permission = app(BundlePermissionService::class)->ensureFor($bundle);
+		$reader->givePermissionTo($permission);
+		$this->assertTrue(Gate::forUser($reader)->allows('view', $resource));
+		$this->assertSame([$resource->id], Resource::visibleTo($reader)->pluck('id')->all());
+		$this->assertDatabaseHas('permissions', ['id' => $permission->id, 'name' => $permission->name]);
 	}
 }
