@@ -6,11 +6,16 @@ import {limitedPreviewPages} from '../../resources/js/components/resource/show/p
 
 let displayedUsages;
 let isValidUsedBy;
+let userCanManageMaterialUsage;
+let userCanManageOwnOrAll;
 
 beforeAll(async () => {
   vi.stubGlobal('document', {documentElement: {lang: 'de'}});
   ({displayedUsages, isValidUsedBy} = await import(
     '../../resources/js/components/sidebar-fields/usage/usageHelpers'
+  ));
+  ({userCanManageMaterialUsage, userCanManageOwnOrAll} = await import(
+    '../../resources/js/apps/main/authorization'
   ));
 });
 
@@ -61,6 +66,25 @@ describe('frontend P0 contracts', () => {
     ];
 
     expect(displayedUsages(usages, 2, 1).map(usage => usage.id)).toEqual([1, 3]);
+  });
+
+  it('matches own-or-all permissions to the record creator', () => {
+    const ownOnly = {id: 10, permissions: ['resources.delete-own']};
+    const all = {id: 10, permissions: ['resources.delete-all']};
+
+    expect(userCanManageOwnOrAll(ownOnly, {created_by: 10}, 'resources.delete-own', 'resources.delete-all')).toBe(true);
+    expect(userCanManageOwnOrAll(ownOnly, {created_by: 11}, 'resources.delete-own', 'resources.delete-all')).toBe(false);
+    expect(userCanManageOwnOrAll(all, {created_by: 11}, 'resources.delete-own', 'resources.delete-all')).toBe(true);
+  });
+
+  it('allows usage changes only for its creator, the material creator, or an administrator', () => {
+    const usage = {created_by: 21};
+    const material = {created_by: 22};
+
+    expect(userCanManageMaterialUsage({id: 21}, usage, material)).toBe(true);
+    expect(userCanManageMaterialUsage({id: 22}, usage, material)).toBe(true);
+    expect(userCanManageMaterialUsage({id: 23}, usage, material)).toBe(false);
+    expect(userCanManageMaterialUsage({id: 23, is_admin: true}, usage, material)).toBe(true);
   });
 
   it('limits PDF pages without consuming the computed source array', () => {

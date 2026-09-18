@@ -14,3 +14,14 @@ export function userHasPermission(user, permission) {
 
 	return permissions.includes(permission);
 }
+
+export function userCanManageOwnOrAll(user, record, ownPermission, allPermission) {
+	return userHasPermission(user, allPermission)
+		|| (record?.created_by === user?.id && userHasPermission(user, ownPermission));
+}
+
+export function userCanManageMaterialUsage(user, usage, material) {
+	return user?.is_admin === true
+		|| usage?.created_by === user?.id
+		|| material?.created_by === user?.id;
+}

@@ -273,6 +273,10 @@ export default {
 	  return this.hasPermission('materials.update-all')
 	    || (material?.created_by === this.authorization.id && this.hasPermission('materials.update-own'));
 	},
+	canDeleteMaterial(material) {
+	  return this.hasPermission('materials.delete-all')
+	    || (material?.created_by === this.authorization.id && this.hasPermission('materials.delete-own'));
+	},
     loadResource() {
       this.isLoading = true;
 
@@ -326,7 +330,7 @@ export default {
             allowBackdrop: false
           }).then((answerPositive) => {
 
-            if (answerPositive === true) {
+            if (answerPositive === true && this.canDeleteMaterial(material)) {
               this.$refs.myDialog.show({
                 title: 'Lösche Material',
                 content: 'Lösche ' + (material.title ? '"' + material.title + '"' : 'Material') + '...',

@@ -21,7 +21,7 @@
             -->)
           </span>
 
-          <span :title="$t('pool.delete')" class="trash" @click.stop="onRequestDelete">
+          <span v-if="!disabled" :title="$t('pool.delete')" class="trash" @click.stop="onRequestDelete">
             <trash-icon class="trash-icon icon"/>
           </span>
         </div>

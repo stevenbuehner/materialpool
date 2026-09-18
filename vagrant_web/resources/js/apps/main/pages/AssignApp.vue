@@ -7,6 +7,7 @@
 
       <b-navbar-nav>
         <button type="button"
+                v-if="canCreateAndUpdateOwnMaterials"
                 class="btn btn-secondary btn-sm my-1 my-md-0 mx-1"
                 :title="selectedPages.length > 0 ? $t('pool.create-material-selected-pages') + ' (CTRL + N)': $t('pool.select-pages-first')"
                 :disabled="selectedPages.length === 0"
@@ -15,6 +16,7 @@
         >{{ $t('pool.new') }}
         </button>
         <b-button size="sm"
+                  v-if="canUpdateAnyMaterial"
                   class="my-1 my-md-0 mx-1"
                   :title="selectedPages.length > 0 ? $t('pool.add-material-selected-pages') : $t('pool.select-pages-first')"
                   :disabled="selectedPages.length === 0"
@@ -25,6 +27,7 @@
                     selectionMaterials.length})" left>
           <b-dropdown-item v-for="mat in selectionMaterials" :key="'mat'+mat.id">
             <b-button
+                v-if="canUpdateMaterial(mat)"
                 variant="danger"
                 size="sm"
                 @click.prevent="btnRemoveSelectionFromMaterial(mat.id)"
@@ -136,6 +139,8 @@ import {
 import {
   convertErrorResponseToMessage
 }                       from "../store/modules/handleErrorsHelper";
+import {useGeneralStore} from '../stores/general';
+import {userCanManageOwnOrAll, userHasPermission} from '../authorization';
 
 
 export default {
@@ -166,11 +171,25 @@ export default {
 
       showMaterialSelector: false,
       previewSize: 'sm',
-      materialCreationBibleverseSuggestions: []
+      materialCreationBibleverseSuggestions: [],
+      authorization: {id: null, is_admin: false, permissions: []},
     }
   },
 
   computed: {
+
+    canCreateMaterials() {
+      return userHasPermission(this.authorization, 'materials.create');
+    },
+
+    canUpdateAnyMaterial() {
+      return userHasPermission(this.authorization, 'materials.update-own')
+        || userHasPermission(this.authorization, 'materials.update-all');
+    },
+
+    canCreateAndUpdateOwnMaterials() {
+      return this.canCreateMaterials && this.canUpdateAnyMaterial;
+    },
 
     selectionMaterials() {
       return this.resource.materials.filter((mat) => {
@@ -215,8 +234,11 @@ export default {
 
   },
 
-
   methods: {
+
+    canUpdateMaterial(material) {
+      return userCanManageOwnOrAll(this.authorization, material, 'materials.update-own', 'materials.update-all');
+    },
 
     updateResource(id) {
 
@@ -375,6 +397,7 @@ export default {
   },
 
   created() {
+    useGeneralStore().currentUser().then(user => { this.authorization = user; });
     this.updateResource(this.id)
         .then((resource) => {
           // Preselection of pages

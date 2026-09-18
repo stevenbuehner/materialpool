@@ -32,7 +32,7 @@
               :reason="el.reason"
               :used_by="el.used_by"
               :key="el.id"
-              :disabled="disabled"
+              :disabled="disabled || !canManageUsage(el)"
               @element-clicked="editModeChanged"
               @input:saved="$asyncComputed.usages.update()"
               @input:removed="$asyncComputed.usages.update()"
@@ -61,6 +61,7 @@ import {savingDialogs}  from "../../helper/flashMessages";
 import {useMaterialUsagesStore} from '../../apps/main/stores/materialUsages';
 import {useGeneralStore}        from '../../apps/main/stores/general';
 import {displayedUsages}        from './usage/usageHelpers';
+import {userCanManageMaterialUsage} from '../../apps/main/authorization';
 
 export default {
   name: "usageEdit",
@@ -76,13 +77,19 @@ export default {
     materialId: {
       type: Number,
       required: true,
+    },
+
+    materialOwnerId: {
+      type: Number,
+      required: true,
     }
   },
 
   data() {
     return {
       currentActiveUsageId: null,
-      displayMax: 5
+      displayMax: 5,
+      currentUser: null,
     };
   },
 
@@ -128,7 +135,15 @@ export default {
 
   watch: {},
 
+  created() {
+    useGeneralStore().currentUser().then(user => { this.currentUser = user; });
+  },
+
   methods: {
+
+    canManageUsage(usage) {
+      return userCanManageMaterialUsage(this.currentUser, usage, {created_by: this.materialOwnerId});
+    },
 
     async addUsageClick() {
 

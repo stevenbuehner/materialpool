@@ -14,7 +14,7 @@
           <router-link :to="{name: 'resource-detail', params:{id: r.id}}" class="btn btn-primary">
             {{ $t('pool.open') }}
           </router-link>
-          <b-button variant="danger" @click="btnDelete(r)">{{ $t('pool.delete') }}</b-button>
+          <b-button v-if="canDeleteResource(r)" variant="danger" @click="btnDelete(r)">{{ $t('pool.delete') }}</b-button>
         </div>
       </div>
     </div>
@@ -43,6 +43,8 @@
 import {BButton, BPaginationNav} from '@/adapters/bootstrap';
 import {previewImageFirstPage}   from "../../../components/serverRoutes";
 import {useResourcesStore}       from '../stores/resources';
+import {useGeneralStore}         from '../stores/general';
+import {userCanManageOwnOrAll}   from '../authorization';
 
 export default {
   name: "ResourceLonely",
@@ -55,6 +57,7 @@ export default {
 
       isLoading: true,
       refreshResources: 0,
+      authorization: {id: null, is_admin: false, permissions: []},
     }
   },
 
@@ -82,7 +85,14 @@ export default {
     }
   },
 
+  created() {
+    useGeneralStore().currentUser().then(user => { this.authorization = user; });
+  },
+
   methods: {
+    canDeleteResource(resource) {
+      return userCanManageOwnOrAll(this.authorization, resource, 'resources.delete-own', 'resources.delete-all');
+    },
     linkGeneration(pageNum) {
       return {
         name: 'resource-lonely',

@@ -281,6 +281,7 @@
 
             <usage-edit
                 :material-id="material.id"
+                :material-owner-id="material.created_by"
             />
 
           </b-tab>
@@ -346,7 +347,8 @@
     <custom-dialog ref="customDialog"/>
     <material-deletor v-if="material"
                       ref="materialDeletor"
-                      :material-id="material.id"/>
+                      :material-id="material.id"
+                      :authorization="authorization"/>
     <resource-selector v-if="material && material.resources"
                        ref="resourceSelector"
                        :excluded-resource-id="material.resources.map(({id})=> id)"/>
@@ -728,7 +730,7 @@ export default {
             allowBackdrop: false
           }).then((answerPositive) => {
 
-            if (answerPositive === true) {
+            if (answerPositive === true && this.canDeleteResource(resource)) {
               this.$refs.customDialog.show({
                 title: 'Lösche Resource',
                 content: 'Lösche ' + (resource.original_filename ? '"' + resource.original_filename + '"' : 'Ressource') + '...',

@@ -7,7 +7,7 @@
   >
     <template #modal-footer>
 
-      <b-button v-if="!materialIsReloading && material && material.resources.length === 0"
+      <b-button v-if="canDeleteMaterial && !materialIsReloading && material && material.resources.length === 0"
                 variant="danger" size="sm" @click="_deleteThisMaterial">
         {{ $t('pool.material-delete') }}
       </b-button>
@@ -65,12 +65,12 @@
           </b-button>
 
           <b-button variant="warning" size="sm"
-                    v-if="r.materials.length === 1"
+                    v-if="canUpdateMaterial && canDeleteResource(r) && r.materials.length === 1"
                     @click="_detachAndDeleteResource(r)"
           >{{ $t('pool.detach-and-delete') }}
           </b-button>
 
-          <b-button :variant="r.materials.length === 1 ? 'danger' : 'warning'" size="sm"
+          <b-button v-if="canUpdateMaterial" :variant="r.materials.length === 1 ? 'danger' : 'warning'" size="sm"
                     @click="_detachResourceFromMaterial(r)"
           >{{ $t('pool.detach') }}
           </b-button>
@@ -92,6 +92,7 @@ import MaterialpoolSpinner                   from "../../spinner/materialpool-sp
 import {savingDialogs}                       from "../../../helper/flashMessages";
 import {useMaterialsStore}                   from '../../../apps/main/stores/materials';
 import {useResourcesStore}                   from '../../../apps/main/stores/resources';
+import {userCanManageOwnOrAll}                from '../../../apps/main/authorization';
 
 export default {
   name: "materialDeletor",
@@ -112,13 +113,25 @@ export default {
     materialId: {
       type: Number,
       required: true,
-    }
+    },
+    authorization: {
+      type: Object,
+      required: true,
+    },
   },
 
 
   watch: {},
 
   computed: {
+
+    canDeleteMaterial() {
+      return userCanManageOwnOrAll(this.authorization, this.material, 'materials.delete-own', 'materials.delete-all');
+    },
+
+    canUpdateMaterial() {
+      return userCanManageOwnOrAll(this.authorization, this.material, 'materials.update-own', 'materials.update-all');
+    },
 
     /**
      * Gibt im besten Fall die Resourcen mit Relations zurück, ansonsten nur die Material-Resourcen (ohne Relations) oder ein leeres Array
@@ -193,6 +206,10 @@ export default {
   },
 
   methods: {
+
+    canDeleteResource(resource) {
+      return userCanManageOwnOrAll(this.authorization, resource, 'resources.delete-own', 'resources.delete-all');
+    },
 
     _detachAndDeleteResource(resource) {
       this._detachResourceFromMaterial(resource)
