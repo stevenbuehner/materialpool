@@ -90,6 +90,32 @@
                         :title="$t('pool.Delete-resource')">{{ $t('pool.delete') }}
                 </button>
               </div>
+
+              <div v-if="canUpdateStructure" class="col-12">
+                <div class="row">
+                  <div class="col-12 col-sm-6 col-mb-4 mb-2 mb-sm-0 py-2">
+                    <resource-uploader
+                        v-if="canCreateResources"
+                        @resource-created="uploadResourceToThisMaterial"/>
+                  </div>
+
+                  <div class="col-12 col-sm-6 col-mb-4 py-2">
+                    <div class="dashedBorder p-2 d-flex align-items-center justify-content-center">
+                      <b-button @click="assignResourceToThisMaterial">
+                        {{ $t('pool.Assign-resource') }}
+                      </b-button>
+                    </div>
+                  </div>
+
+                  <div v-if="canCreateResources" class="col-12 col-sm-6 col-mb-4 py-2">
+                    <div class="dashedBorder p-2 d-flex align-items-center justify-content-center">
+                      <b-button @click="createAndAttachTextResourceToThisMaterial">
+                        {{ $t('pool.Create-text') }}
+                      </b-button>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
 
           </div>
@@ -258,7 +284,7 @@
             />
 
           </b-tab>
-          <b-tab :title="$t('pool.assignments')">
+          <b-tab v-if="canUpdateStructure" :title="$t('pool.assignments')">
             <div class="row">
 
               <div class="col-12 col-sm-6 col-mb-4 mb-2 mb-sm-0 py-2">

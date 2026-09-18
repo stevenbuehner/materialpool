@@ -600,7 +600,7 @@ refresh: Suchmaske, Ergebnisliste, Pagination oder Suchtexte geändert
 
 ### Materialien verwalten
 
-Die Materialliste zeigt vorhandene Materialien seitenweise. Ein Klick auf eine Karte öffnet das Materialdetail. Links erscheinen die zugeordneten Resources, rechts die Bearbeitungsseitenleiste mit den Tabs **Material**, **Zuordnungen** und **Meta**.
+Die Materialliste zeigt vorhandene Materialien seitenweise. Ein Klick auf eine Karte öffnet das Materialdetail. Links erscheinen die zugeordneten Resources, rechts die Bearbeitungsseitenleiste mit den Tabs **Material**, **Zuordnungen** und **Meta**. Bei einem noch ressourcenlosen Material stehen berechtigten Benutzern die Upload-, Zuordnungs- und Textressourcen-Aktionen zusätzlich direkt im Inhaltsbereich zur Verfügung; ohne Änderungsrecht ist der Tab **Zuordnungen** ausgeblendet.
 
 <!-- README-SCREENSHOT
 id: material-detail
@@ -610,7 +610,7 @@ role: Benutzer
 viewport: desktop-webkit (1440x900)
 fixture: docs-v1
 source: tests/browser/compat-app.spec.js#vue-3-datepicker-keeps-the-german-input-and-calendar-interaction
-refresh: Materialdetail, Sidebar, Resource-Karte oder Materialaktionen geändert
+refresh: Materialdetail, Sidebar, Resource-Karte, Berechtigungen oder Materialaktionen geändert
 -->
 ![Materialdetail mit leerem Resource-Bereich und Feldern für Titel, Beschreibung und Zuordnungen](docs/readme/screenshots/material-detail-desktop.png)
 
