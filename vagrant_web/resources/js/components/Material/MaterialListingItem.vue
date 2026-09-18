@@ -13,8 +13,9 @@
            @q-loaded="showImage=true; imageIsLoading=false"
            @q-error="showImage=false; imageIsLoading=false" :alt="fileTypes" v-image-queue.hide>
 
-      <div v-if="material.from_bot" class="is-bot-corner" :title="$t('pool.is-from-bot')">
-        <from-bot-icon class="from-bot-icon"/>
+      <div v-if="material.icon_of_bundle || material.from_bot" class="is-bot-corner" :title="bundleName || $t('pool.is-from-bot')">
+        <img v-if="bundleIcon" class="bundle-icon" :src="bundleIcon" alt="">
+        <from-bot-icon v-else class="from-bot-icon"/>
       </div>
 
       <play-icon class="playIcon" v-if="showImage && containsVideoResource"/>
@@ -121,7 +122,6 @@ export default {
 
   data() {
     return {
-      bundleIcon: null,
       showMore: false,
       showImage: false,
       imageIsLoading: true
@@ -169,6 +169,22 @@ export default {
   },
 
   asyncComputed: {
+
+    bundleIcon: {
+      get() {
+        if (!this.material?.icon_of_bundle) {
+          return null;
+        }
+
+        return useBundlesStore().getBundleIcon(this.material.icon_of_bundle)
+          .then((icon) => typeof icon === 'string' ? icon : null)
+          .catch(() => null);
+      },
+      default: null,
+      watch() {
+        this.material?.icon_of_bundle;
+      }
+    },
 
     bundleName: {
       get() {
@@ -273,6 +289,14 @@ $preview-background-color: $gray-600;
         path {
           fill: white;
         }
+      }
+
+      .bundle-icon {
+        width: 1.25em;
+        height: 1.25em;
+        margin: .2em;
+        object-fit: contain;
+        object-position: top left;
       }
     }
 

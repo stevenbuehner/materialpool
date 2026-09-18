@@ -108,16 +108,19 @@ describe('bundles Pinia store', () => {
         expect(store.bundles[0]).toMatchObject({installed_version: '2.0', update_available: false});
     });
 
-    it('loads each bundle icon once and preserves the fulfilled icon error contract', async () => {
-        axios.get.mockResolvedValueOnce({data: '<svg />'});
+    it('loads each bundle icon once as a browser-safe URL and rejects unavailable icons', async () => {
+        const blobUrl = 'blob:bundle-icon';
+        vi.spyOn(URL, 'createObjectURL').mockReturnValueOnce(blobUrl);
+        axios.get.mockResolvedValueOnce({data: new Blob(['<svg />'], {type: 'image/svg+xml'})});
         const store = useBundlesStore();
 
-        await expect(store.getBundleIcon(7)).resolves.toBe('<svg />');
-        await expect(store.getBundleIcon(7)).resolves.toBe('<svg />');
+        await expect(store.getBundleIcon(7)).resolves.toBe(blobUrl);
+        await expect(store.getBundleIcon(7)).resolves.toBe(blobUrl);
         expect(axios.get).toHaveBeenCalledOnce();
+        expect(axios.get).toHaveBeenCalledWith('/api/v1/bundles/7/icon', {responseType: 'blob'});
 
         axios.get.mockRejectedValueOnce({response: {data: {message: 'Icon fehlt'}}});
-        await expect(store.getBundleIcon(8)).resolves.toBe('Icon fehlt');
+        await expect(store.getBundleIcon(8)).rejects.toMatchObject({response: {data: {message: 'Icon fehlt'}}});
     });
 
     it('resolves bundle names by numeric id and keeps the string rejection for a miss', async () => {

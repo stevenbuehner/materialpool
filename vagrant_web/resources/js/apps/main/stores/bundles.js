@@ -143,9 +143,8 @@ export const useBundlesStore = defineStore('bundles', {
 				return this.bundleIcons[bundleId];
 			}
 
-			this.bundleIcons[bundleId] = axios.get(api_v1_bundles_get_icon(bundleId))
-				.then(({data}) => data)
-				.catch(response => convertErrorResponseToMessage(response));
+			this.bundleIcons[bundleId] = axios.get(api_v1_bundles_get_icon(bundleId), {responseType: 'blob'})
+				.then(({data}) => URL.createObjectURL(data));
 
 			return this.bundleIcons[bundleId];
 		},
