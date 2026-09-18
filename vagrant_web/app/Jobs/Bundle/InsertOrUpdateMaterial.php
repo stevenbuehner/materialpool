@@ -59,7 +59,7 @@ class InsertOrUpdateMaterial implements ShouldQueue, VersionInterface {
 		}
 
 		/** @var ForeignMaterialId $foreignMat */
-		$foreignMat = ForeignMaterialId::where(['foreign_id' => $this->getUUID()])
+		$foreignMat = ForeignMaterialId::where(['foreign_id' => $this->getUUID(), 'bundle_id' => $this->bundle->id])
 			->with(['material', 'material.keywords', 'material.bibleverses'])->first();
 
 		try {
@@ -301,7 +301,7 @@ class InsertOrUpdateMaterial implements ShouldQueue, VersionInterface {
 
 		foreach ($allAssociatedUUIDs as $uuid) {
 			/** @var ForeignResourceId $frid */
-			$frid = ForeignResourceId::where('foreign_id', $uuid->uuid)->first();
+			$frid = ForeignResourceId::where(['foreign_id' => $uuid->uuid, 'bundle_id' => $this->bundle->id])->first();
 
 			if ($frid) {
 				$resourceIDs[] = $frid->resource_id;

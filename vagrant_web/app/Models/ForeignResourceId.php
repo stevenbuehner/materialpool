@@ -18,6 +18,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property User $user
  * @property Bundle $bundle
  * @property int $user_id
+ * @property string $scope_key
  */
 class ForeignResourceId extends Model {
 	use HasFactory;
@@ -25,9 +26,19 @@ class ForeignResourceId extends Model {
 	protected $table = 'resource_foreign_ids';
 
 	protected $fillable = [
-		'resource_id', 'foreign_id', 'user_id', 'bundle_id'
+		'resource_id', 'foreign_id', 'user_id', 'bundle_id', 'scope_key'
 
 	];
+
+	protected static function booted(): void {
+		static::creating(function (self $foreignId): void {
+			$foreignId->scope_key ??= self::scopeKey($foreignId->bundle_id, $foreignId->user_id);
+		});
+	}
+
+	public static function scopeKey(?int $bundleId, ?int $userId): string {
+		return $bundleId !== null ? "bundle:{$bundleId}" : "user:{$userId}";
+	}
 
 	public function getRouteKeyName() {
 		return 'foreign_id';

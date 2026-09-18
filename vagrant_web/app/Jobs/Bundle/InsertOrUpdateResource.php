@@ -63,7 +63,7 @@ class InsertOrUpdateResource implements ShouldQueue, VersionInterface {
 
 
 		/** @var ForeignResourceId $foreignRes */
-		$foreignRes = ForeignResourceId::where(['foreign_id' => $this->getUUID()])
+		$foreignRes = ForeignResourceId::where(['foreign_id' => $this->getUUID(), 'bundle_id' => $this->bundle->id])
 			->with(['resource'])->first();
 
 		try {

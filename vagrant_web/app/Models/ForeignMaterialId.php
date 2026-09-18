@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $material_id
  * @property int $foreign_id
  * @property int $user_id
+ * @property string $scope_key
  * @property          $created_at
  * @property          $updated_at
  * @property Material $material
@@ -25,8 +26,18 @@ class ForeignMaterialId extends Model {
 	protected $table = 'material_foreign_ids';
 
 	protected $fillable = [
-		'material_id', 'foreign_id', 'user_id', 'bundle_id'
+		'material_id', 'foreign_id', 'user_id', 'bundle_id', 'scope_key'
 	];
+
+	protected static function booted(): void {
+		static::creating(function (self $foreignId): void {
+			$foreignId->scope_key ??= self::scopeKey($foreignId->bundle_id, $foreignId->user_id);
+		});
+	}
+
+	public static function scopeKey(?int $bundleId, ?int $userId): string {
+		return $bundleId !== null ? "bundle:{$bundleId}" : "user:{$userId}";
+	}
 
 	public function getRouteKeyName() {
 		return 'foreign_id';
