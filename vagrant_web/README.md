@@ -293,6 +293,14 @@ Ein erfolgreich erzeugtes oder hochgeladenes Archiv ist noch kein verifiziertes 
 
 #### Bundle-Störung beheben
 
+Vor einer Bundle-UUID- oder Foreign-ID-Constraint-Migration ist ausschließlich folgender read-only Preflight zulässig. Er gibt nur Konfliktzählwerte aus und verändert keine Daten:
+
+```sh
+sudo -u www-data php /srv/materialpool/current/artisan bundles:preflight-identifiers
+```
+
+Bei einem Fehler keine Migration und keine Datenkorrektur starten; zuerst die Konfliktform fachlich klären.
+
 <details>
 <summary>Manuelle Wiederaufnahme eines Bundle-Imports</summary>
 
