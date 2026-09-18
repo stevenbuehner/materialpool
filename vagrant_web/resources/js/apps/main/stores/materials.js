@@ -7,6 +7,7 @@ import {
 	api_v1_materials_show,
 	api_v1_materials_store,
 	api_v1_materials_update,
+	api_v1_materials_user_ranking,
 	api_v2_materialresource_attach,
 	api_v2_materialresource_detach,
 	api_v2_materials_delete,
@@ -101,6 +102,36 @@ export const useMaterialsStore = defineStore('materials', {
 			const request = axios.post(api_v1_materials_update(id), data);
 			request.then(({data: material}) => this.setMaterialDetailed(material));
 			return request;
+		},
+
+		updateUserRanking({materialId, rating}) {
+			return axios.put(api_v1_materials_user_ranking(materialId), {rating})
+				.then(({data}) => {
+					this.applyUserRanking(materialId, data);
+					return data;
+				})
+				.catch(response => {
+					throw convertErrorResponseToMessage(response);
+				});
+		},
+
+		removeUserRanking(materialId) {
+			return axios.delete(api_v1_materials_user_ranking(materialId))
+				.then(({data}) => {
+					this.applyUserRanking(materialId, data);
+					return data;
+				})
+				.catch(response => {
+					throw convertErrorResponseToMessage(response);
+				});
+		},
+
+		applyUserRanking(materialId, ranking) {
+			const material = this.getMaterial(materialId);
+			if (!material) return;
+
+			Object.assign(material, ranking);
+			this.materials[materialId] = material;
 		},
 
 		updateMaterialKeywords({materialId, keyword, pivot}) {

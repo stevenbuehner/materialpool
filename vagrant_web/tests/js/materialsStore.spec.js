@@ -83,6 +83,21 @@ describe('materials Pinia store', () => {
         expect(store.hasMaterialDetails(7)).toBe(true);
     });
 
+    it('updates and clears the current user ranking without replacing cached material details', async () => {
+        const store = useMaterialsStore();
+        store.setMaterialDetailed({id: 7, title: 'Material', rating: 10, user_rating: null});
+        axios.put.mockResolvedValueOnce({data: {rating: 14, user_rating: 14, user_rating_updated_at: '2026-09-18T12:00:00.000000Z'}});
+
+        await expect(store.updateUserRanking({materialId: 7, rating: 14})).resolves.toMatchObject({user_rating: 14});
+        expect(axios.put).toHaveBeenCalledWith('/api/v1/materials/7/user-ranking', {rating: 14});
+        expect(store.getMaterial(7)).toMatchObject({title: 'Material', rating: 14, user_rating: 14});
+
+        axios.delete.mockResolvedValueOnce({data: {rating: 14, user_rating: null, user_rating_updated_at: null}});
+        await expect(store.removeUserRanking(7)).resolves.toMatchObject({user_rating: null});
+        expect(axios.delete).toHaveBeenCalledWith('/api/v1/materials/7/user-ranking');
+        expect(store.getMaterial(7)).toMatchObject({rating: 14, user_rating: null});
+    });
+
     it('updates keyword assignments in an existing material cache', () => {
         const store = useMaterialsStore();
         store.setMaterial({id: 7, keywords: [{id: 1, title: 'Alt'}]});

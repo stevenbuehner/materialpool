@@ -244,10 +244,14 @@
             </tag-edit-sidebar-field>
 
 
-            <rating-edit v-if="!materialMetadataEditLockActive"
-                :value="material.rating"
+            <rating-edit
+                :value="material.user_rating ?? material.rating"
+                :default-rating="material.rating"
+                :user-rating="material.user_rating"
                 :name="$t('pool.Rating')"
-                @input="submitRating"/>
+                :loading="ratingSaving"
+                @input="submitRating"
+                @reset="resetRating"/>
 
             <usage-edit
                 :material-id="material.id"
@@ -386,6 +390,7 @@ export default {
       material: null,
       materialDetailsLoaded: false,
       errorOnLoadingMessage: null,
+	  ratingSaving: false,
 	  authorization: {id: null, is_admin: false, permissions: []},
     };
   },
@@ -546,7 +551,26 @@ export default {
     },
 
     submitRating(newRating) {
-      this.submitMaterialUpdate({rating: newRating}, this.$t('pool.Rating'));
+      this.saveUserRating(() => useMaterialsStore().updateUserRanking({materialId: this.material.id, rating: newRating}));
+    },
+
+    resetRating() {
+      this.saveUserRating(() => useMaterialsStore().removeUserRanking(this.material.id));
+    },
+
+    saveUserRating(action) {
+      if (this.ratingSaving) return;
+
+      this.ratingSaving = true;
+      const savingMessage = this.flashStartSaving(this.$t('pool.Rating'));
+      action().then(() => {
+        this.flashSaved(this.$t('pool.Rating'), savingMessage);
+        this.$asyncComputed.material.update();
+      }).catch(() => {
+        this.flashError(this.$t('pool.Rating'), undefined, savingMessage);
+      }).finally(() => {
+        this.ratingSaving = false;
+      });
     },
 
     submitDescription(newDescription) {

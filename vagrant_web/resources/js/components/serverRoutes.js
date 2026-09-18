@@ -166,6 +166,10 @@ export function api_v1_materials_update(materialId) {
 	return '/api/v1/materials/' + materialId;
 }
 
+export function api_v1_materials_user_ranking(materialId) {
+	return '/api/v1/materials/' + materialId + '/user-ranking';
+}
+
 export function api_v2_materials_delete(materialId) {
 	return '/api/v2/materials/' + materialId;
 }
