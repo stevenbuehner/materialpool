@@ -88,6 +88,12 @@ class BundleImportController extends BaseController {
 		return $this->serializeRun($run);
 	}
 
+	public function activeStatus(Bundle $bundle): array {
+		$run = BundleImportRun::query()->where('bundle_id', $bundle->id)->whereNotNull('active_slot')->latest('created_at')->firstOrFail();
+
+		return $this->serializeRun($run);
+	}
+
 	public function runJobs(Bundle $bundle): array {
 		$run = BundleImportRun::query()->where('bundle_id', $bundle->id)->whereNotNull('active_slot')->latest('created_at')->first();
 		if ($run === NULL) {

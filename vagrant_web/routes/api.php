@@ -344,6 +344,10 @@ Route::group([
 		->middleware('can:bundles.manage')
 		->name('bundles.update.run')
 		->where('bundle', '[0-9]+');
+	Route::get('bundles/{bundle}/runs/active', 'BundleImportController@activeStatus')
+		->middleware('can:bundles.manage')
+		->name('bundles.runs.active')
+		->where('bundle', '[0-9]+');
 	Route::get('bundles/{bundle}/runs/{run}', 'BundleImportController@status')
 		->middleware('can:bundles.manage')
 		->name('bundles.runs.status')

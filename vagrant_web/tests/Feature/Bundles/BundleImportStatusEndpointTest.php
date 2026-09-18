@@ -32,4 +32,20 @@ class BundleImportStatusEndpointTest extends TestCase {
 			->assertJsonPath('progress.total', 0);
 		$this->getJson(route('api.v1.bundles.runs.status', [$otherBundle, $run]))->assertNotFound();
 	}
+
+	public function test_bundle_manager_can_resume_by_reading_the_active_run_without_its_id(): void {
+		$user = User::factory()->create(['is_admin' => TRUE]);
+		$bundle = Bundle::factory()->create();
+		$run = BundleImportRun::query()->create([
+			'bundle_id' => $bundle->id,
+			'operation' => BundleImportOperation::Update,
+			'target_version' => '2.0.0',
+			'queue_name' => 'bundle_' . $bundle->id . '_queue',
+		]);
+		Passport::actingAs($user);
+
+		$this->getJson(route('api.v1.bundles.runs.active', $bundle))
+			->assertOk()
+			->assertJsonPath('id', $run->id);
+	}
 }
