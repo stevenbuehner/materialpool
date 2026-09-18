@@ -47,6 +47,8 @@ import {
 import MaterialpoolSpinner from "../../../../components/spinner/materialpool-spinner";
 import {useSearchStore}    from '../../stores/search';
 
+const searchScrollPositions = new Map();
+
 export default {
 
   name: 'searchPage',
@@ -153,6 +155,12 @@ export default {
     }
   },
 
+  beforeRouteLeave(to, from) {
+    if (to.name === 'material-detail') {
+      searchScrollPositions.set(from.fullPath, {left: window.scrollX, top: window.scrollY});
+    }
+  },
+
   methods: {
 
     searchInputChanged(searchLineItems) {
@@ -188,8 +196,22 @@ export default {
       }).then(() => {
         // Always
         this.isLoading = false;
+        this.restoreScrollPosition();
       });
 
+    },
+
+    restoreScrollPosition() {
+      const position = searchScrollPositions.get(this.$route.fullPath);
+
+      if (!position) {
+        return;
+      }
+
+      searchScrollPositions.delete(this.$route.fullPath);
+      this.$nextTick(() => {
+        window.requestAnimationFrame(() => window.scrollTo(position));
+      });
     },
 
     linkGeneration(pageNum) {
