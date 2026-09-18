@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Material;
 use App\Services\PreviewGeneration\Exceptions\NotPreviewAbleException;
 use App\Services\PreviewGeneration\MaterialPreviewService;
+use App\Services\PreviewGeneration\PreviewSize;
+use Illuminate\Http\Request;
 
 class MaterialPreviewController {
 
@@ -14,12 +16,21 @@ class MaterialPreviewController {
 		$this->materialPreviewService = $materialPreviewService;
 	}
 
-	public function getMaterialPreview(Material $material) {
+	public function getMaterialPreview(Request $request, Material $material) {
 
 		try {
-			$image = $this->materialPreviewService->getCachedMaterialPreview($material);
+			$imageData = $this->materialPreviewService->getCachedMaterialPreviewData(
+				$material,
+				PreviewSize::constrained(
+					$request->has('width') ? $request->integer('width') : NULL,
+					$request->has('height') ? $request->integer('height') : NULL
+				)
+			);
+			$response = response($imageData, 200, ['Content-Type' => 'image/jpeg']);
+			$response->setEtag(hash('sha256', $imageData));
+			$response->isNotModified($request);
 
-			return $image->response(config('app.preview.outputFormat'));
+			return $response;
 
 		} catch (NotPreviewAbleException $e) {
 		}

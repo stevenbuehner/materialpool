@@ -3,16 +3,17 @@
 namespace App\Jobs;
 
 use App\Models\DocumentFile;
+use App\Models\Material;
 use App\Models\PdfFile;
 use App\Models\Resource;
 use App\Services\PreviewGeneration\ResourcePreviewService;
+use App\Services\PreviewGeneration\PreviewSize;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUniqueUntilProcessing;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Intervention\Image\Size;
 
 class PlanResourcePreviews implements ShouldQueue, ShouldBeUniqueUntilProcessing {
 	use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
@@ -36,10 +37,9 @@ class PlanResourcePreviews implements ShouldQueue, ShouldBeUniqueUntilProcessing
 			return;
 		}
 
-		$size = new Size(
-			config('app.resource.preview.maxWidth'),
-			config('app.resource.preview.maxHeight')
-		);
+		$this->queueAssignedMaterialPreviews($resource);
+
+		$size = PreviewSize::small();
 
 		if (!$previewService->hasPreview($resource)) {
 			return;
@@ -54,12 +54,15 @@ class PlanResourcePreviews implements ShouldQueue, ShouldBeUniqueUntilProcessing
 					}
 				}
 
-				return;
 			}
-		}
-
-		if (!$previewService->hasCachedImage($resource, $size)) {
+		} elseif (!$previewService->hasCachedImage($resource, $size)) {
 			GenerateResourcePreviewVariant::dispatch($resource->getKey())->afterCommit();
 		}
+	}
+
+	private function queueAssignedMaterialPreviews(Resource $resource): void {
+		$resource->materials()->select('materials.id')->each(function (Material $material) use ($resource): void {
+			GenerateMaterialPreview::dispatch($material->getKey(), $resource->getKey())->afterCommit();
+		});
 	}
 }

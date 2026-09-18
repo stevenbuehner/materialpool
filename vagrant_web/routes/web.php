@@ -91,7 +91,7 @@ Route::get('/resource/{resource}/image/{width?}/{height?}', 'ResourcePreviewCont
 	->where('width', '[0-9]+')
 	->where('height', '[0-9]+')
 	->middleware(['auth', 'active', 'can:view,resource'])
-	->middleware(\App\Http\Middleware\CacheControlHeaders::class) // Tell browser to keep cache for one week
+	->middleware(\App\Http\Middleware\CacheControlHeaders::class) // Private browser cache for one week
 	->name('resource.image.preview');
 
 Route::get('/resource/{resource}/image/page-{page}/{clearCache?}', 'ResourcePreviewController@getPageImage')
@@ -100,12 +100,12 @@ Route::get('/resource/{resource}/image/page-{page}/{clearCache?}', 'ResourcePrev
 	->where('clearCache', 'refresh')
 	->name('PdfPreview/ImagePreview')
 	->middleware(['auth', 'active', 'can:view,resource'])
-	->middleware(\App\Http\Middleware\CacheControlHeaders::class); // Tell browser to keep cache for one week
+	->middleware(\App\Http\Middleware\CacheControlHeaders::class); // Private browser cache for one week
 
 Route::get('material/{material}/preview', 'MaterialPreviewController@getMaterialPreview')
 	->where('material', '[0-9]+')
 	->middleware(['auth', 'active', 'can:view,material'])
-	->middleware(\App\Http\Middleware\CacheControlHeaders::class)// Tell browser to keep cache for one week
+	->middleware(\App\Http\Middleware\CacheControlHeaders::class)// Private browser cache for one week
 	->name('material.preview');
 
 

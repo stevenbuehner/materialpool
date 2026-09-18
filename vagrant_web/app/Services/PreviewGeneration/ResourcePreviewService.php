@@ -2,9 +2,9 @@
 
 namespace App\Services\PreviewGeneration;
 
+use App\Models\DocumentFile;
 use App\Models\Resource;
 use App\Models\Resource as ResourceEntity;
-use App\Models\DocumentFile;
 use App\ResourceLimitations\ResourceLimitationInterface;
 use App\Services\PreviewGeneration\Exceptions\NotPreviewAbleException;
 use App\Services\PreviewGeneration\Generators\NoPreviewGenerator;
@@ -43,16 +43,16 @@ class ResourcePreviewService extends AbstractPreviewService {
 	public function getImagePreviewByWidthAndHeight(ResourceEntity $resource, $width = NULL, $height = NULL, $pageOrSeconds = NULL) {
 
 		if ($width === NULL) {
-			$width = config('app.resource.preview.maxWidth');
+			$width = PreviewSize::large()->getWidth();
 		}
 
 		if ($height === NULL) {
-			$height = config('app.resource.preview.maxHeight');
+			$height = PreviewSize::large()->getHeight();
 		}
 
 		$size = new Size($width, $height);
 
-		return $this->getCachedImage($resource, $size, $pageOrSeconds, $clearCache = TRUE);
+		return $this->getCachedImage($resource, $size, $pageOrSeconds);
 
 	}
 
@@ -118,36 +118,27 @@ class ResourcePreviewService extends AbstractPreviewService {
 	 * @return Image
 	 */
 	public function getCachedImage(ResourceEntity $resource, Size $size, $pageOrSeconds = NULL, bool $clearCache = FALSE) {
+		return $this->imageManager->make($this->getCachedImageData($resource, $size, $pageOrSeconds, $clearCache));
+	}
+
+	public function getCachedImageData(ResourceEntity $resource, Size $size, $pageOrSeconds = NULL, bool $clearCache = FALSE): string {
 
 		$cacheKey = $this->getCacheKey($resource, [$size, (int)$pageOrSeconds]);
 
-		// Clear Cache
-		if ($clearCache === TRUE) {
-			$this->clearCache($cacheKey);
-		}
+		try {
+			return $this->cacheImageData(
+				$cacheKey,
+				fn () => $this->getFreshImagePreview($resource, $size, $pageOrSeconds),
+				fn () => $this->registerCacheKey($resource, $cacheKey),
+				$clearCache
+			);
+		} catch (NotPreviewAbleException $e) {
+			$generator = resolve(NoPreviewGenerator::class);
 
-		// Load the preview
-		if ($clearCache === FALSE && NULL !== $encodedImage = $this->getImageObjectFromCache($cacheKey)) {
-
-			return $encodedImage;
-
-		} else {
-
-			try {
-				$rawImage = $this->getFreshImagePreview($resource, $size, $pageOrSeconds);
-
-				// Only cache on success
-				$this->putImageObjectToCache($rawImage, $cacheKey);
-				$this->registerCacheKey($resource, $cacheKey);
-
-			} catch (NotPreviewAbleException $e) {
-
-				$generator = resolve(NoPreviewGenerator::class);
-				return $generator->getImagePreview($resource, $size, $pageOrSeconds);
-
-			}
-
-			return $rawImage;
+			return (string)$generator->getImagePreview($resource, $size, $pageOrSeconds)->encode(
+				config('app.preview.outputFormat'),
+				config('app.resource.preview.quality')
+			);
 		}
 
 	}

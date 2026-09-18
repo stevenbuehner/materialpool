@@ -249,8 +249,12 @@ return [
 
 	'resource' => [
 		'preview' => [
+			'smallWidth' => 640,
+			'smallHeight' => 640,
 			'maxWidth'  => 1536,
 			'maxHeight' => 1536,
+			'quality' => 80,
+			'cacheLockSeconds' => 140,
 			'cacheTime' => -1, // 60 * 24 * 30 // in Minutes | -1 => forever | 0 => no cache
 		]
 

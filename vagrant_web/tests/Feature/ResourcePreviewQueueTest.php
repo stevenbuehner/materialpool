@@ -4,6 +4,8 @@ namespace Tests\Feature;
 
 use App\Events\ResourceWasChanged;
 use App\Jobs\GenerateMaterialPreview;
+use App\Jobs\GenerateResourcePreviewVariant;
+use App\Jobs\PlanResourcePreviews;
 use App\Listeners\QueueAssignedMaterialPreviewGeneration;
 use App\Models\Material;
 use App\Models\Text;
@@ -50,11 +52,34 @@ class ResourcePreviewQueueTest extends TestCase {
 		$previewService->shouldReceive('getPreviewResource')
 			->once()
 			->andReturn($resource);
-		$previewService->shouldReceive('getCachedMaterialPreview')
+		$previewService->shouldReceive('getCachedMaterialPreviewData')
 			->once()
-			->with(\Mockery::on(fn (Material $loadedMaterial): bool => $loadedMaterial->getKey() === $material->getKey()));
+			->with(
+				\Mockery::on(fn (Material $loadedMaterial): bool => $loadedMaterial->getKey() === $material->getKey()),
+				\Mockery::on(fn ($size): bool => $size->getWidth() === 640 && $size->getHeight() === 640)
+			);
 
 		(new GenerateMaterialPreview($material->getKey(), $resource->getKey()))->handle($previewService);
+	}
+
+	public function test_resource_preview_planning_queues_only_the_small_variant(): void {
+		$resource = $this->textResource();
+		Queue::fake([GenerateResourcePreviewVariant::class]);
+		$previewService = $this->mock(ResourcePreviewService::class);
+		$previewService->shouldReceive('hasPreview')->once()->with(\Mockery::type(Text::class))->andReturnTrue();
+		$previewService->shouldReceive('hasCachedImage')
+			->once()
+			->with(
+				\Mockery::type(Text::class),
+				\Mockery::on(fn ($size): bool => $size->getWidth() === 640 && $size->getHeight() === 640)
+			)
+			->andReturnFalse();
+
+		(new PlanResourcePreviews($resource->getKey()))->handle($previewService);
+
+		Queue::assertPushed(GenerateResourcePreviewVariant::class, function (GenerateResourcePreviewVariant $job) use ($resource): bool {
+			return $job->uniqueId() === $resource->getKey() . ':cover';
+		});
 	}
 
 	private function textResource(): Text {

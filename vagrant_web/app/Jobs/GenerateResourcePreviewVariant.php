@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\Models\Resource;
+use App\Services\PreviewGeneration\PreviewSize;
 use App\Services\PreviewGeneration\ResourcePreviewService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
@@ -11,7 +12,6 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Illuminate\Queue\SerializesModels;
-use Intervention\Image\Size;
 
 class GenerateResourcePreviewVariant implements ShouldQueue, ShouldBeUnique {
 	use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
@@ -42,11 +42,8 @@ class GenerateResourcePreviewVariant implements ShouldQueue, ShouldBeUnique {
 			return;
 		}
 
-		$size = new Size(
-			config('app.resource.preview.maxWidth'),
-			config('app.resource.preview.maxHeight')
-		);
+		$size = PreviewSize::small();
 
-		$previewService->getCachedImage($resource, $size, $this->page);
+		$previewService->getCachedImageData($resource, $size, $this->page);
 	}
 }

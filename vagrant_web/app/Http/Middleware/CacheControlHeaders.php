@@ -23,7 +23,7 @@ class CacheControlHeaders {
 		$response->header('Expires', gmdate(DATE_RFC1123, time() + $maxAge));
 		$response->setCache([
 			'max_age' => $maxAge,
-			'public'  => TRUE
+			'private' => TRUE,
 		]);
 
 		return $response;

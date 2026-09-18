@@ -8,6 +8,7 @@ use App\Models\Resource;
 use App\ResourceLimitations\PageLimitation;
 use App\ResourceLimitations\TimeLimitation;
 use App\Services\PreviewGeneration\Exceptions\NotPreviewAbleException;
+use Illuminate\Database\Eloquent\Model;
 use Intervention\Image\ImageManager;
 use Intervention\Image\Size;
 
@@ -46,17 +47,38 @@ class MaterialPreviewService extends AbstractPreviewService {
 	 * @throws NotPreviewAbleException
 	 */
 	public function getCachedMaterialPreview(Material $material) {
+		return $this->imageManager->make($this->getCachedMaterialPreviewData($material, PreviewSize::large()));
+	}
 
-		// see:  https://github.com/Intervention/imagecache/blob/master/src/Intervention/Image/ImageCache.php
-		$cacheKey  = $this->getCacheKey($material);
-		$imageData = $this->getImageObjectFromCache($cacheKey, FALSE);
+	public function getCachedMaterialPreviewData(Material $material, Size $size, bool $clearCache = FALSE): string {
+		$cacheKey = $this->getCacheKey($material, [$size]);
 
-		if (!$imageData) {
-			$imageData = $this->getFreshMaterialPreview($material);
-			$this->putImageObjectToCache($imageData, $cacheKey);
+		return $this->cacheImageData(
+			$cacheKey,
+			fn () => $this->getFreshMaterialPreview($material, $size),
+			fn () => $this->registerCacheKey($material, $cacheKey),
+			$clearCache
+		);
+	}
+
+	public function clearImageCache(Model $model, $additionalData = NULL) {
+		if (!$model instanceof Material || $additionalData !== NULL) {
+			parent::clearImageCache($model, $additionalData);
+
+			return;
 		}
 
-		return $imageData;
+		$cache = $this->getCacheStore();
+		$indexKey = $this->getCacheIndexKey($model);
+
+		$cache->lock($this->getCacheIndexLockKey($model), 10)->block(5, function () use ($cache, $indexKey, $model): void {
+			foreach ($cache->get($indexKey, []) as $cacheKey) {
+				$cache->delete($cacheKey);
+			}
+
+			$cache->delete($indexKey);
+			parent::clearImageCache($model);
+		});
 	}
 
 	/**
@@ -64,17 +86,14 @@ class MaterialPreviewService extends AbstractPreviewService {
 	 * @return \Intervention\Image\Image
 	 * @throws NotPreviewAbleException
 	 */
-	public function getFreshMaterialPreview(Material $material) {
+	public function getFreshMaterialPreview(Material $material, ?Size $size = NULL) {
 
 		$resource = $this->getPreviewResource($material);
 		if ($resource !== NULL) {
 			$generator = $resource->getPreviewGenerator();
 
 			$limitationStartValue = $this->getLimitationPreviewValue($resource);
-			$size                 = new Size(
-				config('app.resource.preview.maxWidth'),
-				config('app.resource.preview.maxHeight')
-			);
+			$size ??= PreviewSize::large();
 
 			$preview = $generator->getImagePreview($resource, $size, $limitationStartValue);
 
@@ -107,6 +126,28 @@ class MaterialPreviewService extends AbstractPreviewService {
 
 		return $result;
 
+	}
+
+	protected function registerCacheKey(Material $material, string $cacheKey): void {
+		$cache = $this->getCacheStore();
+		$indexKey = $this->getCacheIndexKey($material);
+
+		$cache->lock($this->getCacheIndexLockKey($material), 10)->block(5, function () use ($cache, $indexKey, $cacheKey): void {
+			$cacheKeys = $cache->get($indexKey, []);
+
+			if (!in_array($cacheKey, $cacheKeys, TRUE)) {
+				$cacheKeys[] = $cacheKey;
+				$cache->forever($indexKey, $cacheKeys);
+			}
+		});
+	}
+
+	protected function getCacheIndexKey(Material $material): string {
+		return 'material-preview-index:' . $material->getKey();
+	}
+
+	protected function getCacheIndexLockKey(Material $material): string {
+		return 'material-preview-index-lock:' . $material->getKey();
 	}
 
 }

@@ -4,6 +4,7 @@ namespace App\Jobs;
 
 use App\Models\Material;
 use App\Services\PreviewGeneration\MaterialPreviewService;
+use App\Services\PreviewGeneration\PreviewSize;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -49,6 +50,6 @@ class GenerateMaterialPreview implements ShouldQueue, ShouldBeUnique {
 			return;
 		}
 
-		$previewService->getCachedMaterialPreview($material);
+		$previewService->getCachedMaterialPreviewData($material, PreviewSize::small());
 	}
 }

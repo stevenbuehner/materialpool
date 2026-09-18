@@ -42,11 +42,11 @@ abstract class AbstractPreviewService {
 		$cache           = $this->getCacheStore();
 		$cachedImageData = $cache->get($cacheKey);
 
-		if ($cachedImageData) {
+		if (is_string($cachedImageData)) {
 			return $this->imageManager->make($cachedImageData);
-		} else {
-			return $default;
 		}
+
+		return $default;
 
 	}
 
@@ -68,11 +68,49 @@ abstract class AbstractPreviewService {
 		$cache = $this->getCacheStore();
 
 		// encode image data only if image is not encoded yet
-		$encoded = $image->encoded ? $image->encoded : (string)$image->encode();
+		$encoded = (string)$image->encode(
+			config('app.preview.outputFormat'),
+			config('app.resource.preview.quality')
+		);
 
 		$cache->put($cacheKey, $encoded, $this->cacheLifeTimeInMinutes);
 
 		return $image;
+	}
+
+	protected function getImageDataFromCache($cacheKey): ?string {
+		$cachedImageData = $this->getCacheStore()->get($cacheKey);
+
+		return is_string($cachedImageData) ? $cachedImageData : NULL;
+	}
+
+	protected function cacheImageData(string $cacheKey, callable $generateImage, ?callable $onCached = NULL, bool $clearCache = FALSE): string {
+		$cache = $this->getCacheStore();
+
+		if (!$clearCache && ($cachedImageData = $this->getImageDataFromCache($cacheKey)) !== NULL) {
+			return $cachedImageData;
+		}
+
+		return $cache->lock(
+			'preview-image-lock:' . hash('sha256', $cacheKey),
+			config('app.resource.preview.cacheLockSeconds')
+		)->block(config('app.resource.preview.cacheLockSeconds'), function () use ($cacheKey, $generateImage, $onCached, $clearCache): string {
+			if ($clearCache) {
+				$this->clearCache($cacheKey);
+			}
+
+			if (($cachedImageData = $this->getImageDataFromCache($cacheKey)) !== NULL) {
+				return $cachedImageData;
+			}
+
+			$image = $generateImage();
+			$this->putImageObjectToCache($image, $cacheKey);
+			if ($onCached !== NULL) {
+				$onCached();
+			}
+
+			return $this->getImageDataFromCache($cacheKey) ?? throw new \RuntimeException('Preview image cache could not be populated.');
+		});
 	}
 
 	protected function clearCache($cacheKey) {
