@@ -3,7 +3,6 @@
 namespace Tests\Feature\Bundles;
 
 use App\Models\Bundle;
-use App\Exceptions\Bundles\BundleSourceValidationException;
 use App\Services\Bundles\BundleSourceValidator;
 use App\Services\Bundles\BundlesService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -26,7 +25,7 @@ class BundlesServiceSourceQueryTest extends TestCase {
 		$this->assertSame([2], collect($service->getBundleMaterials($bundleInfo, 2, 1))->pluck('id')->all());
 	}
 
-	public function test_source_validator_accepts_a_complete_source_and_rejects_a_missing_file(): void {
+	public function test_source_validator_accepts_a_complete_source_and_excludes_a_missing_file(): void {
 		$bundle = $this->createBundleSource();
 		$validator = resolve(BundleSourceValidator::class);
 
@@ -37,12 +36,9 @@ class BundlesServiceSourceQueryTest extends TestCase {
 
 		Storage::disk('bundles')->delete('source-query-fixture/files/first.pdf');
 
-		try {
-			$validator->validate($bundle);
-			$this->fail('Expected a missing bundle file to be rejected.');
-		} catch (BundleSourceValidationException $exception) {
-			$this->assertSame('bundle_source_file_missing', $exception->failureCode);
-		}
+		$validatedSource = $validator->validate($bundle);
+		$this->assertSame(['file-10'], $validatedSource['warnings']['file_uuids']);
+		$this->assertSame([], $validatedSource['warnings']['material_ids']);
 	}
 
 	private function createBundleSource(): Bundle {

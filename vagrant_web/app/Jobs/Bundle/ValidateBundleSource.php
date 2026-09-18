@@ -17,6 +17,8 @@ class ValidateBundleSource implements ShouldQueue {
 	use Batchable, Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
 	public $timeout = 120;
+	public $tries = 2;
+	public $backoff = 5;
 
 	public function __construct(private string $runId) {
 	}
@@ -32,7 +34,7 @@ class ValidateBundleSource implements ShouldQueue {
 		}
 
 		$source = $validator->validate($run->bundle);
-		$run->update(['source_fingerprint' => $source['source_fingerprint']]);
+		$run->update(['source_fingerprint' => $source['source_fingerprint'], 'source_warnings' => $source['warnings']]);
 	}
 
 	public function middleware(): array {

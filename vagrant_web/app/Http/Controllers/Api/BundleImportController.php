@@ -160,6 +160,7 @@ class BundleImportController extends BaseController {
 			'target_version' => $run->target_version,
 			'progress' => ['total' => $total, 'processed' => $processed, 'failed' => $failed, 'percentage' => $total === 0 ? 0 : (int)floor($processed / $total * 100)],
 			'failure' => $run->failure_code === NULL ? NULL : ['code' => $run->failure_code, 'message' => $run->failure_message],
+			'warnings' => $run->source_warnings ?? ['material_ids' => [], 'file_uuids' => []],
 		];
 	}
 

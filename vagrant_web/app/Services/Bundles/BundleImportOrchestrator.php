@@ -156,9 +156,13 @@ class BundleImportOrchestrator {
 
 	private function resourceJobs(BundleImportRun $run): array {
 		$source = $this->bundlesService->getLocalBundleData($run->bundle);
+		$invalidFileUuids = $run->source_warnings['file_uuids'] ?? [];
 		$jobs = [];
 		for ($page = 1; ($files = collect($this->bundlesService->getBundleFiles($source, $page)))->isNotEmpty(); $page++) {
 			foreach ($files as $file) {
+				if (in_array($file->uuid, $invalidFileUuids, TRUE)) {
+					continue;
+				}
 				$jobs[] = new InsertOrUpdateResource($run->bundle, $file, $run->target_version);
 			}
 		}
@@ -168,9 +172,13 @@ class BundleImportOrchestrator {
 
 	private function materialJobs(BundleImportRun $run): array {
 		$source = $this->bundlesService->getLocalBundleData($run->bundle);
+		$invalidMaterialIds = $run->source_warnings['material_ids'] ?? [];
 		$jobs = [];
 		for ($page = 1; ($materials = collect($this->bundlesService->getBundleMaterials($source, $page)))->isNotEmpty(); $page++) {
 			foreach ($materials as $material) {
+				if (in_array((int)$material->id, $invalidMaterialIds, TRUE)) {
+					continue;
+				}
 				$jobs[] = new InsertOrUpdateMaterial($run->bundle, $material, $run->target_version);
 			}
 		}

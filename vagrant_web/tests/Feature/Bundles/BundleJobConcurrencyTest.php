@@ -6,6 +6,7 @@ use App\Jobs\Bundle\DeleteMaterialIfNeeded;
 use App\Jobs\Bundle\DeleteResourceIfNeeded;
 use App\Jobs\Bundle\InsertOrUpdateMaterial;
 use App\Jobs\Bundle\InsertOrUpdateResource;
+use App\Jobs\Bundle\ValidateBundleSource;
 use App\Models\Bundle;
 use App\Models\ForeignMaterialId;
 use App\Models\ForeignResourceId;
@@ -32,5 +33,12 @@ class BundleJobConcurrencyTest extends TestCase {
 			$this->assertCount(1, $job->middleware());
 			$this->assertInstanceOf(WithoutOverlapping::class, $job->middleware()[0]);
 		}
+	}
+
+	public function test_source_validation_retries_only_once_after_its_first_attempt(): void {
+		$job = new ValidateBundleSource('run-uuid');
+
+		$this->assertSame(2, $job->tries);
+		$this->assertSame(5, $job->backoff);
 	}
 }

@@ -18,7 +18,7 @@ class BundleImportRunSchemaTest extends TestCase {
 		$this->assertTrue(Schema::hasTable('job_batches'));
 		$this->assertTrue(Schema::hasTable('bundle_import_runs'));
 		$this->assertTrue(Schema::hasColumns('bundle_import_runs', [
-			'id', 'bundle_id', 'operation', 'status', 'phase', 'active_slot', 'queue_name', 'current_batch_id', 'failure_code', 'finished_at',
+			'id', 'bundle_id', 'operation', 'status', 'phase', 'active_slot', 'queue_name', 'current_batch_id', 'source_warnings', 'failure_code', 'finished_at',
 		]));
 	}
 
