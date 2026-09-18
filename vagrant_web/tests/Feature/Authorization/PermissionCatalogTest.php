@@ -4,6 +4,8 @@ namespace Tests\Feature\Authorization;
 
 use App\Models\Material;
 use App\Models\User;
+use App\Models\Bundle;
+use App\Services\Bundles\BundlePermissionService;
 use App\Support\Authorization\SystemPermissions;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Schema;
@@ -35,5 +37,15 @@ class PermissionCatalogTest extends TestCase {
 		$this->assertTrue($user->can(SystemPermissions::MATERIALS_VIEW_PUBLIC));
 		$this->assertFalse($user->can(SystemPermissions::MATERIALS_UPDATE_ALL));
 		$this->assertTrue($material->is_public);
+	}
+
+	public function test_bundle_permission_discovery_does_not_grant_existing_roles_or_users_access(): void {
+		$bundle = Bundle::factory()->create();
+		$permission = app(BundlePermissionService::class)->ensureFor($bundle);
+		$user = User::factory()->create();
+		$defaultRole = Role::findByName(SystemPermissions::DEFAULT_GROUP);
+
+		$this->assertFalse($defaultRole->hasPermissionTo($permission));
+		$this->assertFalse($user->can($permission->name));
 	}
 }

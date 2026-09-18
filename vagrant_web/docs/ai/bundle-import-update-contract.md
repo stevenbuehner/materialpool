@@ -508,6 +508,8 @@ Die bestehende Admin-UI zeigt Bundle-Leserechte in einem eigenen Fieldset „Bun
 
 ### Bestandskompatibilität beim Rollout
 
+**Entscheidung vom 18. September 2026: Option B – deny by default.** Für bereits bekannte Bundles werden keine Rollen oder Benutzer automatisch mit einer neuen Bundle-Permission ausgestattet. Nach dem Deployment sind Bundle-Inhalte für Nicht-Administratoren erst sichtbar, nachdem ein Global-Admin das jeweilige Leserecht ausdrücklich einer Gruppe oder einem Benutzer zugewiesen hat. Die Permission selbst wird bei Discovery angelegt und bei Deinstallation erhalten.
+
 **Empfehlung:** Für bei Migration bereits bekannte Bundles wird die neue Permission einmalig folgenden Empfängern zugeordnet:
 
 - Rollen mit `materials.view-public` oder `materials.view-all`;
@@ -874,7 +876,7 @@ Das ausführende Modell stoppt und berichtet mit konkreten Datenformen, aber ohn
 
 1. **Bundle-Rechtemodell:** Option A, dynamische Spatie-Permission `bundles.view.<uuid>`.
 2. **Strikte Sichtbarkeit:** Bundle-Recht überschreibt Eigentümer- und Public-Regeln; `materials.view-all`/`resources.view-all` und aktive Global-Admins bleiben globale Overrides.
-3. **Bestandsbackfill:** Empfehlung A – bisher berechtigte Rollen/Nutzer erhalten für bereits bekannte Bundles die neue Permission; neue Bundles starten ohne Zuweisung. Alternative B – deny by default auch für den Bestand.
+3. **Bestandsbackfill:** **Entschieden: Alternative B** – deny by default auch für den Bestand; es findet kein automatischer Berechtigungs-Backfill statt.
 4. **Foreign-ID-Scope:** Empfehlung bundlebezogene Eindeutigkeit `(bundle_id, foreign_id)`, vorbehaltlich des AP-0-Nachweises.
 5. **Datenmodell und Migrationen:** `job_batches`, `bundle_import_runs`, Bundle-UUID-Constraint und gegebenenfalls Foreign-ID-Constraints wie beschrieben.
 
