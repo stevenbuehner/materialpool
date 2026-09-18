@@ -57,7 +57,7 @@ class DeleteResourceIfNeeded implements ShouldQueue, VersionInterface {
 
 		$uuid = $this->foreignResourceId->foreign_id;
 
-		if (!$bundlesService->hasFile($this->bundle, $uuid) || $this->uninstall) {
+		if ($this->uninstall || !$bundlesService->hasFile($this->bundle, $uuid)) {
 
 			/** @var File $resource */
 			$resource = $this->foreignResourceId->resource;

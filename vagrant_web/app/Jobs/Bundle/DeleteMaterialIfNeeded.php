@@ -50,7 +50,7 @@ class DeleteMaterialIfNeeded implements ShouldQueue, VersionInterface {
 
 		$uuid = $this->foreignMaterialId->foreign_id;
 
-		if (!$bundlesService->hasMaterial($this->bundle, $uuid) || $this->uninstall) {
+		if ($this->uninstall || !$bundlesService->hasMaterial($this->bundle, $uuid)) {
 
 			$mat = $this->foreignMaterialId->material;
 

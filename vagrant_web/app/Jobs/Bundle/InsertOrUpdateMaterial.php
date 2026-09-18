@@ -80,7 +80,7 @@ class InsertOrUpdateMaterial implements ShouldQueue, VersionInterface {
 				$this->compareFileAssociations($bundlesService, $material);
 
 				$foreignMat->setCreatedAt($this->localMatInfo->material_created);
-				$foreignMat->setUpdatedAt($this->localMatInfo->material_created);
+				$foreignMat->setUpdatedAt($this->localMatInfo->material_modified);
 
 				if ($foreignMat->isDirty()) {
 					$foreignMat->saveOrFail();
@@ -101,8 +101,8 @@ class InsertOrUpdateMaterial implements ShouldQueue, VersionInterface {
 					]
 				);
 
-				$foreignMat->setCreatedAt($this->localMatInfo->material_modified);
-				$foreignMat->setUpdatedAt($this->localMatInfo->material_created);
+				$foreignMat->setCreatedAt($this->localMatInfo->material_created);
+				$foreignMat->setUpdatedAt($this->localMatInfo->material_modified);
 				$foreignMat->saveOrFail();
 
 				$this->compareMetaData($bundlesService, $material);
@@ -147,7 +147,7 @@ class InsertOrUpdateMaterial implements ShouldQueue, VersionInterface {
 			$material->from_bot = (bool)$this->localMatInfo->from_bot;
 		}
 
-		if ($material->icon_of_bundle !== $this->bundle->icon) {
+		if ($material->icon_of_bundle !== $this->bundle->id) {
 			$material->icon_of_bundle = $this->bundle->id;
 		}
 
