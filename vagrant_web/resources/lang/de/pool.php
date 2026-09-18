@@ -357,6 +357,8 @@ return [
 	'Users'                                                    => 'Benutzer',
 	'Groups'                                                   => 'Gruppen',
 	'Permissions'                                              => 'Berechtigungen',
+	'Own'                                                      => 'Eigene',
+	'Other'                                                    => 'Andere',
 	'Status'                                                   => 'Status',
 	'All'                                                      => 'Alle',
 	'Apply-filter'                                             => 'Filter anwenden',

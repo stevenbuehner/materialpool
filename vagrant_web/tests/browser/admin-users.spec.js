@@ -20,6 +20,7 @@ test('Global admin manages users and groups on desktop and mobile', async ({page
         ],
         users_count: 1,
     };
+    const editorsGroup = {id: 11, name: 'Redaktion', permissions: [], users_count: 0};
     const users = [{
         id: 1,
         name: 'Global Admin',
@@ -73,7 +74,7 @@ test('Global admin manages users and groups on desktop and mobile', async ({page
         }
 
         if (pathname === '/api/v2/admin/groups') {
-            await route.fulfill({contentType: 'application/json', body: JSON.stringify({data: [defaultGroup]})});
+            await route.fulfill({contentType: 'application/json', body: JSON.stringify({data: [defaultGroup, editorsGroup]})});
             return;
         }
 
@@ -81,7 +82,10 @@ test('Global admin manages users and groups on desktop and mobile', async ({page
             await route.fulfill({contentType: 'application/json', body: JSON.stringify({data: [
                 {code: 'materials.create', area: 'materials'},
                 {code: 'materials.update-own', area: 'materials'},
+                {code: 'materials.update-all', area: 'materials'},
                 {code: 'resources.create', area: 'resources'},
+                {code: 'resources.update-own', area: 'resources'},
+                {code: 'resources.update-all', area: 'resources'},
             ]})});
             return;
         }
@@ -126,17 +130,23 @@ test('Global admin manages users and groups on desktop and mobile', async ({page
     await expect(page.getByRole('cell', {name: 'Global Admin'})).toBeVisible();
     await expect(page.getByText('Standardnutzer', {exact: true}).last()).toBeVisible();
     await expect(page.getByText('materials.create', {exact: true})).toBeVisible();
+    await expect(page.getByRole('heading', {name: 'Eigene'})).toHaveCount(2);
+    await expect(page.getByRole('heading', {name: 'Andere'})).toHaveCount(2);
+    await expect(page.locator('.col-lg-6').filter({has: page.getByRole('heading', {name: 'Eigene'})}).getByText('materials.update-own', {exact: true})).toBeVisible();
+    await expect(page.locator('.col-lg-6').filter({has: page.getByRole('heading', {name: 'Andere'})}).getByText('materials.update-all', {exact: true})).toBeVisible();
 
     const invitationForm = page.locator('form').filter({has: page.getByRole('heading', {name: 'Benutzer einladen'})});
     await invitationForm.getByLabel('Name').fill('Neue Person');
     await invitationForm.getByLabel('E-Mail').fill('new@example.invalid');
+    await invitationForm.locator('.multiselect').click();
+    await page.getByRole('option', {name: 'Redaktion'}).click();
     await invitationForm.getByRole('button', {name: 'Speichern'}).click();
 
     await expect.poll(() => createdUsers.length).toBe(1);
     expect(createdUsers[0]).toMatchObject({
         name: 'Neue Person',
         email: 'new@example.invalid',
-        group_ids: [10],
+        group_ids: [10, 11],
         is_admin: false,
     });
     await expect(page.getByRole('cell', {name: 'Neue Person'})).toBeVisible();

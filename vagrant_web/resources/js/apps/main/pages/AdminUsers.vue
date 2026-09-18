@@ -31,9 +31,16 @@
             <div v-if="userForm.id" class="col-md-4"><label class="form-label">{{ $t('pool.Status') }}<select v-model="userForm.status" class="form-select"><option v-for="status in statuses" :key="status" :value="status">{{ statusLabel(status) }}</option></select></label></div>
             <div class="col-md-6">
               <label class="form-label">{{ $t('pool.Groups') }}</label>
-              <select v-model="userForm.group_ids" class="form-select" multiple :size="Math.min(6, store.groups.length || 1)">
-                <option v-for="group in store.groups" :key="group.id" :value="group.id">{{ group.name }}</option>
-              </select>
+              <vue-select
+                  class="admin-user-groups-select"
+                  :model-value="selectedUserGroups"
+                  :options="store.groups"
+                  :multiple="true"
+                  label="name"
+                  @update:model-value="selectedUserGroups = $event"
+              >
+                <template #no-options>{{ $t('pool.Nothing-found') }}</template>
+              </vue-select>
             </div>
             <div class="col-md-6 d-flex flex-column justify-content-center">
               <b-form-checkbox v-model="userForm.is_admin">{{ $t('pool.Global-admin') }}</b-form-checkbox>
@@ -81,9 +88,23 @@
           <label class="form-label">{{ $t('pool.Name') }}<input v-model="groupForm.name" class="form-control" required></label>
           <fieldset v-for="(permissions, area) in staticPermissionsByArea" :key="area" class="mt-3">
             <legend class="h6 text-capitalize">{{ area }}</legend>
-            <div class="row">
-              <div v-for="permission in permissions" :key="permission.code" class="col-lg-6">
+            <div v-if="permissionColumnsByArea[area].general.length" class="row mb-2">
+              <div v-for="permission in permissionColumnsByArea[area].general" :key="permission.code" class="col-lg-6">
                 <b-form-checkbox :model-value="groupForm.permissions.includes(permission.code)" @update:model-value="togglePermission(permission.code, $event)">{{ permission.code }}</b-form-checkbox>
+              </div>
+            </div>
+            <div v-if="permissionColumnsByArea[area].own.length || permissionColumnsByArea[area].other.length" class="row">
+              <div class="col-lg-6">
+                <h3 class="h6">{{ $t('pool.Own') }}</h3>
+                <div v-for="permission in permissionColumnsByArea[area].own" :key="permission.code">
+                  <b-form-checkbox :model-value="groupForm.permissions.includes(permission.code)" @update:model-value="togglePermission(permission.code, $event)">{{ permission.code }}</b-form-checkbox>
+                </div>
+              </div>
+              <div class="col-lg-6">
+                <h3 class="h6">{{ $t('pool.Other') }}</h3>
+                <div v-for="permission in permissionColumnsByArea[area].other" :key="permission.code">
+                  <b-form-checkbox :model-value="groupForm.permissions.includes(permission.code)" @update:model-value="togglePermission(permission.code, $event)">{{ permission.code }}</b-form-checkbox>
+                </div>
               </div>
             </div>
           </fieldset>
@@ -114,6 +135,7 @@
 <script>
 import {mapStores} from 'pinia';
 import {BAlert, BButton, BFormCheckbox} from '@/adapters/bootstrap';
+import VueSelect from '@/adapters/vue-select';
 import {useAdminStore} from '../stores/admin';
 
 const blankGroup = () => ({id: null, name: '', permissions: []});
@@ -121,12 +143,23 @@ const blankUser = () => ({id: null, name: '', email: '', status: 'invited', is_a
 
 export default {
 	name: 'AdminUsers',
-	components: {BAlert, BButton, BFormCheckbox},
+	components: {BAlert, BButton, BFormCheckbox, VueSelect},
 	data: () => ({filters: {search: '', status: ''}, statuses: ['invited', 'active', 'suspended'], userForm: blankUser(), groupForm: blankGroup()}),
 	computed: {
 		...mapStores(useAdminStore),
 		store() { return this.adminStore; },
 		staticPermissionsByArea() { return this.store.permissions.filter(permission => permission.area !== 'bundle-read').reduce((groups, permission) => ({...groups, [permission.area]: [...(groups[permission.area] || []), permission]}), {}); },
+		permissionColumnsByArea() {
+			return Object.fromEntries(Object.entries(this.staticPermissionsByArea).map(([area, permissions]) => [area, {
+				general: permissions.filter(permission => !permission.code.endsWith('-own') && !permission.code.endsWith('-all')),
+				own: permissions.filter(permission => permission.code.endsWith('-own')),
+				other: permissions.filter(permission => permission.code.endsWith('-all')),
+			}]));
+		},
+		selectedUserGroups: {
+			get() { return this.store.groups.filter(group => this.userForm.group_ids.includes(group.id)); },
+			set(groups) { this.userForm.group_ids = groups.map(group => group.id); },
+		},
 		bundleReadPermissions() { return this.store.permissions.filter(permission => permission.area === 'bundle-read'); },
 	},
 	async mounted() {

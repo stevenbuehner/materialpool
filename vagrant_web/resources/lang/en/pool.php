@@ -361,6 +361,8 @@ return [
 	'Users'                                                    => 'Users',
 	'Groups'                                                   => 'Groups',
 	'Permissions'                                              => 'Permissions',
+	'Own'                                                      => 'Own',
+	'Other'                                                    => 'Other',
 	'Status'                                                   => 'Status',
 	'All'                                                      => 'All',
 	'Apply-filter'                                             => 'Apply filter',
