@@ -178,7 +178,7 @@ class ProductionDeploymentContractTest extends TestCase
         $this->assertStringContainsString("supervisorctl status 'materialpool-default:*'", $activateScript);
         $this->assertStringNotContainsString('composer update', $activateScript);
         $this->assertStringNotContainsString('migrate:fresh', $activateScript);
-        $this->assertStringContainsString('--queue=default', $worker);
+        $this->assertStringContainsString('--queue=default,resource-previews-low', $worker);
         $this->assertStringContainsString('--tries=50', $worker);
         $this->assertStringContainsString('--timeout=120', $worker);
         $this->assertStringContainsString('--max-time=3600', $worker);

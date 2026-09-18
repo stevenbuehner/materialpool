@@ -20,7 +20,7 @@ Antworte und dokumentiere auf Deutsch; belasse etablierte technische Bezeichner,
 
 ## Verbindlicher Ablauf
 
-1. **Bestandsaufnahme vor Änderung:** Lies zuerst die betroffenen Routen, Controller, Requests, Policies, Services, Events/Listener, Modelle, Vue-Komponenten und vorhandenen Tests. Nenne kurz Abhängigkeiten, Risiken und den geplanten Umfang.
+1. **Bestandsaufnahme vor Änderung:** Lies zuerst die betroffenen Routen, Controller, Requests, Policies, Services, Events/Listener, Modelle, Vue-Komponenten und vorhandenen Tests. Nenne kurz Abhängigkeiten, Risiken und den geplanten Umfang. Bei neuen, entfernten oder geänderten Befehlen sowie Änderungen an Command-, Installations-, Upgrade-, Deployment- oder Betriebsstrukturen `README.md` anhand von `docs/ai/readme-maintenance.md` im selben Arbeitspaket prüfen und aktualisieren, sofern Administration, Entwicklung oder Anwendung betroffen sind. Ein bewusstes Auslassen ist im Abschlussbericht zu begründen.
 2. **Kleinstmögliche Änderung:** Ändere nur Dateien, die für das Ziel notwendig sind. Bewahre öffentliche Verträge, Routen, Payloads, Daten und UI-Verhalten, sofern keine explizite Freigabe zur Änderung vorliegt.
 3. **Entscheidungspflicht:** Halte an und frage nach Freigabe, sobald eine Entscheidung Architektur, Datenbank, Sicherheit, Berechtigungen, UX, Informationsarchitektur, Design, Abhängigkeiten, Infrastruktur oder Nutzerverhalten wesentlich verändert. Lege immer mindestens eine konkrete Empfehlung mit Alternativen, Vor-/Nachteilen, Auswirkung und Rückbauaufwand vor. Siehe `docs/ai/decision-template.md`.
 4. **Umsetzung:** Ergänze oder aktualisiere passende Tests. Berücksichtige Ereignisse, Queues, Caches, Speicherdateien und Autorisierung.

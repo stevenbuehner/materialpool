@@ -53,7 +53,7 @@ Details und unveränderliche Beziehungen: `docs/ai/domain-invariants.md`.
 
 ### Resource anlegen oder ändern
 
-Controller-/Trait-Logik verarbeitet Daten und Dateien, erzeugt `ResourceWasCreated` oder `ResourceWasChanged`. Listener aktualisieren Hashes, Medienmetadaten, Dublettenprüfungen und Vorschau-Caches. Änderungen müssen diese Kette erhalten.
+Controller-/Trait-Logik verarbeitet Daten und Dateien, erzeugt `ResourceWasCreated` oder `ResourceWasChanged`. Listener aktualisieren Hashes, Medienmetadaten, Dublettenprüfungen und Vorschau-Caches. Nach erfolgreichem Commit plant ein deduplizierter Job fehlende Resource-Vorschauen auf `resource-previews-low`; für PDFs und Dokumente wird jede bekannte Seite als eigene Variante eingeplant. Der Worker konsumiert weiterhin `default` vor dieser niedrigen Queue. Änderungen müssen diese Kette erhalten.
 
 ### Material ändern oder Ressourcen zuordnen
 
@@ -71,7 +71,7 @@ Die geplante Härtung von Laufsteuerung, Laravel-Batches, Wiederaufnahme und bun
 - `config/filesystems.php` definiert relevante Disks: `resources`, `archive`, `bundles`, `local_tmp`, `backup`, `backup_s3` und `testfiles`. `backup_s3` ist ausschließlich Offsite-Backupziel; Ressourcen bleiben lokal.
 - Bei Dateien ist `resources.local_path` ein persistenter Vertrag: üblicherweise `disk::relative/path`. Speicherpfade, Archivierung und Löschverhalten nie isoliert ändern.
 - `resources.filesize` speichert die Byteanzahl lokaler Dateien beziehungsweise von Textinhalten. Reine Remote-Ressourcen verwenden `NULL`; API- und Frontend-Lesezugriffe dürfen die Größe nicht aus dem Storage oder Netzwerk nachladen. Altbestände werden nach einer Migration explizit mit `resources:backfill-filesizes` über die Default-Queue ergänzt.
-- Preview- und Cache-Dateien sind abgeleitet, aber ihre Invalidation ist Teil des sichtbaren Verhaltens.
+- Preview- und Cache-Dateien sind abgeleitet, aber ihre Invalidation ist Teil des sichtbaren Verhaltens. Resource-Preview-Schlüssel werden je Resource registriert, damit Änderungen und Löschungen auch Seitencaches sowie nichtstandardisierte Bildgrößen vollständig entfernen können.
 
 ## Authentifizierung und Berechtigungen
 

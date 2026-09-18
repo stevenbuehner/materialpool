@@ -260,6 +260,17 @@ sudo -u www-data php /srv/materialpool/current/artisan <befehl>
 | `php artisan optimize:clear` | Produktion, `www-data` | Diagnose eines nachgewiesenen Cacheproblems | Entfernt abgeleitete Laravel-Caches; kann Leistung vorübergehend verschlechtern. | mittel |
 | `php artisan reload` | Produktion, `www-data` | Nach Releasewechseln | Signalisiert lang laufenden Laravel-Prozessen einen Reload. | mittel |
 
+#### Resource-Vorschauen
+
+Geänderte oder neu angelegte Resources planen ihre Vorschauen nach dem Datenbank-Commit automatisch auf der nachrangigen Queue `resource-previews-low` ein. Der Worker verarbeitet weiterhin `default` zuerst; Vorschauen dürfen deshalb bei regulärer Last warten.
+
+| Befehl | Umgebung/Benutzer | Wann verwenden? | Wirkung | Risiko |
+| --- | --- | --- | --- | --- |
+| `php artisan resources:queue-previews [--chunk=100]` | Produktion, `www-data` | Einmalig nach Einführung der Funktion oder gezielt zum Nachziehen bestehender Resources | Plant fehlende Vorschauen in Batches mit 1–1000 Resources auf `resource-previews-low` ein; bei mehrseitigen Dokumenten eine Variante je Seite. Der Befehl ändert keine Resource-Daten. | mittel; kann Queue und Dateiverarbeitung deutlich auslasten |
+| `php artisan resources:clear-preview-cache --force` | Produktion, `www-data` | Nur gezielt bei einem bestätigten Vorschau-Cacheproblem oder vor einem bewusst geplanten vollständigen Neuaufbau | Löscht ausschließlich abgeleitete Resource-Vorschaubilder und temporäre Dokument-PDFs. Anschließend müssen Vorschauen erneut erzeugt werden. Ohne `--force` führt der Befehl keine Löschung aus. | **hoch; löscht abgeleitete Inhalte und kann Folgelast erzeugen** |
+
+Vor einem vollständigen Neuaufbau den Workerzustand prüfen und ausreichend freien Speicher sowie Queue-Kapazität sicherstellen. Nach `resources:clear-preview-cache --force` bei Bedarf `resources:queue-previews --chunk=100` ausführen und `supervisorctl status 'materialpool-default:*'` sowie `php artisan queue:failed` kontrollieren.
+
 #### Queue und Scheduler
 
 | Befehl | Umgebung/Benutzer | Wann verwenden? | Wirkung | Risiko |
@@ -268,7 +279,7 @@ sudo -u www-data php /srv/materialpool/current/artisan <befehl>
 | `supervisorctl restart 'materialpool-default:*'` | Produktion, `root` | Nach Deployments oder hängendem Worker | Startet den überwachten Default-Worker neu. | mittel |
 | `php artisan queue:restart` | Produktion, `www-data` | Kontrolliertes Auslaufen bestehender Worker | Fordert Worker zum Neustart nach ihrem aktuellen Job auf. | mittel |
 | `php artisan schedule:run` | Produktion, `www-data` | Scheduler gezielt diagnostizieren | Führt alle aktuell fälligen Tasks einmal aus; kann Backup/Cleanup starten. | mittel |
-| `php artisan queue:work database --queue=default --sleep=3 --tries=50 --timeout=120 --max-time=3600` | Normalerweise nur Supervisor | Workerdefinition prüfen oder isoliert diagnostizieren | Verarbeitet Default-Jobs. Nicht parallel zum regulären Worker starten. | hoch |
+| `php artisan queue:work database --queue=default,resource-previews-low --sleep=3 --tries=50 --timeout=120 --max-time=3600` | Normalerweise nur Supervisor | Workerdefinition prüfen oder isoliert diagnostizieren | Verarbeitet normale Jobs vor nachrangigen Resource-Vorschauen. Nicht parallel zum regulären Worker starten. | hoch |
 
 Dynamische `bundle_<id>_queue`-Queues werden nicht vom Default-Worker konsumiert. Sie werden im normalen Ablauf über die Bundle-API schrittweise verarbeitet.
 
