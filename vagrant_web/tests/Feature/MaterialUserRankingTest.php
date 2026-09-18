@@ -31,20 +31,35 @@ class MaterialUserRankingTest extends TestCase {
 		$this->assertDatabaseCount('material_user_ranking', 1);
 	}
 
-	public function test_default_is_the_rounded_average_and_last_reset_keeps_the_current_default(): void {
+	public function test_api_rankings_are_averaged_and_the_last_reset_keeps_the_current_default(): void {
 		$owner = User::factory()->create();
-		$firstRater = User::factory()->create();
-		$secondRater = User::factory()->create();
+		$firstRater = User::factory()->create(['is_admin' => true]);
+		$secondRater = User::factory()->create(['is_admin' => true]);
 		$material = Material::factory()->create(['created_by' => $owner->id, 'modified_by' => $owner->id, 'rating' => 4]);
-		$service = app(MaterialUserRankingService::class);
 
-		$service->set($material, $firstRater, 10);
-		$service->set($material, $secondRater, 11);
+		Passport::actingAs($firstRater);
+		$this->putJson(route('api.v1.materials.user-ranking.update', $material), ['rating' => 10])
+			->assertOk()
+			->assertJsonPath('rating', 10);
+
+		Passport::actingAs($secondRater);
+		$this->putJson(route('api.v1.materials.user-ranking.update', $material), ['rating' => 11])
+			->assertOk()
+			->assertJsonPath('rating', 11);
 		$this->assertSame(11, $material->fresh()->rating);
 
-		$service->remove($material, $firstRater);
+		Passport::actingAs($firstRater);
+		$this->deleteJson(route('api.v1.materials.user-ranking.destroy', $material))
+			->assertOk()
+			->assertJsonPath('user_rating', null)
+			->assertJsonPath('rating', 11);
 		$this->assertSame(11, $material->fresh()->rating);
-		$service->remove($material, $secondRater);
+
+		Passport::actingAs($secondRater);
+		$this->deleteJson(route('api.v1.materials.user-ranking.destroy', $material))
+			->assertOk()
+			->assertJsonPath('user_rating', null)
+			->assertJsonPath('rating', 11);
 		$this->assertSame(11, $material->fresh()->rating);
 		$this->assertDatabaseCount('material_user_ranking', 0);
 	}
@@ -92,19 +107,19 @@ class MaterialUserRankingTest extends TestCase {
 
 	public function test_search_uses_the_current_users_personal_ranking_before_the_default(): void {
 		$user = User::factory()->create();
-		$otherUser = User::factory()->create();
 		$personalFavorite = Material::factory()->create(['created_by' => $user->id, 'modified_by' => $user->id, 'rating' => 1]);
 		$defaultFavorite = Material::factory()->create(['created_by' => $user->id, 'modified_by' => $user->id, 'rating' => 19]);
+
+		$this->actingAs($user)->postJson(route('pool.searchbar.get'), ['q' => []])
+			->assertOk()
+			->assertJsonPath('data.0.id', $defaultFavorite->id)
+			->assertJsonPath('data.0.user_rating', null);
+
 		app(MaterialUserRankingService::class)->set($personalFavorite, $user, 20);
 
 		$this->actingAs($user)->postJson(route('pool.searchbar.get'), ['q' => []])
 			->assertOk()
 			->assertJsonPath('data.0.id', $personalFavorite->id)
 			->assertJsonPath('data.0.user_rating', 20);
-
-		$this->actingAs($otherUser)->postJson(route('pool.searchbar.get'), ['q' => []])
-			->assertOk()
-			->assertJsonPath('data.0.id', $defaultFavorite->id)
-			->assertJsonPath('data.0.user_rating', null);
 	}
 }
