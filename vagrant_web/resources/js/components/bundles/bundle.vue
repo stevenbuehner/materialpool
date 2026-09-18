@@ -106,6 +106,7 @@ export default {
       max: 0,
 
       forceBundleUpdate: false,
+      run: null,
 
     };
   },
@@ -187,6 +188,32 @@ export default {
   },
 
   methods: {
+    applyRun(run) {
+      this.run = run;
+      if (!run) {
+        return;
+      }
+
+      this.max = run.progress.total || this.max;
+      this.current = run.progress.processed || 0;
+      this.isRunning = run.status === 'pending' || run.status === 'running';
+    },
+
+    restoreActiveRun() {
+      if (!this.bundle) {
+        return;
+      }
+
+      return useBundlesStore().getActiveRunStatus(this.bundle.id)
+          .then(run => {
+            this.applyRun(run);
+            if (this.isRunning && this.cancelRequested === false) {
+              this.runNextJobs();
+            }
+          })
+          .catch(() => undefined);
+    },
+
     btnStartUpdate() {
 
       if (this.isRunning === false) {
@@ -196,8 +223,9 @@ export default {
         this.isInitializing = true;
 
         useBundlesStore().initUpdateJobs(this.bundle.id)
-            .then(({openJobs}) => {
+            .then(({openJobs, run}) => {
                   this.isInitializing = false;
+                  this.applyRun(run);
                   this.max            = openJobs;
                   // this.max            = (deleteJobs || 0) + (updateJobs || 0);
                   this.current        = 0;
@@ -224,12 +252,15 @@ export default {
       this.isRunning = true;
 
       return useBundlesStore().runJobs(this.bundle.id)
-                 .then(({done, open}) => {
+                 .then(({done, open, run}) => {
+                   this.applyRun(run);
                    this.max     = parseInt(Math.max(this.current + open + done, this.max));
                    this.current = parseInt(this.max - open);
 
-                   if (this.current >= this.max) {
+                   if (run && (run.status === 'succeeded' || run.status === 'failed')) {
                      this.isRunning = false;
+                   } else if (open === 0) {
+                     window.setTimeout(() => this.runNextJobs(), 500);
                    } else {
                      this.runNextJobs();
                    }
@@ -260,8 +291,9 @@ export default {
         this.isInitializing = true;
 
         useBundlesStore().initUninstallJobs(this.bundle.id)
-            .then(({openJobs}) => {
+            .then(({openJobs, run}) => {
                   this.isInitializing = false;
+                  this.applyRun(run);
                   this.max            = openJobs;
                   this.current        = 0;
                   this.runNextJobs();
@@ -274,6 +306,10 @@ export default {
       }
 
     }
+  },
+
+  mounted() {
+    this.$nextTick(() => this.restoreActiveRun());
   },
 
   components: {
