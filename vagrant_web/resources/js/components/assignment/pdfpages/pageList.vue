@@ -50,7 +50,7 @@
 import Page                     from './page.vue';
 import {BImg, BModal}           from '@/adapters/bootstrap';
 import {setReactive}            from '@/adapters/reactivity';
-import {pdfPreviewImageForPage} from "../../serverRoutes";
+import {pdfPreviewImageForPage, pdfPreviewImageForPageLarge} from "../../serverRoutes";
 
 export default {
 
@@ -119,7 +119,8 @@ export default {
               return total + 1;
             }
           }, 0),
-          image: pdfPreviewImageForPage(this.resource, i)
+			image: pdfPreviewImageForPage(this.resource, i),
+			zoomImage: pdfPreviewImageForPageLarge(this.resource, i)
         })
       }
 
@@ -246,7 +247,7 @@ export default {
     showZoom(arrayIndex) {
 
       if (this.pages[arrayIndex]) {
-        this.zoomedImage.src     = this.pages[arrayIndex].image;
+		this.zoomedImage.src     = this.pages[arrayIndex].zoomImage;
         this.zoomedImage.current = arrayIndex;
 
         if (this.pages[arrayIndex + 1]) {

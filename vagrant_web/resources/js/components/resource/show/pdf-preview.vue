@@ -29,7 +29,7 @@
 
 <script>
 
-import {pdfPreviewImageForPage} from '../../serverRoutes';
+import {pdfPreviewImageForPage, pdfPreviewImageForPageLarge} from '../../serverRoutes';
 import {BImg}                   from '@/adapters/bootstrap';
 import pdfMixin                 from '../pdf-mixin';
 import resourcePreviewZoom      from '../resource-preview-zoom';
@@ -116,9 +116,10 @@ export default {
   methods: {
 
     getPreviewImage(pageNo) {
-      return {
-        src: pdfPreviewImageForPage(this.resource, pageNo),
-        title: this.$tc('pool.Page', 1) + ' ' + pageNo,
+		return {
+			src: pdfPreviewImageForPage(this.resource, pageNo),
+			zoomSrc: pdfPreviewImageForPageLarge(this.resource, pageNo),
+			title: this.$tc('pool.Page', 1) + ' ' + pageNo,
         page_no: pageNo
       }
     },

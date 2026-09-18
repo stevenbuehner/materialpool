@@ -17,16 +17,16 @@
              @click.right.stop.prevent="isAdmin && $refs.menu.openMenu($event, {src: image.src, page: image.page_no})">
           <b-img-lazy
               v-if="index > 12"
-              :src="image.src"
+              :src="image.thumbnailSrc || image.src"
               :alt="image.title"
               fluid
           ></b-img-lazy>
           <b-img
               v-if="index <= 12"
-              :src="image.src"
+              :src="image.thumbnailSrc || image.src"
               :alt="image.title"
               fluid
-              v-image-queue="10+index"
+							v-image-queue="100-index"
           ></b-img>
 
           <div class="title text-center">{{ image.title }}</div>
@@ -65,7 +65,7 @@
 
 <script>
 
-import {pdfPreviewImageForPage, pdfPreviewImageForPageRefresh, previewImageFirstPage} from '../../serverRoutes';
+import {pdfPreviewImageForPage, pdfPreviewImageForPageRefresh, previewImageFirstPage, previewImageLarge, pdfPreviewImageForPageLarge} from '../../serverRoutes';
 import {BFormSelect, BImg, BImgLazy}                                                  from '@/adapters/bootstrap';
 import pdfMixin                                                                       from '../pdf-mixin';
 import ImageZoom                                                                      from "../../modals/imageZoom";
@@ -108,14 +108,20 @@ export default {
 
       if (this.pageCount === 0) {
         // Die Seitenanzahl-Erkennung auf dem Server ist fehlgeschlagen => Zeige einfach nur die erste Seite an
-        urls.push({
-          src: previewImageFirstPage(this.resource),
+			urls.push({
+				src: previewImageLarge(this.resource),
+				thumbnailSrc: previewImageFirstPage(this.resource),
           title: 'Startseite',
           page_no: 1
         });
       } else {
         urls = limitedPreviewPages(this.previewablePages, this.maxPagesToDisplay).map((pageNo) => {
-          return this.generatePreviewObject(this.resource, pageNo);
+			return {
+				src: pdfPreviewImageForPageLarge(this.resource, pageNo),
+				thumbnailSrc: pdfPreviewImageForPage(this.resource, pageNo),
+				title: 'Seite ' + pageNo,
+				page_no: pageNo,
+			};
         });
       }
 

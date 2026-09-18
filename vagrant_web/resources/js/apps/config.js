@@ -10,6 +10,8 @@ export const server_datetime_format     = 'YYYY-MM-DD HH:mm:ss';
 
 export const keepalive_seconds_intervall = 60;
 
+export const small_preview_image_size_x = 640;
+export const small_preview_image_size_y = 640;
 export const max_preview_image_size_x = 1536;
 export const max_preview_image_size_y = 1536;
 

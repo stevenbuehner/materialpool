@@ -18,10 +18,10 @@
 <script>
 
 import resourceLinks                                        from '../resource-links.mixin';
-import {previewImageFirstPage}                              from "../../serverRoutes";
+import {previewImageFirstPage, previewImageLarge}            from "../../serverRoutes";
 import resourcePreviewZoom                                  from '../resource-preview-zoom';
 import resourcePreview                                      from '../resource-preview.mixin';
-import {max_preview_image_size_x, max_preview_image_size_y} from "../../../apps/config";
+import {small_preview_image_size_x, small_preview_image_size_y} from "../../../apps/config";
 
 export default {
 
@@ -32,11 +32,11 @@ export default {
   props: {
     width: {
       required: false,
-      default: max_preview_image_size_x
+			default: small_preview_image_size_x
     },
     height: {
       required: false,
-      default: max_preview_image_size_y
+			default: small_preview_image_size_y
     }
   },
 
@@ -61,7 +61,8 @@ export default {
   methods: {
     _getPreviewZoomImagesAndTitles() {
       return [{
-        src: previewImageFirstPage(this.resource),
+				src: previewImageFirstPage(this.resource),
+				zoomSrc: previewImageLarge(this.resource),
         title: this.resource.notes || this.resource.original_filename || ''
       }];
     },

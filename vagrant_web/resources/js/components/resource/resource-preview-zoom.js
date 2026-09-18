@@ -58,14 +58,14 @@ export default {
 
 			const images = this._getPreviewZoomImagesAndTitles();
 
-			return images.map(({src, title}) => {
+		return images.map(({src, title, zoomSrc}) => {
 
 				if (!title) {
 					title = '';
 				}
 
-				return {
-					src,
+			return {
+				src: zoomSrc || src,
 					title,
 					resourceId: this.resource.id,
 					registeringComponent: this.$options.name

@@ -1,4 +1,9 @@
-import {max_preview_image_size_x, max_preview_image_size_y} from "../apps/config";
+import {
+    max_preview_image_size_x,
+    max_preview_image_size_y,
+    small_preview_image_size_x,
+    small_preview_image_size_y,
+} from "../apps/config";
 
 export const searchGuessRoute = '/pool/search/guess';
 
@@ -37,9 +42,13 @@ export function resourceDownloadLink(resource) {
 }
 
 export function previewImageFirstPage(resource, width, height) {
-	width  = width || max_preview_image_size_x;
-	height = height || max_preview_image_size_y;
+	width  = width || small_preview_image_size_x;
+	height = height || small_preview_image_size_y;
 	return '/resource/' + resource.id + '/image/' + width + '/' + height;
+}
+
+export function previewImageLarge(resource) {
+	return previewImageFirstPage(resource, max_preview_image_size_x, max_preview_image_size_y);
 }
 
 /**
@@ -48,13 +57,18 @@ export function previewImageFirstPage(resource, width, height) {
  * @param page
  * @returns {string}
  */
-export function pdfPreviewImageForPage(resource, page) {
+export function pdfPreviewImageForPage(resource, page, width = small_preview_image_size_x, height = small_preview_image_size_y) {
 	page = page || 1;
-	return '/resource/' + resource.id + '/image/page-' + page;
+	return '/resource/' + resource.id + '/image/page-' + page + '?width=' + width + '&height=' + height;
+}
+
+export function pdfPreviewImageForPageLarge(resource, page) {
+	return pdfPreviewImageForPage(resource, page, max_preview_image_size_x, max_preview_image_size_y);
 }
 
 export function pdfPreviewImageForPageRefresh(resource, page) {
-	return pdfPreviewImageForPage(resource, page) + '/refresh';
+	page = page || 1;
+	return '/resource/' + resource.id + '/image/page-' + page + '/refresh?width=' + small_preview_image_size_x + '&height=' + small_preview_image_size_y;
 }
 
 export function resourceLimitedPdfDownload(resourceId, materialId) {
@@ -182,8 +196,8 @@ export function api_v1_materials_create_download(materialId) {
 	return '/api/v1/materials/' + materialId + '/create-download';
 }
 
-export function material_preview_image(materialId) {
-	return '/material/' + materialId + '/preview';
+export function material_preview_image(materialId, width = small_preview_image_size_x, height = small_preview_image_size_y) {
+	return '/material/' + materialId + '/preview?width=' + width + '&height=' + height;
 }
 
 // API - MaterialUsage

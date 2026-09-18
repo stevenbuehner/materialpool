@@ -9,7 +9,7 @@
 
 <script>
 
-import {poolResourceMediastream, previewImageFirstPage} from "../../serverRoutes";
+import {poolResourceMediastream, previewImageFirstPage, previewImageLarge} from "../../serverRoutes";
 import resourcePreviewZoom                              from '../resource-preview-zoom';
 import resourcePreview                                  from '../resource-preview.mixin';
 import resourceLinks                                    from "../resource-links.mixin";
@@ -86,7 +86,7 @@ export default {
     _getPreviewZoomImagesAndTitles() {
       return [{
         title: this.resource.notes || 'Video',
-        src: this.posterRoute
+				src: previewImageLarge(this.resource)
       }];
     },
   }

@@ -18,6 +18,7 @@ const CLASS_LOADED  = 'q-loaded';
 const CLASS_ERROR   = 'q-error';
 
 const queue = new PQueue({concurrency: MAX_SIMULTANEOUS_IMAGES_LOADING});
+const observers = new WeakMap();
 
 export default {
 	mounted(el, binding) {
@@ -57,7 +58,7 @@ export default {
 			el.dispatchEvent(new Event(EVENT_QUEUED));
 			el.classList.add(CLASS_QUEUED);
 
-			queue.add(async () => {
+			const queueImage = () => queue.add(async () => {
 				// console.log('Queue: ' + src);
 				// console.log(EVENT_LOADING);
 				el.dispatchEvent(new Event(EVENT_LOADING));
@@ -106,6 +107,23 @@ export default {
 					     el.dispatchEvent(new Event(EVENT_ERROR, error));
 				     }
 			     });
+
+			if (typeof window !== 'undefined' && 'IntersectionObserver' in window) {
+				const observer = new IntersectionObserver((entries) => {
+					if (!entries.some((entry) => entry.isIntersecting)) {
+						return;
+					}
+
+					observer.disconnect();
+					observers.delete(el);
+					queueImage();
+				}, {rootMargin: '250px 0px'});
+
+				observers.set(el, observer);
+				observer.observe(el);
+			} else {
+				queueImage();
+			}
 		}
 
 		// console.log("bind", src, el, binding);
@@ -115,6 +133,8 @@ export default {
 	unmounted(el) {
 		// console.log("unbind", binding);
 
+		observers.get(el)?.disconnect();
+		observers.delete(el);
 		el.dispatchEvent(new CustomEvent(EVENT_ABORT, {reason: 'unbind'}));
 	}
 }
