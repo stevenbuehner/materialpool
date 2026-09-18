@@ -1,6 +1,6 @@
 import {describe, expect, it} from 'vitest';
 
-import {routes} from '../../resources/js/apps/main/routes.js';
+import {routes, scrollBehavior} from '../../resources/js/apps/main/routes.js';
 
 describe('main application routes', () => {
     it('keeps every page behind a lazy route boundary', () => {
@@ -33,5 +33,12 @@ describe('main application routes', () => {
 			'admin-users',
             'system-shutdown',
         ]);
+    });
+
+    it('restores the browser scroll position when navigating back', () => {
+        const savedPosition = {left: 0, top: 840};
+
+        expect(scrollBehavior(null, null, savedPosition)).toBe(savedPosition);
+        expect(scrollBehavior(null, null, null)).toEqual({left: 0, top: 0});
     });
 });

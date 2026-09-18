@@ -1,7 +1,7 @@
 import {createApp, h} from 'vue';
 import {createPinia} from 'pinia';
 import {createRouter, createWebHistory} from 'vue-router';
-import {routes}  from './routes';
+import {routes, scrollBehavior} from './routes';
 import mainApp   from './App.vue';
 // Styling
 import '../../../sass/main.scss';
@@ -15,10 +15,7 @@ import {useMaterialsStore}           from './stores/materials';
 
 const router = createRouter({
 	history: createWebHistory('/vue'),
-	scrollBehavior() {
-		// console.info(to, from, savedPosition);
-		return {left: 0, top: 0}
-	},
+	scrollBehavior,
 	routes
 });
 

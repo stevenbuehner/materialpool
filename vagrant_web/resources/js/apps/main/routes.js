@@ -21,6 +21,10 @@ const AdminUsers = () => import('./pages/AdminUsers.vue');
 
 const numericIdProps = (route) => ({id: parseInt(route.params.id)});
 
+export function scrollBehavior(_to, _from, savedPosition) {
+	return savedPosition || {left: 0, top: 0};
+}
+
 export const routes = [
 	{
 		path: '/',
