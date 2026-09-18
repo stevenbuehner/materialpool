@@ -372,5 +372,7 @@ return [
 	'Bundle-read-permissions'                                  => 'Bundle-Leserechte',
 	'Bundle-installed'                                         => 'Installiert',
 	'Bundle-uninstalled'                                       => 'Deinstalliert',
+	'pause-import'                                             => 'Browser-Fortschritt anhalten',
+	'import-paused'                                            => 'Browser-Fortschritt angehalten',
 
 ];

@@ -376,4 +376,6 @@ return [
 	'Bundle-read-permissions'                                  => 'Bundle read permissions',
 	'Bundle-installed'                                         => 'Installed',
 	'Bundle-uninstalled'                                       => 'Uninstalled',
+	'pause-import'                                             => 'Pause browser progress',
+	'import-paused'                                            => 'Browser progress paused',
 ];

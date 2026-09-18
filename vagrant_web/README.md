@@ -296,33 +296,21 @@ Ein erfolgreich erzeugtes oder hochgeladenes Archiv ist noch kein verifiziertes 
 <details>
 <summary>Manuelle Wiederaufnahme eines Bundle-Imports</summary>
 
-Dieser Notfallweg umgeht den normalen UI-Einstieg und verändert Daten sowie Queue-Zustand. Vorher Bundle-ID, Backup, laufende Bundle-Jobs und Fehlerursache prüfen. Nie eine Beispiel-ID ungeprüft übernehmen.
+Dieser Notfallweg verarbeitet ausschließlich einen bereits gestarteten, aktiven Lauf. Er erzeugt keinen Import und kann daher parallel zum Browser genutzt werden. Vorher Bundle-ID, aktiven Lauf und Fehlerursache prüfen. Nie eine Beispiel-ID ungeprüft übernehmen.
 
-Tinker öffnen:
-
-```sh
-sudo -u www-data php /srv/materialpool/current/artisan tinker
-```
-
-In Tinker den konkreten Datensatz zunächst lesend prüfen und erst danach den Updateablauf initialisieren:
-
-```php
-$bundle = \App\Models\Bundle::findOrFail(<bundle-id>);
-$bundle->only(['id', 'uuid', 'name', 'installed_version']);
-
-$controller = app(\App\Http\Controllers\Api\BundleImportController::class);
-$controller->initUpdate($bundle);
-```
-
-Nur wenn der normale API-gesteuerte Ablauf nachweislich nicht fortgesetzt werden kann, die zugehörige Queue kontrolliert bearbeiten:
+Lauf und Queue zunächst nur lesend prüfen:
 
 ```sh
-sudo -u www-data php /srv/materialpool/current/artisan queue:work \
-  --tries=21 database \
-  --queue=default,bundle_<bundle-id>_queue
+sudo -u www-data php /srv/materialpool/current/artisan bundles:work <bundle-id> --dry-run
 ```
 
-Nachkontrolle: Bundle-Fortschritt im UI, offene Jobs, Anwendungslog, Resource-/Materialanzahl und Foreign-ID-Mappings. Den manuellen Worker nach Abschluss beenden und keinen zweiten Worker für dieselbe Bundle-Queue parallel betreiben.
+Anschließend denselben Laravel-Database-Worker starten:
+
+```sh
+sudo -u www-data php /srv/materialpool/current/artisan bundles:work <bundle-id>
+```
+
+Nachkontrolle: Bundle-Fortschritt im UI, aktiver Run und Anwendungslog. Der Browser darf geschlossen werden; die Queue und ein Terminal-Worker laufen unabhängig weiter. Browser und Terminal dürfen denselben Lauf gleichzeitig verarbeiten, weil sie verschiedene Queue-Nachrichten atomar reservieren; die Entity-Locks verhindern parallele Bearbeitung desselben Datensatzes.
 
 </details>
 

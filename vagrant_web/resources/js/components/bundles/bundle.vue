@@ -34,11 +34,11 @@
             <b-button variant="danger"
                       v-if="isRunning === true && cancelRequested === false"
                       @click="btnCancelProgress">
-              {{ $t('pool.cancel') }}
+              {{ $t('pool.pause-import') }}
             </b-button>
             <b-button variant="danger"
                       v-if="isRunning === true && cancelRequested === true"
-                      disabled>{{ $t('pool.canceling-update') }}
+                      disabled>{{ $t('pool.import-paused') }}
             </b-button>
           </div>
         </div>
