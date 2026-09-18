@@ -448,12 +448,12 @@ export default {
 
         if (true === resultsApplied) {
 
-          const ul        = target?.offsetParent;
-          const scrollTop = target?.offsetParent?.scrollTop;
+          const scrollContainer = target?.closest('.multiselect-dropdown');
+          const scrollTop       = scrollContainer?.scrollTop;
 
-          if (ul && scrollTop) {
+          if (scrollContainer) {
             await this.$nextTick();
-            ul.scrollTop = scrollTop;
+            scrollContainer.scrollTop = scrollTop;
           }
 
         }

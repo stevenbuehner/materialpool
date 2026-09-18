@@ -1003,6 +1003,7 @@ test('Vue 3 datepicker keeps the German input and calendar interaction', async (
     });
     await page.route('**/pool/search/**', route => {
         const url = new URL(route.request().url());
+        const currentPage = Number(url.searchParams.get('page') || 1);
         const searchResults = url.pathname === '/pool/search/get'
             ? [{
                 id: 2,
@@ -1021,21 +1022,36 @@ test('Vue 3 datepicker keeps the German input and calendar interaction', async (
                 bibleverses: [],
             }]
             : [];
+        const personOptions = url.searchParams.get('t') === 'person' && url.searchParams.get('q') === 'Person'
+            ? Array.from({length: 40}, (_, index) => ({
+                id: index + 100,
+                title: `Person ${index + 1}`,
+                type: 'person',
+                pivot: {relevance: 100},
+            }))
+            : [];
         const languageOptions = url.searchParams.get('t') === 'lang'
             ? [
                 {id: 1, title: 'Deutsch', type: 'lang', pivot: {relevance: 100}},
                 {id: 2, title: 'Englisch', type: 'lang', pivot: {relevance: 100}},
             ]
             : [];
+        const paginatedPersonOptions = personOptions.slice((currentPage - 1) * 20, currentPage * 20);
+        const data = searchResults.length > 0
+            ? searchResults
+            : personOptions.length > 0
+                ? paginatedPersonOptions
+                : languageOptions;
+        const lastPage = personOptions.length > 0 ? 2 : 1;
 
         return route.fulfill({
             contentType: 'application/json',
             body: JSON.stringify({
-                data: searchResults.length > 0 ? searchResults : languageOptions,
-                current_page: 1,
-                last_page: 1,
+                data,
+                current_page: currentPage,
+                last_page: lastPage,
                 per_page: 20,
-                total: searchResults.length > 0 ? searchResults.length : languageOptions.length,
+                total: personOptions.length || searchResults.length || languageOptions.length,
             }),
         });
     });
@@ -1130,6 +1146,15 @@ test('Vue 3 datepicker keeps the German input and calendar interaction', async (
         textAlign: getComputedStyle(footer).textAlign,
     }));
     expect(minimumCharacterHintStyle).toEqual(languageFooterStyle);
+
+    const personDropdown = personSelect.locator('.multiselect-dropdown');
+    const personSearch = personSelect.locator('.multiselect-tags-search');
+    await personSearch.fill('Person');
+    await expect(personDropdown.getByText('Person 20')).toBeVisible();
+    await personDropdown.hover();
+    await page.mouse.wheel(0, 800);
+    await expect(personDropdown.getByText('Person 40')).toBeVisible();
+    expect(await personDropdown.evaluate(dropdown => dropdown.scrollTop)).toBeGreaterThan(0);
 
     await dateInput.click();
     const datepickerDialog = page.getByRole('dialog', {name: 'Datepicker menu'});
