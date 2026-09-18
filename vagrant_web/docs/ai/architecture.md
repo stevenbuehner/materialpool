@@ -63,6 +63,8 @@ Material- und Relation-Services lösen `MaterialWas…`, `ResourceWasAttached` u
 
 `BundleImportController` baut eine bundle-spezifische Queue `bundle_{id}_queue` auf. Jobs legen Ressourcen/Materialien an, aktualisieren Foreign-ID-Mappings und finalisieren Import oder Deinstallation. Das Löschen oder Umordnen dieser Jobs verändert Datenbestände und verlangt Freigabe.
 
+Die geplante Härtung von Laufsteuerung, Laravel-Batches, Wiederaufnahme und bundlebezogenen Leserechten ist im [Bundle-Import-Updatevertrag](bundle-import-update-contract.md) beschrieben. Der Vertrag ist noch nicht implementiert und wird erst nach Bestätigung seiner offenen Entscheidungen verbindliche Zielarchitektur.
+
 ## Persistenz und Speicher
 
 - Die primären Tabellen entstehen aus `database/migrations/`; bestehende Migrationen sind historische Fakten. Änderungen benötigen Freigabe. Dokumentierte Ausnahmen des Laravel-Upgrades sind die schemaäquivalente `nullable()`-Korrektur und die neuen Passport-13-Cutover-/Device-Code-Migrationen.
