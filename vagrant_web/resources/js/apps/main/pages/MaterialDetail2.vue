@@ -48,7 +48,7 @@
               <div class="col-xl-3 col-lg-4 col-md-4 col-sm-6 col-12 p-2"
                    v-for="resource in material.resources"
                    :key="resource.id">
-                <resource-preview :resource="resource" :edit-disabled="(material.from_bot && !authorization.is_admin) || !canUpdateResource(resource)">
+                <resource-preview :resource="resource" :edit-disabled="resourceEditLockActive || !canUpdateResource(resource)">
                   <template v-slot:additional-buttons>
                     <button class="btn btn-sm btn-outline-danger mb-1"
                             @click.prevent="btnDetachResource(resource)"
@@ -66,7 +66,7 @@
                  v-if="material.resources && material.resources.length === 1">
               <div class="col-xl-12 col-12 p-0">
                 <resource-detail :resource="material.resources[0]" :showDelete="false"
-                                 :edit-disabled="(material.from_bot && !authorization.is_admin) || !canUpdateResource(material.resources[0])"
+                                 :edit-disabled="resourceEditLockActive || !canUpdateResource(material.resources[0])"
 				                 :structure-edit-disabled="!canUpdateStructure">
                   <template v-slot:additional-buttons>
                     <button class="btn btn-sm btn-outline-danger"
@@ -429,7 +429,18 @@ export default {
 	},
 
 	materialMetadataEditLockActive() {
-	  return !this.canEditMetadata || (this.material?.from_bot === true && !this.authorization.is_admin);
+	  return this.isBundleMaterial
+	    || !this.canEditMetadata
+	    || (this.material?.from_bot === true && !this.authorization.is_admin);
+	},
+
+	resourceEditLockActive() {
+	  return this.isBundleMaterial
+	    || (this.material?.from_bot === true && !this.authorization.is_admin);
+	},
+
+	isBundleMaterial() {
+	  return this.bundleIds.length > 0;
 	},
 
 	canEditMetadata() {

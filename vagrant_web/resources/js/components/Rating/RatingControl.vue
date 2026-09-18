@@ -6,6 +6,7 @@
         :aria-valuemax="maxRating"
         :aria-valuenow="selectedRating"
         :aria-valuetext="ratingText"
+        :aria-disabled="readOnly"
         :tabindex="readOnly ? -1 : 0"
         @keydown="onKeydown"
         @mouseleave="resetRating"

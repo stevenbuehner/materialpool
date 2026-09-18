@@ -34,14 +34,14 @@
     </div>
 
     <div class="editField"
-         :class="{disabled, valueChanged: valueHasChanged}">
+         :class="{disabled, valueChanged: showChangedState}">
 
       <div class="inputWrapper">
 
         <slot name="input">
           <b-form-input
               v-if="type === 'text'"
-              :class="[{valueChanged : valueHasChanged, hasClearButton: clearable}, 'textInput']"
+              :class="[{valueChanged: showChangedState, hasClearButton: clearable}, 'textInput']"
               @input="onInputChanged"
               @keyup.enter="onEnter"
               @keyup.esc="cancelAndResetValue"
@@ -71,14 +71,14 @@
                       :model-value="currentValueInDayJsFormat"
                       :disabled-dates="{from: new Date()}"
                       :required="required"
-                      :input-class="{valueChanged : valueHasChanged}"
+                      :input-class="{valueChanged: showChangedState}"
                       :placeholder="getPlaceholder"
                       @update:model-value="onDateInputChanged"
           />
 
           <b-form-textarea
               v-if="type === 'textarea'"
-              :class="[{valueChanged : valueHasChanged}, 'textareaInput']"
+              :class="[{valueChanged: showChangedState}, 'textareaInput']"
               :placeholder="getPlaceholder"
               :rows="rows"
               :value="currentValue"
@@ -226,6 +226,10 @@ export default {
     // Das funktioniert nur, wenn das Parent-Element kein v-model binding macht ... sonst wird die Änderung nicht erkannt!
     valueHasChanged() {
       return this.value !== this.cleanedValue;
+    },
+
+    showChangedState() {
+      return !this.disabled && this.valueHasChanged;
     },
 
     cleanedValue() {
