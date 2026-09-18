@@ -51,7 +51,7 @@ return [
 
 		'previewimages' => [
 			'driver' => 'file',
-			'path' => storage_path('framework/cache/previewimages'),
+			'path' => env('PREVIEW_IMAGES_CACHE_PATH', storage_path('framework/cache/previewimages')),
 		],
 
         'memcached' => [

@@ -36,6 +36,7 @@ use App\Services\TagExtraction\ResourceHandles\TextContentHandler;
 use App\Services\TagExtraction\TagExtractionService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
 use PHPExif\Adapter\Exiftool;
@@ -49,6 +50,7 @@ class AppServiceProvider extends ServiceProvider {
 	 */
 	public function boot(): void {
 		Schema::defaultStringLength(191);
+		File::ensureDirectoryExists(config('cache.stores.previewimages.path'));
 	}
 
 	/**

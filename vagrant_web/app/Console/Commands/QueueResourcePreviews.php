@@ -5,7 +5,6 @@ namespace App\Console\Commands;
 use App\Jobs\PlanResourcePreviews;
 use App\Models\Resource;
 use Illuminate\Console\Command;
-use Illuminate\Database\Eloquent\Builder;
 
 class QueueResourcePreviews extends Command {
 	protected $signature = 'resources:queue-previews

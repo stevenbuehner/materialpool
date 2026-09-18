@@ -10,6 +10,7 @@ use App\Services\PreviewGeneration\Interfaces\PreviewGeneratorInterface;
 use App\Services\ResourceHandling\Exceptions\LocalFileDoesNotExistException;
 use App\Services\ResourceHandling\Exceptions\RemoteFileDoesNotExistException;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use Intervention\Image\Image as Image;
 use Intervention\Image\Size;
 use NcJoes\OfficeConverter\OfficeConverter;
@@ -48,10 +49,8 @@ class DocumentPreviewGenerator extends PdfPreviewGenerator implements PreviewGen
 			throw new NotPreviewAbleException('Could not get remote file path', 0, $e);
 		}
 
-		$basename    = pathinfo($resourcePath, PATHINFO_BASENAME);
-		$tempPdfName = $basename . '.pdf';
-
-		$tempPdfDir  = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'pdf_preview';
+		$tempPdfName = $this->getTemporaryPreviewName($resource);
+		$tempPdfDir  = Storage::disk('local_tmp')->path('preview-documents');
 		$tempPdfPath = $tempPdfDir . DIRECTORY_SEPARATOR . $tempPdfName;
 
 		if (file_exists($tempPdfPath)) {
@@ -60,7 +59,7 @@ class DocumentPreviewGenerator extends PdfPreviewGenerator implements PreviewGen
 
 
 		if (!file_exists($tempPdfDir)) {
-			mkdir($tempPdfDir);
+			Storage::disk('local_tmp')->makeDirectory('preview-documents');
 		}
 
 
@@ -74,6 +73,23 @@ class DocumentPreviewGenerator extends PdfPreviewGenerator implements PreviewGen
 
 		return $tempPdfPath;
 
+	}
+
+	public function clearTemporaryPreviews(DocumentFile $resource): void {
+		$disk = Storage::disk('local_tmp');
+		$prefix = 'resource-' . $resource->getKey() . '-';
+
+		foreach ($disk->files('preview-documents') as $path) {
+			if (str_starts_with(basename($path), $prefix)) {
+				$disk->delete($path);
+			}
+		}
+	}
+
+	protected function getTemporaryPreviewName(DocumentFile $resource): string {
+		$revision = $resource->content_hash ?: sha1((string)$resource->getAttribute('local_path'));
+
+		return 'resource-' . $resource->getKey() . '-' . $revision . '.pdf';
 	}
 
 	/**

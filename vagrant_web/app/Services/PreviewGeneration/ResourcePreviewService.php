@@ -4,9 +4,11 @@ namespace App\Services\PreviewGeneration;
 
 use App\Models\Resource;
 use App\Models\Resource as ResourceEntity;
+use App\Models\DocumentFile;
 use App\ResourceLimitations\ResourceLimitationInterface;
 use App\Services\PreviewGeneration\Exceptions\NotPreviewAbleException;
 use App\Services\PreviewGeneration\Generators\NoPreviewGenerator;
+use App\Services\PreviewGeneration\Generators\DocumentPreviewGenerator;
 use App\Services\PreviewGeneration\Interfaces\PreviewGeneratorInterface;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Support\Facades\Log;
@@ -136,6 +138,7 @@ class ResourcePreviewService extends AbstractPreviewService {
 
 				// Only cache on success
 				$this->putImageObjectToCache($rawImage, $cacheKey);
+				$this->registerCacheKey($resource, $cacheKey);
 
 			} catch (NotPreviewAbleException $e) {
 
@@ -147,6 +150,53 @@ class ResourcePreviewService extends AbstractPreviewService {
 			return $rawImage;
 		}
 
+	}
+
+	public function hasCachedImage(ResourceEntity $resource, Size $size, $pageOrSeconds = NULL): bool {
+		$cacheKey = $this->getCacheKey($resource, [$size, (int)$pageOrSeconds]);
+
+		return $this->getCacheStore()->has($cacheKey);
+	}
+
+	public function clearAllImageCaches(ResourceEntity $resource): void {
+		$cache = $this->getCacheStore();
+		$indexKey = $this->getCacheIndexKey($resource);
+
+		$cache->lock($this->getCacheIndexLockKey($resource), 10)->block(5, function () use ($cache, $indexKey): void {
+			$cacheKeys = $cache->get($indexKey, []);
+
+			foreach ($cacheKeys as $cacheKey) {
+				$cache->delete($cacheKey);
+			}
+
+			$cache->delete($indexKey);
+		});
+
+		if ($resource instanceof DocumentFile) {
+			resolve(DocumentPreviewGenerator::class)->clearTemporaryPreviews($resource);
+		}
+	}
+
+	protected function registerCacheKey(ResourceEntity $resource, string $cacheKey): void {
+		$cache = $this->getCacheStore();
+		$indexKey = $this->getCacheIndexKey($resource);
+
+		$cache->lock($this->getCacheIndexLockKey($resource), 10)->block(5, function () use ($cache, $indexKey, $cacheKey): void {
+			$cacheKeys = $cache->get($indexKey, []);
+
+			if (!in_array($cacheKey, $cacheKeys, TRUE)) {
+				$cacheKeys[] = $cacheKey;
+				$cache->forever($indexKey, $cacheKeys);
+			}
+		});
+	}
+
+	protected function getCacheIndexKey(ResourceEntity $resource): string {
+		return 'resource-preview-index:' . $resource->getKey();
+	}
+
+	protected function getCacheIndexLockKey(ResourceEntity $resource): string {
+		return 'resource-preview-index-lock:' . $resource->getKey();
 	}
 
 	/**
