@@ -12,6 +12,7 @@ use App\Models\ForeignResourceId;
 use App\Models\Keyword;
 use App\Models\Material;
 use App\Services\Bundles\BundlesService;
+use App\Services\Bundles\BundleImportReferenceResolver;
 use Illuminate\Bus\Queueable;
 use Illuminate\Bus\Batchable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -52,7 +53,7 @@ class InsertOrUpdateMaterial implements ShouldQueue, VersionInterface {
 	 * Execute the job.
 	 *
 	 */
-	public function handle(BundlesService $bundlesService) {
+	public function handle(BundlesService $bundlesService, BundleImportReferenceResolver $referenceResolver) {
 		if ($this->batch()?->cancelled()) {
 			return;
 		}
@@ -72,11 +73,11 @@ class InsertOrUpdateMaterial implements ShouldQueue, VersionInterface {
 				/** @var Material $material */
 				$material = $foreignMat->material;
 
-				$this->updateMaterial($material);
+				$this->updateMaterial($material, $referenceResolver);
 
 				// Just compare modified-timestamps and filePath from the last import
 				// if ($foreignMat->{ForeignMaterialId::CREATED_AT} != new Carbon($this->localMatInfo->material_created) )
-				$this->compareMetaData($bundlesService, $material);
+				$this->compareMetaData($bundlesService, $referenceResolver, $material);
 				$this->compareFileAssociations($bundlesService, $material);
 
 				$foreignMat->setCreatedAt($this->localMatInfo->material_created);
@@ -90,7 +91,7 @@ class InsertOrUpdateMaterial implements ShouldQueue, VersionInterface {
 			} else {
 
 				// Insert
-				$material = $this->createMaterial();
+				$material = $this->createMaterial($referenceResolver);
 
 				$foreignMat = new ForeignMaterialId(
 					[
@@ -105,7 +106,7 @@ class InsertOrUpdateMaterial implements ShouldQueue, VersionInterface {
 				$foreignMat->setUpdatedAt($this->localMatInfo->material_modified);
 				$foreignMat->saveOrFail();
 
-				$this->compareMetaData($bundlesService, $material);
+				$this->compareMetaData($bundlesService, $referenceResolver, $material);
 				$this->compareFileAssociations($bundlesService, $material);
 			}
 
@@ -129,7 +130,7 @@ class InsertOrUpdateMaterial implements ShouldQueue, VersionInterface {
 		return $this->localMatInfo->uuid;
 	}
 
-	protected function updateMaterial(Material $material) {
+	protected function updateMaterial(Material $material, BundleImportReferenceResolver $referenceResolver) {
 
 		if ($material->title !== $this->localMatInfo->title) {
 			$material->title = $this->localMatInfo->title;
@@ -156,7 +157,7 @@ class InsertOrUpdateMaterial implements ShouldQueue, VersionInterface {
 		} else if (empty($this->localMatInfo->author_name)) {
 			$material->author_id = NULL;
 		} else {
-			$author = Keyword::firstOrCreatePerson(trim($this->localMatInfo->author_name));
+			$author = $referenceResolver->person(trim($this->localMatInfo->author_name));
 
 			if ($author->id != $material->author_id) {
 				$material->author_id = $author->id;
@@ -171,7 +172,7 @@ class InsertOrUpdateMaterial implements ShouldQueue, VersionInterface {
 
 	}
 
-	protected function compareMetaData(BundlesService $bundlesService, Material $material) {
+	protected function compareMetaData(BundlesService $bundlesService, BundleImportReferenceResolver $referenceResolver, Material $material) {
 
 		$allMetaData = $bundlesService->getMaterialMetaData($this->bundle, $this->localMatInfo->id);
 
@@ -189,7 +190,7 @@ class InsertOrUpdateMaterial implements ShouldQueue, VersionInterface {
 				case 'place':
 				case 'lang':
 					try {
-						$testKW = Keyword::make($metaData->value, $metaData->type);
+						$testKW = $referenceResolver->keyword($metaData->value, $metaData->type);
 
 						if ($allExistingKW->contains($testKW)) {
 							$found = $allExistingKW->find($testKW);
@@ -207,10 +208,6 @@ class InsertOrUpdateMaterial implements ShouldQueue, VersionInterface {
 								return !($value->id == $testKW->id);
 							});
 						} else {
-							if ($testKW->isDirty()) {
-								$testKW->saveOrFail();
-							}
-
 							$this->syncMaterialKeyword($material, $testKW, $metaData->relevance);
 						}
 
@@ -238,7 +235,7 @@ class InsertOrUpdateMaterial implements ShouldQueue, VersionInterface {
 							'to_chapter'   => $to_chapter,
 							'to_verse'     => $to_verse,
 						]);
-						$bv = Bibleverse::findOrCreateFromBibleverseInterface($bv);
+						$bv = $referenceResolver->bibleverse($bv);
 
 
 						if ($allExistingBV->contains($bv)) {
@@ -253,10 +250,6 @@ class InsertOrUpdateMaterial implements ShouldQueue, VersionInterface {
 								return !($value->id == $bv->id);
 							});
 						} else {
-							if ($bv->isDirty()) {
-								$bv->saveOrFail();
-							}
-
 							$this->syncMaterialBibleverse($material, $bv, $metaData->relevance);
 						}
 
@@ -324,13 +317,13 @@ class InsertOrUpdateMaterial implements ShouldQueue, VersionInterface {
 		$material->resources()->sync($resourceIDs);
 	}
 
-	protected function createMaterial() {
+	protected function createMaterial(BundleImportReferenceResolver $referenceResolver) {
 
 		$mat              = new Material();
 		$mat->created_by  = 1;
 		$mat->modified_by = 1;
 
-		$mat = $this->updateMaterial($mat);
+		$mat = $this->updateMaterial($mat, $referenceResolver);
 
 		// $mat->save(); // is done in updateMaterial
 
