@@ -1,18 +1,25 @@
-import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
+import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 
 import { trim } from '../../resources/js/filters/truncate-filter.mixin.js';
 import { displayFilesize, readableBytes } from '../../resources/js/helper/filesize.mixin.js';
 
 let dayjs;
 let format;
+let fromNow;
+let recentOrFormat;
+let toNow;
 
 beforeAll(async () => {
     vi.stubGlobal('document', { documentElement: { lang: 'de' } });
-    ({ dayjs, format } = await import('../../resources/js/helper/datetime.mixin.js'));
+    ({ dayjs, format, fromNow, recentOrFormat, toNow } = await import('../../resources/js/helper/datetime.mixin.js'));
 });
 
 afterAll(() => {
     vi.unstubAllGlobals();
+});
+
+afterEach(() => {
+    vi.useRealTimers();
 });
 
 describe('formatting helper contracts', () => {
@@ -24,6 +31,22 @@ describe('formatting helper contracts', () => {
 
     it('formats dates through the existing dayjs setup', () => {
         expect(format(dayjs('2024-02-03T04:05:00'), 'YYYY-MM-DD HH:mm')).toBe('2024-02-03 04:05');
+        expect(format(dayjs('2024-02-03T04:05:00'), 'L')).toBe('03.02.2024');
+    });
+
+    it('keeps valid and invalid date detection available', () => {
+        expect(dayjs('2024-02-03T04:05:00').isValid()).toBe(true);
+        expect(dayjs('kein-datum').isValid()).toBe(false);
+    });
+
+    it('keeps localized relative date output', () => {
+        vi.useFakeTimers();
+        vi.setSystemTime(new Date('2024-02-03T12:00:00Z'));
+
+        expect(fromNow(dayjs('2024-02-03T11:00:00Z'))).toBe('vor einer Stunde');
+        expect(toNow(dayjs('2024-02-03T11:00:00Z'))).toBe('in einer Stunde');
+        expect(recentOrFormat(dayjs('2024-01-01T12:00:00Z'))).toContain('Januar');
+
     });
 
     it('formats decimal byte units and preserves signs', () => {

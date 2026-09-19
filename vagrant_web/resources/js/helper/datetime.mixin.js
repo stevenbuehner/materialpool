@@ -4,13 +4,11 @@
 import dayJS from 'dayjs';
 
 import relativeTime    from 'dayjs/plugin/relativeTime';
-import localeData      from 'dayjs/plugin/localeData'
 import localizedFormat from 'dayjs/plugin/localizedFormat'
 
 import {lang} from "../apps/main/localisation";
 import 'dayjs/locale/de';
 
-dayJS.extend(localeData);
 dayJS.extend(localizedFormat);
 dayJS.extend(relativeTime);
 dayJS.locale(lang);

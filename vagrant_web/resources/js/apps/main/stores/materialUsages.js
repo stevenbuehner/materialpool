@@ -1,6 +1,6 @@
 import {defineStore} from 'pinia';
 import axios from '../axiosInstance';
-import {moment} from '../localisation';
+import {dayjs} from '../../../helper/datetime.mixin';
 import {
 	api_v2_materialusage_delete,
 	api_v2_materialusage_index,
@@ -91,7 +91,7 @@ export const useMaterialUsagesStore = defineStore('materialusages', {
 				: api_v2_materialusage_update(material_id, id);
 
 			return axios.post(url, {
-				datetime: moment(datetime === undefined ? new Date() : datetime).format(),
+				datetime: dayjs(datetime === undefined ? new Date() : datetime).format(),
 				place: place === undefined ? '' : place,
 				reason: reason === undefined ? '' : reason,
 				used_by_id: used_by_id === undefined ? null : used_by_id,

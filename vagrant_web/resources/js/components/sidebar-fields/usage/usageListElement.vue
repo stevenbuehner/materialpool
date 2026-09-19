@@ -126,7 +126,8 @@
 </template>
 
 <script>
-import {getLocale, getLocaleDateFormat, moment} from "../../../apps/main/localisation";
+import {getLocale, getLocaleDateFormat} from "../../../apps/main/localisation";
+import {dayjs} from '../../../helper/datetime.mixin';
 import OccasionIcon                             from '@icons/vendor/svg-icon/svg/icomoon/bubble2.svg';
 
 import Datepicker from '../../datepicker/datepicker';
@@ -268,7 +269,7 @@ export default {
     },
 
     dateTimeChanged() {
-      return !moment(this.modifiedData.datetime).isSame(this.datetime);
+      return !dayjs(this.modifiedData.datetime).isSame(this.datetime);
     },
 
     reasonChanged() {
@@ -361,7 +362,7 @@ export default {
         return;
       }
 
-      if (moment(this.modifiedData.datetime).isValid() === false) {
+      if (dayjs(this.modifiedData.datetime).isValid() === false) {
         if (confirm(this.$t('pool.Required-datetime-is-invalid.Want-to-save-anyway?')) === false) {
           return;
         }
@@ -443,7 +444,7 @@ export default {
     },
 
     dateformat(datetime) {
-      return moment(datetime).format(getLocaleDateFormat());
+      return dayjs(datetime).format(getLocaleDateFormat());
     },
   },
 

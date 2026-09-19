@@ -1,13 +1,8 @@
 // @see https://github.com/martinlindhe/laravel-vue-i18n-generator
 import translations from './../../lang-js-translation.json';
-import Moment from 'moment';
-import 'moment/locale/de';
 
 // or however you determine your current app locale
 export const lang = document.documentElement.lang.substr(0, 2);
-
-// Setup default Moment-Locale
-Moment.locale(lang);
 
 export const vueLangConfig = {
 	messages: translations,
@@ -31,5 +26,3 @@ export function getLocale(){
 export function getLocaleDateFormat() {
 	return localisation[lang].dateDisplayFormat;
 }
-
-export const moment = Moment;

@@ -363,7 +363,7 @@ import customDialog            from '../../../components/modals/dialogs/customDi
 import {flagColors}            from "../../../components/flags/flagOptions";
 import {savingDialogs}         from "../../../helper/flashMessages";
 import PublicMaterialDownload  from "../../../components/download/public-material-download";
-import {formatLocalizedDate}   from '../../../helper/datetime.mixin'
+import {dayjs, formatLocalizedDate} from '../../../helper/datetime.mixin'
 import cloneIcon               from '@icons/vendor/svg-icon/svg/awesome/clone.svg';
 import usageEdit               from "../../../components/sidebar-fields/usageEdit";
 
@@ -379,7 +379,6 @@ import {BButton, BTab, BTabs}    from '@/adapters/bootstrap';
 import {setReactive}              from '@/adapters/reactivity';
 import TextEditSidebarField       from "../../../components/sidebar-fields/textEdit";
 import BibleverseEditSidebarField from "../../../components/sidebar-fields/bibleverseEdit";
-import dayjs                      from 'dayjs';
 import TagEditSidebarField        from "../../../components/sidebar-fields/tagEdit";
 import {RELEVANCE_USER_MAX}       from "../../config";
 import RatingEdit                 from "../../../components/sidebar-fields/ratingEdit";

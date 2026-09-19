@@ -1,4 +1,4 @@
-import {moment} from '../../../apps/main/localisation';
+import {dayjs} from '../../../helper/datetime.mixin';
 
 export function isValidUsedBy(value) {
   return value === null
@@ -8,7 +8,7 @@ export function isValidUsedBy(value) {
 }
 
 function compareUsageDates(first, second) {
-  return moment(first.datetime).unix() - moment(second.datetime).unix();
+  return dayjs(first.datetime).unix() - dayjs(second.datetime).unix();
 }
 
 export function displayedUsages(usages, displayMax, currentActiveUsageId) {

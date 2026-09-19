@@ -1,7 +1,7 @@
 import {beforeEach, describe, expect, it, vi} from 'vitest';
 import {createPinia, setActivePinia} from 'pinia';
 import axios from '../../resources/js/apps/main/axiosInstance.js';
-import {moment} from '../../resources/js/apps/main/localisation.js';
+import {dayjs} from '../../resources/js/helper/datetime.mixin.js';
 import {useMaterialUsagesStore} from '../../resources/js/apps/main/stores/materialUsages.js';
 
 vi.mock('../../resources/js/apps/main/axiosInstance.js', () => ({
@@ -11,8 +11,8 @@ vi.mock('../../resources/js/apps/main/axiosInstance.js', () => ({
     },
 }));
 
-vi.mock('../../resources/js/apps/main/localisation.js', () => ({
-    moment: vi.fn(() => ({format: () => 'formatted-datetime'})),
+vi.mock('../../resources/js/helper/datetime.mixin.js', () => ({
+    dayjs: vi.fn(() => ({format: () => 'formatted-datetime'})),
 }));
 
 describe('material usages Pinia store', () => {
@@ -56,7 +56,7 @@ describe('material usages Pinia store', () => {
             reason: '',
             used_by_id: 8,
         });
-        expect(moment).toHaveBeenCalledWith(expect.any(Date));
+        expect(dayjs).toHaveBeenCalledWith(expect.any(Date));
         expect(store.getCachedMaterialUsages(12)).toEqual([usage]);
     });
 
