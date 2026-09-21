@@ -11,8 +11,6 @@ namespace App\Services\ResourceHandling;
 use App\Events\ResourceWasAttached;
 use App\Events\ResourceWasDetached;
 use App\Models\Resource as Res;
-use App\Services\ResourceHandling\Exceptions\MissingResourceHashException;
-use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -44,25 +42,38 @@ class ResourceDuplicationHandlingService {
 	}
 
 	protected function migrateResourcesWithHash($hash) {
+		$masterResource = Res::query()
+			->where('content_hash', $hash)
+			->orderBy('id')
+			->first();
 
-		$masterResource = Res::where('content_hash', '=', $hash)->take(1)->get()->first();
-
-		$this->mergeDuplicatesOfResource($masterResource);
-
+		if ($masterResource !== NULL) {
+			$this->mergeDuplicatesOfResource($masterResource);
+		}
 	}
 
 	public function mergeDuplicatesOfResource(Res $resourceToCheck) {
 
 		if (empty($resourceToCheck->content_hash)) {
-			throw new MissingResourceHashException();
+			return;
 		}
 
-		Res::where('content_hash', '=', $resourceToCheck->content_hash)
-			->where('id', '!=', $resourceToCheck->id)
+		$masterResource = Res::query()
+			->where('content_hash', $resourceToCheck->content_hash)
 			->orderBy('id')
-			->chunk(30, function ($slaveResources) use ($resourceToCheck) {
+			->first();
+
+		if ($masterResource === NULL) {
+			return;
+		}
+
+		Res::query()
+			->where('content_hash', $masterResource->content_hash)
+			->where('id', '!=', $masterResource->id)
+			->orderBy('id')
+			->chunk(30, function ($slaveResources) use ($masterResource) {
 				foreach ($slaveResources as $slave) {
-					$this->migrateSlaveIntoMasterResource($slave, $resourceToCheck);
+					$this->migrateSlaveIntoMasterResource($slave, $masterResource);
 					// CheckDuplicateMaterials::dispatch($resourceToCheck);
 				}
 			});
@@ -72,53 +83,39 @@ class ResourceDuplicationHandlingService {
 	public function migrateSlaveIntoMasterResource(Res $slaveResource, Res $masterResource) {
 
 		// Relationen nachladen, um anschließend zu wissen, wo Events gefeuert werden müssen
-		$slaveResource->loadMissing('materials');
-		$masterResource->loadMissing('materials');
+		$slaveResource->load('materials');
+		$masterResource->load('materials');
 
-		DB::beginTransaction();
+		$masterMaterialIds = $masterResource->materials->modelKeys();
+		$newAttachedMaterials = $slaveResource->materials->except($masterMaterialIds);
 
-		// Update material_resource
-		try {
-			DB::table('material_resource')
-				->where('resource_id', '=', $slaveResource->id)
-				->update(['resource_id' => $masterResource->id]);
-		} catch (QueryException $e) {
-			if ($e->getPrevious() instanceof \PDOException &&
-				strpos($e->getPrevious()->getMessage(), 'Duplicate entry') !== FALSE) {
-				// the Entry exists already --> ignore the exception
-				DB::table('material_resource')
-					->where('resource_id', '=', $slaveResource->id)
-					->delete();
+		DB::transaction(function () use ($slaveResource, $masterResource, $masterMaterialIds): void {
+			foreach ($slaveResource->materials as $material) {
+				$pivotQuery = DB::table('material_resource')
+					->where('resource_id', $slaveResource->id)
+					->where('material_id', $material->id);
 
-			} else {
-				DB::rollBack();
-				throw($e);
+				if (in_array($material->id, $masterMaterialIds, TRUE)) {
+					$pivotQuery->delete();
+
+					continue;
+				}
+
+				$pivotQuery->update(['resource_id' => $masterResource->id]);
 			}
-		}
 
-		// Werfe die detach Funktionen für alle losgelösten Resourcen
-		foreach ($slaveResource->materials as $m) {
-			event(new ResourceWasDetached($m, $slaveResource));
-		}
-
-		// Werfe die attach Funktionen für alle Materialien die eine Resource NEU/Zusätzlichcxl bekommen haben
-		// Ignoriere Materialien, die bereits davor mit der Resource verknüpft waren. Denn dort hat sich auch nichts geändert. Auch die Limitations nicht.
-		$newAttachedMaterials = $slaveResource->materials->except($masterResource->materials->modelKeys());
-		foreach ($newAttachedMaterials as $m) {
-			event(new ResourceWasAttached($m, $masterResource));
-		}
-
-		// Update resource_foreign_ids
-		try {
 			DB::table('resource_foreign_ids')
 				->where('resource_id', '=', $slaveResource->id)
 				->update(['resource_id' => $masterResource->id]);
-		} catch (\Exception $e) {
-			DB::rollBack();
-			throw($e);
+		});
+
+		foreach ($slaveResource->materials as $material) {
+			event(new ResourceWasDetached($material, $slaveResource));
 		}
 
-		DB::commit();
+		foreach ($newAttachedMaterials as $material) {
+			event(new ResourceWasAttached($material, $masterResource));
+		}
 
 		Log::info('Deleting duplicate resource entry in db ' . $slaveResource->id . ' in favor of ' . $masterResource->id);
 		$this->fileHandlingService->deleteResourceCompletely($slaveResource);

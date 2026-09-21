@@ -136,37 +136,44 @@ class ResourceSeeder extends Seeder {
 			});
 
 
+		// Document1 and PDF1 are intentionally seeded twice. The duplicate-resource queue
+		// must merge their assigned materials into the resource with the smaller ID.
 		DocumentFile::factory()
-			->count(5)
+			->fromTestFile('Document1.docx')
+			->count(2)
 			->create(['created_by' => User::all()->offsetGet(5)->id])
-			->each(function (DocumentFile $r) {
-				$material = self::makeMaterialWithRandomUser();
-				$material->save();
-				$limitation = new \App\ResourceLimitations\PageLimitation();
-				$limitation->setPages([1]);
-				$material->resources()
-					->attach($r, ['limitation' => $limitation]);
-				$material->keywords()->save(self::getRandomKeyword(), ['relevance' => rand(0, 255)]);
-
-				self::addRandomMaterialUid($material, $material->creator);
-				self::addRandomResourceUid($r, $material->creator);
-			});
+			->each(fn (DocumentFile $resource) => self::attachPageLimitedMaterial($resource));
+		DocumentFile::factory()
+			->fromTestFile('Document2.docx')
+			->count(1)
+			->create()
+			->each(fn (DocumentFile $resource) => self::attachPageLimitedMaterial($resource));
+		DocumentFile::factory()
+			->fromTestFile('Document3.docx')
+			->count(1)
+			->create()
+			->each(fn (DocumentFile $resource) => self::attachPageLimitedMaterial($resource));
+		DocumentFile::factory()
+			->withMissingLocalFile('Nicht-vorhandenes-Testdokument.docx')
+			->count(1)
+			->create()
+			->each(fn (DocumentFile $resource) => self::attachPageLimitedMaterial($resource));
 
 		PdfFile::factory()
-			->count(5)
+			->fromTestFile('PDF1.pdf')
+			->count(2)
 			->create()
-			->each(function (PdfFile $r) {
-				$material = self::makeMaterialWithRandomUser();
-				$material->save();
-				$limitation = new \App\ResourceLimitations\PageLimitation();
-				$limitation->setPages([1]);
-				$material->resources()
-					->attach($r, ['limitation' => $limitation]);
-				$material->keywords()->save(self::getRandomKeyword(), ['relevance' => rand(0, 255)]);
-
-				self::addRandomMaterialUid($material, $material->creator);
-				self::addRandomResourceUid($r, $material->creator);
-			});
+			->each(fn (PdfFile $resource) => self::attachPageLimitedMaterial($resource));
+		PdfFile::factory()
+			->fromTestFile('PDF2.pdf')
+			->count(1)
+			->create()
+			->each(fn (PdfFile $resource) => self::attachPageLimitedMaterial($resource));
+		PdfFile::factory()
+			->fromTestFile('PDF3.pdf')
+			->count(1)
+			->create()
+			->each(fn (PdfFile $resource) => self::attachPageLimitedMaterial($resource));
 
 		Text::factory()
 			->count(5)
@@ -232,6 +239,18 @@ class ResourceSeeder extends Seeder {
 		$fk->save();
 
 		return $fk;
+	}
+
+	private static function attachPageLimitedMaterial(DocumentFile|PdfFile $resource): void {
+		$material = self::makeMaterialWithRandomUser();
+		$material->save();
+		$limitation = new \App\ResourceLimitations\PageLimitation();
+		$limitation->setPages([1]);
+		$material->resources()->attach($resource, ['limitation' => $limitation]);
+		$material->keywords()->save(self::getRandomKeyword(), ['relevance' => rand(0, 255)]);
+
+		self::addRandomMaterialUid($material, $material->creator);
+		self::addRandomResourceUid($resource, $material->creator);
 	}
 
 	/**
