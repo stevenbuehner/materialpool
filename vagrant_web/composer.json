@@ -17,6 +17,7 @@
     "intervention/image": "^2.3",
     "kalnoy/nestedset": "^7.0",
     "laracasts/utilities": "^3.0",
+    "laravel/ai": "^0.11.2",
     "laravel/framework": "^13.0",
     "laravel/passport": "^13.8",
     "laravel/tinker": "^3.0",

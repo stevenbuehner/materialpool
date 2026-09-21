@@ -334,7 +334,7 @@ Da nachträgliches Filtern die Trefferzahl und HNSW-Nutzung beeinträchtigen kan
 
 ### 9.1 Einsatz des SDK
 
-Für die spätere Umsetzung wird das offizielle Laravel AI SDK bevorzugt, sofern der Implementierungs-Spike die benötigten Ollama-Funktionen, Fehlerbehandlung und Testbarkeit bestätigt. Es bietet eine Laravel-konforme Abstraktion für strukturierte Ausgaben, Queueing, Embeddings und Fakes. Die Dependency wird erst im Umsetzungsarbeitspaket und nach ausdrücklicher Freigabe installiert.
+Für die spätere Umsetzung wird das offizielle Laravel AI SDK bevorzugt, sofern der Implementierungs-Spike die benötigten Ollama-Funktionen, Fehlerbehandlung und Testbarkeit bestätigt. Es bietet eine Laravel-konforme Abstraktion für strukturierte Ausgaben, Queueing, Embeddings und Fakes. Die Dependency wird erst im Umsetzungsarbeitspaket und nach ausdrücklicher Freigabe installiert. Diese Freigabe liegt für Stufe 0 als Option A vor; installiert ist `laravel/ai` in Version `^0.11.2`. Die package-eigene Conversation-Migration wird nicht veröffentlicht, weil diese Stufe keine Agenten-Konversationen speichert.
 
 Die aktuelle Laravel-13-Dokumentation weist Ollama sowohl für Textaufgaben als auch für Embeddings als unterstützten Provider aus. Diese native Anbindung ist der bevorzugte Weg. In Stufe 0 werden dennoch Dimension, Batchverhalten, Fehlerfälle und Timeouts gegen die konkret installierte SDK-, Ollama- und Modellversion getestet. Ein benannter `openai-compatible`-Provider ist die erste Rückfalloption, sofern der Ollama-Endpoint die erwarteten Request- und Response-Strukturen erfüllt; ein eigener Adapter ist erst die letzte Option.
 
@@ -546,6 +546,8 @@ Ein Modell wird nicht allein wegen höherer Benchmark-Werte gewählt, wenn es di
 Jede Stufe ist ein eigenes freizugebendes Arbeitspaket mit Migrationen, Tests, Betriebshinweisen und Rückbauplan.
 
 ### Stufe 0 – Messbarer Spike
+
+**Umsetzungsstand (22. September 2026):** Option A ist begonnen. Das Repository enthält die Laravel-AI-SDK-Abhängigkeit, eine getrennte `context_search`-PostgreSQL-Verbindung, einen lokalen PostgreSQL-17/pgvector-Compose-Dienst, eine ausschließlich manuell aufzurufende Sidecar-Migration sowie den deterministischen Unicode-fähigen Text-Chunker mit Quellzeichen-Offsets. Es gibt weiterhin keinen Listener, keinen Produktivworker, keinen Backfill und keine Änderung an der bestehenden Suche oder Oberfläche.
 
 - PostgreSQL/pgvector und Ollama in einer isolierten Entwicklungsumgebung;
 - 50 bis 100 repräsentative Dokumente;

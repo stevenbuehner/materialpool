@@ -68,6 +68,21 @@ return [
             'sslmode' => 'prefer',
         ],
 
+        // This connection is deliberately separate from the primary MySQL data.
+        // It is only for rebuildable context-search data in PostgreSQL/pgvector.
+        'context_search' => [
+            'driver' => 'pgsql',
+            'host' => env('CONTEXT_SEARCH_DB_HOST', '127.0.0.1'),
+            'port' => env('CONTEXT_SEARCH_DB_PORT', '5432'),
+            'database' => env('CONTEXT_SEARCH_DB_DATABASE', 'materialpool_context_search'),
+            'username' => env('CONTEXT_SEARCH_DB_USERNAME', 'materialpool_context_search'),
+            'password' => env('CONTEXT_SEARCH_DB_PASSWORD', ''),
+            'charset' => 'utf8',
+            'prefix' => '',
+            'schema' => env('CONTEXT_SEARCH_DB_SCHEMA', 'public'),
+            'sslmode' => env('CONTEXT_SEARCH_DB_SSLMODE', 'prefer'),
+        ],
+
     ],
 
     /*

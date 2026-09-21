@@ -25,6 +25,8 @@ services:
         depends_on:
             mysql:
                 condition: service_healthy
+            postgres:
+                condition: service_healthy
     mysql:
         image: 'mysql/mysql-server:8.0'
         ports:
@@ -46,9 +48,28 @@ services:
             interval: 5s
             retries: 10
             timeout: 5s
+    postgres:
+        image: 'pgvector/pgvector:pg17'
+        ports:
+            - '${FORWARD_CONTEXT_SEARCH_DB_PORT:-5432}:5432'
+        environment:
+            POSTGRES_DB: '${CONTEXT_SEARCH_DB_DATABASE:-materialpool_context_search}'
+            POSTGRES_USER: '${CONTEXT_SEARCH_DB_USERNAME:-materialpool_context_search}'
+            POSTGRES_PASSWORD: '${CONTEXT_SEARCH_DB_PASSWORD:-local-context-search-password}'
+        volumes:
+            - 'sail-context-search-postgres:/var/lib/postgresql/data'
+        networks:
+            - sail
+        healthcheck:
+            test: ['CMD-SHELL', 'pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}']
+            interval: 5s
+            retries: 10
+            timeout: 5s
 networks:
     sail:
         driver: bridge
 volumes:
     sail-mysql:
+        driver: local
+    sail-context-search-postgres:
         driver: local
