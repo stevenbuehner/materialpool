@@ -160,8 +160,12 @@ class BundleImportController extends BaseController {
 			'target_version' => $run->target_version,
 			'progress' => ['total' => $total, 'processed' => $processed, 'failed' => $failed, 'percentage' => $total === 0 ? 0 : (int)floor($processed / $total * 100)],
 			'failure' => $run->failure_code === NULL ? NULL : ['code' => $run->failure_code, 'message' => $run->failure_message],
-			'warnings' => $run->source_warnings ?? ['material_ids' => [], 'file_uuids' => []],
+			'warnings' => $this->serializeWarnings($run->source_warnings),
 		];
+	}
+
+	private function serializeWarnings(?array $warnings): array {
+		return $warnings['summary'] ?? ['skipped_materials' => 0, 'skipped_resources' => 0, 'reasons' => []];
 	}
 
 	private function error(string $code, int $status): JsonResponse {

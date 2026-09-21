@@ -72,6 +72,13 @@
         <b-list-group-item v-if="info">
           {{ $t('pool.export-date') }}: {{ recentOrFormat(dayjs(info.exportDate)) }}
         </b-list-group-item>
+        <b-list-group-item v-if="isTerminal">
+          <strong :class="run.status === 'failed' ? 'text-danger' : (hasWarnings ? 'text-warning' : 'text-success')">
+            {{ importReportTitle }}
+          </strong>
+          <br>
+          {{ importReportMessage }}
+        </b-list-group-item>
       </b-list-group>
 
     </b-card>
@@ -152,6 +159,42 @@ export default {
 
       return this.updateProgressPercentage + '%';
 
+    },
+
+    isTerminal() {
+      return this.run && (this.run.status === 'succeeded' || this.run.status === 'failed');
+    },
+
+    hasWarnings() {
+      return this.run && ((this.run.warnings?.skipped_materials || 0) > 0 || (this.run.warnings?.skipped_resources || 0) > 0);
+    },
+
+    importReportTitle() {
+      if (this.run.status === 'failed') {
+        return this.$t('pool.bundle-import-failed');
+      }
+
+      return this.hasWarnings ? this.$t('pool.bundle-import-partially-completed') : this.$t('pool.bundle-import-completed');
+    },
+
+    importReportMessage() {
+      if (this.run.status === 'failed') {
+        return this.run.failure?.message || this.$t('pool.bundle-import-failed-generic');
+      }
+
+      if (!this.hasWarnings) {
+        return this.$t('pool.bundle-import-completed-message');
+      }
+
+      const summary = this.$t('pool.bundle-import-partial-message', {
+        materials: this.run.warnings.skipped_materials || 0,
+        resources: this.run.warnings.skipped_resources || 0,
+      });
+
+      const reasons = Object.entries(this.run.warnings.reasons || {})
+          .map(([reason, count]) => this.$tc(`pool.bundle-import-warning-${reason}`, count, {count}));
+
+      return reasons.length > 0 ? `${summary} ${this.$t('pool.bundle-import-reasons', {reasons: reasons.join(', ')})}` : summary;
     },
   },
 
@@ -234,7 +277,7 @@ export default {
             )
             .catch(() => {
               this.isRunning = false;
-              this.flashError('Error while initializing Install-Jobs!');
+              this.flashError(this.$t('pool.bundle-import-initialization-failed'));
             });
       }
 
@@ -259,6 +302,7 @@ export default {
 
                    if (run && (run.status === 'succeeded' || run.status === 'failed')) {
                      this.isRunning = false;
+                     this.showImportReport(run);
                    } else if (open === 0) {
                      window.setTimeout(() => this.runNextJobs(), 500);
                    } else {
@@ -267,7 +311,7 @@ export default {
 
                  }).catch(() => {
             this.isRunning = false;
-            this.flashError('Error in job!');
+            this.flashError(this.$t('pool.bundle-import-request-failed'));
           });
 
     },
@@ -275,6 +319,20 @@ export default {
 
     btnStartInstallation() {
       this.btnStartUpdate();
+    },
+
+    showImportReport(run) {
+      if (run.status === 'failed') {
+        this.flashError(this.importReportMessage);
+        return;
+      }
+
+      if (this.hasWarnings) {
+        this.flashWarning(this.importReportMessage);
+        return;
+      }
+
+      this.flashSuccess(this.importReportMessage);
     },
 
     btnCancelProgress() {
@@ -301,7 +359,7 @@ export default {
             )
             .catch(() => {
               this.isRunning = false;
-              this.flashError('Error while initializing Unintsall-Jobs!');
+              this.flashError(this.$t('pool.bundle-import-initialization-failed'));
             });
       }
 

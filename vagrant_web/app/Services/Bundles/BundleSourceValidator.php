@@ -6,7 +6,6 @@ use App\Exceptions\Bundles\BundleSourceValidationException;
 use App\Models\Bundle;
 use App\Models\Keyword;
 use App\Models\Material;
-use App\Services\ResourceRecognition\ResourceRecognitionService;
 use Illuminate\Database\ConnectionInterface;
 use Illuminate\Support\Facades\DB;
 
@@ -21,7 +20,6 @@ class BundleSourceValidator {
 
 	public function __construct(
 		private BundlesService $bundlesService,
-		private ResourceRecognitionService $resourceRecognitionService,
 	) {
 	}
 
@@ -38,7 +36,7 @@ class BundleSourceValidator {
 		$this->assertSchema($connection);
 		$this->assertIdentifiers($connection, $bundleInfo['id']);
 		$this->assertMaterialDataIsValid($connection, $bundleInfo['id']);
-		$this->assertReferencedFilesAreValid($bundle, $connection, $bundleInfo['id']);
+		$warnings = $this->referencedFileWarnings($bundle, $connection, $bundleInfo['id']);
 
 		$databasePath = $bundle->container_root . '/' . BundlesService::LOCAL_DB_FILENAME;
 		$sourceFingerprint = hash_file('sha256', $this->bundlesService->getBundleDisk()->path($databasePath));
@@ -46,7 +44,7 @@ class BundleSourceValidator {
 			throw new BundleSourceValidationException('bundle_source_fingerprint_failed');
 		}
 
-		return ['bundle_info' => $bundleInfo, 'source_fingerprint' => $sourceFingerprint, 'warnings' => ['material_ids' => [], 'file_uuids' => []]];
+		return ['bundle_info' => $bundleInfo, 'source_fingerprint' => $sourceFingerprint, 'warnings' => $warnings];
 	}
 
 	private function assertSchema(ConnectionInterface $connection): void {
@@ -96,21 +94,55 @@ class BundleSourceValidator {
 		}
 	}
 
-	private function assertReferencedFilesAreValid(Bundle $bundle, ConnectionInterface $connection, int $sourceBundleId): void {
-		$files = $connection->select('SELECT DISTINCT files.uuid, files.file_path, files.mime_type FROM files INNER JOIN material_files ON material_files.file_id=files.id INNER JOIN material ON material.id=material_files.material_id WHERE material.bundle_id=:bundle_id', ['bundle_id' => $sourceBundleId]);
+	/**
+	 * @return array{material_ids: list<int>, file_uuids: list<string>, summary: array{skipped_materials: int, skipped_resources: int, reasons: array<string, int>}}
+	 */
+	private function referencedFileWarnings(Bundle $bundle, ConnectionInterface $connection, int $sourceBundleId): array {
+		$files = $connection->select('SELECT files.uuid, files.file_path, files.mime_type, material.id AS material_id FROM files INNER JOIN material_files ON material_files.file_id=files.id INNER JOIN material ON material.id=material_files.material_id WHERE material.bundle_id=:bundle_id ORDER BY material.id ASC, files.id ASC', ['bundle_id' => $sourceBundleId]);
 		$disk = $this->bundlesService->getBundleDisk();
+		$invalidFileReasons = [];
+		$invalidMaterialIds = [];
+		$fileMaterialIds = [];
 
 		foreach ($files as $file) {
 			if (!$this->isSafeRelativePath($file->file_path)) {
 				throw new BundleSourceValidationException('bundle_source_resource_invalid');
 			}
-			if (!$disk->exists($bundle->container_root . '/' . BundlesService::BUNDLE_FILES_DIR . '/' . $file->file_path)) {
-				throw new BundleSourceValidationException('bundle_source_resource_invalid');
-			}
-			if (!class_exists($this->resourceRecognitionService->guessResourceFileFromMimeType($file->mime_type))) {
-				throw new BundleSourceValidationException('bundle_source_resource_invalid');
+
+			$fileMaterialIds[$file->uuid][] = (int)$file->material_id;
+			$reason = $this->invalidFileReason($bundle, $disk, $file->file_path, $file->mime_type);
+			if ($reason !== NULL) {
+				$invalidFileReasons[$file->uuid] = $reason;
+				$invalidMaterialIds[] = (int)$file->material_id;
 			}
 		}
+
+		$invalidMaterialIds = array_values(array_unique($invalidMaterialIds));
+		sort($invalidMaterialIds);
+		$skippedFileReasons = $invalidFileReasons;
+		foreach ($fileMaterialIds as $uuid => $materialIds) {
+			if (isset($skippedFileReasons[$uuid]) || collect($materialIds)->every(fn(int $materialId) => in_array($materialId, $invalidMaterialIds, TRUE))) {
+				$skippedFileReasons[$uuid] ??= 'only_referenced_by_skipped_material';
+			}
+		}
+		ksort($skippedFileReasons);
+
+		return [
+			'material_ids' => $invalidMaterialIds,
+			'file_uuids' => array_keys($skippedFileReasons),
+			'summary' => [
+				'skipped_materials' => count($invalidMaterialIds),
+				'skipped_resources' => count($skippedFileReasons),
+				'reasons' => array_count_values(array_values($skippedFileReasons)),
+			],
+		];
+	}
+
+	private function invalidFileReason(Bundle $bundle, $disk, string $filePath, string $mimeType): ?string {
+		if (!$disk->exists($bundle->container_root . '/' . BundlesService::BUNDLE_FILES_DIR . '/' . $filePath)) {
+			return 'missing_file';
+		}
+		return NULL;
 	}
 
 	private function isSafeRelativePath(string $path): bool {

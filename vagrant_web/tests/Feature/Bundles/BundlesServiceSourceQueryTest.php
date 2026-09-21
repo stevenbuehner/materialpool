@@ -31,7 +31,7 @@ class BundlesServiceSourceQueryTest extends TestCase {
 		$this->assertSame([], collect($service->getBundleMaterials($bundleInfo, 3, 1))->pluck('id')->all());
 	}
 
-	public function test_source_validator_rejects_a_source_with_a_missing_referenced_file(): void {
+	public function test_source_validator_warns_and_skips_the_affected_material_when_a_referenced_file_is_missing(): void {
 		$bundle = $this->createBundleSource();
 		$validator = resolve(BundleSourceValidator::class);
 
@@ -42,15 +42,14 @@ class BundlesServiceSourceQueryTest extends TestCase {
 
 		Storage::disk('bundles')->delete('source-query-fixture/files/first.pdf');
 
-		try {
-			$validator->validate($bundle);
-			$this->fail('Die fehlende Bundle-Datei muss den gesamten Import verhindern.');
-		} catch (BundleSourceValidationException $exception) {
-			$this->assertSame('bundle_source_resource_invalid', $exception->failureCode);
-		}
+		$validatedSource = $validator->validate($bundle);
+
+		$this->assertSame([1], $validatedSource['warnings']['material_ids']);
+		$this->assertSame(['file-10', 'file-30'], $validatedSource['warnings']['file_uuids']);
+		$this->assertSame(['skipped_materials' => 1, 'skipped_resources' => 2, 'reasons' => ['missing_file' => 1, 'only_referenced_by_skipped_material' => 1]], $validatedSource['warnings']['summary']);
 	}
 
-	public function test_validation_job_marks_the_run_as_failed_before_any_import_job_can_run(): void {
+	public function test_validation_job_persists_warnings_and_allows_the_import_to_continue(): void {
 		$bundle = $this->createBundleSource();
 		$run = BundleImportRun::query()->create([
 			'bundle_id' => $bundle->id,
@@ -60,16 +59,25 @@ class BundlesServiceSourceQueryTest extends TestCase {
 		]);
 		Storage::disk('bundles')->delete('source-query-fixture/files/first.pdf');
 
+		(new ValidateBundleSource($run->id))->handle(resolve(BundleSourceValidator::class));
+
+		$run->refresh();
+		$this->assertSame(BundleImportStatus::Pending, $run->status);
+		$this->assertNull($run->failure_code);
+		$this->assertSame([1], $run->source_warnings['material_ids']);
+	}
+
+	public function test_source_validator_still_rejects_a_path_traversal_attempt(): void {
+		$bundle = $this->createBundleSource();
+		$database = new PDO('sqlite:' . Storage::disk('bundles')->path('source-query-fixture/database.sqlite'));
+		$database->exec("UPDATE files SET file_path = '../outside.pdf' WHERE id = 10");
+
 		try {
-			(new ValidateBundleSource($run->id))->handle(resolve(BundleSourceValidator::class));
-			$this->fail('Die Validierung muss vor dem Ressourcen- und Materialimport abbrechen.');
+			resolve(BundleSourceValidator::class)->validate($bundle);
+			$this->fail('Ein Traversal-Pfad muss den Import verhindern.');
 		} catch (BundleSourceValidationException $exception) {
 			$this->assertSame('bundle_source_resource_invalid', $exception->failureCode);
 		}
-
-		$run->refresh();
-		$this->assertSame(BundleImportStatus::Failed, $run->status);
-		$this->assertSame('bundle_source_resource_invalid', $run->failure_code);
 	}
 
 	private function createBundleSource(): Bundle {
@@ -84,6 +92,7 @@ class BundlesServiceSourceQueryTest extends TestCase {
 		$disk->makeDirectory('source-query-fixture/files');
 		$disk->put('source-query-fixture/files/first.pdf', 'fixture');
 		$disk->put('source-query-fixture/files/second.pdf', 'fixture');
+		$disk->put('source-query-fixture/files/third.pdf', 'fixture');
 		$databasePath = $disk->path('source-query-fixture/database.sqlite');
 		$pdo = new PDO('sqlite:' . $databasePath);
 
@@ -98,8 +107,10 @@ class BundlesServiceSourceQueryTest extends TestCase {
 		$pdo->exec("INSERT INTO material VALUES (3, 1, '2026-09-18', 'Without resource', NULL, '2026-09-18', NULL, NULL, 1, 'material-3')");
 		$pdo->exec("INSERT INTO files VALUES (20, 'file-20', '2026-09-18', '2026-09-18', '2026-09-18', NULL, 1, 'second.pdf', NULL, NULL, NULL, 'application/pdf')");
 		$pdo->exec("INSERT INTO files VALUES (10, 'file-10', '2026-09-18', '2026-09-18', '2026-09-18', NULL, 1, 'first.pdf', NULL, NULL, NULL, 'application/pdf')");
+		$pdo->exec("INSERT INTO files VALUES (30, 'file-30', '2026-09-18', '2026-09-18', '2026-09-18', NULL, 1, 'third.pdf', NULL, NULL, NULL, 'application/pdf')");
 		$pdo->exec('INSERT INTO material_files VALUES (1, 10)');
 		$pdo->exec('INSERT INTO material_files VALUES (2, 20)');
+		$pdo->exec('INSERT INTO material_files VALUES (1, 30)');
 
 		return $bundle;
 	}

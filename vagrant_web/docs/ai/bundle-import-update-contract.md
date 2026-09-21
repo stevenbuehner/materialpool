@@ -236,14 +236,14 @@ Vor der ersten Domänenmutation prüft ein Validation-Batch mindestens:
 - Material- und Resource-UUIDs sind innerhalb der Quelle eindeutig und nicht leer;
 - alle `material_files`-Referenzen zeigen auf vorhandene Material-/File-Datensätze;
 - `file_path` ist relativ, normalisiert, enthält kein `..`, keinen absoluten Pfad und bleibt innerhalb von `{container_root}/files`;
-- benötigte lokale Dateien existieren und sind lesbar;
-- MIME-Typen lassen sich über den bestehenden `ResourceRecognitionService` abbilden;
+- benötigte lokale Dateien existieren und sind lesbar; fehlende Dateien werden als überspringbare Warnung mit den unmittelbar referenzierenden Materialien erfasst;
+- MIME-Typen werden über den bestehenden `ResourceRecognitionService` verarbeitet;
 - Metadatentypen liegen in `key`, `person`, `place`, `lang`, `bibleverse`;
 - Bibelstellen erfüllen das vorhandene Format;
 - Bewertungen liegen im gültigen Bereich;
 - Foreign-UUID-Kollisionen mit anderen Bundles werden entsprechend dem unten festgelegten Eindeutigkeitsvertrag behandelt.
 
-Validierungsjobs verändern keine Domainmodelle, Pivots, Foreign-IDs oder Bundle-Statusfelder. Ein Validation-Fehler beendet den Lauf vor jeder fachlichen Mutation.
+Validierungsjobs verändern keine Domainmodelle, Pivots, Foreign-IDs oder Bundle-Statusfelder. Struktur-, Identitäts-, Beziehungs- und Pfadsicherheitsfehler beenden den Lauf vor jeder fachlichen Mutation. Bei einer fehlenden Datei überspringt der Import dagegen die betroffene Resource, alle unmittelbar davon abhängigen Materialien sowie ausschließlich von diesen Materialien verwendete Resources; gemeinsam von gültigen Materialien verwendete Resources bleiben importierbar. Der Run speichert hierfür eine datensparsame Warnungszusammenfassung.
 
 ### Phase 2 – `deleting_materials`
 
@@ -634,7 +634,7 @@ Jedes Arbeitspaket beginnt mit `git status --short`, einer erneuten Lektüre der
 
 **Ziel:** vollständige Vorabvalidierung vor Domänenmutation.
 **Änderungen:** `BundlesService`, Validator, DTOs, isolierte SQLite-Fixtures.
-**Tests:** gültiges Bundle; fehlende Tabelle/Spalte/Datei; Traversal-Pfad; unbekannter MIME-/Metadatentyp; kaputte Relation; stabile Pagination über mehr als 100 Datensätze; unveränderter Fingerprint.
+**Tests:** gültiges Bundle; fehlende Tabelle/Spalte; fehlende Datei als Teilimport; Traversal-Pfad und kaputte Relation als harter Abbruch; stabile Pagination über mehr als 100 Datensätze; unveränderter Fingerprint.
 **Stop:** reales Bundleformat enthält absichtlich derzeit als ungültig definierte Werte; dann Vertrag ergänzen statt still tolerieren.
 
 ### AP 3 – Orchestrator und Laravel-Batches
@@ -729,7 +729,7 @@ Jedes Arbeitspaket beginnt mit `git status --short`, einer erneuten Lektüre der
 - Material-Resource-Pivot inklusive `limitation` bleibt vertragsgemäß.
 - Resource-Hash, Filesize, Seitenzahl/Dauer soweit Typ zutrifft.
 - Resource-Typwechsel liefert dokumentierten Fehler oder vollständig getesteten Ersatz.
-- fehlende Datei, unbekannter MIME-Typ, falsches Schema und Path Traversal verändern keine Domainmodelle.
+- fehlende Datei überspringt ausschließlich ihre abhängigen Materialien und nicht benötigten Resources; falsches Schema und Path Traversal verändern keine Domainmodelle.
 - Update mit unverändertem Bundle ist no-op und erzeugt keinen neuen Lauf.
 - Preview-Caches werden bei Änderungen invalidiert, bei no-op nicht unnötig.
 

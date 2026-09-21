@@ -48,4 +48,29 @@ class BundleImportStatusEndpointTest extends TestCase {
 			->assertOk()
 			->assertJsonPath('id', $run->id);
 	}
+
+	public function test_bundle_manager_receives_a_data_minimized_summary_of_skipped_import_records(): void {
+		$user = User::factory()->create(['is_admin' => TRUE]);
+		$bundle = Bundle::factory()->create();
+		$run = BundleImportRun::query()->create([
+			'bundle_id' => $bundle->id,
+			'operation' => BundleImportOperation::Update,
+			'target_version' => '2.0.0',
+			'queue_name' => 'bundle_' . $bundle->id . '_queue',
+			'source_warnings' => [
+				'material_ids' => [17],
+				'file_uuids' => ['private-source-file'],
+				'summary' => ['skipped_materials' => 1, 'skipped_resources' => 2, 'reasons' => ['missing_file' => 1, 'only_referenced_by_skipped_material' => 1]],
+			],
+		]);
+		Passport::actingAs($user);
+
+		$this->getJson(route('api.v1.bundles.runs.status', [$bundle, $run]))
+			->assertOk()
+			->assertJsonPath('warnings.skipped_materials', 1)
+			->assertJsonPath('warnings.skipped_resources', 2)
+			->assertJsonPath('warnings.reasons.missing_file', 1)
+			->assertJsonMissingPath('warnings.material_ids')
+			->assertJsonMissingPath('warnings.file_uuids');
+	}
 }
