@@ -78,6 +78,13 @@
           </strong>
           <br>
           {{ importReportMessage }}
+          <ul class="mb-0 mt-2 ps-3">
+            <li>{{ $t('pool.bundle-import-summary-materials', importSummary.materials) }}</li>
+            <li>{{ $t('pool.bundle-import-summary-resources', importSummary.resources) }}</li>
+            <li v-if="hasRemovalSummary">{{ $t('pool.bundle-import-summary-removed-materials', importSummary.removed.materials) }}</li>
+            <li v-if="hasRemovalSummary">{{ $t('pool.bundle-import-summary-removed-resources', importSummary.removed.resources) }}</li>
+            <li v-if="importSummary.errors.count > 0">{{ $t('pool.bundle-import-summary-errors', {count: importSummary.errors.count}) }}</li>
+          </ul>
         </b-list-group-item>
       </b-list-group>
 
@@ -169,9 +176,32 @@ export default {
       return this.run && ((this.run.warnings?.skipped_materials || 0) > 0 || (this.run.warnings?.skipped_resources || 0) > 0);
     },
 
+    importSummary() {
+      return this.run?.summary || {
+        materials: {successful: 0, skipped: 0, failed: 0},
+        resources: {successful: 0, skipped: 0, failed: 0},
+        removed: {
+          materials: {successful: 0, skipped: 0, failed: 0},
+          resources: {successful: 0, skipped: 0, failed: 0},
+        },
+        errors: {count: 0, code: null},
+      };
+    },
+
+    hasRemovalSummary() {
+      return Object.values(this.importSummary.removed.materials).some(count => count > 0)
+          || Object.values(this.importSummary.removed.resources).some(count => count > 0);
+    },
+
     importReportTitle() {
       if (this.run.status === 'failed') {
-        return this.$t('pool.bundle-import-failed');
+        return this.run.operation === 'uninstall'
+            ? this.$t('pool.bundle-uninstall-failed')
+            : this.$t('pool.bundle-import-failed');
+      }
+
+      if (this.run.operation === 'uninstall') {
+        return this.hasWarnings ? this.$t('pool.bundle-uninstall-partially-completed') : this.$t('pool.bundle-uninstall-completed');
       }
 
       return this.hasWarnings ? this.$t('pool.bundle-import-partially-completed') : this.$t('pool.bundle-import-completed');
@@ -179,11 +209,15 @@ export default {
 
     importReportMessage() {
       if (this.run.status === 'failed') {
-        return this.run.failure?.message || this.$t('pool.bundle-import-failed-generic');
+        return this.run.failure?.message || (this.run.operation === 'uninstall'
+            ? this.$t('pool.bundle-uninstall-failed-generic')
+            : this.$t('pool.bundle-import-failed-generic'));
       }
 
       if (!this.hasWarnings) {
-        return this.$t('pool.bundle-import-completed-message');
+        return this.run.operation === 'uninstall'
+            ? this.$t('pool.bundle-uninstall-completed-message')
+            : this.$t('pool.bundle-import-completed-message');
       }
 
       const summary = this.$t('pool.bundle-import-partial-message', {
@@ -254,7 +288,9 @@ export default {
               this.runNextJobs();
             }
           })
-          .catch(() => undefined);
+          .catch(() => useBundlesStore().getLatestRunStatus(this.bundle.id)
+              .then(run => this.applyRun(run))
+              .catch(() => undefined));
     },
 
     btnStartUpdate() {
@@ -302,7 +338,8 @@ export default {
 
                    if (run && (run.status === 'succeeded' || run.status === 'failed')) {
                      this.isRunning = false;
-                     this.showImportReport(run);
+                     useBundlesStore().allBundles(true)
+                         .finally(() => this.showImportReport(run));
                    } else if (open === 0) {
                      window.setTimeout(() => this.runNextJobs(), 500);
                    } else {

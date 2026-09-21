@@ -97,6 +97,7 @@ class BundleImportOrchestrator {
 				'active_slot' => NULL,
 				'failure_code' => $failureCode,
 				'failure_message' => 'Der Bundle-Import konnte nicht abgeschlossen werden.',
+				'result_summary' => $this->resultSummary($run, $failureCode),
 				'finished_at' => now(),
 			]);
 		});
@@ -234,7 +235,36 @@ class BundleImportOrchestrator {
 				$bundle->update(['installed_version' => $run->target_version, 'update_available' => FALSE, 'is_installed' => TRUE]);
 			}
 
-			$run->update(['status' => BundleImportStatus::Succeeded, 'active_slot' => NULL, 'finished_at' => now()]);
+			$run->update([
+				'status' => BundleImportStatus::Succeeded,
+				'active_slot' => NULL,
+				'result_summary' => $this->resultSummary($run),
+				'finished_at' => now(),
+			]);
 		});
+	}
+
+	private function resultSummary(BundleImportRun $run, ?string $failureCode = NULL): array {
+		$warnings = $run->source_warnings ?? [];
+		$materials = $this->batchSummary($run->materials_batch_id, count($warnings['material_ids'] ?? []));
+		$resources = $this->batchSummary($run->resources_batch_id, count($warnings['file_uuids'] ?? []));
+		$removedMaterials = $this->batchSummary($run->delete_materials_batch_id);
+		$removedResources = $this->batchSummary($run->delete_resources_batch_id);
+		$failedJobs = $materials['failed'] + $resources['failed'] + $removedMaterials['failed'] + $removedResources['failed'];
+
+		return [
+			'materials' => $materials,
+			'resources' => $resources,
+			'removed' => ['materials' => $removedMaterials, 'resources' => $removedResources],
+			'errors' => ['count' => max($failedJobs, $failureCode === NULL ? 0 : 1), 'code' => $failureCode],
+		];
+	}
+
+	private function batchSummary(?string $batchId, int $skipped = 0): array {
+		$batch = $batchId === NULL ? NULL : Bus::findBatch($batchId);
+		$processed = $batch?->processedJobs() ?? 0;
+		$failed = $batch?->failedJobs ?? 0;
+
+		return ['successful' => max($processed - $failed, 0), 'skipped' => $skipped, 'failed' => $failed];
 	}
 }

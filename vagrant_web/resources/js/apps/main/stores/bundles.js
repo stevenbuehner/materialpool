@@ -7,6 +7,7 @@ import {
 	api_v1_bundles_uninstall_init,
 	api_v1_bundles_run_status,
 	api_v1_bundles_active_run_status,
+	api_v1_bundles_latest_run_status,
 	api_v1_bundles_update_init,
 	api_v1_bundles_update_run,
 } from '../../../components/serverRoutes';
@@ -133,6 +134,11 @@ export const useBundlesStore = defineStore('bundles', {
 
 		getActiveRunStatus(bundleId) {
 			return axios.get(api_v1_bundles_active_run_status(bundleId))
+				.then(({data}) => data);
+		},
+
+		getLatestRunStatus(bundleId) {
+			return axios.get(api_v1_bundles_latest_run_status(bundleId))
 				.then(({data}) => data);
 		},
 

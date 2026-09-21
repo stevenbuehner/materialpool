@@ -162,6 +162,8 @@ Eine getrennte neue Migration legt folgende Tabelle an:
 | `active_slot` | nullable unsigned tiny integer | bei aktivem Lauf `1`, bei terminalem Lauf `NULL` |
 | `target_version` | nullable string(191) | bei Uninstall die zuletzt installierte/erkannte Version |
 | `source_fingerprint` | nullable char(64) | SHA-256 der gelesenen Bundle-SQLite-Datei |
+| `source_warnings` | nullable JSON | interne Skip-IDs und datensparsame Warnungszusammenfassung |
+| `result_summary` | nullable JSON | bei terminalem Lauf persistierte Mengen für Verarbeitung, Überspringen, Entfernung und Fehler |
 | `queue_name` | string(191) | eingefrorener Name `bundle_{id}_queue` |
 | `current_batch_id` | nullable UUID/String gemäß Laravel-Migration | aktuelle Batch-ID |
 | `validation_batch_id` | nullable | Batch-Historie |
@@ -362,6 +364,7 @@ Verbindliche Semantik:
 - `POST bundles/{bundle}/init-uninstall`: `202`, neuer oder identischer aktiver Run;
 - `POST bundles/{bundle}/run-update`: bounded Pump; `202` aktiv, `200` erfolgreich;
 - `GET bundles/{bundle}/runs/{run}` beziehungsweise eindeutig benannter Statusendpunkt: read-only Status;
+- `GET bundles/{bundle}/runs/latest`: letzter Run inklusive persistierter Zusammenfassung, damit die Bundle-Karte den Abschluss nach einem Reload anzeigen kann;
 - fehlende Bundle-Quelle bei Installation/Update: `422 Unprocessable Entity` mit `bundle_source_missing`;
 - fehlende Quelle bei Uninstall: kein Fehler, da die persistierten Foreign-IDs genügen;
 - kollidierender aktiver Lauf: `409 Conflict`;
@@ -661,15 +664,15 @@ Jedes Arbeitspaket beginnt mit `git status --short`, einer erneuten Lektüre der
 ### AP 6 – API, Browser-Pump und Terminal-Worker
 
 **Ziel:** fortsetzbarer Lauf mit zwei gleichzeitigen Konsumenten.
-**Änderungen:** dünner Controller, Statusendpunkt, Queue Runner, Console Command, Routes.
-**Tests:** Authentifizierung, Aktivstatus, `bundles.manage`, 202/200/409/422/404, Browser-Pump plus Terminal-Runner, Browser-Pause, spätere Wiederaufnahme, keine falschen Done-Zähler.
+**Änderungen:** dünner Controller, Statusendpunkt, persistierte terminale Zusammenfassung, Queue Runner, Console Command, Routes.
+**Tests:** Authentifizierung, Aktivstatus, letzter terminaler Lauf, `bundles.manage`, 202/200/409/422/404, Browser-Pump plus Terminal-Runner, Browser-Pause, spätere Wiederaufnahme, keine falschen Done-Zähler.
 **Stop:** benötigte Änderung vorhandener Route oder Entfernung eines Responsefelds.
 
 ### AP 7 – Frontend-Status und Fehlerbehandlung
 
 **Ziel:** Serverstatus statt lokaler Erfolgsschätzung.
-**Änderungen:** Bundle-Pinia-Store, Bundle-Komponente, Übersetzungen, vorhandene Browserfixtures.
-**Tests:** Store rethrowt Fehler; Polling endet bei `failed`; Reopen zeigt aktiven Lauf; Pause stoppt nur Browser-Pump; Terminalfortschritt erscheint; responsive/Keyboard-/Loading-/Empty-/Error-Zustände.
+**Änderungen:** Bundle-Pinia-Store, Bundle-Komponente, Übersetzungen, persistierter Abschlussbericht, vorhandene Browserfixtures.
+**Tests:** Store rethrowt Fehler; Polling endet bei `failed`; Reopen zeigt aktiven sowie letzten terminalen Lauf; Abschlussbericht zeigt verarbeitete, übersprungene und fehlgeschlagene Einträge; Pause stoppt nur Browser-Pump; Terminalfortschritt erscheint; responsive/Keyboard-/Loading-/Empty-/Error-Zustände.
 **Stop:** komponentenübergreifendes Redesign.
 
 ### AP 8 – Deinstallation ohne Quelle und Recovery

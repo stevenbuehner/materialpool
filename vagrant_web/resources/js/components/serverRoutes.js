@@ -300,6 +300,10 @@ export function api_v1_bundles_active_run_status(bundleId) {
 	return '/api/v1/bundles/' + bundleId + '/runs/active';
 }
 
+export function api_v1_bundles_latest_run_status(bundleId) {
+	return '/api/v1/bundles/' + bundleId + '/runs/latest';
+}
+
 export function api_v1_bundles_get_icon(bundleId) {
 	return '/api/v1/bundles/' + bundleId + '/icon';
 }

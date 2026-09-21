@@ -75,7 +75,9 @@ class BundleImportController extends BaseController {
 			return response()->json(['updateAvailable' => FALSE, 'continueUpdate' => FALSE, 'openJobs' => 0, 'run' => NULL]);
 		}
 
-		return $this->startRun($bundle, BundleImportOperation::Update, $source['version']);
+		$operation = $bundle->is_installed ? BundleImportOperation::Update : BundleImportOperation::Install;
+
+		return $this->startRun($bundle, $operation, $source['version']);
 	}
 
 	public function initUninstall(Bundle $bundle): JsonResponse {
@@ -90,6 +92,12 @@ class BundleImportController extends BaseController {
 
 	public function activeStatus(Bundle $bundle): array {
 		$run = BundleImportRun::query()->where('bundle_id', $bundle->id)->whereNotNull('active_slot')->latest('created_at')->firstOrFail();
+
+		return $this->serializeRun($run);
+	}
+
+	public function latestStatus(Bundle $bundle): array {
+		$run = BundleImportRun::query()->where('bundle_id', $bundle->id)->latest('created_at')->firstOrFail();
 
 		return $this->serializeRun($run);
 	}
@@ -161,11 +169,24 @@ class BundleImportController extends BaseController {
 			'progress' => ['total' => $total, 'processed' => $processed, 'failed' => $failed, 'percentage' => $total === 0 ? 0 : (int)floor($processed / $total * 100)],
 			'failure' => $run->failure_code === NULL ? NULL : ['code' => $run->failure_code, 'message' => $run->failure_message],
 			'warnings' => $this->serializeWarnings($run->source_warnings),
+			'summary' => $this->serializeSummary($run->result_summary),
 		];
 	}
 
 	private function serializeWarnings(?array $warnings): array {
 		return $warnings['summary'] ?? ['skipped_materials' => 0, 'skipped_resources' => 0, 'reasons' => []];
+	}
+
+	private function serializeSummary(?array $summary): array {
+		return $summary ?? [
+			'materials' => ['successful' => 0, 'skipped' => 0, 'failed' => 0],
+			'resources' => ['successful' => 0, 'skipped' => 0, 'failed' => 0],
+			'removed' => [
+				'materials' => ['successful' => 0, 'skipped' => 0, 'failed' => 0],
+				'resources' => ['successful' => 0, 'skipped' => 0, 'failed' => 0],
+			],
+			'errors' => ['count' => 0, 'code' => NULL],
+		];
 	}
 
 	private function error(string $code, int $status): JsonResponse {

@@ -27,6 +27,7 @@ class BundleImportRun extends Model {
 		'target_version',
 		'source_fingerprint',
 		'source_warnings',
+		'result_summary',
 		'queue_name',
 		'current_batch_id',
 		'validation_batch_id',
@@ -58,6 +59,7 @@ class BundleImportRun extends Model {
 		'expected_jobs' => 'integer',
 		'processed_jobs' => 'integer',
 		'source_warnings' => 'array',
+		'result_summary' => 'array',
 		'started_at' => 'datetime',
 		'finished_at' => 'datetime',
 	];

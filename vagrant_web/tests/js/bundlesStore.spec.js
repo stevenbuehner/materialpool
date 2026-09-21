@@ -92,6 +92,13 @@ describe('bundles Pinia store', () => {
         expect(axios.get).toHaveBeenCalledWith('/api/v1/bundles/7/runs/active');
     });
 
+    it('loads the latest persisted bundle import run after a reload', async () => {
+        axios.get.mockResolvedValue({data: {id: 'run-uuid', status: 'succeeded'}});
+
+        await expect(useBundlesStore().getLatestRunStatus(7)).resolves.toMatchObject({status: 'succeeded'});
+        expect(axios.get).toHaveBeenCalledWith('/api/v1/bundles/7/runs/latest');
+    });
+
     it('runs jobs and merges the completed server bundle into the existing cache object', async () => {
         const cached = {id: 7, uuid: 'basis', installed_version: '1.0', update_available: true};
         const store = useBundlesStore();
