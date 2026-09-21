@@ -392,6 +392,8 @@ Der lokale Compose-Stack enthält PostgreSQL 17 mit pgvector. Er ist ausschließ
 
 Dieser Befehl erzeugt Tabellen und Indizes ausschließlich in der in `CONTEXT_SEARCH_DB_*` konfigurierten PostgreSQL-Datenbank. Vor dem Ausführen Verbindung und Datenbankname mit `./vendor/bin/sail artisan config:show database` prüfen. Die Migration legt keine Resource-, Material- oder Suchdaten an. Die bestehende Suche, Produktivqueues und automatische Indexierung sind in diesem Stand noch unverändert.
 
+Bei einer schon vorhandenen lokalen `.env` müssen die `CONTEXT_SEARCH_DB_*`-Werte einmal aus der `.env.example` übernommen werden; insbesondere ist das lokale Passwort kein impliziter Laravel-Default. Produktionswerte werden ausschließlich über die Server-Konfiguration gesetzt.
+
 Für gezielte Diagnose können die Prozesse einzeln laufen:
 
 ```sh

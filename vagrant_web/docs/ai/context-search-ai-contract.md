@@ -547,7 +547,7 @@ Jede Stufe ist ein eigenes freizugebendes Arbeitspaket mit Migrationen, Tests, B
 
 ### Stufe 0 – Messbarer Spike
 
-**Umsetzungsstand (22. September 2026):** Option A ist begonnen. Das Repository enthält die Laravel-AI-SDK-Abhängigkeit, eine getrennte `context_search`-PostgreSQL-Verbindung, einen lokalen PostgreSQL-17/pgvector-Compose-Dienst, eine ausschließlich manuell aufzurufende Sidecar-Migration sowie den deterministischen Unicode-fähigen Text-Chunker mit Quellzeichen-Offsets. Es gibt weiterhin keinen Listener, keinen Produktivworker, keinen Backfill und keine Änderung an der bestehenden Suche oder Oberfläche.
+**Umsetzungsstand (22. September 2026):** Option A ist begonnen. Das Repository enthält die Laravel-AI-SDK-Abhängigkeit, eine getrennte `context_search`-PostgreSQL-Verbindung, einen lokalen PostgreSQL-17/pgvector-Compose-Dienst, eine ausschließlich manuell aufzurufende Sidecar-Migration sowie den deterministischen Unicode-fähigen Text-Chunker mit Quellzeichen-Offsets. Die lokale Migration wurde mit PostgreSQL 17 und pgvector erfolgreich validiert. Es gibt weiterhin keinen Listener, keinen Produktivworker, keinen Backfill und keine Änderung an der bestehenden Suche oder Oberfläche.
 
 - PostgreSQL/pgvector und Ollama in einer isolierten Entwicklungsumgebung;
 - 50 bis 100 repräsentative Dokumente;
