@@ -384,7 +384,7 @@ Laravel 13 startet damit standardmäßig Server, Queue-Listener, Logansicht und 
 
 Die Kontextsuche wird gemäß dem [Planungs- und Arbeitsvertrag](docs/ai/context-search-ai-contract.md) auf Qdrant aufgebaut. Der lokale Compose-Stack verwendet die fest gepinnte Qdrant-Version 1.19.1. Die REST-Schnittstelle wird nur an `127.0.0.1` veröffentlicht und intern mit `QDRANT_API_KEY` geschützt. Der mitgelieferte Schlüssel ist ausschließlich für lokale Entwicklung bestimmt; produktive Schlüssel werden über die Server-Secret-Konfiguration gesetzt und Qdrant wird dort nur über ein abgesichertes privates Netz beziehungsweise TLS erreicht.
 
-Bei einer bereits vorhandenen lokalen `.env` müssen die `QDRANT_*`- und `FORWARD_QDRANT_PORT`-Werte einmal aus `.env.example` übernommen werden. Danach Qdrant und die Anwendung starten und den Healthcheck prüfen:
+Bei einer bereits vorhandenen lokalen `.env` müssen die `QDRANT_*`, `CONTEXT_SEARCH_*`- und `FORWARD_QDRANT_PORT`-Werte einmal aus `.env.example` übernommen werden. Danach Qdrant und die Anwendung starten und den Healthcheck prüfen:
 
 ```sh
 docker compose up -d qdrant laravel.test
@@ -399,6 +399,18 @@ Eine leere, versionierte Collection samt Payload-Indizes wird bewusst manuell pr
 ```
 
 Der Befehl speichert noch keine Ressourcen oder Vektoren. Vor dem Aktivieren einer später befüllten Generation sind die im Vertrag vorgesehenen Qualitäts- und Kapazitätsprüfungen Pflicht. Bis zur Suchintegration bleibt `CONTEXT_SEARCH_ENABLED=false`; die bestehende direkte Suche arbeitet unverändert weiter.
+
+#### Ollama-Modellprofil und Pool
+
+Der Kontextsuche-Pool verwendet ausschließlich `CONTEXT_SEARCH_EMBEDDING_MODEL`; ein generatives Modell kann daher nicht versehentlich Suchvektoren erzeugen. Jeder Poolserver muss exakt dieses Modell mit demselben Modell-Digest bereitstellen. Die Serverliste folgt dem Format `name=url|max_parallel_jobs`, mehrere Server werden durch Komma getrennt. Zugangsdaten stehen getrennt in `CONTEXT_SEARCH_OLLAMA_API_KEYS` als `name=secret`-Einträge und gehören ausschließlich in Server-Secrets, nie ins Repository.
+
+Vor einer Indexgeneration ist auf jedem Ollama-Server der Modell-Digest über `GET /api/tags` zu ermitteln und als `CONTEXT_SEARCH_EMBEDDING_DIGEST` zu setzen. Danach prüft der folgende lesende Selbsttest Modellname, Digest und die tatsächlich gelieferte Vektordimension auf allen konfigurierten Servern:
+
+```sh
+./vendor/bin/sail artisan context-search:ollama:verify
+```
+
+Ein abweichender Digest, Modellname oder eine andere Dimension ist ein Konfigurationsfehler: Der Pool stoppt dann, statt Vektoren verschiedener Modelle zu mischen. Bei Netzwerkfehlern, Timeouts, Überlastung oder 5xx-Antworten verteilt er eine Anfrage deterministisch auf den nächsten gesunden Server. Nach den konfigurierbaren Fehlschlägen öffnet der serverbezogene Circuit Breaker zeitweise; jede Serverdefinition besitzt zudem ihr eigenes gemeinsames Parallelitätslimit. Erst der erfolgreiche Selbsttest berechtigt zum Provisionieren und Befüllen einer Indexgeneration.
 
 Für gezielte Diagnose können die Prozesse einzeln laufen:
 

@@ -19,8 +19,18 @@ return [
     'embedding' => [
         'provider' => 'ollama',
         'model' => env('CONTEXT_SEARCH_EMBEDDING_MODEL', 'embeddinggemma:300m-qat-q8_0'),
+        'digest' => env('CONTEXT_SEARCH_EMBEDDING_DIGEST'),
         'dimensions' => (int) env('CONTEXT_SEARCH_EMBEDDING_DIMENSIONS', 768),
         'timeout' => (int) env('CONTEXT_SEARCH_EMBEDDING_TIMEOUT', 30),
+        'options_json' => env('CONTEXT_SEARCH_EMBEDDING_OPTIONS_JSON', '{}'),
+    ],
+
+    'ollama' => [
+        'servers' => env('CONTEXT_SEARCH_OLLAMA_SERVERS', 'primary=http://host.docker.internal:11434|1'),
+        'api_keys' => env('CONTEXT_SEARCH_OLLAMA_API_KEYS', ''),
+        'connect_timeout' => (int) env('CONTEXT_SEARCH_OLLAMA_CONNECT_TIMEOUT', 2),
+        'failure_threshold' => (int) env('CONTEXT_SEARCH_OLLAMA_FAILURE_THRESHOLD', 2),
+        'circuit_cooldown' => (int) env('CONTEXT_SEARCH_OLLAMA_CIRCUIT_COOLDOWN', 60),
     ],
 
     'chunking' => [

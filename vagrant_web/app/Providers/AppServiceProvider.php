@@ -5,6 +5,9 @@ namespace App\Providers;
 use App\ResourceLimitations\ResourceLimitationService;
 use App\Services\Bundles\BundleQueueService;
 use App\Services\Bundles\BundlesService;
+use App\Services\ContextSearch\EmbeddingProfile;
+use App\Services\ContextSearch\Ollama\OllamaEmbeddingPool;
+use App\Services\ContextSearch\Ollama\OllamaServerConfiguration;
 use App\Services\ContextSearch\Qdrant\HttpQdrantClient;
 use App\Services\ContextSearch\Qdrant\QdrantClient;
 use App\Services\ContextSearch\Qdrant\QdrantCollectionProvisioner;
@@ -103,6 +106,21 @@ class AppServiceProvider extends ServiceProvider {
 			distance: (string) config('context_search.qdrant.distance'),
 			vectorsOnDisk: (bool) config('context_search.qdrant.vectors_on_disk'),
 			payloadOnDisk: (bool) config('context_search.qdrant.payload_on_disk'),
+		));
+		$this->app->singleton(EmbeddingProfile::class, fn (): EmbeddingProfile => EmbeddingProfile::fromConfiguration(
+			(array) config('context_search.embedding'),
+		));
+		$this->app->singleton(OllamaEmbeddingPool::class, fn ($app): OllamaEmbeddingPool => new OllamaEmbeddingPool(
+			servers: OllamaServerConfiguration::parse(
+				(string) config('context_search.ollama.servers'),
+				(string) config('context_search.ollama.api_keys'),
+			),
+			profile: $app->make(EmbeddingProfile::class),
+			cache: $app['cache.store'],
+			connectTimeout: (int) config('context_search.ollama.connect_timeout'),
+			timeout: (int) config('context_search.embedding.timeout'),
+			failureThreshold: (int) config('context_search.ollama.failure_threshold'),
+			circuitCooldown: (int) config('context_search.ollama.circuit_cooldown'),
 		));
 
 		// Keyword Handling
