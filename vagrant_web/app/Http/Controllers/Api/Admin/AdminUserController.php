@@ -134,7 +134,7 @@ class AdminUserController extends Controller {
 		Log::notice('admin.user.updated', [
 			'actor_id' => $actor->id,
 			'target_user_id' => $user->id,
-			'suspended' => !$wasSuspended && $nextStatus === UserStatus::Suspended,
+			'suspended' => !$wasSuspended && $user->status === UserStatus::Suspended,
 		]);
 
 		return ['user' => $this->serialize($user->fresh('roles:id,name'))];
