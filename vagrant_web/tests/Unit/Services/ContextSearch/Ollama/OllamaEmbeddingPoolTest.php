@@ -6,6 +6,7 @@ use App\Services\ContextSearch\EmbeddingProfile;
 use App\Services\ContextSearch\Ollama\OllamaEmbeddingPool;
 use App\Services\ContextSearch\Ollama\OllamaProfileMismatchException;
 use App\Services\ContextSearch\Ollama\OllamaServer;
+use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Tests\TestCase;
@@ -51,6 +52,8 @@ final class OllamaEmbeddingPoolTest extends TestCase
 
         $this->assertSame(['first', 'second'], array_column($servers, 'name'));
         $this->assertSame([2, 2], array_column($servers, 'dimensions'));
+        Http::assertSent(fn (Request $request): bool => $request->url() === 'http://first.test/api/embed'
+            && ! array_key_exists('options', $request->data()));
     }
 
     public function test_fails_over_after_a_transient_server_error(): void

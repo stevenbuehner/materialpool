@@ -132,13 +132,12 @@ final class OllamaEmbeddingPool
                 throw new OllamaProfileMismatchException("Ollama server {$server->name} has a different digest for the configured embedding model.");
             }
 
-            $probe = $this->request($server)->post('/api/embed', [
+            $probe = $this->request($server)->post('/api/embed', $this->embeddingPayload([
                 'model' => $this->profile->model,
                 'input' => ['Materialpool embedding profile verification.'],
                 'dimensions' => $this->profile->dimensions,
                 'truncate' => false,
-                'options' => $this->profile->options,
-            ]);
+            ]));
             $this->assertResponse($probe, $server, 'POST', '/api/embed');
             $this->assertEmbeddingResponse($probe, $server, 1);
 
@@ -151,13 +150,12 @@ final class OllamaEmbeddingPool
     /** @param array<int, string> $inputs */
     private function embedOn(OllamaServer $server, array $inputs): OllamaEmbeddingResponse
     {
-        $response = $this->request($server)->post('/api/embed', [
+        $response = $this->request($server)->post('/api/embed', $this->embeddingPayload([
             'model' => $this->profile->model,
             'input' => $inputs,
             'dimensions' => $this->profile->dimensions,
             'truncate' => false,
-            'options' => $this->profile->options,
-        ]);
+        ]));
         $this->assertResponse($response, $server, 'POST', '/api/embed');
         $embeddings = $this->assertEmbeddingResponse($response, $server, count($inputs));
 
@@ -273,5 +271,17 @@ final class OllamaEmbeddingPool
     private function circuitKey(OllamaServer $server): string
     {
         return "context-search:ollama:circuit:{$this->profile->id()}:{$server->name}";
+    }
+
+    /** @param array<string, mixed> $payload
+     *  @return array<string, mixed>
+     */
+    private function embeddingPayload(array $payload): array
+    {
+        if ($this->profile->options !== []) {
+            $payload['options'] = $this->profile->options;
+        }
+
+        return $payload;
     }
 }
