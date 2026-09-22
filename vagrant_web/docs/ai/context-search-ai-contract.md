@@ -1,11 +1,13 @@
-# Planungs- und Entscheidungsvertrag: Kontextsuche und KI-Funktionen
+# Planungs- und Arbeitsvertrag: Kontextsuche und KI-Funktionen
 
 ## 1. Status, Zweck und Verbindlichkeit
 
-Dieses Dokument ist der fachliche und technische Vertrag für die geplante Kontextsuche sowie die darauf aufbauenden KI-Funktionen des Materialpools. Es hält bestätigte Entscheidungen, Empfehlungen, offene Entscheidungen, Qualitätsziele und die vorgesehene Umsetzung in Stufen fest.
+Dieses Dokument ist der verbindliche fachliche, technische und organisatorische Vertrag für die Kontextsuche und die darauf aufbauenden KI-Funktionen des Materialpools. Es ersetzt alle früheren Zielbilder für den Vektorspeicher vollständig.
 
 > [!IMPORTANT]
-> Der Vertrag beschreibt einen **Planungsstand**. PostgreSQL, `pgvector`, das Laravel AI SDK, Ollama-Anbindungen, neue Tabellen, Queues, Admin-Oberflächen und Suchänderungen sind dadurch noch nicht installiert oder implementiert. Jede Umsetzung bleibt nach `AGENTS.md` freigabe-, migrations-, sicherheits- und testpflichtig.
+> Qdrant ist der allein vorgesehene Vektorspeicher. Alle Artefakte der verworfenen Vektorspeicher-Variante werden in einem eigenen, prüfbaren Umsetzungsschritt vollständig entfernt. Es bleiben davon keine Verbindung, Migration, Tabelle, Erweiterung, Containerdefinition, Umgebungsvariable, Abhängigkeit, Implementierung, Testannahme oder Betriebsanweisung im Kontextsuche-Modul zurück.
+
+Dieser Vertrag beschreibt das Zielbild und die verbindliche Reihenfolge. Er allein installiert noch keine Infrastruktur und führt keine Datenmigration aus. Architektur-, Datenbank-, Queue-, Berechtigungs-, Abhängigkeits- und Infrastrukturänderungen werden stufenweise umgesetzt und nach den Regeln in Abschnitt 3 abgenommen.
 
 Maßgeblich bleiben außerdem:
 
@@ -14,637 +16,355 @@ Maßgeblich bleiben außerdem:
 - die bestehenden API-Verträge `v1` und `v2` sowie die serverseitigen Policies;
 - die vorhandene Suchzellen-Semantik: Suchzeilen werden mit `AND`, Begriffe innerhalb einer Zeile mit `OR` verknüpft.
 
-## 2. Beschlossene Produkt- und Architekturentscheidungen
+## 2. Verbindliche Entscheidungen
 
-| Thema | Verbindliche Entscheidung |
+| Thema | Entscheidung |
 | --- | --- |
-| Primäre Datenbank | MySQL bleibt führende Datenbank und alleinige fachliche Wahrheit. |
-| Suchindex | Eine separate PostgreSQL-Datenbank mit `pgvector` wird als abgeleiteter, vollständig neu aufbaubarer Suchindex verwendet. |
+| Fachliche Daten | MySQL bleibt führende Datenbank und alleinige fachliche Wahrheit. |
+| Vektorspeicher | Qdrant speichert den abgeleiteten und jederzeit neu aufbaubaren semantischen Suchindex. |
+| Qdrant-Anbindung | Laravel spricht Qdrant über dessen REST-API und den Laravel HTTP Client an. Eine zusätzliche PHP-Client-Abhängigkeit wird nur nach gesonderter Begründung eingeführt. |
 | Ergebnisobjekt | Primäres Suchergebnis ist ein Material. Darunter werden passende Ressourcen und exakte Fundstellen angezeigt. |
-| Suchlogik | Die bestehende Suchzellen-Logik bleibt erhalten. Klassische und semantische Treffer werden innerhalb dieser Logik hybrid gewichtet. |
-| Dokumentumfang | In der ersten Ausbaustufe werden PDF-Dateien und vorhandene Textressourcen berücksichtigt. Bücher werden wie PDFs behandelt. |
-| Ausgeklammert | URLs, Bilder, Audio und Video werden vorerst nicht inhaltlich indiziert. URL-Crawling ist eine spätere, eigene Ausbaustufe; Audio und Video bleiben zunächst außen vor. |
+| Suchlogik | Die bestehende Suchzellen-Logik bleibt erhalten. Klassische Treffer aus der vorhandenen Suche und semantische Treffer aus Qdrant werden in Laravel zusammengeführt. |
+| Dokumentumfang | Zunächst werden PDF-Dateien und vorhandene Textressourcen berücksichtigt. Bücher werden wie PDFs behandelt. |
+| Ausgeklammert | URLs, Bilder, Audio und Video werden vorerst nicht inhaltlich indiziert. URL-Crawling ist eine spätere Stufe. |
 | Sprachen | Deutsch und Englisch werden unterstützt. |
-| KI-Anbindung | Embeddings und generative Aufgaben laufen über eine extern gehostete Ollama-Instanz im selben lokalen Netzwerk. |
-| Modellwechsel | Modell, Dimension, Modell-Digest, Chunking-Version und Indexgeneration werden versioniert. Ein Modellwechsel überschreibt keinen aktiven Index. |
+| KI-Anbindung | Embeddings und generative Aufgaben laufen über einen oder mehrere Ollama-Server im selben lokalen Netzwerk. |
+| Embedding-Konsistenz | Innerhalb einer Indexgeneration verwenden alle Ollama-Server exakt dasselbe Embedding-Modell, denselben Modell-Digest, dieselben Parameter und dieselbe Dimension. |
+| Modellwechsel | Ein Modell- oder Dimensionswechsel erzeugt eine neue Qdrant-Collection. Der aktive Index wird niemals in-place umgedeutet. |
+| Quellen | Jeder semantische Treffer muss Ressource, Dokumentrevision, PDF-Seite und eine reproduzierbare Textstelle liefern. |
 | KI-Vorschläge | Schlagwort- und Bibelstellen-Vorschläge sind sichtbar als KI-Vorschläge markiert und werden erst durch menschliche Bestätigung übernommen. |
-| Neue Schlagworte | Die KI darf neue Schlagworte vorschlagen. Angelegt werden sie erst bei menschlicher Annahme und nach Dublettenprüfung. |
-| Übernommene Vorschläge | Nach Annahme verhalten sich Schlagwort oder Bibelstelle wie ein regulärer menschlich bestätigter Eintrag und tragen in der normalen Oberfläche kein KI-Badge mehr. Für Nachvollziehbarkeit bleibt intern ein Audit-Nachweis empfohlen. |
-| Kurzbeschreibung | KI-Kurzbeschreibungen werden separat gespeichert. Sie ersetzen keine menschliche Beschreibung. Nur wenn keine menschliche Beschreibung vorhanden ist, wird die KI-Fassung in Suchergebnissen mit kleinem KI-Symbol verwendet. |
-| Queue-Zeitfenster | Für KI-Background-Jobs gibt es ein optionales erlaubtes Ausführungszeitfenster. Außerhalb des Fensters bleiben Jobs erhalten und werden später abgearbeitet. |
-| Interaktive KI-Jobs | Berechtigte Benutzer dürfen interaktive KI-Jobs auch außerhalb des Background-Zeitfensters starten. Das Recht wird serverseitig geprüft; die Parallelität bleibt begrenzt. |
-| Administration | Betriebs- und Modellparameter werden über eine ausschließlich für Superadministratoren zugängliche Admin-Oberfläche verwaltet. Secrets und Netzwerkendpunkte bleiben Serverkonfiguration. |
-| PostgreSQL-Betrieb | PostgreSQL läuft auf demselben Server wie die Webanwendung. Der Server besitzt 2 CPUs, 4 GB RAM und nach aktueller Angabe 40 GB verfügbare SSD-Kapazität. |
-| Suchtext in PostgreSQL | Abgeleiteter Seiten- und Chunkvolltext darf und soll für Volltextsuche, Snippets und Quellen-Locators in PostgreSQL gespeichert werden. Er bleibt vollständig neu aufbaubar. |
-| OCR | Tesseract darf als neue Serverabhängigkeit für einen seitenweisen OCR-Fallback vorgesehen werden. |
-| Länge der Kurzbeschreibung | Ziel sind zwei bis drei Sätze mit einer harten Ausgabegrenze von ungefähr 300 Zeichen. |
+| Neue Schlagworte | Die KI darf neue Schlagworte vorschlagen. Angelegt werden sie erst nach Annahme und Dublettenprüfung. |
+| Angenommene Vorschläge | Nach Annahme verhalten sich Vorschläge wie reguläre Einträge. Ein interner Audit-Nachweis über die Herkunft bleibt erhalten. |
+| Kurzbeschreibung | Die KI-Fassung wird separat gespeichert und nur ersatzweise mit KI-Symbol angezeigt, wenn keine menschliche Beschreibung vorhanden ist. Ziel: zwei bis drei Sätze, maximal ungefähr 300 Zeichen. |
+| Queue-Zeitfenster | Für Hintergrund-KI-Jobs gibt es ein optionales Ausführungszeitfenster. Außerhalb bleiben Jobs erhalten. |
+| Interaktive Jobs | Berechtigte Benutzer dürfen interaktive KI-Jobs außerhalb dieses Zeitfensters starten. Recht und Lastgrenzen werden serverseitig geprüft. |
+| Administration | Fachliche Betriebs- und Modellparameter sind nur für Superadministratoren änderbar. Secrets und Netzwerkzugänge bleiben Serverkonfiguration. |
+| OCR | Tesseract ist als seitenweiser Fallback zulässig, wenn eine PDF-Seite keinen hinreichenden nativen Text liefert. |
+| Stufe 1 | Die erste Indexierung wird ausschließlich manuell gestartet. Automatische Event-Anbindung folgt erst in einer freigegebenen späteren Stufe. |
 
-## 3. Erwartete Größenordnung und Kapazitätsannahmen
+## 3. Arbeits- und Commitvertrag
 
-Die Planung muss mindestens folgende Last tragen:
+Die Umsetzung erfolgt ausschließlich in den in Abschnitt 14 definierten Schritten. Für **jeden einzelnen Schritt** gilt verbindlich:
 
-- insgesamt ungefähr 100.000 bis 200.000 Ressourcen und Materialien;
-- ungefähr 100 PDFs mit je rund 100 Seiten;
-- ungefähr 30.000 PDFs mit je 2 bis 7 Seiten;
-- damit grob 70.000 bis 220.000 PDF-Seiten vor OCR- oder Versionsduplikaten;
-- im Normalbetrieb 1 bis 10 neue Ressourcen pro Tag;
-- bei Bundle-Importen oder -Aktualisierungen Lastspitzen von mehreren Tausend Ressourcen.
+1. Vor der Änderung werden die betroffenen Verträge, Implementierungen, Tests und Betriebsdateien geprüft.
+2. Entscheidungspflichtige Abweichungen werden vor ihrer Umsetzung vorgelegt.
+3. Der Schritt erhält passende automatisierte Tests und die proportional erforderlichen Quality Gates.
+4. Änderungen werden gegen den ausdrücklich vereinbarten Abnahmeumfang geprüft.
+5. Nach erfolgreicher Prüfung wird ein eigener, inhaltlich abgeschlossener Git-Commit erstellt.
+6. Der nächste Schritt beginnt erst nach dem erfolgreichen Commit des vorherigen Schritts.
 
-Bei durchschnittlich ein bis drei Chunks pro PDF-Seite entstehen allein für PDFs voraussichtlich etwa 70.000 bis 660.000 Chunks. Mit Textressourcen, Überlappung, Revisionen und Wachstum soll die erste technische Auslegung mindestens **1,5 Millionen aktive Chunks** ohne Architekturwechsel verkraften. Alte Indexgenerationen werden getrennt gerechnet und dürfen nicht unbegrenzt erhalten bleiben.
+Zusätzliche Regeln:
 
-Die Ollama-Hardware ist zunächst mit 4 CPU-Kernen, 8 GB RAM und begrenzter GPU-Leistung angesetzt. Daraus folgt als sicherer Startwert:
+- Keine Sammel-Commits über mehrere Vertragsschritte.
+- Keine fremden oder sachfremden Arbeitsverzeichnisänderungen in einen Schritt aufnehmen; Dateien werden gezielt gestaged.
+- Ein fehlgeschlagener oder nur teilweise geprüfter Schritt wird nicht als abgeschlossen committed. Der Blocker wird dokumentiert und zuerst behoben oder zur Entscheidung vorgelegt.
+- Jeder Abschlussbericht nennt Commit-ID, geänderten Umfang, ausgeführte und ausgelassene Prüfungen sowie verbleibende Risiken.
+- Dokumentation und Betriebshinweise gehören zum selben Commit wie die dadurch eingeführte Funktion.
+- Eine notwendige Korrektur nach einem bereits abgeschlossenen Schritt erhält einen eigenen Korrektur-Commit; veröffentlichte Commits werden nicht stillschweigend umgeschrieben.
+- Auch Änderungen dieses Vertrags sind eigenständige Schritte und erhalten jeweils einen eigenen Commit.
 
-- höchstens ein gleichzeitig laufender generativer Job;
-- Embedding-Batches klein und konfigurierbar beginnen;
-- Embedding- und generative Last zunächst nicht parallel erzwingen;
-- Timeouts, Wiederholungen und Durchsatz messen, nicht anhand theoretischer Modellwerte festlegen;
-- große Modelle nur nach einem realen Qualitäts- und Lasttest freigeben.
+## 4. Größenordnung und Kapazitätsrahmen
 
-PostgreSQL teilt sich den Webserver mit der Anwendung und den vorhandenen Serverdiensten. Der Host besitzt 2 CPUs, 4 GB RAM und nach aktueller Angabe 40 GB verfügbare SSD-Kapazität. Diese Ausstattung ist für einen Pilotbetrieb und den normalen täglichen Zuwachs grundsätzlich nutzbar, aber für den angenommenen Maximalausbau ein klarer Engpass:
+Die Architektur muss ungefähr 100.000 bis 200.000 Ressourcen und Materialien tragen. Darunter sind etwa 100 PDFs mit je rund 100 Seiten und 30.000 PDFs mit je 2 bis 7 Seiten. Im Normalbetrieb kommen 1 bis 10 Ressourcen täglich hinzu, bei Bundle-Importen mehrere Tausend.
 
-- Ein `vector(768)` benötigt nach der pgvector-Speicherformel ungefähr 3.080 Byte pro Vektor. Bei 660.000 Chunks sind das rund 1,9 GiB, bei 1,5 Millionen Chunks rund 4,3 GiB allein für die unkomprimierten Vektorwerte.
-- Hinzu kommen HNSW-, GIN- und relationale Indizes, Volltexte, Tabellenmetadaten, PostgreSQL-Caches sowie der Speicherbedarf von Webanwendung, PHP-FPM, MySQL und Betriebssystem.
-- Der aktive Suchbestand darf größer als der Arbeitsspeicher sein und von SSD gelesen werden; Suchlatenz und Indexaufbau werden dann jedoch stärker von I/O und Cache-Verdrängung abhängig.
-- Zwei vollständige Indexgenerationen und ein paralleler HNSW-Aufbau können den Host deutlich überlasten, auch wenn der SSD-Speicher ausreicht.
-- 40 GB reichen voraussichtlich für eine aktive Generation im erwarteten Anfangsumfang. Für 1,5 Millionen Chunks, eine vollständige zweite Generation, HNSW-/GIN-Indizes, PostgreSQL-WAL, temporäre Indexdateien und die übrigen Serverdaten ist diese Kapazität ohne Messung nicht als ausreichend bestätigt.
+Bei durchschnittlich ein bis drei Chunks je Seite entstehen voraussichtlich 70.000 bis 660.000 aktive PDF-Chunks. Mit Textressourcen, Wachstum und Sicherheitsreserve wird für mindestens **1,5 Millionen aktive Punkte** geplant. Alte Generationen zählen zusätzlich und dürfen nicht unbegrenzt erhalten bleiben.
 
-Folgerung: 4 GB RAM und 40 GB SSD werden als **Pilot- und Startkonfiguration, nicht als bestätigte Zielkapazität** dokumentiert. Vor dem vollständigen Backfill ist ein Capacity Gate verbindlich. Werden die Latenz- oder Speicherziele verfehlt, ist eine RAM-Erweiterung auf mindestens 8 GB die bevorzugte erste Maßnahme; 16 GB oder ein separater PostgreSQL-Host bieten mehr Reserve für Modellwechsel mit zwei Generationen. Reicht der Datenträger nicht für aktive und neue Generation einschließlich Sicherheitsreserve, wird die SSD erweitert oder der Index ausgelagert. Alternativ dürfen `halfvec`, niedrigere Embedding-Dimensionen oder IVFFlat nur nach Qualitätsvergleich eingesetzt werden.
+Der Webserver besitzt 2 CPU-Kerne, 4 GB RAM und 40 GB SSD. Qdrant teilt sich diesen Host mit der Anwendung und weiteren Diensten. Das ist eine Pilot- und Startkonfiguration, keine bestätigte Zielkapazität. Vor dem vollständigen Backfill ist ein Capacity Gate Pflicht.
 
-Für die 40-GB-SSD gilt folgender Betriebsvertrag:
+Für die SSD gelten zunächst:
 
-- mindestens 20 % beziehungsweise 8 GB, maßgeblich ist der größere Wert, bleiben als freie Notfallreserve erhalten;
-- vor Backfill, Modellwechsel und Indexaufbau werden erwartete Tabellen-, Index-, WAL- und temporäre Datenmengen gemeinsam geschätzt;
-- aktive Generation, aufzubauende Generation und erwartete temporäre Spitzen dürfen die verfügbare Kapazität abzüglich Reserve nicht überschreiten;
-- unterschreitet der freie Speicher eine Warnschwelle von 12 GB, werden Superadministratoren gewarnt und neue Massenjobs nicht mehr begonnen;
-- unterschreitet er die harte Schwelle von 8 GB, pausieren AI-Indexierungs-, OCR- und Generationswechsel-Jobs automatisch; normale Webanfragen und lesende Suche bleiben priorisiert;
-- PostgreSQL-WAL, Logs, fehlgeschlagene Jobs und alte Generationen erhalten definierte Aufbewahrungsgrenzen;
-- Backups werden nicht dauerhaft auf derselben 40-GB-SSD abgelegt.
+- mindestens 8 GB bleiben als freie Notfallreserve erhalten;
+- unter 12 GB freiem Speicher werden Superadministratoren gewarnt und keine neuen Massenläufe begonnen;
+- unter 8 GB pausieren Indexierungs-, OCR- und Generationswechsel-Jobs automatisch;
+- aktive Collection, neue Collection, Segmentoptimierung, temporäre Dateien und Rückrollreserve gehen gemeinsam in die Vorabschätzung ein;
+- Qdrant-Snapshots werden nicht dauerhaft auf derselben SSD aufbewahrt;
+- alte Collections werden erst nach bestandener Validierung und Ablauf des Rückrollfensters entfernt.
 
-Die Schwellen sind konservative Startwerte und werden nach dem Spike nur dann geändert, wenn Messwerte und der verbleibende Platzbedarf der übrigen Serverdienste dies belegen.
+Der reale Bedarf wird in einem Spike mit repräsentativen Dokumenten gemessen. Erfasst werden mindestens Punkt- und Payload-Größe, Collection-Größe, Segmentoptimierung, RAM-Spitze, Indexierungsdurchsatz, p95-Suchlatenz und Einfluss auf die Webanwendung. Werden die Ziele verfehlt, ist die bevorzugte Reihenfolge: Payload reduzieren, Chunking anhand der Qualitätsmessung optimieren, Qdrant auf einen separaten SSD-Host verschieben, RAM beziehungsweise Datenträger erweitern. Quantisierung darf erst nach einem Recall-Vergleich aktiviert werden.
 
-## 4. Zielarchitektur
+## 5. Zielarchitektur
 
 ```text
-MySQL (fachliche Wahrheit)
-  Materialien, Ressourcen, Beziehungen, Rechte, menschliche Metadaten
-          |
-          | Events / resumierbare Jobs / Reconciliation
-          v
+MySQL – fachliche Wahrheit
+  Materialien, Ressourcen, Zuordnungen, Rechte, menschliche Daten,
+  angenommene Vorschläge, KI-Entwürfe, Audit und Betriebsprofile
+             |
+             | manuell gestartete, resumierbare Jobs
+             v
 Extraktion und Chunking
-  PDF-Text, OCR-Fallback, Seiten- und Positionsmetadaten
-          |
-          +---------------------> Ollama im lokalen Netz
-          |                         Embeddings / Vorschläge / Kurztexte
-          v
-PostgreSQL + pgvector (abgeleiteter Suchindex)
-  Dokumentrevisionen, Seiten, Chunks, Volltextindex, Vektoren,
-  Material-Ressourcen-Projektion und Indexgenerationen
-          |
-          v
-Hybride Suche
-  strukturierte Filter + Volltext + Vektorähnlichkeit + Re-Ranking
-          |
-          v
-abschließende Autorisierungsprüfung in MySQL
-          |
-          v
-Materialtreffer mit Ressource, Seite und Fundstelle
+  PDF-Text, OCR-Fallback, Sprache, Seiten- und Positionsmetadaten
+             |
+             +--------------------> Ollama-Pool im lokalen Netz
+             |                       Embeddings / Vorschläge / Kurztexte
+             v
+Qdrant – abgeleiteter Suchindex
+  versionierte Collections, Chunk-Payloads, Vektoren und Payload-Indizes
+             |
+             v
+Laravel-Suchfusion
+  bestehende direkte Suche + semantische Kandidaten + Gruppierung
+             |
+             v
+abschließende Autorisierungsprüfung und Materialabbildung in MySQL
+             |
+             v
+Materialtreffer mit Ressource, Seite, Textstelle und Suchart
 ```
 
-### 4.1 Verantwortungsgrenzen
+MySQL speichert alle fachlichen Daten, Beziehungen, Rechte, Konfigurationen, Auditdaten und Jobzustände. Qdrant enthält nur abgeleitete Chunks, Payloads und Vektoren. Ollama verarbeitet Text, ist aber kein dauerhaftes Datenlager. Laravel orchestriert Extraktion, Modellprofile, Jobs, Qdrant-Zugriff, Suchfusion, Rechteprüfung und Präsentation. Der Browser entscheidet niemals über Leserechte, Herkunft oder Annahme eines Vorschlags.
 
-- **MySQL** speichert alle fachlichen Beziehungen, Freigaben, menschlichen Inhalte, angenommenen Vorschläge, KI-Entwürfe und deren Auditdaten.
-- **PostgreSQL** enthält ausschließlich abgeleitete Suchdaten. Ein Verlust muss durch Reindexierung heilbar sein.
-- **Ollama** verarbeitet Text, ist aber kein dauerhaftes Datenlager.
-- **Laravel** orchestriert Extraktion, Rechte, Jobs, Modellprofile, Suchfusion und Präsentation.
-- **Der Browser** entscheidet niemals über Leserechte oder die Annahme eines Vorschlags.
+Der Suchindex ist eventual consistent. Fachliche Schreibvorgänge dürfen nicht von Ollama oder Qdrant abhängig sein. Indexjobs sind idempotent, unterbrechbar und resumierbar. Ein späterer Reconciliation-Prozess erkennt fehlende, veraltete oder verwaiste Punkte anhand stabiler IDs und Inhalts-Hashes.
 
-### 4.2 Konsistenzmodell
+## 6. Qdrant-Konzept
 
-Der Index ist bewusst eventual consistent. Fachliche Schreibvorgänge in MySQL dürfen nicht von Ollama oder PostgreSQL abhängig sein. Nach Änderungen werden idempotente Indexjobs ausgelöst. Zusätzlich läuft regelmäßig ein Reconciliation-Prozess, der fehlende, veraltete oder verwaiste Indexeinträge anhand von Revisions- und Inhalts-Hashes erkennt.
+### 6.1 Collections, Aliase und Generationen
 
-Ein Indexjob muss gefahrlos wiederholbar sein. Mindestens folgende Ursachen erzeugen eine neue Revision:
+Jede Indexgeneration erhält eine eigene physische Collection. Der Name enthält einen sicheren technischen Präfix, Profil-Hash und Generationsbezeichner, zum Beispiel `materialpool_chunks_<profile>_<generation>`. Der stabile Alias `materialpool_chunks_active` zeigt auf genau eine validierte Collection.
 
-- Dateiinhalt oder Textinhalt geändert;
-- Extraktionsverfahren oder OCR-Version geändert;
-- Chunking-Profil geändert;
-- Embedding-Modell oder relevante Modellparameter geändert;
-- Zuordnung zwischen Material und Ressource geändert;
-- suchrelevante Sichtbarkeit geändert.
+Ein Modellwechsel erfolgt als Blue-Green-Verfahren:
 
-## 5. PostgreSQL- und pgvector-Konzept
+1. Modellprofil und erwartete Dimension feststellen und sperren.
+2. Neue Collection neben dem aktiven Index anlegen.
+3. Dokumente vollständig in die neue Collection einbetten.
+4. Vollständigkeit, Recall, Quellen, Rechtefilter, Latenz und Ressourcenverbrauch prüfen.
+5. Alias atomar auf die neue Collection umschalten.
+6. Vorherige Collection für ein begrenztes Rückrollfenster behalten.
+7. Nach dokumentierter Freigabe in einem eigenen Betriebsschritt entfernen.
 
-### 5.1 Eigene Laravel-Verbindung
+Dimensionsgleiche Modelle gelten nicht als kompatibel. Zu jedem Modellprofil werden mindestens Provider, Modellname, tatsächlicher Modell-Digest, Dimension, Distanzmetrik, Normalisierungsparameter, Chunking-Version und Aktivierungszeitpunkt geführt.
 
-PostgreSQL wird als separate Laravel-Datenbankverbindung geführt, beispielsweise `context_search`. Sie ist nicht die Default-Verbindung. Fachliche Eloquent-Modelle dürfen nicht unbemerkt auf diese Verbindung wechseln. Cross-Database-Foreign-Keys sind nicht möglich; referenziert werden stabile MySQL-IDs und zusätzlich Inhalts- beziehungsweise Revisions-Hashes.
+### 6.2 Punkte und Payload
 
-### 5.2 Empfohlenes logisches Schema
+Ein Qdrant-Punkt repräsentiert genau einen Chunk einer Dokumentrevision. Seine ID wird deterministisch aus Indexgeneration, Ressourcen-ID, Inhalts-Hash, Seite und Chunk-Ordnungsnummer erzeugt. Wiederholte Upserts sind dadurch idempotent.
 
-Die endgültigen Namen werden erst mit den Migrationen festgelegt. Fachlich werden mindestens folgende Strukturen benötigt:
+Die Payload enthält mindestens:
 
-| Struktur | Zweck |
+| Feld | Zweck |
 | --- | --- |
-| `index_generations` | Modellprofil, exakter Modellbezeichner und Digest, Vektordimension, Chunking-Version, Status, Aktivierungszeitpunkt. |
-| `indexed_documents` | Ressource, Typ, aktuelle Inhaltsrevision, Sprache, Extraktionsstatus, Fehlerzustand und Zeitstempel. |
-| `document_pages` | PDF-Seite, bereinigter Seitentext, Extraktionsart, optionale OCR-Güte und Layoutmetadaten. |
-| `document_chunks` | Chunktext, Seitenbereich, Zeichen-/Tokenbereich, Überschriftenpfad, Locator, Sprachcode, Volltextvektor und Embedding. |
-| `material_resource_projection` | Abgeleitete Zuordnung der Chunks/Ressourcen zu Materialien und notwendige Sichtbarkeitsmerkmale für effiziente Kandidatenauswahl. |
-| `index_failures` oder Job-Audit | Technisch verwertbare Fehlerkategorie, Versuchszahl und Revisionsbezug; keine Secrets und kein unnötiger Dokumentinhalt. |
+| `resource_id` | stabile Referenz auf die fachliche Ressource |
+| `document_revision` | Hash der indizierten Dokumentrevision |
+| `source_type` | `pdf` oder `text` |
+| `page_number` | einsbasierte PDF-Seite; bei Textressourcen `1` |
+| `chunk_ordinal` | stabile Reihenfolge innerhalb der Seite |
+| `start_character`, `end_character` | Zeichenbereich im extrahierten Seitentext |
+| `chunk_text` | belegbarer Fundtext für Snippet und Quellenanzeige |
+| `heading_path` | optionale Abschnittsüberschriften |
+| `language` | erkannte beziehungsweise bestätigte Sprache |
+| `extraction_method` | nativer Text oder OCR |
+| `extraction_quality` | messbare Extraktions- beziehungsweise OCR-Güte, soweit verfügbar |
+| `extractor_version` | reproduzierbare Version des Extraktionswegs |
+| `chunking_version` | verwendetes Chunking-Profil |
+| `embedding_profile` | unveränderlicher Profilbezeichner |
+| `indexed_at` | technischer Indizierungszeitpunkt |
 
-Empfehlung: Das Embedding wird pro Chunk nur einmal gespeichert. Materialzuordnungen referenzieren den Chunk relational, statt denselben Vektor für jedes Material zu duplizieren. Ob der HNSW-Index mit dieser Filterung die Latenzziele erreicht, ist in einem Spike mit realistischen Rechte- und Zuordnungsdaten nachzuweisen. Falls nicht, darf erst nach einer dokumentierten Messung eine stärker denormalisierte Projektion erwogen werden.
+Der begrenzte Chunktext wird bewusst in Qdrant gespeichert: So kann jeder Kandidat mit einer exakt zum Vektor passenden Fundstelle angezeigt und geprüft werden. Originaldateien, vollständige doppelte Dokumentkopien, menschliche Beschreibungen und Berechtigungsentscheidungen gehören nicht in Qdrant.
 
-### 5.3 Einschätzung zur Volltextspeicherung
+Payload-Indizes werden nur für tatsächlich gefilterte oder gruppierte Felder angelegt, mindestens für `resource_id`, `document_revision`, `source_type`, `language` und `embedding_profile`. Volltextfelder werden nicht pauschal als Filterindex angelegt. Qdrant bleibt zunächst der semantische Index; die bestehende direkte Suche bleibt für Wörter, Phrasen und strukturierte Treffer zuständig.
 
-Die Speicherung des abgeleiteten Seiten- und Chunkvolltexts in PostgreSQL wird empfohlen. Sie ist nicht nur zulässig, sondern für die geplante Hybrid Search fachlich sinnvoll:
+Materialzuordnungen werden zunächst nicht in jeden Punkt dupliziert. Qdrant liefert Ressourcen- und Chunkkandidaten; Laravel bildet diese über MySQL auf Materialien ab. Erst eine Messung darf eine gezielte, abgeleitete Materialprojektion rechtfertigen.
 
-- exakte Wörter, Phrasen und Schreibweisen können über PostgreSQL Full Text Search gefunden werden;
-- `ts_headline` beziehungsweise eine kontrollierte eigene Snippet-Erzeugung kann den tatsächlichen Fundtext anzeigen;
-- Seite, Zeichenbereich und Bounding Boxes bleiben mit demselben Indexstand verbunden;
-- lexikalische und semantische Kandidaten können in einer Datenbank fusioniert werden, ohne Volltexte pro Treffer aus MySQL nachzuladen;
-- Reindexierung und Rechteprojektion bleiben unabhängig von der fachlichen MySQL-Struktur.
+### 6.3 API, Sicherheit und Wiederaufbau
 
-Die empfohlene Speichereinteilung lautet:
+Der Qdrant-Zugriff wird hinter einem anwendungsinternen Interface gekapselt. Die REST-Implementierung verwendet explizite Verbindungs- und Antwort-Timeouts, strukturierte Fehlerkategorien und Logging ohne Secrets oder Dokumentinhalte. Wiederholungen sind nur für idempotente Aufrufe erlaubt. Authentifizierungsfehler, Dimensionsabweichungen und Schemaabweichungen sind harte Fehler. Ein Circuit Breaker schützt Webanwendung und Queue.
 
-1. `document_pages` speichert den normalisierten Seitentext einmal je Dokumentrevision.
-2. `document_chunks` speichert den exakt eingebetteten und lexikalisch indizierten Chunktext. Diese begrenzte Doppelung ist erwünscht, weil sie Reproduzierbarkeit, Snippets und schnelle Rechecks ermöglicht.
-3. Ein sprachabhängiger `tsvector` wird gespeichert beziehungsweise deterministisch erzeugt und mit GIN indiziert. Die Textkonfiguration wird explizit pro Zeile geführt, damit Deutsch, Englisch und `simple` reproduzierbar bleiben.
-4. Original-PDFs werden nicht in PostgreSQL dupliziert. Sie verbleiben auf dem bestehenden Storage.
-5. Alte Dokumentrevisionen und aus dem Rückrollfenster gefallene Indexgenerationen werden kontrolliert entfernt, damit Text- und Vektordaten nicht unbegrenzt anwachsen.
+Qdrant wird nicht öffentlich erreichbar betrieben. Netzwerkzugriff ist auf Web-/Queue-Hosts und administrative Betriebswege beschränkt. Produktion verwendet API-Key und verschlüsselte Transportverbindungen oder eine gleichwertig abgesicherte private Verbindung. Zugangsdaten stehen ausschließlich in Server-Secrets. Suchtreffer werden nach der Qdrant-Abfrage immer anhand aktueller MySQL-Rechte gefiltert.
 
-Der Volltext ist voraussichtlich nicht der größte Speicherverbraucher; Vektoren und HNSW dominieren bei hohen Dimensionen. Dennoch müssen GIN-Größe, Tabellenwachstum und SSD-Reserve im Capacity Gate gemessen werden. Die Empfehlung ist daher **Volltext speichern, aber nur abgeleitet, normalisiert, revisioniert und ohne unnötige Originaldatei-Duplikate**.
+Qdrant muss vollständig aus MySQL und dem bestehenden Dateispeicher wiederaufbaubar sein. Snapshots sind eine optionale Beschleunigung, kein Ersatz für den Wiederaufbau. Sie werden verschlüsselt und außerhalb der 40-GB-Systemplatte aufbewahrt. Wiederherstellung und Aliasumschaltung werden getestet.
 
-### 5.4 Indexstrategie
+## 7. Ollama-Pool und Modellvertrag
 
-Als Startpunkt wird HNSW empfohlen. Es bietet bei Suchabfragen üblicherweise ein besseres Verhältnis aus Geschwindigkeit und Trefferquote als IVFFlat, benötigt aber mehr Speicher und längere Indexerstellung. Für große Erstimporte gilt:
+Mehrere Ollama-Server dürfen als geordneter Pool konfiguriert werden. Für alle aktiven Server eines Embedding-Profils gilt:
 
-1. Daten in kontrollierten Batches laden;
-2. Indexaufbau und Speicherverbrauch messen;
-3. HNSW-Parameter nicht blind aus Beispielen übernehmen;
-4. produktive Indexneuanlage möglichst parallel beziehungsweise generationenweise durchführen;
-5. Recall gegen eine exakte Suche auf einer repräsentativen Stichprobe messen.
+- identischer Modellname und verifizierter Modell-Digest;
+- identische Dimension und relevante Inferenzparameter;
+- erfolgreicher Start-Selbsttest mit Dimensions- und Probevektorprüfung;
+- eigene Parallelitätsgrenze, Timeouts, Gesundheitszustand und Circuit Breaker.
 
-Die Vektordimension ist Bestandteil der Indexgeneration. `vector(N)` darf erst festgelegt werden, nachdem das konkrete Embedding-Modell und dessen Dimension bestätigt sind. Ein Dimensionswechsel erfolgt über eine neue Generation beziehungsweise neue physische Spalte/Tabelle, nicht durch Umdeutung vorhandener Vektoren.
+Neue Batches werden deterministisch auf gesunde Server verteilt. Damit können mehrere Queue-Worker parallel arbeiten, ohne denselben Job doppelt zu verarbeiten. Bei Verbindungsfehler, Timeout, Überlastung oder geeignetem Serverfehler wird unmittelbar der nächste gesunde Server versucht. Modell-, Digest- oder Dimensionsabweichungen lösen **keinen** Failover mit gemischten Vektoren aus, sondern stoppen den Lauf als Konfigurationsfehler.
 
-`halfvec` ist eine mögliche spätere Speicheroptimierung, aber nicht der Startwert. Die geringere Präzision muss gegen einen kuratierten Evaluationssatz geprüft werden.
+Die Ollama-Hardware ist zunächst mit 4 CPU-Kernen, 8 GB RAM und begrenzter GPU angesetzt. Startwerte sind ein generativer Job gleichzeitig und kleine konfigurierbare Embedding-Batches. Limits werden anhand gemessener Latenz, VRAM/RAM und Fehlerrate angepasst.
 
-Auf dem gemeinsam genutzten 4-GB-Host gelten zunächst konservative Testwerte, die im Spike anhand des gesamten Servers angepasst werden:
+Ein konkretes Modell wird vor Freigabe auf Deutsch und Englisch, Reproduzierbarkeit, Dimension, Durchsatz und Qualität geprüft. Embedding- und generative Modelle dürfen getrennt konfiguriert sein. Ein generatives Modell darf niemals stillschweigend Suchvektoren erzeugen.
 
-- `shared_buffers` nicht nach der Faustregel für einen dedizierten Datenbankserver dimensionieren, sondern zunächst nur ungefähr 256 bis 512 MB vorsehen;
-- `work_mem` klein beginnen, beispielsweise 4 bis 8 MB, weil es pro Operation und Worker mehrfach anfallen kann;
-- `maintenance_work_mem` für Indexaufbauten begrenzen und nur im Wartungsfenster erhöhen;
-- höchstens einen parallelen Maintenance-Worker und einen Indexierungsjob verwenden;
-- initiale Massendaten vor dem HNSW-Aufbau laden;
-- Suchpläne mit `EXPLAIN (ANALYZE, BUFFERS)`, Cache-Treffer, Swap-/OOM-Ereignisse und Weblatenz messen.
+## 8. Extraktion, OCR, Chunking und Quellen
 
-Diese Werte sind keine produktive Konfiguration, sondern sichere Startpunkte für Stufe 0. Ein HNSW-Aufbau darf niemals durch ein so hohes `maintenance_work_mem` beschleunigt werden, dass Webanwendung, MySQL oder Betriebssystem unter Speicherdruck geraten.
+PDFs werden seitenweise verarbeitet. Zuerst wird die eingebettete Textschicht verwendet. Tesseract läuft nur für Seiten unter konfigurierten Textmengen- oder Qualitätsschwellwerten. OCR-Sprache, Engine-Version und Qualitätswert werden protokolliert. Textressourcen werden als einseitige Quellen mit Zeichenpositionen behandelt. Nicht verarbeitbare Dateien erhalten einen nachvollziehbaren Fehlerstatus.
 
-### 5.5 Modellwechsel ohne Ausfall
+Die erste kalibrierbare Chunking-Baseline lautet:
 
-Für jede Indexgeneration gelten die Zustände `draft`, `building`, `validating`, `active`, `retired` und `failed`. Zu einem Zeitpunkt ist genau eine Generation aktiv.
+- niemals über eine PDF-Seitengrenze hinweg chunken;
+- Überschriften, Absätze, Listen und Satzgrenzen bevorzugen;
+- Zielgröße 900 bis 1.400 Zeichen;
+- Überlappung 120 bis 200 Zeichen;
+- kurze zusammengehörige Abschnitte nicht künstlich aufblasen;
+- sehr lange Abschnitte satzweise teilen;
+- Modell-Tokenlimit als harte zusätzliche Grenze prüfen.
 
-1. Neues Modellprofil als Entwurf anlegen.
-2. Neue Generation neben dem aktiven Index in begrenzten Batches aufbauen. Auf dem 4-GB-Host erfolgt der HNSW-Aufbau ausschließlich in einem Wartungsfenster und unter Capacity-Monitoring.
-3. Vollständigkeit, Recall, Latenz, Sprache und Rechtefilter prüfen.
-4. Aktivierung atomar über eine Generation-ID umschalten.
-5. Vorherige Generation für ein begrenztes Rückrollfenster behalten.
-6. Erst danach kontrolliert und dokumentiert löschen.
+Das Chunking-Profil wird versioniert. Änderungen verlangen eine neue Indexgeneration und einen Vergleich auf dem Evaluationssatz. Zeichenpositionen beziehen sich auf den gespeicherten extrahierten Seitentext vor verlustbehaftender Normalisierung. OCR-Chunks bleiben erkennbar.
 
-Queries und Dokumente müssen immer mit demselben Embedding-Modell beziehungsweise derselben Generation verarbeitet werden. Eine dimensionsgleiche Modelländerung ist trotzdem inkompatibel und verlangt eine neue Generation.
+Jeder angezeigte Kontexttreffer enthält mindestens Materialtitel, Ressourcentitel, Dokumentrevision, einsbasierte PDF-Seite, begrenztes Textsnippet mit Hervorhebung, technische Zeichenposition und OCR-Kennzeichnung. PDF-Koordinaten für eine direkte Viewer-Markierung können später ergänzt werden. Kann keine belastbare Quelle geliefert werden, darf der Treffer nicht als normaler Kontexttreffer erscheinen.
 
-Auf der 40-GB-SSD darf eine zweite vollständige Generation nur begonnen werden, wenn die Vorabschätzung einschließlich WAL, temporärem Indexaufbau und 8-GB-Reserve passt. Andernfalls wird nicht in-place umgebaut. Bevorzugt wird die SSD vorübergehend oder dauerhaft erweitert beziehungsweise PostgreSQL ausgelagert; ein riskanter Modellwechsel durch Überschreiben des aktiven Index ist ausgeschlossen.
+## 9. Hybride Suche und Relevanz
 
-## 6. Extraktion, OCR und Quellenangaben
+Die bestehende direkte Suche bleibt unverändert die Basis. Laravel führt ihre Ergebnisse mit den semantischen Qdrant-Kandidaten zusammen. Direkte und semantische Scores werden nicht roh addiert. Als Baseline dient eine rangbasierte Fusion, insbesondere Reciprocal Rank Fusion. Gewichtung, Kandidatenzahl und Mindestgüte werden auf einem kuratierten deutsch-englischen Evaluationssatz kalibriert.
 
-### 6.1 Dokumenttypen der ersten Stufe
+Pro Suchzelle gilt:
 
-- PDF-Ressourcen, einschließlich als `Book` geführter PDFs;
-- bereits als Text gespeicherte Ressourcen;
-- Office-Dokumente nur über den bereits vorhandenen, kontrollierten PDF-Konvertierungspfad, sofern sie fachlich in den freigegebenen Umfang aufgenommen werden;
-- keine Inhaltsindizierung von URLs, Bildern, Audio oder Video.
+1. bestehende direkte Kandidaten ermitteln;
+2. Query mit dem aktiven Embedding-Profil einbetten;
+3. Qdrant nach Chunks abfragen;
+4. Chunks je Ressource gruppieren und Spitzenwerte begrenzen;
+5. Ressourcen in MySQL auf sichtbare Materialien abbilden;
+6. direkte und semantische Ranglisten fusionieren;
+7. die bestehende `OR`-Logik innerhalb der Zelle und `AND`-Logik zwischen Zellen anwenden;
+8. Quellen der beitragenden Chunks ausgeben.
 
-Dateianhang, MIME-Type und tatsächlich erkanntes Format müssen vor Verarbeitung plausibilisiert werden. Fehlerhafte oder verschlüsselte PDFs werden als nicht indizierbar protokolliert, ohne den Import abzubrechen.
+Ein späterer Sparse-Vector- oder serverseitiger Hybridmodus in Qdrant ist eine eigene, messpflichtige Ausbaustufe. Er ersetzt nicht automatisch die bestehende direkte Suche.
 
-### 6.2 Textgewinnung
+Der Evaluationssatz enthält genaue Begriffe, Synonyme, Umschreibungen, Deutsch und Englisch, erwartete Nulltreffer, fachlich ähnliche Falschtreffer, Bibelstellenvarianten, OCR-Fälle und Rechtefälle. Gemessen werden mindestens Recall@K, nDCG@K oder MRR, Nulltrefferpräzision, Quellenrichtigkeit, p50/p95-Latenz und Rechteverletzungen. Eine leere Ergebnisliste ist besser als ein Treffer unterhalb der validierten Mindestgüte.
 
-Die Extraktion arbeitet stufenweise:
+## 10. KI-Vorschläge und Kurzbeschreibungen
 
-1. nativen PDF-Text seitenweise extrahieren;
-2. Textqualität prüfen, beispielsweise Zeichenmenge, Anteil unbekannter Zeichen, Wortstruktur und leere Seiten;
-3. nur bei unzureichendem Ergebnis OCR auslösen;
-4. Sprache Deutsch, Englisch oder gemischt erkennen beziehungsweise aus Metadaten übernehmen;
-5. Text normalisieren, aber Originalpositionen auf den extrahierten Text rückführbar halten.
+Schlagwort- und Bibelstellen-Vorschläge besitzen mindestens `pending`, `accepted`, `rejected` und `stale`. Gespeichert werden Vorschlagswert, normalisierte Zielreferenz, Ressourcen-/Materialrevision, Modellprofil, Promptversion, Relevanz, Begründung, Zeitstempel und prüfender Benutzer.
 
-Für genaue Fundstellen wird eine layoutbewahrende Extraktion benötigt. Popplers Bounding-Box-Ausgabe oder bei OCR hOCR/TSV liefern Wortpositionen. Der Index muss nicht jede Koordinate in eine eigene Zeile auflösen; ein kompaktes Locator-JSON pro Chunk genügt, sofern daraus Seite und markierbarer Ausschnitt reproduzierbar sind.
+`pending` ist sichtbar als KI-Vorschlag markiert. Nur eine autorisierte menschliche Aktion erzeugt beziehungsweise verknüpft den fachlichen Eintrag. Annahme ist transaktional und prüft Dubletten. Geänderte Quellinhalte machen offene Vorschläge `stale`.
 
-Tesseract ist als OCR-Engine freigegeben. Es verarbeitet nur Seiten, deren nativer Text die Qualitätsprüfung nicht besteht. PDF-Seiten werden kontrolliert gerendert und mit den Sprachpaketen Deutsch und Englisch verarbeitet; bei unbekannter Sprache darf ein kombiniertes Profil verwendet werden. Tesseract-Jobs laufen mit Parallelität 1 im Background-Zeitfenster. Sie gehören nicht zum außerhalb des Zeitfensters erlaubten interaktiven KI-Pfad. OCRmyPDF ist für die erste Stufe nicht erforderlich, weil keine neue PDF-Datei erzeugt oder das persistente Original verändert werden soll.
+Bibelstellen werden strukturiert angefordert, gegen das bestehende Modell normalisiert, auf gültige Buch-, Kapitel- und Versgrenzen geprüft und mit vorhandenen Zuordnungen abgeglichen. Semantische Relevanz und formale Gültigkeit sind getrennte Kriterien.
 
-### 6.3 Verbindlicher Quellen-Locator
+Eine Materialbeschreibung berücksichtigt mehrere sichtbare Ressourcen. Ausgabeziel sind zwei bis drei Sätze und maximal ungefähr 300 Zeichen. Die KI-Beschreibung bleibt ein separates Feld mit Modell-, Prompt- und Revisionsmetadaten. Menschlicher Text hat immer Vorrang.
 
-Jeder Chunk benötigt mindestens:
+## 11. Queues, Zeitfenster und manuelle Stufe 1
 
-- Ressourcen-ID und Inhaltsrevision;
-- Originaldateiname beziehungsweise stabilen Anzeigenamen;
-- PDF-Seite, 1-basiert;
-- Seitenbereich, falls ein Chunk mehrere Seiten berühren sollte; empfohlen ist jedoch, Seitengrenzen nicht zu überschreiten;
-- Zeichenbereich im normalisierten Seitentext;
-- optional Bounding Box oder mehrere Rechtecke;
-- einen kurzen, aus dem Chunk gewonnenen Treffer-Ausschnitt;
-- Extraktionsart `native_text` oder `ocr` und optional Vertrauenswert.
+Getrennte Jobtypen sind mindestens vorgesehen für Extraktion/OCR, Chunking/Embedding, Index-Upsert, Vorschläge und Kurzbeschreibung. Jeder Job ist idempotent, versionsgebunden und besitzt begrenzte Versuche sowie Backoff.
 
-Die GUI zeigt mindestens: Materialtitel, Ressourcenname, Seite und hervorgehobenen Ausschnitt. Wenn Koordinaten zuverlässig vorliegen, öffnet die Vorschau direkt auf der Seite und markiert die Stelle. Falls nur Seitentext vorliegt, bleibt die Seitenangabe die garantierte Untergrenze.
+In Stufe 1 wird Indexierung ausschließlich per explizitem Admin-/CLI-Auftrag gestartet. Parameter erlauben mindestens einzelne Ressourcen, begrenzte Batches und Fortsetzung ab einem Cursor. Automatische Listener auf Resource- oder Material-Events werden in Stufe 1 nicht aktiviert.
 
-Quellenangaben dürfen niemals von einem generativen Modell erfunden werden. Sie entstehen ausschließlich aus den gespeicherten Locator-Daten des tatsächlich gefundenen Chunks.
+Das optionale Hintergrund-Zeitfenster definiert erlaubte Startzeiten. Außerhalb werden Hintergrundjobs verzögert, nicht verworfen. Interaktive Jobs dürfen mit eigener serverseitiger Berechtigung außerhalb starten, verwenden aber eine getrennte, kleine Parallelitätsgrenze. Importwellen besitzen Backpressure; Webanfragen und direkte Suche haben Vorrang.
 
-## 7. Chunking-Vertrag
+## 12. Superadmin-Konfiguration und Betrieb
 
-### 7.1 Empfohlener Startwert
+Über die Superadmin-Oberfläche dürfen später aktives Modellprofil, validiertes Chunking-Profil, Queue-Zeitfenster, Pause, Parallelitätslimits, Suchgewichtung, Kandidatenzahl, freigegebene Schwellwerte, Kurzbeschreibungslänge, Funktionsschalter und manuelle Indexläufe verwaltet werden.
 
-- Zielgröße: 300 bis 450 Tokens;
-- Überlappung: 50 bis 80 Tokens;
-- harte Obergrenze: modellabhängig, deutlich unter dem Embedding-Limit;
-- keine Überschreitung von PDF-Seitengrenzen;
-- Absätze, Listen, Zwischenüberschriften und Satzgrenzen bevorzugen;
-- sehr kurze benachbarte Absätze zusammenführen;
-- Tabellen, Fußnoten und Kopf-/Fußzeilen gesondert behandeln.
+Nicht in die Oberfläche gehören Secrets, API-Keys, private Netzwerkadressen, beliebige Collection-Namen, ungeprüfte Dimensionen oder freie Promptausführung. Jede Änderung wird validiert und auditiert. Gefährliche Änderungen zeigen Reindexierungs- und Kapazitätsfolgen vorab an.
 
-Dies sind Startwerte, keine unveränderlichen Wahrheiten. Das Chunking-Profil wird versioniert und anhand eines Evaluationssatzes tariert.
+Der Systemadministrator erhält vor Produktivbetrieb eine Betriebsanleitung mit Installation, Netzwerk, Authentifizierung, Healthchecks, Ressourcenlimits, Modellbereitstellung auf allen Ollama-Servern, Collection-/Aliasverwaltung, Capacity Gate, Snapshot-/Restore-Test, Monitoring, Alerting, Queue-Steuerung, Rollback und vollständigem Rebuild.
 
-### 7.2 Strukturbewusstsein
+## 13. Datenschutz, Beobachtbarkeit und Ausfälle
 
-Vor dem rein tokenbasierten Schnitt werden Dokumentstrukturen verwendet:
+- Keine Dokumentinhalte, Prompts, Vektoren, API-Keys oder vollständigen Modellantworten in normalen Logs.
+- Metriken verwenden IDs und Kategorien, keine vertraulichen Texte.
+- Healthchecks unterscheiden Netzwerk, Authentifizierung, Modellverfügbarkeit, Digest, Dimension, Collection-Schema und Kapazität.
+- Dashboards zeigen Queue-Tiefe, Laufzeit, Fehlerrate, Ollama-Serverzustand, Qdrant-Latenz, Collection-Größe, freien Speicher und Indexabdeckung.
+- Abgebrochene Läufe bleiben fortsetzbar und hinterlassen keine als aktiv markierte Teilgeneration.
+- Ein Qdrant-Ausfall beeinträchtigt nicht fachliche Schreibvorgänge. Die direkte Suche bleibt verfügbar.
 
-1. Seite;
-2. Überschrift und Abschnitt;
-3. Absatz oder Liste;
-4. Satzgrenze;
-5. erst zuletzt Token-Obergrenze.
+## 14. Verbindlicher Umsetzungsplan
 
-Wiederkehrende Kopf- und Fußzeilen sollen dokumentweit erkannt und aus dem Suchtext entfernt werden, bleiben aber bei Bedarf in der Roh-Extraktion nachvollziehbar. OCR-Trennstriche, Ligaturen und Zeilenumbrüche werden normalisiert. Bibelstellen-Schreibweisen dürfen dabei nicht zerstört werden.
+Jeder folgende Schritt endet nach Abschnitt 3 mit einem eigenen Commit.
 
-### 7.3 Kleine Dokumente
+### Schritt 0 – Vertrag und Bestandsinventar
 
-Sehr kurze Texte erhalten einen einzigen Chunk. Zusätzlich kann ein Dokument- beziehungsweise Ressourcen-Embedding erzeugt werden, wenn Tests zeigen, dass dies die Materialaggregation verbessert. Es ist nicht zwingend für die erste Stufe.
+- diesen Vertrag als neues Zielbild festhalten;
+- alle Artefakte der verworfenen Vektorspeicher-Variante inventarisieren;
+- fremde Arbeitsverzeichnisänderungen kennzeichnen und schützen;
+- Abnahme: Vertrag enthält ausschließlich Qdrant als Vektorspeicher und ist separat committed.
 
-## 8. Hybride Suche und Ranking
+### Schritt 1 – Vollständige Bereinigung der verworfenen Variante
 
-### 8.1 Suchbestandteile
+- alte Container, Volumes, Verbindungen, Konfigurationen, Umgebungsvariablen, Migrationen, Services und Tests entfernen;
+- bereits begonnene, daran gekoppelte Indexierungsimplementierung entweder neutral auf Qdrant ausrichten oder entfernen;
+- Repository-Scan auf bekannte Altbezeichner und technische Annahmen durchführen;
+- Framework-generische Unterstützung nur entfernen, wenn nachgewiesen ist, dass sie ausschließlich für dieses Feature eingeführt wurde;
+- Abnahme: Das Kontextsuche-Modul besitzt keine ausführbaren, dokumentarischen oder testseitigen Altartefakte; Anwendung und bestehende Tests bleiben funktionsfähig.
 
-Die Ergebnisbildung kombiniert:
+### Schritt 2 – Qdrant-Infrastruktur und neutraler Client
 
-- vorhandene strukturierte Filter für Schlagworte, Bibelstellen, Typen und weitere Suchzellen;
-- lexikalische Volltextsuche in PostgreSQL für exakte Wörter und Phrasen;
-- semantische Vektorsuche über Chunk-Embeddings;
-- vorhandene Titel- und fachliche Relevanzsignale;
-- Materialaggregation aus den besten zugeordneten Ressourcen-Chunks.
+- gepinnte Qdrant-Version, persistentes Volume, Healthcheck und private Netzkonfiguration hinzufügen;
+- sichere Beispielkonfiguration ohne Secrets dokumentieren;
+- Client-Interface, REST-Adapter, Fehlerklassen und Healthcheck implementieren;
+- Collection-Schema, Payload-Indizes und Aliasverwaltung als getesteten Provisionierungsdienst anlegen;
+- Abnahme: leere Collection kann reproduzierbar provisioniert, geprüft und über Alias angesprochen werden.
 
-PostgreSQL erhält hierfür neben dem Vektor einen `tsvector`-basierten Volltextindex. Deutsch und Englisch müssen sprachabhängig behandelt werden; bei unklaren oder gemischten Inhalten ist eine robuste `simple`-Repräsentation als zusätzlicher Kanal sinnvoll.
+### Schritt 3 – Modellprofil und Ollama-Pool
 
-### 8.2 Erhalt der Suchzellen-Semantik
+- unveränderliches Embedding-Profil und Dimensionsprüfung umsetzen;
+- mehrere Ollama-Server mit Lastverteilung, Failover, Limits und Circuit Breaker unterstützen;
+- gemischte Modelle oder Dimensionen hart ablehnen;
+- Abnahme: Parallelverteilung und Ausfall eines Servers sind getestet; kein Lauf kann gemischte Vektoren erzeugen.
 
-Jede Suchzeile bleibt eine eigenständige Bedingung:
+### Schritt 4 – Manuelle Indexierung für PDF und Text
 
-- Begriffe innerhalb einer Zeile bilden Alternativen (`OR`);
-- mehrere Zeilen müssen gemeinsam erfüllt sein (`AND`);
-- strukturierte Suchzellen bleiben strukturierte Filter und werden nicht allein durch semantische Ähnlichkeit ersetzt;
-- eine freie Textzelle kann sowohl lexikalische als auch semantische Kandidaten liefern;
-- unklare semantische Treffer dürfen keine zwingende fachliche Filterbedingung umgehen.
+- Extraktion, optionalen Tesseract-Fallback, seitengebundenes Chunking und deterministische Punkt-IDs umsetzen;
+- manuellen, resumierbaren CLI-/Admin-Start ohne automatische Eventkopplung bereitstellen;
+- exakte Seiten- und Zeichenquellen in Payload speichern;
+- Löschung und Neuindizierung einer Ressource idempotent ausführen;
+- Abnahme: repräsentative PDFs und Textressourcen werden vollständig, wiederholbar und mit korrekten Quellen indiziert.
 
-### 8.3 Ranking-Empfehlung
+### Schritt 5 – Capacity Gate und Betriebsanleitung
 
-Für den Start wird keine einfache Addition unkalibrierter Rohwerte empfohlen. Volltext-Rang und Cosine Similarity haben unterschiedliche Skalen. Robuster ist eine gewichtete Rank Fusion, beispielsweise Reciprocal Rank Fusion, ergänzt um fachliche Boosts.
+- repräsentativen Lasttest und Speicherprojektion durchführen;
+- Warn-/Stoppschwellen und Parallelität anhand der Messung bestätigen oder zur Entscheidung vorlegen;
+- Installations-, Backup-, Restore-, Rebuild-, Monitoring- und Störungsanleitung fertigstellen;
+- Abnahme: Voll-Backfill ist anhand Messwerten freigegeben oder bewusst blockiert.
 
-Vorgeschlagene Startgewichtung für die Evaluation, noch nicht produktiv beschlossen:
+### Schritt 6 – Semantische Suche hinter Funktionsschalter
 
-- 45 % lexikalischer Inhaltstreffer;
-- 35 % semantischer Chunktreffer;
-- 10 % Titel beziehungsweise exakte Phrase;
-- 10 % vorhandene fachliche Relevanzsignale.
+- Query-Embedding, Qdrant-Abfrage, Ressourcengruppierung und Quellenanzeige integrieren;
+- bestehende direkte Suche unverändert verfügbar halten;
+- Rechte- und Fehlerfälle testen;
+- Abnahme: semantische Suche ist für ausgewählte Superadministratoren messbar, abschaltbar und quellenfest.
 
-Strukturierte Filter sind überwiegend Zulassungsbedingungen, keine bloßen Punkte. Pro Material sollen nicht beliebig viele ähnliche Chunks das Ranking dominieren; empfohlen werden der beste Chunk plus ein stark abgewerteter Beitrag weniger weiterer Chunks aus unterschiedlichen Ressourcen.
+### Schritt 7 – Hybride Suche
 
-Ein Cosine-Wert ist keine Trefferwahrscheinlichkeit. Die GUI darf ihn nicht als Prozentwert ausgeben. Schwellenwerte werden getrennt nach Modellprofil, Sprache und Suchart aus realen Bewertungen ermittelt.
+- rangbasierte Fusion in die bestehende Suchzellenlogik integrieren;
+- Evaluationssatz und Schwellwerte dokumentiert kalibrieren;
+- Rollout und Rückbau über Funktionsschalter ermöglichen;
+- Abnahme: Qualität und Latenz erfüllen die vereinbarten Ziele, direkte Treffer werden nicht verdrängt.
 
-### 8.4 Rechtefilter
+### Schritt 8 – Vorschläge und Kurzbeschreibungen
 
-Die PostgreSQL-Projektion darf Sichtbarkeitsmerkmale enthalten, um unzulässige Kandidaten früh auszusortieren. Sie ist jedoch nie die letzte Autorität. Vor Ausgabe werden Materialien und Ressourcen mit den bestehenden Laravel-Policies beziehungsweise Scopes in MySQL geprüft.
+- KI-Vorschlagsstatus, menschliche Bestätigung, Audit und Stale-Erkennung umsetzen;
+- Bibelstellen normalisieren und validieren;
+- Kurzbeschreibung mit Vorrang menschlicher Texte und KI-Symbol integrieren;
+- Abnahme: kein KI-Vorschlag wird ohne berechtigte menschliche Bestätigung fachlich übernommen.
 
-Da nachträgliches Filtern die Trefferzahl und HNSW-Nutzung beeinträchtigen kann, muss ein Lasttest eine realistische Mischung aus privaten, öffentlichen und Bundle-basierten Daten enthalten. Kandidaten werden kontrolliert überabgerufen beziehungsweise iterativ erweitert, bis genügend autorisierte Ergebnisse oder ein festgelegtes Limit erreicht ist.
+### Schritt 9 – Automatisierung und Superadmin-Steuerung
 
-## 9. Ollama und Laravel AI SDK
+- erst nach stabiler manueller Phase automatische Reindexierung über bestehende Events planen und freigeben;
+- Queue-Zeitfenster, interaktive Ausnahmeberechtigung, Pause und Admin-Status umsetzen;
+- Import-Backpressure und Reconciliation aktivieren;
+- Abnahme: Automatisierung ist beobachtbar, pausierbar, resumierbar und beeinträchtigt die Kernanwendung nicht.
 
-### 9.1 Einsatz des SDK
+## 15. Abnahmekriterien des Gesamtprojekts
 
-Für die spätere Umsetzung wird das offizielle Laravel AI SDK bevorzugt, sofern der Implementierungs-Spike die benötigten Ollama-Funktionen, Fehlerbehandlung und Testbarkeit bestätigt. Es bietet eine Laravel-konforme Abstraktion für strukturierte Ausgaben, Queueing, Embeddings und Fakes. Die Dependency wird erst im Umsetzungsarbeitspaket und nach ausdrücklicher Freigabe installiert. Diese Freigabe liegt für Stufe 0 als Option A vor; installiert ist `laravel/ai` in Version `^0.11.2`. Die package-eigene Conversation-Migration wird nicht veröffentlicht, weil diese Stufe keine Agenten-Konversationen speichert.
+Das Projekt ist erst abgeschlossen, wenn:
 
-Die aktuelle Laravel-13-Dokumentation weist Ollama sowohl für Textaufgaben als auch für Embeddings als unterstützten Provider aus. Diese native Anbindung ist der bevorzugte Weg. In Stufe 0 werden dennoch Dimension, Batchverhalten, Fehlerfälle und Timeouts gegen die konkret installierte SDK-, Ollama- und Modellversion getestet. Ein benannter `openai-compatible`-Provider ist die erste Rückfalloption, sofern der Ollama-Endpoint die erwarteten Request- und Response-Strukturen erfüllt; ein eigener Adapter ist erst die letzte Option.
+- Qdrant der einzige Vektorspeicher des Kontextsuche-Moduls ist;
+- alle Artefakte und Designannahmen der verworfenen Variante entfernt und per Repository-Scan geprüft sind;
+- MySQL die alleinige fachliche Wahrheit bleibt und Qdrant vollständig neu aufgebaut werden kann;
+- Modellwechsel über neue Collection und atomare Aliasumschaltung ohne gemischte Vektoren funktionieren;
+- mehrere Ollama-Server dasselbe verifizierte Embedding-Profil verteilt bedienen und bei Erreichbarkeitsfehlern geordnet ausfallen können;
+- PDF- und Texttreffer mindestens Ressource, Seite und konkrete Textstelle nennen;
+- die bestehende direkte Suche sowie Suchzellenlogik erhalten sind;
+- hybride Gewichtung mit einem dokumentierten Evaluationssatz kalibriert ist;
+- alle KI-Vorschläge bis zur menschlichen Annahme eindeutig gekennzeichnet bleiben;
+- menschliche Kurzbeschreibungen immer Vorrang haben;
+- Zeitfenster, interaktive Berechtigung, Lastgrenzen und Superadmin-Zugriff serverseitig durchgesetzt werden;
+- Capacity Gate, Backup-/Restore-/Rebuild-Probe und Betriebsanleitung bestanden sind;
+- jeder Umsetzungsschritt einen eigenen geprüften Commit besitzt.
 
-Die Ollama-Verbindung wird über Serverkonfiguration hergestellt. Endpoint, Zugangsschutz und etwaige Tokens gehören nicht in die Admin-Datenbank oder ins Repository.
+## 16. Primärquellen für die Umsetzung
 
-### 9.2 Modellprofile
+Bei der Umsetzung sind die jeweils aktuellen offiziellen Dokumentationen gegen die gepinnte Version zu prüfen:
 
-Ein Modellprofil enthält mindestens:
+- [Qdrant Collections, Vektorkonfiguration und Aliase](https://qdrant.tech/documentation/manage-data/collections/)
+- [Qdrant Payload und Payload-Indizes](https://qdrant.tech/documentation/manage-data/payload/)
+- [Qdrant Search und Gruppierung](https://qdrant.tech/documentation/search/search/)
+- [Qdrant Hybrid Queries und Fusion](https://qdrant.tech/documentation/search/hybrid-queries/)
+- [Qdrant Security](https://qdrant.tech/documentation/operations/security/)
+- [Qdrant Installation](https://qdrant.tech/documentation/operations/installation/)
+- [Qdrant Snapshots](https://qdrant.tech/documentation/operations/snapshots/)
+- [Laravel AI SDK: Embeddings](https://laravel.com/docs/13.x/ai-sdk#embeddings)
+- [Laravel AI SDK: Ollama](https://laravel.com/docs/13.x/ai-sdk#ollama)
 
-- Aufgabe: `embedding`, `keyword_suggestion`, `bible_reference_suggestion`, `summary`;
-- Provider `ollama`;
-- Modellname, Tag und nach Möglichkeit unveränderlicher Digest;
-- erwartete Vektordimension bei Embeddings;
-- Timeout, Retry-Strategie und Batchgröße;
-- Generierungsparameter wie Temperatur und maximale Ausgabe;
-- Prompt-/Schema-Version;
-- Status `draft`, `active` oder `retired`;
-- Zeitpunkt und Benutzer der Aktivierung.
-
-Ein frei beweglicher Tag wie `latest` genügt nicht für Reproduzierbarkeit. Vor Aktivierung wird der auf Ollama tatsächlich geladene Digest erfasst.
-
-### 9.3 Modellauswahl
-
-Der Begriff „Gemma 4“ wird nicht als festes Modell in den Vertrag geschrieben, weil Modellnamen und lokale Hardwareunterstützung überprüft werden müssen. Für Embeddings ist ein spezialisiertes Embedding-Modell sinnvoller als ein generatives Gemma-Modell. Als Kandidaten für einen lokalen Vergleich kommen insbesondere die von Ollama dokumentierten Embedding-Modelle `embeddinggemma`, `qwen3-embedding` und `all-minilm` infrage.
-
-Für Zusammenfassungen und strukturierte Vorschläge wird ein separates, auf der vorhandenen Hardware lauffähiges Instruction-Modell ausgewählt. Die endgültige Wahl erfolgt über Qualitätsmessung, Laufzeit, RAM-/VRAM-Bedarf und deutsch-englische Eignung.
-
-## 10. KI-Vorschläge für Schlagworte und Bibelstellen
-
-### 10.1 Zustandsmodell
-
-Vorschläge werden nicht direkt in die bestehenden fachlichen Beziehungen geschrieben. Ein Vorschlag hat mindestens:
-
-- Material- und gegebenenfalls Ressourcenbezug;
-- Typ `keyword` oder `bible_reference`;
-- Verweis auf einen vorhandenen Datensatz oder normalisierten Vorschlag für einen neuen Begriff;
-- Modell-, Prompt- und Dokumentrevision;
-- Konfidenz beziehungsweise Rankingwert;
-- begründende Quellen-Chunks;
-- Status `pending`, `accepted`, `rejected`, `superseded` oder `failed`;
-- Entscheider und Entscheidungszeitpunkt.
-
-Nur `accepted` erzeugt oder ergänzt die reguläre fachliche Beziehung. Die Übernahme läuft in einer Transaktion und prüft vorher erneut Dubletten, Gültigkeit und Berechtigung.
-
-### 10.2 Schlagworte
-
-- Zuerst werden vorhandene Schlagworte semantisch und lexikalisch abgeglichen.
-- Neue Schlagworte sind erlaubt, werden aber eindeutig als „neu vorgeschlagen“ angezeigt.
-- Vor Annahme werden Schreibvarianten, Synonyme und Hierarchie-Dubletten geprüft.
-- Die vorgeschlagene Relevanz ist editierbar und wird erst mit der Annahme fachlich wirksam.
-- Das Ablehnen eines Vorschlags löscht nicht zwingend den Auditdatensatz, verhindert aber dessen Anzeige als offen.
-
-### 10.3 Bibelstellen
-
-- Ausgabe erfolgt als strikt strukturiertes Schema, nicht als frei interpretierter Text.
-- Buch, Kapitel und Versbereich werden gegen die vorhandene Bibelstellen-Domäne validiert.
-- Inhaltliche Ähnlichkeit und explizite Nennung sind getrennte Signale.
-- Die GUI zeigt die begründenden Textstellen, damit Menschen den Vorschlag prüfen können.
-- Ungültige oder nicht eindeutig normalisierbare Angaben werden nicht als Vorschlag angeboten.
-
-### 10.4 Menschliche Annahme und Herkunft
-
-Nach Annahme wird der Eintrag in der normalen Nutzung vollständig wie ein menschlich gepflegter Eintrag behandelt. Das KI-Badge verschwindet dort. Empfohlen bleibt ein interner, nur administrativ sichtbarer Auditverweis auf den Ursprung, weil dies Fehleranalyse, Rückruf eines fehlerhaften Modells und Compliance erleichtert. Diese Auditspur darf die fachliche Gleichstellung des angenommenen Eintrags nicht verändern.
-
-## 11. KI-Kurzbeschreibungen
-
-Eine KI-Kurzbeschreibung wird separat von der menschlichen Beschreibung gespeichert und versioniert. Sie enthält Modell-/Promptversion, Quellrevisionen, Erstellungsstatus und optional die verwendeten Ressourcen.
-
-Darstellungsregel:
-
-1. Ist eine nichtleere menschliche Kurzbeschreibung vorhanden, wird ausschließlich diese verwendet.
-2. Andernfalls darf die aktive KI-Kurzbeschreibung angezeigt werden.
-3. Die KI-Fassung trägt ein kleines, barrierefrei beschriftetes KI-Symbol.
-4. Eine fehlgeschlagene oder veraltete KI-Fassung erzeugt keinen leeren Ersatz und überschreibt nichts.
-
-Die Zusammenfassung eines Materials berücksichtigt mehrere Ressourcen. Um das Kontextfenster klein und die Quellen nachvollziehbar zu halten, wird eine hierarchische Strategie empfohlen: zunächst relevante Chunks pro Ressource verdichten, anschließend eine Materialzusammenfassung aus diesen belegten Teilergebnissen erstellen. Die Zusammenfassung darf keine Quelle behaupten, die nicht in den verwendeten Chunks vorkommt.
-
-Konfigurierbar werden mindestens Ziellänge, Sprache, Modellprofil und automatische beziehungsweise manuelle Auslösung. Verbindlicher Startwert für Suchkarten sind zwei bis drei Sätze mit einer harten Grenze von ungefähr 300 Zeichen. Die Eingabeaufforderung nennt sowohl Satz- als auch Zeichenziel; die Anwendung validiert und begrenzt die gespeicherte Ausgabe unabhängig vom Modell.
-
-## 12. Queue-, Last- und Zeitfensterkonzept
-
-### 12.1 Getrennte Aufgabenklassen
-
-Empfohlen werden logisch getrennte Queues oder eindeutig getrennte Jobklassen:
-
-- `ai-extract`: PDF-Text, OCR und Locator-Erzeugung;
-- `ai-embed`: Embedding-Batches und Indexschreiben;
-- `ai-generate`: Schlagworte, Bibelstellen und Kurzbeschreibungen;
-- `ai-interactive`: optional für ausdrücklich durch Benutzer ausgelöste Vorschauen.
-
-Bestehende Default- und Preview-Queues dürfen durch einen großen Reindex nicht blockiert werden. Alle Jobs müssen idempotent, revisioniert, abbrechbar und nach einem Worker-Neustart fortsetzbar sein.
-
-### 12.2 Bedeutung des optionalen Zeitfensters
-
-Das Zeitfenster ist ein **erlaubtes Verarbeitungsfenster**, beispielsweise täglich von 03:00 bis 04:00 Uhr:
-
-- Ist kein Fenster konfiguriert, dürfen AI-Background-Jobs jederzeit laufen.
-- Ist ein Fenster aktiv, nimmt die Anwendung Jobs jederzeit an, startet die rechenintensive Arbeit aber nur innerhalb des Fensters.
-- Am Fensterende wird kein laufender Prozess hart beendet. Er beendet den aktuellen kleinen Verarbeitungsschritt und gibt den Rest kontrolliert zurück.
-- Pause und Wiederaufnahme verlieren keine Jobs.
-- Zeitzone, Wochentage, Start, Ende und Verhalten über Mitternacht sind explizit konfigurierbar.
-- Bundle-Importe bündeln gleichartige Arbeit, statt pro Datensatz unkontrolliert Worker zu starten.
-
-### 12.3 Was mit `ai-interactive` gemeint ist
-
-`ai-interactive` ist keine zwingend synchrone Webanfrage. Gemeint ist eine priorisierte Warteschlange für eine Benutzeraktion wie „Vorschläge jetzt erzeugen“, bei der die Oberfläche einen zeitnahen Status erwartet. Sie trennt solche kleinen Aufgaben von stundenlangen Backfills.
-
-Berechtigte Benutzer dürfen diese interaktiven Jobs auch außerhalb des Background-Zeitfensters starten. Dafür gilt ein eigenes, serverseitig geprüftes Recht, beispielsweise fachlich `triggerInteractiveAiOutsideWindow`; der endgültige technische Name richtet sich nach dem bestehenden Berechtigungsmuster. Ohne dieses Recht wird die Aktion für das nächste Zeitfenster vorgemerkt oder in der GUI nicht angeboten. UI-Ausblendung allein genügt nicht.
-
-Außerhalb des Zeitfensters gelten Parallelität 1, ein enges Rate Limit je Benutzer und ein globales Lastlimit. Interaktive Jobs dürfen laufende Backfills nicht vervielfachen und umfassen keine OCR-, Reindexierungs- oder Bundle-Massenjobs. Ein globaler Notfall-Pause-Schalter eines Superadministrators sperrt auch interaktive Jobs.
-
-### 12.4 Schutzmechanismen
-
-- globaler Pause-Schalter;
-- getrennte Parallelitäts- und Batchlimits;
-- Circuit Breaker bei nicht erreichbarem Ollama;
-- exponentieller Retry mit Maximalversuchen;
-- Dead-Letter-/Failed-Job-Sicht in der Administration;
-- Fortschritt pro Import, Ressource und Indexgeneration;
-- Speicherdruck- und Laufzeitmetriken;
-- kein Retry für dauerhaft ungültige Dateien ohne Inhaltsänderung.
-
-## 13. Admin-Oberfläche
-
-Die Admin-Oberfläche soll verständliche Fachbegriffe verwenden und gefährliche Änderungen als solche kennzeichnen. Vorgesehene Bereiche:
-
-### 13.1 Betriebsstatus
-
-- Erreichbarkeit von Ollama und PostgreSQL;
-- aktive Indexgeneration und Vollständigkeit;
-- belegter und freier SSD-Speicher, Wachstumsrate sowie 12-GB-Warn- und 8-GB-Pausenschwelle;
-- Queue-Länge, laufende und fehlgeschlagene Jobs;
-- letzte erfolgreiche Reconciliation;
-- Verarbeitungsgeschwindigkeit und geschätzte Restdauer;
-- Pause, Fortsetzen und kontrolliertes erneutes Einreihen.
-
-### 13.2 Konfiguration
-
-- aktives Modellprofil je Aufgabe;
-- Chunking-Profil als Entwurf und aktivierte Version;
-- Zeitfenster, Zeitzone und Wochentage;
-- Batchgrößen, Parallelität und Timeouts innerhalb sicherer Grenzen;
-- Ziellänge der Kurzbeschreibung;
-- vorläufige Suchgewichte und Schwellenprofile;
-- Rate Limits und Lastgrenzen für berechtigte interaktive Jobs außerhalb des Fensters.
-
-Änderungen, die einen Reindex verlangen, werden nicht sofort stillschweigend aktiv. Die Oberfläche zeigt Auswirkung, geschätzten Umfang und Rückrollmöglichkeit und erzeugt eine neue Indexgeneration.
-
-### 13.3 Berechtigungen und Audit
-
-Der Zugriff auf die Admin-Konfiguration ist serverseitig ausschließlich Superadministratoren gestattet. Diese Berechtigung ist nicht delegierbar. Das getrennte Recht zum Start interaktiver KI-Jobs erlaubt keine Konfigurationsänderung. Konfigurationsänderungen, Aktivierungen, Pausen, Rücksetzungen und manuelle Annahmen werden mit Benutzer und Zeitpunkt protokolliert. Secrets, Dokumentvolltexte und rohe Prompts gehören nicht in allgemeine Logs.
-
-## 14. Kalibrierung und Qualitätsmessung
-
-### 14.1 Kuratierter Evaluationssatz
-
-Vor produktiver Aktivierung wird ein versionierter Testsatz aufgebaut, mindestens:
-
-- 100 bis 200 reale Suchanfragen auf Deutsch und Englisch;
-- exakte Begriffe, Synonyme, Umschreibungen und Mehrdeutigkeiten;
-- kurze und lange PDFs, native Texte und OCR-Dokumente;
-- Suchzellen mit mehreren `AND`-/`OR`-Kombinationen;
-- private und öffentliche Inhalte;
-- erwartete Materialien, Ressourcen, Seiten und relevante Textstellen;
-- bewusst negative Beispiele ohne fachlichen Treffer.
-
-Der Testsatz darf keine unzulässig veröffentlichten vertraulichen Inhalte enthalten. Für automatisierte Tests werden synthetische oder freigegebene Fixtures verwendet.
-
-### 14.2 Metriken
-
-- Recall@10 und nDCG@10 auf Materialebene;
-- Trefferquote der richtigen Ressource und Seite;
-- Anteil unbelegter oder falscher Quellenangaben: Ziel 0;
-- Precision/Recall angenommener Schlagwort- und Bibelstellen-Vorschläge;
-- Ablehnungsquote neuer Schlagworte;
-- p50/p95-Suchlatenz;
-- Indexierungsdurchsatz und Fehlerrate;
-- Rechteverletzungen: Ziel 0.
-
-Schwellen werden so gewählt, dass ein schwacher semantischer Treffer keine klaren Nichttreffer verdrängt. „Kein hinreichender Kontexttreffer“ ist ein gültiges Ergebnis.
-
-### 14.3 Vergleich von Modellen und Chunking
-
-Jede Variante wird mit identischem Evaluationssatz geprüft. Verglichen werden mindestens:
-
-- zwei geeignete Embedding-Modelle;
-- zwei Chunkgrößen beziehungsweise Überlappungsprofile;
-- exakte Suche gegen HNSW zur Recall-Messung;
-- Deutsch, Englisch und gemischte Dokumente getrennt;
-- Ressourcenverbrauch auf realer Hardware.
-
-Ein Modell wird nicht allein wegen höherer Benchmark-Werte gewählt, wenn es die Nachtverarbeitung oder interaktive Latenz auf der vorhandenen Hardware unbrauchbar macht.
-
-## 15. Sicherheit und Datenschutz
-
-- PostgreSQL läuft auf demselben Host wie die Webanwendung und lauscht ausschließlich lokal beziehungsweise auf einem dedizierten Unix-Socket; ein externer PostgreSQL-Port ist nicht erforderlich.
-- Ollama liegt im vertrauenswürdigen lokalen Netz, wird aber per Firewall nur für den Webhost freigegeben.
-- Wenn möglich TLS oder ein abgesicherter interner Tunnel; keine offen erreichbare Ollama-API.
-- Separate Datenbankrolle mit minimalen Rechten für den Index.
-- Backups des PostgreSQL-Index sind optional, weil er abgeleitet ist; Konfiguration und Auditdaten in MySQL sind dagegen Teil des regulären Backups.
-- Temporäre Dumps oder Backups des abgeleiteten Index dürfen die 40-GB-Produktions-SSD nicht als dauerhaften Zielort verwenden.
-- Löschung oder Entzug einer Ressource erzeugt priorisierte Deindexierung. Bis dahin verhindert die abschließende MySQL-Autorisierung eine Ausgabe.
-- Prompts, Fehlermeldungen und Telemetrie werden auf personenbezogene und vertrauliche Inhalte minimiert.
-- PDF-Inhalte gelten als untrusted input. Eingebettete Anweisungen dürfen Agenten- oder Systemvorgaben nicht verändern.
-- KI-Ausgaben werden strikt validiert; strukturierte Ausgabe ersetzt keine fachliche oder Berechtigungsprüfung.
-
-## 16. Vorgeschlagene Umsetzungsstufen
-
-Jede Stufe ist ein eigenes freizugebendes Arbeitspaket mit Migrationen, Tests, Betriebshinweisen und Rückbauplan.
-
-### Stufe 0 – Messbarer Spike
-
-**Umsetzungsstand (22. September 2026):** Option A ist begonnen. Das Repository enthält die Laravel-AI-SDK-Abhängigkeit, eine getrennte `context_search`-PostgreSQL-Verbindung, einen lokalen PostgreSQL-17/pgvector-Compose-Dienst, eine ausschließlich manuell aufzurufende Sidecar-Migration sowie den deterministischen Unicode-fähigen Text-Chunker mit Quellzeichen-Offsets. Die lokale Migration wurde mit PostgreSQL 17 und pgvector erfolgreich validiert. Es gibt weiterhin keinen Listener, keinen Produktivworker, keinen Backfill und keine Änderung an der bestehenden Suche oder Oberfläche.
-
-- PostgreSQL/pgvector und Ollama in einer isolierten Entwicklungsumgebung;
-- 50 bis 100 repräsentative Dokumente;
-- native Extraktion, OCR-Probe, zwei Embedding-Modelle;
-- Chunking- und HNSW-Vergleich;
-- Rechtefilter-Prototyp;
-- belastbare Speicher-, Durchsatz- und Latenzwerte.
-- Kompatibilität der nativen Ollama-Embedding-Anbindung des Laravel AI SDK; zusätzlich Prüfung des `openai-compatible`-Treibers als Rückfalloption.
-- Capacity Gate für den gemeinsam genutzten 2-CPU-/4-GB-Produktionshost einschließlich Web- und MySQL-Latenz.
-
-### Stufe 1 – Abgeleiteter Index
-
-- versionierte Modell- und Chunking-Profile;
-- Extraktions-, Chunking- und Embedding-Jobs;
-- Reconciliation, Löschung und Neuaufbau;
-- Betriebsmetriken und CLI-/Admin-Status;
-- noch keine Änderung der öffentlichen Suche.
-
-### Stufe 2 – Hybride Suche hinter Feature Flag
-
-- bestehende Suchzellen an Hybrid Search anbinden;
-- Materialaggregation und Quellenanzeige;
-- serverseitige finale Rechteprüfung;
-- A/B- beziehungsweise Shadow-Auswertung gegen die bestehende Suche;
-- Rückschaltung ohne Datenverlust.
-
-### Stufe 3 – KI-Vorschläge
-
-- pending/accepted/rejected-Workflow;
-- Schlagwort-Dublettenprüfung und Bibelstellenvalidierung;
-- Quellenbegründung, Relevanzbearbeitung und Audit;
-- Background-Jobs und optionaler interaktiver Pfad.
-
-### Stufe 4 – KI-Kurzbeschreibung
-
-- separate versionierte Speicherung;
-- konfigurierbare Länge und Sprache;
-- Fallback in Suchergebnissen mit KI-Symbol;
-- Mehrressourcen-Zusammenfassung und Aktualisierungsregeln.
-
-### Stufe 5 – Betrieb und Backfill
-
-- resumierbarer Gesamt-Backfill;
-- Lastfenster und Pause;
-- generationenweiser Modellwechsel;
-- Administratorhandbuch mit Installation, Tuning, Monitoring, Fehlerbehebung und Rückbau.
-
-URL-Crawling ist ausdrücklich kein Teil dieser Stufen und erhält später einen eigenen Sicherheits- und Aktualisierungsvertrag, insbesondere zu SSRF, Robots-Regeln, Aktualisierungsintervallen, Canonicals und Löschung.
-
-## 17. Verifikationsvertrag für die spätere Umsetzung
-
-Zusätzlich zu den allgemeinen [Quality Gates](quality-gates.md) sind erforderlich:
-
-- Unit-Tests für Chunkgrenzen, Locator, Normalisierung, Sprachwahl und Ranking-Fusion;
-- Feature-Tests für Suchzellen, Policies, private Inhalte und Quellenanzeige;
-- Queue-Tests für Idempotenz, veraltete Revisionen, Retry, Pause und Zeitfenster;
-- Contract-Tests mit Laravel AI SDK Fakes, ohne Ollama in der normalen Testsuite;
-- separate Integrationstests gegen echte PostgreSQL-/pgvector- und Ollama-Testdienste;
-- Migrationstests für Auf- und Rückbau jeder neuen MySQL- und PostgreSQL-Struktur;
-- Lasttest für Bundle-Importe mit mehreren Tausend Ressourcen;
-- Wiederanlauf nach Worker-, Ollama- und PostgreSQL-Ausfall;
-- Test, dass gelöschte oder nicht berechtigte Inhalte nie ausgegeben werden;
-- visueller und barrierefreier Test des KI-Badges, der Quellenstellen und aller Lade-/Fehlerzustände.
-
-## 18. Administratorhandbuch als Liefergegenstand
-
-Vor produktiver Freigabe muss die README beziehungsweise ein von ihr verlinktes Betriebshandbuch mindestens erklären:
-
-- Installation und Upgrade von PostgreSQL und `pgvector`;
-- Datenbank, Rolle, Netzwerkfreigaben und Backup-Entscheidung;
-- Installation, Absicherung und Health Check von Ollama;
-- Laden und unveränderliches Identifizieren der freigegebenen Modelle;
-- Bedeutung jedes Modell-, Chunking-, Such- und Queue-Parameters;
-- Anlegen, Testen und Aktivieren einer neuen Indexgeneration;
-- Kalibrierung mit dem Evaluationssatz statt willkürlicher Similarity-Prozente;
-- Worker, Supervisor, Scheduler, Zeitfenster und Pause;
-- Monitoring, Speicherplanung, Fehlerbilder und Wiederanlauf;
-- 40-GB-Disk-Budget, Warn-/Pausenschwellen, WAL-/Log-Retention und Vorgehen bei Platzmangel;
-- vollständiger Reindex, Rückrollverfahren und kontrollierte Bereinigung alter Generationen.
-
-## 19. Offene Mess- und Freigabepunkte vor der Umsetzung
-
-Die sechs zuvor offenen Produktentscheidungen sind bestätigt. Vor einer produktiven Umsetzung bleiben folgende mess- beziehungsweise implementierungsabhängige Punkte:
-
-1. **Reales Disk-Budget:** Vor Installation werden die gemeldeten 40 GB gegen tatsächlich freien Speicher, vorhandene MySQL-/Anwendungsdaten und deren Wachstum verifiziert. Das Capacity Gate misst anschließend die reale Größe je Indexgeneration.
-2. **Capacity Gate:** Der vollständige Backfill auf 4 GB RAM wird erst nach einem realistischen Spike freigegeben. Bei unzureichender p95-Latenz, Swap, OOM-Risiko oder beeinträchtigter Web-/MySQL-Leistung wird vor dem Backfill RAM erweitert oder PostgreSQL ausgelagert.
-3. **Embedding-Profil:** Modell, Dimension sowie `vector`, `halfvec` oder quantisierter Index werden anhand von Recall, deutsch-englischer Qualität, Speicher und Latenz gewählt.
-4. **Interaktives Recht:** Der technische Permission-/Policy-Name und die anfänglich berechtigten bestehenden Rollen müssen im Umsetzungsarbeitspaket dem vorhandenen Autorisierungsmuster zugeordnet und ausdrücklich freigegeben werden.
-5. **OCR-Grenzwert:** Der konkrete Qualitätswert für den Tesseract-Fallback wird mit nativen, gescannten und gemischten PDFs kalibriert.
-
-## 20. Referenzen
-
-- [Laravel 13 AI SDK](https://laravel.com/docs/13.x/ai-sdk)
-- [Laravel 13 Query Builder: Vector Similarity](https://laravel.com/docs/13.x/queries#vector-similarity)
-- [pgvector](https://github.com/pgvector/pgvector)
-- [Ollama Embeddings](https://github.com/ollama/ollama/blob/main/docs/capabilities/embeddings.mdx)
-- [PostgreSQL Full Text Search](https://www.postgresql.org/docs/current/textsearch.html)
-- [PostgreSQL Resource Consumption](https://www.postgresql.org/docs/current/runtime-config-resource.html)
-- [Poppler `pdftotext`](https://manpages.debian.org/bookworm/poppler-utils/pdftotext.1.en.html)
-- [Tesseract hOCR/TSV-Ausgabe](https://tesseract-ocr.github.io/tessdoc/Command-Line-Usage.html)
+Beispielwerte aus Dokumentationen werden nicht ungeprüft in Produktion übernommen. Maßgeblich sind die gepinnte Version, der Evaluationssatz und die Messwerte der tatsächlichen Infrastruktur.
