@@ -23,4 +23,9 @@ interface QdrantClient
     public function aliases(): array;
 
     public function replaceAlias(string $alias, string $collection): void;
+
+    /** @param array<int, array{id: string, vector: array<float>, payload: array<string, mixed>}> $points */
+    public function upsertPoints(string $collection, array $points): void;
+
+    public function deleteResourcePoints(string $collection, int $resourceId, string $embeddingProfile): void;
 }

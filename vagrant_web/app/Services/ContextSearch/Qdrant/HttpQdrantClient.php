@@ -144,6 +144,33 @@ final class HttpQdrantClient implements QdrantClient
         $this->assertSuccessful($response, 'POST', '/collections/aliases');
     }
 
+    public function upsertPoints(string $collection, array $points): void
+    {
+        if ($points === []) {
+            return;
+        }
+
+        $response = $this->safeRequest()->put('/collections/'.rawurlencode($collection).'/points?wait=true', [
+            'points' => $points,
+        ]);
+
+        $this->assertSuccessful($response, 'PUT', '/collections/{collection}/points');
+    }
+
+    public function deleteResourcePoints(string $collection, int $resourceId, string $embeddingProfile): void
+    {
+        $response = $this->safeRequest()->post('/collections/'.rawurlencode($collection).'/points/delete?wait=true', [
+            'filter' => [
+                'must' => [
+                    ['key' => 'resource_id', 'match' => ['value' => $resourceId]],
+                    ['key' => 'embedding_profile', 'match' => ['value' => $embeddingProfile]],
+                ],
+            ],
+        ]);
+
+        $this->assertSuccessful($response, 'POST', '/collections/{collection}/points/delete');
+    }
+
     private function request(): PendingRequest
     {
         $request = Http::baseUrl(rtrim($this->url, '/'))

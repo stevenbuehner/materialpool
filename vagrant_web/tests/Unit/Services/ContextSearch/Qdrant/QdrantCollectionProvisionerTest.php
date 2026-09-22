@@ -124,4 +124,12 @@ final class FakeQdrantClient implements QdrantClient
         $this->replacedAlias = $alias;
         $this->aliasTarget = $collection;
     }
+
+    public function upsertPoints(string $collection, array $points): void
+    {
+    }
+
+    public function deleteResourcePoints(string $collection, int $resourceId, string $embeddingProfile): void
+    {
+    }
 }

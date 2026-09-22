@@ -39,4 +39,12 @@ return [
         'overlap_characters' => (int) env('CONTEXT_SEARCH_CHUNK_OVERLAP_CHARACTERS', 200),
     ],
 
+    'indexing' => [
+        'queue' => env('CONTEXT_SEARCH_INDEXING_QUEUE', 'context-search-indexing'),
+        'embedding_batch_size' => (int) env('CONTEXT_SEARCH_EMBEDDING_BATCH_SIZE', 8),
+        'pdf_native_text_minimum_characters' => (int) env('CONTEXT_SEARCH_PDF_NATIVE_TEXT_MINIMUM_CHARACTERS', 80),
+        'ocr_languages' => env('CONTEXT_SEARCH_OCR_LANGUAGES', 'deu+eng'),
+        'ocr_timeout' => (int) env('CONTEXT_SEARCH_OCR_TIMEOUT', 120),
+    ],
+
 ];

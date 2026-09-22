@@ -39,7 +39,7 @@ RUN apt-get update \
     && apt-get update \
     && apt-get install -y yarn \
     && apt-get install -y mysql-client \
-    && apt-get install -y poppler-utils php8.4-imagick \
+    && apt-get install -y poppler-utils php8.4-imagick tesseract-ocr tesseract-ocr-deu tesseract-ocr-eng \
     && apt-get install -y postgresql-client-$POSTGRES_VERSION \
     && apt-get -y autoremove \
     && apt-get clean \

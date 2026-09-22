@@ -92,6 +92,32 @@ final class HttpQdrantClientTest extends TestCase
         }
     }
 
+    public function test_upserts_and_deletes_resource_points_with_the_profile_filter(): void
+    {
+        Http::fake(['qdrant.test/*' => Http::response(['status' => 'ok', 'result' => ['status' => 'completed']])]);
+
+        $this->client()->upsertPoints('materialpool_chunks_profile_generation', [[
+            'id' => 'a3d03722-6077-5e44-a391-3302f9c9386a',
+            'vector' => [0.1, 0.2],
+            'payload' => ['resource_id' => 42],
+        ]]);
+        $this->client()->deleteResourcePoints('materialpool_chunks_profile_generation', 42, 'profile-1');
+
+        Http::assertSent(function (Request $request): bool {
+            return $request->method() === 'PUT'
+                && $request->url() === 'http://qdrant.test/collections/materialpool_chunks_profile_generation/points?wait=true'
+                && $request['points'][0]['payload']['resource_id'] === 42;
+        });
+        Http::assertSent(function (Request $request): bool {
+            return $request->method() === 'POST'
+                && $request->url() === 'http://qdrant.test/collections/materialpool_chunks_profile_generation/points/delete?wait=true'
+                && $request['filter']['must'] === [
+                    ['key' => 'resource_id', 'match' => ['value' => 42]],
+                    ['key' => 'embedding_profile', 'match' => ['value' => 'profile-1']],
+                ];
+        });
+    }
+
     private function client(): HttpQdrantClient
     {
         return new HttpQdrantClient(

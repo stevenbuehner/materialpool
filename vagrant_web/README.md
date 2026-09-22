@@ -410,6 +410,20 @@ Vor einer Indexgeneration ist auf jedem Ollama-Server der Modell-Digest über `G
 ./vendor/bin/sail artisan context-search:ollama:verify
 ```
 
+### Manuelle Indexierung von PDF- und Textressourcen (Stufe 1)
+
+Die erste Indexierung wird ausschließlich bewusst per Kommando gestartet; Änderungen an Materialien oder Ressourcen lösen noch keinen Indexlauf aus. Voraussetzung sind eine aktivierte, provisionierte Qdrant-Collection, ein erfolgreich verifiziertes Embedding-Profil und ein Datenbank-Queue-Worker für `context-search-indexing`.
+
+```bash
+./vendor/bin/sail artisan migrate
+./vendor/bin/sail artisan queue:work database --queue=context-search-indexing --tries=3 --timeout=180
+./vendor/bin/sail artisan context-search:index 123
+./vendor/bin/sail artisan context-search:index --after=123 --limit=100
+./vendor/bin/sail artisan context-search:index --resume=<indexlauf-uuid>
+```
+
+Der Laufzustand wird in MySQL gespeichert und ein fehlgeschlagener Lauf kann anhand seiner UUID fortgesetzt werden. Jeder Qdrant-Punkt enthält die Ressourcen-ID, die Dokumentrevision, die PDF-Seite beziehungsweise Textseite sowie Zeichenpositionen; die Originaldatei bleibt außerhalb von Qdrant. Für PDF-Seiten mit zu wenig eingebettetem Text wird Tesseract mit den Sprachpaketen `deu` und `eng` verwendet. Das Sail-Image installiert diese Werkzeuge beim Neuaufbau automatisch; auf Produktionsservern müssen `pdftotext`, `pdfinfo`, `pdftoppm`, `tesseract`, `tesseract-ocr-deu` und `tesseract-ocr-eng` vor dem Start eines Indexworkers verfügbar sein.
+
 Ein abweichender Digest, Modellname oder eine andere Dimension ist ein Konfigurationsfehler: Der Pool stoppt dann, statt Vektoren verschiedener Modelle zu mischen. Bei Netzwerkfehlern, Timeouts, Überlastung oder 5xx-Antworten verteilt er eine Anfrage deterministisch auf den nächsten gesunden Server. Nach den konfigurierbaren Fehlschlägen öffnet der serverbezogene Circuit Breaker zeitweise; jede Serverdefinition besitzt zudem ihr eigenes gemeinsames Parallelitätslimit. Erst der erfolgreiche Selbsttest berechtigt zum Provisionieren und Befüllen einer Indexgeneration.
 
 Für gezielte Diagnose können die Prozesse einzeln laufen:

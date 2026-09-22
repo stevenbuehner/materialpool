@@ -6,11 +6,16 @@ use App\ResourceLimitations\ResourceLimitationService;
 use App\Services\Bundles\BundleQueueService;
 use App\Services\Bundles\BundlesService;
 use App\Services\ContextSearch\EmbeddingProfile;
+use App\Services\ContextSearch\ContextSearchResourceIndexer;
+use App\Services\ContextSearch\Extraction\OcrProcessor;
+use App\Services\ContextSearch\Extraction\ResourceTextExtractor;
+use App\Services\ContextSearch\Extraction\TesseractOcrProcessor;
 use App\Services\ContextSearch\Ollama\OllamaEmbeddingPool;
 use App\Services\ContextSearch\Ollama\OllamaServerConfiguration;
 use App\Services\ContextSearch\Qdrant\HttpQdrantClient;
 use App\Services\ContextSearch\Qdrant\QdrantClient;
 use App\Services\ContextSearch\Qdrant\QdrantCollectionProvisioner;
+use App\Services\ContextSearch\TextChunker;
 use App\Services\ExifReader\ExifMapper;
 use App\Services\ExifReader\ExifReader;
 use App\Services\ExifReader\ExifReaderInterface;
@@ -121,6 +126,27 @@ class AppServiceProvider extends ServiceProvider {
 			timeout: (int) config('context_search.embedding.timeout'),
 			failureThreshold: (int) config('context_search.ollama.failure_threshold'),
 			circuitCooldown: (int) config('context_search.ollama.circuit_cooldown'),
+		));
+		$this->app->singleton(OcrProcessor::class, fn (): OcrProcessor => new TesseractOcrProcessor(
+			languages: (string) config('context_search.indexing.ocr_languages'),
+			timeout: (int) config('context_search.indexing.ocr_timeout'),
+		));
+		$this->app->singleton(ResourceTextExtractor::class, fn ($app): ResourceTextExtractor => new ResourceTextExtractor(
+			pdfs: $app->make(PdfHandlingService::class),
+			files: $app->make(FileHandlingService::class),
+			ocr: $app->make(OcrProcessor::class),
+			nativeTextMinimumCharacters: (int) config('context_search.indexing.pdf_native_text_minimum_characters'),
+		));
+		$this->app->singleton(TextChunker::class, fn (): TextChunker => new TextChunker(
+			targetCharacters: (int) config('context_search.chunking.target_characters'),
+			overlapCharacters: (int) config('context_search.chunking.overlap_characters'),
+		));
+		$this->app->singleton(ContextSearchResourceIndexer::class, fn ($app): ContextSearchResourceIndexer => new ContextSearchResourceIndexer(
+			extractor: $app->make(ResourceTextExtractor::class),
+			chunker: $app->make(TextChunker::class),
+			embeddings: $app->make(OllamaEmbeddingPool::class),
+			qdrant: $app->make(QdrantClient::class),
+			embeddingBatchSize: (int) config('context_search.indexing.embedding_batch_size'),
 		));
 
 		// Keyword Handling
