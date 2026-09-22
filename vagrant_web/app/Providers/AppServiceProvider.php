@@ -5,6 +5,9 @@ namespace App\Providers;
 use App\ResourceLimitations\ResourceLimitationService;
 use App\Services\Bundles\BundleQueueService;
 use App\Services\Bundles\BundlesService;
+use App\Services\ContextSearch\Qdrant\HttpQdrantClient;
+use App\Services\ContextSearch\Qdrant\QdrantClient;
+use App\Services\ContextSearch\Qdrant\QdrantCollectionProvisioner;
 use App\Services\ExifReader\ExifMapper;
 use App\Services\ExifReader\ExifReader;
 use App\Services\ExifReader\ExifReaderInterface;
@@ -85,6 +88,22 @@ class AppServiceProvider extends ServiceProvider {
 		// Bundles
 		$this->app->singleton(BundlesService::class);
 		$this->app->singleton(BundleQueueService::class);
+
+		// Context Search
+		$this->app->singleton(QdrantClient::class, fn (): QdrantClient => new HttpQdrantClient(
+			url: (string) config('context_search.qdrant.url'),
+			apiKey: config('context_search.qdrant.api_key'),
+			connectTimeout: (int) config('context_search.qdrant.connect_timeout'),
+			timeout: (int) config('context_search.qdrant.timeout'),
+		));
+		$this->app->singleton(QdrantCollectionProvisioner::class, fn ($app): QdrantCollectionProvisioner => new QdrantCollectionProvisioner(
+			client: $app->make(QdrantClient::class),
+			collectionPrefix: (string) config('context_search.qdrant.collection_prefix'),
+			activeAlias: (string) config('context_search.qdrant.active_alias'),
+			distance: (string) config('context_search.qdrant.distance'),
+			vectorsOnDisk: (bool) config('context_search.qdrant.vectors_on_disk'),
+			payloadOnDisk: (bool) config('context_search.qdrant.payload_on_disk'),
+		));
 
 		// Keyword Handling
 		$this->app->singleton(KeywordHandlingService::class);

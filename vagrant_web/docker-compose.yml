@@ -25,6 +25,8 @@ services:
         depends_on:
             mysql:
                 condition: service_healthy
+            qdrant:
+                condition: service_healthy
     mysql:
         image: 'mysql/mysql-server:8.0'
         ports:
@@ -46,9 +48,30 @@ services:
             interval: 5s
             retries: 10
             timeout: 5s
+    qdrant:
+        image: 'qdrant/qdrant:v1.19.1'
+        ports:
+            - '127.0.0.1:${FORWARD_QDRANT_PORT:-6333}:6333'
+        environment:
+            QDRANT__SERVICE__API_KEY: '${QDRANT_API_KEY:-local-qdrant-development-key}'
+            QDRANT__SERVICE__ENABLE_CORS: 'false'
+            QDRANT__TELEMETRY_DISABLED: 'true'
+        volumes:
+            - 'sail-qdrant:/qdrant/storage'
+        networks:
+            - sail
+        mem_limit: '${QDRANT_MEMORY_LIMIT:-1536m}'
+        cpus: '${QDRANT_CPUS:-1.0}'
+        healthcheck:
+            test: ['CMD-SHELL', 'bash -c ''exec 3<>/dev/tcp/127.0.0.1/6333 && printf "GET /readyz HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n" >&3 && grep -q "200 OK" <&3''']
+            interval: 5s
+            retries: 12
+            timeout: 3s
 networks:
     sail:
         driver: bridge
 volumes:
     sail-mysql:
+        driver: local
+    sail-qdrant:
         driver: local

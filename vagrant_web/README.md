@@ -382,7 +382,23 @@ Laravel 13 startet damit standardmäßig Server, Queue-Listener, Logansicht und 
 
 ### Kontextsuche
 
-Die Kontextsuche wird gemäß dem [Planungs- und Arbeitsvertrag](docs/ai/context-search-ai-contract.md) auf Qdrant aufgebaut. Infrastruktur, Konfiguration und manuelle Indexierungsbefehle werden erst in den jeweils vorgesehenen, separat geprüften Umsetzungsschritten ergänzt. Bis dahin bleibt `CONTEXT_SEARCH_ENABLED=false`; die bestehende direkte Suche arbeitet unverändert weiter.
+Die Kontextsuche wird gemäß dem [Planungs- und Arbeitsvertrag](docs/ai/context-search-ai-contract.md) auf Qdrant aufgebaut. Der lokale Compose-Stack verwendet die fest gepinnte Qdrant-Version 1.19.1. Die REST-Schnittstelle wird nur an `127.0.0.1` veröffentlicht und intern mit `QDRANT_API_KEY` geschützt. Der mitgelieferte Schlüssel ist ausschließlich für lokale Entwicklung bestimmt; produktive Schlüssel werden über die Server-Secret-Konfiguration gesetzt und Qdrant wird dort nur über ein abgesichertes privates Netz beziehungsweise TLS erreicht.
+
+Bei einer bereits vorhandenen lokalen `.env` müssen die `QDRANT_*`- und `FORWARD_QDRANT_PORT`-Werte einmal aus `.env.example` übernommen werden. Danach Qdrant und die Anwendung starten und den Healthcheck prüfen:
+
+```sh
+docker compose up -d qdrant laravel.test
+docker compose ps qdrant
+```
+
+Eine leere, versionierte Collection samt Payload-Indizes wird bewusst manuell provisioniert. `profile` ist ein unveränderlicher, kleingeschriebener Profil-Hash; `generation` ist ein eindeutiger technischer Generationsbezeichner. `--activate` schaltet den stabilen Alias atomar auf die neue Collection um:
+
+```sh
+./vendor/bin/sail artisan context-search:qdrant:provision \
+  a1b2c3d4 20260922t120000z --activate
+```
+
+Der Befehl speichert noch keine Ressourcen oder Vektoren. Vor dem Aktivieren einer später befüllten Generation sind die im Vertrag vorgesehenen Qualitäts- und Kapazitätsprüfungen Pflicht. Bis zur Suchintegration bleibt `CONTEXT_SEARCH_ENABLED=false`; die bestehende direkte Suche arbeitet unverändert weiter.
 
 Für gezielte Diagnose können die Prozesse einzeln laufen:
 
