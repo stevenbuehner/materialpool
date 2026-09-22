@@ -4,8 +4,6 @@ return [
 
     'enabled' => env('CONTEXT_SEARCH_ENABLED', false),
 
-    'connection' => 'context_search',
-
     'embedding' => [
         'provider' => 'ollama',
         'model' => env('CONTEXT_SEARCH_EMBEDDING_MODEL', 'embeddinggemma:300m-qat-q8_0'),

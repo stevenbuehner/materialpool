@@ -28,7 +28,7 @@ Diese README richtet sich an drei Zielgruppen:
 | **Entwicklung** | Lokale Docker-/Sail-Umgebung; nur lokale Entwicklungsdaten. |
 | **Test** | Dedizierte, jederzeit entbehrliche MySQL-Datenbank `testing`; niemals Entwicklungs- oder Produktionsdaten. |
 
-Diese README ist der zentrale Einstieg. Bei Abweichungen gelten die spezielleren Verträge unter [`docs/ai/`](docs/ai/) und insbesondere der [Produktions- und Deploymentvertrag](docs/ai/production-deployment-contract.md), die [Domänen-Invarianten](docs/ai/domain-invariants.md) und die [Quality Gates](docs/ai/quality-gates.md). Die geplante, noch nicht implementierte hybride Kontextsuche mit PostgreSQL/pgvector, Ollama und KI-Funktionen ist im [Planungs- und Entscheidungsvertrag zur Kontextsuche](docs/ai/context-search-ai-contract.md) festgehalten. `AGENTS.md` regelt zusätzlich die Arbeit von KI-Agenten. Die Pflege dieser README und ihrer Bilder ist in [`docs/ai/readme-maintenance.md`](docs/ai/readme-maintenance.md) festgelegt.
+Diese README ist der zentrale Einstieg. Bei Abweichungen gelten die spezielleren Verträge unter [`docs/ai/`](docs/ai/) und insbesondere der [Produktions- und Deploymentvertrag](docs/ai/production-deployment-contract.md), die [Domänen-Invarianten](docs/ai/domain-invariants.md) und die [Quality Gates](docs/ai/quality-gates.md). Die geplante hybride Kontextsuche mit Qdrant, Ollama und KI-Funktionen ist im [Planungs- und Arbeitsvertrag zur Kontextsuche](docs/ai/context-search-ai-contract.md) festgehalten. `AGENTS.md` regelt zusätzlich die Arbeit von KI-Agenten. Die Pflege dieser README und ihrer Bilder ist in [`docs/ai/readme-maintenance.md`](docs/ai/readme-maintenance.md) festgelegt.
 
 ## 1. Administration
 
@@ -372,7 +372,7 @@ npm ci --ignore-scripts
 
 `composer install` und die beiden Host-PHP-Befehle setzen PHP 8.4 mit den benötigten Erweiterungen voraus. Ist das lokal nicht verfügbar, Composer und Artisan in einem passenden PHP-8.4-Container ausführen. Das ältere Host-PHP ist keine gültige Referenz für das Projekt.
 
-Die lokale `.env` muss auf den Sail-MySQL-Dienst zeigen (`DB_HOST=mysql`). Für den isolierten Kontextsuche-Spike zeigt `CONTEXT_SEARCH_DB_HOST=postgres` auf den lokalen pgvector-Dienst; diese Daten sind vollständig ableitbar und ersetzen keine MySQL-Daten. Entwicklungsdaten und Testdaten bleiben getrennt. Anschließend das Entwicklungssystem starten:
+Die lokale `.env` muss auf den Sail-MySQL-Dienst zeigen (`DB_HOST=mysql`). Entwicklungsdaten und Testdaten bleiben getrennt. Anschließend das Entwicklungssystem starten:
 
 ```sh
 ./vendor/bin/sail artisan dev
@@ -380,19 +380,9 @@ Die lokale `.env` muss auf den Sail-MySQL-Dienst zeigen (`DB_HOST=mysql`). Für 
 
 Laravel 13 startet damit standardmäßig Server, Queue-Listener, Logansicht und `npm run dev` für Vite. `npm run dev` generiert zuerst die JavaScript-Übersetzungen und startet danach Vite mit HMR.
 
-### Isolierter Kontextsuche-Spike
+### Kontextsuche
 
-Der lokale Compose-Stack enthält PostgreSQL 17 mit pgvector. Er ist ausschließlich ein abgeleiteter Index für die Kontextsuche und darf nicht als Ersatz oder Quelle für MySQL-Fachdaten verwendet werden. Die erste Migration wird bewusst getrennt von den MySQL-Migrationen ausgeführt:
-
-```sh
-./vendor/bin/sail artisan migrate \
-  --database=context_search \
-  --path=database/context-search-migrations
-```
-
-Dieser Befehl erzeugt Tabellen und Indizes ausschließlich in der in `CONTEXT_SEARCH_DB_*` konfigurierten PostgreSQL-Datenbank. Vor dem Ausführen Verbindung und Datenbankname mit `./vendor/bin/sail artisan config:show database` prüfen. Die Migration legt keine Resource-, Material- oder Suchdaten an. Die bestehende Suche, Produktivqueues und automatische Indexierung sind in diesem Stand noch unverändert.
-
-Bei einer schon vorhandenen lokalen `.env` müssen die `CONTEXT_SEARCH_DB_*`-Werte einmal aus der `.env.example` übernommen werden; insbesondere ist das lokale Passwort kein impliziter Laravel-Default. Produktionswerte werden ausschließlich über die Server-Konfiguration gesetzt.
+Die Kontextsuche wird gemäß dem [Planungs- und Arbeitsvertrag](docs/ai/context-search-ai-contract.md) auf Qdrant aufgebaut. Infrastruktur, Konfiguration und manuelle Indexierungsbefehle werden erst in den jeweils vorgesehenen, separat geprüften Umsetzungsschritten ergänzt. Bis dahin bleibt `CONTEXT_SEARCH_ENABLED=false`; die bestehende direkte Suche arbeitet unverändert weiter.
 
 Für gezielte Diagnose können die Prozesse einzeln laufen:
 
