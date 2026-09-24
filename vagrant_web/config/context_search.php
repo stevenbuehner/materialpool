@@ -47,4 +47,8 @@ return [
         'ocr_timeout' => (int) env('CONTEXT_SEARCH_OCR_TIMEOUT', 120),
     ],
 
+    'evaluation' => [
+        'import_enabled' => env('CONTEXT_SEARCH_EVALUATION_IMPORT_ENABLED', false),
+    ],
+
 ];

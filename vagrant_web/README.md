@@ -426,6 +426,31 @@ Der Laufzustand wird in MySQL gespeichert und ein fehlgeschlagener Lauf kann anh
 
 Ein abweichender Digest, Modellname oder eine andere Dimension ist ein Konfigurationsfehler: Der Pool stoppt dann, statt Vektoren verschiedener Modelle zu mischen. Bei Netzwerkfehlern, Timeouts, Überlastung oder 5xx-Antworten verteilt er eine Anfrage deterministisch auf den nächsten gesunden Server. Nach den konfigurierbaren Fehlschlägen öffnet der serverbezogene Circuit Breaker zeitweise; jede Serverdefinition besitzt zudem ihr eigenes gemeinsames Parallelitätslimit. Erst der erfolgreiche Selbsttest berechtigt zum Provisionieren und Befüllen einer Indexgeneration.
 
+### Evaluationsdatensätze aus Produktion
+
+Kalibrierung, Modellvergleich und Abnahme erfolgen ausschließlich in einer isolierten Evaluationsumgebung. Produktion darf hierfür nur einen eingefrorenen Datensatz erzeugen und als Archiv exportieren; die Befehle rufen weder Ollama noch Qdrant auf. Sie berücksichtigen ausschließlich PDF- und Textressourcen. Die Produktionsdatenbank wird nicht kopiert.
+
+Die Ablage `CONTEXT_SEARCH_EVALUATION_PATH` muss auf beiden Systemen ein privater, nicht durch Nginx erreichbarer Pfad mit restriktiven Rechten sein. Standardmäßig liegt sie unter `storage/app/context-search-evaluation`. Die Übertragung des Archivs ist nach der getroffenen Entscheidung unverschlüsselt zulässig; Archiv- und Manifest-Prüfsumme sind vor dem Import zwingend zu prüfen. Private Inhalte verlangen die sichtbare Freigabe `--include-private` und eine Begründung. Keine Titel oder Inhalte in Shell-Historien, Tickets oder Logs übernehmen.
+
+```sh
+# Produktion: Auswahl anhand bekannter IDs einfrieren und in den privaten Exportordner schreiben.
+./vendor/bin/sail artisan context-search:dataset:freeze calibration \
+  --materials=101,102,103 --include-private --reason='Kuratiertes Kalibrierungsset'
+./vendor/bin/sail artisan context-search:dataset:export <datensatz-uuid>
+./vendor/bin/sail artisan context-search:dataset:verify exports/<datensatz-uuid>.zip
+```
+
+Die UUID und die beiden Prüfsummen sind die Übergabedaten. Das Archiv wird durch einen vertrauenswürdigen Administrator in die private Evaluationsablage übertragen; eine spätere Importstufe prüft dieselben Werte erneut. Der `acceptance`-Datensatz ist ein unveränderlicher Holdout: Wird er zur Kalibrierung verwendet, muss ein neuer Abnahmedatensatz erzeugt werden.
+
+Auf der isolierten Evaluationsmaschine wird `CONTEXT_SEARCH_EVALUATION_IMPORT_ENABLED=true` gesetzt. Diese Einstellung ist auf Produktion verboten. Nach dem Transfer in `incoming/` wird erst geprüft und dann importiert:
+
+```sh
+./vendor/bin/sail artisan context-search:dataset:verify incoming/<datensatz-uuid>.zip
+./vendor/bin/sail artisan context-search:dataset:import incoming/<datensatz-uuid>.zip
+```
+
+Der Import legt keinen Produktionsbenutzer an: Er verwendet ausschließlich einen lokalen technischen Importbenutzer und schreibt PDF-Dateien in die Evaluationsablage. Derselbe Datensatz kann mit identischem Manifest erneut ausgeführt werden, ohne Materialien oder Ressourcen zu duplizieren.
+
 Für gezielte Diagnose können die Prozesse einzeln laufen:
 
 ```sh

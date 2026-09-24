@@ -53,6 +53,13 @@ return [
 			'root'   => storage_path('tmp'),
 		],
 
+		'context_search_evaluation' => [
+			'driver' => 'local',
+			'root' => env('CONTEXT_SEARCH_EVALUATION_PATH', storage_path('app/context-search-evaluation')),
+			'visibility' => 'private',
+			'throw' => true,
+		],
+
 		'public' => [
 			'driver'     => 'local',
 			'root'       => storage_path('app/public'),
