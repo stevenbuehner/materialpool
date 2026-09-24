@@ -100,6 +100,18 @@ final class ContextSearchEvaluationDatasetCommandTest extends TestCase
         $this->assertSame($materialsBefore + 1, Material::query()->count());
     }
 
+    public function test_inventory_reports_only_counts_for_pdf_and_text_sources(): void
+    {
+        $user = User::factory()->create();
+        $material = Material::factory()->publiclyVisible()->create(['created_by' => $user->getKey(), 'modified_by' => $user->getKey()]);
+        $text = Text::factory()->create(['created_by' => $user->getKey(), 'is_public' => true]);
+        $material->resources()->attach($text->getKey());
+
+        $this->artisan('context-search:dataset:inventory', ['--json' => true])
+            ->expectsOutputToContain('"materials"')
+            ->assertExitCode(0);
+    }
+
     private function canonicalize(array $value): array
     {
         foreach ($value as $key => $item) {

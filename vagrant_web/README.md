@@ -433,6 +433,8 @@ Kalibrierung, Modellvergleich und Abnahme erfolgen ausschließlich in einer isol
 Die Ablage `CONTEXT_SEARCH_EVALUATION_PATH` muss auf beiden Systemen ein privater, nicht durch Nginx erreichbarer Pfad mit restriktiven Rechten sein. Standardmäßig liegt sie unter `storage/app/context-search-evaluation`. Die Übertragung des Archivs ist nach der getroffenen Entscheidung unverschlüsselt zulässig; Archiv- und Manifest-Prüfsumme sind vor dem Import zwingend zu prüfen. Private Inhalte verlangen die sichtbare Freigabe `--include-private` und eine Begründung. Keine Titel oder Inhalte in Shell-Historien, Tickets oder Logs übernehmen.
 
 ```sh
+# Produktion: ausschließlich inhaltsfreie Größenordnung vor der Auswahl prüfen.
+./vendor/bin/sail artisan context-search:dataset:inventory --json
 # Produktion: Auswahl anhand bekannter IDs einfrieren und in den privaten Exportordner schreiben.
 ./vendor/bin/sail artisan context-search:dataset:freeze calibration \
   --materials=101,102,103 --include-private --reason='Kuratiertes Kalibrierungsset'
