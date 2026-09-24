@@ -83,12 +83,16 @@ class ProductionDeploymentContractTest extends TestCase
         $this->assertTrue($commands->contains(
             fn (string $command) => str_contains($command, "'artisan' backup:clean")
         ));
+        $this->assertTrue($commands->contains(
+            fn (string $command) => str_contains($command, "'artisan' backup:monitor")
+        ));
     }
 
-    public function test_production_backup_targets_are_local_and_encrypted_offsite(): void
+    public function test_production_backup_targets_are_local_and_unencrypted_offsite(): void
     {
         $this->assertSame(['backup', 'backup_s3'], config('backup.backup.destination.disks'));
-        $this->assertSame('aes256', config('backup.backup.encryption'));
+        $this->assertSame('none', config('backup.backup.encryption'));
+        $this->assertNull(config('backup.backup.password'));
         $this->assertTrue(config('backup.backup.verify_backup'));
         $this->assertSame(['backup', 'backup_s3'], config('backup.monitor_backups.0.disks'));
         $this->assertContains(storage_path('app'), config('backup.backup.source.files.include'));
@@ -118,7 +122,6 @@ class ProductionDeploymentContractTest extends TestCase
             'database.connections.mysql.host' => '127.0.0.1',
             'database.connections.mysql.database' => 'materialpool',
             'trustedproxy.proxies' => '10.20.0.0/16,2001:db8::/48',
-            'backup.backup.password' => 'test-only-archive-password',
             'backup.notifications.mail.to' => 'backup@pool.example.test',
             'backup.notifications.mail.recipient_is_explicit' => true,
             'mail.default' => 'smtp',

@@ -88,16 +88,19 @@ class BundleBibleBackupContractTest extends TestCase
         $this->assertNull(config('backup.backup.source.files.relative_path'));
         $this->assertSame(['mysql'], config('backup.backup.source.databases'));
         $this->assertSame(['backup', 'backup_s3'], config('backup.backup.destination.disks'));
+        $this->assertSame('none', config('backup.backup.encryption'));
+        $this->assertNull(config('backup.backup.password'));
         $this->assertSame(storage_path('backups'), config('backup.backup.temporary_directory'));
         $this->assertSame(14, config('backup.cleanup.default_strategy.keep_all_backups_for_days'));
-        $this->assertSame(7, config('backup.cleanup.default_strategy.keep_daily_backups_for_days'));
+        $this->assertSame(30, config('backup.cleanup.default_strategy.keep_daily_backups_for_days'));
         $this->assertSame(8, config('backup.cleanup.default_strategy.keep_weekly_backups_for_weeks'));
         $this->assertSame(6, config('backup.cleanup.default_strategy.keep_monthly_backups_for_months'));
         $this->assertSame(2, config('backup.cleanup.default_strategy.keep_yearly_backups_for_years'));
         $this->assertSame(['backup', 'backup_s3'], config('backup.monitor_backups.0.disks'));
+        $this->assertSame(2, config('backup.monitor_backups.0.health_checks.' . \Spatie\Backup\Tasks\Monitor\HealthChecks\MaximumAgeInDays::class));
     }
 
-    public function test_backup_and_cleanup_schedules_remain_stable_while_queue_workers_are_external(): void
+    public function test_backup_cleanup_and_monitor_schedules_are_time_separated_while_queue_workers_are_external(): void
     {
         $schedule = new Schedule();
         $method = new ReflectionMethod(Kernel::class, 'schedule');
@@ -111,11 +114,16 @@ class BundleBibleBackupContractTest extends TestCase
         $cleanup = $events->first(function ($event) {
             return strpos($event->command, "'artisan' backup:clean") !== false;
         });
+        $monitor = $events->first(function ($event) {
+            return strpos($event->command, "'artisan' backup:monitor") !== false;
+        });
         $this->assertNotNull($backup);
-        $this->assertSame('0 0 * * *', $backup->expression);
+        $this->assertSame('30 1 * * *', $backup->expression);
         $this->assertTrue($backup->runInBackground);
         $this->assertNotNull($cleanup);
-        $this->assertSame('0 0 * * *', $cleanup->expression);
+        $this->assertSame('30 0 * * *', $cleanup->expression);
+        $this->assertNotNull($monitor);
+        $this->assertSame('0 3 * * *', $monitor->expression);
         $this->assertFalse($events->contains(function ($event) {
             return strpos($event->command, 'queue:work') !== false;
         }));

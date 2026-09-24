@@ -105,9 +105,11 @@ return [
 		 */
 		'temporary_directory' => env('BACKUP_TEMPORARY_DIRECTORY', storage_path('backups')),
 
-		'password' => env('BACKUP_ARCHIVE_PASSWORD'),
+		// Backups are intentionally stored without archive encryption. Access to
+		// both backup destinations is restricted by the production environment.
+		'password' => null,
 
-		'encryption' => 'aes256',
+		'encryption' => 'none',
 
 		'verify_backup' => true,
 
@@ -177,7 +179,7 @@ return [
 			'name'          => config('app.name'),
 			'disks'         => ['backup', 'backup_s3'],
 			'health_checks' => [
-				\Spatie\Backup\Tasks\Monitor\HealthChecks\MaximumAgeInDays::class          => 7,
+				\Spatie\Backup\Tasks\Monitor\HealthChecks\MaximumAgeInDays::class          => 2,
 				\Spatie\Backup\Tasks\Monitor\HealthChecks\MaximumStorageInMegabytes::class => 1024*300,
 			],
 		],
@@ -216,7 +218,7 @@ return [
 			/*
 			 * The number of days for which daily backups must be kept.
 			 */
-			'keep_daily_backups_for_days'                          => 7,
+			'keep_daily_backups_for_days'                          => 30,
 
 			/*
 			 * The number of weeks for which one weekly backup must be kept.

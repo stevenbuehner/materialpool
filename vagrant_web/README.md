@@ -140,7 +140,7 @@ sudo -u www-data php /srv/materialpool/current/artisan schedule:list
 **Vorher prüfen**
 
 - Der gewünschte Commit ist vollständig geprüft und der Arbeitsbaum sauber.
-- Das letzte verschlüsselte lokale und externe Backup ist gesund.
+- Das letzte unverschlüsselte lokale und externe Backup ist gesund und beide Ziele sind ausschließlich für berechtigte Administratoren erreichbar.
 - Das unmittelbar vorherige Release bleibt für einen Rücksprung erhalten.
 
 **Ausführen**
@@ -172,7 +172,7 @@ Bei einem reinen Code-Release kann `current` kontrolliert auf das unmittelbar vo
 
 #### Release mit Datenbankmigration
 
-Eine Migration ist erst erlaubt, wenn ein verschlüsseltes Backup lokal und auf S3 erzeugt, heruntergeladen, entschlüsselt und auf einer isolierten MySQL-Instanz erfolgreich wiederhergestellt wurde. Der Nachweis umfasst Datenbank und repräsentative persistente Dateien.
+Eine Migration ist erst erlaubt, wenn ein unverschlüsseltes Backup lokal und auf S3 erzeugt, heruntergeladen und auf einer isolierten MySQL-Instanz erfolgreich wiederhergestellt wurde. Der Nachweis umfasst Datenbank und repräsentative persistente Dateien.
 
 **Vorher prüfen**
 
@@ -292,10 +292,10 @@ Dynamische `bundle_<id>_queue`-Queues werden nicht vom Default-Worker konsumiert
 | --- | --- | --- | --- | --- |
 | `php artisan backup:list` | Produktion, `www-data` | Bestand und Alter prüfen | Listet lokale und externe Backups. | niedrig |
 | `php artisan backup:monitor` | Produktion, `www-data` | Healthcheck und nach Backupfehlern | Prüft Erreichbarkeit, Alter und Speichergrenzen und verschickt konfigurierte Meldungen. | niedrig |
-| `php artisan backup:run` | Produktion, `www-data` | Vor Migrationen oder manuell angefordert | Erstellt ein verschlüsseltes Datenbank-/Dateibackup auf `backup` und `backup_s3`. | mittel |
+| `php artisan backup:run` | Produktion, `www-data` | Vor Migrationen oder manuell angefordert | Erstellt ein unverschlüsseltes Datenbank-/Dateibackup auf `backup` und `backup_s3`. | mittel |
 | `php artisan backup:clean` | Produktion, `www-data` | Nur nach Prüfung der Aufbewahrungsregeln | Löscht alte Backups gemäß Konfiguration. | hoch |
 
-Ein erfolgreich erzeugtes oder hochgeladenes Archiv ist noch kein verifiziertes Backup. Erst Download, Entschlüsselung und Restore auf einer isolierten MySQL-Instanz belegen die Wiederherstellbarkeit.
+Ein erfolgreich erzeugtes oder hochgeladenes Archiv ist noch kein verifiziertes Backup. Erst Download und Restore auf einer isolierten MySQL-Instanz belegen die Wiederherstellbarkeit. Die Archive enthalten lesbare Daten und dürfen daher ausschließlich in privaten, restriktiv berechtigten Ablagen liegen.
 
 #### Fachbefehle
 

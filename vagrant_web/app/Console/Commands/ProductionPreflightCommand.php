@@ -68,8 +68,8 @@ class ProductionPreflightCommand extends Command
         }
 
         $this->require($errors, config('backup.backup.destination.disks') === ['backup', 'backup_s3'], 'Backups müssen lokal und auf backup_s3 geschrieben werden.');
-        $this->require($errors, config('backup.backup.encryption') === 'aes256', 'Backup-Verschlüsselung muss aes256 sein.');
-        $this->require($errors, $this->isConfigured(config('backup.backup.password')), 'BACKUP_ARCHIVE_PASSWORD fehlt.');
+        $this->require($errors, config('backup.backup.encryption') === 'none', 'Backup-Archivverschlüsselung muss deaktiviert sein.');
+        $this->require($errors, config('backup.backup.password') === null, 'BACKUP_ARCHIVE_PASSWORD darf nicht gesetzt sein.');
 
         $recipient = (string) config('backup.notifications.mail.to');
         $this->require($errors, config('backup.notifications.mail.recipient_is_explicit') === true, 'BACKUP_NOTIFICATION_EMAIL muss explizit gesetzt sein.');

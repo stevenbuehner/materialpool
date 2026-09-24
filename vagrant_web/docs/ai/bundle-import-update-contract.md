@@ -826,7 +826,7 @@ Zusätzlich sind auszuführen:
 
 ### Deploymentreihenfolge
 
-1. vollständiges verschlüsseltes Backup und isolierter Restore-Nachweis;
+1. vollständiges Backup mit restriktivem Zugriff auf beide Ziele und isolierter Restore-Nachweis;
 2. read-only Preflight für Bundle-UUIDs und Foreign-ID-Constraints;
 3. Code bereitstellen, der altes und neues Schema während der Migrationsphase sicher erkennt;
 4. neue Migrationen für `job_batches`, `bundle_import_runs` und freigegebene Constraints ausführen;

@@ -6,6 +6,7 @@ use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 use Spatie\Backup\Commands\BackupCommand;
 use Spatie\Backup\Commands\CleanupCommand;
+use Spatie\Backup\Commands\MonitorCommand;
 
 class Kernel extends ConsoleKernel {
 	/**
@@ -25,12 +26,14 @@ class Kernel extends ConsoleKernel {
 	 */
 	protected function schedule(Schedule $schedule): void {
 
-		// Backups erstellen
-		$schedule->command(BackupCommand::class, [])
-			->daily()
-			->runInBackground();
+		// Bereinigung, Backup und Monitoring laufen im regulären Ablauf zeitversetzt.
 		$schedule->command(CleanupCommand::class)
-			->daily();
+			->dailyAt('00:30');
+		$schedule->command(BackupCommand::class, [])
+			->dailyAt('01:30')
+			->runInBackground();
+		$schedule->command(MonitorCommand::class)
+			->dailyAt('03:00');
 
 	}
 

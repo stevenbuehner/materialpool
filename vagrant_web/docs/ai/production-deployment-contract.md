@@ -14,7 +14,7 @@ Dieser Vertrag autorisiert die versionierten Betriebsartefakte, aber weder einen
 - Der Proxy setzt `X-Forwarded-For`, `X-Forwarded-Host`, `X-Forwarded-Port` und `X-Forwarded-Proto=https`. `TRUSTED_PROXIES` enthält ausschließlich konkrete IP-Adressen oder CIDR-Netze; `*`, `**` und `REMOTE_ADDR` sind verboten.
 - `GET /up` ist ohne Anmeldung erreichbar, antwortet nach erfolgreichem Boot ausschließlich mit `200`, `text/plain` und `OK`. Bootfehler ergeben `500`; Details bleiben wegen `APP_DEBUG=false` verborgen.
 - Der `default`-Queue-Worker läuft permanent unter Supervisor. Er konsumiert `default,resource-previews-low` in dieser Reihenfolge; die Vorschau-Queue erhält damit erst Arbeit, wenn keine Default-Aufgabe wartend ist. `--timeout=120`, `--tries=50`, `--max-time=3600` und `QUEUE_RETRY_AFTER=150` sind aufeinander abgestimmt. Dynamische `bundle_{id}_queue`-Queues werden nicht vom Default-Worker konsumiert und bleiben API-gesteuert.
-- Cron führt jede Minute `schedule:run` aus. Der Scheduler enthält tägliches Backup und Cleanup, aber keinen `queue:work`-Aufruf.
+- Cron führt jede Minute `schedule:run` aus. Der Scheduler bereinigt täglich um 00:30, erstellt das Backup um 01:30 und überwacht es um 03:00; er enthält keinen `queue:work`-Aufruf.
 - Ressourcen, Archive und Bundles in `storage/app` sowie `public/uploads` sind persistente Verträge. Beide Bereiche werden gesichert und bei Releasewechseln nicht kopiert, gelöscht oder neu erzeugt.
 - Der bestehende `APP_KEY`, der private Passport-Schlüssel und der öffentliche Passport-Schlüssel werden übernommen. `key:generate` und `passport:install` sind in Produktion verboten. Der private Schlüssel hat Modus `0600`.
 - `php-http/discovery` bleibt als einziges für Passport benötigtes Composer-Plugin explizit freigegeben. Andere Plugins werden nicht pauschal erlaubt.
@@ -50,7 +50,6 @@ TRUSTED_PROXIES=192.0.2.10/32
 
 BACKUP_PATH=/srv/materialpool/shared/backups
 BACKUP_TEMPORARY_DIRECTORY=/srv/materialpool/shared/storage/framework/backup-temp
-BACKUP_ARCHIVE_PASSWORD=<externes-starkes-secret>
 BACKUP_NOTIFICATION_EMAIL=<reale-empfaengeradresse>
 BACKUP_S3_KEY=<extern>
 BACKUP_S3_SECRET=<extern>
@@ -109,16 +108,16 @@ Verboten sind im Produktions-Deploy `composer update`, `npm install`, `npm updat
 
 ## Backup- und Restore-Gate
 
-Jedes Backup ist AES-256-verschlüsselt und wird auf `backup` sowie `backup_s3` geschrieben. `backup_s3` ist ein separater generischer S3-Disk mit konfigurierbarem Endpoint, Region, Bucket, Prefix und Path-Style; Ressourcen-Storage bleibt lokal. Erfolg und Fehler werden per SMTP an den konfigurierten Empfänger gemeldet.
+Jedes Backup wird unverschlüsselt auf `backup` sowie `backup_s3` geschrieben. `backup_s3` ist ein separater generischer S3-Disk mit konfigurierbarem Endpoint, Region, Bucket, Prefix und Path-Style; Ressourcen-Storage bleibt lokal. Lokale Backups müssen ausschließlich für `materialpool` und `www-data` lesbar sein; S3-Zugriff bleibt auf den dedizierten Backup-Zugang beschränkt und der Endpoint verwendet HTTPS. Erfolg und Fehler werden per SMTP an den konfigurierten Empfänger gemeldet.
 
-Produktion ist gesperrt, bis ein verschlüsseltes S3-Archiv erzeugt, heruntergeladen, mit dem externen Passwort entschlüsselt und auf einer isolierten MySQL-Instanz wiederhergestellt wurde. Der Nachweis umfasst Datenbank, repräsentative Resource-/Archiv-/Bundle-Dateien und `public/uploads`, Zeitstempel, Release-Commit und Prüfsummen, aber keine Secrets oder Nutzdaten. Ein bloßer erfolgreicher Upload ist kein Restore-Nachweis.
+Produktion ist gesperrt, bis ein unverschlüsseltes S3-Archiv erzeugt, heruntergeladen und auf einer isolierten MySQL-Instanz wiederhergestellt wurde. Der Nachweis umfasst Datenbank, repräsentative Resource-/Archiv-/Bundle-Dateien und `public/uploads`, Zeitstempel, Release-Commit und Prüfsummen, aber keine Secrets oder Nutzdaten. Ein bloßer erfolgreicher Upload ist kein Restore-Nachweis.
 
 ## Erster Passport-13-Cutover
 
 Zusätzlich gilt vollständig `docs/ai/passport-13-client-migration.md`. Reihenfolge:
 
 1. Clientinventar, numerische IDs, Grants und entfernte JSON-Endpunkte prüfen.
-2. Verschlüsseltes Backup lokal und auf S3 erzeugen und den isolierten Restore nachweisen.
+2. Unverschlüsseltes Backup lokal und auf S3 erzeugen und den isolierten Restore nachweisen.
 3. Anwendung mit dem aktuell aktiven Release in Wartungsmodus setzen und Worker stoppen.
 4. Neues Release hochladen und vollständig vorbereiten, ohne `current` umzuschalten.
 5. Mit nachgewiesenem Restore-Gate `MATERIALPOOL_RESTORE_PROOF_CONFIRMED=yes .../materialpool-activate-release <archiv> --migrate` ausführen. Die Migration läuft aus dem neuen, noch nicht aktiven Release.
@@ -132,7 +131,7 @@ Rollback ist kein `migrate:rollback`. Anwendung sperren, Worker stoppen, MySQL u
 Vor Freigabe sind auszuführen und zu protokollieren:
 
 - vollständige PHPUnit-Suite sowie gezielt Passport-Migration/Tokenaustausch, Nested Sets, Bundle-Queues, Backup/Restore, Storage und Proxy-Spoofing;
-- isolierter, verschlüsselter lokaler Backup-Restore und echter S3-Download-/Restore-Test;
+- isolierter lokaler Backup-Restore und echter S3-Download-/Restore-Test;
 - `composer validate --strict`, `composer audit --locked`, PHP-Syntax und Shell-Syntax;
 - `nginx -t`, PHP-FPM-, Supervisor-, Cron-, systemd-, Rechte-, MySQL-Bind- und Firewall-Prüfung auf der produktionsnahen Zielplattform;
 - Release-Installation ohne Dev-Abhängigkeiten, atomarer Wechsel, `/up`, Login/API/Storage/Queue-Smoke-Tests und vollständiger Restore-Rollback.
