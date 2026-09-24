@@ -41,6 +41,10 @@ Maßgeblich bleiben außerdem:
 | Administration | Fachliche Betriebs- und Modellparameter sind nur für Superadministratoren änderbar. Secrets und Netzwerkzugänge bleiben Serverkonfiguration. |
 | OCR | Tesseract ist als seitenweiser Fallback zulässig, wenn eine PDF-Seite keinen hinreichenden nativen Text liefert. |
 | Stufe 1 | Die erste Indexierung wird ausschließlich manuell gestartet. Automatische Event-Anbindung folgt erst in einer freigegebenen späteren Stufe. |
+| Evaluationsdaten | Produktionsinhalte werden ausschließlich als eingefrorene, hashgebundene und getrennte Datensätze in eine isolierte Evaluationsumgebung überführt. Kalibrierung, Modellvergleich und Abnahme finden niemals auf dem Produktionssystem statt. |
+| Private Evaluationsdaten | Private Materialien und Ressourcen dürfen nach ausdrücklicher Auswahl Bestandteil eines Evaluationsdatensatzes sein. Die Auswahl verlangt eine dokumentierte Begründung und bleibt nachvollziehbar. |
+| Transfer und Ablage | Evaluationspakete werden auf ausdrückliche Entscheidung unverschlüsselt übertragen und gespeichert. Sie dürfen nur in nicht öffentlich erreichbaren, restriktiv berechtigten Ablagen liegen; Manifest- und Archivprüfsummen sichern ihre Integrität. |
+| Produktionsindex | Ausschließlich eine freigegebene Konfiguration wird von der Evaluations- in die Produktionsumgebung übernommen. Vektoren, Qdrant-Collections und Kalibrierungsergebnisse werden nicht kopiert; Produktion baut ihren Index aus ihren eigenen Quellen auf. |
 
 ## 3. Arbeits- und Commitvertrag
 
@@ -241,6 +245,24 @@ In Stufe 1 wird Indexierung ausschließlich per explizitem Admin-/CLI-Auftrag ge
 
 Das optionale Hintergrund-Zeitfenster definiert erlaubte Startzeiten. Außerhalb werden Hintergrundjobs verzögert, nicht verworfen. Interaktive Jobs dürfen mit eigener serverseitiger Berechtigung außerhalb starten, verwenden aber eine getrennte, kleine Parallelitätsgrenze. Importwellen besitzen Backpressure; Webanfragen und direkte Suche haben Vorrang.
 
+## 11a. Evaluationsdatensätze und Produktionsübernahme
+
+Für Modellwahl, Chunking, Schwellenwerte, hybride Gewichtung und Abnahme existiert eine von Produktion getrennte Evaluationsumgebung mit eigener MySQL-Datenbank, eigener privater Dateiablage und eigenem Qdrant-Alias. Sie ist kein Produktionsspiegel: Importiert werden nur die für einen eingefrorenen Datensatz nötigen Material-, Ressourcen- und Zuordnungsdaten einschließlich der zugehörigen Quelldateien. Benutzerkonten, OAuth-Daten, API-Keys, Sitzungen, Auditprotokolle und sonstige nicht erforderliche Produktionsdaten gehören niemals in ein Evaluationspaket.
+
+Jeder Datensatz besitzt eine stabile Kennung, Zweck, Ersteller, Zeitpunkt, Auswahlregeln, Inhalts- und Manifest-Hash, Versionsstand sowie einen unveränderlichen Satz aus Materialien, Ressourcen und konkreten Revisionen. Material und vollständige Dokumentrevision bleiben stets gemeinsam in genau einem Datensatz; eine Datei wird nicht zwischen Kalibrierungs- und Abnahmesatz aufgeteilt. Mindestens diese getrennten Zwecke sind vorgesehen:
+
+- `calibration`: darf für Modell-, Chunking- und Gewichtungsentscheidungen verwendet werden;
+- `acceptance`: unveränderlicher Holdout für die endgültige Abnahme; jede Nutzung zur Kalibrierung entwertet ihn und verlangt einen neuen Abnahmesatz;
+- `ocr`: repräsentative Seiten mit und ohne native Textschicht zur Prüfung von Tesseract und Quellen;
+- `load`: repräsentative Menge für Durchsatz, Backpressure und Lastverhalten;
+- `capacity`: skalierte Menge für Speicher-, RAM- und Latenzprojektionen.
+
+Die Produktionsbefehle dürfen nur inventarisieren, eine Auswahl vorprüfen, einen Datensatz einfrieren und ein Paket exportieren. Sie starten weder Ollama, noch Qdrant-Indexierung, Kalibrierung oder Bewertung. Ein Paket enthält die minimal erforderlichen Fachdaten und revisionsgebundenen Quelldateien unter technisch neutralen Pfaden; ursprüngliche Serverpfade und Dokumentinhalte erscheinen nicht in Konsolenausgaben, Manifest-Zusammenfassungen oder Logs. Ein Import erzeugt in der Evaluationsumgebung bei Bedarf einen lokalen technischen Importbenutzer statt echter Produktionskonten.
+
+Private Inhalte werden nicht stillschweigend exportiert: Der Produktionsbefehl verlangt dafür eine explizite Option und eine Zweckbegründung. Die Freigabe, enthaltene IDs und Hashes werden in der Datensatzhistorie protokolliert, ohne Inhalte oder Titel in normale Logs zu schreiben. Die unverschlüsselte Übertragung ist bewusst zugelassen; dennoch sind ausschließlich private, nicht durch den Webserver erreichbare Ablagen mit restriktiven Dateirechten zulässig. Vor Import und Auswertung werden Paket- und Manifest-Hash geprüft.
+
+Nach bestandenem Vergleich wird nur ein freigegebenes Konfigurationspaket dokumentiert: Modellname und Digest, Dimension, Embedding- und Chunking-Profil, Extraktionsparameter, Kandidatenzahl, Fusionsgewichtung und Mindestgüte. Die Produktion validiert das Profil erneut gegen ihren Ollama-Pool und erstellt daraus eine eigene, neue Indexgeneration. Die Evaluationsumgebung bleibt von der Produktion netzwerk- und datenseitig getrennt.
+
 ## 12. Superadmin-Konfiguration und Betrieb
 
 Über die Superadmin-Oberfläche dürfen später aktives Modellprofil, validiertes Chunking-Profil, Queue-Zeitfenster, Pause, Parallelitätslimits, Suchgewichtung, Kandidatenzahl, freigegebene Schwellwerte, Kurzbeschreibungslänge, Funktionsschalter und manuelle Indexläufe verwaltet werden.
@@ -300,6 +322,16 @@ Jeder folgende Schritt endet nach Abschnitt 3 mit einem eigenen Commit.
 - Löschung und Neuindizierung einer Ressource idempotent ausführen;
 - Abnahme: repräsentative PDFs und Textressourcen werden vollständig, wiederholbar und mit korrekten Quellen indiziert.
 
+### Schritt 4a – Produktionsdatensätze für Kalibrierung und Abnahme
+
+- lesende Inventarisierung, explizite Auswahl, Einfrieren, Export, Integritätsprüfung und isolierten Import als Artisan-Befehle bereitstellen;
+- Datensätze für Kalibrierung, Abnahme, OCR, Last und Kapazität getrennt verwalten und ihre Inhalts-/Manifest-Hashes sowie den Auswahlzeitpunkt festhalten;
+- private Materialien nur mit expliziter Einschlussoption und begründetem Audit exportieren; keine Inhalte, Titel, Originalpfade oder Secrets in Standardausgaben und Logs schreiben;
+- unverschlüsselte, aber private und restriktiv berechtigte Paketablage sowie Hashprüfung vor Import dokumentieren;
+- ausschließlich Konfigurationsfreigaben, niemals Produktionsvektoren oder Qdrant-Collections, von Evaluation in Produktion überführen;
+- README und Betriebsanleitung für Produktions-Export, vertrauenswürdigen Transfer, isolierten Import und Rückbau der Evaluationsdaten aktualisieren;
+- Abnahme: Ein eingefrorener, auch private Inhalte enthaltender Datensatz lässt sich ohne Zugriff auf Produktionsdienste in die Evaluationsumgebung importieren und seine Vollständigkeit anhand der Hashes nachweisen.
+
 ### Schritt 5 – Capacity Gate und Betriebsanleitung
 
 - repräsentativen Lasttest und Speicherprojektion durchführen;
@@ -351,6 +383,7 @@ Das Projekt ist erst abgeschlossen, wenn:
 - menschliche Kurzbeschreibungen immer Vorrang haben;
 - Zeitfenster, interaktive Berechtigung, Lastgrenzen und Superadmin-Zugriff serverseitig durchgesetzt werden;
 - Capacity Gate, Backup-/Restore-/Rebuild-Probe und Betriebsanleitung bestanden sind;
+- Kalibrierung und Abnahme ausschließlich mit getrennten, überprüfbaren Evaluationsdatensätzen erfolgen und Produktion nur freigegebene Konfigurationen übernimmt;
 - jeder Umsetzungsschritt einen eigenen geprüften Commit besitzt.
 
 ## 16. Primärquellen für die Umsetzung
