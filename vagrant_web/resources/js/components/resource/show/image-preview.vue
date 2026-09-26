@@ -4,7 +4,10 @@
        :img-src="resourceImagePreviewUrl"
        @click="_emitPreviewZoomRequest">
 
-    <img class="card-img-top" :src="resourceImagePreviewUrl" alt="Preview Image" v-image-queue/>
+    <preview-image class="card-img-top"
+                   :resource="resource"
+                   :src="resourceImagePreviewUrl"
+                   alt="Preview Image"/>
 
     <div class="card-body" v-if="resource.notes && resource.notes.length >= 3">
       {{ resource.notes }}
@@ -22,6 +25,7 @@ import {previewImageFirstPage, previewImageLarge}            from "../../serverR
 import resourcePreviewZoom                                  from '../resource-preview-zoom';
 import resourcePreview                                      from '../resource-preview.mixin';
 import {small_preview_image_size_x, small_preview_image_size_y} from "../../../apps/config";
+import PreviewImage                                        from './preview-image.vue';
 
 export default {
 
@@ -68,7 +72,7 @@ export default {
     },
   },
 
-  components: {}
+  components: {PreviewImage}
 }
 </script>
 

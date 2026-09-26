@@ -2,7 +2,10 @@
   <div class="container">
     <div class="sbResourceLonelyList materialpool-card-columns" v-if="resources.length > 0">
       <div class="card lonelyResource" v-for="r in resources" :key="r.id">
-        <img :src="previewImage(r)" class="card-img-top" alt="No Resource Preview available">
+        <preview-image :resource="r"
+                       :src="previewImage(r)"
+                       class="card-img-top"
+                       alt="No Resource Preview available"/>
         <div class="card-body">
           <h5 class="card-title">
             {{ r.type }} ({{ r.id }})
@@ -45,6 +48,7 @@ import {previewImageFirstPage}   from "../../../components/serverRoutes";
 import {useResourcesStore}       from '../stores/resources';
 import {useGeneralStore}         from '../stores/general';
 import {userCanManageOwnOrAll}   from '../authorization';
+import PreviewImage              from '../../../components/resource/show/preview-image.vue';
 
 export default {
   name: "ResourceLonely",
@@ -123,7 +127,8 @@ export default {
 
   components: {
     BPaginationNav,
-    BButton
+    BButton,
+    PreviewImage
   }
 }
 </script>

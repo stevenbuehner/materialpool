@@ -1,21 +1,20 @@
 <template>
 
-  <b-img-lazy
+  <preview-image
+      :resource="resource"
       :src="resourceImagePreviewUrl"
-      fluid
-      :alt="resource.notes"
-      center
-      v-image-queue
-      @click="goToResource"></b-img-lazy>
+      :alt="resource.notes || ''"
+      class="img-fluid d-block mx-auto"
+      @click="goToResource"/>
 
 </template>
 
 <script>
 
-import {BImgLazy}                                          from '@/adapters/bootstrap';
 import {previewImageFirstPage}                              from '../../serverRoutes';
 import resourceLinks                                        from '../resource-links.mixin';
 import {max_preview_image_size_x, max_preview_image_size_y} from "../../../apps/config";
+import PreviewImage                                         from './preview-image.vue';
 
 export default {
 
@@ -63,7 +62,7 @@ export default {
     }
   },
   components: {
-    BImgLazy
+    PreviewImage
   }
 }
 </script>

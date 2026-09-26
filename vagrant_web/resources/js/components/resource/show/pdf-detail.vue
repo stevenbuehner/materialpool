@@ -15,19 +15,11 @@
            :key="image.src">
         <div class="oneImagePage"
              @click.right.stop.prevent="isAdmin && $refs.menu.openMenu($event, {src: image.src, page: image.page_no})">
-          <b-img-lazy
-              v-if="index > 12"
+          <preview-image
+              :resource="resource"
               :src="image.thumbnailSrc || image.src"
               :alt="image.title"
-              fluid
-          ></b-img-lazy>
-          <b-img
-              v-if="index <= 12"
-              :src="image.thumbnailSrc || image.src"
-              :alt="image.title"
-              fluid
-							v-image-queue="100-index"
-          ></b-img>
+              class="img-fluid"/>
 
           <div class="title text-center">{{ image.title }}</div>
         </div>
@@ -66,7 +58,7 @@
 <script>
 
 import {pdfPreviewImageForPage, pdfPreviewImageForPageRefresh, previewImageFirstPage, previewImageLarge, pdfPreviewImageForPageLarge} from '../../serverRoutes';
-import {BFormSelect, BImg, BImgLazy}                                                  from '@/adapters/bootstrap';
+import {BFormSelect}                                                                  from '@/adapters/bootstrap';
 import pdfMixin                                                                       from '../pdf-mixin';
 import ImageZoom                                                                      from "../../modals/imageZoom";
 import ContextMenu
@@ -78,6 +70,7 @@ import asyncIsAdminMixin
 import axiosInstance
                                                                                       from "../../../apps/main/axiosInstance";
 import {limitedPreviewPages}                                                          from './pdfPreviewPages';
+import PreviewImage                                                                    from './preview-image.vue';
 
 export default {
   name: 'PdfDetail',
@@ -167,10 +160,8 @@ export default {
 
   components: {
     ImageZoom,
-    BImg,
-    BImgLazy,
     BFormSelect,
-    ContextMenu, ContextMenuItem
+    ContextMenu, ContextMenuItem, PreviewImage
   }
 
 }

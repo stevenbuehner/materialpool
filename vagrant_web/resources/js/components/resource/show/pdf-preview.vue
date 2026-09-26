@@ -1,11 +1,11 @@
 <template>
   <div class="pdfPreview">
     <div class="previewContainer" @click="_emitPreviewZoomRequest">
-      <b-img :src="currentlyDisplayedImage.src"
-             :alt="currentlyDisplayedImage.title"
-             :key="currentlyDisplayedImage.src"
-             class="card-img-top pdfPreviewImage"
-             v-image-queue/>
+      <preview-image :resource="resource"
+                     :src="currentlyDisplayedImage.src"
+                     :alt="currentlyDisplayedImage.title"
+                     :key="currentlyDisplayedImage.src"
+                     class="card-img-top pdfPreviewImage"/>
 
       <span class="previous"
             @click.stop="previousPreviewImage"
@@ -30,10 +30,10 @@
 <script>
 
 import {pdfPreviewImageForPage, pdfPreviewImageForPageLarge} from '../../serverRoutes';
-import {BImg}                   from '@/adapters/bootstrap';
 import pdfMixin                 from '../pdf-mixin';
 import resourcePreviewZoom      from '../resource-preview-zoom';
 import resourcePreview          from '../resource-preview.mixin';
+import PreviewImage             from './preview-image.vue';
 
 export default {
   name: 'PdfPreview',
@@ -145,9 +145,7 @@ export default {
     },
   },
 
-  components: {
-    BImg
-  }
+  components: {PreviewImage}
 
 }
 </script>
