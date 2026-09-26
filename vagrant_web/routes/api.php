@@ -106,6 +106,12 @@ Route::group([
 		Route::post('context-search/datasets/{dataset}/assign', 'Admin\\ContextSearchEvaluationDatasetController@assign')->name('context-search.datasets.assign');
 		Route::delete('context-search/datasets/{dataset}/members/{memberType}/{memberId}', 'Admin\\ContextSearchEvaluationDatasetController@remove')->where('memberId', '[0-9]+')->name('context-search.datasets.members.remove');
 		Route::post('context-search/datasets/{dataset}/freeze', 'Admin\\ContextSearchEvaluationDatasetController@freeze')->name('context-search.datasets.freeze');
+		Route::get('context-search/ocr-calibration', 'Admin\\ContextSearchOcrCalibrationController@index')->name('context-search.ocr-calibration.index');
+		Route::post('context-search/ocr-calibration/runs', 'Admin\\ContextSearchOcrCalibrationController@store')->name('context-search.ocr-calibration.runs.store');
+		Route::get('context-search/ocr-calibration/runs/{run}', 'Admin\\ContextSearchOcrCalibrationController@show')->name('context-search.ocr-calibration.runs.show');
+		Route::put('context-search/ocr-calibration/runs/{run}/pages/{page}', 'Admin\\ContextSearchOcrCalibrationController@review')->name('context-search.ocr-calibration.pages.review');
+		Route::post('context-search/ocr-calibration/runs/{run}/evaluate', 'Admin\\ContextSearchOcrCalibrationController@evaluate')->name('context-search.ocr-calibration.runs.evaluate');
+		Route::post('context-search/ocr-calibration/runs/{run}/approve', 'Admin\\ContextSearchOcrCalibrationController@approve')->name('context-search.ocr-calibration.runs.approve');
 		Route::get('users', 'Admin\AdminUserController@index')->name('users.index');
 		Route::post('users', 'Admin\AdminUserController@store')->name('users.store');
 		Route::patch('users/{user}', 'Admin\AdminUserController@update')->name('users.update');

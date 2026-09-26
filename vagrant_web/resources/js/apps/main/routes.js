@@ -19,6 +19,7 @@ const KeywordDetail = () => import('./pages/KeywordDetail.vue');
 const SystemShutdown = () => import('./pages/RequestShutdown.vue');
 const AdminUsers = () => import('./pages/AdminUsers.vue');
 const ContextSearchEvaluationDatasets = () => import('./pages/ContextSearchEvaluationDatasets.vue');
+const ContextSearchOcrCalibration = () => import('./pages/ContextSearchOcrCalibration.vue');
 
 const numericIdProps = (route) => ({id: parseInt(route.params.id)});
 
@@ -161,6 +162,12 @@ export const routes = [
 		path: '/admin/context-search/datasets',
 		component: ContextSearchEvaluationDatasets,
 		name: 'context-search-evaluation-datasets',
+		props: false,
+	},
+	{
+		path: '/admin/context-search/ocr-calibration',
+		component: ContextSearchOcrCalibration,
+		name: 'context-search-ocr-calibration',
 		props: false,
 	},
 	{

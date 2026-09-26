@@ -131,6 +131,9 @@ class AppServiceProvider extends ServiceProvider {
         $this->app->singleton(OcrProcessor::class, fn (): OcrProcessor => new TesseractOcrProcessor(
 			languages: (string) config('context_search.indexing.ocr_languages'),
 			timeout: (int) config('context_search.indexing.ocr_timeout'),
+            renderDpi: (int) config('context_search.indexing.ocr_render_dpi'),
+            pageSegmentationMode: (int) config('context_search.indexing.ocr_page_segmentation_mode'),
+            engineVersion: (string) config('context_search.indexing.ocr_engine_version'),
         ));
         $this->app->singleton(OcrQualityGate::class, fn (): OcrQualityGate => new OcrQualityGate(
             minimumMeanConfidence: (float) config('context_search.indexing.ocr_quality_minimum_mean_confidence'),

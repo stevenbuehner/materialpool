@@ -70,6 +70,9 @@
             <b-dropdown-item :to="{name: 'context-search-evaluation-datasets'}" class="dropdown-hover" v-if="isAdmin">
               {{ $t('pool.ai-datasets') }}
             </b-dropdown-item>
+            <b-dropdown-item :to="{name: 'context-search-ocr-calibration'}" class="dropdown-hover" v-if="isAdmin">
+              {{ $t('pool.ocr-calibration-title') }}
+            </b-dropdown-item>
             <b-dropdown-item-button class="dropdown-hover" :disabled="isLoggingOut" @click="logout">
               {{ $t('pool.Logout') }}
             </b-dropdown-item-button>

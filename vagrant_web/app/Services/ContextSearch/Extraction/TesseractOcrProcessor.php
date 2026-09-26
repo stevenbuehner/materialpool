@@ -10,6 +10,9 @@ final class TesseractOcrProcessor implements OcrProcessor
     public function __construct(
         private readonly string $languages,
         private readonly int $timeout,
+        private readonly int $renderDpi = 200,
+        private readonly int $pageSegmentationMode = 3,
+        private readonly string $engineVersion = 'tesseract-5',
     ) {
     }
 
@@ -25,13 +28,13 @@ final class TesseractOcrProcessor implements OcrProcessor
         $imagePath = $imageBase.'.png';
 
         try {
-            $this->run(['pdftoppm', '-f', (string) $pageNumber, '-l', (string) $pageNumber, '-r', '200', '-png', '-singlefile', $pdfPath, $imageBase]);
-            $text = $this->run(['tesseract', $imagePath, 'stdout', '-l', $this->languages, '--psm', '3']);
-            $tsv = $this->run(['tesseract', $imagePath, 'stdout', '-l', $this->languages, '--psm', '3', 'tsv']);
+            $this->run(['pdftoppm', '-f', (string) $pageNumber, '-l', (string) $pageNumber, '-r', (string) $this->renderDpi, '-png', '-singlefile', $pdfPath, $imageBase]);
+            $text = $this->run(['tesseract', $imagePath, 'stdout', '-l', $this->languages, '--psm', (string) $this->pageSegmentationMode]);
+            $tsv = $this->run(['tesseract', $imagePath, 'stdout', '-l', $this->languages, '--psm', (string) $this->pageSegmentationMode, 'tsv']);
 
             $metrics = $this->metrics($text, $tsv);
 
-            return new OcrResult($text, $metrics['mean_confidence'], 'tesseract-5', $metrics);
+            return new OcrResult($text, $metrics['mean_confidence'], $this->engineVersion, $metrics);
         } finally {
             @unlink($imagePath);
             @rmdir($temporaryDirectory);
