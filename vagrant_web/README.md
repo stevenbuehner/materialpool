@@ -446,15 +446,13 @@ Die Ablage `CONTEXT_SEARCH_EVALUATION_PATH` muss auf beiden Systemen ein private
 
 ```sh
 # Produktion: ausschließlich inhaltsfreie Größenordnung vor der Auswahl prüfen.
-./vendor/bin/sail artisan context-search:dataset:inventory --json
-# Produktion: Auswahl anhand bekannter IDs einfrieren und in den privaten Exportordner schreiben.
-./vendor/bin/sail artisan context-search:dataset:freeze calibration \
+php artisan context-search:dataset:inventory --json
+# Produktion: Auswahl anhand bekannter IDs einfrieren.
+php artisan context-search:dataset:freeze calibration \
   --materials=101,102,103 --include-private --reason='Kuratiertes Kalibrierungsset'
-./vendor/bin/sail artisan context-search:dataset:export <datensatz-uuid>
-./vendor/bin/sail artisan context-search:dataset:verify exports/<datensatz-uuid>.zip
 ```
 
-Die UUID und die beiden Prüfsummen sind die Übergabedaten. Das Archiv wird durch einen vertrauenswürdigen Administrator in die private Evaluationsablage übertragen; eine spätere Importstufe prüft dieselben Werte erneut. Der `acceptance`-Datensatz ist ein unveränderlicher Holdout: Wird er zur Kalibrierung verwendet, muss ein neuer Abnahmedatensatz erzeugt werden.
+Der `acceptance`-Datensatz ist ein unveränderlicher Holdout: Wird er zur Kalibrierung verwendet, muss ein neuer Abnahmedatensatz erzeugt werden.
 
 Global Admins können die Auswahl außerdem über **KI-Datensätze** im persönlichen Benutzermenü kuratieren. Eine ganze Datensatzkarte ist anklickbar und per Tastatur bedienbar; Icons und Beschriftungen haben einheitliche Abstände. Eine seitenbezogene Sammelaktion fügt alle vollständig auswählbaren Material-/Ressourcenblöcke der sichtbaren Seite hinzu oder entfernt – als jeweils einzige angezeigte Aktion – deren lokale Auswahl. Sie verändert keine Auswahl anderer Seiten und überspringt gesperrte Blöcke. Der Server ergänzt und prüft den vollständigen zusammenhängenden Block aus Materialien und PDF-/Textressourcen verbindlich. OCR darf dieselben vollständigen Blöcke wie Kalibrierung oder Abnahme enthalten; Last und Kapazität dürfen als unabhängige Betriebsprüfungen mit allen anderen Zwecken einschließlich einander überlappen. Kalibrierung und Abnahme bleiben strikt voneinander getrennt; Last-/Kapazitätsmessungen dürfen nicht zur Anpassung semantischer Relevanz oder Schwellenwerte verwendet werden. Der linke Vorschaubereich bleibt beim Scrollen sichtbar, die Aktionen liegen auf dem Bild, und beim Wechsel des Materials wird die vorherige Grafik bis zum Laden der neuen Vorschau durch einen Ladeindikator ersetzt; falls keine Vorschau verfügbar ist, erscheint ein entsprechender Hinweis. Modalvorschauen erlauben das Durchblättern aller bekannten PDF-Seiten; Material- und Ressourcendetails öffnen jeweils in einem neuen Tab. Zugehörigkeiten und Konflikte sind sichtbar. Aus dem aktiven, noch veränderbaren Entwurf können Blöcke nach Bestätigung wieder als ganzer Block entfernt werden. Die Filter einschließlich Bundle beziehungsweise eigene Materialien ohne Bundle sowie die Seitennummer sind in der Adresse enthalten; die Seitennavigation erlaubt Einzelschritte und Zehnersprünge. Ein Server prüft vor dem Speichern die Versionsnummer und die Zweckregeln für Überschneidungen; die Vorschau im Browser ist keine Sicherheitsentscheidung. Die Zweck-Icons zeigen einen zugänglichen Fortschrittsdialog mit Ist-/Sollmengen und Teilquoten. Private Quellen benötigen eine ausdrückliche Auswahl samt Begründung. Erst ein vollständiger Entwurf kann eingefroren und danach exportiert werden.
 
@@ -471,6 +469,42 @@ php artisan context-search:dataset:freeze-curated DATENSATZ_UUID
 
 Der Befehl verwendet genau die gespeicherten Mitgliedschaften und friert denselben Datensatz mit derselben UUID ein. Er läuft synchron im CLI-Prozess und zeigt während der Verarbeitung der Materialien und Ressourcen einen Fortschrittsbalken; bei vielen PDF-Dateien kann er dennoch längere Zeit benötigen. Er ändert einen `ready`-Datensatz dauerhaft zu `frozen`; ein bereits eingefrorener oder unvollständiger Datensatz wird abgewiesen. Danach UUID und Mengen in der Ausgabe sowie den Status nach Neuladen der Browseransicht kontrollieren. Ein Archiv entsteht erst durch den separaten `context-search:dataset:export`-Befehl. `reconcile-memberships --apply` dient ausschließlich dem Nachtragen fehlender Mitgliedschaften in bereits eingefrorenen Alt-Datensätzen und friert keine Browser-Vorauswahl ein.
 
+#### Nach dem Freeze: Archiv exportieren und prüfen
+
+Die folgenden Befehle im Anwendungsverzeichnis auf dem System ausführen, auf dem der Datensatz eingefroren wurde. `UUID_HIER_EINTRAGEN` einmal durch die UUID aus der Freeze-Ausgabe ersetzen. **Entweder** den Sail-Block für die lokale Umgebung **oder** den `php artisan`-Block auf einem Server ohne Sail verwenden. Der Export schreibt das Archiv in die private Evaluationsablage und setzt den Datensatzstatus auf `exported`; bei großen Datensätzen benötigt er Zeit und ausreichend freien Speicherplatz. Er erzeugt keine KI-Auswertung.
+
+```sh
+# Lokale Sail-Umgebung
+DATASET_UUID='UUID_HIER_EINTRAGEN'
+./vendor/bin/sail artisan context-search:dataset:export "$DATASET_UUID" && \
+  ./vendor/bin/sail artisan context-search:dataset:verify "exports/$DATASET_UUID.zip"
+```
+
+```sh
+# Server ohne Sail
+DATASET_UUID='UUID_HIER_EINTRAGEN'
+php artisan context-search:dataset:export "$DATASET_UUID" && \
+  php artisan context-search:dataset:verify "exports/$DATASET_UUID.zip"
+```
+
+Der Export meldet den relativen Archivpfad und die Archiv-Prüfsumme; `verify` meldet Manifest- und Archiv-Prüfsumme. Die Archiv-Prüfsumme beider Ausgaben muss übereinstimmen. Der relative Pfad `exports/<UUID>.zip` liegt auf dem Disk `context_search_evaluation`, standardmäßig unter `storage/app/context-search-evaluation/exports/` oder unter dem konfigurierten `CONTEXT_SEARCH_EVALUATION_PATH`. Das Archiv enthält Quelldaten und bleibt in einer privaten, nicht öffentlich erreichbaren Ablage. Die UUID und beide Prüfsummen für die Übergabe festhalten, ohne Dokumenttitel oder Inhalte in Logs oder Tickets zu kopieren.
+
+Ein vertrauenswürdiger Administrator überträgt genau dieses Archiv in den privaten Ordner `incoming/` des Evaluationssystems. Vor dem Import müssen dort **beide** von `verify` ausgegebenen Prüfsummen mit den Werten des Quellsystems übereinstimmen. Der Import ist nur in einer isolierten, ausdrücklich freigegebenen Evaluationsumgebung mit `CONTEXT_SEARCH_EVALUATION_IMPORT_ENABLED=true` zulässig; in Produktion ist er gesperrt. Auf einer Evaluationsumgebung mit Sail:
+
+```sh
+DATASET_UUID='UUID_HIER_EINTRAGEN'
+./vendor/bin/sail artisan context-search:dataset:verify "incoming/$DATASET_UUID.zip"
+```
+
+Erst nach dem Vergleich beider Prüfsummen importieren:
+
+```sh
+DATASET_UUID='UUID_HIER_EINTRAGEN'
+./vendor/bin/sail artisan context-search:dataset:import "incoming/$DATASET_UUID.zip"
+```
+
+Nach dem Import die ausgegebene UUID und den Datensatzstatus in der Evaluationsumgebung kontrollieren. Der Import verwendet einen lokalen technischen Benutzer und legt die PDF-Dateien in der Evaluationsablage ab. Bei identischem Manifest kann derselbe Import erneut ausgeführt werden, ohne Materialien oder Ressourcen zu duplizieren.
+
 Nach dem Upgrade prüft ein Administrator vorhandene eingefrorene Datensätze zuerst lesend. Konflikte werden nie automatisch aufgelöst. Nur wenn die Ausgabe konfliktfrei ist, darf die explizite Übernahme erfolgen:
 
 ```sh
@@ -481,15 +515,6 @@ Nach dem Upgrade prüft ein Administrator vorhandene eingefrorene Datensätze zu
 Der lesende Abgleich zeigt zusätzlich eine grafische, inhaltsfreie Terminalübersicht der vertraglich empfohlenen Sollmengen für Kalibrierung, Abnahme, OCR, Last und Kapazität. Sie enthält die jeweilige Ressourcen- und Materialmenge, Fortschrittsbalken, verbleibende Mengen sowie den eindeutigen Mindestbedarf und die Reserve geeigneter PDF-/Textressourcen gegenüber den exklusiven Zielen für Kalibrierung und Abnahme; OCR, Last und Kapazität sind als überlappende Prüfvolumina ausgewiesen. Die Übersicht ist eine Kuratierungs- und Kapazitätshilfe; sie ändert weder Auswahl noch Sollmengen.
 
 Der Abgleich verarbeitet fehlende Mitgliedschaften in begrenzten Blöcken nach Dataset-UUID. Die Reihenfolge der gemeldeten Datensätze entspricht daher nicht zwingend ihrer Erstellungszeit. Auch bei großen Datensätzen bleibt die Konfliktprüfung vollständig: Ein Konflikt verhindert die Übernahme sämtlicher Mitgliedschaften dieses Datensatzes. Ein erneuter Lauf überspringt bereits abgeglichene Datensätze.
-
-Auf der isolierten Evaluationsmaschine wird `CONTEXT_SEARCH_EVALUATION_IMPORT_ENABLED=true` gesetzt. Diese Einstellung ist auf Produktion verboten. Nach dem Transfer in `incoming/` wird erst geprüft und dann importiert:
-
-```sh
-./vendor/bin/sail artisan context-search:dataset:verify incoming/<datensatz-uuid>.zip
-./vendor/bin/sail artisan context-search:dataset:import incoming/<datensatz-uuid>.zip
-```
-
-Der Import legt keinen Produktionsbenutzer an: Er verwendet ausschließlich einen lokalen technischen Importbenutzer und schreibt PDF-Dateien in die Evaluationsablage. Derselbe Datensatz kann mit identischem Manifest erneut ausgeführt werden, ohne Materialien oder Ressourcen zu duplizieren.
 
 Für gezielte Diagnose können die Prozesse einzeln laufen:
 
