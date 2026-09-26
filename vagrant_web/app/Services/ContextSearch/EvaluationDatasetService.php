@@ -12,7 +12,6 @@ use App\Models\Text;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Database\Query\Builder as QueryBuilder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
@@ -133,12 +132,8 @@ final class EvaluationDatasetService
             if ($dataset->status !== ContextSearchEvaluationDataset::STATUS_READY) {
                 throw new RuntimeException('Der Entwurf wurde zwischenzeitlich geändert.');
             }
-            $resources = $this->resourceManifestQuery()
-                ->whereIn('resources.id', $this->memberIds($dataset, ContextSearchEvaluationDatasetMember::TYPE_RESOURCE))
-                ->lazyById(self::MANIFEST_BATCH_SIZE, 'resources.id', 'id');
-            $materials = $this->materialManifestQuery()
-                ->whereIn('materials.id', $this->memberIds($dataset, ContextSearchEvaluationDatasetMember::TYPE_MATERIAL))
-                ->lazyById(self::MANIFEST_BATCH_SIZE, 'materials.id', 'id');
+            $resources = $this->manifestMembers($dataset, ContextSearchEvaluationDatasetMember::TYPE_RESOURCE);
+            $materials = $this->manifestMembers($dataset, ContextSearchEvaluationDatasetMember::TYPE_MATERIAL);
             $manifest = $this->manifest($dataset->getKey(), $dataset->purpose, $materials, $resources, $dataset->includes_private, $dataset->private_reason, $onProgress);
             if ($manifest['resources'] === [] || $manifest['materials'] === []) {
                 throw new RuntimeException('Der Entwurf enthält keine vollständige, exportierbare Auswahl.');
@@ -155,12 +150,24 @@ final class EvaluationDatasetService
         });
     }
 
-    private function memberIds(ContextSearchEvaluationDataset $dataset, string $type): QueryBuilder
+    /** @return \Generator<int, Resource|Material> */
+    private function manifestMembers(ContextSearchEvaluationDataset $dataset, string $type): \Generator
     {
-        return DB::table('context_search_evaluation_dataset_members')
+        $members = DB::table('context_search_evaluation_dataset_members')
             ->select('member_id')
             ->where('dataset_id', $dataset->getKey())
-            ->where('member_type', $type);
+            ->where('member_type', $type)
+            ->lazyById(self::MANIFEST_BATCH_SIZE, 'member_id');
+        $query = $type === ContextSearchEvaluationDatasetMember::TYPE_RESOURCE
+            ? $this->resourceManifestQuery()
+            : $this->materialManifestQuery();
+        $table = $type === ContextSearchEvaluationDatasetMember::TYPE_RESOURCE ? 'resources' : 'materials';
+
+        foreach ($members->chunk(self::MANIFEST_BATCH_SIZE) as $batch) {
+            foreach ((clone $query)->whereIn($table.'.id', $batch->pluck('member_id'))->get()->sortBy('id') as $model) {
+                yield $model;
+            }
+        }
     }
 
     /** @return array{manifest_hash: string, archive_hash: string} */
