@@ -183,7 +183,7 @@ final class OcrCalibrationService
             'holdout_usable_precision' => $results['holdout']['usable_precision'],
             'approved_by' => $user->getKey(),
         ];
-        $profile['profile_id'] = 'tesseract-de-en-cal-'.substr((string) $run->getKey(), 0, 8);
+        $profile['profile_id'] = 'tesseract-cal-'.substr((string) $run->getKey(), 0, 8);
         $profile['version'] = '1';
         $hash = hash('sha256', json_encode($profile, JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES));
         $run->update(['approved_profile' => $profile, 'approved_profile_hash' => $hash, 'approved_at' => now(), 'status' => ContextSearchOcrCalibrationRun::STATUS_APPROVED]);
@@ -226,7 +226,23 @@ final class OcrCalibrationService
     /** @param list<string> $reference @param list<string> $hypothesis @return array{int, int} */
     private function editStats(array $reference, array $hypothesis): array
     {
-        $previous = range(0, count($hypothesis));
+        $originalReferenceLength = count($reference);
+        $referenceStart = $hypothesisStart = 0;
+        $referenceEnd = count($reference) - 1;
+        $hypothesisEnd = count($hypothesis) - 1;
+        while ($referenceStart <= $referenceEnd && $hypothesisStart <= $hypothesisEnd && $reference[$referenceStart] === $hypothesis[$hypothesisStart]) {
+            $referenceStart++;
+            $hypothesisStart++;
+        }
+        while ($referenceStart <= $referenceEnd && $hypothesisStart <= $hypothesisEnd && $reference[$referenceEnd] === $hypothesis[$hypothesisEnd]) {
+            $referenceEnd--;
+            $hypothesisEnd--;
+        }
+        $reference = array_slice($reference, $referenceStart, max(0, $referenceEnd - $referenceStart + 1));
+        $hypothesis = array_slice($hypothesis, $hypothesisStart, max(0, $hypothesisEnd - $hypothesisStart + 1));
+        $referenceLength = count($reference);
+        $hypothesisLength = count($hypothesis);
+        $previous = range(0, $hypothesisLength);
         foreach ($reference as $i => $token) {
             $current = [$i + 1];
             foreach ($hypothesis as $j => $candidate) {
@@ -234,7 +250,7 @@ final class OcrCalibrationService
             }
             $previous = $current;
         }
-        return [$previous[count($hypothesis)], count($reference)];
+        return [$previous[$hypothesisLength], $originalReferenceLength];
     }
 
     /** @return list<string> */
