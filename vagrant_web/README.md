@@ -453,6 +453,8 @@ Nach dem Upgrade prüft ein Administrator vorhandene eingefrorene Datensätze zu
 ./vendor/bin/sail artisan context-search:dataset:reconcile-memberships --apply
 ```
 
+Der lesende Abgleich zeigt zusätzlich eine grafische, inhaltsfreie Terminalübersicht der vertraglich empfohlenen Sollmengen für Kalibrierung, Abnahme, OCR, Last und Kapazität. Sie enthält die jeweilige Ressourcen- und Materialmenge, Fortschrittsbalken, verbleibende Mengen sowie die Reserve gegenüber den aktuell geeigneten PDF-/Textressourcen. Die Übersicht ist eine Kuratierungs- und Kapazitätshilfe; sie ändert weder Auswahl noch Sollmengen.
+
 Auf der isolierten Evaluationsmaschine wird `CONTEXT_SEARCH_EVALUATION_IMPORT_ENABLED=true` gesetzt. Diese Einstellung ist auf Produktion verboten. Nach dem Transfer in `incoming/` wird erst geprüft und dann importiert:
 
 ```sh

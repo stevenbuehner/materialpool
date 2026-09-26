@@ -22,6 +22,15 @@ final class ContextSearchEvaluationDatasetCurationTest extends TestCase
         $this->getJson('/api/v2/admin/context-search/datasets')->assertNotFound();
     }
 
+    public function test_reconciliation_command_prints_inhaltsfreie_target_progress_overview(): void
+    {
+        $this->artisan('context-search:dataset:reconcile-memberships')
+            ->expectsOutputToContain('Empfohlene Datensatzgrößen und Fortschritt')
+            ->expectsOutputToContain('Kalibrierung')
+            ->expectsOutputToContain('Gesamt')
+            ->assertExitCode(0);
+    }
+
     public function test_assigning_a_material_reserves_its_entire_connected_component(): void
     {
         $this->asAdmin();

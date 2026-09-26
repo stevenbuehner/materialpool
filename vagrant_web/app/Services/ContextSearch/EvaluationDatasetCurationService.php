@@ -29,9 +29,15 @@ final class EvaluationDatasetCurationService
         'capacity' => ['materials' => 5600, 'resources' => 8000, 'quotas' => ['pdf' => 800, 'text' => 5600, 'public' => 2800, 'private' => 2800]],
     ];
 
+    /** @return array<string, array{materials: int, resources: int, quotas: array<string, int>}> */
+    public static function defaultTargets(): array
+    {
+        return self::DEFAULT_TARGETS;
+    }
+
     public function create(string $purpose, ?string $title = null): ContextSearchEvaluationDataset
     {
-        $targets = self::DEFAULT_TARGETS[$purpose] ?? null;
+        $targets = self::defaultTargets()[$purpose] ?? null;
         if ($targets === null) {
             throw new \InvalidArgumentException('Der Zweck des Evaluationsdatensatzes ist ungültig.');
         }
