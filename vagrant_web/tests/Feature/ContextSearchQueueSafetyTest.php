@@ -42,6 +42,14 @@ final class ContextSearchQueueSafetyTest extends TestCase
         app(ContextSearchQueueSafety::class)->assertConfigured();
     }
 
+    public function test_rejects_a_collision_between_prepared_worker_queues(): void
+    {
+        config()->set('context_search.indexing.embedding_queue', 'context-search-extraction');
+
+        $this->expectException(RuntimeException::class);
+        app(ContextSearchQueueSafety::class)->assertConfigured();
+    }
+
     public function test_rejects_an_unsafe_reservation_period(): void
     {
         config()->set('queue.connections.context_search.retry_after', 500);

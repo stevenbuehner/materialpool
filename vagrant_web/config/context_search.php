@@ -45,6 +45,8 @@ return [
         'connection' => 'context_search',
         'queue' => env('CONTEXT_SEARCH_INDEXING_QUEUE', 'context-search-extraction'),
         'ocr_calibration_queue' => env('CONTEXT_SEARCH_OCR_CALIBRATION_QUEUE', 'context-search-calibration-ocr'),
+        'embedding_queue' => 'context-search-embedding',
+        'upsert_queue' => 'context-search-upsert',
         'maximum_job_timeout' => 480,
         'embedding_batch_size' => (int) env('CONTEXT_SEARCH_EMBEDDING_BATCH_SIZE', 8),
         'pdf_native_text_minimum_characters' => (int) env('CONTEXT_SEARCH_PDF_NATIVE_TEXT_MINIMUM_CHARACTERS', 80),

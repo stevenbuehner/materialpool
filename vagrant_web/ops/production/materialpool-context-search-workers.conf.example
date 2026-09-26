@@ -1,0 +1,33 @@
+; Prepared only. Do not install or start before context-search queue step 3 is accepted.
+; The default/preview worker remains in materialpool-worker.conf.
+[program:materialpool-context-ocr]
+process_name=%(program_name)s_%(process_num)02d
+command=/usr/bin/php /srv/materialpool/current/artisan queue:work context_search --queue=context-search-calibration-ocr,context-search-extraction --sleep=3 --tries=3 --timeout=480 --max-time=3600 --max-jobs=50
+directory=/srv/materialpool/current
+user=www-data
+numprocs=1
+autostart=false
+autorestart=true
+stopasgroup=true
+killasgroup=true
+stopwaitsecs=540
+redirect_stderr=true
+stdout_logfile=/var/log/supervisor/materialpool-context-ocr.log
+stdout_logfile_maxbytes=20MB
+stdout_logfile_backups=5
+
+[program:materialpool-context-embedding]
+process_name=%(program_name)s_%(process_num)02d
+command=/usr/bin/php /srv/materialpool/current/artisan queue:work context_search --queue=context-search-upsert,context-search-embedding --sleep=3 --tries=3 --timeout=480 --max-time=3600 --max-jobs=50
+directory=/srv/materialpool/current
+user=www-data
+numprocs=1
+autostart=false
+autorestart=true
+stopasgroup=true
+killasgroup=true
+stopwaitsecs=540
+redirect_stderr=true
+stdout_logfile=/var/log/supervisor/materialpool-context-embedding.log
+stdout_logfile_maxbytes=20MB
+stdout_logfile_backups=5

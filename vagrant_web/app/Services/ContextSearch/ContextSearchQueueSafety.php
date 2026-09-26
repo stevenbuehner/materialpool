@@ -20,10 +20,12 @@ final class ContextSearchQueueSafety
         $queueNames = [
             (string) config('context_search.indexing.queue'),
             (string) config('context_search.indexing.ocr_calibration_queue'),
+            (string) config('context_search.indexing.embedding_queue'),
+            (string) config('context_search.indexing.upsert_queue'),
         ];
 
         if (count(array_unique($queueNames)) !== count($queueNames)) {
-            throw new RuntimeException('Kontextsuche-Indexierung und OCR-Kalibrierung benötigen unterschiedliche Queue-Namen.');
+            throw new RuntimeException('Alle Kontextsuche-Arbeitstypen benötigen unterschiedliche Queue-Namen.');
         }
 
         foreach ($queueNames as $queueName) {
