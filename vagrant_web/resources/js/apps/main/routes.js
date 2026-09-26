@@ -18,6 +18,7 @@ const ResourceReplace = () => import('./pages/ResourceReplace.vue');
 const KeywordDetail = () => import('./pages/KeywordDetail.vue');
 const SystemShutdown = () => import('./pages/RequestShutdown.vue');
 const AdminUsers = () => import('./pages/AdminUsers.vue');
+const ContextSearchEvaluationDatasets = () => import('./pages/ContextSearchEvaluationDatasets.vue');
 
 const numericIdProps = (route) => ({id: parseInt(route.params.id)});
 
@@ -154,6 +155,12 @@ export const routes = [
 		path: '/admin/users',
 		component: AdminUsers,
 		name: 'admin-users',
+		props: false,
+	},
+	{
+		path: '/admin/context-search/datasets',
+		component: ContextSearchEvaluationDatasets,
+		name: 'context-search-evaluation-datasets',
 		props: false,
 	},
 	{

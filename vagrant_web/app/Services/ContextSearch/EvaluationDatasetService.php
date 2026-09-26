@@ -3,6 +3,7 @@
 namespace App\Services\ContextSearch;
 
 use App\Models\ContextSearchEvaluationDataset;
+use App\Models\ContextSearchEvaluationDatasetMember;
 use App\Models\File;
 use App\Models\Material;
 use App\Models\PdfFile;
@@ -53,21 +54,25 @@ final class EvaluationDatasetService
         $manifest = $this->manifest($datasetId, $purpose, $materials, $resources, $includePrivate, $privateReason);
         $manifestHash = $this->hash($manifest);
 
-        $dataset = new ContextSearchEvaluationDataset();
-        $dataset->forceFill([
-            'id' => $datasetId,
-            'purpose' => $purpose,
-            'status' => ContextSearchEvaluationDataset::STATUS_FROZEN,
-            'includes_private' => $hasPrivateContent,
-            'private_reason' => $hasPrivateContent ? $privateReason : null,
-            'manifest' => $manifest,
-            'manifest_hash' => $manifestHash,
-            'material_count' => count($manifest['materials']),
-            'resource_count' => count($manifest['resources']),
-            'frozen_at' => now(),
-        ])->save();
+        return DB::transaction(function () use ($datasetId, $purpose, $hasPrivateContent, $privateReason, $manifest, $manifestHash): ContextSearchEvaluationDataset {
+            $this->assertManifestMembersAreFree($manifest);
+            $dataset = new ContextSearchEvaluationDataset();
+            $dataset->forceFill([
+                'id' => $datasetId,
+                'purpose' => $purpose,
+                'status' => ContextSearchEvaluationDataset::STATUS_FROZEN,
+                'includes_private' => $hasPrivateContent,
+                'private_reason' => $hasPrivateContent ? $privateReason : null,
+                'manifest' => $manifest,
+                'manifest_hash' => $manifestHash,
+                'material_count' => count($manifest['materials']),
+                'resource_count' => count($manifest['resources']),
+                'frozen_at' => now(),
+            ])->save();
+            $this->storeManifestMembers($dataset, $manifest);
 
-        return $dataset;
+            return $dataset;
+        });
     }
 
     public function export(ContextSearchEvaluationDataset $dataset): ContextSearchEvaluationDataset
@@ -106,6 +111,45 @@ final class EvaluationDatasetService
         ]);
 
         return $dataset->fresh();
+    }
+
+    /**
+     * Freezes a fully curated draft. The membership ledger is already immutable
+     * at this point and supplies the exact source set for the manifest.
+     */
+    public function freezeCurated(ContextSearchEvaluationDataset $dataset): ContextSearchEvaluationDataset
+    {
+        if ($dataset->status !== ContextSearchEvaluationDataset::STATUS_READY) {
+            throw new RuntimeException('Nur ein vollständiger Entwurf darf eingefroren werden.');
+        }
+
+        return DB::transaction(function () use ($dataset): ContextSearchEvaluationDataset {
+            $dataset = ContextSearchEvaluationDataset::query()->lockForUpdate()->findOrFail($dataset->getKey());
+            if ($dataset->status !== ContextSearchEvaluationDataset::STATUS_READY) {
+                throw new RuntimeException('Der Entwurf wurde zwischenzeitlich geändert.');
+            }
+            $members = $dataset->members()->get(['member_type', 'member_id']);
+            $materialIds = $members->where('member_type', ContextSearchEvaluationDatasetMember::TYPE_MATERIAL)->pluck('member_id')->all();
+            $resourceIds = $members->where('member_type', ContextSearchEvaluationDatasetMember::TYPE_RESOURCE)->pluck('member_id')->all();
+            $resources = Resource::query()->withoutGlobalScopes()->whereIn('id', $resourceIds)
+                ->with(['materials' => fn ($query) => $query->withoutGlobalScopes()->orderBy('materials.id')])->orderBy('id')->get();
+            $materials = Material::query()->withoutGlobalScopes()->whereIn('id', $materialIds)
+                ->with(['keywords' => fn ($query) => $query->orderBy('keywords.id'), 'bibleverses' => fn ($query) => $query->orderBy('bibleverses.id')])
+                ->orderBy('id')->get();
+            if ($resources->isEmpty() || $materials->isEmpty()) {
+                throw new RuntimeException('Der Entwurf enthält keine vollständige, exportierbare Auswahl.');
+            }
+            $manifest = $this->manifest($dataset->getKey(), $dataset->purpose, $materials, $resources, $dataset->includes_private, $dataset->private_reason);
+            $dataset->forceFill([
+                'status' => ContextSearchEvaluationDataset::STATUS_FROZEN,
+                'manifest' => $manifest,
+                'manifest_hash' => $this->hash($manifest),
+                'material_count' => $materials->count(),
+                'resource_count' => $resources->count(),
+                'frozen_at' => now(),
+            ])->save();
+            return $dataset->fresh();
+        });
     }
 
     /** @return array{manifest_hash: string, archive_hash: string} */
@@ -217,6 +261,10 @@ final class EvaluationDatasetService
                         'manifest_hash' => $manifest['manifest_hash'], 'material_count' => count($manifest['materials']),
                         'resource_count' => count($manifest['resources']), 'frozen_at' => $manifest['frozen_at'],
                     ])->save();
+                    $this->storeManifestMembers($dataset, [
+                        'materials' => collect($materials)->map(fn (Material $material): array => ['source_id' => $material->id])->values()->all(),
+                        'resources' => Resource::query()->withoutGlobalScopes()->whereHas('materials', fn ($query) => $query->whereIn('materials.id', collect($materials)->pluck('id')))->get()->map(fn (Resource $resource): array => ['source_id' => $resource->id, 'revision_hash' => $this->revisionHash($resource)])->all(),
+                    ]);
 
                     return $dataset;
                 });
@@ -339,6 +387,31 @@ final class EvaluationDatasetService
         fclose($stream);
 
         return hash_final($context);
+    }
+
+    /** @param array<string, mixed> $manifest */
+    private function assertManifestMembersAreFree(array $manifest): void
+    {
+        $materialIds = collect($manifest['materials'])->pluck('source_id')->map(fn ($id) => (int) $id)->all();
+        $resourceIds = collect($manifest['resources'])->pluck('source_id')->map(fn ($id) => (int) $id)->all();
+        $exists = ContextSearchEvaluationDatasetMember::query()->where(function ($query) use ($materialIds, $resourceIds): void {
+            $query->where(fn ($members) => $members->where('member_type', ContextSearchEvaluationDatasetMember::TYPE_MATERIAL)->whereIn('member_id', $materialIds))
+                ->orWhere(fn ($members) => $members->where('member_type', ContextSearchEvaluationDatasetMember::TYPE_RESOURCE)->whereIn('member_id', $resourceIds));
+        })->exists();
+        if ($exists) {
+            throw new RuntimeException('Mindestens ein Material oder eine Ressource gehört bereits dauerhaft zu einem anderen Evaluationsdatensatz.');
+        }
+    }
+
+    /** @param array<string, mixed> $manifest */
+    private function storeManifestMembers(ContextSearchEvaluationDataset $dataset, array $manifest): void
+    {
+        foreach ($manifest['materials'] as $material) {
+            ContextSearchEvaluationDatasetMember::query()->create(['dataset_id' => $dataset->id, 'member_type' => ContextSearchEvaluationDatasetMember::TYPE_MATERIAL, 'member_id' => $material['source_id']]);
+        }
+        foreach ($manifest['resources'] as $resource) {
+            ContextSearchEvaluationDatasetMember::query()->create(['dataset_id' => $dataset->id, 'member_type' => ContextSearchEvaluationDatasetMember::TYPE_RESOURCE, 'member_id' => $resource['source_id'], 'source_revision_hash' => $resource['revision_hash'] ?? null]);
+        }
     }
 
     private function hash(array $manifest): string

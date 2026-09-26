@@ -99,6 +99,13 @@ Route::group([
 		->name('api.v2.system.shutdown');
 
 	Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => 'admin'], function () {
+		Route::get('context-search/datasets', 'Admin\\ContextSearchEvaluationDatasetController@index')->name('context-search.datasets.index');
+		Route::post('context-search/datasets', 'Admin\\ContextSearchEvaluationDatasetController@store')->name('context-search.datasets.store');
+		Route::get('context-search/datasets/candidates', 'Admin\\ContextSearchEvaluationDatasetController@candidates')->name('context-search.datasets.candidates');
+		Route::post('context-search/datasets/preview', 'Admin\\ContextSearchEvaluationDatasetController@preview')->name('context-search.datasets.preview');
+		Route::post('context-search/datasets/{dataset}/assign', 'Admin\\ContextSearchEvaluationDatasetController@assign')->name('context-search.datasets.assign');
+		Route::delete('context-search/datasets/{dataset}/members/{memberType}/{memberId}', 'Admin\\ContextSearchEvaluationDatasetController@remove')->where('memberId', '[0-9]+')->name('context-search.datasets.members.remove');
+		Route::post('context-search/datasets/{dataset}/freeze', 'Admin\\ContextSearchEvaluationDatasetController@freeze')->name('context-search.datasets.freeze');
 		Route::get('users', 'Admin\AdminUserController@index')->name('users.index');
 		Route::post('users', 'Admin\AdminUserController@store')->name('users.store');
 		Route::patch('users/{user}', 'Admin\AdminUserController@update')->name('users.update');

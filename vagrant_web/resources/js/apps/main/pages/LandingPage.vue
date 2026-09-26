@@ -31,6 +31,9 @@
             <router-link :to="{name: 'material'}" v-if="currentUser">{{ $t('pool.Materiallist') }}
             </router-link>
 
+            <router-link :to="{name: 'context-search-evaluation-datasets'}" v-if="currentUser?.is_admin">{{ $t('pool.ai-datasets') }}
+            </router-link>
+
           </div>
         </div>
       </div>

@@ -444,6 +444,15 @@ Die Ablage `CONTEXT_SEARCH_EVALUATION_PATH` muss auf beiden Systemen ein private
 
 Die UUID und die beiden Prüfsummen sind die Übergabedaten. Das Archiv wird durch einen vertrauenswürdigen Administrator in die private Evaluationsablage übertragen; eine spätere Importstufe prüft dieselben Werte erneut. Der `acceptance`-Datensatz ist ein unveränderlicher Holdout: Wird er zur Kalibrierung verwendet, muss ein neuer Abnahmedatensatz erzeugt werden.
 
+Global Admins können die Auswahl außerdem über **KI-Datensätze** auf der Startseite kuratieren. Dort markiert eine Auswahl immer den vollständigen zusammenhängenden Block aus Materialien und geeigneten PDF-/Textressourcen. Ein Server prüft vor dem Speichern die Versionsnummer und die eindeutige, dauerhafte Zuordnung; die Vorschau im Browser ist keine Sicherheitsentscheidung. Die Zweck-Icons zeigen einen zugänglichen Fortschrittsdialog mit Ist-/Sollmengen und Teilquoten. Private Quellen benötigen eine ausdrückliche Auswahl samt Begründung. Erst ein vollständiger Entwurf kann eingefroren und danach exportiert werden.
+
+Nach dem Upgrade prüft ein Administrator vorhandene eingefrorene Datensätze zuerst lesend. Konflikte werden nie automatisch aufgelöst. Nur wenn die Ausgabe konfliktfrei ist, darf die explizite Übernahme erfolgen:
+
+```sh
+./vendor/bin/sail artisan context-search:dataset:reconcile-memberships
+./vendor/bin/sail artisan context-search:dataset:reconcile-memberships --apply
+```
+
 Auf der isolierten Evaluationsmaschine wird `CONTEXT_SEARCH_EVALUATION_IMPORT_ENABLED=true` gesetzt. Diese Einstellung ist auf Produktion verboten. Nach dem Transfer in `incoming/` wird erst geprüft und dann importiert:
 
 ```sh
