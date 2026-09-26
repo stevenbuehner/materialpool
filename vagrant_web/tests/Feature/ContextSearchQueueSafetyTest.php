@@ -71,12 +71,26 @@ final class ContextSearchQueueSafetyTest extends TestCase
         Bus::fake([ProcessOcrCalibrationPage::class]);
 
         $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessage('bleiben bis zur Abnahme');
+        $this->expectExceptionMessage('nur für die lokale Testumgebung');
 
         try {
             app(OcrCalibrationService::class)->start('unused', new User, 15);
         } finally {
             Bus::assertNotDispatched(ProcessOcrCalibrationPage::class);
+        }
+    }
+
+    public function test_local_ocr_dispatch_cannot_be_enabled_in_production(): void
+    {
+        config()->set('context_search.indexing.local_ocr_calibration_dispatch_enabled', true);
+        $originalEnvironment = app()->environment();
+        app()->detectEnvironment(static fn (): string => 'production');
+
+        try {
+            $this->expectException(RuntimeException::class);
+            app(ContextSearchQueueSafety::class)->assertOcrCalibrationDispatchAllowed();
+        } finally {
+            app()->detectEnvironment(static fn (): string => $originalEnvironment);
         }
     }
 

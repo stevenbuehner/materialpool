@@ -9,6 +9,7 @@ use App\Jobs\IndexContextSearchResource;
 use App\Models\ContextSearchIndexRun;
 use App\Models\ContextSearchIndexRunPage;
 use App\Models\ContextSearchIndexRunResource;
+use App\Models\PdfFile;
 use App\Models\Text;
 use App\Models\User;
 use App\Services\ContextSearch\ContextSearchIndexPipeline;
@@ -25,6 +26,7 @@ use App\Services\ContextSearch\TextChunker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
@@ -98,6 +100,53 @@ final class ContextSearchPagePipelineTest extends TestCase
         Bus::assertDispatched(EmbedContextSearchPage::class);
     }
 
+    public function test_a_scanned_pdf_page_is_ocr_processed_and_published_with_its_page_source(): void
+    {
+        Storage::fake('local');
+        Bus::fake([ExtractContextSearchPage::class, EmbedContextSearchPage::class]);
+        Event::fake([\App\Events\ResourceWasCreated::class]);
+        Http::preventStrayRequests();
+        Http::fake([
+            'ollama.test/api/tags' => Http::response(['models' => [['name' => 'embeddinggemma:test', 'digest' => str_repeat('a', 64)]]]),
+            'ollama.test/api/embed' => Http::response(['model' => 'embeddinggemma:test', 'embeddings' => [[0.1, 0.2, 0.3]]]),
+        ]);
+        $user = User::factory()->create();
+        $resource = PdfFile::factory()->create(['created_by' => $user->getKey()]);
+        $profile = $this->profile();
+        $snapshot = new ContextSearchSourceSnapshot();
+        $revision = $snapshot->revision($resource);
+        $run = ContextSearchIndexRun::query()->create([
+            'status' => ContextSearchIndexRun::STATUS_RUNNING,
+            'collection_name' => 'test_collection',
+            'embedding_profile' => $profile->id(),
+            'total_resources' => 1,
+        ]);
+        ContextSearchIndexRunResource::query()->create([
+            'run_id' => $run->getKey(),
+            'resource_id' => $resource->getKey(),
+            'status' => ContextSearchIndexRunResource::STATUS_RUNNING,
+            'source_revision' => $revision,
+            'index_revision' => $snapshot->indexRevision($revision, $profile->id()),
+            'extraction_profile' => $snapshot->extractionProfile(),
+            'chunking_profile' => $snapshot->chunkingProfile(),
+        ]);
+        $pipeline = app(ContextSearchIndexPipeline::class);
+
+        (new IndexContextSearchResource($run->getKey(), $resource->getKey()))->handle(app(ResourceTextExtractor::class), $snapshot, $profile, $pipeline);
+        $page = ContextSearchIndexRunPage::query()->sole();
+        (new ExtractContextSearchPage($page->getKey()))->handle($pipeline, $snapshot, $profile, app(ResourceTextExtractor::class), new ContextSearchPageArtifactStore());
+
+        $this->assertSame(ContextSearchIndexRunPage::STATUS_EXTRACTED, $page->fresh()->status);
+        $this->assertSame('ocr', $page->fresh()->extraction_method);
+        $qdrant = $this->qdrant();
+        (new EmbedContextSearchPage($page->getKey()))->handle($pipeline, $snapshot, $profile, new ContextSearchPageArtifactStore(), $this->indexer($profile, $qdrant));
+
+        $this->assertSame(ContextSearchIndexRunPage::STATUS_INDEXED, $page->fresh()->status);
+        $this->assertSame(ContextSearchIndexRun::STATUS_COMPLETED, $run->fresh()->status);
+        $this->assertCount(1, $qdrant->upserts);
+        $this->assertSame(1, $qdrant->upserts[0][0]['payload']['page_number']);
+    }
+
     public function test_publication_waits_for_every_page_and_rejects_a_changed_source(): void
     {
         Bus::fake([ExtractContextSearchPage::class]);
@@ -167,6 +216,43 @@ final class ContextSearchPagePipelineTest extends TestCase
             'status' => ContextSearchIndexRunPage::STATUS_EXTRACTING,
         ]);
         Bus::assertDispatched(ExtractContextSearchPage::class);
+    }
+
+    public function test_large_resource_plans_only_the_configured_page_window(): void
+    {
+        Bus::fake([ExtractContextSearchPage::class]);
+        config()->set('context_search.indexing.minimum_free_disk_bytes', 0);
+        config()->set('context_search.indexing.page_window', 4);
+        $profile = $this->profile();
+        $snapshot = new ContextSearchSourceSnapshot();
+        [$resource, $run, $item] = $this->makeRun($profile, $snapshot);
+        $item->update(['page_count' => 100]);
+
+        (new IndexContextSearchResource($run->getKey(), $resource->getKey()))
+            ->handle(app(ResourceTextExtractor::class), $snapshot, $profile, app(ContextSearchIndexPipeline::class));
+
+        $pages = ContextSearchIndexRunPage::query()->where('run_resource_id', $item->getKey());
+        $this->assertSame(100, (clone $pages)->count());
+        $this->assertSame(4, (clone $pages)->where('status', ContextSearchIndexRunPage::STATUS_EXTRACTING)->count());
+        $this->assertSame(96, (clone $pages)->where('status', ContextSearchIndexRunPage::STATUS_PENDING)->count());
+        Bus::assertDispatchedTimes(ExtractContextSearchPage::class, 4);
+    }
+
+    public function test_oversize_resource_fails_without_creating_page_jobs(): void
+    {
+        Bus::fake([ExtractContextSearchPage::class]);
+        $profile = $this->profile();
+        $snapshot = new ContextSearchSourceSnapshot();
+        [$resource, $run, $item] = $this->makeRun($profile, $snapshot);
+        $item->update(['page_count' => 1001]);
+
+        (new IndexContextSearchResource($run->getKey(), $resource->getKey()))
+            ->handle(app(ResourceTextExtractor::class), $snapshot, $profile, app(ContextSearchIndexPipeline::class));
+
+        $this->assertSame(ContextSearchIndexRunResource::STATUS_FAILED, $item->fresh()->status);
+        $this->assertSame('invalid_page_count', $item->fresh()->failure_message);
+        $this->assertSame(0, ContextSearchIndexRunPage::query()->where('run_resource_id', $item->getKey())->count());
+        Bus::assertNotDispatched(ExtractContextSearchPage::class);
     }
 
     private function profile(): EmbeddingProfile

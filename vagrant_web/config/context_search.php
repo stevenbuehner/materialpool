@@ -42,6 +42,7 @@ return [
     'indexing' => [
         // Step 1 preparation only: step 3 enables dispatch after bounded jobs pass acceptance.
         'dispatch_enabled' => false,
+        'local_ocr_calibration_dispatch_enabled' => env('APP_ENV') === 'local',
         'connection' => 'context_search',
         'queue' => env('CONTEXT_SEARCH_INDEXING_QUEUE', 'context-search-extraction'),
         'ocr_calibration_queue' => env('CONTEXT_SEARCH_OCR_CALIBRATION_QUEUE', 'context-search-calibration-ocr'),

@@ -87,6 +87,9 @@ final class TesseractOcrProcessor implements OcrProcessor
     private function run(array $command): string
     {
         $process = new Process($command);
+        if ($command[0] === 'tesseract') {
+            $process->setEnv(['OMP_THREAD_LIMIT' => '1']);
+        }
         $process->setTimeout($this->timeout);
         $process->run();
 

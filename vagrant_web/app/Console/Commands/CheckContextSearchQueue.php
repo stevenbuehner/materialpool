@@ -49,7 +49,11 @@ final class CheckContextSearchQueue extends Command
         }
 
         if (config('context_search.indexing.dispatch_enabled') !== true) {
-            $this->components->warn('Neue Kontextsuche-Läufe bleiben bis Schritt 3 gesperrt. Keinen Kontextsuche-Worker starten.');
+            if (app()->environment('local') && config('context_search.indexing.local_ocr_calibration_dispatch_enabled') === true) {
+                $this->components->warn('Manuelle Indexläufe bleiben bis Schritt 3 gesperrt. Nur die lokale OCR-Kalibrierung und ihr einzelner Testworker sind freigegeben.');
+            } else {
+                $this->components->warn('Neue Kontextsuche-Läufe bleiben bis Schritt 3 gesperrt. Keinen Kontextsuche-Worker starten.');
+            }
         }
 
         return self::SUCCESS;

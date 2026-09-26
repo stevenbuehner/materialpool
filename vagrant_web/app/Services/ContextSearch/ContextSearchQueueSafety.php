@@ -44,8 +44,17 @@ final class ContextSearchQueueSafety
 
     public function assertDispatchAllowed(): void
     {
-        if (config('context_search.indexing.dispatch_enabled') !== true) {
+        if (config('context_search.indexing.dispatch_enabled') !== true || ! app()->environment('local', 'testing')) {
             throw new RuntimeException('Kontextsuche-Jobs bleiben bis zur Abnahme der seitenweisen Verarbeitung gesperrt.');
+        }
+
+        $this->assertConfigured();
+    }
+
+    public function assertOcrCalibrationDispatchAllowed(): void
+    {
+        if (! app()->environment('local', 'testing') || config('context_search.indexing.local_ocr_calibration_dispatch_enabled') !== true) {
+            throw new RuntimeException('Die OCR-Kalibrierung ist nur für die lokale Testumgebung freigegeben.');
         }
 
         $this->assertConfigured();

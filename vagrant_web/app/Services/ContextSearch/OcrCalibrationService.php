@@ -29,27 +29,29 @@ final class OcrCalibrationService
             throw new RuntimeException('OCR calibration is available only in development and test environments.');
         }
 
-        $this->queueSafety->assertDispatchAllowed();
+        $this->queueSafety->assertOcrCalibrationDispatchAllowed();
 
         $dataset = ContextSearchEvaluationDataset::query()->whereKey($datasetId)->firstOrFail();
         if ($dataset->purpose !== 'ocr' || $dataset->status !== ContextSearchEvaluationDataset::STATUS_FROZEN) {
             throw new RuntimeException('Choose a frozen OCR evaluation dataset.');
         }
 
-        $resourceIds = ContextSearchEvaluationDatasetMember::query()
+        $members = ContextSearchEvaluationDatasetMember::query()
             ->where('dataset_id', $dataset->getKey())
             ->where('member_type', ContextSearchEvaluationDatasetMember::TYPE_RESOURCE)
-            ->pluck('member_id');
+            ->get(['member_id', 'source_revision_hash']);
         $seed = random_int(1, 2_000_000_000);
         $sampleQueue = new \SplPriorityQueue();
         $sampleQueue->setExtractFlags(\SplPriorityQueue::EXTR_BOTH);
-        foreach ($resourceIds as $resourceId) {
-            $pdf = (new PdfFile())->newQueryWithoutScopes()->find($resourceId);
+        foreach ($members as $member) {
+            $pdf = (new PdfFile())->newQueryWithoutScopes()->find($member->member_id);
             if (! $pdf instanceof PdfFile) {
                 continue;
             }
             $path = $this->files->getLocalFilePath($pdf);
-            $revision = is_file($path) ? hash_file('sha256', $path) : false;
+            $revision = is_file($path)
+                ? ($member->source_revision_hash ?: hash_file('sha256', $path))
+                : false;
             if ($revision === false) {
                 continue;
             }
@@ -79,6 +81,7 @@ final class OcrCalibrationService
         if (count($sampledResources) < 2) {
             throw new RuntimeException('The sample must include pages from at least two different PDFs so the holdout can be separated by document.');
         }
+        app(ContextSearchCapacityGate::class)->assertCanStart(count($selected));
         usort($sampledResources, static fn (int $a, int $b): int => strcmp(hash('sha256', $seed.':document:'.$a), hash('sha256', $seed.':document:'.$b)));
         $holdoutResources = array_fill_keys(array_slice($sampledResources, 0, max(1, (int) ceil(count($sampledResources) / 5))), true);
         $profile = [
@@ -109,6 +112,34 @@ final class OcrCalibrationService
         $run->pages()->pluck('id')->each(fn (int $id) => ProcessOcrCalibrationPage::dispatch($run->getKey(), $id));
 
         return $run->fresh('pages');
+    }
+
+    public function resumePending(string $runId): int
+    {
+        if (app()->isProduction()) {
+            throw new RuntimeException('OCR calibration is available only in development and test environments.');
+        }
+        $this->queueSafety->assertOcrCalibrationDispatchAllowed();
+
+        $run = ContextSearchOcrCalibrationRun::query()->findOrFail($runId);
+        if ($run->status !== ContextSearchOcrCalibrationRun::STATUS_PROCESSING) {
+            throw new RuntimeException('Only a processing OCR calibration run can be resumed.');
+        }
+
+        $queue = (string) config('context_search.indexing.ocr_calibration_queue');
+        if (DB::table('jobs')->where('queue', $queue)->exists()) {
+            throw new RuntimeException('Die OCR-Kalibrierungsqueue muss vor der Wiederaufnahme leer sein.');
+        }
+
+        $pageIds = $run->pages()->where('status', ContextSearchOcrCalibrationPage::STATUS_PENDING)->pluck('id');
+        if ($pageIds->isEmpty()) {
+            throw new RuntimeException('Der Lauf enthält keine wartenden OCR-Seiten.');
+        }
+        app(ContextSearchCapacityGate::class)->assertCanStart($pageIds->count());
+
+        $pageIds->each(fn (int $id) => ProcessOcrCalibrationPage::dispatch($runId, $id));
+
+        return $pageIds->count();
     }
 
     public function review(ContextSearchOcrCalibrationPage $page, User $user, string $label, ?string $reference, ?string $note): void
