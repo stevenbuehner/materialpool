@@ -144,6 +144,8 @@ export default {
 
 .previewImageWaiting {
   color: var(--bs-secondary-color);
+  pointer-events: auto;
+  cursor: help;
 }
 
 .previewImageWaiting :deep(svg) {

@@ -8,10 +8,21 @@
 
       <img class="image"
            :src="previewImageUrl"
-           @q-queued="showImage=false; imageIsLoading=true"
-           @q-loading="showImage=false; imageIsLoading=true"
-           @q-loaded="showImage=true; imageIsLoading=false"
-           @q-error="showImage=false; imageIsLoading=false" :alt="fileTypes" v-image-queue.hide>
+           @q-queued="showImageQueued"
+           @q-loading="showImageLoading"
+           @q-loaded="showImageLoaded"
+           @q-error="showImageError" :alt="fileTypes" v-image-queue.hide>
+
+      <div v-if="imageLoadState === 'loading'" class="imageQueueIndicator">
+        <materialpool-spinner variant="light"/>
+      </div>
+
+      <div v-else-if="imageLoadState === 'queued'"
+           class="imageQueueIndicator imageQueueIndicator--waiting"
+           :title="$t('pool.Preview-waiting-in-queue')">
+        <history-icon aria-hidden="true"/>
+        <span class="visually-hidden">{{ $t('pool.Preview-waiting-in-queue') }}</span>
+      </div>
 
       <div v-if="material.icon_of_bundle || material.from_bot" class="is-bot-corner" :title="bundleName || $t('pool.is-from-bot')">
         <img v-if="bundleIcon" class="bundle-icon" :src="bundleIcon" alt="">
@@ -24,7 +35,6 @@
         <span>
             {{ fileTypes }}
         </span>
-        <materialpool-spinner v-if="imageIsLoading" size="sm"/>
       </span>
 
     </div>
@@ -84,6 +94,7 @@ import fromBotIcon              from '@icons/vendor/svg-icon/svg/awesome/databas
 import {useBundlesStore}        from '../../apps/main/stores/bundles';
 import {useMaterialsStore}      from '../../apps/main/stores/materials';
 import MaterialpoolSpinner      from '../spinner/materialpool-spinner.vue';
+import HistoryIcon              from '@primer/octicons/build/svg/history.svg';
 
 
 function sortByRelevance(t1, t2) {
@@ -123,7 +134,7 @@ export default {
     return {
       showMore: false,
       showImage: false,
-      imageIsLoading: true
+      imageLoadState: 'queued'
     }
   },
 
@@ -218,6 +229,26 @@ export default {
 
   methods: {
 
+    showImageQueued() {
+      this.showImage = false;
+      this.imageLoadState = 'queued';
+    },
+
+    showImageLoading() {
+      this.showImage = false;
+      this.imageLoadState = 'loading';
+    },
+
+    showImageLoaded() {
+      this.showImage = true;
+      this.imageLoadState = 'loaded';
+    },
+
+    showImageError() {
+      this.showImage = false;
+      this.imageLoadState = 'error';
+    },
+
     isBibleverseHighlighted(from, to) {
       return this.highlightBibleverses.find((el) => {
         return el.from <= to && el.to >= from;
@@ -237,6 +268,7 @@ export default {
     Biblevers,
     Keyword,
     MaterialpoolSpinner,
+    HistoryIcon,
     playIcon,
     fromBotIcon
   }
@@ -336,10 +368,26 @@ $preview-background-color: $gray-600;
       align-items: center;
       justify-content: center;
 
-      .materialpool-spinner {
-        font-size: .5em;
-        width: 2em;
-        height: 2em;
+    }
+
+    .imageQueueIndicator {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: $white;
+      pointer-events: none;
+
+      svg {
+        width: 2rem;
+        height: 2rem;
+      }
+
+      &--waiting {
+        pointer-events: auto;
+        cursor: help;
       }
     }
 
