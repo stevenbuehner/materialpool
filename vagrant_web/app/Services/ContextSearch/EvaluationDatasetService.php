@@ -119,14 +119,16 @@ final class EvaluationDatasetService
     /**
      * Freezes a fully curated draft. The membership ledger is already immutable
      * at this point and supplies the exact source set for the manifest.
+     *
+     * @param null|callable(string): void $onProgress
      */
-    public function freezeCurated(ContextSearchEvaluationDataset $dataset): ContextSearchEvaluationDataset
+    public function freezeCurated(ContextSearchEvaluationDataset $dataset, ?callable $onProgress = null): ContextSearchEvaluationDataset
     {
         if ($dataset->status !== ContextSearchEvaluationDataset::STATUS_READY) {
             throw new RuntimeException('Nur ein vollständiger Entwurf darf eingefroren werden.');
         }
 
-        return DB::transaction(function () use ($dataset): ContextSearchEvaluationDataset {
+        return DB::transaction(function () use ($dataset, $onProgress): ContextSearchEvaluationDataset {
             $dataset = ContextSearchEvaluationDataset::query()->lockForUpdate()->findOrFail($dataset->getKey());
             if ($dataset->status !== ContextSearchEvaluationDataset::STATUS_READY) {
                 throw new RuntimeException('Der Entwurf wurde zwischenzeitlich geändert.');
@@ -137,7 +139,7 @@ final class EvaluationDatasetService
             $materials = $this->materialManifestQuery()
                 ->whereIn('materials.id', $this->memberIds($dataset, ContextSearchEvaluationDatasetMember::TYPE_MATERIAL))
                 ->lazyById(self::MANIFEST_BATCH_SIZE, 'materials.id', 'id');
-            $manifest = $this->manifest($dataset->getKey(), $dataset->purpose, $materials, $resources, $dataset->includes_private, $dataset->private_reason);
+            $manifest = $this->manifest($dataset->getKey(), $dataset->purpose, $materials, $resources, $dataset->includes_private, $dataset->private_reason, $onProgress);
             if ($manifest['resources'] === [] || $manifest['materials'] === []) {
                 throw new RuntimeException('Der Entwurf enthält keine vollständige, exportierbare Auswahl.');
             }
@@ -330,8 +332,12 @@ final class EvaluationDatasetService
             ->with(['keywords' => fn ($query) => $query->orderBy('keywords.id'), 'bibleverses' => fn ($query) => $query->orderBy('bibleverses.id')]);
     }
 
-    /** @param iterable<Material> $materials @param iterable<Resource> $resources */
-    private function manifest(string $datasetId, string $purpose, iterable $materials, iterable $resources, bool $includePrivate, ?string $privateReason): array
+    /**
+     * @param iterable<Material> $materials
+     * @param iterable<Resource> $resources
+     * @param null|callable(string): void $onProgress
+     */
+    private function manifest(string $datasetId, string $purpose, iterable $materials, iterable $resources, bool $includePrivate, ?string $privateReason, ?callable $onProgress = null): array
     {
         $resourceEntries = [];
         foreach ($resources as $resource) {
@@ -353,6 +359,9 @@ final class EvaluationDatasetService
                 'text' => $isText ? (string) $resource->content : null,
                 'material_ids' => $resource->materials->modelKeys(),
             ];
+            if ($onProgress !== null) {
+                $onProgress('Ressourcen');
+            }
         }
 
         $materialEntries = [];
@@ -365,6 +374,9 @@ final class EvaluationDatasetService
                 'keywords' => $material->keywords->map(fn ($keyword): array => ['title' => $keyword->title, 'type' => $keyword->type, 'relevance' => $keyword->pivot->relevance])->values()->all(),
                 'bibleverses' => $material->bibleverses->map(fn ($verse): array => ['source_id' => $verse->getKey(), 'relevance' => $verse->pivot->relevance])->values()->all(),
             ];
+            if ($onProgress !== null) {
+                $onProgress('Materialien');
+            }
         }
 
         $manifest = [

@@ -70,4 +70,63 @@ final class FreezeCuratedContextSearchEvaluationDatasetCommandTest extends TestC
             ->expectsOutputToContain('Der Datensatz wurde nicht gefunden.')
             ->assertExitCode(1);
     }
+
+    public function test_it_lists_all_datasets_and_only_offers_eligible_ones_for_selection(): void
+    {
+        $owner = User::factory()->create();
+        $material = Material::factory()->publiclyVisible()->create([
+            'created_by' => $owner->id, 'modified_by' => $owner->id,
+        ]);
+        $resource = Text::factory()->create([
+            'created_by' => $owner->id, 'is_public' => true, 'content' => 'Auswahl aus dem Browser.',
+        ]);
+        $material->resources()->attach($resource->id);
+
+        $incomplete = app(EvaluationDatasetCurationService::class)->create('acceptance');
+        $ready = app(EvaluationDatasetCurationService::class)->create('calibration');
+        $closed = app(EvaluationDatasetCurationService::class)->create('ocr');
+        $closed->update(['status' => ContextSearchEvaluationDataset::STATUS_FROZEN]);
+        foreach ([
+            [ContextSearchEvaluationDatasetMember::TYPE_MATERIAL, $material->id],
+            [ContextSearchEvaluationDatasetMember::TYPE_RESOURCE, $resource->id],
+        ] as [$type, $id]) {
+            ContextSearchEvaluationDatasetMember::query()->create([
+                'dataset_id' => $ready->id, 'member_type' => $type, 'member_id' => $id,
+            ]);
+        }
+        $ready->update([
+            'status' => ContextSearchEvaluationDataset::STATUS_READY,
+            'target_material_count' => 1,
+            'target_resource_count' => 1,
+            'target_quotas' => ['text' => 1],
+        ]);
+
+        $choice = $ready->id.' (calibration)';
+        $this->artisan('context-search:dataset:freeze-curated')
+            ->expectsTable(
+                ['UUID', 'Zweck', 'Phase', 'Status', 'Materialien', 'Ressourcen', 'Bewertung'],
+                [
+                    [$incomplete->id, 'acceptance', 'offen', 'draft', '0/170', '0/250', 'offen: 170 Materialien, 250 Ressourcen, pdf: 30, text: 170, public: 80, private: 80, Auswahl leer, Status draft'],
+                    [$ready->id, 'calibration', 'offen', 'ready', '1/1', '1/1', 'einfrierbar'],
+                    [$closed->id, 'ocr', 'geschlossen', 'frozen', '0/75', '0/100', 'bereits eingefroren'],
+                ],
+            )
+            ->expectsChoice('Welchen Datensatz einfrieren?', $choice, [$choice, 'Abbrechen'])
+            ->expectsOutputToContain('eingefroren')
+            ->assertExitCode(0);
+
+        $this->assertSame(ContextSearchEvaluationDataset::STATUS_FROZEN, $ready->fresh()->status);
+        $this->assertSame(ContextSearchEvaluationDataset::STATUS_DRAFT, $incomplete->fresh()->status);
+    }
+
+    public function test_it_lists_datasets_without_freezing_in_non_interactive_mode(): void
+    {
+        $dataset = app(EvaluationDatasetCurationService::class)->create('acceptance');
+
+        $this->artisan('context-search:dataset:freeze-curated', ['--no-interaction' => true])
+            ->expectsOutputToContain($dataset->id)
+            ->assertExitCode(1);
+
+        $this->assertSame(ContextSearchEvaluationDataset::STATUS_DRAFT, $dataset->fresh()->status);
+    }
 }
