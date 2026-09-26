@@ -120,6 +120,7 @@ class ProductionPreflightCommand extends Command
             '/usr/bin/mysqldump',
             '/usr/bin/pdfinfo',
             '/usr/bin/pdftotext',
+            '/usr/bin/qpdf',
             '/usr/bin/libreoffice',
         ] as $executable) {
             $this->require($errors, is_executable($executable), "Ausführbare Laufzeitabhängigkeit fehlt: {$executable}");

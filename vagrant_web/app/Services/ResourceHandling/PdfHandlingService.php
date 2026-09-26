@@ -15,8 +15,10 @@ use Howtomakeaturn\PDFInfo\PDFInfo;
 use Illuminate\Http\File;
 use Illuminate\Support\Facades\Log;
 use setasign\Fpdi\Fpdi;
+use setasign\Fpdi\PdfParser\CrossReference\CrossReferenceException;
 use Spatie\PdfToText\Exceptions\PdfNotFound;
 use Spatie\PdfToText\Pdf;
+use Symfony\Component\Process\Process;
 
 class PdfHandlingService {
 
@@ -146,6 +148,29 @@ class PdfHandlingService {
 	 * @throws \setasign\Fpdi\PdfReader\PdfReaderException
 	 */
 	public function extractPdfPagesInFilepath($path, $pages = NULL) {
+		try {
+			return $this->extractPdfPagesFromFilepath($path, $pages);
+		} catch (CrossReferenceException $e) {
+			if ($e->getCode() !== CrossReferenceException::COMPRESSED_XREF) {
+				throw $e;
+			}
+
+			$normalizedPath = tempnam(sys_get_temp_dir(), 'materialpool-pdf-');
+			if ($normalizedPath === FALSE) {
+				throw new \RuntimeException('Could not create temporary PDF file.', 0, $e);
+			}
+
+			try {
+				(new Process(['qpdf', '--object-streams=disable', $path, $normalizedPath]))->mustRun();
+
+				return $this->extractPdfPagesFromFilepath($normalizedPath, $pages);
+			} finally {
+				@unlink($normalizedPath);
+			}
+		}
+	}
+
+	private function extractPdfPagesFromFilepath($path, $pages) {
 
 		$pdf       = new Fpdi();
 		$pagecount = $pdf->setSourceFile($path);

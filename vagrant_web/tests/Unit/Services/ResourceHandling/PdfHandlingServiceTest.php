@@ -6,7 +6,9 @@ use App\Services\ResourceHandling\Exceptions\InvalidPageNoException;
 use App\Services\ResourceHandling\FileHandlingService;
 use App\Services\ResourceHandling\PdfHandlingService;
 use setasign\Fpdi\Fpdi;
+use setasign\Fpdi\PdfParser\CrossReference\CrossReferenceException;
 use setasign\Fpdi\PdfParser\StreamReader;
+use Symfony\Component\Process\Process;
 use Tests\TestCase;
 
 class PdfHandlingServiceTest extends TestCase
@@ -50,5 +52,39 @@ class PdfHandlingServiceTest extends TestCase
         $this->expectException(InvalidPageNoException::class);
 
         $service->extractPdfPagesInFilepath(base_path('tests/testFiles/PDF.pdf'), [2]);
+    }
+
+    public function test_extracts_only_selected_page_from_pdf_with_compressed_cross_references(): void
+    {
+        $source = tempnam(sys_get_temp_dir(), 'pdf-source-');
+        $compressed = tempnam(sys_get_temp_dir(), 'pdf-compressed-');
+
+        try {
+            $fixture = new \FPDF();
+            $fixture->AddPage('P');
+            $fixture->AddPage('L');
+            $fixture->Output('F', $source);
+
+            (new Process(['qpdf', '--object-streams=generate', $source, $compressed]))->mustRun();
+
+            try {
+                (new Fpdi())->setSourceFile($compressed);
+                $this->fail('The compressed fixture must require the qpdf fallback.');
+            } catch (CrossReferenceException $e) {
+                $this->assertSame(CrossReferenceException::COMPRESSED_XREF, $e->getCode());
+            }
+
+            $pdf = (new PdfHandlingService(new FileHandlingService()))
+                ->extractPdfPagesInFilepath($compressed, [2]);
+
+            $this->assertSame(1, $pdf->PageNo());
+            $this->assertGreaterThan($pdf->GetPageHeight(), $pdf->GetPageWidth());
+
+            $reopened = new Fpdi();
+            $this->assertSame(1, $reopened->setSourceFile(StreamReader::createByString($pdf->Output('S'))));
+        } finally {
+            @unlink($source);
+            @unlink($compressed);
+        }
     }
 }

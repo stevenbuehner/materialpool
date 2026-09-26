@@ -47,6 +47,8 @@ Vor Beginn müssen extern feststehen:
 - bestehender `APP_KEY` und bestehende Passport-Schlüssel bei einer Übernahme;
 - ein sauberer, exakter Git-Commit, der installiert werden soll.
 
+Das Provisioning installiert `qpdf` für den Download ausgewählter Seiten aus PDFs mit komprimierten Querverweisen. `production:preflight` prüft, ob das Programm verfügbar ist. Die Original-PDF wird dabei nicht verändert.
+
 Die persistenten Pfade sind Teil des Datenvertrags:
 
 ```text

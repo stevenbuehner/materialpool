@@ -74,7 +74,7 @@ SMTP-Werte (`MAIL_MAILER=smtp`, Host, Port, Benutzer, Passwort, Verschlüsselung
 6. Nginx mit `nginx -t`, PHP-FPM mit `php-fpm8.4 -t`, Supervisor mit `supervisord -t` und Cron-/systemd-Status prüfen.
 7. MySQL-Bind-Adresse, Datenbankbenutzer und Firewall anhand der realen Werte prüfen. Keine Beispieladresse darf aktiv bleiben.
 
-Laufzeitabhängigkeiten sind PHP 8.4 mit den in `composer.json` verlangten Erweiterungen, Imagick mit Ghostscript/PDF-Unterstützung, MySQL-Client inklusive `mysqldump`, Poppler (`pdfinfo`, `pdftotext`), LibreOffice sowie die versionierten Linux-x86_64-Binaries `resources/bin/ffmpeg` und `resources/bin/ffprobe`.
+Laufzeitabhängigkeiten sind PHP 8.4 mit den in `composer.json` verlangten Erweiterungen, Imagick mit Ghostscript/PDF-Unterstützung, MySQL-Client inklusive `mysqldump`, Poppler (`pdfinfo`, `pdftotext`), qpdf für die temporäre Umwandlung von PDFs mit komprimierten Querverweisen beim Seitendownload, LibreOffice sowie die versionierten Linux-x86_64-Binaries `resources/bin/ffmpeg` und `resources/bin/ffprobe`.
 
 ## Reproduzierbarer Build und Deployment
 

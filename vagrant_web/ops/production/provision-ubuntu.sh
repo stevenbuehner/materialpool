@@ -14,7 +14,7 @@ apt-get install -y \
     nginx mysql-server supervisor cron unzip ca-certificates curl git \
     php8.4-cli php8.4-fpm php8.4-mysql php8.4-mbstring php8.4-xml php8.4-curl \
     php8.4-zip php8.4-gd php8.4-imagick php8.4-intl php8.4-bcmath \
-    default-mysql-client poppler-utils libreoffice ghostscript
+    default-mysql-client poppler-utils qpdf libreoffice ghostscript
 
 composer_signature="$(curl --fail --silent --show-error https://composer.github.io/installer.sig)"
 php -r "copy('https://getcomposer.org/installer', '/tmp/composer-setup.php');"
