@@ -1,24 +1,36 @@
 <template>
   <no-preview v-if="previewMissing"
+              v-bind="$attrs"
               :resource="resource"
               :src="src"
               @regenerated="showRegeneratedPreview"/>
-  <img v-else
-       :key="previewUrl"
-       :src="previewUrl"
-       :alt="alt"
-       v-image-queue
-       @error="showMissingPreview"
-       @q-error="showMissingPreview">
+  <div v-else v-bind="$attrs" class="previewImage" :class="{isLoading: previewIsLoading}">
+    <img :key="previewUrl"
+         :src="previewUrl"
+         :alt="alt"
+         v-image-queue.hide
+         @error="showMissingPreview"
+         @q-queued="showLoadingPreview"
+         @q-loading="showLoadingPreview"
+         @q-loaded="showLoadedPreview"
+         @q-error="showMissingPreview">
+
+    <div v-if="previewIsLoading" class="previewImageLoading">
+      <materialpool-spinner size="lg"/>
+    </div>
+  </div>
 </template>
 
 <script>
+import MaterialpoolSpinner from '../../spinner/materialpool-spinner.vue';
 import NoPreview from './no-preview.vue';
 
 export default {
   name: 'PreviewImage',
 
-  components: {NoPreview},
+  inheritAttrs: false,
+
+  components: {MaterialpoolSpinner, NoPreview},
 
   props: {
     resource: {
@@ -40,6 +52,7 @@ export default {
   data() {
     return {
       previewMissing: false,
+      previewIsLoading: true,
       previewRevision: 0
     };
   },
@@ -59,6 +72,7 @@ export default {
   watch: {
     src() {
       this.previewMissing = false;
+      this.previewIsLoading = true;
       this.previewRevision = 0;
     }
   },
@@ -66,12 +80,48 @@ export default {
   methods: {
     showMissingPreview() {
       this.previewMissing = true;
+      this.previewIsLoading = false;
+    },
+
+    showLoadingPreview() {
+      this.previewIsLoading = true;
+    },
+
+    showLoadedPreview() {
+      this.previewIsLoading = false;
     },
 
     showRegeneratedPreview() {
       this.previewRevision++;
       this.previewMissing = false;
+      this.previewIsLoading = true;
     }
   }
 }
 </script>
+
+<style scoped>
+.previewImage {
+  position: relative;
+  overflow: hidden;
+
+  &.isLoading {
+    min-height: 12rem;
+  }
+}
+
+.previewImage > img {
+  display: block;
+  width: 100%;
+}
+
+.previewImageLoading {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(255, 255, 255, .7);
+  pointer-events: none;
+}
+</style>

@@ -24,9 +24,7 @@
         <span>
             {{ fileTypes }}
         </span>
-        <span class="spinner-border" role="status" v-if="imageIsLoading">
-          <span class="visually-hidden">Loading...</span>
-        </span>
+        <materialpool-spinner v-if="imageIsLoading" size="sm"/>
       </span>
 
     </div>
@@ -85,6 +83,7 @@ import playIcon                 from '@icons/vendor/svg-icon/svg/icomoon/play2.s
 import fromBotIcon              from '@icons/vendor/svg-icon/svg/awesome/database.svg'
 import {useBundlesStore}        from '../../apps/main/stores/bundles';
 import {useMaterialsStore}      from '../../apps/main/stores/materials';
+import MaterialpoolSpinner      from '../spinner/materialpool-spinner.vue';
 
 
 function sortByRelevance(t1, t2) {
@@ -237,6 +236,7 @@ export default {
   components: {
     Biblevers,
     Keyword,
+    MaterialpoolSpinner,
     playIcon,
     fromBotIcon
   }
@@ -310,12 +310,16 @@ $preview-background-color: $gray-600;
 
     .image {
       position: absolute;
-      object-fit: cover;
       width: 100%;
       height: 100%;
 
       transition: all .6s ease;
       -webkit-filter: brightness(1);
+
+      > img {
+        height: 100%;
+        object-fit: cover;
+      }
     }
 
     &:hover .image {
@@ -332,7 +336,7 @@ $preview-background-color: $gray-600;
       align-items: center;
       justify-content: center;
 
-      .spinner-border {
+      .materialpool-spinner {
         font-size: .5em;
         width: 2em;
         height: 2em;

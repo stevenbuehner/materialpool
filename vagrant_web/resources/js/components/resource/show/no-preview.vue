@@ -6,7 +6,7 @@
             type="button"
             :disabled="isRegenerating"
             @click="regenerate">
-      <materialpool-spinner v-if="isRegenerating" aria-label=""/>
+      <materialpool-spinner v-if="isRegenerating" size="sm"/>
       <span v-if="isRegenerating" class="visually-hidden">{{ $t('pool.Preview-is-being-generated') }}</span>
       <span v-else>{{ $t('pool.Regenerate-preview') }}</span>
     </button>
