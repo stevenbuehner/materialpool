@@ -362,7 +362,7 @@ Jeder folgende Schritt endet nach Abschnitt 3 mit einem eigenen Commit.
 
 ### Schritt 4c – Stabilisierung der Kontextsuche-Queues
 
-- Den [Queue-Änderungsvertrag](context-search-queue-change-contract.md) in genau drei separat geprüften und separat committeten Schritten umsetzen: (1) sofortige Timeout-Absicherung des manuellen Betriebs, (2) eigene Datenbank-Queue-Connection und begrenzte Worker, (3) seitenweise, wiederanlaufbare Verarbeitung mit revisionssicherer Qdrant-Veröffentlichung.
+- Den [Queue-Änderungsvertrag](context-search-queue-change-contract.md) in genau drei separat geprüften und separat committeten Schritten ohne produktive Zwischenlösung umsetzen: (1) eigene Datenbank-Queue-Connection ohne Aktivierung, (2) endgültige Worker- und Betriebsgrenzen vorbereiten, (3) seitenweise, wiederanlaufbare Verarbeitung mit revisionssicherer Qdrant-Veröffentlichung und einmaligem Cutover.
 - Vor jedem Teil-Schritt seine entscheidungspflichtigen Schema-, Storage-, Queue- und Produktionsänderungen konkret freigeben lassen; keine produktiven Queue-Bestände pauschal bereinigen.
 - Abnahme: kein Kontextjob kann vor seinem Timeout erneut reserviert werden; lange/defekte Dokumente blockieren nicht dauerhaft; die Default-/Preview-/Bundle-Queues bleiben unverändert; ein Crash erzeugt keinen als vollständig sichtbaren Teilindex.
 

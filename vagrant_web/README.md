@@ -414,15 +414,7 @@ Vor einer Indexgeneration ist auf jedem Ollama-Server der Modell-Digest über `G
 
 ### Manuelle Indexierung von PDF- und Textressourcen (Stufe 1)
 
-Die erste Indexierung wird ausschließlich bewusst per Kommando gestartet; Änderungen an Materialien oder Ressourcen lösen noch keinen Indexlauf aus. Voraussetzung sind eine aktivierte, provisionierte Qdrant-Collection, ein erfolgreich verifiziertes Embedding-Profil und ein Datenbank-Queue-Worker für `context-search-indexing`.
-
-```bash
-./vendor/bin/sail artisan migrate
-./vendor/bin/sail artisan queue:work database --queue=context-search-indexing --tries=3 --timeout=180
-./vendor/bin/sail artisan context-search:index 123
-./vendor/bin/sail artisan context-search:index --after=123 --limit=100
-./vendor/bin/sail artisan context-search:index --resume=<indexlauf-uuid>
-```
+Die erste Indexierung ist technisch nur per bewusstem Kommando vorgesehen; Änderungen an Materialien oder Ressourcen lösen keinen Indexlauf aus. **Der bisherige manuelle Worker darf derzeit nicht gestartet werden:** Sein 180-Sekunden-Timeout überschreitet die 150-Sekunden-Reservierungsfrist der Datenbank-Queue. Neue manuelle Index- und OCR-Kalibrierungsläufe dürfen bis zum einmaligen Cutover ebenfalls nicht gestartet werden; diese Betriebssperre ist noch nicht technisch erzwungen. Der [Queue-Änderungsvertrag](docs/ai/context-search-queue-change-contract.md) beschreibt die getrennte Connection, begrenzte Seitenjobs und die Abnahme vor Wiederfreigabe. Der frühere Workeraufruf wird deshalb hier nicht mehr als ausführbare Anleitung angeboten.
 
 Der Laufzustand wird in MySQL gespeichert und ein fehlgeschlagener Lauf kann anhand seiner UUID fortgesetzt werden. Jeder Qdrant-Punkt enthält die Ressourcen-ID, die Dokumentrevision, die PDF-Seite beziehungsweise Textseite sowie Zeichenpositionen; die Originaldatei bleibt außerhalb von Qdrant. Für PDF-Seiten mit zu wenig eingebettetem Text wird Tesseract mit den Sprachpaketen `deu` und `eng` verwendet. Die OCR-Rasterung zielt auf 300 DPI und reduziert die Auflösung bei großen Seiten so, dass das konfigurierte Budget von standardmäßig 12 Millionen Pixeln eingehalten wird. Die tatsächlich verwendete DPI-Zahl steht in den OCR-Metriken; Text und TSV-Konfidenzen entstehen in einem Tesseract-Lauf. Das Sail-Image installiert diese Werkzeuge beim Neuaufbau automatisch; auf Produktionsservern müssen `pdftotext`, `pdfinfo`, `pdftoppm`, `tesseract`, `tesseract-ocr-deu` und `tesseract-ocr-eng` vor dem Start eines Indexworkers verfügbar sein.
 
