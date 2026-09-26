@@ -4,6 +4,8 @@
 
 Diese Anleitung beschreibt die in [Schritt 2 des Queue-Änderungsvertrags](context-search-queue-change-contract.md) **vorbereitete**, noch nicht aktivierte Betriebsstruktur. `ops/production/materialpool-context-search-workers.conf.example` ist **keine** installierbare Produktionsanweisung. Sie darf vor der Abnahme von Schritt 3 weder nach `/etc/supervisor/conf.d/` kopiert noch per Supervisor gestartet werden. `autostart=false` ist eine zweite Sicherung, keine Freigabe. Der bisherige Worker `database/context-search-indexing` bleibt verboten. Der normale Worker und die Bundle-Queues laufen unverändert.
 
+Bei einem lokalen Dev-Probelauf zeigte sich eine Schemaabweichung: Die Seitenpipeline-Migration war als erledigt registriert, obwohl `index_revision` in zwei Tabellen und `skip_reasons` in der Seitentabelle fehlten. Die additiven Folgemigrationen `2026_09_26_200000` und `2026_09_26_201000` gleichen solche frühen Dev-Stände idempotent an. Nach ihrer Anwendung wurde genau eine öffentliche Textressource mit drei Chunks erfolgreich revisionsgebunden veröffentlicht; die drei Kontextsuche-Queues waren danach leer. Das bestätigt nur diesen kleinen Dev-Ablauf, nicht OCR-, Last-, Crash-/Restore- oder Produktionsabnahme. Die Dispatch-Sperre in der dauerhaften Konfiguration und die deaktivierte Worker-Vorlage bleiben bestehen.
+
 Die nachfolgenden Start-/Störungsabläufe sind Prüf- und Rolloutkriterien für Schritt 3. Bis dahin darf ausschließlich der lesende Check ausgeführt werden:
 
 ```sh

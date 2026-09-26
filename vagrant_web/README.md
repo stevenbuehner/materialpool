@@ -420,6 +420,8 @@ Die vorbereitete Connection `context_search` verwendet eigene Queue-Namen und `C
 
 Für Schritt 3 ist eine seitenweise Pipeline in Arbeit: Extrahierter Text wird vorübergehend privat unter `storage/app/context-search-ocr-artifacts` abgelegt. Die Dateien sind abgeleitet und vom Backup ausgenommen; fehlen sie nach Bereinigung oder Restore, wird nur die betroffene Seite aus der Originalressource neu extrahiert. Bis die vollständigen OCR-/Last-/Restore-Gates bestanden sind, bleibt die neue Queue weiterhin gesperrt und die Worker-Vorlage deaktiviert.
 
+Zwei additive Folgemigrationen gleichen frühe Dev-Datenbanken an, in denen die Seitenpipeline-Migration bereits als ausgeführt vermerkt war, aber noch `index_revision` beziehungsweise `skip_reasons` fehlten. Frische Installationen besitzen diese Spalten schon; die Folgemigrationen prüfen ihren Bestand und verändern dort nichts. Vor einem freigegebenen Upgrade wie üblich `migrate:status`, Backup/Restore-Nachweis und den tatsächlichen Schemazustand prüfen. Ein lokaler Einzelressourcen-Probelauf ist kein Ersatz für die ausstehende Produktionsabnahme.
+
 ```sh
 ./vendor/bin/sail artisan context-search:queue:check
 ```
