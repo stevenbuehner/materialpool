@@ -434,11 +434,7 @@ Der Laufzustand wird in MySQL gespeichert und ein fehlgeschlagener Lauf kann anh
 
 Ein abweichender Digest, Modellname oder eine andere Dimension ist ein Konfigurationsfehler: Der Pool stoppt dann, statt Vektoren verschiedener Modelle zu mischen. Bei Netzwerkfehlern, Timeouts, Überlastung oder 5xx-Antworten verteilt er eine Anfrage deterministisch auf den nächsten gesunden Server. Nach den konfigurierbaren Fehlschlägen öffnet der serverbezogene Circuit Breaker zeitweise; jede Serverdefinition besitzt zudem ihr eigenes gemeinsames Parallelitätslimit. Erst der erfolgreiche Selbsttest berechtigt zum Provisionieren und Befüllen einer Indexgeneration.
 
-#### OCR-Schwellenwerte kalibrieren
-
-Die Kalibrierung ist ausschließlich für Entwicklungs-/Testumgebungen bestimmt und im Produktionsbetrieb serverseitig gesperrt. Sie darf auch private Inhalte eines ausdrücklich eingefrorenen OCR-Datensatzes anzeigen und speichert die ausgewählten OCR-Texte, menschlichen Bewertungen und Referenztranskripte in der jeweiligen Evaluationsdatenbank. Ein Global Admin öffnet **OCR-Schwellenwerte kalibrieren** im Benutzermenü, startet aus einem eingefrorenen OCR-Datensatz eine deterministisch reproduzierbare Seitenstichprobe (15–500 Seiten), bewertet Seiten als brauchbar, unbrauchbar, unsicher, Handschrift oder leer und transkribiert mindestens drei brauchbare Kalibrierungsseiten plus eine brauchbare Holdout-Seite exakt. Die Stichprobe wird dokumentbezogen aufgeteilt, damit Seiten desselben PDFs nicht in beide Sätze gelangen. Die Auswertung testet Konfidenzgrenzen in 5-Prozent-Schritten, empfiehlt maximale Abdeckung bei mindestens 95 Prozent Präzision auf brauchbaren Seiten und zeigt den unabhängigen Holdout mit CER/WER. Unsichere Seiten zählen nicht zur Wertung. Profile lassen sich nur freigeben, wenn die Holdout-Präzision mindestens 90 Prozent erreicht und CER/WER messbar sind. Pro Profil muss Sprachauswahl, DPI und PSM unverändert bleiben; jede Konfigurationsvariante braucht einen eigenen Lauf.
-
-Die Freigabe verändert die Laufzeitkonfiguration nicht automatisch. Der Administrator übernimmt das angezeigte Profil bewusst in die jeweilige lokale `.env`-Konfiguration und startet betroffene Worker neu. Relevante Einstellungen sind `CONTEXT_SEARCH_OCR_QUALITY_PROFILE`, `CONTEXT_SEARCH_OCR_MINIMUM_MEAN_CONFIDENCE`, `CONTEXT_SEARCH_OCR_MINIMUM_RECOGNIZED_WORDS`, `CONTEXT_SEARCH_OCR_MINIMUM_ALPHANUMERIC_RATIO` und `CONTEXT_SEARCH_OCR_MAXIMUM_REPLACEMENT_CHARACTER_RATIO`; `CONTEXT_SEARCH_OCR_RENDER_DPI` und `CONTEXT_SEARCH_OCR_MAX_IMAGE_PIXELS` bestimmen die seitenweise Rasterung. Tesseract-PSM, Sprachen und Engine-Kennung werden ebenfalls im Profil dokumentiert. Der Standard-Grenzwert 0 für die mittlere Konfidenz ist permissiv und keine Qualitätsfreigabe. Tesseract-Konfidenz allein gilt nicht als OCR-Wahrheit. Nach einer Änderung an DPI oder Pixelbudget ist das OCR-Profil neu zu kalibrieren. Nach einer Konfigurationsänderung ist eine erneute manuelle Indexierung erforderlich, damit betroffene Seiten und Qdrant-Punkte anhand des neuen Profils bewertet werden.
+Die praktische Reihenfolge für OCR-Test, Bewertung und Parameterübernahme steht nach dem Export-/Importablauf unter [OCR testen und Schwellenwerte einstellen](#ocr-testen-und-schwellenwerte-einstellen).
 
 ### Evaluationsdatensätze aus Produktion
 
@@ -473,7 +469,19 @@ Der Befehl verwendet genau die gespeicherten Mitgliedschaften und friert denselb
 
 #### Nach dem Freeze: Archiv exportieren und prüfen
 
-Die folgenden Befehle im Anwendungsverzeichnis auf dem System ausführen, auf dem der Datensatz eingefroren wurde. `UUID_HIER_EINTRAGEN` einmal durch die UUID aus der Freeze-Ausgabe ersetzen. **Entweder** den Sail-Block für die lokale Umgebung **oder** den `php artisan`-Block auf einem Server ohne Sail verwenden. Der Export schreibt das Archiv in die private Evaluationsablage und setzt den Datensatzstatus auf `exported`; bei großen Datensätzen benötigt er Zeit und ausreichend freien Speicherplatz. Er erzeugt keine KI-Auswertung.
+Die folgenden Befehle im Anwendungsverzeichnis auf dem System ausführen, auf dem der Datensatz eingefroren wurde. `UUID_HIER_EINTRAGEN` einmal durch die UUID aus der Freeze-Ausgabe ersetzen. **Entweder** den Sail-Block für die lokale Umgebung **oder** den `php artisan`-Block auf einem Server ohne Sail verwenden. Der Export schreibt das Archiv in die private Evaluationsablage und setzt den Datensatzstatus auf `exported`; bei großen Datensätzen benötigt er Zeit und ausreichend freien Speicherplatz. Er erzeugt keine KI-Auswertung. Export, Prüfung und Import zeigen für ihre Verarbeitungsschritte Fortschrittsbalken; beim Schreiben des ZIP-Archivs kann ein einzelner Schritt länger dauern.
+
+Wer die UUID nicht zur Hand hat, kann den Export stattdessen interaktiv ohne Argument starten. Es werden eingefrorene, noch nicht exportierte Datensätze mit UUID, Zweck und Mengen angezeigt. Ohne interaktives Terminal muss die UUID angegeben werden. Nach der Auswahl die ausgegebene UUID für `verify` verwenden:
+
+```sh
+# Lokale Sail-Umgebung
+./vendor/bin/sail artisan context-search:dataset:export
+```
+
+```sh
+# Server ohne Sail
+php artisan context-search:dataset:export
+```
 
 ```sh
 # Lokale Sail-Umgebung
@@ -517,6 +525,88 @@ Nach dem Upgrade prüft ein Administrator vorhandene eingefrorene Datensätze zu
 Der lesende Abgleich zeigt zusätzlich eine grafische, inhaltsfreie Terminalübersicht der vertraglich empfohlenen Sollmengen für Kalibrierung, Abnahme, OCR, Last und Kapazität. Sie enthält die jeweilige Ressourcen- und Materialmenge, Fortschrittsbalken, verbleibende Mengen sowie den eindeutigen Mindestbedarf und die Reserve geeigneter PDF-/Textressourcen gegenüber den exklusiven Zielen für Kalibrierung und Abnahme; OCR, Last und Kapazität sind als überlappende Prüfvolumina ausgewiesen. Die Übersicht ist eine Kuratierungs- und Kapazitätshilfe; sie ändert weder Auswahl noch Sollmengen.
 
 Der Abgleich verarbeitet fehlende Mitgliedschaften in begrenzten Blöcken nach Dataset-UUID. Die Reihenfolge der gemeldeten Datensätze entspricht daher nicht zwingend ihrer Erstellungszeit. Auch bei großen Datensätzen bleibt die Konfliktprüfung vollständig: Ein Konflikt verhindert die Übernahme sämtlicher Mitgliedschaften dieses Datensatzes. Ein erneuter Lauf überspringt bereits abgeglichene Datensätze.
+
+#### OCR testen und Schwellenwerte einstellen
+
+Diese Anleitung gilt für ein **isoliertes Dev-/Evaluationssystem**, nicht für Produktion. Produktionsinhalte, auch private, dürfen nur über den oben beschriebenen eingefrorenen OCR-Datensatz übertragen werden. In Produktion sind OCR-Kalibrierung und Profilfreigabe serverseitig gesperrt. **Aktueller Stand:** Neue OCR-Kalibrierungsläufe und Kontextsuche-Worker sind bis zur vollständigen Abnahme von Schritt 3 des [Queue-Änderungsvertrags](docs/ai/context-search-queue-change-contract.md) weiterhin technisch gesperrt. Die Schritte 1 bis 4 bereiten Daten und Umgebung vor; **Schritt 5 und folgende erst nach dokumentierter Worker-Freigabe ausführen**. Die Sperre nicht mit Tinker, einer geänderten Konfiguration oder einem alten Worker umgehen.
+
+1. **OCR-Daten in Produktion auswählen und einfrieren.** Als Global Admin im Benutzermenü **KI-Datensätze** öffnen, einen Datensatz vom Typ **OCR** mit repräsentativen PDFs füllen und einfrieren. Er sollte Scans mit gutem/schlechtem Druck, Handschrift, leere Seiten sowie PDFs mit vorhandener Textschicht enthalten. Die vertragliche Anfangsgröße beträgt 100 PDFs; für den technischen Kalibrierungslauf sind mindestens zwei verschiedene lesbare PDFs nötig. OCR darf vollständige Material-/Ressourcenblöcke mit Kalibrierung oder Abnahme teilen; die spätere OCR-Schwellenwertwahl darf aber nicht anhand des semantischen Abnahme-Datensatzes optimiert werden. Die UUID des eingefrorenen OCR-Datensatzes in den folgenden Befehlen einsetzen. Export und Prüfen verändern keinen Suchindex, erzeugen aber ein privates Archiv. Auf dem **Produktionsserver ohne Sail**:
+
+   ```sh
+   DATASET_UUID='UUID_HIER_EINTRAGEN'
+   php artisan context-search:dataset:export "$DATASET_UUID"
+   php artisan context-search:dataset:verify "exports/$DATASET_UUID.zip"
+   ```
+
+   Archiv und **beide** ausgegebenen Prüfsummen geschützt auf die Evaluationsmaschine übertragen; das Archiv dort im privaten Ordner `incoming/` der konfigurierten Evaluationsablage ablegen. Keine Dokumenttitel oder Texte in Tickets, Konsolenprotokolle oder Commits kopieren. Falls derselbe Rechner beide Rollen übernimmt, müssen Datenbank, private Dateiablage und Qdrant-Alias trotzdem getrennt sein.
+
+2. **Dev-Ziel prüfen und Archiv importieren.** Vor dem Import sicherstellen, dass die Dev-Umgebung wirklich von Produktion getrennt ist und `CONTEXT_SEARCH_EVALUATION_IMPORT_ENABLED=true` nur dort gesetzt ist. Die folgenden lesenden Prüfungen im Projektverzeichnis auf der **Evaluationsmaschine mit Sail** ausführen. `artisan env` muss `local` oder eine andere ausdrücklich freigegebene Nicht-Produktionsumgebung melden. `migrate:status` darf keine für den Import erforderlichen Migrationen als offen zeigen. Bei Abweichungen stoppen und die Zielverbindung klären; niemals `migrate:fresh` oder `db:seed` auf importierten Daten ausführen.
+
+   ```sh
+   ./vendor/bin/sail ps
+   ./vendor/bin/sail artisan env
+   ./vendor/bin/sail artisan migrate:status
+   ```
+
+   Nun die UUID einsetzen. `verify` ist lesend; **vor** `import` müssen Archiv- und Manifest-Prüfsumme mit den Produktionswerten übereinstimmen. `import` schreibt Materialien, Ressourcen und Quelldateien ausschließlich in die freigegebene Evaluationsumgebung. Danach die gemeldete Datensatz-UUID und den Status kontrollieren.
+
+   ```sh
+   DATASET_UUID='UUID_HIER_EINTRAGEN'
+   ./vendor/bin/sail artisan context-search:dataset:verify "incoming/$DATASET_UUID.zip"
+   ./vendor/bin/sail artisan context-search:dataset:import "incoming/$DATASET_UUID.zip"
+   ```
+
+3. **OCR-Werkzeuge und Queue lesend vorprüfen.** Im Dev-Container müssen Poppler und Tesseract verfügbar sein; `tesseract --list-langs` muss `deu` und `eng` enthalten. Die vorhandene Feature-Prüfung verarbeitet eine isolierte Test-PDF und verwendet explizit die entbehrliche Datenbank `testing`, nicht die importierten Dev-Daten. Der Queue-Check darf keine ungeprüften Altaufträge melden. Solange er warnt, dass neue Läufe gesperrt sind, hier **anhalten**.
+
+   ```sh
+   ./vendor/bin/sail exec laravel.test sh -lc 'for tool in pdfinfo pdftotext pdftoppm tesseract; do command -v "$tool" || exit 1; done'
+   ./vendor/bin/sail exec laravel.test tesseract --list-langs
+   ./vendor/bin/sail artisan context-search:queue:check
+   ./vendor/bin/sail exec -e APP_ENV=testing -e DB_CONNECTION=mysql -e DB_HOST=mysql -e DB_DATABASE=testing laravel.test php artisan test tests/Feature/ContextSearchTesseractOcrTest.php
+   ```
+
+4. **Testaufbau festhalten.** Vor dem ersten Lauf für jedes PDF die erwarteten Seitenarten und eine grobe Qualitätsbewertung notieren. Mindestens 15, besser etwa 50 Seiten für den ersten Lauf vorsehen; die Oberfläche akzeptiert 15 bis 500. Es müssen genügend Seiten aus **verschiedenen** PDFs vorhanden sein, damit der Holdout nach Dokument getrennt werden kann. Für die spätere Auswertung werden mindestens zehn bewertete Kalibrierungsseiten benötigt, darunter je mindestens drei brauchbare und drei unbrauchbare/Handschrift/leere Seiten. Zusätzlich braucht es wortgetreue Referenztranskripte für mindestens drei brauchbare Kalibrierungsseiten und eine brauchbare Holdout-Seite. Private Transkripte nur in der geschützten Oberfläche speichern.
+
+5. **Erst nach Worker-Freigabe: OCR-Lauf starten.** Als Global Admin auf der Evaluationsmaschine im Benutzermenü **OCR-Schwellenwerte kalibrieren** öffnen. Den eingefrorenen OCR-Datensatz wählen, Stichprobengröße (zunächst `50`) und einen eindeutigen Lauftitel eingeben, dann **Starten**. Ein Lauf speichert Seitenstichprobe, Profil, Quelldokument-Revision und Aufteilung in Kalibrierung/Holdout. Die Kalibrierungsjobs führen Tesseract aus; sie rufen weder Ollama noch Qdrant auf. Nur wenn die dedizierte Queue ausdrücklich freigegeben ist und keine fremden Läufe darauf warten, den folgenden **einmaligen Dev-Worker** in einem Terminal starten. Er arbeitet seriell und endet, sobald die Queue leer ist; keinen alten `context-search-indexing`-Worker starten.
+
+   ```sh
+   ./vendor/bin/sail artisan queue:work context_search --queue=context-search-calibration-ocr --sleep=3 --tries=3 --timeout=480 --stop-when-empty
+   ```
+
+   In der Oberfläche **Aktualisieren** wählen, bis alle Seiten verarbeitet sind. Bei fehlgeschlagenen Seiten nicht blind erneut starten: zuerst Quelle, Tesseract, freien Speicher und Fehlerstatus prüfen. Der angezeigte OCR-Text ist vertraulich und gehört nicht in normale Logs.
+
+6. **Seiten beurteilen, auswerten, freigeben.** Jede verarbeitete Seite mit der PDF-Vorschau vergleichen und als **brauchbar**, **unbrauchbar**, **unsicher**, **Handschrift** oder **leer** speichern. Referenztext exakt von Hand transkribieren; „unsicher“ zählt nicht zur Wertung. Danach **Auswerten**: Die Oberfläche testet mittlere Tesseract-Konfidenz von `0,00` bis `1,00` in `0,05`-Schritten und empfiehlt die größte Abdeckung mit mindestens 95 % Präzision auf den brauchbaren Kalibrierungsseiten. Den getrennten Holdout prüfen: Für die technische Freigabe sind mindestens 90 % Präzision und messbare Zeichen-/Wortfehlerraten (CER/WER) nötig. Das ist ein Mindest-Gate, keine Garantie guter Transkriptionsqualität; Seitenbeispiele und Fehlerarten zusätzlich fachlich prüfen. Ist kein geeigneter Grenzwert vorhanden oder der Holdout schlecht, **nicht freigeben**: Auswahl/Bewertungen prüfen oder mit geändertem OCR-Profil einen neuen Lauf erstellen. Gute Holdout-Werte nicht durch nachträgliches Tuning an genau diesem Holdout „optimieren“.
+
+7. **Genehmigtes Profil bewusst parametrisieren.** **Freigeben** zeigt ein Profil mit SHA-256 und einen Block mit `.env`-Zeilen. Diesen Block zunächst **nur in die `.env` der Evaluationsmaschine** übernehmen; die Freigabe selbst ändert die Laufzeitkonfiguration nicht. `CONTEXT_SEARCH_OCR_MINIMUM_MEAN_CONFIDENCE` ist ein Wert zwischen `0` und `1` (`0.75` bedeutet 75 %). Der Standard `0` ist permissiv und keine Qualitätsfreigabe. Die Auswertung optimiert derzeit **nur diesen Konfidenzwert**; `CONTEXT_SEARCH_OCR_MINIMUM_RECOGNIZED_WORDS`, `CONTEXT_SEARCH_OCR_MINIMUM_ALPHANUMERIC_RATIO` und `CONTEXT_SEARCH_OCR_MAXIMUM_REPLACEMENT_CHARACTER_RATIO` bleiben bei den für den Lauf geltenden Werten und müssen anhand der Fehlfälle bewusst beurteilt werden. Die native PDF-Textschicht wird beim späteren Indexieren vor OCR verwendet, sobald sie mindestens `CONTEXT_SEARCH_PDF_NATIVE_TEXT_MINIMUM_CHARACTERS` Zeichen liefert (Standard `80`); diese Grenze wird von der OCR-Kalibrierung **nicht** automatisch optimiert. Jede Änderung an Sprache, PSM, Tesseract-Version, Ziel-DPI (Standard `300`), Pixelbudget (Standard `12000000`) oder den übrigen Qualitätsgrenzen verlangt einen neuen Lauf mit eigenem Profil. Nach Änderung der Dev-`.env` die aufgelöste Konfiguration erneuern und einen bereits laufenden dedizierten Worker kontrolliert beenden und neu starten:
+
+   ```sh
+   ./vendor/bin/sail artisan config:clear
+   ./vendor/bin/sail artisan context-search:queue:check
+   ```
+
+   Erst nach bestandener OCR-, Last-, Wiederanlauf- und Quellenabnahme darf das freigegebene Profil in die Produktionskonfiguration übernommen werden. Profiländerungen erzeugen eine neue Indexrevision; betroffene PDFs müssen später manuell neu indiziert und die Quellen/Seiten gegen das genehmigte Profil geprüft werden. Ein Kalibrierungslauf allein indiziert **keine** Ressource und aktiviert **keinen** Produktionsworker.
+
+8. **Erst nach Freigabe der gesamten Index-Queue: Profil an einem PDF prüfen.** Auf der Evaluationsmaschine eine bekannte PDF-Ressourcen-ID mit schwieriger Scan-Seite auswählen und `PDF_RESSOURCEN_ID` ersetzen. Vorher müssen der aktive Qdrant-Alias und das identische Embedding-Profil aller Ollama-Server geprüft sein. Nur wenn keine anderen Kontextsuche-Läufe auf den dedizierten Queues liegen, den einen manuellen Indexlauf starten. Der Befehl nennt die Lauf-UUID:
+
+   ```sh
+   ./vendor/bin/sail artisan context-search:ollama:verify
+   ./vendor/bin/sail artisan context-search:queue:check
+   ./vendor/bin/sail artisan context-search:index PDF_RESSOURCEN_ID
+   ```
+
+   Für mehrseitige PDFs müssen Extraktion und Embedding einander Jobs nachliefern können. Daher nach **gesonderter** Betriebsfreigabe je einen Worker in **zwei Terminals** starten, nicht auf der normalen Queue. Beide mit `Ctrl+C` beenden, sobald der eine Lauf abgeschlossen und seine Queues leer sind; nicht als unbeaufsichtigten Dauerbetrieb stehen lassen.
+
+   ```sh
+   # Terminal 1: genau ein Extraktions-/OCR-Worker
+   ./vendor/bin/sail artisan queue:work context_search --queue=context-search-extraction --sleep=3 --tries=3 --timeout=480
+   ```
+
+   ```sh
+   # Terminal 2: genau ein Embedding-/Qdrant-Worker
+   ./vendor/bin/sail artisan queue:work context_search --queue=context-search-upsert,context-search-embedding --sleep=3 --tries=3 --timeout=480
+   ```
+
+   Die PDF-Seite, Extraktionsart (`native` oder `ocr`), sichtbaren Quellenbeleg und den erwarteten Text fachlich vergleichen. Bei Fehlstatus oder falscher Seite nicht weitere PDFs einplanen. Dieser einzelne Praxistest ersetzt weder die getrennte OCR-Abnahme noch Last-, Crash-/Restore- und Rechteprüfungen.
 
 Für gezielte Diagnose können die Prozesse einzeln laufen:
 
