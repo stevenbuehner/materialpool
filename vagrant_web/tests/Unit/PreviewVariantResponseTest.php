@@ -8,6 +8,7 @@ use App\Http\Middleware\CacheControlHeaders;
 use App\Models\Material;
 use App\Models\Text;
 use App\Services\PreviewGeneration\MaterialPreviewService;
+use App\Services\PreviewGeneration\Exceptions\NotPreviewAbleException;
 use App\Services\PreviewGeneration\PreviewSize;
 use App\Services\PreviewGeneration\ResourcePreviewService;
 use Illuminate\Http\Request;
@@ -43,6 +44,37 @@ class PreviewVariantResponseTest extends TestCase {
 			640
 		);
 		$this->assertSame(304, $notModified->getStatusCode());
+	}
+
+	public function test_resource_preview_response_has_no_content_when_no_preview_can_be_generated(): void {
+		$service = Mockery::mock(ResourcePreviewService::class);
+		$service->shouldReceive('getCachedImageData')
+			->once()
+			->andThrow(new NotPreviewAbleException());
+		$controller = new ResourcePreviewController($service);
+
+		$response = $controller->getImage(Request::create('/resource/1/image/640/640'), new Text(), 640, 640);
+
+		$this->assertSame(204, $response->getStatusCode());
+		$this->assertSame('', $response->getContent());
+	}
+
+	public function test_resource_preview_refreshes_the_requested_cached_variant(): void {
+		$service = Mockery::mock(ResourcePreviewService::class);
+		$service->shouldReceive('getCachedImageData')
+			->once()
+			->with(
+				Mockery::type(Text::class),
+				Mockery::on(fn ($size): bool => $size->getWidth() === 640 && $size->getHeight() === 640),
+				NULL,
+				TRUE
+			)
+			->andReturn('refreshed-preview-bytes');
+		$controller = new ResourcePreviewController($service);
+
+		$response = $controller->getImage(Request::create('/resource/1/image/640/640?refresh=1'), new Text(), 640, 640);
+
+		$this->assertSame('refreshed-preview-bytes', $response->getContent());
 	}
 
 	public function test_material_preview_response_uses_the_requested_small_variant(): void {

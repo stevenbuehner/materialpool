@@ -6,6 +6,7 @@ use App\Exceptions\InvalidResourceTypeException;
 use App\Models\DocumentFile;
 use App\Models\PdfFile;
 use App\Models\Resource;
+use App\Services\PreviewGeneration\Exceptions\NotPreviewAbleException;
 use App\Services\PreviewGeneration\ResourcePreviewService;
 use App\Services\PreviewGeneration\PreviewSize;
 use Illuminate\Http\Request;
@@ -24,10 +25,16 @@ class ResourcePreviewController {
 	 * @return \Illuminate\Http\Response
 	 */
 	public function getImage(Request $request, Resource $resource, $width = NULL, $height = NULL) {
-		$imageData = $this->previewService->getCachedImageData(
-			$resource,
-			PreviewSize::constrained($width, $height)
-		);
+		try {
+			$imageData = $this->previewService->getCachedImageData(
+				$resource,
+				PreviewSize::constrained($width, $height),
+				NULL,
+				$request->boolean('refresh')
+			);
+		} catch (NotPreviewAbleException $e) {
+			return response()->noContent();
+		}
 
 		return $this->imageResponse($request, $imageData);
 
@@ -46,15 +53,19 @@ class ResourcePreviewController {
 			throw new InvalidResourceTypeException('Only PDF and DOC resources can have page-preview images');
 		}
 
-		$imageData = $this->previewService->getCachedImageData(
-			$resource,
-			PreviewSize::constrained(
-				$request->has('width') ? $request->integer('width') : NULL,
-				$request->has('height') ? $request->integer('height') : NULL
-			),
-			$page,
-			$clearCache === 'refresh'
-		);
+		try {
+			$imageData = $this->previewService->getCachedImageData(
+				$resource,
+				PreviewSize::constrained(
+					$request->has('width') ? $request->integer('width') : NULL,
+					$request->has('height') ? $request->integer('height') : NULL
+				),
+				$page,
+				$clearCache === 'refresh' || $request->boolean('refresh')
+			);
+		} catch (NotPreviewAbleException $e) {
+			return response()->noContent();
+		}
 
 		return $this->imageResponse($request, $imageData);
 	}

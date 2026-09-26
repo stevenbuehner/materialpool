@@ -12,17 +12,9 @@ use App\Models\Resource as ResourceEntity;
 use App\ResourceLimitations\ResourceLimitationInterface;
 use App\Services\PreviewGeneration\Exceptions\NotPreviewAbleException;
 use App\Services\PreviewGeneration\Interfaces\PreviewGeneratorInterface;
-use Intervention\Image\AbstractFont;
-use Intervention\Image\ImageManager;
 use Intervention\Image\Size;
 
 class NoPreviewGenerator implements PreviewGeneratorInterface {
-
-	protected $imageManager;
-
-	public function __construct(ImageManager $imageManager) {
-		$this->imageManager = $imageManager;
-	}
 
 	/**
 	 * @param ResourceEntity $resource
@@ -34,19 +26,7 @@ class NoPreviewGenerator implements PreviewGeneratorInterface {
 
 
 	public function getImagePreview(ResourceEntity $resource, Size $size, $page = NULL) {
-
-		$useWidth  = max($size->width, 500);
-		$useHeight = max($size->height, 500);
-		$image     = $this->imageManager->canvas($useWidth, $useHeight, '#ffff');
-
-		$image->text('No Preview', 50, 50, function ($font) {
-			/** @var $font AbstractFont */
-			$font->valign('top');
-			$font->size(14);
-			$font->file(resource_path('fonts/Courier New.ttf'));
-		});
-
-		return $image;
+		throw new NotPreviewAbleException();
 	}
 
 	/**

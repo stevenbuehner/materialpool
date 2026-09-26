@@ -7,10 +7,10 @@ use App\Models\Resource;
 use App\Models\Resource as ResourceEntity;
 use App\ResourceLimitations\ResourceLimitationInterface;
 use App\Services\PreviewGeneration\Exceptions\NotPreviewAbleException;
-use App\Services\PreviewGeneration\Generators\NoPreviewGenerator;
 use App\Services\PreviewGeneration\Generators\DocumentPreviewGenerator;
 use App\Services\PreviewGeneration\Interfaces\PreviewGeneratorInterface;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
 use Intervention\Image\AbstractFont;
 use Intervention\Image\Image;
@@ -18,6 +18,7 @@ use Intervention\Image\ImageManager;
 use Intervention\Image\Size;
 
 class ResourcePreviewService extends AbstractPreviewService {
+	private const CACHE_KEY_VERSION = 2;
 
 
 	public function __construct(ImageManager $imageManager) {
@@ -30,6 +31,13 @@ class ResourcePreviewService extends AbstractPreviewService {
 		$generator = $resource->getPreviewGenerator();
 
 		return $generator->imagePreviewAble($resource);
+	}
+
+	protected function getCacheKey(Model $model, $additionalData = NULL) {
+		return parent::getCacheKey($model, [
+			'version' => self::CACHE_KEY_VERSION,
+			'variant' => $additionalData,
+		]);
 	}
 
 	/**
@@ -125,21 +133,12 @@ class ResourcePreviewService extends AbstractPreviewService {
 
 		$cacheKey = $this->getCacheKey($resource, [$size, (int)$pageOrSeconds]);
 
-		try {
-			return $this->cacheImageData(
-				$cacheKey,
-				fn () => $this->getFreshImagePreview($resource, $size, $pageOrSeconds),
-				fn () => $this->registerCacheKey($resource, $cacheKey),
-				$clearCache
-			);
-		} catch (NotPreviewAbleException $e) {
-			$generator = resolve(NoPreviewGenerator::class);
-
-			return (string)$generator->getImagePreview($resource, $size, $pageOrSeconds)->encode(
-				config('app.preview.outputFormat'),
-				config('app.resource.preview.quality')
-			);
-		}
+		return $this->cacheImageData(
+			$cacheKey,
+			fn () => $this->getFreshImagePreview($resource, $size, $pageOrSeconds),
+			fn () => $this->registerCacheKey($resource, $cacheKey),
+			$clearCache
+		);
 
 	}
 
