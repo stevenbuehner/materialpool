@@ -96,6 +96,11 @@ final class EvaluationDatasetService
         if ($zip->open($absolutePath, ZipArchive::CREATE | ZipArchive::OVERWRITE) !== true) {
             throw new RuntimeException('Das Evaluationsarchiv konnte nicht erstellt werden.');
         }
+        if ($onProgress !== null) {
+            $zip->registerProgressCallback(0.01, function (float $fraction) use ($onProgress): void {
+                $this->reportProgress($onProgress, 'Archiv schreiben', (int) round(max(0, min(1, $fraction)) * 1000), 1000);
+            });
+        }
 
         $closed = false;
         try {
@@ -107,14 +112,14 @@ final class EvaluationDatasetService
                 $this->addResource($zip, $entry);
                 $this->reportProgress($onProgress, 'Archiv vorbereiten', ++$completed, $total);
             }
-            $this->reportProgress($onProgress, 'Archiv schreiben', 0, 1);
+            $this->reportProgress($onProgress, 'Archiv schreiben', 0, 1000);
         } finally {
             $closed = $zip->close();
         }
         if (! $closed) {
             throw new RuntimeException('Das Evaluationsarchiv konnte nicht vollständig geschrieben werden.');
         }
-        $this->reportProgress($onProgress, 'Archiv schreiben', 1, 1);
+        $this->reportProgress($onProgress, 'Archiv schreiben', 1000, 1000);
 
         $dataset->update([
             'status' => ContextSearchEvaluationDataset::STATUS_EXPORTED,

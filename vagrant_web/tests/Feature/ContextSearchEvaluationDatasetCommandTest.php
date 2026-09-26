@@ -51,7 +51,7 @@ final class ContextSearchEvaluationDatasetCommandTest extends TestCase
             $exportProgress[$phase] = [$current, $total];
         });
         $this->assertSame([2, 2], $exportProgress['Archiv vorbereiten']);
-        $this->assertSame([1, 1], $exportProgress['Archiv schreiben']);
+        $this->assertSame([1000, 1000], $exportProgress['Archiv schreiben']);
         $this->assertSame($exportProgress['Archiv-Prüfsumme berechnen'][1], $exportProgress['Archiv-Prüfsumme berechnen'][0]);
 
         $dataset->refresh();
