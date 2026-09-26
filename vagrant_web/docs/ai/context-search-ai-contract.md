@@ -45,6 +45,9 @@ Maßgeblich bleiben außerdem:
 | Private Evaluationsdaten | Private Materialien und Ressourcen dürfen nach ausdrücklicher Auswahl Bestandteil eines Evaluationsdatensatzes sein. Die Auswahl verlangt eine dokumentierte Begründung und bleibt nachvollziehbar. |
 | Transfer und Ablage | Evaluationspakete werden auf ausdrückliche Entscheidung unverschlüsselt übertragen und gespeichert. Sie dürfen nur in nicht öffentlich erreichbaren, restriktiv berechtigten Ablagen liegen; Manifest- und Archivprüfsummen sichern ihre Integrität. |
 | Produktionsindex | Ausschließlich eine freigegebene Konfiguration wird von der Evaluations- in die Produktionsumgebung übernommen. Vektoren, Qdrant-Collections und Kalibrierungsergebnisse werden nicht kopiert; Produktion baut ihren Index aus ihren eigenen Quellen auf. |
+| Dataset-Kuratierung | Ausschließlich Global Admins kuratieren Evaluationsdatensätze über einen eigenen, serverseitig geschützten KI-Modus in der bestehenden Material- und Ressourcenoberfläche. |
+| Zuordnungsinjektivität | Ein Material, eine Ressource und ihre zugehörige Dokumentrevision dürfen zu einem Zeitpunkt nur genau einem Evaluationsdatensatz angehören. Eine Auswahl ist immer der vollständige zusammenhängende Material-/Ressourcenblock. |
+| Dataset-Fortschritt | Jeder Entwurf besitzt versionierte Sollmengen. Ein zugänglicher Tooltip zeigt je Dataset Ist, Soll, verbleibende Anzahl und erfüllte Teilquoten; Farbe ist nur ergänzend zu Icon und Text. |
 
 ## 3. Arbeits- und Commitvertrag
 
@@ -85,6 +88,8 @@ Für die SSD gelten zunächst:
 - alte Collections werden erst nach bestandener Validierung und Ablauf des Rückrollfensters entfernt.
 
 Der reale Bedarf wird in einem Spike mit repräsentativen Dokumenten gemessen. Erfasst werden mindestens Punkt- und Payload-Größe, Collection-Größe, Segmentoptimierung, RAM-Spitze, Indexierungsdurchsatz, p95-Suchlatenz und Einfluss auf die Webanwendung. Werden die Ziele verfehlt, ist die bevorzugte Reihenfolge: Payload reduzieren, Chunking anhand der Qualitätsmessung optimieren, Qdrant auf einen separaten SSD-Host verschieben, RAM beziehungsweise Datenträger erweitern. Quantisierung darf erst nach einem Recall-Vergleich aktiviert werden.
+
+Die erste inhaltsfreie Produktionsinventarisierung vom 26. September 2026 weist 12.917 öffentliche Materialien sowie 12.591 geeignete Ressourcen aus: 117 öffentliche PDFs, 4.741 private PDFs, 5.367 öffentliche Textressourcen und 2.366 private Textressourcen. Sie ist eine Planungsgrundlage, keine Kapazitätsfreigabe und enthält keine private Materialzahl.
 
 ## 5. Zielarchitektur
 
@@ -249,13 +254,21 @@ Das optionale Hintergrund-Zeitfenster definiert erlaubte Startzeiten. Außerhalb
 
 Für Modellwahl, Chunking, Schwellenwerte, hybride Gewichtung und Abnahme existiert eine von Produktion getrennte Evaluationsumgebung mit eigener MySQL-Datenbank, eigener privater Dateiablage und eigenem Qdrant-Alias. Sie ist kein Produktionsspiegel: Importiert werden nur die für einen eingefrorenen Datensatz nötigen Material-, Ressourcen- und Zuordnungsdaten einschließlich der zugehörigen Quelldateien. Benutzerkonten, OAuth-Daten, API-Keys, Sitzungen, Auditprotokolle und sonstige nicht erforderliche Produktionsdaten gehören niemals in ein Evaluationspaket.
 
-Jeder Datensatz besitzt eine stabile Kennung, Zweck, Ersteller, Zeitpunkt, Auswahlregeln, Inhalts- und Manifest-Hash, Versionsstand sowie einen unveränderlichen Satz aus Materialien, Ressourcen und konkreten Revisionen. Material und vollständige Dokumentrevision bleiben stets gemeinsam in genau einem Datensatz; eine Datei wird nicht zwischen Kalibrierungs- und Abnahmesatz aufgeteilt. Mindestens diese getrennten Zwecke sind vorgesehen:
+Jeder Datensatz besitzt eine stabile Kennung, Zweck, Ersteller, Zeitpunkt, Auswahlregeln, Sollmengen, Inhalts- und Manifest-Hash, Versionsstand sowie einen unveränderlichen Satz aus Materialien, Ressourcen und konkreten Revisionen. Material und vollständige Dokumentrevision bleiben stets gemeinsam in genau einem Datensatz; eine Datei wird nicht zwischen Datensätzen aufgeteilt. Die Zuordnung ist transitive abgeschlossen: Wird ein Material gewählt, gehören alle seine geeigneten PDF-/Textressourcen dazu; gehört eine dieser Ressourcen einem weiteren Material, gehört auch dieses Material mit seinen geeigneten Ressourcen dazu. Der vollständige zusammenhängende Block wird vor der Übernahme berechnet, angezeigt und atomar reserviert.
 
 - `calibration`: darf für Modell-, Chunking- und Gewichtungsentscheidungen verwendet werden;
 - `acceptance`: unveränderlicher Holdout für die endgültige Abnahme; jede Nutzung zur Kalibrierung entwertet ihn und verlangt einen neuen Abnahmesatz;
 - `ocr`: repräsentative Seiten mit und ohne native Textschicht zur Prüfung von Tesseract und Quellen;
 - `load`: repräsentative Menge für Durchsatz, Backpressure und Lastverhalten;
 - `capacity`: skalierte Menge für Speicher-, RAM- und Latenzprojektionen.
+
+Die initialen Sollgrößen passen in die bekannte Ressourcenmenge und bleiben vollständig disjunkt: `calibration` 450 Ressourcen, `acceptance` 250 Ressourcen, `ocr` 100 PDFs, `load` 2.000 Ressourcen und `capacity` 8.000 Ressourcen. Sie sind Startwerte, keine automatische Auswahl. Zusätzliche Quoten werden je Entwurf als nachvollziehbare Mischung gespeichert, zunächst mindestens PDF/Text und öffentliche/private Sichtbarkeit. OCR-spezifische Unterquoten nach nativer Textschicht oder OCR-Ergebnis werden erst nach einer diagnostischen Extraktionsmessung befüllt; die Oberfläche darf keinen unbekannten OCR-Status vortäuschen.
+
+Ein Dataset durchläuft `draft`, `ready`, `frozen` und `exported`. Nur `draft` ist veränderbar. `ready` bedeutet, dass alle Sollmengen und Mindestquoten erfüllt sind, nicht dass eine KI-Qualitätsabnahme erfolgt ist. Ein `frozen`- oder `exported`-Dataset behält seine Mitgliedschaften dauerhaft. Soll ein neuer Satz entstehen, werden neue, bisher nicht zugeordnete Blöcke ausgewählt; alte Set-Mitglieder werden nicht nachträglich umgewidmet.
+
+Der KI-Modus zeigt in Material- und Ressourcenlisten ein Dataset-Badge mit festem Icon, Kurztext und kontrastreicher Farbe. Vorgesehen sind: Kalibrierung (Regler), Abnahme (Prüfzeichen), OCR (Scan), Last (Tacho) und Kapazität (Datenbank). Beim Hover, Fokus und auf Touch-Geräten per Aktivierung öffnet sich derselbe zugängliche Tooltip: `Ist / Soll`, verbleibende Materialien und Ressourcen, erfüllte Quoten, Draft-Status sowie ein erklärender Fortschrittsbalken mit Textalternative. Die Oberfläche lädt für diesen Tooltip nur aggregierte Zähler, niemals Dokumentinhalte.
+
+Mehrfachauswahl, Bereichsauswahl und gespeicherte Filter beschleunigen die Kuratierung. Vor jeder Änderung zeigt eine Vorschau zwingend direkte und transitiv hinzukommende Materialien/Ressourcen, bereits belegte Blöcke, Konflikt-Datasets sowie die Auswirkung auf alle Fortschrittsbalken. Die serverseitige Mutation prüft Global-Admin-Berechtigung, erwartete Dataset-Version und atomare Eindeutigkeit; ein Datenbank-Unique-Constraint schützt zusätzlich vor parallelen Browserfenstern. Eine reine UI-Ausblendung genügt nicht.
 
 Die Produktionsbefehle dürfen nur inventarisieren, eine Auswahl vorprüfen, einen Datensatz einfrieren und ein Paket exportieren. Sie starten weder Ollama, noch Qdrant-Indexierung, Kalibrierung oder Bewertung. Ein Paket enthält die minimal erforderlichen Fachdaten und revisionsgebundenen Quelldateien unter technisch neutralen Pfaden; ursprüngliche Serverpfade und Dokumentinhalte erscheinen nicht in Konsolenausgaben, Manifest-Zusammenfassungen oder Logs. Ein Import erzeugt in der Evaluationsumgebung bei Bedarf einen lokalen technischen Importbenutzer statt echter Produktionskonten.
 
@@ -331,6 +344,17 @@ Jeder folgende Schritt endet nach Abschnitt 3 mit einem eigenen Commit.
 - ausschließlich Konfigurationsfreigaben, niemals Produktionsvektoren oder Qdrant-Collections, von Evaluation in Produktion überführen;
 - README und Betriebsanleitung für Produktions-Export, vertrauenswürdigen Transfer, isolierten Import und Rückbau der Evaluationsdaten aktualisieren;
 - Abnahme: Ein eingefrorener, auch private Inhalte enthaltender Datensatz lässt sich ohne Zugriff auf Produktionsdienste in die Evaluationsumgebung importieren und seine Vollständigkeit anhand der Hashes nachweisen.
+
+### Schritt 4b – Global-Admin-Kuratierung von Evaluationsdatensätzen
+
+- explizites Datenmodell für Dataset-Entwürfe, Sollmengen, Quoten, Material-/Ressourcenmitgliedschaften, Versionsschutz und unveränderliche eingefrorene Snapshots anlegen;
+- Zugehörigkeit als vollständige zusammenhängende Material-/Ressourcenblöcke berechnen und mit eindeutigen Datenbankregeln gegen parallele oder doppelte Dataset-Zuordnungen schützen;
+- vorhandene eingefrorene Datensätze vor der Aktivierung der Eindeutigkeitsregel aus ihren Manifesten prüfen; bei Konflikten nicht automatisch migrieren, sondern mit nachvollziehbarem Bericht blockieren;
+- nur für Global Admins einen KI-Modus in die vorhandenen Material- und Ressourcenlisten integrieren: Filter, Mehrfach-/Bereichsauswahl, Vorschau der transitiven Erweiterung, konfliktfreie Übernahme, Entfernen nur im Entwurf und klare Badges;
+- Tooltip, Fokusansicht und Touch-Alternative mit Ressourcen-/Materialfortschritt, Restmenge, Quoten und Textalternative zum Fortschrittsbalken umsetzen;
+- API, Policies, konkurrierende Änderungen, private Inhalte, Draft/Frozen-Grenzen, Tastaturbedienung, mobile Darstellung und Vue-Produktionsbuild testen;
+- README und Systemadministrationsanleitung um den ausschließlich Global-Admin-berechtigten Kuratierungsablauf erweitern;
+- Abnahme: Ein Global Admin kann einen vollständigen Block schnell und nachvollziehbar einem Entwurf zuweisen; kein konkurrierender Vorgang kann ein Material oder eine Ressource einem zweiten Dataset zuordnen; eingefrorene Sätze bleiben unveränderlich.
 
 ### Schritt 5 – Capacity Gate und Betriebsanleitung
 
