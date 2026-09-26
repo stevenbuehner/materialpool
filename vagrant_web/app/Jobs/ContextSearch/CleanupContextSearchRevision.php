@@ -4,6 +4,7 @@ namespace App\Jobs\ContextSearch;
 
 use App\Models\ContextSearchResourcePublication;
 use App\Services\ContextSearch\Qdrant\QdrantClient;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -31,15 +32,20 @@ final class CleanupContextSearchRevision implements ShouldQueue
 
     public function handle(QdrantClient $qdrant): void
     {
-        $published = ContextSearchResourcePublication::query()->where('collection_name', $this->collection)
-            ->where('embedding_profile', $this->profile)
-            ->where('resource_id', $this->resourceId)
-            ->where('index_revision', $this->newRevision)
-            ->where('status', $this->newRevision === null ? ContextSearchResourcePublication::STATUS_WITHDRAWN : ContextSearchResourcePublication::STATUS_PUBLISHED)
-            ->exists();
+        DB::transaction(function () use ($qdrant): void {
+            $publication = ContextSearchResourcePublication::query()->where('collection_name', $this->collection)
+                ->where('embedding_profile', $this->profile)
+                ->where('resource_id', $this->resourceId)
+                ->lockForUpdate()->first();
 
-        if ($published && $this->oldRevision !== $this->newRevision) {
-            $qdrant->deleteResourceRevisionPoints($this->collection, $this->resourceId, $this->profile, $this->oldRevision);
-        }
+            if ($publication !== null
+                && $publication->index_revision === $this->newRevision
+                && $publication->status === ($this->newRevision === null ? ContextSearchResourcePublication::STATUS_WITHDRAWN : ContextSearchResourcePublication::STATUS_PUBLISHED)
+                && $this->oldRevision !== $this->newRevision) {
+                // Hold the publication lock until Qdrant confirms deletion: a rollback cannot
+                // republish the old revision in the gap between check and remote deletion.
+                $qdrant->deleteResourceRevisionPoints($this->collection, $this->resourceId, $this->profile, $this->oldRevision);
+            }
+        });
     }
 }
