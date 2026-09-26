@@ -40,7 +40,7 @@ final class ContextSearchIndexCommandTest extends TestCase
         $this->assertDatabaseHas('context_search_index_run_resources', [
             'run_id' => $run->getKey(),
             'resource_id' => $resource->getKey(),
-            'status' => ContextSearchIndexRun::STATUS_PENDING,
+            'status' => ContextSearchIndexRunResource::STATUS_RUNNING,
         ]);
         Bus::assertDispatched(IndexContextSearchResource::class, fn (IndexContextSearchResource $job): bool => $job->connection === 'context_search' && $job->queue === 'context-search-extraction');
     }
@@ -69,7 +69,7 @@ final class ContextSearchIndexCommandTest extends TestCase
         $this->artisan('context-search:index', ['--resume' => $run->getKey()])->assertExitCode(0);
 
         $this->assertDatabaseHas('context_search_index_runs', ['id' => $run->getKey(), 'status' => ContextSearchIndexRun::STATUS_RUNNING]);
-        $this->assertDatabaseHas('context_search_index_run_resources', ['run_id' => $run->getKey(), 'resource_id' => 123, 'status' => ContextSearchIndexRun::STATUS_PENDING]);
+        $this->assertDatabaseHas('context_search_index_run_resources', ['run_id' => $run->getKey(), 'resource_id' => 123, 'status' => ContextSearchIndexRunResource::STATUS_RUNNING]);
         Bus::assertDispatched(IndexContextSearchResource::class);
     }
 
@@ -87,6 +87,22 @@ final class ContextSearchIndexCommandTest extends TestCase
         Bus::assertNotDispatched(IndexContextSearchResource::class);
     }
 
+    public function test_refuses_a_new_run_when_the_disk_safety_reserve_is_unavailable(): void
+    {
+        config()->set('context_search.enabled', true);
+        config()->set('context_search.indexing.dispatch_enabled', true);
+        config()->set('context_search.indexing.minimum_free_disk_bytes', PHP_INT_MAX);
+        Bus::fake([IndexContextSearchResource::class]);
+        $this->app->instance(QdrantClient::class, $this->qdrant());
+
+        $this->artisan('context-search:index', ['resource' => 123])
+            ->expectsOutputToContain('Kapazitätsgrenze')
+            ->assertExitCode(1);
+
+        $this->assertDatabaseCount('context_search_index_runs', 0);
+        Bus::assertNotDispatched(IndexContextSearchResource::class);
+    }
+
     private function qdrant(): QdrantClient
     {
         return new class implements QdrantClient {
@@ -98,6 +114,7 @@ final class ContextSearchIndexCommandTest extends TestCase
             public function replaceAlias(string $alias, string $collection): void {}
             public function upsertPoints(string $collection, array $points): void {}
             public function deleteResourcePoints(string $collection, int $resourceId, string $embeddingProfile): void {}
+            public function deleteResourceRevisionPoints(string $collection, int $resourceId, string $embeddingProfile, string $revision): void {}
         };
     }
 }

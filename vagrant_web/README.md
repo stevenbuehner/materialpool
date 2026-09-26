@@ -418,6 +418,8 @@ Die erste Indexierung ist technisch nur per bewusstem Kommando vorgesehen; Ände
 
 Die vorbereitete Connection `context_search` verwendet eigene Queue-Namen und `CONTEXT_SEARCH_QUEUE_RETRY_AFTER` (Beispielwert 600 Sekunden); `QUEUE_RETRY_AFTER=150` für normale Jobs bleibt unverändert. Neue Index- und OCR-Kalibrierungsläufe werden jetzt **vor dem Anlegen eines Laufdatensatzes technisch abgewiesen**. Der folgende Befehl prüft die aufgelöste Konfiguration und inventarisiert nur die Anzahl wartender, reservierter und fehlgeschlagener Altaufträge; er startet oder löscht nichts:
 
+Für Schritt 3 ist eine seitenweise Pipeline in Arbeit: Extrahierter Text wird vorübergehend privat unter `storage/app/context-search-ocr-artifacts` abgelegt. Die Dateien sind abgeleitet und vom Backup ausgenommen; fehlen sie nach Bereinigung oder Restore, wird nur die betroffene Seite aus der Originalressource neu extrahiert. Bis die vollständigen OCR-/Last-/Restore-Gates bestanden sind, bleibt die neue Queue weiterhin gesperrt und die Worker-Vorlage deaktiviert.
+
 ```sh
 ./vendor/bin/sail artisan context-search:queue:check
 ```

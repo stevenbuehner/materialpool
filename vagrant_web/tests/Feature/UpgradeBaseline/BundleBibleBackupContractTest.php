@@ -84,7 +84,10 @@ class BundleBibleBackupContractTest extends TestCase
     {
         $this->assertSame(config('app.name'), config('backup.backup.name'));
         $this->assertSame([storage_path('app'), public_path('uploads')], config('backup.backup.source.files.include'));
-        $this->assertSame([storage_path('app/tmp')], config('backup.backup.source.files.exclude'));
+        $this->assertSame([
+            storage_path('app/tmp'),
+            storage_path('app/context-search-ocr-artifacts'),
+        ], config('backup.backup.source.files.exclude'));
         $this->assertNull(config('backup.backup.source.files.relative_path'));
         $this->assertSame(['mysql'], config('backup.backup.source.databases'));
         $this->assertSame(['backup', 'backup_s3'], config('backup.backup.destination.disks'));

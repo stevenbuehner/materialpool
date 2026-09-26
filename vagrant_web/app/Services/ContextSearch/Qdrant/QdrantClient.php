@@ -28,4 +28,6 @@ interface QdrantClient
     public function upsertPoints(string $collection, array $points): void;
 
     public function deleteResourcePoints(string $collection, int $resourceId, string $embeddingProfile): void;
+
+    public function deleteResourceRevisionPoints(string $collection, int $resourceId, string $embeddingProfile, string $revision): void;
 }

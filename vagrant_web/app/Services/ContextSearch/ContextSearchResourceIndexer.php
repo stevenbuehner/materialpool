@@ -4,17 +4,14 @@ namespace App\Services\ContextSearch;
 
 use App\Models\PdfFile;
 use App\Models\Resource;
-use App\Models\Text;
-use App\Services\ContextSearch\Extraction\ResourceTextExtractor;
+use App\Services\ContextSearch\Extraction\ExtractedPage;
 use App\Services\ContextSearch\Ollama\OllamaEmbeddingPool;
 use App\Services\ContextSearch\Qdrant\QdrantClient;
 use InvalidArgumentException;
-use RuntimeException;
 
 final class ContextSearchResourceIndexer
 {
     public function __construct(
-        private readonly ResourceTextExtractor $extractor,
         private readonly TextChunker $chunker,
         private readonly OllamaEmbeddingPool $embeddings,
         private readonly QdrantClient $qdrant,
@@ -22,37 +19,31 @@ final class ContextSearchResourceIndexer
     ) {
     }
 
-    public function index(Resource $resource, string $collection): ResourceIndexingResult
+    public function indexPage(Resource $resource, ExtractedPage $page, string $collection, string $sourceRevision, string $indexRevision): int
     {
         if ($this->embeddingBatchSize < 1) {
             throw new InvalidArgumentException('The context-search embedding batch size must be positive.');
         }
 
-        $pages = $this->extractor->extract($resource);
-        if ($pages === []) {
-            throw new RuntimeException('The resource did not contain readable pages.');
-        }
-        $revision = $this->documentRevision($resource);
         $points = [];
-        $skippedReasons = [];
-        $skippedPageCount = 0;
 
-        foreach ($pages as $page) {
-            if (! $page->accepted) {
-                $skippedPageCount++;
-                foreach ($page->qualityReasons as $reason) {
-                    $skippedReasons[$reason] = ($skippedReasons[$reason] ?? 0) + 1;
-                }
-                continue;
-            }
+        if (! $page->accepted) {
+            return 0;
+        }
 
-            foreach ($this->chunker->chunk($page->text) as $chunk) {
+        $chunks = $this->chunker->chunk($page->text);
+        if (count($chunks) > (int) config('context_search.indexing.maximum_page_chunks', 64)) {
+            throw new ContextSearchPageBudgetException('Context-search page exceeds the bounded embedding budget.');
+        }
+
+        foreach ($chunks as $chunk) {
                 $points[] = [
-                    'id' => $this->pointId($collection, $resource->getKey(), $revision, $page->pageNumber, $chunk->ordinal),
+                    'id' => $this->pointId($collection, $resource->getKey(), $indexRevision, $page->pageNumber, $chunk->ordinal),
                     'text' => $chunk->content,
                     'payload' => [
                         'resource_id' => (int) $resource->getKey(),
-                        'document_revision' => $revision,
+                        'document_revision' => $sourceRevision,
+                        'index_revision' => $indexRevision,
                         'source_type' => $resource instanceof PdfFile ? 'pdf' : 'text',
                         'page_number' => $page->pageNumber,
                         'chunk_ordinal' => $chunk->ordinal,
@@ -70,20 +61,7 @@ final class ContextSearchResourceIndexer
                         'indexed_at' => now()->toIso8601String(),
                     ],
                 ];
-            }
         }
-
-        if ($points === []) {
-            if (! $resource instanceof PdfFile || $skippedPageCount === 0) {
-                throw new RuntimeException('The resource did not contain indexable text.');
-            }
-
-            $this->qdrant->deleteResourcePoints($collection, (int) $resource->getKey(), $this->embeddings->profile()->id());
-
-            return new ResourceIndexingResult(0, count($pages), $skippedPageCount, $skippedReasons);
-        }
-
-        $this->qdrant->deleteResourcePoints($collection, (int) $resource->getKey(), $this->embeddings->profile()->id());
 
         foreach (array_chunk($points, $this->embeddingBatchSize) as $batch) {
             $response = $this->embeddings->embed(array_column($batch, 'text'), 'resource:'.$resource->getKey());
@@ -100,28 +78,7 @@ final class ContextSearchResourceIndexer
             $this->qdrant->upsertPoints($collection, $upserts);
         }
 
-        return new ResourceIndexingResult(count($points), count($pages), $skippedPageCount, $skippedReasons);
-    }
-
-    private function documentRevision(Resource $resource): string
-    {
-        if ($resource instanceof Text) {
-            return hash('sha256', (string) $resource->getContent());
-        }
-
-        if ($resource instanceof PdfFile) {
-            $path = $resource->getAbsoluteLocalPath();
-
-            if (is_string($path) && is_file($path)) {
-                $hash = hash_file('sha256', $path);
-
-                if ($hash !== false) {
-                    return $hash;
-                }
-            }
-        }
-
-        return hash('sha256', (string) $resource->content_hash."\0".(string) $resource->getKey());
+        return count($points);
     }
 
     private function pointId(string $collection, int $resourceId, string $revision, int $pageNumber, int $ordinal): string

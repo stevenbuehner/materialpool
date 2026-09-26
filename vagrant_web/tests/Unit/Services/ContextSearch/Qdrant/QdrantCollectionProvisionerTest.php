@@ -28,6 +28,7 @@ final class QdrantCollectionProvisionerTest extends TestCase
         $this->assertSame([
             'resource_id' => 'integer',
             'document_revision' => 'keyword',
+            'index_revision' => 'keyword',
             'source_type' => 'keyword',
             'language' => 'keyword',
             'embedding_profile' => 'keyword',
@@ -130,6 +131,10 @@ final class FakeQdrantClient implements QdrantClient
     }
 
     public function deleteResourcePoints(string $collection, int $resourceId, string $embeddingProfile): void
+    {
+    }
+
+    public function deleteResourceRevisionPoints(string $collection, int $resourceId, string $embeddingProfile, string $revision): void
     {
     }
 }

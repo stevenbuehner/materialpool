@@ -155,6 +155,7 @@ final class HttpQdrantClient implements QdrantClient
         ]);
 
         $this->assertSuccessful($response, 'PUT', '/collections/{collection}/points');
+        $this->assertCompleted($response, 'PUT', '/collections/{collection}/points');
     }
 
     public function deleteResourcePoints(string $collection, int $resourceId, string $embeddingProfile): void
@@ -169,6 +170,25 @@ final class HttpQdrantClient implements QdrantClient
         ]);
 
         $this->assertSuccessful($response, 'POST', '/collections/{collection}/points/delete');
+        $this->assertCompleted($response, 'POST', '/collections/{collection}/points/delete');
+    }
+
+    public function deleteResourceRevisionPoints(string $collection, int $resourceId, string $embeddingProfile, string $revision): void
+    {
+        if (! preg_match('/\A[a-f0-9]{64}\z/i', $revision)) {
+            throw new InvalidArgumentException('The document revision must be a SHA-256 digest.');
+        }
+
+        $response = $this->safeRequest()->post('/collections/'.rawurlencode($collection).'/points/delete?wait=true', [
+            'filter' => ['must' => [
+                ['key' => 'resource_id', 'match' => ['value' => $resourceId]],
+                ['key' => 'embedding_profile', 'match' => ['value' => $embeddingProfile]],
+                ['key' => 'index_revision', 'match' => ['value' => $revision]],
+            ]],
+        ]);
+
+        $this->assertSuccessful($response, 'POST', '/collections/{collection}/points/delete');
+        $this->assertCompleted($response, 'POST', '/collections/{collection}/points/delete');
     }
 
     private function request(): PendingRequest
@@ -206,6 +226,13 @@ final class HttpQdrantClient implements QdrantClient
                 $path,
                 $response->status(),
             ));
+        }
+    }
+
+    private function assertCompleted(Response $response, string $method, string $path): void
+    {
+        if ($response->json('result.status') !== 'completed') {
+            throw new QdrantRequestException(sprintf('Qdrant request %s %s was not confirmed as completed.', $method, $path));
         }
     }
 }

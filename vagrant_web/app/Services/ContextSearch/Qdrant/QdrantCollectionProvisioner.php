@@ -11,6 +11,7 @@ final class QdrantCollectionProvisioner
     private const PAYLOAD_INDEXES = [
         'resource_id' => 'integer',
         'document_revision' => 'keyword',
+        'index_revision' => 'keyword',
         'source_type' => 'keyword',
         'language' => 'keyword',
         'embedding_profile' => 'keyword',

@@ -3,10 +3,13 @@
 namespace App\Jobs;
 
 use App\Models\ContextSearchIndexRun;
+use App\Models\ContextSearchIndexRunPage;
 use App\Models\ContextSearchIndexRunResource;
 use App\Models\Resource;
-use App\Services\ContextSearch\ContextSearchResourceIndexer;
+use App\Services\ContextSearch\ContextSearchIndexPipeline;
+use App\Services\ContextSearch\ContextSearchSourceSnapshot;
 use App\Services\ContextSearch\EmbeddingProfile;
+use App\Services\ContextSearch\Extraction\ResourceTextExtractor;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -15,13 +18,14 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Throwable;
 
-class IndexContextSearchResource implements ShouldQueue, ShouldBeUnique
+final class IndexContextSearchResource implements ShouldQueue, ShouldBeUnique
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public $timeout = 180;
+    public $timeout = 480;
     public $tries = 3;
     public $backoff = [30, 120];
+    public $uniqueFor = 660;
 
     public function __construct(private readonly string $runId, private readonly int $resourceId)
     {
@@ -34,84 +38,74 @@ class IndexContextSearchResource implements ShouldQueue, ShouldBeUnique
         return $this->runId.':'.$this->resourceId;
     }
 
-    public function handle(ContextSearchResourceIndexer $indexer, EmbeddingProfile $profile): void
+    public function handle(ResourceTextExtractor $extractor, ContextSearchSourceSnapshot $snapshot, EmbeddingProfile $profile, ContextSearchIndexPipeline $pipeline): void
     {
         $run = ContextSearchIndexRun::query()->find($this->runId);
+        $item = ContextSearchIndexRunResource::query()->where('run_id', $this->runId)
+            ->where('resource_id', $this->resourceId)->first();
 
-        if ($run === null || $run->status === ContextSearchIndexRun::STATUS_FAILED) {
+        if ($run === null || $item === null || $run->status !== ContextSearchIndexRun::STATUS_RUNNING
+            || $item->status !== ContextSearchIndexRunResource::STATUS_RUNNING) {
             return;
         }
 
         if ($run->embedding_profile !== $profile->id()) {
-            throw new \RuntimeException('The index run embedding profile no longer matches the active verified profile.');
-        }
-
-        $runResource = ContextSearchIndexRunResource::query()
-            ->where('run_id', $run->getKey())
-            ->where('resource_id', $this->resourceId)
-            ->first();
-
-        if ($runResource === null || in_array($runResource->status, [ContextSearchIndexRunResource::STATUS_COMPLETED, ContextSearchIndexRunResource::STATUS_SKIPPED_LOW_QUALITY], true)) {
+            $pipeline->failResource((int) $item->getKey(), 'embedding_profile_changed');
             return;
         }
 
-        $runResource->update(['status' => ContextSearchIndexRunResource::STATUS_RUNNING, 'failure_message' => null]);
         $resource = (new Resource())->newQueryWithoutScopes()->find($this->resourceId);
-
         if ($resource === null) {
-            $this->finishResource($run, $runResource, false, 0, 'The requested resource no longer exists.');
+            $pipeline->failResource((int) $item->getKey(), 'source_missing');
             return;
         }
 
-        $result = $indexer->index($resource, $run->collection_name);
-        $this->finishResource($run, $runResource, true, $result->indexedChunks, null, $result->totalPages, $result->skippedPages, $result->skippedReasons);
+        $revision = $snapshot->revision($resource);
+        $extractionProfile = $snapshot->extractionProfile();
+        $chunkingProfile = $snapshot->chunkingProfile();
+        $indexRevision = $snapshot->indexRevision($revision, $profile->id());
+
+        if ($item->source_revision !== null && ($item->source_revision !== $revision
+            || $item->index_revision !== $indexRevision
+            || $item->extraction_profile !== $extractionProfile || $item->chunking_profile !== $chunkingProfile)) {
+            $pipeline->failResource((int) $item->getKey(), 'source_or_profile_changed');
+            return;
+        }
+
+        $pageCount = $item->page_count ?? $extractor->pageCount($resource);
+        if ($pageCount < 1 || $pageCount > 1000) {
+            $pipeline->failResource((int) $item->getKey(), 'invalid_page_count');
+            return;
+        }
+
+        if ($item->page_count === null) {
+            $item->update([
+                'source_revision' => $revision,
+                'index_revision' => $indexRevision,
+                'extraction_profile' => $extractionProfile,
+                'chunking_profile' => $chunkingProfile,
+                'page_count' => $pageCount,
+            ]);
+
+        }
+
+        // A crash after saving page_count but before creating every row is restartable.
+        for ($pageNumber = 1; $pageNumber <= $pageCount; $pageNumber++) {
+            ContextSearchIndexRunPage::query()->firstOrCreate(
+                ['run_resource_id' => $item->getKey(), 'page_number' => $pageNumber],
+                ['status' => ContextSearchIndexRunPage::STATUS_PENDING],
+            );
+        }
+
+        $pipeline->advanceResource((int) $item->getKey());
     }
 
     public function failed(?Throwable $exception): void
     {
-        $run = ContextSearchIndexRun::query()->find($this->runId);
-
-        if ($run !== null) {
-            $runResource = ContextSearchIndexRunResource::query()
-                ->where('run_id', $run->getKey())
-                ->where('resource_id', $this->resourceId)
-                ->first();
-
-            if ($runResource !== null) {
-                $this->finishResource($run, $runResource, false, 0, 'A resource could not be indexed.');
-            }
+        $item = ContextSearchIndexRunResource::query()->where('run_id', $this->runId)
+            ->where('resource_id', $this->resourceId)->first();
+        if ($item !== null) {
+            app(ContextSearchIndexPipeline::class)->failResource((int) $item->getKey(), 'planning_failed');
         }
-    }
-
-    /** @param array<string, int> $skipReasons */
-    private function finishResource(ContextSearchIndexRun $run, ContextSearchIndexRunResource $runResource, bool $successful, int $chunks, ?string $failure = null, int $indexedPages = 0, int $skippedPages = 0, array $skipReasons = []): void
-    {
-        $runResource->update([
-            'status' => $successful
-                ? ($chunks === 0 && $skippedPages > 0 ? ContextSearchIndexRunResource::STATUS_SKIPPED_LOW_QUALITY : ContextSearchIndexRunResource::STATUS_COMPLETED)
-                : ContextSearchIndexRunResource::STATUS_FAILED,
-            'indexed_chunks' => $chunks,
-            'indexed_pages' => max(0, $indexedPages - $skippedPages),
-            'skipped_pages' => $skippedPages,
-            'skip_reasons' => $skipReasons,
-            'failure_message' => $failure,
-        ]);
-
-        $processed = ContextSearchIndexRunResource::query()->where('run_id', $run->getKey())
-            ->whereIn('status', [ContextSearchIndexRunResource::STATUS_COMPLETED, ContextSearchIndexRunResource::STATUS_SKIPPED_LOW_QUALITY])->count();
-        $failed = ContextSearchIndexRunResource::query()->where('run_id', $run->getKey())
-            ->where('status', ContextSearchIndexRun::STATUS_FAILED)->count();
-        $run->update(['processed_resources' => $processed, 'failed_resources' => $failed]);
-
-        if ($processed + $failed < $run->total_resources) {
-            return;
-        }
-
-        $run->status = $failed === 0
-            ? ContextSearchIndexRun::STATUS_COMPLETED
-            : ContextSearchIndexRun::STATUS_FAILED;
-        $run->failure_message = $failure;
-        $run->finished_at = now();
-        $run->save();
     }
 }

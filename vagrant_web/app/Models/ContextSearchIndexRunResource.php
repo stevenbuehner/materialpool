@@ -10,6 +10,7 @@ class ContextSearchIndexRunResource extends Model
     public const STATUS_COMPLETED = 'completed';
     public const STATUS_SKIPPED_LOW_QUALITY = 'skipped_low_quality';
     public const STATUS_FAILED = 'failed';
+    public const STATUS_PENDING = 'pending';
 
     protected $fillable = [
         'run_id',
@@ -20,6 +21,11 @@ class ContextSearchIndexRunResource extends Model
         'skipped_pages',
         'skip_reasons',
         'failure_message',
+        'source_revision',
+        'index_revision',
+        'extraction_profile',
+        'chunking_profile',
+        'page_count',
     ];
 
     protected function casts(): array
@@ -30,6 +36,7 @@ class ContextSearchIndexRunResource extends Model
             'indexed_pages' => 'integer',
             'skipped_pages' => 'integer',
             'skip_reasons' => 'array',
+            'page_count' => 'integer',
         ];
     }
 }

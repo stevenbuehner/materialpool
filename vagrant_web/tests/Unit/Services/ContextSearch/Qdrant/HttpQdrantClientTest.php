@@ -118,6 +118,37 @@ final class HttpQdrantClientTest extends TestCase
         });
     }
 
+    public function test_deletes_only_the_explicit_old_revision_after_publication(): void
+    {
+        Http::fake(['qdrant.test/*' => Http::response(['status' => 'ok', 'result' => ['status' => 'completed']])]);
+        $revision = str_repeat('b', 64);
+
+        $this->client()->deleteResourceRevisionPoints('collection', 42, 'profile-1', $revision);
+
+        Http::assertSent(function (Request $request) use ($revision): bool {
+            return $request->method() === 'POST'
+                && $request['filter']['must'] === [
+                    ['key' => 'resource_id', 'match' => ['value' => 42]],
+                    ['key' => 'embedding_profile', 'match' => ['value' => 'profile-1']],
+                    ['key' => 'index_revision', 'match' => ['value' => $revision]],
+                ];
+        });
+    }
+
+    public function test_does_not_confirm_an_upsert_from_an_acknowledgement_only(): void
+    {
+        Http::fake(['qdrant.test/*' => Http::response(['status' => 'ok', 'result' => ['status' => 'acknowledged']])]);
+
+        $this->expectException(QdrantRequestException::class);
+        $this->expectExceptionMessage('not confirmed as completed');
+
+        $this->client()->upsertPoints('collection', [[
+            'id' => 'a3d03722-6077-5e44-a391-3302f9c9386a',
+            'vector' => [0.1, 0.2],
+            'payload' => ['resource_id' => 42],
+        ]]);
+    }
+
     private function client(): HttpQdrantClient
     {
         return new HttpQdrantClient(

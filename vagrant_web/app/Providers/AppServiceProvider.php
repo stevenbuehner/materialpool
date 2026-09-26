@@ -154,7 +154,6 @@ class AppServiceProvider extends ServiceProvider {
 			overlapCharacters: (int) config('context_search.chunking.overlap_characters'),
 		));
 		$this->app->singleton(ContextSearchResourceIndexer::class, fn ($app): ContextSearchResourceIndexer => new ContextSearchResourceIndexer(
-			extractor: $app->make(ResourceTextExtractor::class),
 			chunker: $app->make(TextChunker::class),
 			embeddings: $app->make(OllamaEmbeddingPool::class),
 			qdrant: $app->make(QdrantClient::class),

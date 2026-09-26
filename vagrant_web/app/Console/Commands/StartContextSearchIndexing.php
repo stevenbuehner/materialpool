@@ -2,11 +2,12 @@
 
 namespace App\Console\Commands;
 
-use App\Jobs\IndexContextSearchResource;
 use App\Models\ContextSearchIndexRun;
 use App\Models\ContextSearchIndexRunResource;
 use App\Models\Resource;
 use App\Services\ContextSearch\ContextSearchQueueSafety;
+use App\Services\ContextSearch\ContextSearchIndexPipeline;
+use App\Services\ContextSearch\ContextSearchCapacityGate;
 use App\Services\ContextSearch\EmbeddingProfile;
 use App\Services\ContextSearch\Qdrant\QdrantClient;
 use Illuminate\Console\Command;
@@ -32,6 +33,7 @@ final class StartContextSearchIndexing extends Command
 
         try {
             $queueSafety->assertDispatchAllowed();
+            app(ContextSearchCapacityGate::class)->assertCanStart();
             $run = filled($this->option('resume'))
                 ? $this->resume((string) $this->option('resume'))
                 : $this->start(app(QdrantClient::class), app(EmbeddingProfile::class));
@@ -94,8 +96,9 @@ final class StartContextSearchIndexing extends Command
                 'resource_id' => $resourceId,
                 'status' => ContextSearchIndexRun::STATUS_PENDING,
             ]);
-            IndexContextSearchResource::dispatch($run->getKey(), $resourceId);
         }
+
+        app(ContextSearchIndexPipeline::class)->advanceRun($run->getKey());
 
         return $run;
     }
@@ -108,28 +111,35 @@ final class StartContextSearchIndexing extends Command
             throw new \RuntimeException('Ein abgeschlossener Indexlauf kann nicht fortgesetzt werden. Starte stattdessen einen neuen Lauf.');
         }
 
+        $pending = ContextSearchIndexRunResource::query()
+            ->where('run_id', $run->getKey())
+            ->whereIn('status', [ContextSearchIndexRun::STATUS_PENDING, ContextSearchIndexRun::STATUS_FAILED, ContextSearchIndexRunResource::STATUS_RUNNING])
+            ->orderBy('resource_id')
+            ->get(['id', 'resource_id', 'status']);
+
+        if ($pending->isEmpty()) {
+            throw new \RuntimeException('Dieser Lauf enthält keine fortsetzbaren Ressourcen.');
+        }
+
         $run->update([
             'status' => ContextSearchIndexRun::STATUS_RUNNING,
             'failure_message' => null,
             'finished_at' => null,
         ]);
 
-        $pending = ContextSearchIndexRunResource::query()
-            ->where('run_id', $run->getKey())
-            ->whereIn('status', [ContextSearchIndexRun::STATUS_PENDING, ContextSearchIndexRun::STATUS_FAILED])
-            ->orderBy('resource_id')
-            ->get(['id', 'resource_id']);
-
-        if ($pending->isEmpty()) {
-            throw new \RuntimeException('Dieser Lauf enthält keine fortsetzbaren Ressourcen.');
-        }
-
+        $pipeline = app(ContextSearchIndexPipeline::class);
         foreach ($pending as $runResource) {
-            ContextSearchIndexRunResource::query()
-                ->whereKey($runResource->getKey())
-                ->update(['status' => ContextSearchIndexRun::STATUS_PENDING, 'failure_message' => null]);
-            IndexContextSearchResource::dispatch($run->getKey(), $runResource->resource_id);
+            if ($runResource->status === ContextSearchIndexRun::STATUS_FAILED) {
+                ContextSearchIndexRunResource::query()->whereKey($runResource->getKey())
+                    ->update(['status' => ContextSearchIndexRun::STATUS_PENDING, 'failure_message' => null]);
+                \App\Models\ContextSearchIndexRunPage::query()->where('run_resource_id', $runResource->getKey())
+                    ->where('status', \App\Models\ContextSearchIndexRunPage::STATUS_FAILED)
+                    ->update(['status' => \App\Models\ContextSearchIndexRunPage::STATUS_PENDING, 'failure_code' => null]);
+            } elseif ($runResource->status === ContextSearchIndexRunResource::STATUS_RUNNING) {
+                $pipeline->requeueResource((int) $runResource->getKey());
+            }
         }
+        $pipeline->advanceRun($run->getKey());
 
         return $run;
     }

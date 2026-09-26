@@ -364,6 +364,7 @@ Jeder folgende Schritt endet nach Abschnitt 3 mit einem eigenen Commit.
 
 - Den [Queue-Änderungsvertrag](context-search-queue-change-contract.md) in genau drei separat geprüften und separat committeten Schritten ohne produktive Zwischenlösung umsetzen: (1) eigene Datenbank-Queue-Connection ohne Aktivierung, (2) endgültige Worker- und Betriebsgrenzen vorbereiten, (3) seitenweise, wiederanlaufbare Verarbeitung mit revisionssicherer Qdrant-Veröffentlichung und einmaligem Cutover.
 - Vor jedem Teil-Schritt seine entscheidungspflichtigen Schema-, Storage-, Queue- und Produktionsänderungen konkret freigeben lassen; keine produktiven Queue-Bestände pauschal bereinigen.
+- Für Schritt 3 ist Option A ausdrücklich freigegeben: MySQL speichert revisionsgebundene Seiten- und Publikationszustände, private regenerierbare Seitentexte liegen unter `storage/app/context-search-ocr-artifacts` und sind vom Datei-Backup ausgeschlossen. Fehlende oder beschädigte Artefakte lösen eine erneute, auf die betroffene Seite begrenzte Extraktion aus. Quell- und Indexrevision sind getrennt; die Indexrevision berücksichtigt OCR-/Chunking-/Embedding-Profile. Diese Entscheidung aktiviert keine produktiven Worker vor dem vollständigen Abnahme- und Cutover-Gate.
 - Abnahme: kein Kontextjob kann vor seinem Timeout erneut reserviert werden; lange/defekte Dokumente blockieren nicht dauerhaft; die Default-/Preview-/Bundle-Queues bleiben unverändert; ein Crash erzeugt keinen als vollständig sichtbaren Teilindex.
 
 ### Schritt 5 – Capacity Gate und Betriebsanleitung
