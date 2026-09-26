@@ -120,7 +120,7 @@ export default {
 				}, {rootMargin: '250px 0px'});
 
 				observers.set(el, observer);
-				observer.observe(el);
+				observer.observe(hideImage ? el.parentElement : el);
 			} else {
 				queueImage();
 			}
