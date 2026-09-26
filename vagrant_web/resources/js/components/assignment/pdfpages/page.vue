@@ -13,7 +13,7 @@
     </div>
 
     <div class="content-container" @click="handleClick">
-      <div class="image-container">
+      <div class="image-container" :class="{'is-loading': !imageLoaded}">
         <transition name="fade">
           <img v-show="imageLoaded" :src="image" @load="imageLoaded = true"/>
         </transition>
@@ -193,6 +193,13 @@ export default {
 .image-container {
   overflow: hidden;
   position: relative;
+}
+
+.image-container.is-loading {
+  aspect-ratio: 1 / 1.414;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .image-container img {
