@@ -6,6 +6,7 @@ use App\Models\ContextSearchEvaluationDataset;
 use App\Models\ContextSearchEvaluationDatasetMember;
 use App\Models\Resource;
 use App\Services\ContextSearch\EvaluationDatasetCurationService;
+use App\Services\ContextSearch\EvaluationDatasetOverlapPolicy;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Throwable;
@@ -29,9 +30,7 @@ final class ReconcileContextSearchEvaluationDatasetMembers extends Command
             $materials = collect($dataset->manifest['materials'] ?? [])->pluck('source_id')->filter()->map(fn ($id) => (int) $id)->all();
             $resources = collect($dataset->manifest['resources'] ?? [])->filter(fn ($entry) => isset($entry['source_id']))->values();
             $resourceIds = $resources->pluck('source_id')->map(fn ($id) => (int) $id)->all();
-            $allowedPurposes = $dataset->purpose === 'ocr'
-                ? ['calibration', 'acceptance']
-                : (in_array($dataset->purpose, ['calibration', 'acceptance'], true) ? ['ocr'] : []);
+            $allowedPurposes = EvaluationDatasetOverlapPolicy::allowedPurposes($dataset->purpose);
             $conflict = ContextSearchEvaluationDatasetMember::query()->where(function ($query) use ($materials, $resourceIds): void {
                 $query->where(fn ($members) => $members->where('member_type', 'material')->whereIn('member_id', $materials))
                     ->orWhere(fn ($members) => $members->where('member_type', 'resource')->whereIn('member_id', $resourceIds));
@@ -72,7 +71,7 @@ final class ReconcileContextSearchEvaluationDatasetMembers extends Command
             $actual[$dataset->purpose]['resources'] = ($actual[$dataset->purpose]['resources'] ?? 0) + ($counts?->resources ?? $dataset->resource_count);
         }
         $eligibleResources = Resource::query()->withoutGlobalScopes()->whereIn('type', ['pdf', 'text'])->count();
-        $exclusiveTargets = collect($targets)->except('ocr');
+        $exclusiveTargets = collect($targets)->only(['calibration', 'acceptance']);
         $targetResources = array_sum(array_column($exclusiveTargets->all(), 'resources'));
         $targetMaterials = array_sum(array_column($exclusiveTargets->all(), 'materials'));
 
@@ -89,9 +88,10 @@ final class ReconcileContextSearchEvaluationDatasetMembers extends Command
             ));
         }
         $reserve = $eligibleResources - $targetResources;
-        $this->line(sprintf('  %-12s Exklusivziel: %d Ressourcen / %d Materialien · OCR-Ziel überlappt: %d Ressourcen · aktuell geeignet: %d · Reserve: %d', 'Gesamt', $targetResources, $targetMaterials, $targets['ocr']['resources'], $eligibleResources, $reserve));
+        $overlappingResources = array_sum(array_column(array_intersect_key($targets, array_flip(['ocr', 'load', 'capacity'])), 'resources'));
+        $this->line(sprintf('  %-12s Mindestbedarf exklusiv: %d Ressourcen / %d Materialien · OCR/Last/Kapazität: %d Ressourcen (überlappend) · aktuell geeignet: %d · Reserve: %d', 'Gesamt', $targetResources, $targetMaterials, $overlappingResources, $eligibleResources, $reserve));
         if ($reserve < 0) {
-            $this->components->warn('Die aktuelle Anzahl geeigneter Ressourcen reicht nicht für die exklusiven Zielmengen. OCR ist darin als überlappende Teilmenge nicht zusätzlich gezählt.');
+            $this->components->warn('Die aktuelle Anzahl geeigneter Ressourcen reicht nicht für Kalibrierung und Abnahme. OCR-, Last- und Kapazitätsziele können auf denselben vollständigen Blöcken liegen und erhöhen den Mindestbedarf nicht.');
         }
         $this->newLine();
     }

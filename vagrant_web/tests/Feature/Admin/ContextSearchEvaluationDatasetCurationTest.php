@@ -65,7 +65,7 @@ final class ContextSearchEvaluationDatasetCurationTest extends TestCase
         $this->postJson('/api/v2/admin/context-search/datasets/'.$first['id'].'/assign', $payload)->assertConflict();
     }
 
-    public function test_ocr_memberships_overlap_calibration_or_acceptance_but_not_other_purposes(): void
+    public function test_ocr_load_and_capacity_memberships_overlap_while_calibration_and_acceptance_remain_disjoint(): void
     {
         $this->asAdmin();
         [$calibrationMaterial] = $this->connectedSources();
@@ -74,6 +74,7 @@ final class ContextSearchEvaluationDatasetCurationTest extends TestCase
         $acceptance = $this->postJson('/api/v2/admin/context-search/datasets', ['purpose' => 'acceptance'])->assertCreated()->json('dataset');
         $ocr = $this->postJson('/api/v2/admin/context-search/datasets', ['purpose' => 'ocr'])->assertCreated()->json('dataset');
         $load = $this->postJson('/api/v2/admin/context-search/datasets', ['purpose' => 'load'])->assertCreated()->json('dataset');
+        $capacity = $this->postJson('/api/v2/admin/context-search/datasets', ['purpose' => 'capacity'])->assertCreated()->json('dataset');
         $calibrationPayload = ['material_ids' => [$calibrationMaterial->id], 'resource_ids' => [], 'expected_version' => 1, 'include_private' => false];
         $acceptancePayload = ['material_ids' => [$acceptanceMaterial->id], 'resource_ids' => [], 'expected_version' => 1, 'include_private' => false];
 
@@ -96,10 +97,19 @@ final class ContextSearchEvaluationDatasetCurationTest extends TestCase
 
         $this->postJson('/api/v2/admin/context-search/datasets/'.$load['id'].'/assign', [
             ...$calibrationPayload, 'expected_version' => 1,
-        ])->assertUnprocessable();
+        ])->assertOk();
+        $this->postJson('/api/v2/admin/context-search/datasets/'.$capacity['id'].'/assign', [
+            ...$calibrationPayload, 'expected_version' => 1,
+        ])->assertOk();
+        $this->postJson('/api/v2/admin/context-search/datasets/'.$capacity['id'].'/assign', [
+            ...$acceptancePayload, 'expected_version' => 1,
+        ])->assertOk();
         $this->postJson('/api/v2/admin/context-search/datasets/'.$acceptance['id'].'/assign', [
             ...$calibrationPayload, 'expected_version' => 1,
         ])->assertUnprocessable();
+        $this->postJson('/api/v2/admin/context-search/datasets/'.$load['id'].'/assign', [
+            ...$acceptancePayload, 'expected_version' => 1,
+        ])->assertOk();
     }
 
     public function test_private_content_requires_explicit_reason_and_candidate_endpoint_marks_assignment(): void

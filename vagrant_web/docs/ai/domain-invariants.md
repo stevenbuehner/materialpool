@@ -31,7 +31,8 @@ Diese Regeln sind aus dem aktuellen Codebestand abgeleitet. Sie dürfen nur nach
 
 - Materialien und Ressourcen dürfen nicht gleichzeitig Kalibrierung und Abnahme zugeordnet sein.
 - Der OCR-Datensatz ist eine zusätzliche, überlappende Qualitätsdimension und darf vollständige Blöcke aus Kalibrierung oder Abnahme wiederverwenden.
-- OCR-Mitgliedschaften überlappen nicht mit Last- oder Kapazitätsdatensätzen; diese Zwecke bleiben untereinander exklusiv.
+- Last- und Kapazitätsdatensätze sind orthogonale Betriebsprüfungen und dürfen vollständige Blöcke aus allen anderen Zwecken sowie gegenseitig wiederverwenden. Sie dienen nicht zur Anpassung semantischer Relevanz oder Schwellenwerte.
+- Kalibrierung und Abnahme bleiben strikt disjunkt; mehrere Datensätze desselben Zwecks teilen keine Mitglieder.
 - Die Datenbank erzwingt die Eindeutigkeit eines Mitglieds innerhalb eines Datensatzes. Die serverseitige Transaktion erzwingt die Zweckregeln für zulässige beziehungsweise unzulässige Überschneidungen.
 
 ## Änderungs-Checkliste

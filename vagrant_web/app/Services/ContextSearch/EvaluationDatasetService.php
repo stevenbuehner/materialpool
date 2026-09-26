@@ -398,9 +398,7 @@ final class EvaluationDatasetService
         sort($resourceIds);
         Material::query()->withoutGlobalScopes()->whereIn('id', $materialIds)->orderBy('id')->lockForUpdate()->get(['id']);
         Resource::query()->withoutGlobalScopes()->whereIn('id', $resourceIds)->orderBy('id')->lockForUpdate()->get(['id']);
-        $allowedPurposes = $manifest['purpose'] === 'ocr'
-            ? ['calibration', 'acceptance']
-            : (in_array($manifest['purpose'], ['calibration', 'acceptance'], true) ? ['ocr'] : []);
+        $allowedPurposes = EvaluationDatasetOverlapPolicy::allowedPurposes($manifest['purpose']);
         $exists = ContextSearchEvaluationDatasetMember::query()->where(function ($query) use ($materialIds, $resourceIds): void {
             $query->where(fn ($members) => $members->where('member_type', ContextSearchEvaluationDatasetMember::TYPE_MATERIAL)->whereIn('member_id', $materialIds))
                 ->orWhere(fn ($members) => $members->where('member_type', ContextSearchEvaluationDatasetMember::TYPE_RESOURCE)->whereIn('member_id', $resourceIds));

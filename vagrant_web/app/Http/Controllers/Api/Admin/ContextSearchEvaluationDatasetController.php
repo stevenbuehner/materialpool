@@ -9,6 +9,7 @@ use App\Models\Bundle;
 use App\Models\Material;
 use App\Models\Resource;
 use App\Services\ContextSearch\EvaluationDatasetCurationService;
+use App\Services\ContextSearch\EvaluationDatasetOverlapPolicy;
 use App\Services\ContextSearch\EvaluationDatasetService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -150,7 +151,7 @@ final class ContextSearchEvaluationDatasetController extends Controller
             ])->values()->all();
             $current = $targetDataset === null ? null : collect($all)->first(fn (array $assignment): bool => $assignment['id'] === $targetDataset->getKey());
             $blocking = collect($all)->first(fn (array $assignment): bool => $targetDataset === null
-                || ($assignment['id'] !== $targetDataset->getKey() && ! $this->mayOverlap($targetDataset->purpose, (string) $assignment['purpose'])));
+                || ($assignment['id'] !== $targetDataset->getKey() && ! EvaluationDatasetOverlapPolicy::allows($targetDataset->purpose, (string) $assignment['purpose'])));
             $primary = $current ?? $blocking ?? ($all[0] ?? null);
             $locked = $current !== null || $blocking !== null;
             $purposes = collect($all)->pluck('purpose')->unique()->values();
@@ -164,9 +165,4 @@ final class ContextSearchEvaluationDatasetController extends Controller
         })->all();
     }
 
-    private function mayOverlap(string $firstPurpose, string $secondPurpose): bool
-    {
-        return ($firstPurpose === 'ocr' && in_array($secondPurpose, ['calibration', 'acceptance'], true))
-            || ($secondPurpose === 'ocr' && in_array($firstPurpose, ['calibration', 'acceptance'], true));
-    }
 }

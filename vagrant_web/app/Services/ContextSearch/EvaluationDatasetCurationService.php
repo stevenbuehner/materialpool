@@ -256,15 +256,10 @@ final class EvaluationDatasetCurationService
             return $query;
         }
 
-        $query->where(function ($members) use ($dataset): void {
+        $allowedPurposes = EvaluationDatasetOverlapPolicy::allowedPurposes($dataset->purpose);
+        $query->where(function ($members) use ($dataset, $allowedPurposes): void {
             $members->where('dataset_id', '!=', $dataset->getKey())
-                ->whereHas('dataset', function ($related) use ($dataset): void {
-                    if ($dataset->purpose === 'ocr') {
-                        $related->whereNotIn('purpose', ['calibration', 'acceptance']);
-                    } elseif (in_array($dataset->purpose, ['calibration', 'acceptance'], true)) {
-                        $related->where('purpose', '!=', 'ocr');
-                    }
-                });
+                ->whereHas('dataset', fn ($related) => $related->whereNotIn('purpose', $allowedPurposes));
         });
 
         return $query;

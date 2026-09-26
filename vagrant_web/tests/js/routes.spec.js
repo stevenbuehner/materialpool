@@ -38,6 +38,7 @@ describe('main application routes', () => {
             'bundle-list',
             'readbible',
 			'admin-users',
+			'context-search-evaluation-datasets',
             'system-shutdown',
         ]);
     });
