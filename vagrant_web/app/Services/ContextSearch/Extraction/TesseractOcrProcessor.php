@@ -29,7 +29,9 @@ final class TesseractOcrProcessor implements OcrProcessor
             $text = $this->run(['tesseract', $imagePath, 'stdout', '-l', $this->languages, '--psm', '3']);
             $tsv = $this->run(['tesseract', $imagePath, 'stdout', '-l', $this->languages, '--psm', '3', 'tsv']);
 
-            return new OcrResult($text, $this->confidence($tsv), 'tesseract-5');
+            $metrics = $this->metrics($text, $tsv);
+
+            return new OcrResult($text, $metrics['mean_confidence'], 'tesseract-5', $metrics);
         } finally {
             @unlink($imagePath);
             @rmdir($temporaryDirectory);
@@ -50,19 +52,50 @@ final class TesseractOcrProcessor implements OcrProcessor
         return $process->getOutput();
     }
 
-    private function confidence(string $tsv): float
+    /** @return array{mean_confidence: float, median_confidence: float, low_confidence_word_ratio: float, recognized_word_count: int, alphanumeric_ratio: float, replacement_character_ratio: float} */
+    private function metrics(string $text, string $tsv): array
     {
         $confidences = [];
+        $histogram = array_fill(0, 101, 0);
 
         foreach (array_slice(preg_split('/\R/', $tsv) ?: [], 1) as $line) {
             $columns = explode("\t", $line);
             $confidence = $columns[10] ?? null;
+            $word = trim($columns[11] ?? '');
 
-            if (is_numeric($confidence) && (float) $confidence >= 0) {
-                $confidences[] = (float) $confidence;
+            if ($word !== '' && is_numeric($confidence) && (float) $confidence >= 0) {
+                $value = (float) $confidence;
+                $confidences[] = $value;
+                $histogram[min(100, max(0, (int) floor($value)))]++;
             }
         }
 
-        return $confidences === [] ? 0.0 : array_sum($confidences) / count($confidences) / 100;
+        sort($confidences);
+        $wordCount = count($confidences);
+        $characterCount = mb_strlen(preg_replace('/\s+/u', '', $text) ?? '');
+        $alphanumericCount = preg_match_all('/[\pL\pN]/u', $text) ?: 0;
+        $replacementCount = substr_count($text, "\u{FFFD}");
+
+        $below50 = array_sum(array_slice($histogram, 0, 50));
+
+        return [
+            'mean_confidence' => $wordCount === 0 ? 0.0 : array_sum($confidences) / $wordCount / 100,
+            'median_confidence' => $wordCount === 0 ? 0.0 : $this->median($confidences) / 100,
+            'low_confidence_word_ratio' => $wordCount === 0 ? 1.0 : $below50 / $wordCount,
+            'recognized_word_count' => $wordCount,
+            'alphanumeric_ratio' => $characterCount === 0 ? 0.0 : $alphanumericCount / $characterCount,
+            'replacement_character_ratio' => $characterCount === 0 ? 0.0 : $replacementCount / $characterCount,
+            'confidence_histogram' => $histogram,
+        ];
+    }
+
+    /** @param array<int, float> $values */
+    private function median(array $values): float
+    {
+        $middle = intdiv(count($values), 2);
+
+        return count($values) % 2 === 0
+            ? ($values[$middle - 1] + $values[$middle]) / 2
+            : $values[$middle];
     }
 }

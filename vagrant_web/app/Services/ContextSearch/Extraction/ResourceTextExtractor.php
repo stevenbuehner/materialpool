@@ -16,6 +16,7 @@ final class ResourceTextExtractor
         private readonly FileHandlingService $files,
         private readonly OcrProcessor $ocr,
         private readonly int $nativeTextMinimumCharacters,
+        private readonly OcrQualityGate $qualityGate,
     ) {
     }
 
@@ -43,7 +44,8 @@ final class ResourceTextExtractor
             }
 
             $ocr = $this->ocr->extractPage($path, $pageNumber);
-            $pages[] = new ExtractedPage($pageNumber, $ocr->text, 'ocr', $ocr->quality, $ocr->version);
+            $assessment = $this->qualityGate->assess($ocr->metrics);
+            $pages[] = new ExtractedPage($pageNumber, $ocr->text, 'ocr', $ocr->quality, $ocr->version, $assessment['accepted'], $ocr->metrics, $assessment['reasons']);
         }
 
         return $pages;

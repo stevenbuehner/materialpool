@@ -4,6 +4,7 @@ namespace Tests\Unit\Services\ContextSearch\Extraction;
 
 use App\Models\Text;
 use App\Services\ContextSearch\Extraction\OcrProcessor;
+use App\Services\ContextSearch\Extraction\OcrQualityGate;
 use App\Services\ContextSearch\Extraction\OcrResult;
 use App\Services\ContextSearch\Extraction\ResourceTextExtractor;
 use App\Services\ResourceHandling\FileHandlingService;
@@ -26,6 +27,7 @@ final class ResourceTextExtractorTest extends TestCase
                 }
             },
             80,
+            new OcrQualityGate(0, 1, 0, 1),
         );
 
         $pages = $extractor->extract($text);

@@ -8,6 +8,7 @@ use App\Services\Bundles\BundlesService;
 use App\Services\ContextSearch\EmbeddingProfile;
 use App\Services\ContextSearch\ContextSearchResourceIndexer;
 use App\Services\ContextSearch\Extraction\OcrProcessor;
+use App\Services\ContextSearch\Extraction\OcrQualityGate;
 use App\Services\ContextSearch\Extraction\ResourceTextExtractor;
 use App\Services\ContextSearch\Extraction\TesseractOcrProcessor;
 use App\Services\ContextSearch\Ollama\OllamaEmbeddingPool;
@@ -127,15 +128,22 @@ class AppServiceProvider extends ServiceProvider {
 			failureThreshold: (int) config('context_search.ollama.failure_threshold'),
 			circuitCooldown: (int) config('context_search.ollama.circuit_cooldown'),
 		));
-		$this->app->singleton(OcrProcessor::class, fn (): OcrProcessor => new TesseractOcrProcessor(
+        $this->app->singleton(OcrProcessor::class, fn (): OcrProcessor => new TesseractOcrProcessor(
 			languages: (string) config('context_search.indexing.ocr_languages'),
 			timeout: (int) config('context_search.indexing.ocr_timeout'),
-		));
+        ));
+        $this->app->singleton(OcrQualityGate::class, fn (): OcrQualityGate => new OcrQualityGate(
+            minimumMeanConfidence: (float) config('context_search.indexing.ocr_quality_minimum_mean_confidence'),
+            minimumRecognizedWords: (int) config('context_search.indexing.ocr_quality_minimum_recognized_words'),
+            minimumAlphanumericRatio: (float) config('context_search.indexing.ocr_quality_minimum_alphanumeric_ratio'),
+            maximumReplacementCharacterRatio: (float) config('context_search.indexing.ocr_quality_maximum_replacement_character_ratio'),
+        ));
 		$this->app->singleton(ResourceTextExtractor::class, fn ($app): ResourceTextExtractor => new ResourceTextExtractor(
 			pdfs: $app->make(PdfHandlingService::class),
 			files: $app->make(FileHandlingService::class),
-			ocr: $app->make(OcrProcessor::class),
-			nativeTextMinimumCharacters: (int) config('context_search.indexing.pdf_native_text_minimum_characters'),
+            ocr: $app->make(OcrProcessor::class),
+            nativeTextMinimumCharacters: (int) config('context_search.indexing.pdf_native_text_minimum_characters'),
+            qualityGate: $app->make(OcrQualityGate::class),
 		));
 		$this->app->singleton(TextChunker::class, fn (): TextChunker => new TextChunker(
 			targetCharacters: (int) config('context_search.chunking.target_characters'),

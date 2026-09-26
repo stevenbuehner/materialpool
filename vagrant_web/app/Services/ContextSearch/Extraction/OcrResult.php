@@ -8,6 +8,7 @@ final readonly class OcrResult
         public string $text,
         public float $quality,
         public string $version,
+        public array $metrics = [],
     ) {
     }
 }

@@ -6,6 +6,7 @@ use App\Models\Text;
 use App\Services\ContextSearch\ContextSearchResourceIndexer;
 use App\Services\ContextSearch\EmbeddingProfile;
 use App\Services\ContextSearch\Extraction\OcrProcessor;
+use App\Services\ContextSearch\Extraction\OcrQualityGate;
 use App\Services\ContextSearch\Extraction\OcrResult;
 use App\Services\ContextSearch\Extraction\ResourceTextExtractor;
 use App\Services\ContextSearch\Ollama\OllamaEmbeddingPool;
@@ -54,12 +55,12 @@ final class ContextSearchResourceIndexerTest extends TestCase
         $text->setAttribute('id', 42);
         $text->setAttribute('content_hash', 'current-content-hash');
         $text->setContent('Die Kontextsuche liefert eine belegbare Fundstelle für ein Material.');
-        $extractor = new ResourceTextExtractor(new PdfHandlingService(new FileHandlingService()), new FileHandlingService(), $ocr, 80);
+        $extractor = new ResourceTextExtractor(new PdfHandlingService(new FileHandlingService()), new FileHandlingService(), $ocr, 80, new OcrQualityGate(0, 1, 0, 1));
         $pool = new OllamaEmbeddingPool([new OllamaServer('primary', 'http://ollama.test', null, 1)], $profile, Cache::store(), 2, 10, 2, 60);
         $indexer = new ContextSearchResourceIndexer($extractor, new TextChunker(100, 0), $pool, $qdrant, 8);
 
-        $this->assertSame(1, $indexer->index($text, 'active_collection'));
-        $this->assertSame(1, $indexer->index($text, 'active_collection'));
+        $this->assertSame(1, $indexer->index($text, 'active_collection')->indexedChunks);
+        $this->assertSame(1, $indexer->index($text, 'active_collection')->indexedChunks);
 
         $this->assertCount(2, $qdrant->deleted);
         $this->assertSame(42, $qdrant->deleted[0]['resourceId']);

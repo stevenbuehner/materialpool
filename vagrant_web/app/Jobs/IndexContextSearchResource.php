@@ -51,11 +51,11 @@ class IndexContextSearchResource implements ShouldQueue, ShouldBeUnique
             ->where('resource_id', $this->resourceId)
             ->first();
 
-        if ($runResource === null || $runResource->status === ContextSearchIndexRun::STATUS_COMPLETED) {
+        if ($runResource === null || in_array($runResource->status, [ContextSearchIndexRunResource::STATUS_COMPLETED, ContextSearchIndexRunResource::STATUS_SKIPPED_LOW_QUALITY], true)) {
             return;
         }
 
-        $runResource->update(['status' => ContextSearchIndexRun::STATUS_RUNNING, 'failure_message' => null]);
+        $runResource->update(['status' => ContextSearchIndexRunResource::STATUS_RUNNING, 'failure_message' => null]);
         $resource = (new Resource())->newQueryWithoutScopes()->find($this->resourceId);
 
         if ($resource === null) {
@@ -63,8 +63,8 @@ class IndexContextSearchResource implements ShouldQueue, ShouldBeUnique
             return;
         }
 
-        $chunks = $indexer->index($resource, $run->collection_name);
-        $this->finishResource($run, $runResource, true, $chunks);
+        $result = $indexer->index($resource, $run->collection_name);
+        $this->finishResource($run, $runResource, true, $result->indexedChunks, null, $result->totalPages, $result->skippedPages, $result->skippedReasons);
     }
 
     public function failed(?Throwable $exception): void
@@ -83,16 +83,22 @@ class IndexContextSearchResource implements ShouldQueue, ShouldBeUnique
         }
     }
 
-    private function finishResource(ContextSearchIndexRun $run, ContextSearchIndexRunResource $runResource, bool $successful, int $chunks, ?string $failure = null): void
+    /** @param array<string, int> $skipReasons */
+    private function finishResource(ContextSearchIndexRun $run, ContextSearchIndexRunResource $runResource, bool $successful, int $chunks, ?string $failure = null, int $indexedPages = 0, int $skippedPages = 0, array $skipReasons = []): void
     {
         $runResource->update([
-            'status' => $successful ? ContextSearchIndexRun::STATUS_COMPLETED : ContextSearchIndexRun::STATUS_FAILED,
+            'status' => $successful
+                ? ($chunks === 0 && $skippedPages > 0 ? ContextSearchIndexRunResource::STATUS_SKIPPED_LOW_QUALITY : ContextSearchIndexRunResource::STATUS_COMPLETED)
+                : ContextSearchIndexRunResource::STATUS_FAILED,
             'indexed_chunks' => $chunks,
+            'indexed_pages' => max(0, $indexedPages - $skippedPages),
+            'skipped_pages' => $skippedPages,
+            'skip_reasons' => $skipReasons,
             'failure_message' => $failure,
         ]);
 
         $processed = ContextSearchIndexRunResource::query()->where('run_id', $run->getKey())
-            ->where('status', ContextSearchIndexRun::STATUS_COMPLETED)->count();
+            ->whereIn('status', [ContextSearchIndexRunResource::STATUS_COMPLETED, ContextSearchIndexRunResource::STATUS_SKIPPED_LOW_QUALITY])->count();
         $failed = ContextSearchIndexRunResource::query()->where('run_id', $run->getKey())
             ->where('status', ContextSearchIndexRun::STATUS_FAILED)->count();
         $run->update(['processed_resources' => $processed, 'failed_resources' => $failed]);

@@ -22,17 +22,30 @@ final class ContextSearchResourceIndexer
     ) {
     }
 
-    public function index(Resource $resource, string $collection): int
+    public function index(Resource $resource, string $collection): ResourceIndexingResult
     {
         if ($this->embeddingBatchSize < 1) {
             throw new InvalidArgumentException('The context-search embedding batch size must be positive.');
         }
 
         $pages = $this->extractor->extract($resource);
+        if ($pages === []) {
+            throw new RuntimeException('The resource did not contain readable pages.');
+        }
         $revision = $this->documentRevision($resource);
         $points = [];
+        $skippedReasons = [];
+        $skippedPageCount = 0;
 
         foreach ($pages as $page) {
+            if (! $page->accepted) {
+                $skippedPageCount++;
+                foreach ($page->qualityReasons as $reason) {
+                    $skippedReasons[$reason] = ($skippedReasons[$reason] ?? 0) + 1;
+                }
+                continue;
+            }
+
             foreach ($this->chunker->chunk($page->text) as $chunk) {
                 $points[] = [
                     'id' => $this->pointId($collection, $resource->getKey(), $revision, $page->pageNumber, $chunk->ordinal),
@@ -48,7 +61,9 @@ final class ContextSearchResourceIndexer
                         'chunk_text' => $chunk->content,
                         'language' => $this->detectLanguage($chunk->content),
                         'extraction_method' => $page->method,
-                        'extraction_quality' => $page->quality,
+                        'extraction_quality' => $page->method === 'ocr' ? $page->quality : null,
+                        'extraction_quality_metrics' => $page->qualityMetrics,
+                        'ocr_quality_profile' => (string) config('context_search.indexing.ocr_quality_profile'),
                         'extractor_version' => $page->extractorVersion,
                         'chunking_version' => (string) config('context_search.chunking.version'),
                         'embedding_profile' => $this->embeddings->profile()->id(),
@@ -59,7 +74,13 @@ final class ContextSearchResourceIndexer
         }
 
         if ($points === []) {
-            throw new RuntimeException('The resource did not contain indexable text.');
+            if (! $resource instanceof PdfFile || $skippedPageCount === 0) {
+                throw new RuntimeException('The resource did not contain indexable text.');
+            }
+
+            $this->qdrant->deleteResourcePoints($collection, (int) $resource->getKey(), $this->embeddings->profile()->id());
+
+            return new ResourceIndexingResult(0, count($pages), $skippedPageCount, $skippedReasons);
         }
 
         $this->qdrant->deleteResourcePoints($collection, (int) $resource->getKey(), $this->embeddings->profile()->id());
@@ -79,7 +100,7 @@ final class ContextSearchResourceIndexer
             $this->qdrant->upsertPoints($collection, $upserts);
         }
 
-        return count($points);
+        return new ResourceIndexingResult(count($points), count($pages), $skippedPageCount, $skippedReasons);
     }
 
     private function documentRevision(Resource $resource): string

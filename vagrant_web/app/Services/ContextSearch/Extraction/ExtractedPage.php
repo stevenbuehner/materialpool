@@ -10,6 +10,9 @@ final readonly class ExtractedPage
         public string $method,
         public float $quality,
         public string $extractorVersion,
+        public bool $accepted = true,
+        public array $qualityMetrics = [],
+        public array $qualityReasons = [],
     ) {
     }
 }

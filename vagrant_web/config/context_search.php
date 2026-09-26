@@ -45,6 +45,11 @@ return [
         'pdf_native_text_minimum_characters' => (int) env('CONTEXT_SEARCH_PDF_NATIVE_TEXT_MINIMUM_CHARACTERS', 80),
         'ocr_languages' => env('CONTEXT_SEARCH_OCR_LANGUAGES', 'deu+eng'),
         'ocr_timeout' => (int) env('CONTEXT_SEARCH_OCR_TIMEOUT', 120),
+        'ocr_quality_profile' => env('CONTEXT_SEARCH_OCR_QUALITY_PROFILE', 'tesseract-de-en-v1'),
+        'ocr_quality_minimum_mean_confidence' => (float) env('CONTEXT_SEARCH_OCR_MINIMUM_MEAN_CONFIDENCE', 0),
+        'ocr_quality_minimum_recognized_words' => (int) env('CONTEXT_SEARCH_OCR_MINIMUM_RECOGNIZED_WORDS', 1),
+        'ocr_quality_minimum_alphanumeric_ratio' => (float) env('CONTEXT_SEARCH_OCR_MINIMUM_ALPHANUMERIC_RATIO', 0),
+        'ocr_quality_maximum_replacement_character_ratio' => (float) env('CONTEXT_SEARCH_OCR_MAXIMUM_REPLACEMENT_CHARACTER_RATIO', 0),
     ],
 
     'evaluation' => [
