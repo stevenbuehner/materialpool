@@ -95,6 +95,7 @@ return [
 	'Preview-not-available'                                    => 'Keine Vorschau verfügbar',
 	'Regenerate-preview'                                       => 'Vorschau erneut erzeugen',
 	'Preview-is-being-generated'                               => 'Vorschau wird erzeugt',
+	'Preview-waiting-in-queue'                                  => 'Vorschau wartet auf einen freien Ladeplatz',
 	'Filesize'                                                 => 'Dateigröße',
 	'Filesize-not-calculated'                                  => 'noch nicht ausgerechnet',
 	'create-new-resource'                                      => 'Neue Resource erstellen',

@@ -4,19 +4,26 @@
               :resource="resource"
               :src="src"
               @regenerated="showRegeneratedPreview"/>
-  <div v-else v-bind="$attrs" class="previewImage" :class="{isLoading: previewIsLoading}">
+  <div v-else v-bind="$attrs" class="previewImage" :class="{isLoading: previewLoadState !== 'loaded'}">
     <img :key="previewUrl"
          :src="previewUrl"
          :alt="alt"
          v-image-queue.hide
          @error="showMissingPreview"
-         @q-queued="showLoadingPreview"
+         @q-queued="showQueuedPreview"
          @q-loading="showLoadingPreview"
          @q-loaded="showLoadedPreview"
          @q-error="showMissingPreview">
 
-    <div v-if="previewIsLoading" class="previewImageLoading">
+    <div v-if="previewLoadState === 'loading'" class="previewImageLoading">
       <materialpool-spinner size="lg"/>
+    </div>
+
+    <div v-else-if="previewLoadState === 'queued'"
+         class="previewImageWaiting"
+         :title="$t('pool.Preview-waiting-in-queue')">
+      <history-icon aria-hidden="true"/>
+      <span class="visually-hidden">{{ $t('pool.Preview-waiting-in-queue') }}</span>
     </div>
   </div>
 </template>
@@ -24,13 +31,14 @@
 <script>
 import MaterialpoolSpinner from '../../spinner/materialpool-spinner.vue';
 import NoPreview from './no-preview.vue';
+import HistoryIcon from '@primer/octicons/build/svg/history.svg';
 
 export default {
   name: 'PreviewImage',
 
   inheritAttrs: false,
 
-  components: {MaterialpoolSpinner, NoPreview},
+  components: {HistoryIcon, MaterialpoolSpinner, NoPreview},
 
   props: {
     resource: {
@@ -52,7 +60,7 @@ export default {
   data() {
     return {
       previewMissing: false,
-      previewIsLoading: true,
+      previewLoadState: 'queued',
       previewRevision: 0
     };
   },
@@ -72,7 +80,7 @@ export default {
   watch: {
     src() {
       this.previewMissing = false;
-      this.previewIsLoading = true;
+      this.previewLoadState = 'queued';
       this.previewRevision = 0;
     }
   },
@@ -80,21 +88,25 @@ export default {
   methods: {
     showMissingPreview() {
       this.previewMissing = true;
-      this.previewIsLoading = false;
+      this.previewLoadState = 'loaded';
+    },
+
+    showQueuedPreview() {
+      this.previewLoadState = 'queued';
     },
 
     showLoadingPreview() {
-      this.previewIsLoading = true;
+      this.previewLoadState = 'loading';
     },
 
     showLoadedPreview() {
-      this.previewIsLoading = false;
+      this.previewLoadState = 'loaded';
     },
 
     showRegeneratedPreview() {
       this.previewRevision++;
       this.previewMissing = false;
-      this.previewIsLoading = true;
+      this.previewLoadState = 'queued';
     }
   }
 }
@@ -116,6 +128,11 @@ export default {
 }
 
 .previewImageLoading {
+  color: var(--bs-primary);
+}
+
+.previewImageLoading,
+.previewImageWaiting {
   position: absolute;
   inset: 0;
   display: flex;
@@ -123,5 +140,14 @@ export default {
   justify-content: center;
   background-color: rgba(255, 255, 255, .7);
   pointer-events: none;
+}
+
+.previewImageWaiting {
+  color: var(--bs-secondary-color);
+}
+
+.previewImageWaiting :deep(svg) {
+  width: 2.5rem;
+  height: 2.5rem;
 }
 </style>

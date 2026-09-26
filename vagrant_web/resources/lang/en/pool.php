@@ -101,6 +101,7 @@ return [
 	'Preview-not-available'                                    => 'No preview available',
 	'Regenerate-preview'                                       => 'Regenerate preview',
 	'Preview-is-being-generated'                               => 'Preview is being generated',
+	'Preview-waiting-in-queue'                                  => 'Preview is waiting for an available loading slot',
 	'Filesize'                                                 => 'Filesize',
 	'Filesize-not-calculated'                                  => 'not calculated yet',
 	'create-new-resource'                                      => 'Create New Resource',
