@@ -594,7 +594,7 @@ Diese Anleitung gilt für ein **isoliertes Dev-/Evaluationssystem**, nicht für 
    ./vendor/bin/sail artisan context-search:dataset:import "incoming/$ARCHIVE_NAME" --env=local
    ```
 
-3. **OCR-Werkzeuge und Queue lesend vorprüfen.** Im Dev-Container müssen Poppler und Tesseract verfügbar sein; `tesseract --list-langs` muss `deu` und `eng` enthalten. Die vorhandene Feature-Prüfung verarbeitet eine isolierte Test-PDF und verwendet explizit die entbehrliche Datenbank `testing`, nicht die importierten Dev-Daten. Der Queue-Check darf keine ungeprüften Altaufträge melden. Solange er warnt, dass neue Läufe gesperrt sind, hier **anhalten**.
+3. **OCR-Werkzeuge und Queue lesend vorprüfen.** Im Dev-Container müssen Poppler und Tesseract verfügbar sein; `tesseract --list-langs` muss `deu` und `eng` enthalten. Die vorhandene Feature-Prüfung verarbeitet eine isolierte Test-PDF und verwendet explizit die entbehrliche Datenbank `testing`, nicht die importierten Dev-Daten. Der Queue-Check darf keine ungeprüften Altaufträge melden. Nur bei `APP_ENV=local` ist die OCR-Kalibrierung zum Test freigegeben; manuelle Indexläufe, andere Kontextsuche-Worker und Produktion bleiben gesperrt.
 
    ```sh
    ./vendor/bin/sail exec laravel.test sh -lc 'for tool in pdfinfo pdftotext pdftoppm tesseract; do command -v "$tool" || exit 1; done'
@@ -605,13 +605,20 @@ Diese Anleitung gilt für ein **isoliertes Dev-/Evaluationssystem**, nicht für 
 
 4. **Testaufbau festhalten.** Vor dem ersten Lauf für jedes PDF die erwarteten Seitenarten und eine grobe Qualitätsbewertung notieren. Mindestens 15, besser etwa 50 Seiten für den ersten Lauf vorsehen; die Oberfläche akzeptiert 15 bis 500. Es müssen genügend Seiten aus **verschiedenen** PDFs vorhanden sein, damit der Holdout nach Dokument getrennt werden kann. Für die spätere Auswertung werden mindestens zehn bewertete Kalibrierungsseiten benötigt, darunter je mindestens drei brauchbare und drei unbrauchbare/Handschrift/leere Seiten. Zusätzlich braucht es wortgetreue Referenztranskripte für mindestens drei brauchbare Kalibrierungsseiten und eine brauchbare Holdout-Seite. Private Transkripte nur in der geschützten Oberfläche speichern.
 
-5. **Erst nach Worker-Freigabe: OCR-Lauf starten.** Als Global Admin auf der Evaluationsmaschine im Benutzermenü **OCR-Schwellenwerte kalibrieren** öffnen. Den eingefrorenen OCR-Datensatz wählen, Stichprobengröße (zunächst `50`) und einen eindeutigen Lauftitel eingeben, dann **Starten**. Ein Lauf speichert Seitenstichprobe, Profil, Quelldokument-Revision und Aufteilung in Kalibrierung/Holdout. Die Kalibrierungsjobs führen Tesseract aus; sie rufen weder Ollama noch Qdrant auf. Nur wenn die dedizierte Queue ausdrücklich freigegeben ist und keine fremden Läufe darauf warten, den folgenden **einmaligen Dev-Worker** in einem Terminal starten. Er arbeitet seriell und endet, sobald die Queue leer ist; keinen alten `context-search-indexing`-Worker starten.
+5. **Lokalen OCR-Testlauf starten.** Als Global Admin in der lokalen Docker-Umgebung im Benutzermenü **OCR-Schwellenwerte kalibrieren** öffnen. Den eingefrorenen OCR-Datensatz wählen, Stichprobengröße (zunächst `15`, später etwa `50`) und einen eindeutigen Lauftitel eingeben, dann **Starten**. Ein Lauf speichert Seitenstichprobe, Profil, Quelldokument-Revision und Aufteilung in Kalibrierung/Holdout. Die Kalibrierungsjobs führen Tesseract mit einem CPU-Thread pro Unterprozess aus; sie rufen weder Ollama noch Qdrant auf. Wenn keine fremden Läufe auf der dedizierten Kalibrierungsqueue warten, den folgenden **einmaligen lokalen OCR-Worker** in einem Terminal starten. Er arbeitet seriell und endet, sobald die Queue leer ist; keinen alten `context-search-indexing`-Worker starten.
 
    ```sh
    ./vendor/bin/sail artisan queue:work context_search --queue=context-search-calibration-ocr --sleep=3 --tries=3 --timeout=480 --stop-when-empty
    ```
 
    In der Oberfläche **Aktualisieren** wählen, bis alle Seiten verarbeitet sind. Bei fehlgeschlagenen Seiten nicht blind erneut starten: zuerst Quelle, Tesseract, freien Speicher und Fehlerstatus prüfen. Der angezeigte OCR-Text ist vertraulich und gehört nicht in normale Logs.
+
+   Wurde ein Lauf während des Einreihens unterbrochen, können nach der Worker-Freigabe ausschließlich seine noch wartenden Seiten erneut eingeplant werden. Zuerst den Worker beenden und prüfen, dass die dedizierte Kalibrierungsqueue leer ist; dann die UUID des betroffenen Laufs einsetzen. Der Befehl ist in Produktion und bei weiterhin aktiver Dispatch-Sperre gesperrt. Er verändert keine Quelldateien oder bereits verarbeiteten Seiten:
+
+   ```sh
+   RUN_UUID='UUID_DES_KALIBRIERUNGSLAUFS'
+   ./vendor/bin/sail artisan context-search:ocr-calibration:resume "$RUN_UUID"
+   ```
 
 6. **Seiten beurteilen, auswerten, freigeben.** Jede verarbeitete Seite mit der PDF-Vorschau vergleichen und als **brauchbar**, **unbrauchbar**, **unsicher**, **Handschrift** oder **leer** speichern. Referenztext exakt von Hand transkribieren; „unsicher“ zählt nicht zur Wertung. Danach **Auswerten**: Die Oberfläche testet mittlere Tesseract-Konfidenz von `0,00` bis `1,00` in `0,05`-Schritten und empfiehlt die größte Abdeckung mit mindestens 95 % Präzision auf den brauchbaren Kalibrierungsseiten. Den getrennten Holdout prüfen: Für die technische Freigabe sind mindestens 90 % Präzision und messbare Zeichen-/Wortfehlerraten (CER/WER) nötig. Das ist ein Mindest-Gate, keine Garantie guter Transkriptionsqualität; Seitenbeispiele und Fehlerarten zusätzlich fachlich prüfen. Ist kein geeigneter Grenzwert vorhanden oder der Holdout schlecht, **nicht freigeben**: Auswahl/Bewertungen prüfen oder mit geändertem OCR-Profil einen neuen Lauf erstellen. Gute Holdout-Werte nicht durch nachträgliches Tuning an genau diesem Holdout „optimieren“.
 
