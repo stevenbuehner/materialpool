@@ -10,9 +10,11 @@ use App\Models\PdfFile;
 use App\Models\Resource;
 use App\Models\Text;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Query\Builder as QueryBuilder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use RuntimeException;
@@ -21,6 +23,7 @@ use ZipArchive;
 final class EvaluationDatasetService
 {
     private const DISK = 'context_search_evaluation';
+    private const MANIFEST_BATCH_SIZE = 100;
 
     /** @param array<int, int> $materialIds @param array<int, int> $resourceIds */
     public function freeze(string $purpose, array $materialIds, array $resourceIds, bool $includePrivate, ?string $privateReason): ContextSearchEvaluationDataset
@@ -52,7 +55,7 @@ final class EvaluationDatasetService
 
         $datasetId = (string) Str::uuid();
         $manifest = $this->manifest($datasetId, $purpose, $materials, $resources, $includePrivate, $privateReason);
-        $manifestHash = $this->hash($manifest);
+        $manifestHash = $manifest['manifest_hash'];
 
         return DB::transaction(function () use ($datasetId, $purpose, $hasPrivateContent, $privateReason, $manifest, $manifestHash): ContextSearchEvaluationDataset {
             $this->assertManifestMembersAreFree($manifest);
@@ -128,28 +131,34 @@ final class EvaluationDatasetService
             if ($dataset->status !== ContextSearchEvaluationDataset::STATUS_READY) {
                 throw new RuntimeException('Der Entwurf wurde zwischenzeitlich geändert.');
             }
-            $members = $dataset->members()->get(['member_type', 'member_id']);
-            $materialIds = $members->where('member_type', ContextSearchEvaluationDatasetMember::TYPE_MATERIAL)->pluck('member_id')->all();
-            $resourceIds = $members->where('member_type', ContextSearchEvaluationDatasetMember::TYPE_RESOURCE)->pluck('member_id')->all();
-            $resources = Resource::query()->withoutGlobalScopes()->whereIn('id', $resourceIds)
-                ->with(['materials' => fn ($query) => $query->withoutGlobalScopes()->orderBy('materials.id')])->orderBy('id')->get();
-            $materials = Material::query()->withoutGlobalScopes()->whereIn('id', $materialIds)
-                ->with(['keywords' => fn ($query) => $query->orderBy('keywords.id'), 'bibleverses' => fn ($query) => $query->orderBy('bibleverses.id')])
-                ->orderBy('id')->get();
-            if ($resources->isEmpty() || $materials->isEmpty()) {
+            $resources = $this->resourceManifestQuery()
+                ->whereIn('resources.id', $this->memberIds($dataset, ContextSearchEvaluationDatasetMember::TYPE_RESOURCE))
+                ->lazyById(self::MANIFEST_BATCH_SIZE, 'resources.id', 'id');
+            $materials = $this->materialManifestQuery()
+                ->whereIn('materials.id', $this->memberIds($dataset, ContextSearchEvaluationDatasetMember::TYPE_MATERIAL))
+                ->lazyById(self::MANIFEST_BATCH_SIZE, 'materials.id', 'id');
+            $manifest = $this->manifest($dataset->getKey(), $dataset->purpose, $materials, $resources, $dataset->includes_private, $dataset->private_reason);
+            if ($manifest['resources'] === [] || $manifest['materials'] === []) {
                 throw new RuntimeException('Der Entwurf enthält keine vollständige, exportierbare Auswahl.');
             }
-            $manifest = $this->manifest($dataset->getKey(), $dataset->purpose, $materials, $resources, $dataset->includes_private, $dataset->private_reason);
             $dataset->forceFill([
                 'status' => ContextSearchEvaluationDataset::STATUS_FROZEN,
                 'manifest' => $manifest,
-                'manifest_hash' => $this->hash($manifest),
-                'material_count' => $materials->count(),
-                'resource_count' => $resources->count(),
+                'manifest_hash' => $manifest['manifest_hash'],
+                'material_count' => count($manifest['materials']),
+                'resource_count' => count($manifest['resources']),
                 'frozen_at' => now(),
             ])->save();
-            return $dataset->fresh();
+            return $dataset;
         });
+    }
+
+    private function memberIds(ContextSearchEvaluationDataset $dataset, string $type): QueryBuilder
+    {
+        return DB::table('context_search_evaluation_dataset_members')
+            ->select('member_id')
+            ->where('dataset_id', $dataset->getKey())
+            ->where('member_type', $type);
     }
 
     /** @return array{manifest_hash: string, archive_hash: string} */
@@ -284,7 +293,7 @@ final class EvaluationDatasetService
     /** @param array<int, int> $materialIds @param array<int, int> $resourceIds @return Collection<int, Resource> */
     private function selectedResources(array $materialIds, array $resourceIds): Collection
     {
-        return Resource::query()->withoutGlobalScopes()
+        return $this->resourceManifestQuery()
             ->whereIn('type', ['pdf', 'text'])
             ->where(function ($query) use ($materialIds, $resourceIds): void {
                 if ($resourceIds !== []) {
@@ -294,7 +303,6 @@ final class EvaluationDatasetService
                     $query->{$resourceIds === [] ? 'whereHas' : 'orWhereHas'}('materials', fn ($materials) => $materials->whereIn('materials.id', $materialIds));
                 }
             })
-            ->with(['materials' => fn ($query) => $query->withoutGlobalScopes()->orderBy('materials.id')])
             ->orderBy('resources.id')
             ->get();
     }
@@ -302,21 +310,35 @@ final class EvaluationDatasetService
     /** @param Collection<int, Resource> $resources @return Collection<int, Material> */
     private function selectedMaterials(Collection $resources): Collection
     {
-        return Material::query()->withoutGlobalScopes()
+        return $this->materialManifestQuery()
             ->whereIn('id', $resources->flatMap(fn (Resource $resource) => $resource->materials->modelKeys())->unique()->sort()->values())
-            ->with(['keywords' => fn ($query) => $query->orderBy('keywords.id'), 'bibleverses' => fn ($query) => $query->orderBy('bibleverses.id')])
             ->orderBy('id')
             ->get();
     }
 
-    /** @param Collection<int, Material> $materials @param Collection<int, Resource> $resources */
-    private function manifest(string $datasetId, string $purpose, Collection $materials, Collection $resources, bool $includePrivate, ?string $privateReason): array
+    /** @return Builder<Resource> */
+    private function resourceManifestQuery(): Builder
     {
-        $resourceEntries = $resources->map(function (Resource $resource): array {
+        return Resource::query()->withoutGlobalScopes()
+            ->with(['materials' => fn ($query) => $query->withoutGlobalScopes()->orderBy('materials.id')]);
+    }
+
+    /** @return Builder<Material> */
+    private function materialManifestQuery(): Builder
+    {
+        return Material::query()->withoutGlobalScopes()
+            ->with(['keywords' => fn ($query) => $query->orderBy('keywords.id'), 'bibleverses' => fn ($query) => $query->orderBy('bibleverses.id')]);
+    }
+
+    /** @param iterable<Material> $materials @param iterable<Resource> $resources */
+    private function manifest(string $datasetId, string $purpose, iterable $materials, iterable $resources, bool $includePrivate, ?string $privateReason): array
+    {
+        $resourceEntries = [];
+        foreach ($resources as $resource) {
             $revisionHash = $this->revisionHash($resource);
             $isText = $resource instanceof Text;
 
-            return [
+            $resourceEntries[] = [
                 'source_id' => $resource->getKey(),
                 'type' => $resource->type,
                 'is_public' => (bool) $resource->is_public,
@@ -331,7 +353,19 @@ final class EvaluationDatasetService
                 'text' => $isText ? (string) $resource->content : null,
                 'material_ids' => $resource->materials->modelKeys(),
             ];
-        })->all();
+        }
+
+        $materialEntries = [];
+        foreach ($materials as $material) {
+            $materialEntries[] = [
+                'source_id' => $material->getKey(), 'title' => $material->title, 'description' => $material->description,
+                'rating' => $material->rating, 'from_bot' => (bool) $material->from_bot, 'is_public' => (bool) $material->is_public,
+                'flag' => $material->flag, 'icon_of_bundle' => $material->icon_of_bundle,
+                'created_at' => optional($material->created_at)?->toAtomString(), 'updated_at' => optional($material->updated_at)?->toAtomString(),
+                'keywords' => $material->keywords->map(fn ($keyword): array => ['title' => $keyword->title, 'type' => $keyword->type, 'relevance' => $keyword->pivot->relevance])->values()->all(),
+                'bibleverses' => $material->bibleverses->map(fn ($verse): array => ['source_id' => $verse->getKey(), 'relevance' => $verse->pivot->relevance])->values()->all(),
+            ];
+        }
 
         $manifest = [
             'format' => 'materialpool-context-search-evaluation-v1',
@@ -340,14 +374,7 @@ final class EvaluationDatasetService
             'frozen_at' => now()->toAtomString(),
             'includes_private' => $includePrivate,
             'private_reason' => $includePrivate ? $privateReason : null,
-            'materials' => $materials->map(fn (Material $material): array => [
-                'source_id' => $material->getKey(), 'title' => $material->title, 'description' => $material->description,
-                'rating' => $material->rating, 'from_bot' => (bool) $material->from_bot, 'is_public' => (bool) $material->is_public,
-                'flag' => $material->flag, 'icon_of_bundle' => $material->icon_of_bundle,
-                'created_at' => optional($material->created_at)?->toAtomString(), 'updated_at' => optional($material->updated_at)?->toAtomString(),
-                'keywords' => $material->keywords->map(fn ($keyword): array => ['title' => $keyword->title, 'type' => $keyword->type, 'relevance' => $keyword->pivot->relevance])->values()->all(),
-                'bibleverses' => $material->bibleverses->map(fn ($verse): array => ['source_id' => $verse->getKey(), 'relevance' => $verse->pivot->relevance])->values()->all(),
-            ])->all(),
+            'materials' => $materialEntries,
             'resources' => $resourceEntries,
         ];
 
