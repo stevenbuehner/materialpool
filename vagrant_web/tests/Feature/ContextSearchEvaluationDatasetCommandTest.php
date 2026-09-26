@@ -150,7 +150,11 @@ final class ContextSearchEvaluationDatasetCommandTest extends TestCase
         $zip->addFromString('files/8002.pdf', $pdfContent);
         $zip->close();
 
-        $this->artisan('context-search:dataset:import', ['archive' => 'incoming/'.$datasetId.'.zip'])->assertExitCode(1);
+        $this->artisan('context-search:dataset:import', ['archive' => 'incoming/'.$datasetId.'.zip'])
+            ->expectsOutputToContain('context_search.evaluation.import_enabled ist deaktiviert')
+            ->expectsOutputToContain('CONTEXT_SEARCH_EVALUATION_IMPORT_ENABLED=true')
+            ->expectsOutputToContain('artisan config:clear')
+            ->assertExitCode(1);
         config()->set('context_search.evaluation.import_enabled', true);
 
         $materialsBefore = Material::query()->count();
@@ -171,6 +175,17 @@ final class ContextSearchEvaluationDatasetCommandTest extends TestCase
 
         $this->artisan('context-search:dataset:import', ['archive' => 'incoming/'.$datasetId.'.zip'])->assertExitCode(0);
         $this->assertSame($materialsBefore + 1, Material::query()->count());
+    }
+
+    public function test_import_command_explains_why_production_is_blocked_even_with_import_enabled(): void
+    {
+        config()->set('context_search.evaluation.import_enabled', true);
+        $this->app->instance('env', 'production');
+
+        $this->artisan('context-search:dataset:import', ['archive' => 'incoming/example.zip'])
+            ->expectsOutputToContain('APP_ENV=production ist gesperrt')
+            ->expectsOutputToContain('getrennten Evaluationsumgebung')
+            ->assertExitCode(1);
     }
 
     public function test_inventory_reports_only_counts_for_pdf_and_text_sources(): void

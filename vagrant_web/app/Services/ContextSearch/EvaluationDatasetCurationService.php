@@ -144,17 +144,19 @@ final class EvaluationDatasetCurationService
     /** @return array<int, array<string, mixed>> */
     public function summaries(): array
     {
-        return ContextSearchEvaluationDataset::query()->withCount('members')->orderBy('purpose')->orderBy('created_at')->get()
-            ->map(fn (ContextSearchEvaluationDataset $dataset): array => $this->summary($dataset))->all();
+        $datasets = ContextSearchEvaluationDataset::query()->orderBy('purpose')->orderBy('created_at')->get([
+            'id', 'purpose', 'title', 'status', 'version', 'includes_private', 'private_reason',
+            'target_material_count', 'target_resource_count', 'target_quotas', 'ready_at', 'frozen_at',
+        ]);
+        $counts = $this->datasetCounts($datasets->modelKeys());
+
+        return $datasets->map(fn (ContextSearchEvaluationDataset $dataset): array => $this->summary($dataset, $counts[$dataset->getKey()] ?? $this->emptyCounts()))->all();
     }
 
     /** @return array<string, mixed> */
-    public function summary(ContextSearchEvaluationDataset $dataset): array
+    public function summary(ContextSearchEvaluationDataset $dataset, ?array $counts = null): array
     {
-        $memberIds = $dataset->members()->get(['member_type', 'member_id']);
-        $materialIds = $memberIds->where('member_type', ContextSearchEvaluationDatasetMember::TYPE_MATERIAL)->pluck('member_id')->map(fn ($id) => (int) $id)->all();
-        $resourceIds = $memberIds->where('member_type', ContextSearchEvaluationDatasetMember::TYPE_RESOURCE)->pluck('member_id')->map(fn ($id) => (int) $id)->all();
-        $counts = $this->counts($materialIds, $resourceIds);
+        $counts ??= $this->datasetCounts([$dataset->getKey()])[$dataset->getKey()] ?? $this->emptyCounts();
         $targetQuotas = $dataset->target_quotas ?? [];
         $quotas = collect($targetQuotas)->map(fn (int $target, string $key): array => ['actual' => $counts[$key] ?? 0, 'target' => $target, 'remaining' => max(0, $target - ($counts[$key] ?? 0))])->all();
 
@@ -167,6 +169,38 @@ final class EvaluationDatasetCurationService
             'resources_remaining' => max(0, (int) $dataset->target_resource_count - $counts['resources']),
             'quotas' => $quotas, 'ready_at' => $dataset->ready_at?->toAtomString(), 'frozen_at' => $dataset->frozen_at?->toAtomString(),
         ];
+    }
+
+    /** @param array<int, string> $datasetIds @return array<string, array<string, int>> */
+    private function datasetCounts(array $datasetIds): array
+    {
+        if ($datasetIds === []) return [];
+
+        return DB::table('context_search_evaluation_dataset_members as members')
+            ->leftJoin('materials as material', fn ($join) => $join->on('material.id', '=', 'members.member_id')->where('members.member_type', '=', ContextSearchEvaluationDatasetMember::TYPE_MATERIAL))
+            ->leftJoin('resources as resource', fn ($join) => $join->on('resource.id', '=', 'members.member_id')->where('members.member_type', '=', ContextSearchEvaluationDatasetMember::TYPE_RESOURCE))
+            ->whereIn('members.dataset_id', $datasetIds)
+            ->groupBy('members.dataset_id')
+            ->select('members.dataset_id')
+            ->selectRaw('COUNT(material.id) as materials, COUNT(resource.id) as resources')
+            ->selectRaw('SUM(CASE WHEN material.id IS NOT NULL AND material.is_public = 0 THEN 1 ELSE 0 END) as private_materials')
+            ->selectRaw('SUM(CASE WHEN resource.id IS NOT NULL AND resource.is_public = 0 THEN 1 ELSE 0 END) as private_resources')
+            ->selectRaw('SUM(CASE WHEN resource.id IS NOT NULL AND resource.is_public = 1 THEN 1 ELSE 0 END) as public')
+            ->selectRaw('SUM(CASE WHEN resource.id IS NOT NULL AND resource.is_public = 0 THEN 1 ELSE 0 END) as private')
+            ->selectRaw("SUM(CASE WHEN resource.type = 'pdf' THEN 1 ELSE 0 END) as pdf")
+            ->selectRaw("SUM(CASE WHEN resource.type = 'text' THEN 1 ELSE 0 END) as text")
+            ->get()->mapWithKeys(function ($row): array {
+                $counts = (array) $row;
+                unset($counts['dataset_id']);
+
+                return [$row->dataset_id => array_map('intval', $counts)];
+            })->all();
+    }
+
+    /** @return array<string, int> */
+    private function emptyCounts(): array
+    {
+        return array_fill_keys(['materials', 'resources', 'private_materials', 'private_resources', 'public', 'private', 'pdf', 'text'], 0);
     }
 
     /** @return array{material_ids: array<int, int>, resource_ids: array<int, int>, excluded_resource_count: int} */

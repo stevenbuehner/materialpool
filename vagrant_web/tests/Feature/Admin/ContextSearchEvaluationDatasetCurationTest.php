@@ -9,6 +9,7 @@ use App\Models\ForeignMaterialId;
 use App\Models\Material;
 use App\Models\Text;
 use App\Models\User;
+use App\Services\ContextSearch\EvaluationDatasetCurationService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Passport\Passport;
 use Tests\TestCase;
@@ -39,7 +40,7 @@ final class ContextSearchEvaluationDatasetCurationTest extends TestCase
         [$firstMaterial, $secondMaterial, $firstText, $secondText] = $this->connectedSources();
         $dataset = $this->postJson('/api/v2/admin/context-search/datasets', ['purpose' => 'calibration'])->assertCreated()->json('dataset');
 
-        $this->postJson('/api/v2/admin/context-search/datasets/preview', ['material_ids' => [$firstMaterial->id], 'resource_ids' => []])
+        $this->postJson('/api/v2/admin/context-search/datasets/preview', ['dataset' => $dataset['id'], 'material_ids' => [$firstMaterial->id], 'resource_ids' => []])
             ->assertOk()->assertJsonPath('preview.counts.materials', 2)->assertJsonPath('preview.counts.resources', 2);
 
         $this->postJson('/api/v2/admin/context-search/datasets/'.$dataset['id'].'/assign', [
@@ -86,13 +87,13 @@ final class ContextSearchEvaluationDatasetCurationTest extends TestCase
             ...$calibrationPayload, 'expected_version' => 1,
         ])->assertOk();
 
-        $this->getJson('/api/v2/admin/context-search/datasets/candidates?dataset='.$ocr['id'].'&per_page=100')
+        $this->getJson('/api/v2/admin/context-search/datasets/candidates?dataset='.$load['id'].'&per_page=100')
             ->assertOk()->assertJsonPath('data.0.assignment.overlap_allowed', true)
             ->assertJsonCount(2, 'data.0.assignment.memberships');
 
         $this->postJson('/api/v2/admin/context-search/datasets/'.$acceptance['id'].'/assign', $acceptancePayload)->assertOk();
         $this->postJson('/api/v2/admin/context-search/datasets/'.$ocr['id'].'/assign', [
-            ...$acceptancePayload, 'expected_version' => 1,
+            ...$acceptancePayload, 'expected_version' => 2,
         ])->assertOk();
 
         $this->postJson('/api/v2/admin/context-search/datasets/'.$load['id'].'/assign', [
@@ -102,13 +103,13 @@ final class ContextSearchEvaluationDatasetCurationTest extends TestCase
             ...$calibrationPayload, 'expected_version' => 1,
         ])->assertOk();
         $this->postJson('/api/v2/admin/context-search/datasets/'.$capacity['id'].'/assign', [
-            ...$acceptancePayload, 'expected_version' => 1,
+            ...$acceptancePayload, 'expected_version' => 2,
         ])->assertOk();
         $this->postJson('/api/v2/admin/context-search/datasets/'.$acceptance['id'].'/assign', [
-            ...$calibrationPayload, 'expected_version' => 1,
+            ...$calibrationPayload, 'expected_version' => 2,
         ])->assertUnprocessable();
         $this->postJson('/api/v2/admin/context-search/datasets/'.$load['id'].'/assign', [
-            ...$acceptancePayload, 'expected_version' => 1,
+            ...$acceptancePayload, 'expected_version' => 2,
         ])->assertOk();
     }
 
@@ -152,6 +153,57 @@ final class ContextSearchEvaluationDatasetCurationTest extends TestCase
             ->assertOk()
             ->assertJsonPath('data.0.id', $userMaterial->id)
             ->assertJsonCount(1, 'data');
+    }
+
+    public function test_bundle_candidates_are_distinct_and_paginated_by_material(): void
+    {
+        $this->asAdmin();
+        $owner = User::factory()->create();
+        $bundle = Bundle::factory()->create();
+        $first = $this->materialWithText($owner, 'Erstes Material');
+        $second = $this->materialWithText($owner, 'Zweites Material');
+        $extraText = Text::factory()->create(['created_by' => $owner->id, 'is_public' => true, 'content' => 'Weiterer Text']);
+        $first->resources()->attach($extraText->id);
+        ForeignMaterialId::query()->create(['material_id' => $first->id, 'foreign_id' => 'first-a', 'user_id' => $owner->id, 'bundle_id' => $bundle->id]);
+        ForeignMaterialId::query()->create(['material_id' => $first->id, 'foreign_id' => 'first-b', 'user_id' => $owner->id, 'bundle_id' => $bundle->id]);
+        ForeignMaterialId::query()->create(['material_id' => $second->id, 'foreign_id' => 'second', 'user_id' => $owner->id, 'bundle_id' => $bundle->id]);
+
+        $this->getJson('/api/v2/admin/context-search/datasets/candidates?type=text&bundle='.$bundle->id.'&per_page=1&page=2')
+            ->assertOk()
+            ->assertJsonPath('total', 2)
+            ->assertJsonPath('current_page', 2)
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.id', $second->id)
+            ->assertJsonCount(1, 'data.0.resources');
+    }
+
+    public function test_dataset_overview_counts_existing_members_and_quotas_across_datasets(): void
+    {
+        $this->asAdmin();
+        $owner = User::factory()->create();
+        $publicMaterial = $this->materialWithText($owner, 'Öffentlich');
+        $publicText = $publicMaterial->resources()->firstOrFail();
+        $privateMaterial = Material::factory()->privatelyVisible()->create(['created_by' => $owner->id, 'modified_by' => $owner->id]);
+        $privateText = Text::factory()->create(['created_by' => $owner->id, 'is_public' => false, 'content' => 'Privater Testtext']);
+        $privateMaterial->resources()->attach($privateText->id);
+        $curation = app(EvaluationDatasetCurationService::class);
+        $calibration = $curation->create('calibration');
+        $calibration->update(['target_material_count' => 2, 'target_resource_count' => 2, 'target_quotas' => ['text' => 2, 'public' => 1, 'private' => 1]]);
+        $acceptance = $curation->create('acceptance');
+        $acceptance->update(['target_material_count' => 1, 'target_resource_count' => 1, 'target_quotas' => ['text' => 1]]);
+        foreach ([['material', $publicMaterial->id], ['resource', $publicText->id], ['material', $privateMaterial->id], ['resource', $privateText->id]] as [$type, $id]) {
+            ContextSearchEvaluationDatasetMember::query()->create(['dataset_id' => $calibration->id, 'member_type' => $type, 'member_id' => $id]);
+        }
+
+        $datasets = collect($this->getJson('/api/v2/admin/context-search/datasets')->assertOk()->json('datasets'))->keyBy('id');
+        $this->assertSame(2, $datasets[$calibration->id]['material_count']);
+        $this->assertSame(2, $datasets[$calibration->id]['resource_count']);
+        $this->assertSame(2, $datasets[$calibration->id]['quotas']['text']['actual']);
+        $this->assertSame(1, $datasets[$calibration->id]['quotas']['public']['actual']);
+        $this->assertSame(1, $datasets[$calibration->id]['quotas']['private']['actual']);
+        $this->assertSame(0, $datasets[$calibration->id]['materials_remaining']);
+        $this->assertSame(0, $datasets[$acceptance->id]['material_count']);
+        $this->assertSame(1, $datasets[$acceptance->id]['materials_remaining']);
     }
 
     public function test_an_assigned_connected_block_can_be_removed_from_a_mutable_dataset(): void

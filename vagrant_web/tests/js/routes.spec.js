@@ -39,6 +39,7 @@ describe('main application routes', () => {
             'readbible',
 			'admin-users',
 			'context-search-evaluation-datasets',
+			'context-search-ocr-calibration',
             'system-shutdown',
         ]);
     });

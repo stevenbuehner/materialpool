@@ -239,8 +239,15 @@ final class EvaluationDatasetService
     /** @param null|callable(string, int, int): void $onProgress */
     public function import(string $relativePath, ?callable $onProgress = null): ContextSearchEvaluationDataset
     {
-        if (app()->isProduction() || ! config('context_search.evaluation.import_enabled')) {
-            throw new RuntimeException('Der Import ist ausschließlich in einer explizit freigegebenen Evaluationsumgebung erlaubt.');
+        $missingRequirements = [];
+        if (app()->isProduction()) {
+            $missingRequirements[] = 'APP_ENV=production ist gesperrt. Der Import muss auf einer getrennten Evaluationsumgebung mit eigener Datenbank und privater Dateiablage erfolgen.';
+        }
+        if (! config('context_search.evaluation.import_enabled')) {
+            $missingRequirements[] = 'Die wirksame Konfiguration context_search.evaluation.import_enabled ist deaktiviert. Nach Freigabe der Evaluationsumgebung dort CONTEXT_SEARCH_EVALUATION_IMPORT_ENABLED=true in der .env setzen und bei gecachter Konfiguration ./vendor/bin/sail artisan config:clear ausführen.';
+        }
+        if ($missingRequirements !== []) {
+            throw new RuntimeException('Der Import ist ausschließlich in einer explizit freigegebenen Evaluationsumgebung erlaubt. '.implode(' ', $missingRequirements));
         }
 
         $this->verify($relativePath, $onProgress);

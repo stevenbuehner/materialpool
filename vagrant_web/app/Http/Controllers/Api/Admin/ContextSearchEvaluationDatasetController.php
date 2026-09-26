@@ -45,24 +45,30 @@ final class ContextSearchEvaluationDatasetController extends Controller
         $targetDataset = isset($data['dataset']) ? ContextSearchEvaluationDataset::query()->findOrFail($data['dataset']) : null;
         $type = $data['type'] ?? 'all';
         $visibility = $data['visibility'] ?? 'all';
-        $query = Material::query()->withoutGlobalScopes()->whereHas('resources', function ($resources) use ($type, $visibility): void {
-            $resources->withoutGlobalScopes()->whereIn('type', $type === 'all' ? ['pdf', 'text'] : [$type]);
-            if ($visibility !== 'all') $resources->where('is_public', $visibility === 'public');
-        })->with(['resources' => function ($resources) use ($type, $visibility): void {
-            $resources->withoutGlobalScopes()->whereIn('type', $type === 'all' ? ['pdf', 'text'] : [$type])->select(['resources.id', 'type', 'notes', 'is_public']);
-            if ($visibility !== 'all') $resources->where('is_public', $visibility === 'public');
-        }])->orderBy('materials.id');
+        $query = Material::query()->withoutGlobalScopes()
+            ->join('material_resource as candidate_links', 'candidate_links.material_id', '=', 'materials.id')
+            ->join('resources as candidate_resources', 'candidate_resources.id', '=', 'candidate_links.resource_id')
+            ->whereIn('candidate_resources.type', $type === 'all' ? ['pdf', 'text'] : [$type])
+            ->distinct()->orderBy('materials.id');
+        if ($visibility !== 'all') $query->where('candidate_resources.is_public', $visibility === 'public');
         if (filled($data['search'] ?? null)) {
             $escaped = str_replace(['%', '_'], ['\\%', '\\_'], $data['search']);
-            $query->where('title', 'like', "%{$escaped}%");
+            $query->where('materials.title', 'like', "%{$escaped}%");
         }
         if (($data['bundle'] ?? 'all') === 'user') {
             $query->whereDoesntHave('foreignIds', fn ($foreignIds) => $foreignIds->whereNotNull('bundle_id'));
         } elseif (($data['bundle'] ?? 'all') !== 'all') {
-            $query->whereHas('foreignIds', fn ($foreignIds) => $foreignIds->where('bundle_id', (int) $data['bundle']));
+            $query->join('material_foreign_ids as candidate_foreign_ids', 'candidate_foreign_ids.material_id', '=', 'materials.id')
+                ->where('candidate_foreign_ids.bundle_id', (int) $data['bundle']);
         }
-        $page = $query->paginate($data['per_page'] ?? 25);
+        $total = $query->toBase()->getCountForPagination(['materials.id']);
+        $page = $query->paginate($data['per_page'] ?? 25, ['materials.id'], total: $total);
         $materialIds = $page->getCollection()->modelKeys();
+        $materials = Material::query()->withoutGlobalScopes()->whereKey($materialIds)->with(['resources' => function ($resources) use ($type, $visibility): void {
+            $resources->withoutGlobalScopes()->whereIn('type', $type === 'all' ? ['pdf', 'text'] : [$type])->select(['resources.id', 'type', 'notes', 'is_public']);
+            if ($visibility !== 'all') $resources->where('is_public', $visibility === 'public');
+        }])->get(['materials.id', 'materials.title', 'materials.description', 'materials.is_public'])->keyBy('id');
+        $page->setCollection($page->getCollection()->map(fn (Material $material): Material => $materials[$material->id]));
         $resourceIds = $page->getCollection()->flatMap(fn (Material $material) => $material->resources->modelKeys())->all();
         $assignments = $this->assignments($materialIds, $resourceIds, $targetDataset);
         if (($data['assignment'] ?? 'all') !== 'all') {

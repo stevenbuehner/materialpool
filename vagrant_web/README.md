@@ -589,6 +589,9 @@ Diese Anleitung gilt für ein **isoliertes Dev-/Evaluationssystem**, nicht für 
    ARCHIVE_NAME='DATEINAME_AUS_EXPORTAUSGABE.zip'
    ./vendor/bin/sail artisan context-search:dataset:verify "incoming/$ARCHIVE_NAME"
    ./vendor/bin/sail artisan context-search:dataset:import "incoming/$ARCHIVE_NAME"
+
+   ## Ggfs auch mit Environment Variable nötig. z.B.
+   ./vendor/bin/sail artisan context-search:dataset:import "incoming/$ARCHIVE_NAME" --env=local
    ```
 
 3. **OCR-Werkzeuge und Queue lesend vorprüfen.** Im Dev-Container müssen Poppler und Tesseract verfügbar sein; `tesseract --list-langs` muss `deu` und `eng` enthalten. Die vorhandene Feature-Prüfung verarbeitet eine isolierte Test-PDF und verwendet explizit die entbehrliche Datenbank `testing`, nicht die importierten Dev-Daten. Der Queue-Check darf keine ungeprüften Altaufträge melden. Solange er warnt, dass neue Läufe gesperrt sind, hier **anhalten**.
