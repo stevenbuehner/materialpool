@@ -15,7 +15,7 @@
         :highlight-bibleverses="bibleverseRangesToHighlight"
     />
 
-    <div class="d-flex justify-content-between align-items-center">
+    <div class="d-flex justify-content-center align-items-center">
       <materialpool-spinner v-if="isLoading"/>
     </div>
 
