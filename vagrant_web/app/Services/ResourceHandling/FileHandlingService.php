@@ -156,6 +156,11 @@ class FileHandlingService extends ResourceHandlingService {
 		$localDisk    = Storage::disk('local');
 		$relativePath = 'tmp/' . uniqid('temp_' . $resource->id . '_', TRUE);
 		$stream       = $resource->getLocalFileStream();
+
+		if (!is_resource($stream)) {
+			throw new LocalFileDoesNotExistException();
+		}
+
 		$localDisk->writeStream($relativePath, $stream);
 		fclose($stream);
 

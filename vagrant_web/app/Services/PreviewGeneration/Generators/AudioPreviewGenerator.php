@@ -49,10 +49,11 @@ class AudioPreviewGenerator implements PreviewGeneratorInterface {
 			'ffmpeg.threads'   => 12,   // The number of threads that FFMpeg should use
 		]);
 
-		// Make a local copy of the movie (copy to local, whereever it is)
-		$localPath = $this->fileHandlingService->makeLocalCopy($resource);
+		$localPath = NULL;
 
 		try {
+			// Make a local copy of the movie (copy to local, whereever it is)
+			$localPath = $this->fileHandlingService->makeLocalCopy($resource);
 
 			$video            = $ffmpeg->open($localPath);
 			$firstVideoStream = $video->getStreams()->videos()->first();
@@ -79,7 +80,9 @@ class AudioPreviewGenerator implements PreviewGeneratorInterface {
 		} catch (\Exception $e) {
 		} finally {
 			// Cleanup
-			$this->fileHandlingService->cleanupLocalCopy($localPath);
+			if ($localPath !== NULL) {
+				$this->fileHandlingService->cleanupLocalCopy($localPath);
+			}
 		}
 
 		// Backup
