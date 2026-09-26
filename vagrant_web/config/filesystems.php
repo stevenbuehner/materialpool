@@ -70,7 +70,6 @@ return [
 		'resources' => [
 			'driver'     => 'local',
 			'root'       => storage_path('app/resources'),
-			'url'        => env('APP_URL') . '/resources',
 			'visibility' => 'private',
 		],
 
@@ -83,7 +82,6 @@ return [
 		'bundles' => [
 			'driver'     => 'local',
 			'root'       => storage_path('app/bundles'),
-			'url'        => env('APP_URL') . '/bundle-resources',
 			'visibility' => 'private'
 		],
 
