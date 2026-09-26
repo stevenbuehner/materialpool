@@ -13,9 +13,12 @@ final class VerifyContextSearchEvaluationDataset extends Command
 
     public function handle(EvaluationDatasetService $datasets): int
     {
+        $progress = new EvaluationDatasetProgress($this);
         try {
-            $result = $datasets->verify((string) $this->argument('archive'));
+            $result = $datasets->verify((string) $this->argument('archive'), $progress);
+            $progress->finish();
         } catch (Throwable $exception) {
+            $progress->abort();
             report($exception);
             $this->components->error($exception->getMessage());
 

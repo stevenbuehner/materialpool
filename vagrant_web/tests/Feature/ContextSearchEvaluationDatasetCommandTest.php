@@ -3,9 +3,12 @@
 namespace Tests\Feature;
 
 use App\Models\ContextSearchEvaluationDataset;
+use App\Models\ContextSearchEvaluationDatasetMember;
 use App\Models\Material;
+use App\Models\PdfFile;
 use App\Models\Text;
 use App\Models\User;
+use App\Services\ContextSearch\EvaluationDatasetService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -43,6 +46,14 @@ final class ContextSearchEvaluationDatasetCommandTest extends TestCase
             ->expectsOutputToContain('Archiv-Prüfsumme')
             ->assertExitCode(0);
 
+        $exportProgress = [];
+        app(EvaluationDatasetService::class)->export($dataset->fresh(), function (string $phase, int $current, int $total) use (&$exportProgress): void {
+            $exportProgress[$phase] = [$current, $total];
+        });
+        $this->assertSame([2, 2], $exportProgress['Archiv vorbereiten']);
+        $this->assertSame([1, 1], $exportProgress['Archiv schreiben']);
+        $this->assertSame($exportProgress['Archiv-Prüfsumme berechnen'][1], $exportProgress['Archiv-Prüfsumme berechnen'][0]);
+
         $dataset->refresh();
         $this->assertSame(ContextSearchEvaluationDataset::STATUS_EXPORTED, $dataset->status);
         $this->assertTrue(Storage::disk('context_search_evaluation')->exists($dataset->archive_path));
@@ -51,12 +62,53 @@ final class ContextSearchEvaluationDatasetCommandTest extends TestCase
             ->expectsOutputToContain('Manifest-Prüfsumme')
             ->assertExitCode(0);
 
+        $progress = [];
+        $verified = app(EvaluationDatasetService::class)->verify($dataset->archive_path, function (string $phase, int $current, int $total) use (&$progress): void {
+            $progress[$phase] = [$current, $total];
+        });
+        $this->assertSame($dataset->archive_hash, $verified['archive_hash']);
+        $this->assertSame([1, 1], $progress['Archiveinträge prüfen']);
+        $this->assertSame($progress['Archiv-Prüfsumme berechnen'][1], $progress['Archiv-Prüfsumme berechnen'][0]);
     }
 
-    public function test_imports_a_synthetic_verified_text_dataset_only_when_explicitly_enabled(): void
+    public function test_export_without_uuid_lists_frozen_datasets_for_interactive_selection(): void
     {
         Storage::fake('context_search_evaluation');
+        $user = User::factory()->create();
+        $material = Material::factory()->publiclyVisible()->create(['created_by' => $user->id, 'modified_by' => $user->id]);
+        $text = Text::factory()->create(['created_by' => $user->id, 'is_public' => true, 'content' => 'Synthetischer Exporttext.']);
+        $material->resources()->attach($text->id);
+        $frozen = app(EvaluationDatasetService::class)->freeze('ocr', [$material->id], [], false, null);
+        $draft = ContextSearchEvaluationDataset::query()->create([
+            'purpose' => 'load', 'status' => ContextSearchEvaluationDataset::STATUS_DRAFT,
+            'manifest' => [], 'manifest_hash' => str_repeat('0', 64),
+        ]);
+
+        $choice = $frozen->id.' (ocr)';
+        $this->artisan('context-search:dataset:export', ['--no-interaction' => true])
+            ->expectsOutputToContain($frozen->id)
+            ->assertExitCode(1);
+        $this->assertSame(ContextSearchEvaluationDataset::STATUS_FROZEN, $frozen->fresh()->status);
+
+        $this->artisan('context-search:dataset:export')
+            ->expectsTable(
+                ['UUID', 'Zweck', 'Materialien', 'Ressourcen'],
+                [[$frozen->id, 'ocr', 1, 1]],
+            )
+            ->expectsChoice('Welchen Datensatz exportieren?', $choice, [$choice, 'Abbrechen'])
+            ->expectsOutputToContain('Evaluationsarchiv erstellt')
+            ->assertExitCode(0);
+
+        $this->assertSame(ContextSearchEvaluationDataset::STATUS_EXPORTED, $frozen->fresh()->status);
+        $this->assertSame(ContextSearchEvaluationDataset::STATUS_DRAFT, $draft->fresh()->status);
+    }
+
+    public function test_imports_a_synthetic_verified_text_and_pdf_dataset_only_when_explicitly_enabled(): void
+    {
+        Storage::fake('context_search_evaluation');
+        Storage::fake('resources');
         $datasetId = (string) Str::uuid();
+        $pdfContent = "%PDF-1.4\nSynthetischer PDF-Testinhalt\n%%EOF\n";
         $manifest = [
             'dataset_id' => $datasetId,
             'format' => 'materialpool-context-search-evaluation-v1',
@@ -69,12 +121,20 @@ final class ContextSearchEvaluationDatasetCommandTest extends TestCase
             ]],
             'private_reason' => null,
             'purpose' => 'acceptance',
-            'resources' => [[
-                'source_id' => 8001, 'type' => 'text', 'is_public' => false, 'notes' => '',
-                'revision_hash' => hash('sha256', 'Synthetischer Importtext.'), 'content_hash' => null, 'filesize' => 27,
-                'created_at' => null, 'updated_at' => null, 'archive_path' => 'texts/8001.txt',
-                'original_filename' => null, 'text' => 'Synthetischer Importtext.', 'material_ids' => [7001],
-            ]],
+            'resources' => [
+                [
+                    'source_id' => 8001, 'type' => 'text', 'is_public' => false, 'notes' => '',
+                    'revision_hash' => hash('sha256', 'Synthetischer Importtext.'), 'content_hash' => null, 'filesize' => 27,
+                    'created_at' => null, 'updated_at' => null, 'archive_path' => 'texts/8001.txt',
+                    'original_filename' => null, 'text' => 'Synthetischer Importtext.', 'material_ids' => [7001],
+                ],
+                [
+                    'source_id' => 8002, 'type' => 'pdf', 'is_public' => false, 'notes' => '',
+                    'revision_hash' => hash('sha256', $pdfContent), 'content_hash' => null, 'filesize' => strlen($pdfContent),
+                    'created_at' => null, 'updated_at' => null, 'archive_path' => 'files/8002.pdf',
+                    'original_filename' => 'synthetic.pdf', 'text' => null, 'material_ids' => [7001],
+                ],
+            ],
         ];
         $manifest['manifest_hash'] = hash('sha256', json_encode($this->canonicalize($manifest), JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
         Storage::disk('context_search_evaluation')->makeDirectory('incoming');
@@ -83,6 +143,7 @@ final class ContextSearchEvaluationDatasetCommandTest extends TestCase
         $this->assertTrue($zip->open($archive, ZipArchive::CREATE | ZipArchive::OVERWRITE));
         $zip->addFromString('manifest.json', json_encode($this->canonicalize($manifest), JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
         $zip->addFromString('texts/8001.txt', 'Synthetischer Importtext.');
+        $zip->addFromString('files/8002.pdf', $pdfContent);
         $zip->close();
 
         $this->artisan('context-search:dataset:import', ['archive' => 'incoming/'.$datasetId.'.zip'])->assertExitCode(1);
@@ -90,11 +151,19 @@ final class ContextSearchEvaluationDatasetCommandTest extends TestCase
 
         $materialsBefore = Material::query()->count();
         $resourcesBefore = Text::query()->count();
+        $pdfsBefore = PdfFile::query()->count();
         $this->artisan('context-search:dataset:import', ['archive' => 'incoming/'.$datasetId.'.zip'])
             ->expectsOutputToContain('isoliert importiert')
             ->assertExitCode(0);
         $this->assertSame($materialsBefore + 1, Material::query()->count());
         $this->assertSame($resourcesBefore + 1, Text::query()->count());
+        $this->assertSame($pdfsBefore + 1, PdfFile::query()->count());
+        $imported = ContextSearchEvaluationDataset::query()->findOrFail($datasetId);
+        $this->assertSame(ContextSearchEvaluationDataset::STATUS_FROZEN, $imported->status);
+        $this->assertSame(3, $imported->members()->count());
+        $hashes = $imported->members()->where('member_type', ContextSearchEvaluationDatasetMember::TYPE_RESOURCE)->pluck('source_revision_hash')->all();
+        $this->assertContains(hash('sha256', 'Synthetischer Importtext.'), $hashes);
+        $this->assertContains(hash('sha256', $pdfContent), $hashes);
 
         $this->artisan('context-search:dataset:import', ['archive' => 'incoming/'.$datasetId.'.zip'])->assertExitCode(0);
         $this->assertSame($materialsBefore + 1, Material::query()->count());

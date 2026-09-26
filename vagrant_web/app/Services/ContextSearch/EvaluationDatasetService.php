@@ -77,7 +77,8 @@ final class EvaluationDatasetService
         });
     }
 
-    public function export(ContextSearchEvaluationDataset $dataset): ContextSearchEvaluationDataset
+    /** @param null|callable(string, int, int): void $onProgress */
+    public function export(ContextSearchEvaluationDataset $dataset, ?callable $onProgress = null): ContextSearchEvaluationDataset
     {
         $manifest = $dataset->manifest;
         if ($this->hash($manifest) !== $dataset->manifest_hash) {
@@ -96,19 +97,29 @@ final class EvaluationDatasetService
             throw new RuntimeException('Das Evaluationsarchiv konnte nicht erstellt werden.');
         }
 
+        $closed = false;
         try {
             $zip->addFromString('manifest.json', $this->json($manifest));
+            $total = count($manifest['resources']) + 1;
+            $this->reportProgress($onProgress, 'Archiv vorbereiten', 1, $total);
+            $completed = 1;
             foreach ($manifest['resources'] as $entry) {
                 $this->addResource($zip, $entry);
+                $this->reportProgress($onProgress, 'Archiv vorbereiten', ++$completed, $total);
             }
+            $this->reportProgress($onProgress, 'Archiv schreiben', 0, 1);
         } finally {
-            $zip->close();
+            $closed = $zip->close();
         }
+        if (! $closed) {
+            throw new RuntimeException('Das Evaluationsarchiv konnte nicht vollständig geschrieben werden.');
+        }
+        $this->reportProgress($onProgress, 'Archiv schreiben', 1, 1);
 
         $dataset->update([
             'status' => ContextSearchEvaluationDataset::STATUS_EXPORTED,
             'archive_path' => $relativePath,
-            'archive_hash' => hash_file('sha256', $absolutePath),
+            'archive_hash' => $this->archiveHash($absolutePath, $onProgress),
             'exported_at' => now(),
         ]);
 
@@ -170,8 +181,11 @@ final class EvaluationDatasetService
         }
     }
 
-    /** @return array{manifest_hash: string, archive_hash: string} */
-    public function verify(string $relativePath): array
+    /**
+     * @param null|callable(string, int, int): void $onProgress
+     * @return array{manifest_hash: string, archive_hash: string}
+     */
+    public function verify(string $relativePath, ?callable $onProgress = null): array
     {
         $this->assertSafeArchivePath($relativePath);
         $absolutePath = Storage::disk(self::DISK)->path($relativePath);
@@ -195,25 +209,32 @@ final class EvaluationDatasetService
             if (! hash_equals($manifestHash, $this->hash($manifest))) {
                 throw new RuntimeException('Die Manifest-Prüfsumme ist ungültig.');
             }
-            foreach ($manifest['resources'] as $resource) {
+            $total = count($manifest['resources']);
+            $this->reportProgress($onProgress, 'Archiveinträge prüfen', 0, max(1, $total));
+            foreach ($manifest['resources'] as $index => $resource) {
                 if (! isset($resource['archive_path']) || $zip->locateName($resource['archive_path']) === false) {
                     throw new RuntimeException('Eine Quelldatei fehlt im Archiv.');
                 }
+                $this->reportProgress($onProgress, 'Archiveinträge prüfen', $index + 1, $total);
+            }
+            if ($total === 0) {
+                $this->reportProgress($onProgress, 'Archiveinträge prüfen', 1, 1);
             }
         } finally {
             $zip->close();
         }
 
-        return ['manifest_hash' => $manifestHash, 'archive_hash' => hash_file('sha256', $absolutePath)];
+        return ['manifest_hash' => $manifestHash, 'archive_hash' => $this->archiveHash($absolutePath, $onProgress)];
     }
 
-    public function import(string $relativePath): ContextSearchEvaluationDataset
+    /** @param null|callable(string, int, int): void $onProgress */
+    public function import(string $relativePath, ?callable $onProgress = null): ContextSearchEvaluationDataset
     {
         if (app()->isProduction() || ! config('context_search.evaluation.import_enabled')) {
             throw new RuntimeException('Der Import ist ausschließlich in einer explizit freigegebenen Evaluationsumgebung erlaubt.');
         }
 
-        $this->verify($relativePath);
+        $this->verify($relativePath, $onProgress);
         $absolutePath = Storage::disk(self::DISK)->path($relativePath);
         $zip = new ZipArchive();
         $zip->open($absolutePath);
@@ -231,12 +252,16 @@ final class EvaluationDatasetService
 
             $storedFiles = [];
             try {
-                $dataset = DB::transaction(function () use ($manifest, $zip, &$storedFiles): ContextSearchEvaluationDataset {
+                $dataset = DB::transaction(function () use ($manifest, $zip, &$storedFiles, $onProgress): ContextSearchEvaluationDataset {
                     $user = User::query()->firstOrCreate(
                         ['email' => 'context-search-evaluation@local.invalid'],
                         ['name' => 'Context search evaluation import', 'password' => Hash::make(Str::random(48))],
                     );
                     $materials = [];
+                    $materialMembers = [];
+                    $materialTotal = count($manifest['materials']);
+                    $this->reportProgress($onProgress, 'Materialien importieren', 0, max(1, $materialTotal));
+                    $importedMaterials = 0;
                     foreach ($manifest['materials'] as $entry) {
                         $material = new Material();
                         $material->forceFill([
@@ -245,7 +270,16 @@ final class EvaluationDatasetService
                             'icon_of_bundle' => $entry['icon_of_bundle'], 'created_by' => $user->getKey(), 'modified_by' => $user->getKey(),
                         ])->saveQuietly();
                         $materials[$entry['source_id']] = $material;
+                        $materialMembers[] = ['source_id' => $material->id];
+                        $this->reportProgress($onProgress, 'Materialien importieren', ++$importedMaterials, $materialTotal);
                     }
+                    if ($materialTotal === 0) {
+                        $this->reportProgress($onProgress, 'Materialien importieren', 1, 1);
+                    }
+                    $resourceTotal = count($manifest['resources']);
+                    $this->reportProgress($onProgress, 'Ressourcen importieren', 0, max(1, $resourceTotal));
+                    $importedResources = 0;
+                    $resourceMembers = [];
                     foreach ($manifest['resources'] as $entry) {
                         $resource = $entry['type'] === 'text' ? new Text() : new PdfFile();
                         $resource->forceFill([
@@ -267,9 +301,20 @@ final class EvaluationDatasetService
                             $resource->setLocalStorageAndPath('resources', $target);
                         }
                         $resource->saveQuietly();
+                        $hasMaterial = false;
                         foreach ($entry['material_ids'] as $sourceMaterialId) {
-                            $materials[$sourceMaterialId]?->resources()->attach($resource->getKey());
+                            if (isset($materials[$sourceMaterialId])) {
+                                $materials[$sourceMaterialId]->resources()->attach($resource->getKey());
+                                $hasMaterial = true;
+                            }
                         }
+                        if ($hasMaterial) {
+                            $resourceMembers[] = ['source_id' => $resource->id, 'revision_hash' => $this->revisionHash($resource)];
+                        }
+                        $this->reportProgress($onProgress, 'Ressourcen importieren', ++$importedResources, $resourceTotal);
+                    }
+                    if ($resourceTotal === 0) {
+                        $this->reportProgress($onProgress, 'Ressourcen importieren', 1, 1);
                     }
 
                     $dataset = new ContextSearchEvaluationDataset();
@@ -280,9 +325,9 @@ final class EvaluationDatasetService
                         'resource_count' => count($manifest['resources']), 'frozen_at' => $manifest['frozen_at'],
                     ])->save();
                     $this->storeManifestMembers($dataset, [
-                        'materials' => collect($materials)->map(fn (Material $material): array => ['source_id' => $material->id])->values()->all(),
-                        'resources' => Resource::query()->withoutGlobalScopes()->whereHas('materials', fn ($query) => $query->whereIn('materials.id', collect($materials)->pluck('id')))->get()->map(fn (Resource $resource): array => ['source_id' => $resource->id, 'revision_hash' => $this->revisionHash($resource)])->all(),
-                    ]);
+                        'materials' => $materialMembers,
+                        'resources' => $resourceMembers,
+                    ], $onProgress);
 
                     return $dataset;
                 });
@@ -454,14 +499,80 @@ final class EvaluationDatasetService
         }
     }
 
-    /** @param array<string, mixed> $manifest */
-    private function storeManifestMembers(ContextSearchEvaluationDataset $dataset, array $manifest): void
+    /**
+     * @param array<string, mixed> $manifest
+     * @param null|callable(string, int, int): void $onProgress
+     */
+    private function storeManifestMembers(ContextSearchEvaluationDataset $dataset, array $manifest, ?callable $onProgress = null): void
     {
+        $total = count($manifest['materials']) + count($manifest['resources']);
+        $this->reportProgress($onProgress, 'Mitgliedschaften speichern', 0, max(1, $total));
+        $completed = 0;
         foreach ($manifest['materials'] as $material) {
             ContextSearchEvaluationDatasetMember::query()->create(['dataset_id' => $dataset->id, 'member_type' => ContextSearchEvaluationDatasetMember::TYPE_MATERIAL, 'member_id' => $material['source_id']]);
+            $this->reportProgress($onProgress, 'Mitgliedschaften speichern', ++$completed, $total);
         }
         foreach ($manifest['resources'] as $resource) {
             ContextSearchEvaluationDatasetMember::query()->create(['dataset_id' => $dataset->id, 'member_type' => ContextSearchEvaluationDatasetMember::TYPE_RESOURCE, 'member_id' => $resource['source_id'], 'source_revision_hash' => $resource['revision_hash'] ?? null]);
+            $this->reportProgress($onProgress, 'Mitgliedschaften speichern', ++$completed, $total);
+        }
+        if ($total === 0) {
+            $this->reportProgress($onProgress, 'Mitgliedschaften speichern', 1, 1);
+        }
+    }
+
+    /** @param null|callable(string, int, int): void $onProgress */
+    private function archiveHash(string $path, ?callable $onProgress): string
+    {
+        if ($onProgress === null) {
+            $hash = hash_file('sha256', $path);
+            if ($hash === false) {
+                throw new RuntimeException('Die Archiv-Prüfsumme konnte nicht berechnet werden.');
+            }
+
+            return $hash;
+        }
+
+        $size = filesize($path);
+        if ($size === false) {
+            throw new RuntimeException('Das Evaluationsarchiv kann nicht gelesen werden.');
+        }
+        $stream = fopen($path, 'rb');
+        if ($stream === false) {
+            throw new RuntimeException('Das Evaluationsarchiv kann nicht gelesen werden.');
+        }
+
+        $context = hash_init('sha256');
+        $read = 0;
+        $this->reportProgress($onProgress, 'Archiv-Prüfsumme berechnen', 0, max(1, $size));
+        try {
+            while (! feof($stream)) {
+                $chunk = fread($stream, 1024 * 1024);
+                if ($chunk === false || ($chunk === '' && ! feof($stream))) {
+                    throw new RuntimeException('Das Evaluationsarchiv kann nicht vollständig gelesen werden.');
+                }
+                hash_update($context, $chunk);
+                $read += strlen($chunk);
+                $this->reportProgress($onProgress, 'Archiv-Prüfsumme berechnen', $read, max(1, $size));
+            }
+        } finally {
+            fclose($stream);
+        }
+
+        if ($size === 0) {
+            $this->reportProgress($onProgress, 'Archiv-Prüfsumme berechnen', 1, 1);
+        } elseif ($read !== $size) {
+            throw new RuntimeException('Das Evaluationsarchiv hat sich während der Prüfsummenberechnung geändert.');
+        }
+
+        return hash_final($context);
+    }
+
+    /** @param null|callable(string, int, int): void $onProgress */
+    private function reportProgress(?callable $onProgress, string $phase, int $current, int $total): void
+    {
+        if ($onProgress !== null) {
+            $onProgress($phase, $current, max(1, $total));
         }
     }
 

@@ -13,9 +13,12 @@ final class ImportContextSearchEvaluationDataset extends Command
 
     public function handle(EvaluationDatasetService $datasets): int
     {
+        $progress = new EvaluationDatasetProgress($this);
         try {
-            $dataset = $datasets->import((string) $this->argument('archive'));
+            $dataset = $datasets->import((string) $this->argument('archive'), $progress);
+            $progress->finish();
         } catch (Throwable $exception) {
+            $progress->abort();
             report($exception);
             $this->components->error($exception->getMessage());
 
