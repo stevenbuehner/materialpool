@@ -132,6 +132,7 @@ class AppServiceProvider extends ServiceProvider {
 			languages: (string) config('context_search.indexing.ocr_languages'),
 			timeout: (int) config('context_search.indexing.ocr_timeout'),
             renderDpi: (int) config('context_search.indexing.ocr_render_dpi'),
+            maxImagePixels: (int) config('context_search.indexing.ocr_max_image_pixels'),
             pageSegmentationMode: (int) config('context_search.indexing.ocr_page_segmentation_mode'),
             engineVersion: (string) config('context_search.indexing.ocr_engine_version'),
         ));

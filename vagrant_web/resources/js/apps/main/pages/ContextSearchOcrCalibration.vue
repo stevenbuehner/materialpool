@@ -34,7 +34,24 @@ import {pdfPreviewImageForPageLarge} from '@/components/serverRoutes';
 export default {
   name: 'ContextSearchOcrCalibration',
   data: () => ({datasets: [], runs: [], run: null, datasetId: '', sampleLimit: 50, title: '', busy: false, error: '', labels: ['usable', 'unusable', 'uncertain', 'handwriting', 'blank']}),
-  computed: { approvedEnv() { const profile = this.run?.approved_profile || {}; return [`CONTEXT_SEARCH_OCR_QUALITY_PROFILE=${profile.profile_id || ''}`, `CONTEXT_SEARCH_OCR_MINIMUM_MEAN_CONFIDENCE=${profile.minimum_mean_confidence ?? ''}`, `CONTEXT_SEARCH_OCR_MINIMUM_RECOGNIZED_WORDS=${profile.minimum_recognized_words ?? ''}`, `CONTEXT_SEARCH_OCR_MINIMUM_ALPHANUMERIC_RATIO=${profile.minimum_alphanumeric_ratio ?? ''}`, `CONTEXT_SEARCH_OCR_MAXIMUM_REPLACEMENT_CHARACTER_RATIO=${profile.maximum_replacement_character_ratio ?? ''}`, `CONTEXT_SEARCH_OCR_RENDER_DPI=${profile.render_dpi ?? ''}`, `CONTEXT_SEARCH_OCR_PSM=${profile.page_segmentation_mode ?? ''}`, `CONTEXT_SEARCH_OCR_ENGINE_VERSION=${profile.tesseract_version || ''}`].join('\n'); } },
+  computed: {
+    approvedEnv() {
+      const profile = this.run?.approved_profile || {};
+      const settings = [
+        `CONTEXT_SEARCH_OCR_QUALITY_PROFILE=${profile.profile_id || ''}`,
+        `CONTEXT_SEARCH_OCR_MINIMUM_MEAN_CONFIDENCE=${profile.minimum_mean_confidence ?? ''}`,
+        `CONTEXT_SEARCH_OCR_MINIMUM_RECOGNIZED_WORDS=${profile.minimum_recognized_words ?? ''}`,
+        `CONTEXT_SEARCH_OCR_MINIMUM_ALPHANUMERIC_RATIO=${profile.minimum_alphanumeric_ratio ?? ''}`,
+        `CONTEXT_SEARCH_OCR_MAXIMUM_REPLACEMENT_CHARACTER_RATIO=${profile.maximum_replacement_character_ratio ?? ''}`,
+        `CONTEXT_SEARCH_OCR_RENDER_DPI=${profile.render_dpi ?? ''}`,
+        `CONTEXT_SEARCH_OCR_PSM=${profile.page_segmentation_mode ?? ''}`,
+        `CONTEXT_SEARCH_OCR_ENGINE_VERSION=${profile.tesseract_version || ''}`,
+      ];
+      if (profile.max_image_pixels != null) settings.push(`CONTEXT_SEARCH_OCR_MAX_IMAGE_PIXELS=${profile.max_image_pixels}`);
+      if (profile.languages) settings.push(`CONTEXT_SEARCH_OCR_LANGUAGES=${profile.languages}`);
+      return settings.join('\n');
+    },
+  },
   async mounted() { await this.load(); },
   methods: {
     async load() { try { const {data} = await axios.get('/api/v2/admin/context-search/ocr-calibration'); this.datasets = data.datasets; this.runs = data.runs; if (this.run) await this.selectRun(this.run.id); } catch (error) { this.error = error.response?.data?.message || error.message; } },

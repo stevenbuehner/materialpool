@@ -81,7 +81,8 @@ final class OcrCalibrationService
         $profile = [
             'profile_id' => (string) config('context_search.indexing.ocr_quality_profile'),
             'languages' => (string) config('context_search.indexing.ocr_languages'),
-            'render_dpi' => (int) config('context_search.indexing.ocr_render_dpi', 200),
+            'render_dpi' => (int) config('context_search.indexing.ocr_render_dpi', 300),
+            'max_image_pixels' => (int) config('context_search.indexing.ocr_max_image_pixels', 12_000_000),
             'page_segmentation_mode' => (int) config('context_search.indexing.ocr_page_segmentation_mode', 3),
             'tesseract_version' => (string) config('context_search.indexing.ocr_engine_version', 'tesseract-5'),
         ];

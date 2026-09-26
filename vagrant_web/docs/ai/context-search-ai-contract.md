@@ -199,6 +199,8 @@ Ein konkretes Modell wird vor Freigabe auf Deutsch und Englisch, Reproduzierbark
 
 PDFs werden seitenweise verarbeitet. Zuerst wird die eingebettete Textschicht verwendet. Tesseract läuft nur für Seiten unter konfigurierten Textmengen- oder Qualitätsschwellwerten. OCR-Sprache, Engine-Version und Qualitätswert werden protokolliert. Textressourcen werden als einseitige Quellen mit Zeichenpositionen behandelt. Nicht verarbeitbare Dateien erhalten einen nachvollziehbaren Fehlerstatus.
 
+Für Tesseract beträgt die Zielauflösung 300 DPI. Die Rasterung senkt sie bei großen Seiten anhand eines konfigurierbaren Pixelbudgets (Standard: 12 Millionen Pixel) seitenweise ab; die tatsächlich verwendete DPI-Zahl wird im OCR-Ergebnis protokolliert. Text und TSV-Konfidenzdaten stammen aus demselben Tesseract-Lauf. Änderungen an Ziel-DPI oder Pixelbudget erfordern eine neue OCR-Kalibrierung, bevor ein zuvor freigegebenes Qualitätsprofil weiterverwendet wird.
+
 Die erste kalibrierbare Chunking-Baseline lautet:
 
 - niemals über eine PDF-Seitengrenze hinweg chunken;

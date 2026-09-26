@@ -2,6 +2,7 @@
 
 namespace App\Services\ContextSearch\Extraction;
 
+use InvalidArgumentException;
 use RuntimeException;
 use Symfony\Component\Process\Process;
 
@@ -10,10 +11,14 @@ final class TesseractOcrProcessor implements OcrProcessor
     public function __construct(
         private readonly string $languages,
         private readonly int $timeout,
-        private readonly int $renderDpi = 200,
+        private readonly int $renderDpi = 300,
         private readonly int $pageSegmentationMode = 3,
         private readonly string $engineVersion = 'tesseract-5',
+        private readonly int $maxImagePixels = 12_000_000,
     ) {
+        if ($renderDpi < 1 || $maxImagePixels < 1) {
+            throw new InvalidArgumentException('OCR render DPI and pixel budget must be positive.');
+        }
     }
 
     public function extractPage(string $pdfPath, int $pageNumber): OcrResult
@@ -26,19 +31,56 @@ final class TesseractOcrProcessor implements OcrProcessor
 
         $imageBase = $temporaryDirectory.'/page';
         $imagePath = $imageBase.'.png';
+        $outputBase = $temporaryDirectory.'/ocr';
 
         try {
-            $this->run(['pdftoppm', '-f', (string) $pageNumber, '-l', (string) $pageNumber, '-r', (string) $this->renderDpi, '-png', '-singlefile', $pdfPath, $imageBase]);
-            $text = $this->run(['tesseract', $imagePath, 'stdout', '-l', $this->languages, '--psm', (string) $this->pageSegmentationMode]);
-            $tsv = $this->run(['tesseract', $imagePath, 'stdout', '-l', $this->languages, '--psm', (string) $this->pageSegmentationMode, 'tsv']);
+            $effectiveDpi = $this->effectiveRenderDpi($pdfPath, $pageNumber);
+            $this->run(['pdftoppm', '-f', (string) $pageNumber, '-l', (string) $pageNumber, '-r', (string) $effectiveDpi, '-png', '-singlefile', $pdfPath, $imageBase]);
+            $this->run(['tesseract', $imagePath, $outputBase, '-l', $this->languages, '--dpi', (string) $effectiveDpi, '--psm', (string) $this->pageSegmentationMode, 'txt', 'tsv']);
+            $text = file_get_contents($outputBase.'.txt');
+            $tsv = file_get_contents($outputBase.'.tsv');
+            if ($text === false || $tsv === false) {
+                throw new RuntimeException('OCR result files could not be read.');
+            }
 
             $metrics = $this->metrics($text, $tsv);
+            $metrics['render_dpi'] = $effectiveDpi;
 
             return new OcrResult($text, $metrics['mean_confidence'], $this->engineVersion, $metrics);
         } finally {
             @unlink($imagePath);
+            @unlink($outputBase.'.txt');
+            @unlink($outputBase.'.tsv');
             @rmdir($temporaryDirectory);
         }
+    }
+
+    private function effectiveRenderDpi(string $pdfPath, int $pageNumber): int
+    {
+        $info = $this->run(['pdfinfo', '-f', (string) $pageNumber, '-l', (string) $pageNumber, $pdfPath]);
+        $pattern = '/^Page\s+'.preg_quote((string) $pageNumber, '/').'\s+size:\s*([0-9]+(?:\.[0-9]+)?)\s+x\s+([0-9]+(?:\.[0-9]+)?)\s+pts\b/im';
+        if (! preg_match($pattern, $info, $matches)
+            && ! preg_match('/^Page size:\s*([0-9]+(?:\.[0-9]+)?)\s+x\s+([0-9]+(?:\.[0-9]+)?)\s+pts\b/im', $info, $matches)) {
+            throw new RuntimeException('PDF page dimensions could not be read for OCR.');
+        }
+
+        $pageArea = (float) $matches[1] * (float) $matches[2];
+        if ($pageArea <= 0) {
+            throw new RuntimeException('PDF page dimensions are invalid for OCR.');
+        }
+
+        $maximumDpi = (int) floor(sqrt($this->maxImagePixels * 72 * 72 / $pageArea));
+        $effectiveDpi = min($this->renderDpi, $maximumDpi);
+        while ($effectiveDpi > 1
+            && ceil((float) $matches[1] * $effectiveDpi / 72) * ceil((float) $matches[2] * $effectiveDpi / 72) > $this->maxImagePixels) {
+            $effectiveDpi--;
+        }
+        if ($effectiveDpi < 1
+            || ceil((float) $matches[1] * $effectiveDpi / 72) * ceil((float) $matches[2] * $effectiveDpi / 72) > $this->maxImagePixels) {
+            throw new RuntimeException('PDF page exceeds the OCR pixel budget.');
+        }
+
+        return $effectiveDpi;
     }
 
     /** @param array<int, string> $command */
@@ -55,7 +97,7 @@ final class TesseractOcrProcessor implements OcrProcessor
         return $process->getOutput();
     }
 
-    /** @return array{mean_confidence: float, median_confidence: float, low_confidence_word_ratio: float, recognized_word_count: int, alphanumeric_ratio: float, replacement_character_ratio: float} */
+    /** @return array{mean_confidence: float, median_confidence: float, low_confidence_word_ratio: float, recognized_word_count: int, alphanumeric_ratio: float, replacement_character_ratio: float, confidence_histogram: array<int, int>} */
     private function metrics(string $text, string $tsv): array
     {
         $confidences = [];
