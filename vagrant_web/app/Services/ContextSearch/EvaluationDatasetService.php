@@ -85,7 +85,11 @@ final class EvaluationDatasetService
             throw new RuntimeException('Das gespeicherte Manifest stimmt nicht mit seinem Hash überein.');
         }
 
-        $relativePath = 'exports/'.$dataset->getKey().'.zip';
+        if (! in_array($dataset->purpose, ContextSearchEvaluationDataset::PURPOSES, true) || $dataset->version < 1) {
+            throw new RuntimeException('Zweck oder Version des Evaluationsdatensatzes ist ungültig.');
+        }
+
+        $relativePath = sprintf('exports/%s-v%d-%s.zip', $dataset->purpose, $dataset->version, $dataset->getKey());
         $absolutePath = Storage::disk(self::DISK)->path($relativePath);
         $directory = dirname($absolutePath);
         if (! is_dir($directory) && ! mkdir($directory, 0700, true) && ! is_dir($directory)) {

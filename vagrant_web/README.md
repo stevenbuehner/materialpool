@@ -24,13 +24,17 @@ Diese README richtet sich an drei Zielgruppen:
 
 | Kennzeichnung | Bedeutung |
 | --- | --- |
-| **Produktion** | Ubuntu-Server unter `/srv/materialpool`; PHP läuft als `www-data`, Deployments als `materialpool`. |
+| **Produktion** | Neue Installation: Proxmox mit Debian-LXC und getrenntem Qdrant-LXC. Bestehender Altbetrieb: Ubuntu-Server. Beide nutzen `/srv/materialpool`; PHP läuft als `www-data`. |
 | **Entwicklung** | Lokale Docker-/Sail-Umgebung; nur lokale Entwicklungsdaten. |
 | **Test** | Dedizierte, jederzeit entbehrliche MySQL-Datenbank `testing`; niemals Entwicklungs- oder Produktionsdaten. |
 
 Diese README ist der zentrale Einstieg. Bei Abweichungen gelten die spezielleren Verträge unter [`docs/ai/`](docs/ai/) und insbesondere der [Produktions- und Deploymentvertrag](docs/ai/production-deployment-contract.md), die [Domänen-Invarianten](docs/ai/domain-invariants.md) und die [Quality Gates](docs/ai/quality-gates.md). Die geplante hybride Kontextsuche mit Qdrant, Ollama und KI-Funktionen ist im [Planungs- und Arbeitsvertrag zur Kontextsuche](docs/ai/context-search-ai-contract.md) festgehalten. `AGENTS.md` regelt zusätzlich die Arbeit von KI-Agenten. Die Pflege dieser README und ihrer Bilder ist in [`docs/ai/readme-maintenance.md`](docs/ai/readme-maintenance.md) festgelegt.
 
 ## 1. Administration
+
+**Neuer Installationsweg:** Für neue Proxmox-Installationen gilt [Materialpool auf Proxmox VE](deployment/README.md) mit [Installation](deployment/docs/installation.md), [Update](deployment/docs/update.md) und [vollständiger Testanleitung](deployment/docs/testing.md). GitHub Actions testet und baut versionierte Releases; der unprivilegierte Debian-LXC betreibt Laravel mit Nginx, PHP-FPM 8.4 und MariaDB ohne Docker oder Node. Qdrant läuft in einem separaten LXC. Im Laravel-LXC startet `update` nach Veröffentlichung eines stabilen GitHub-Releases den geprüften Updateablauf. Ein bestehender Datenbestand benötigt einen gesondert verifizierten Restore; der Fresh-Installer verweigert die Übernahme.
+
+**Altbetrieb:** Die nachstehenden Abschnitte 1.1 bis 1.3 beschreiben weiterhin den vorhandenen Ubuntu-24.04-/MySQL-8-Server und `ops/production/`. Diese Befehle gelten nicht für den neuen Proxmox-LXC. Der neue Betrieb ist erst nach den in der Proxmox-Testanleitung beschriebenen externen Tests freigegeben.
 
 Die Produktion läuft auf einem einzelnen Ubuntu-24.04-LTS-Server mit Nginx, PHP-FPM 8.4 und MySQL 8 hinter einem externen TLS-Reverse-Proxy. Supervisor betreibt den Default-Queue-Worker; Cron startet jede Minute Laravels Scheduler. Node.js wird auf dem Produktionsserver nicht benötigt.
 
@@ -486,31 +490,33 @@ php artisan context-search:dataset:export
 ```sh
 # Lokale Sail-Umgebung
 DATASET_UUID='UUID_HIER_EINTRAGEN'
-./vendor/bin/sail artisan context-search:dataset:export "$DATASET_UUID" && \
-  ./vendor/bin/sail artisan context-search:dataset:verify "exports/$DATASET_UUID.zip"
+./vendor/bin/sail artisan context-search:dataset:export "$DATASET_UUID"
+ARCHIVE_NAME='DATEINAME_AUS_EXPORTAUSGABE.zip'
+./vendor/bin/sail artisan context-search:dataset:verify "exports/$ARCHIVE_NAME"
 ```
 
 ```sh
 # Server ohne Sail
 DATASET_UUID='UUID_HIER_EINTRAGEN'
-php artisan context-search:dataset:export "$DATASET_UUID" && \
-  php artisan context-search:dataset:verify "exports/$DATASET_UUID.zip"
+php artisan context-search:dataset:export "$DATASET_UUID"
+ARCHIVE_NAME='DATEINAME_AUS_EXPORTAUSGABE.zip'
+php artisan context-search:dataset:verify "exports/$ARCHIVE_NAME"
 ```
 
-Der Export meldet den relativen Archivpfad und die Archiv-Prüfsumme; `verify` meldet Manifest- und Archiv-Prüfsumme. Die Archiv-Prüfsumme beider Ausgaben muss übereinstimmen. Der relative Pfad `exports/<UUID>.zip` liegt auf dem Disk `context_search_evaluation`, standardmäßig unter `storage/app/context-search-evaluation/exports/` oder unter dem konfigurierten `CONTEXT_SEARCH_EVALUATION_PATH`. Das Archiv enthält Quelldaten und bleibt in einer privaten, nicht öffentlich erreichbaren Ablage. Die UUID und beide Prüfsummen für die Übergabe festhalten, ohne Dokumenttitel oder Inhalte in Logs oder Tickets zu kopieren.
+Der Export meldet den relativen Archivpfad und die Archiv-Prüfsumme. `ARCHIVE_NAME` ist der Dateiname aus dieser Ausgabe, beispielsweise `calibration-v3-<UUID>.zip`: `v3` bezeichnet die Bearbeitungsrevision des Datensatzes, nicht die Archivformat-Version. `verify` meldet Manifest- und Archiv-Prüfsumme. Die Archiv-Prüfsumme beider Ausgaben muss übereinstimmen. Der relative Pfad `exports/<Zweck>-v<Version>-<UUID>.zip` liegt auf dem Disk `context_search_evaluation`, standardmäßig unter `storage/app/context-search-evaluation/exports/` oder unter dem konfigurierten `CONTEXT_SEARCH_EVALUATION_PATH`. Das Archiv enthält Quelldaten und bleibt in einer privaten, nicht öffentlich erreichbaren Ablage. Die UUID und beide Prüfsummen für die Übergabe festhalten, ohne Dokumenttitel oder Inhalte in Logs oder Tickets zu kopieren.
 
 Ein vertrauenswürdiger Administrator überträgt genau dieses Archiv in den privaten Ordner `incoming/` des Evaluationssystems. Vor dem Import müssen dort **beide** von `verify` ausgegebenen Prüfsummen mit den Werten des Quellsystems übereinstimmen. Der Import ist nur in einer isolierten, ausdrücklich freigegebenen Evaluationsumgebung mit `CONTEXT_SEARCH_EVALUATION_IMPORT_ENABLED=true` zulässig; in Produktion ist er gesperrt. Auf einer Evaluationsumgebung mit Sail:
 
 ```sh
-DATASET_UUID='UUID_HIER_EINTRAGEN'
-./vendor/bin/sail artisan context-search:dataset:verify "incoming/$DATASET_UUID.zip"
+ARCHIVE_NAME='DATEINAME_AUS_EXPORTAUSGABE.zip'
+./vendor/bin/sail artisan context-search:dataset:verify "incoming/$ARCHIVE_NAME"
 ```
 
 Erst nach dem Vergleich beider Prüfsummen importieren:
 
 ```sh
-DATASET_UUID='UUID_HIER_EINTRAGEN'
-./vendor/bin/sail artisan context-search:dataset:import "incoming/$DATASET_UUID.zip"
+ARCHIVE_NAME='DATEINAME_AUS_EXPORTAUSGABE.zip'
+./vendor/bin/sail artisan context-search:dataset:import "incoming/$ARCHIVE_NAME"
 ```
 
 Nach dem Import die ausgegebene UUID und den Datensatzstatus in der Evaluationsumgebung kontrollieren. Der Import verwendet einen lokalen technischen Benutzer und legt die PDF-Dateien in der Evaluationsablage ab. Bei identischem Manifest kann derselbe Import erneut ausgeführt werden, ohne Materialien oder Ressourcen zu duplizieren.
@@ -535,7 +541,8 @@ Diese Anleitung gilt für ein **isoliertes Dev-/Evaluationssystem**, nicht für 
    ```sh
    DATASET_UUID='UUID_HIER_EINTRAGEN'
    php artisan context-search:dataset:export "$DATASET_UUID"
-   php artisan context-search:dataset:verify "exports/$DATASET_UUID.zip"
+   ARCHIVE_NAME='DATEINAME_AUS_EXPORTAUSGABE.zip'
+   php artisan context-search:dataset:verify "exports/$ARCHIVE_NAME"
    ```
 
    Archiv und **beide** ausgegebenen Prüfsummen auf die Evaluationsmaschine übertragen. Der genaue Dateiweg steht in Schritt 2; es gibt dafür derzeit **keinen Upload-Button im Browser**. Keine Dokumenttitel oder Texte in Tickets, Konsolenprotokolle oder Commits kopieren. Falls derselbe Rechner beide Rollen übernimmt, müssen Datenbank, private Dateiablage und Qdrant-Alias trotzdem getrennt sein.
@@ -560,18 +567,18 @@ Diese Anleitung gilt für ein **isoliertes Dev-/Evaluationssystem**, nicht für 
    ./vendor/bin/sail artisan migrate:status
    ```
 
-   Für den **Standardpfad** jetzt auf der **Dev-Maschine**, weiterhin im Projektverzeichnis, das Verzeichnis anlegen und das ZIP mit SCP vom Produktionsserver holen. `UUID_HIER_EINTRAGEN` und `SSH_BENUTZER@PROD_HOST` ersetzen. Für einen abweichenden Produktions- oder Dev-Speicherpfad die beiden Pfade im `scp`-Befehl anhand der gerade geprüften Ordner anpassen. SCP überträgt verschlüsselt; das ist erlaubt, aber für dieses Evaluationsarchiv keine vertragliche Voraussetzung. Statt SCP ist auch SFTP oder eine manuelle Übertragung möglich, solange am Ende **genau dieselbe ZIP-Datei** im Dev-`incoming/` liegt. Falls der SSH-Benutzer das private Archiv nicht lesen darf, die Berechtigung gezielt mit dem Administrator klären – nicht den Ordner öffentlich machen.
+   Für den **Standardpfad** jetzt auf der **Dev-Maschine**, weiterhin im Projektverzeichnis, das Verzeichnis anlegen und das ZIP mit SCP vom Produktionsserver holen. `DATEINAME_AUS_EXPORTAUSGABE.zip` durch den gemeldeten Dateinamen und `SSH_BENUTZER@PROD_HOST` durch den SSH-Zugang ersetzen. Für einen abweichenden Produktions- oder Dev-Speicherpfad die beiden Pfade im `scp`-Befehl anhand der gerade geprüften Ordner anpassen. SCP überträgt verschlüsselt; das ist erlaubt, aber für dieses Evaluationsarchiv keine vertragliche Voraussetzung. Statt SCP ist auch SFTP oder eine manuelle Übertragung möglich, solange am Ende **genau dieselbe ZIP-Datei** im Dev-`incoming/` liegt. Falls der SSH-Benutzer das private Archiv nicht lesen darf, die Berechtigung gezielt mit dem Administrator klären – nicht den Ordner öffentlich machen.
 
    ```sh
-   DATASET_UUID='UUID_HIER_EINTRAGEN'
+   ARCHIVE_NAME='DATEINAME_AUS_EXPORTAUSGABE.zip'
    PROD_SSH='SSH_BENUTZER@PROD_HOST'
    umask 077
    mkdir -p storage/app/context-search-evaluation/incoming
    chmod 700 storage/app/context-search-evaluation/incoming
-   scp "$PROD_SSH:/srv/materialpool/shared/storage/app/context-search-evaluation/exports/$DATASET_UUID.zip" \
-     "storage/app/context-search-evaluation/incoming/$DATASET_UUID.zip"
-   chmod 600 "storage/app/context-search-evaluation/incoming/$DATASET_UUID.zip"
-   ./vendor/bin/sail exec laravel.test test -r "/var/www/html/storage/app/context-search-evaluation/incoming/$DATASET_UUID.zip"
+   scp "$PROD_SSH:/srv/materialpool/shared/storage/app/context-search-evaluation/exports/$ARCHIVE_NAME" \
+     "storage/app/context-search-evaluation/incoming/$ARCHIVE_NAME"
+   chmod 600 "storage/app/context-search-evaluation/incoming/$ARCHIVE_NAME"
+   ./vendor/bin/sail exec laravel.test test -r "/var/www/html/storage/app/context-search-evaluation/incoming/$ARCHIVE_NAME"
    ```
 
    Der letzte Befehl muss erfolgreich enden: Er zeigt, dass **der Container** das hochgeladene ZIP lesen kann. Bei einer eigenen `CONTEXT_SEARCH_EVALUATION_PATH`-Einstellung auch diesen Prüfpfad anpassen. `docker-compose.yml` bindet standardmäßig das gesamte Projektverzeichnis nach `/var/www/html` ein; deshalb erscheint eine Datei im Dev-Projektordner unmittelbar im Container. Wenn die Datei nur auf dem Host, aber nicht im Container sichtbar ist, vor dem Import den Mount beziehungsweise die Rechte korrigieren.
@@ -579,9 +586,9 @@ Diese Anleitung gilt für ein **isoliertes Dev-/Evaluationssystem**, nicht für 
    Erst jetzt auf Dev prüfen und importieren. Vorher muss `CONTEXT_SEARCH_EVALUATION_IMPORT_ENABLED=true` **nur in der Dev-`.env`** aktiv sein. Nach einer gerade vorgenommenen `.env`-Änderung den Dev-Konfigurationscache mit `./vendor/bin/sail artisan config:clear` erneuern. `verify` ist lesend; **vor** `import` müssen Archiv- und Manifest-Prüfsumme mit den in Schritt 1 auf Produktion notierten Werten übereinstimmen. Bei Abweichung stoppen und die Übertragung wiederholen, nicht trotzdem importieren. `import` schreibt Materialien, Ressourcen und Quelldateien ausschließlich in die freigegebene Evaluationsumgebung. Danach die gemeldete Datensatz-UUID und den Status kontrollieren.
 
    ```sh
-   DATASET_UUID='UUID_HIER_EINTRAGEN'
-   ./vendor/bin/sail artisan context-search:dataset:verify "incoming/$DATASET_UUID.zip"
-   ./vendor/bin/sail artisan context-search:dataset:import "incoming/$DATASET_UUID.zip"
+   ARCHIVE_NAME='DATEINAME_AUS_EXPORTAUSGABE.zip'
+   ./vendor/bin/sail artisan context-search:dataset:verify "incoming/$ARCHIVE_NAME"
+   ./vendor/bin/sail artisan context-search:dataset:import "incoming/$ARCHIVE_NAME"
    ```
 
 3. **OCR-Werkzeuge und Queue lesend vorprüfen.** Im Dev-Container müssen Poppler und Tesseract verfügbar sein; `tesseract --list-langs` muss `deu` und `eng` enthalten. Die vorhandene Feature-Prüfung verarbeitet eine isolierte Test-PDF und verwendet explizit die entbehrliche Datenbank `testing`, nicht die importierten Dev-Daten. Der Queue-Check darf keine ungeprüften Altaufträge melden. Solange er warnt, dass neue Läufe gesperrt sind, hier **anhalten**.

@@ -42,6 +42,8 @@ final class ContextSearchEvaluationDatasetCommandTest extends TestCase
         $this->assertSame(1, $dataset->resource_count);
         $this->assertMatchesRegularExpression('/^[a-f0-9]{64}$/', $dataset->manifest_hash);
 
+        $dataset->update(['version' => 4]);
+
         $this->artisan('context-search:dataset:export', ['dataset' => $dataset->getKey()])
             ->expectsOutputToContain('Archiv-Prüfsumme')
             ->assertExitCode(0);
@@ -56,6 +58,7 @@ final class ContextSearchEvaluationDatasetCommandTest extends TestCase
 
         $dataset->refresh();
         $this->assertSame(ContextSearchEvaluationDataset::STATUS_EXPORTED, $dataset->status);
+        $this->assertSame('exports/calibration-v4-'.$dataset->getKey().'.zip', $dataset->archive_path);
         $this->assertTrue(Storage::disk('context_search_evaluation')->exists($dataset->archive_path));
 
         $this->artisan('context-search:dataset:verify', ['archive' => $dataset->archive_path])
@@ -100,6 +103,7 @@ final class ContextSearchEvaluationDatasetCommandTest extends TestCase
             ->assertExitCode(0);
 
         $this->assertSame(ContextSearchEvaluationDataset::STATUS_EXPORTED, $frozen->fresh()->status);
+        $this->assertSame('exports/ocr-v1-'.$frozen->getKey().'.zip', $frozen->fresh()->archive_path);
         $this->assertSame(ContextSearchEvaluationDataset::STATUS_DRAFT, $draft->fresh()->status);
     }
 
