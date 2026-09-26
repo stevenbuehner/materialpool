@@ -13,6 +13,9 @@ use Throwable;
 
 final class ReconcileContextSearchEvaluationDatasetMembers extends Command
 {
+    private const DATASET_BATCH_SIZE = 100;
+    private const MEMBER_BATCH_SIZE = 500;
+
     protected $signature = 'context-search:dataset:reconcile-memberships {--apply : Bestätigt das Anlegen konfliktfreier Mitgliedschaften}';
 
     protected $description = 'Prüft eingefrorene Alt-Datensätze auf fehlende, zweckkonforme Mitgliedschaften; Standard ist ausschließlich lesend.';
@@ -21,20 +24,22 @@ final class ReconcileContextSearchEvaluationDatasetMembers extends Command
     {
         $apply = (bool) $this->option('apply');
         $this->renderCapacityOverview();
-        $datasets = ContextSearchEvaluationDataset::query()->whereIn('status', [ContextSearchEvaluationDataset::STATUS_FROZEN, ContextSearchEvaluationDataset::STATUS_EXPORTED])->orderBy('created_at')->get();
-        $datasetsWithMembers = ContextSearchEvaluationDatasetMember::query()->whereIn('dataset_id', $datasets->modelKeys())->distinct()->pluck('dataset_id')->flip();
         $affected = 0;
-        foreach ($datasets as $dataset) {
-            if ($datasetsWithMembers->has($dataset->id)) continue;
+        $datasetIds = ContextSearchEvaluationDataset::query()
+            ->whereIn('status', [ContextSearchEvaluationDataset::STATUS_FROZEN, ContextSearchEvaluationDataset::STATUS_EXPORTED])
+            ->whereDoesntHave('members')
+            ->select('id')
+            ->lazyById(self::DATASET_BATCH_SIZE);
+
+        foreach ($datasetIds as $datasetId) {
+            $dataset = ContextSearchEvaluationDataset::query()->findOrFail($datasetId->id);
+            if ($dataset->members()->exists()) continue;
             $affected++;
             $materials = collect($dataset->manifest['materials'] ?? [])->pluck('source_id')->filter()->map(fn ($id) => (int) $id)->all();
             $resources = collect($dataset->manifest['resources'] ?? [])->filter(fn ($entry) => isset($entry['source_id']))->values();
             $resourceIds = $resources->pluck('source_id')->map(fn ($id) => (int) $id)->all();
             $allowedPurposes = EvaluationDatasetOverlapPolicy::allowedPurposes($dataset->purpose);
-            $conflict = ContextSearchEvaluationDatasetMember::query()->where(function ($query) use ($materials, $resourceIds): void {
-                $query->where(fn ($members) => $members->where('member_type', 'material')->whereIn('member_id', $materials))
-                    ->orWhere(fn ($members) => $members->where('member_type', 'resource')->whereIn('member_id', $resourceIds));
-            })->whereHas('dataset', fn ($existing) => $existing->whereNotIn('purpose', $allowedPurposes))->exists();
+            $conflict = $this->hasConflict($materials, $resourceIds, $allowedPurposes);
             if ($conflict) {
                 $this->components->error("{$dataset->id}: Konflikt; keine Mitgliedschaften angelegt.");
                 continue;
@@ -43,8 +48,19 @@ final class ReconcileContextSearchEvaluationDatasetMembers extends Command
             if (! $apply) continue;
             try {
                 DB::transaction(function () use ($dataset, $materials, $resources): void {
-                    foreach ($materials as $id) ContextSearchEvaluationDatasetMember::query()->create(['dataset_id' => $dataset->id, 'member_type' => 'material', 'member_id' => $id]);
-                    foreach ($resources as $resource) ContextSearchEvaluationDatasetMember::query()->create(['dataset_id' => $dataset->id, 'member_type' => 'resource', 'member_id' => $resource['source_id'], 'source_revision_hash' => $resource['revision_hash'] ?? null]);
+                    $timestamp = now();
+                    foreach (array_chunk($materials, self::MEMBER_BATCH_SIZE) as $ids) {
+                        ContextSearchEvaluationDatasetMember::query()->insert(array_map(fn ($id): array => [
+                            'dataset_id' => $dataset->id, 'member_type' => 'material', 'member_id' => $id,
+                            'source_revision_hash' => null, 'created_at' => $timestamp, 'updated_at' => $timestamp,
+                        ], $ids));
+                    }
+                    foreach ($resources->chunk(self::MEMBER_BATCH_SIZE) as $batch) {
+                        ContextSearchEvaluationDatasetMember::query()->insert($batch->map(fn ($resource): array => [
+                            'dataset_id' => $dataset->id, 'member_type' => 'resource', 'member_id' => $resource['source_id'],
+                            'source_revision_hash' => $resource['revision_hash'] ?? null, 'created_at' => $timestamp, 'updated_at' => $timestamp,
+                        ])->all());
+                    }
                 });
                 $this->components->info("{$dataset->id}: Mitgliedschaften angelegt.");
             } catch (Throwable $exception) {
@@ -57,19 +73,34 @@ final class ReconcileContextSearchEvaluationDatasetMembers extends Command
         return self::SUCCESS;
     }
 
+    /** @param array<int, int> $materials @param array<int, int> $resources @param array<int, string> $allowedPurposes */
+    private function hasConflict(array $materials, array $resources, array $allowedPurposes): bool
+    {
+        foreach (['material' => $materials, 'resource' => $resources] as $type => $ids) {
+            foreach (array_chunk($ids, self::MEMBER_BATCH_SIZE) as $batch) {
+                if (ContextSearchEvaluationDatasetMember::query()
+                    ->where('member_type', $type)
+                    ->whereIn('member_id', $batch)
+                    ->whereHas('dataset', fn ($existing) => $existing->whereNotIn('purpose', $allowedPurposes))
+                    ->exists()) return true;
+            }
+        }
+
+        return false;
+    }
+
     private function renderCapacityOverview(): void
     {
         $targets = EvaluationDatasetCurationService::defaultTargets();
-        $datasets = ContextSearchEvaluationDataset::query()->get(['id', 'purpose', 'material_count', 'resource_count']);
-        $memberCounts = ContextSearchEvaluationDatasetMember::query()
-            ->selectRaw("dataset_id, SUM(member_type = 'material') as materials, SUM(member_type = 'resource') as resources")
-            ->groupBy('dataset_id')->get()->keyBy('dataset_id');
-        $actual = [];
-        foreach ($datasets as $dataset) {
-            $counts = $memberCounts->get($dataset->id);
-            $actual[$dataset->purpose]['materials'] = ($actual[$dataset->purpose]['materials'] ?? 0) + ($counts?->materials ?? $dataset->material_count);
-            $actual[$dataset->purpose]['resources'] = ($actual[$dataset->purpose]['resources'] ?? 0) + ($counts?->resources ?? $dataset->resource_count);
-        }
+        $actual = DB::table('context_search_evaluation_datasets as datasets')
+            ->leftJoin('context_search_evaluation_dataset_members as members', 'members.dataset_id', '=', 'datasets.id')
+            ->groupBy('datasets.purpose')
+            ->select('datasets.purpose')
+            ->selectRaw("SUM(CASE WHEN members.dataset_id IS NULL THEN datasets.material_count WHEN members.member_type = 'material' THEN 1 ELSE 0 END) as materials")
+            ->selectRaw("SUM(CASE WHEN members.dataset_id IS NULL THEN datasets.resource_count WHEN members.member_type = 'resource' THEN 1 ELSE 0 END) as resources")
+            ->get()->mapWithKeys(fn ($row): array => [$row->purpose => [
+                'materials' => (int) $row->materials, 'resources' => (int) $row->resources,
+            ]])->all();
         $eligibleResources = Resource::query()->withoutGlobalScopes()->whereIn('type', ['pdf', 'text'])->count();
         $exclusiveTargets = collect($targets)->only(['calibration', 'acceptance']);
         $targetResources = array_sum(array_column($exclusiveTargets->all(), 'resources'));
