@@ -58,6 +58,7 @@ return [
 	'ai-dataset-pages'                                         => 'More materials',
 	'ai-dataset-material-preview'                              => 'Material preview',
 	'ai-dataset-material-preview-image'                        => 'Preview for :title',
+	'ai-dataset-preview-image-unavailable'                      => 'No preview is available for this material.',
 	'ai-dataset-material-preview-empty'                        => 'Select a material from the list to see its preview.',
 	'ai-dataset-preview-material'                              => 'Open material and resources in preview',
 	'ai-dataset-preview-resource'                              => 'Open resource in preview',
