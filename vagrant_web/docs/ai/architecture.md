@@ -19,6 +19,8 @@ Browser → Laravel Web-Routen → Vue 3 SPA (/vue)
 
 ## Laufzeit und Build
 
+Für neue Produktionsinstallationen gilt das [Proxmox-LXC-Profil](../../deployment/README.md): Debian 13, PHP 8.4, Nginx, MariaDB und systemd im Laravel-LXC sowie Qdrant in einem eigenen LXC. Versionierte GitHub-Releases liefern bereits gebaute Vite-Assets. Der bisherige Ubuntu-/MySQL-Server unter `ops/production/` bleibt als Altbetrieb dokumentiert; es gibt keinen automatischen Datenumzug.
+
 - Produktion läuft auf einem einzelnen Ubuntu-24.04-LTS-Server mit Nginx, PHP-FPM `8.4` und MySQL 8 hinter einem externen TLS-Reverse-Proxy. Nginx liefert ausschließlich `public/` aus. Atomare Releases, Shared-Pfade, Proxy-Trust, Queue/Scheduler sowie Backup/Restore sind verbindlich in [`production-deployment-contract.md`](production-deployment-contract.md) festgelegt.
 - Docker/Sail ist ausschließlich die lokale Entwicklungs- und Testlaufzeit. Lokales Backend-Referenzsystem ist der PHP-8.4-Sail-Container; ein älteres Host-PHP ist nicht maßgeblich. Sail oder `php artisan serve` sind kein Produktions-Webserver.
 - PHPUnit 12.5 testet ausschließlich gegen die dedizierte MySQL-Datenbank `testing`; Ressourcen-, Archiv- und Backup-Dateien werden gefakt oder isoliert.

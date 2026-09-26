@@ -1,0 +1,44 @@
+{
+  "name": "Materialpool",
+  "slug": "materialpool",
+  "categories": [12],
+  "date_created": "2026-09-26",
+  "type": "ct",
+  "updateable": true,
+  "privileged": false,
+  "interface_port": 80,
+  "documentation": "https://github.com/stevenbuehner/materialpool/tree/semantische-suche/vagrant_web/deployment",
+  "website": "https://github.com/stevenbuehner/materialpool",
+  "repository": "https://github.com/stevenbuehner/materialpool",
+  "architectures": ["amd64"],
+  "platforms": ["pve"],
+  "description": "Geschützte Material- und Ressourcenverwaltung mit Laravel.",
+  "install_methods": [
+    {
+      "type": "default",
+      "script": "ct/materialpool.sh",
+      "config_path": "/srv/materialpool/shared/.env",
+      "resources": {
+        "cpu": 2,
+        "ram": 3072,
+        "hdd": 24,
+        "os": "Debian",
+        "version": "13"
+      }
+    }
+  ],
+  "default_credentials": {
+    "username": null,
+    "password": null
+  },
+  "notes": [
+    {
+      "text": "SMTP, S3, Reverse Proxy und gegebenenfalls private GitHub-Zugangsdaten sind vor der Installation nötig.",
+      "type": "warning"
+    },
+    {
+      "text": "Qdrant benötigt einen getrennten nativen LXC.",
+      "type": "info"
+    }
+  ]
+}

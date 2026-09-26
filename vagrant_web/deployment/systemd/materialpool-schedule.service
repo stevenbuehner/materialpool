@@ -1,0 +1,10 @@
+[Unit]
+Description=Materialpool Scheduler
+After=mariadb.service
+
+[Service]
+Type=oneshot
+User=www-data
+Group=www-data
+WorkingDirectory=/srv/materialpool/current
+ExecStart=/usr/bin/php /srv/materialpool/current/artisan schedule:run

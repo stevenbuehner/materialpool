@@ -1,0 +1,78 @@
+name: Release
+on:
+  push:
+    tags: ['v*']
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: testing
+          MYSQL_DATABASE: testing
+          MYSQL_ROOT_HOST: '%'
+        ports: ['3306:3306']
+        options: >-
+          --health-cmd="mysqladmin ping -h localhost -ptesting"
+          --health-interval=10s --health-timeout=5s --health-retries=10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Version prüfen
+        env:
+          TAG: ${{ github.ref_name }}
+        run: '[[ "$TAG" =~ ^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]]'
+        shell: bash
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: imagick, pdo_mysql, mbstring, xml, zip, gd, intl, bcmath
+          coverage: none
+      - run: composer validate --strict
+      - run: sudo apt-get update && sudo apt-get install -y poppler-utils qpdf libreoffice ghostscript tesseract-ocr tesseract-ocr-deu tesseract-ocr-eng
+      - run: composer install --no-interaction --prefer-dist
+      - run: |
+          cp .env.example .env
+          php artisan key:generate --force
+          DB_HOST=127.0.0.1 DB_DATABASE=testing DB_USERNAME=root DB_PASSWORD=testing php artisan migrate:fresh --env=testing --force
+          DB_HOST=127.0.0.1 DB_DATABASE=testing DB_USERNAME=root DB_PASSWORD=testing php artisan db:seed --env=testing --force
+          DB_HOST=127.0.0.1 DB_DATABASE=testing DB_USERNAME=root DB_PASSWORD=testing php artisan test
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .node-version
+          cache: npm
+      - run: npm install --global npm@11.19.0
+      - run: npm ci --ignore-scripts
+      - run: npm run test:ci
+      - run: npm run build
+      - run: git diff --exit-code -- composer.lock package-lock.json
+      - name: Release-Paket erstellen
+        env:
+          TAG: ${{ github.ref_name }}
+        run: bash deployment/release/package.sh "$TAG" "$RUNNER_TEMP/release"
+      - name: Release-Paket prüfen
+        env:
+          TAG: ${{ github.ref_name }}
+        run: bash deployment/release/check-package.sh "$RUNNER_TEMP/release/materialpool-$TAG.tar.gz"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release
+          path: ${{ runner.temp }}/release/*
+          if-no-files-found: error
+  publish:
+    needs: verify
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: release
+          path: release
+      - name: GitHub Release veröffentlichen
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+        run: gh release create "$TAG" release/* --repo "$GITHUB_REPOSITORY" --verify-tag --generate-notes

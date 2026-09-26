@@ -1,0 +1,10 @@
+[Unit]
+Description=Materialpool Scheduler jede Minute
+
+[Timer]
+OnCalendar=*-*-* *:*:00
+Persistent=true
+Unit=materialpool-schedule.service
+
+[Install]
+WantedBy=timers.target

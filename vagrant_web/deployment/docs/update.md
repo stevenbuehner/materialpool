@@ -1,0 +1,11 @@
+# Update und Rollback
+
+Im Laravel-LXC als root `update` ausführen. Der Updater sperrt parallele Läufe mit `flock`, liest die installierte Version aus `current/release.json` und die neueste stabile Version aus GitHub. Bei gleicher Version endet er ohne Änderung. Er lädt Archiv und Prüfsumme, prüft SHA256 und Archivstruktur, bereitet ein neues Release mit `composer install --no-dev` vor und stoppt erst dann die laufenden Prozesse.
+
+Vor der Migration erstellt er ein komprimiertes MariaDB-Backup unter `/srv/materialpool/shared/backups/pre-vX.Y.Z-<UTC>.sql.gz`. Dann folgen Maintenance Mode, Worker-Stopp, Migration, `production:preflight`, `optimize`, atomarer Symlinkwechsel, Dienststart und `/up`-Healthcheck. Die letzten zehn Deployment-Backups und vier Code-Releases bleiben erhalten; Shared-Daten und reguläre Laravel-/S3-Backups werden davon nicht berührt.
+
+Scheitern Download, Checksumme oder Composer, bleibt das alte Release aktiv. Scheitert eine Migration, bleibt die Anwendung im Wartungsmodus; die Datenbank kann schon teilweise geändert sein. Fehler nach der Umschaltung setzen den Code-Symlink auf das vorherige Release zurück, lassen den Wartungsmodus aber bis zur Prüfung der Datenbank aktiv. Restore nur nach dokumentierter Auswahl des korrekten Backups und ausschließlich auf einer Testinstanz üben. `migrate:rollback` erfolgt nicht automatisch.
+
+Manueller Code-Rollback im LXC: `sudo /usr/local/sbin/materialpool-update rollback v0.0.1`. Vorher `ls -1 /srv/materialpool/releases` und das Zielrelease prüfen. Danach `/up`, Login, Queue und Migrationszustand prüfen. Bei nicht abwärtskompatiblen Migrationen ist zusätzlich ein geprüfter Datenbank-Restore nötig.
+
+Die bisherige Ubuntu-/MySQL-Produktionsinstallation unter `ops/production/` wird durch diesen Befehl nicht aktualisiert. Ein Umzug zwischen den Betriebsprofilen verlangt einen isoliert geprüften Daten- und Schlüssel-Restore.

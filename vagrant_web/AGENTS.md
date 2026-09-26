@@ -47,6 +47,15 @@ Antworte und dokumentiere auf Deutsch; belasse etablierte technische Bezeichner,
 
 ## Technische Leitplanken
 
+### Release-Betrieb auf Proxmox
+
+- Lokal darf Laravel Sail verwendet werden; der neue Proxmox-Produktions-LXC benötigt weder Docker noch Node.js.
+- Frontend-Assets entstehen ausschließlich in GitHub Actions. Produktion installiert versionierte GitHub-Release-Artefakte ohne Git-Checkout mit `composer.lock` und `composer install --no-dev`.
+- Proxmox-Skripte orientieren sich an aktuellen Community Scripts; vor eigener Shell-Logik passende Helper prüfen.
+- Qdrant läuft in einem getrennten nativen LXC. `.env`, Datenbank und persistenter Storage bleiben bei Updates erhalten.
+- Releases sind versioniert und prüfsummengeschützt. Secrets dürfen weder committed noch geloggt werden.
+- Änderungen unter `ct/`, `install/` und `deployment/` verlangen die Prüfungen aus `deployment/docs/testing.md`.
+
 - **Backend:** Laravel 13 und PHP 8.4. Nutze aktuelle Laravel-13-/PHP-8.4-Konventionen, wenn sie im betroffenen Bereich vollständig umsetzbar und verhaltensneutral sind. Beobachtbare Default-Änderungen bleiben entscheidungspflichtig.
 - **OAuth:** Laravel Passport 13 bleibt der API-Guard. Neue Clients verwenden UUIDs und gehashte Secrets; die Legacy-JSON-Verwaltungsrouten sind deaktiviert. Der Password Grant, bestehende Token-Laufzeiten und `materialpool_token` sind bewusst erhaltene Produktverträge; Änderungen daran verlangen Freigabe und den Ablauf aus `docs/ai/passport-13-client-migration.md`.
 - **Frontend:** Der migrierte Stand verwendet Vue 3, Vue Router 4, Pinia, Bootstrap 5 mit BootstrapVueNext beziehungsweise lokalen Materialpool-Adaptern und Vite. `@vue/compat`, Vuex, BootstrapVue, Webpack und Laravel Mix dürfen nicht erneut eingeführt werden. Weitere Arbeiten und Abnahme richten sich nach `docs/ai/vue-3-migration-contract.md` und den Stufenberichten.

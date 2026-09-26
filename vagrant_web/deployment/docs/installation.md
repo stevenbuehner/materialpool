@@ -1,0 +1,17 @@
+# Installation
+
+## Vorbedingungen
+
+Ein neuer, unprivilegierter Debian-13-LXC auf Proxmox VE 9 wird über `ct/materialpool.sh` erstellt. Das Community-Core-System lädt `install/materialpool-install.sh` aus dem Skriptrepository. Das Git-Remote `github` zeigt auf `stevenbuehner/materialpool`; die Sichtbarkeit und der Default-Branch sind lokal nicht nachweisbar. Der Administrator kann den Skript-Checkout auf dem Proxmox-Host bereitstellen und `COMMUNITY_SCRIPTS_ROOT` auf `vagrant_web` setzen. Bei einem öffentlich erreichbaren Branch kann alternativ `COMMUNITY_SCRIPTS_URL` auf dessen Raw-URL **einschließlich `/vagrant_web`** gesetzt werden. Ein privates Raw-Skriptrepository unterstützt der Community-Core-Resolver laut aktueller Dokumentation nicht; dafür bleibt ein lokaler Checkout auf dem Proxmox-Host nötig. Im Laravel-LXC wird kein Git installiert.
+
+Vor der Installation müssen reale Werte für HTTPS-Domain, Reverse-Proxy-IP/CIDR, SMTP, S3-Offsite-Backup und gegebenenfalls privaten GitHub-Release-Zugriff bereitstehen. Diese Werte fragt der Installer interaktiv ab. Er akzeptiert für eingegebene Konfigurationswerte nur einfache druckbare Zeichen ohne Leerzeichen, `$`, `#` oder Anführungszeichen; abweichende Secrets müssen vorab sicher neu vergeben werden. Eingaben für Passwörter und Tokens erfolgen ohne Echo. Der GitHub-Repository-Name wird aus `composer.json` und dem Remote mit `stevenbuehner/materialpool` vorbelegt. Die Repository-Sichtbarkeit ließ sich aus dem lokalen Checkout nicht feststellen.
+
+1. Zuerst den [Qdrant-LXC](qdrant.md) installieren und absichern, falls die Kontextsuche genutzt werden soll.
+2. Auf dem Proxmox-Host im Materialpool-Checkout ausführen: `COMMUNITY_SCRIPTS_ROOT="$PWD" bash ct/materialpool.sh`. Default oder Advanced Setup, Container-ID, Storage, Netzwerk und Ressourcen wählen. Default: 2 CPU, 3072 MiB RAM, 24 GiB Disk, Debian 13, amd64, unprivilegiert.
+3. Die abgefragten Produktionswerte eingeben. Der Installer nutzt Community-Helper für PHP, Composer, MariaDB, Datenbank und Nginx, lädt das neueste stabile Release samt SHA256, installiert systemd-Units und führt den Release-Updater aus.
+4. Nach Erfolg im LXC `cat /srv/materialpool/current/release.json`, `readlink /srv/materialpool/current`, `php /srv/materialpool/current/artisan migrate:status`, `systemctl status nginx php8.4-fpm mariadb materialpool-queue.service materialpool-schedule.timer` und `curl -fsS http://127.0.0.1/up` prüfen.
+5. Reverse Proxy mit TLS und enger Firewallregel für Port 80 konfigurieren. `TRUSTED_PROXIES` enthält nur dessen tatsächliche IP/CIDR. Den LXC nicht direkt öffentlich exponieren.
+
+Der neue Installer legt eine leere MariaDB-Datenbank und neue Schlüssel nur für eine wirklich frische Installation an. Eine Übernahme bestehender Materialpool-Daten darf ihn nicht ausführen: Dafür müssen zuerst Datenbank, `/srv/materialpool/shared/storage`, `public-uploads`, `.env` und Passport-Schlüssel aus einem verifizierten Backup übertragen werden. Die bisherige Ubuntu-/MySQL-Installation wird nicht automatisch migriert. Es werden weder `db:seed` noch `passport:install` ausgeführt. Admin-Nutzer und Passport-Clients für eine frische Instanz benötigen einen gesondert geprüften fachlichen Einrichtungsschritt.
+
+Die Anwendung bleibt ohne echte SMTP- und S3-Werte nicht produktionsbereit, da `production:preflight` beide prüft. Das lokale Deployment-Backup ergänzt den im Scheduler vorhandenen lokalen und S3-Backupauftrag; vor Produktionsfreigabe muss ein isolierter Restore erfolgreich gewesen sein.

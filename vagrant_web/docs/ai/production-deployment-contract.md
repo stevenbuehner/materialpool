@@ -2,6 +2,12 @@
 
 ## Status, Ziel und Grenzen
 
+### Neues Zielprofil: Proxmox VE
+
+Der Arbeitsauftrag vom 26. September 2026 autorisiert für **Neuinstallationen** einen unprivilegierten Debian-13-LXC mit PHP-FPM 8.4, Nginx, MariaDB, systemd-Worker und GitHub-Release-Assets sowie einen getrennten Qdrant-LXC. Die Umsetzung und die manuelle Abnahme stehen unter [`deployment/`](../../deployment/README.md). Build und Tests finden in GitHub Actions statt. Node, Docker und Git sind für den Betrieb des Laravel-LXC nicht erforderlich. Das neue Profil verwendet weiterhin `/srv/materialpool` und die unten definierten Shared-Pfade, damit die bestehenden Storage- und Preflight-Verträge erhalten bleiben.
+
+Die folgenden Ubuntu-/MySQL-/Supervisor- und Commit-Upload-Anweisungen beschreiben ausschließlich den **bestehenden Altbetrieb**. Sie dürfen nicht mit dem neuen LXC-Installationsweg kombiniert werden. Ein Wechsel mit vorhandenen Daten erfordert einen separat geprüften Restore von Datenbank, `.env`, Passport-Schlüsseln, `storage` und `public/uploads`; der neue Fresh-Installer ist dafür gesperrt. Die fachlichen Verträge zu Passport, Storage, Proxy, Backup/Restore, Queue-Namen und Testgrenzen gelten in beiden Profilen weiter, sofern die neue Anleitung nicht ausdrücklich eine andere Diensttechnik festlegt.
+
 Dieser Vertrag ist vor jeder Änderung an Produktion, Deployment, Queue, Scheduler, Proxy, Backups oder produktiver Konfiguration vollständig zu lesen. Er gilt für Materialpool auf Laravel 13 und PHP 8.4. Grundlage sind die am 9. September 2026 erneut geprüften offiziellen Laravel-13-Dokumentationen zu [Deployment](https://laravel.com/framework/docs/13.x/deployment), [Queues](https://laravel.com/framework/docs/13.x/queues) und [Task Scheduling](https://laravel.com/framework/docs/13.x/scheduling).
 
 Produktion ist ein einzelner Ubuntu-24.04-LTS-Server mit Nginx, PHP-FPM 8.4 und MySQL 8. Ein externer Reverse Proxy terminiert TLS. Sail ist ausschließlich Entwicklungs- und Testwerkzeug. Das Vue-3-/Vite-Frontend wird in der kontrollierten Node-24-LTS-Umgebung des PHP-8.4-Build-Images mit npm 11.19.0 gebaut; auf dem Produktionsserver wird kein Node installiert.
