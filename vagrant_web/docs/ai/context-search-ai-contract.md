@@ -246,6 +246,8 @@ Eine Materialbeschreibung berücksichtigt mehrere sichtbare Ressourcen. Ausgabez
 
 ## 11. Queues, Zeitfenster und manuelle Stufe 1
 
+Die konkrete Stabilisierung des gegenwärtigen Queue-Betriebs ist im [Änderungsvertrag für belastbare Kontextsuche-Queues](context-search-queue-change-contract.md) festgelegt. Dessen Schritte 1 bis 3 werden nacheinander mit jeweils eigenem geprüften Commit umgesetzt; die Beschreibung hier bleibt das fachliche Zielbild.
+
 Getrennte Jobtypen sind mindestens vorgesehen für Extraktion/OCR, Chunking/Embedding, Index-Upsert, Vorschläge und Kurzbeschreibung. Jeder Job ist idempotent, versionsgebunden und besitzt begrenzte Versuche sowie Backoff.
 
 In Stufe 1 wird Indexierung ausschließlich per explizitem Admin-/CLI-Auftrag gestartet. Parameter erlauben mindestens einzelne Ressourcen, begrenzte Batches und Fortsetzung ab einem Cursor. Automatische Listener auf Resource- oder Material-Events werden in Stufe 1 nicht aktiviert.
@@ -357,6 +359,12 @@ Jeder folgende Schritt endet nach Abschnitt 3 mit einem eigenen Commit.
 - API, Policies, konkurrierende Änderungen, private Inhalte, Draft/Frozen-Grenzen, Tastaturbedienung, mobile Darstellung und Vue-Produktionsbuild testen;
 - README und Systemadministrationsanleitung um den ausschließlich Global-Admin-berechtigten Kuratierungsablauf erweitern;
 - Abnahme: Ein Global Admin kann vollständige Blöcke nachvollziehbar zuweisen; OCR ergänzt Kalibrierung/Abnahme, Last/Kapazität dürfen alle Zwecke überlappen, Kalibrierung/Abnahme bleiben disjunkt; eingefrorene Sätze bleiben unveränderlich.
+
+### Schritt 4c – Stabilisierung der Kontextsuche-Queues
+
+- Den [Queue-Änderungsvertrag](context-search-queue-change-contract.md) in genau drei separat geprüften und separat committeten Schritten umsetzen: (1) sofortige Timeout-Absicherung des manuellen Betriebs, (2) eigene Datenbank-Queue-Connection und begrenzte Worker, (3) seitenweise, wiederanlaufbare Verarbeitung mit revisionssicherer Qdrant-Veröffentlichung.
+- Vor jedem Teil-Schritt seine entscheidungspflichtigen Schema-, Storage-, Queue- und Produktionsänderungen konkret freigeben lassen; keine produktiven Queue-Bestände pauschal bereinigen.
+- Abnahme: kein Kontextjob kann vor seinem Timeout erneut reserviert werden; lange/defekte Dokumente blockieren nicht dauerhaft; die Default-/Preview-/Bundle-Queues bleiben unverändert; ein Crash erzeugt keinen als vollständig sichtbaren Teilindex.
 
 ### Schritt 5 – Capacity Gate und Betriebsanleitung
 
