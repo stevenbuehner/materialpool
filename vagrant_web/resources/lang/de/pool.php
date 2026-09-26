@@ -42,6 +42,8 @@ return [
 	'ocr-calibration-words' => 'Wörter',
 	'ocr-calibration-page-preview' => 'PDF-Seitenvorschau',
 	'ocr-calibration-ocr-output' => 'Erkannter OCR-Text',
+	'ocr-calibration-no-text-recognized' => 'Kein Text erkannt.',
+	'ocr-calibration-text-unavailable' => 'OCR-Text noch nicht verfügbar.',
 	'ocr-calibration-quality-label' => 'Menschliche Qualitätsbewertung',
 	'ocr-calibration-reference' => 'Referenztranskription (für CER/WER)',
 	'ocr-calibration-note' => 'Notiz',
