@@ -13,17 +13,6 @@
            @q-loaded="showImageLoaded"
            @q-error="showImageError" :alt="fileTypes" v-image-queue.hide>
 
-      <div v-if="imageLoadState === 'loading'" class="imageQueueIndicator">
-        <materialpool-spinner variant="light"/>
-      </div>
-
-      <div v-else-if="imageLoadState === 'queued'"
-           class="imageQueueIndicator imageQueueIndicator--waiting"
-           :title="$t('pool.Preview-waiting-in-queue')">
-        <history-icon aria-hidden="true"/>
-        <span class="visually-hidden">{{ $t('pool.Preview-waiting-in-queue') }}</span>
-      </div>
-
       <div v-if="material.icon_of_bundle || material.from_bot" class="is-bot-corner" :title="bundleName || $t('pool.is-from-bot')">
         <img v-if="bundleIcon" class="bundle-icon" :src="bundleIcon" alt="">
         <from-bot-icon v-else class="from-bot-icon"/>
@@ -34,6 +23,15 @@
       <span class="text" v-if="!showImage">
         <span>
             {{ fileTypes }}
+        </span>
+        <span v-if="imageLoadState === 'loading'" class="imageQueueIndicator">
+          <materialpool-spinner variant="light"/>
+        </span>
+        <span v-else-if="imageLoadState === 'queued'"
+              class="imageQueueIndicator imageQueueIndicator--waiting"
+              :title="$t('pool.Preview-waiting-in-queue')">
+          <history-icon aria-hidden="true"/>
+          <span class="visually-hidden">{{ $t('pool.Preview-waiting-in-queue') }}</span>
         </span>
       </span>
 
@@ -371,14 +369,12 @@ $preview-background-color: $gray-600;
     }
 
     .imageQueueIndicator {
-      position: absolute;
-      inset: 0;
-      z-index: 1;
       display: flex;
       align-items: center;
       justify-content: center;
       color: $white;
-      pointer-events: none;
+      min-height: 2rem;
+      margin-top: .25rem;
 
       svg {
         width: 2rem;
@@ -386,7 +382,6 @@ $preview-background-color: $gray-600;
       }
 
       &--waiting {
-        pointer-events: auto;
         cursor: help;
       }
     }
