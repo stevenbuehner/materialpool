@@ -538,9 +538,21 @@ Diese Anleitung gilt für ein **isoliertes Dev-/Evaluationssystem**, nicht für 
    php artisan context-search:dataset:verify "exports/$DATASET_UUID.zip"
    ```
 
-   Archiv und **beide** ausgegebenen Prüfsummen geschützt auf die Evaluationsmaschine übertragen; das Archiv dort im privaten Ordner `incoming/` der konfigurierten Evaluationsablage ablegen. Keine Dokumenttitel oder Texte in Tickets, Konsolenprotokolle oder Commits kopieren. Falls derselbe Rechner beide Rollen übernimmt, müssen Datenbank, private Dateiablage und Qdrant-Alias trotzdem getrennt sein.
+   Archiv und **beide** ausgegebenen Prüfsummen auf die Evaluationsmaschine übertragen. Der genaue Dateiweg steht in Schritt 2; es gibt dafür derzeit **keinen Upload-Button im Browser**. Keine Dokumenttitel oder Texte in Tickets, Konsolenprotokolle oder Commits kopieren. Falls derselbe Rechner beide Rollen übernimmt, müssen Datenbank, private Dateiablage und Qdrant-Alias trotzdem getrennt sein.
 
-2. **Dev-Ziel prüfen und Archiv importieren.** Vor dem Import sicherstellen, dass die Dev-Umgebung wirklich von Produktion getrennt ist und `CONTEXT_SEARCH_EVALUATION_IMPORT_ENABLED=true` nur dort gesetzt ist. Die folgenden lesenden Prüfungen im Projektverzeichnis auf der **Evaluationsmaschine mit Sail** ausführen. `artisan env` muss `local` oder eine andere ausdrücklich freigegebene Nicht-Produktionsumgebung melden. `migrate:status` darf keine für den Import erforderlichen Migrationen als offen zeigen. Bei Abweichungen stoppen und die Zielverbindung klären; niemals `migrate:fresh` oder `db:seed` auf importierten Daten ausführen.
+2. **ZIP auf die Dev-Maschine laden und dort importieren.** Der Export aus Schritt 1 liegt auf dem Produktionsserver im privaten `exports/`-Ordner. Das ZIP muss **als Datei** auf den Dev-Rechner in den privaten `incoming/`-Ordner kopiert werden; erst danach kann Laravel es importieren. Ein Browser-Upload ist nicht implementiert. Das Archiv kann private Dokumente enthalten: nicht nach `public/`, in einen Web-Upload-Ordner, in Git oder in einen allgemein freigegebenen Cloud-Ordner legen.
+
+   Zuerst auf **beiden** Rechnern den tatsächlich eingestellten Grundordner prüfen. Der Befehl zeigt nur den Speicherpfad, keine Dokumentinhalte. Ohne eigene Einstellung `CONTEXT_SEARCH_EVALUATION_PATH` ist es auf dem Dev-Rechner `storage/app/context-search-evaluation` (im Sail-Container `/var/www/html/storage/app/context-search-evaluation`); in der Standard-Produktionsinstallation liegt der entsprechende Ordner unter `/srv/materialpool/shared/storage/app/context-search-evaluation`. Ist ein anderer Pfad eingestellt, die nachfolgenden Beispielpfade entsprechend ersetzen und sicherstellen, dass der Dev-Pfad auch **im Container** erreichbar ist.
+
+   ```sh
+   # Auf Produktion, im Anwendungsverzeichnis:
+   php artisan tinker --execute='echo config("filesystems.disks.context_search_evaluation.root"), PHP_EOL;'
+
+   # Auf Dev, im Projektverzeichnis:
+   ./vendor/bin/sail artisan tinker --execute='echo config("filesystems.disks.context_search_evaluation.root"), PHP_EOL;'
+   ```
+
+   Vor dem Kopieren sicherstellen, dass die Dev-Umgebung wirklich von Produktion getrennt ist. Die folgenden lesenden Prüfungen im Projektverzeichnis auf der **Dev-Maschine mit Sail** ausführen. `artisan env` muss `local` oder eine andere ausdrücklich freigegebene Nicht-Produktionsumgebung melden. `migrate:status` darf keine für den Import erforderlichen Migrationen als offen zeigen. Bei Abweichungen stoppen und die Zielverbindung klären; niemals `migrate:fresh` oder `db:seed` auf importierten Daten ausführen.
 
    ```sh
    ./vendor/bin/sail ps
@@ -548,7 +560,23 @@ Diese Anleitung gilt für ein **isoliertes Dev-/Evaluationssystem**, nicht für 
    ./vendor/bin/sail artisan migrate:status
    ```
 
-   Nun die UUID einsetzen. `verify` ist lesend; **vor** `import` müssen Archiv- und Manifest-Prüfsumme mit den Produktionswerten übereinstimmen. `import` schreibt Materialien, Ressourcen und Quelldateien ausschließlich in die freigegebene Evaluationsumgebung. Danach die gemeldete Datensatz-UUID und den Status kontrollieren.
+   Für den **Standardpfad** jetzt auf der **Dev-Maschine**, weiterhin im Projektverzeichnis, das Verzeichnis anlegen und das ZIP mit SCP vom Produktionsserver holen. `UUID_HIER_EINTRAGEN` und `SSH_BENUTZER@PROD_HOST` ersetzen. Für einen abweichenden Produktions- oder Dev-Speicherpfad die beiden Pfade im `scp`-Befehl anhand der gerade geprüften Ordner anpassen. SCP überträgt verschlüsselt; das ist erlaubt, aber für dieses Evaluationsarchiv keine vertragliche Voraussetzung. Statt SCP ist auch SFTP oder eine manuelle Übertragung möglich, solange am Ende **genau dieselbe ZIP-Datei** im Dev-`incoming/` liegt. Falls der SSH-Benutzer das private Archiv nicht lesen darf, die Berechtigung gezielt mit dem Administrator klären – nicht den Ordner öffentlich machen.
+
+   ```sh
+   DATASET_UUID='UUID_HIER_EINTRAGEN'
+   PROD_SSH='SSH_BENUTZER@PROD_HOST'
+   umask 077
+   mkdir -p storage/app/context-search-evaluation/incoming
+   chmod 700 storage/app/context-search-evaluation/incoming
+   scp "$PROD_SSH:/srv/materialpool/shared/storage/app/context-search-evaluation/exports/$DATASET_UUID.zip" \
+     "storage/app/context-search-evaluation/incoming/$DATASET_UUID.zip"
+   chmod 600 "storage/app/context-search-evaluation/incoming/$DATASET_UUID.zip"
+   ./vendor/bin/sail exec laravel.test test -r "/var/www/html/storage/app/context-search-evaluation/incoming/$DATASET_UUID.zip"
+   ```
+
+   Der letzte Befehl muss erfolgreich enden: Er zeigt, dass **der Container** das hochgeladene ZIP lesen kann. Bei einer eigenen `CONTEXT_SEARCH_EVALUATION_PATH`-Einstellung auch diesen Prüfpfad anpassen. `docker-compose.yml` bindet standardmäßig das gesamte Projektverzeichnis nach `/var/www/html` ein; deshalb erscheint eine Datei im Dev-Projektordner unmittelbar im Container. Wenn die Datei nur auf dem Host, aber nicht im Container sichtbar ist, vor dem Import den Mount beziehungsweise die Rechte korrigieren.
+
+   Erst jetzt auf Dev prüfen und importieren. Vorher muss `CONTEXT_SEARCH_EVALUATION_IMPORT_ENABLED=true` **nur in der Dev-`.env`** aktiv sein. Nach einer gerade vorgenommenen `.env`-Änderung den Dev-Konfigurationscache mit `./vendor/bin/sail artisan config:clear` erneuern. `verify` ist lesend; **vor** `import` müssen Archiv- und Manifest-Prüfsumme mit den in Schritt 1 auf Produktion notierten Werten übereinstimmen. Bei Abweichung stoppen und die Übertragung wiederholen, nicht trotzdem importieren. `import` schreibt Materialien, Ressourcen und Quelldateien ausschließlich in die freigegebene Evaluationsumgebung. Danach die gemeldete Datensatz-UUID und den Status kontrollieren.
 
    ```sh
    DATASET_UUID='UUID_HIER_EINTRAGEN'
