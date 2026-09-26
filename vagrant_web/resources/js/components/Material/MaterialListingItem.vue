@@ -379,6 +379,7 @@ $preview-background-color: $gray-600;
       svg {
         width: 2rem;
         height: 2rem;
+        fill: currentColor;
       }
 
       &--waiting {

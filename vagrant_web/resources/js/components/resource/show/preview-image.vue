@@ -143,7 +143,7 @@ export default {
 }
 
 .previewImageWaiting {
-  color: var(--bs-secondary-color);
+  color: var(--bs-primary);
   pointer-events: auto;
   cursor: help;
 }
@@ -151,5 +151,6 @@ export default {
 .previewImageWaiting :deep(svg) {
   width: 2.5rem;
   height: 2.5rem;
+  fill: currentColor;
 }
 </style>
