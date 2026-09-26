@@ -44,6 +44,15 @@ return [
 			'after_commit' => false,
 		],
 
+		// Prepared for bounded context-search jobs; no worker may consume it before step 3.
+		'context_search' => [
+			'driver' => 'database',
+			'table' => 'jobs',
+			'queue' => 'context-search-extraction',
+			'retry_after' => (int) env('CONTEXT_SEARCH_QUEUE_RETRY_AFTER', 600),
+			'after_commit' => false,
+		],
+
 		/*
         'beanstalkd' => [
             'driver' => 'beanstalkd',

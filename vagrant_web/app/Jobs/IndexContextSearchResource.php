@@ -25,7 +25,7 @@ class IndexContextSearchResource implements ShouldQueue, ShouldBeUnique
 
     public function __construct(private readonly string $runId, private readonly int $resourceId)
     {
-        $this->onConnection('database');
+        $this->onConnection((string) config('context_search.indexing.connection'));
         $this->onQueue((string) config('context_search.indexing.queue'));
     }
 

@@ -6,6 +6,7 @@ use App\Jobs\IndexContextSearchResource;
 use App\Models\ContextSearchIndexRun;
 use App\Models\ContextSearchIndexRunResource;
 use App\Models\Resource;
+use App\Services\ContextSearch\ContextSearchQueueSafety;
 use App\Services\ContextSearch\EmbeddingProfile;
 use App\Services\ContextSearch\Qdrant\QdrantClient;
 use Illuminate\Console\Command;
@@ -21,7 +22,7 @@ final class StartContextSearchIndexing extends Command
 
     protected $description = 'Startet oder setzt einen manuellen, Qdrant-basierten Kontextsuche-Indexlauf fort.';
 
-    public function handle(QdrantClient $qdrant, EmbeddingProfile $profile): int
+    public function handle(ContextSearchQueueSafety $queueSafety): int
     {
         if (! config('context_search.enabled')) {
             $this->components->error('Die Kontextsuche ist deaktiviert. Setze CONTEXT_SEARCH_ENABLED=true erst nach betrieblicher Freigabe.');
@@ -30,9 +31,10 @@ final class StartContextSearchIndexing extends Command
         }
 
         try {
+            $queueSafety->assertDispatchAllowed();
             $run = filled($this->option('resume'))
                 ? $this->resume((string) $this->option('resume'))
-                : $this->start($qdrant, $profile);
+                : $this->start(app(QdrantClient::class), app(EmbeddingProfile::class));
         } catch (Throwable $exception) {
             report($exception);
             $this->components->error($exception->getMessage());

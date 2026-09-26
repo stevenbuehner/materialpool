@@ -414,7 +414,15 @@ Vor einer Indexgeneration ist auf jedem Ollama-Server der Modell-Digest über `G
 
 ### Manuelle Indexierung von PDF- und Textressourcen (Stufe 1)
 
-Die erste Indexierung ist technisch nur per bewusstem Kommando vorgesehen; Änderungen an Materialien oder Ressourcen lösen keinen Indexlauf aus. **Der bisherige manuelle Worker darf derzeit nicht gestartet werden:** Sein 180-Sekunden-Timeout überschreitet die 150-Sekunden-Reservierungsfrist der Datenbank-Queue. Neue manuelle Index- und OCR-Kalibrierungsläufe dürfen bis zum einmaligen Cutover ebenfalls nicht gestartet werden; diese Betriebssperre ist noch nicht technisch erzwungen. Der [Queue-Änderungsvertrag](docs/ai/context-search-queue-change-contract.md) beschreibt die getrennte Connection, begrenzte Seitenjobs und die Abnahme vor Wiederfreigabe. Der frühere Workeraufruf wird deshalb hier nicht mehr als ausführbare Anleitung angeboten.
+Die erste Indexierung ist technisch nur per bewusstem Kommando vorgesehen; Änderungen an Materialien oder Ressourcen lösen keinen Indexlauf aus. **Der bisherige manuelle Worker darf derzeit nicht gestartet werden:** Sein 180-Sekunden-Timeout überschreitet die 150-Sekunden-Reservierungsfrist der Datenbank-Queue. Neue manuelle Index- und OCR-Kalibrierungsläufe dürfen bis zum einmaligen Cutover ebenfalls nicht gestartet werden. Der [Queue-Änderungsvertrag](docs/ai/context-search-queue-change-contract.md) beschreibt die getrennte Connection, begrenzte Seitenjobs und die Abnahme vor Wiederfreigabe. Der frühere Workeraufruf wird deshalb hier nicht mehr als ausführbare Anleitung angeboten.
+
+Die vorbereitete Connection `context_search` verwendet eigene Queue-Namen und `CONTEXT_SEARCH_QUEUE_RETRY_AFTER` (Beispielwert 600 Sekunden); `QUEUE_RETRY_AFTER=150` für normale Jobs bleibt unverändert. Neue Index- und OCR-Kalibrierungsläufe werden jetzt **vor dem Anlegen eines Laufdatensatzes technisch abgewiesen**. Der folgende Befehl prüft die aufgelöste Konfiguration und inventarisiert nur die Anzahl wartender, reservierter und fehlgeschlagener Altaufträge; er startet oder löscht nichts:
+
+```sh
+./vendor/bin/sail artisan context-search:queue:check
+```
+
+Die Option `--configuration-only` verzichtet auf die lesende Datenbankinventarisierung. Auch eine erfolgreiche Prüfung ist **keine Startfreigabe** für einen Worker. Der Cutover erfolgt erst nach Schritt 3 des Queue-Vertrags.
 
 Der Laufzustand wird in MySQL gespeichert und ein fehlgeschlagener Lauf kann anhand seiner UUID fortgesetzt werden. Jeder Qdrant-Punkt enthält die Ressourcen-ID, die Dokumentrevision, die PDF-Seite beziehungsweise Textseite sowie Zeichenpositionen; die Originaldatei bleibt außerhalb von Qdrant. Für PDF-Seiten mit zu wenig eingebettetem Text wird Tesseract mit den Sprachpaketen `deu` und `eng` verwendet. Die OCR-Rasterung zielt auf 300 DPI und reduziert die Auflösung bei großen Seiten so, dass das konfigurierte Budget von standardmäßig 12 Millionen Pixeln eingehalten wird. Die tatsächlich verwendete DPI-Zahl steht in den OCR-Metriken; Text und TSV-Konfidenzen entstehen in einem Tesseract-Lauf. Das Sail-Image installiert diese Werkzeuge beim Neuaufbau automatisch; auf Produktionsservern müssen `pdftotext`, `pdfinfo`, `pdftoppm`, `tesseract`, `tesseract-ocr-deu` und `tesseract-ocr-eng` vor dem Start eines Indexworkers verfügbar sein.
 
@@ -454,6 +462,8 @@ Nach dem Upgrade prüft ein Administrator vorhandene eingefrorene Datensätze zu
 ```
 
 Der lesende Abgleich zeigt zusätzlich eine grafische, inhaltsfreie Terminalübersicht der vertraglich empfohlenen Sollmengen für Kalibrierung, Abnahme, OCR, Last und Kapazität. Sie enthält die jeweilige Ressourcen- und Materialmenge, Fortschrittsbalken, verbleibende Mengen sowie den eindeutigen Mindestbedarf und die Reserve geeigneter PDF-/Textressourcen gegenüber den exklusiven Zielen für Kalibrierung und Abnahme; OCR, Last und Kapazität sind als überlappende Prüfvolumina ausgewiesen. Die Übersicht ist eine Kuratierungs- und Kapazitätshilfe; sie ändert weder Auswahl noch Sollmengen.
+
+Der Abgleich verarbeitet fehlende Mitgliedschaften in begrenzten Blöcken nach Dataset-UUID. Die Reihenfolge der gemeldeten Datensätze entspricht daher nicht zwingend ihrer Erstellungszeit. Auch bei großen Datensätzen bleibt die Konfliktprüfung vollständig: Ein Konflikt verhindert die Übernahme sämtlicher Mitgliedschaften dieses Datensatzes. Ein erneuter Lauf überspringt bereits abgeglichene Datensätze.
 
 Auf der isolierten Evaluationsmaschine wird `CONTEXT_SEARCH_EVALUATION_IMPORT_ENABLED=true` gesetzt. Diese Einstellung ist auf Produktion verboten. Nach dem Transfer in `incoming/` wird erst geprüft und dann importiert:
 

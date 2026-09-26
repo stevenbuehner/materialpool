@@ -20,6 +20,9 @@ final class ContextSearchIndexCommandTest extends TestCase
     public function test_manually_queues_a_single_text_resource_and_persists_the_run(): void
     {
         config()->set('context_search.enabled', true);
+        config()->set('context_search.indexing.dispatch_enabled', true);
+        config()->set('context_search.indexing.queue', 'context-search-extraction');
+        config()->set('queue.connections.context_search.retry_after', 600);
         Bus::fake([IndexContextSearchResource::class]);
         $this->app->instance(QdrantClient::class, $this->qdrant());
         $this->app->instance(EmbeddingProfile::class, new EmbeddingProfile('embeddinggemma:test', str_repeat('a', 64), 3, []));
@@ -39,12 +42,15 @@ final class ContextSearchIndexCommandTest extends TestCase
             'resource_id' => $resource->getKey(),
             'status' => ContextSearchIndexRun::STATUS_PENDING,
         ]);
-        Bus::assertDispatched(IndexContextSearchResource::class);
+        Bus::assertDispatched(IndexContextSearchResource::class, fn (IndexContextSearchResource $job): bool => $job->connection === 'context_search' && $job->queue === 'context-search-extraction');
     }
 
     public function test_resumes_only_failed_resources_from_a_manual_run(): void
     {
         config()->set('context_search.enabled', true);
+        config()->set('context_search.indexing.dispatch_enabled', true);
+        config()->set('context_search.indexing.queue', 'context-search-extraction');
+        config()->set('queue.connections.context_search.retry_after', 600);
         Bus::fake([IndexContextSearchResource::class]);
         $this->app->instance(QdrantClient::class, $this->qdrant());
 
@@ -65,6 +71,20 @@ final class ContextSearchIndexCommandTest extends TestCase
         $this->assertDatabaseHas('context_search_index_runs', ['id' => $run->getKey(), 'status' => ContextSearchIndexRun::STATUS_RUNNING]);
         $this->assertDatabaseHas('context_search_index_run_resources', ['run_id' => $run->getKey(), 'resource_id' => 123, 'status' => ContextSearchIndexRun::STATUS_PENDING]);
         Bus::assertDispatched(IndexContextSearchResource::class);
+    }
+
+    public function test_refuses_a_new_run_until_the_bounded_queue_pipeline_is_approved(): void
+    {
+        config()->set('context_search.enabled', true);
+        Bus::fake([IndexContextSearchResource::class]);
+        $this->app->instance(QdrantClient::class, $this->qdrant());
+
+        $this->artisan('context-search:index', ['resource' => 123])
+            ->expectsOutputToContain('bleiben bis zur Abnahme')
+            ->assertExitCode(1);
+
+        $this->assertDatabaseCount('context_search_index_runs', 0);
+        Bus::assertNotDispatched(IndexContextSearchResource::class);
     }
 
     private function qdrant(): QdrantClient

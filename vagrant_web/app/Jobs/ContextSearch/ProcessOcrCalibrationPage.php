@@ -23,8 +23,8 @@ final class ProcessOcrCalibrationPage implements ShouldQueue
 
     public function __construct(private readonly string $runId, private readonly int $pageId)
     {
-        $this->onConnection('database');
-        $this->onQueue((string) config('context_search.indexing.queue'));
+        $this->onConnection((string) config('context_search.indexing.connection'));
+        $this->onQueue((string) config('context_search.indexing.ocr_calibration_queue'));
     }
 
     public function handle(OcrProcessor $ocr, FileHandlingService $files): void

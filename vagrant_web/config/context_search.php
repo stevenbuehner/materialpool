@@ -40,7 +40,12 @@ return [
     ],
 
     'indexing' => [
-        'queue' => env('CONTEXT_SEARCH_INDEXING_QUEUE', 'context-search-indexing'),
+        // Step 1 preparation only: step 3 enables dispatch after bounded jobs pass acceptance.
+        'dispatch_enabled' => false,
+        'connection' => 'context_search',
+        'queue' => env('CONTEXT_SEARCH_INDEXING_QUEUE', 'context-search-extraction'),
+        'ocr_calibration_queue' => env('CONTEXT_SEARCH_OCR_CALIBRATION_QUEUE', 'context-search-calibration-ocr'),
+        'maximum_job_timeout' => 480,
         'embedding_batch_size' => (int) env('CONTEXT_SEARCH_EMBEDDING_BATCH_SIZE', 8),
         'pdf_native_text_minimum_characters' => (int) env('CONTEXT_SEARCH_PDF_NATIVE_TEXT_MINIMUM_CHARACTERS', 80),
         'ocr_languages' => env('CONTEXT_SEARCH_OCR_LANGUAGES', 'deu+eng'),

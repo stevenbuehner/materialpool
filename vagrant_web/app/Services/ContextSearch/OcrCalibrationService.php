@@ -19,6 +19,7 @@ final class OcrCalibrationService
     public function __construct(
         private readonly FileHandlingService $files,
         private readonly PdfHandlingService $pdfs,
+        private readonly ContextSearchQueueSafety $queueSafety,
     ) {
     }
 
@@ -27,6 +28,8 @@ final class OcrCalibrationService
         if (app()->isProduction()) {
             throw new RuntimeException('OCR calibration is available only in development and test environments.');
         }
+
+        $this->queueSafety->assertDispatchAllowed();
 
         $dataset = ContextSearchEvaluationDataset::query()->whereKey($datasetId)->firstOrFail();
         if ($dataset->purpose !== 'ocr' || $dataset->status !== ContextSearchEvaluationDataset::STATUS_FROZEN) {
