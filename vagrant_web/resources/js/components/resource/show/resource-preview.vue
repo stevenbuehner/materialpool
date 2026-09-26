@@ -3,6 +3,7 @@
     <component
         :is="previewComponent"
         :resource="resource"
+        :max-preview-pages="maxPreviewPages"
         :hovered="hovered"
         @preview-zoom-request="openImagePreviewZoomer"/>
 
@@ -91,6 +92,12 @@ export default {
       type: Boolean,
       required: false,
       default: true
+    },
+
+    maxPreviewPages: {
+      type: Number,
+      required: false,
+      default: 15
     },
   },
 

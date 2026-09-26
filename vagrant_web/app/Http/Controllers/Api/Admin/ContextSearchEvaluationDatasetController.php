@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\ContextSearchEvaluationDataset;
 use App\Models\ContextSearchEvaluationDatasetMember;
+use App\Models\Bundle;
 use App\Models\Material;
 use App\Models\Resource;
 use App\Services\ContextSearch\EvaluationDatasetCurationService;
@@ -37,6 +38,7 @@ final class ContextSearchEvaluationDatasetController extends Controller
             'page' => ['nullable', 'integer', 'min:1'], 'per_page' => ['nullable', 'integer', 'min:1', 'max:100'],
             'search' => ['nullable', 'string', 'max:255'], 'visibility' => ['nullable', Rule::in(['all', 'public', 'private'])],
             'type' => ['nullable', Rule::in(['all', 'pdf', 'text'])], 'assignment' => ['nullable', Rule::in(['all', 'free', 'assigned'])],
+            'bundle' => ['nullable', 'string', 'max:20', 'regex:/^(all|user|[1-9][0-9]*)$/'],
         ]);
         $type = $data['type'] ?? 'all';
         $visibility = $data['visibility'] ?? 'all';
@@ -50,6 +52,11 @@ final class ContextSearchEvaluationDatasetController extends Controller
         if (filled($data['search'] ?? null)) {
             $escaped = str_replace(['%', '_'], ['\\%', '\\_'], $data['search']);
             $query->where('title', 'like', "%{$escaped}%");
+        }
+        if (($data['bundle'] ?? 'all') === 'user') {
+            $query->whereDoesntHave('foreignIds', fn ($foreignIds) => $foreignIds->whereNotNull('bundle_id'));
+        } elseif (($data['bundle'] ?? 'all') !== 'all') {
+            $query->whereHas('foreignIds', fn ($foreignIds) => $foreignIds->where('bundle_id', (int) $data['bundle']));
         }
         $page = $query->paginate($data['per_page'] ?? 25);
         $materialIds = $page->getCollection()->modelKeys();
@@ -67,7 +74,9 @@ final class ContextSearchEvaluationDatasetController extends Controller
                 'assignment' => $assignments['resource:'.$resource->id] ?? null,
             ])->values(),
         ]);
-        return $page->toArray();
+        return $page->toArray() + [
+            'bundles' => Bundle::query()->orderBy('name')->get(['id', 'name'])->all(),
+        ];
     }
 
     public function preview(Request $request, EvaluationDatasetCurationService $curation): array
