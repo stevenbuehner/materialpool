@@ -394,10 +394,17 @@ final class EvaluationDatasetService
     {
         $materialIds = collect($manifest['materials'])->pluck('source_id')->map(fn ($id) => (int) $id)->all();
         $resourceIds = collect($manifest['resources'])->pluck('source_id')->map(fn ($id) => (int) $id)->all();
+        sort($materialIds);
+        sort($resourceIds);
+        Material::query()->withoutGlobalScopes()->whereIn('id', $materialIds)->orderBy('id')->lockForUpdate()->get(['id']);
+        Resource::query()->withoutGlobalScopes()->whereIn('id', $resourceIds)->orderBy('id')->lockForUpdate()->get(['id']);
+        $allowedPurposes = $manifest['purpose'] === 'ocr'
+            ? ['calibration', 'acceptance']
+            : (in_array($manifest['purpose'], ['calibration', 'acceptance'], true) ? ['ocr'] : []);
         $exists = ContextSearchEvaluationDatasetMember::query()->where(function ($query) use ($materialIds, $resourceIds): void {
             $query->where(fn ($members) => $members->where('member_type', ContextSearchEvaluationDatasetMember::TYPE_MATERIAL)->whereIn('member_id', $materialIds))
                 ->orWhere(fn ($members) => $members->where('member_type', ContextSearchEvaluationDatasetMember::TYPE_RESOURCE)->whereIn('member_id', $resourceIds));
-        })->exists();
+        })->whereHas('dataset', fn ($dataset) => $dataset->whereNotIn('purpose', $allowedPurposes))->exists();
         if ($exists) {
             throw new RuntimeException('Mindestens ein Material oder eine Ressource gehört bereits dauerhaft zu einem anderen Evaluationsdatensatz.');
         }

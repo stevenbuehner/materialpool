@@ -15,8 +15,8 @@ use RuntimeException;
 /**
  * Curates evaluation data as connected material/resource components.
  *
- * The member table is intentionally the single ownership ledger. Its unique
- * key is the final concurrency guard; the preview is only advisory.
+ * The member table is the membership ledger. Its per-dataset unique key is
+ * the final concurrency guard; preview conflict handling is only advisory.
  */
 final class EvaluationDatasetCurationService
 {
@@ -59,14 +59,10 @@ final class EvaluationDatasetCurationService
     }
 
     /** @return array{material_ids: array<int, int>, resource_ids: array<int, int>, excluded_resource_count: int, conflicts: array<int, array<string, mixed>>, counts: array<string, int>} */
-    public function preview(array $materialIds, array $resourceIds): array
+    public function preview(array $materialIds, array $resourceIds, ?ContextSearchEvaluationDataset $dataset = null): array
     {
         $closure = $this->closure($materialIds, $resourceIds);
-        $conflicts = ContextSearchEvaluationDatasetMember::query()
-            ->where(function ($query) use ($closure): void {
-                $query->where(fn ($members) => $members->where('member_type', ContextSearchEvaluationDatasetMember::TYPE_MATERIAL)->whereIn('member_id', $closure['material_ids']))
-                    ->orWhere(fn ($members) => $members->where('member_type', ContextSearchEvaluationDatasetMember::TYPE_RESOURCE)->whereIn('member_id', $closure['resource_ids']));
-            })
+        $conflicts = $this->conflictingMembers($dataset, $closure)
             ->with('dataset:id,purpose,title,status')
             ->orderBy('member_type')
             ->orderBy('member_id')
@@ -91,6 +87,7 @@ final class EvaluationDatasetCurationService
                 throw new RuntimeException('Die Auswahl enthält keinen vollständigen Block aus Material und geeigneter PDF- oder Textressource.');
             }
 
+            $this->lockMembers($closure);
             $this->assertNoConflicts($dataset, $closure);
             $owned = $dataset->members()->get(['member_type', 'member_id']);
             $closure['material_ids'] = array_values(array_diff($closure['material_ids'], $owned->where('member_type', ContextSearchEvaluationDatasetMember::TYPE_MATERIAL)->pluck('member_id')->map(fn ($id) => (int) $id)->all()));
@@ -225,12 +222,52 @@ final class EvaluationDatasetCurationService
 
     private function assertNoConflicts(ContextSearchEvaluationDataset $dataset, array $closure): void
     {
-        $conflict = ContextSearchEvaluationDatasetMember::query()->where('dataset_id', '!=', $dataset->getKey())
+        $conflict = $this->conflictingMembers($dataset, $closure)->exists();
+        if ($conflict) throw new RuntimeException('Mindestens ein Material oder eine Ressource ist bereits dauerhaft einem anderen Datensatz zugeordnet.');
+    }
+
+    /**
+     * Serialize competing purpose assignments for the same connected block.
+     * The per-dataset unique key alone cannot enforce cross-dataset purpose rules.
+     *
+     * @param array{material_ids: array<int, int>, resource_ids: array<int, int>} $closure
+     */
+    private function lockMembers(array $closure): void
+    {
+        $materialIds = $closure['material_ids'];
+        $resourceIds = $closure['resource_ids'];
+        sort($materialIds);
+        sort($resourceIds);
+
+        Material::query()->withoutGlobalScopes()->whereIn('id', $materialIds)->orderBy('id')->lockForUpdate()->get(['id']);
+        Resource::query()->withoutGlobalScopes()->whereIn('id', $resourceIds)->orderBy('id')->lockForUpdate()->get(['id']);
+    }
+
+    /** @param array{material_ids: array<int, int>, resource_ids: array<int, int>} $closure */
+    private function conflictingMembers(?ContextSearchEvaluationDataset $dataset, array $closure): \Illuminate\Database\Eloquent\Builder
+    {
+        $query = ContextSearchEvaluationDatasetMember::query()
             ->where(function ($query) use ($closure): void {
                 $query->where(fn ($members) => $members->where('member_type', ContextSearchEvaluationDatasetMember::TYPE_MATERIAL)->whereIn('member_id', $closure['material_ids']))
                     ->orWhere(fn ($members) => $members->where('member_type', ContextSearchEvaluationDatasetMember::TYPE_RESOURCE)->whereIn('member_id', $closure['resource_ids']));
-            })->exists();
-        if ($conflict) throw new RuntimeException('Mindestens ein Material oder eine Ressource ist bereits dauerhaft einem anderen Datensatz zugeordnet.');
+            });
+
+        if ($dataset === null) {
+            return $query;
+        }
+
+        $query->where(function ($members) use ($dataset): void {
+            $members->where('dataset_id', '!=', $dataset->getKey())
+                ->whereHas('dataset', function ($related) use ($dataset): void {
+                    if ($dataset->purpose === 'ocr') {
+                        $related->whereNotIn('purpose', ['calibration', 'acceptance']);
+                    } elseif (in_array($dataset->purpose, ['calibration', 'acceptance'], true)) {
+                        $related->where('purpose', '!=', 'ocr');
+                    }
+                });
+        });
+
+        return $query;
     }
 
     private function assertMutable(ContextSearchEvaluationDataset $dataset, int $expectedVersion): void

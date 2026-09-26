@@ -14,7 +14,7 @@ final class ReconcileContextSearchEvaluationDatasetMembers extends Command
 {
     protected $signature = 'context-search:dataset:reconcile-memberships {--apply : Bestätigt das Anlegen konfliktfreier Mitgliedschaften}';
 
-    protected $description = 'Prüft eingefrorene Alt-Datensätze auf fehlende, eindeutige Mitgliedschaften; Standard ist ausschließlich lesend.';
+    protected $description = 'Prüft eingefrorene Alt-Datensätze auf fehlende, zweckkonforme Mitgliedschaften; Standard ist ausschließlich lesend.';
 
     public function handle(): int
     {
@@ -29,10 +29,13 @@ final class ReconcileContextSearchEvaluationDatasetMembers extends Command
             $materials = collect($dataset->manifest['materials'] ?? [])->pluck('source_id')->filter()->map(fn ($id) => (int) $id)->all();
             $resources = collect($dataset->manifest['resources'] ?? [])->filter(fn ($entry) => isset($entry['source_id']))->values();
             $resourceIds = $resources->pluck('source_id')->map(fn ($id) => (int) $id)->all();
+            $allowedPurposes = $dataset->purpose === 'ocr'
+                ? ['calibration', 'acceptance']
+                : (in_array($dataset->purpose, ['calibration', 'acceptance'], true) ? ['ocr'] : []);
             $conflict = ContextSearchEvaluationDatasetMember::query()->where(function ($query) use ($materials, $resourceIds): void {
                 $query->where(fn ($members) => $members->where('member_type', 'material')->whereIn('member_id', $materials))
                     ->orWhere(fn ($members) => $members->where('member_type', 'resource')->whereIn('member_id', $resourceIds));
-            })->exists();
+            })->whereHas('dataset', fn ($existing) => $existing->whereNotIn('purpose', $allowedPurposes))->exists();
             if ($conflict) {
                 $this->components->error("{$dataset->id}: Konflikt; keine Mitgliedschaften angelegt.");
                 continue;
@@ -69,8 +72,9 @@ final class ReconcileContextSearchEvaluationDatasetMembers extends Command
             $actual[$dataset->purpose]['resources'] = ($actual[$dataset->purpose]['resources'] ?? 0) + ($counts?->resources ?? $dataset->resource_count);
         }
         $eligibleResources = Resource::query()->withoutGlobalScopes()->whereIn('type', ['pdf', 'text'])->count();
-        $targetResources = array_sum(array_column($targets, 'resources'));
-        $targetMaterials = array_sum(array_column($targets, 'materials'));
+        $exclusiveTargets = collect($targets)->except('ocr');
+        $targetResources = array_sum(array_column($exclusiveTargets->all(), 'resources'));
+        $targetMaterials = array_sum(array_column($exclusiveTargets->all(), 'materials'));
 
         $this->newLine();
         $this->components->info('Empfohlene Datensatzgrößen und Fortschritt (inhaltsfrei)');
@@ -85,9 +89,9 @@ final class ReconcileContextSearchEvaluationDatasetMembers extends Command
             ));
         }
         $reserve = $eligibleResources - $targetResources;
-        $this->line(sprintf('  %-12s Ziel: %d Ressourcen / %d Materialien · aktuell geeignete Ressourcen: %d · Reserve: %d', 'Gesamt', $targetResources, $targetMaterials, $eligibleResources, $reserve));
+        $this->line(sprintf('  %-12s Exklusivziel: %d Ressourcen / %d Materialien · OCR-Ziel überlappt: %d Ressourcen · aktuell geeignet: %d · Reserve: %d', 'Gesamt', $targetResources, $targetMaterials, $targets['ocr']['resources'], $eligibleResources, $reserve));
         if ($reserve < 0) {
-            $this->components->warn('Die aktuelle Anzahl geeigneter Ressourcen reicht nicht für alle empfohlenen, disjunkten Datensätze. Ziele vor der Kuratierung anpassen.');
+            $this->components->warn('Die aktuelle Anzahl geeigneter Ressourcen reicht nicht für die exklusiven Zielmengen. OCR ist darin als überlappende Teilmenge nicht zusätzlich gezählt.');
         }
         $this->newLine();
     }

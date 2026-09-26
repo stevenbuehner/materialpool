@@ -39,7 +39,9 @@ final class ContextSearchEvaluationDatasetController extends Controller
             'search' => ['nullable', 'string', 'max:255'], 'visibility' => ['nullable', Rule::in(['all', 'public', 'private'])],
             'type' => ['nullable', Rule::in(['all', 'pdf', 'text'])], 'assignment' => ['nullable', Rule::in(['all', 'free', 'assigned'])],
             'bundle' => ['nullable', 'string', 'max:20', 'regex:/^(all|user|[1-9][0-9]*)$/'],
+            'dataset' => ['nullable', 'uuid', 'exists:context_search_evaluation_datasets,id'],
         ]);
+        $targetDataset = isset($data['dataset']) ? ContextSearchEvaluationDataset::query()->findOrFail($data['dataset']) : null;
         $type = $data['type'] ?? 'all';
         $visibility = $data['visibility'] ?? 'all';
         $query = Material::query()->withoutGlobalScopes()->whereHas('resources', function ($resources) use ($type, $visibility): void {
@@ -61,17 +63,19 @@ final class ContextSearchEvaluationDatasetController extends Controller
         $page = $query->paginate($data['per_page'] ?? 25);
         $materialIds = $page->getCollection()->modelKeys();
         $resourceIds = $page->getCollection()->flatMap(fn (Material $material) => $material->resources->modelKeys())->all();
-        $assignments = $this->assignments($materialIds, $resourceIds);
+        $assignments = $this->assignments($materialIds, $resourceIds, $targetDataset);
         if (($data['assignment'] ?? 'all') !== 'all') {
             $wantAssigned = $data['assignment'] === 'assigned';
-            $page->setCollection($page->getCollection()->filter(fn (Material $material): bool => array_key_exists('material:'.$material->id, $assignments) === $wantAssigned)->values());
+            $page->setCollection($page->getCollection()->filter(fn (Material $material): bool => ! empty($assignments['material:'.$material->id]['locked']) === $wantAssigned)->values());
         }
         $page->getCollection()->transform(fn (Material $material): array => [
             'id' => $material->id, 'title' => $material->title, 'description' => $material->description, 'is_public' => (bool) $material->is_public,
-            'assignment' => $assignments['material:'.$material->id] ?? null,
+            'assignment' => $assignments['material:'.$material->id]['assignment'] ?? null,
+            'assignments' => $assignments['material:'.$material->id]['all'] ?? [],
             'resources' => $material->resources->map(fn (Resource $resource): array => [
                 'id' => $resource->id, 'type' => $resource->type, 'notes' => $resource->notes, 'is_public' => (bool) $resource->is_public,
-                'assignment' => $assignments['resource:'.$resource->id] ?? null,
+                'assignment' => $assignments['resource:'.$resource->id]['assignment'] ?? null,
+                'assignments' => $assignments['resource:'.$resource->id]['all'] ?? [],
             ])->values(),
         ]);
         return $page->toArray() + [
@@ -82,7 +86,8 @@ final class ContextSearchEvaluationDatasetController extends Controller
     public function preview(Request $request, EvaluationDatasetCurationService $curation): array
     {
         $data = $this->selection($request);
-        return ['preview' => $curation->preview($data['material_ids'], $data['resource_ids'])];
+        $targetDataset = $request->validate(['dataset' => ['required', 'uuid', 'exists:context_search_evaluation_datasets,id']]);
+        return ['preview' => $curation->preview($data['material_ids'], $data['resource_ids'], ContextSearchEvaluationDataset::query()->findOrFail($targetDataset['dataset']))];
     }
 
     public function assign(ContextSearchEvaluationDataset $dataset, Request $request, EvaluationDatasetCurationService $curation): JsonResponse|array
@@ -131,14 +136,37 @@ final class ContextSearchEvaluationDatasetController extends Controller
         return $data;
     }
 
-    /** @param array<int, int> $materialIds @param array<int, int> $resourceIds @return array<string, array<string, mixed>> */
-    private function assignments(array $materialIds, array $resourceIds): array
+    /** @param array<int, int> $materialIds @param array<int, int> $resourceIds @return array<string, array{all: array<int, array<string, mixed>>, assignment: ?array<string, mixed>, locked: bool}> */
+    private function assignments(array $materialIds, array $resourceIds, ?ContextSearchEvaluationDataset $targetDataset): array
     {
-        return ContextSearchEvaluationDatasetMember::query()->where(function ($query) use ($materialIds, $resourceIds): void {
+        $memberships = ContextSearchEvaluationDatasetMember::query()->where(function ($query) use ($materialIds, $resourceIds): void {
             $query->where(fn ($members) => $members->where('member_type', 'material')->whereIn('member_id', $materialIds))
                 ->orWhere(fn ($members) => $members->where('member_type', 'resource')->whereIn('member_id', $resourceIds));
-        })->with('dataset:id,purpose,title,status')->get()->mapWithKeys(fn (ContextSearchEvaluationDatasetMember $member): array => [
-            $member->member_type.':'.$member->member_id => ['id' => $member->dataset_id, 'purpose' => $member->dataset?->purpose, 'title' => $member->dataset?->title, 'status' => $member->dataset?->status],
-        ])->all();
+        })->with('dataset:id,purpose,title,status')->get()->groupBy(fn (ContextSearchEvaluationDatasetMember $member): string => $member->member_type.':'.$member->member_id);
+
+        return $memberships->mapWithKeys(function ($members, string $key) use ($targetDataset): array {
+            $all = $members->map(fn (ContextSearchEvaluationDatasetMember $member): array => [
+                'id' => $member->dataset_id, 'purpose' => $member->dataset?->purpose, 'title' => $member->dataset?->title, 'status' => $member->dataset?->status,
+            ])->values()->all();
+            $current = $targetDataset === null ? null : collect($all)->first(fn (array $assignment): bool => $assignment['id'] === $targetDataset->getKey());
+            $blocking = collect($all)->first(fn (array $assignment): bool => $targetDataset === null
+                || ($assignment['id'] !== $targetDataset->getKey() && ! $this->mayOverlap($targetDataset->purpose, (string) $assignment['purpose'])));
+            $primary = $current ?? $blocking ?? ($all[0] ?? null);
+            $locked = $current !== null || $blocking !== null;
+            $purposes = collect($all)->pluck('purpose')->unique()->values();
+            $assignment = $primary === null ? null : array_merge($primary, [
+                'purpose' => $purposes->join('|'),
+                'memberships' => $all,
+                'overlap_allowed' => $primary !== null && ! $locked,
+            ]);
+
+            return [$key => ['all' => $all, 'assignment' => $assignment, 'locked' => $locked]];
+        })->all();
+    }
+
+    private function mayOverlap(string $firstPurpose, string $secondPurpose): bool
+    {
+        return ($firstPurpose === 'ocr' && in_array($secondPurpose, ['calibration', 'acceptance'], true))
+            || ($secondPurpose === 'ocr' && in_array($firstPurpose, ['calibration', 'acceptance'], true));
     }
 }

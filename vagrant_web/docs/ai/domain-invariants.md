@@ -27,6 +27,13 @@ Diese Regeln sind aus dem aktuellen Codebestand abgeleitet. Sie dürfen nur nach
 - Resource-Basistypen: `res`, `link`, `file`, `text`, `book`; Datei-Subtypen umfassen u. a. Audio, Video, Bild, Dokument und PDF.
 - Material-Bewertung ist auf maximal 20 begrenzt.
 
+## Evaluationsdatensätze für Kontextsuche
+
+- Materialien und Ressourcen dürfen nicht gleichzeitig Kalibrierung und Abnahme zugeordnet sein.
+- Der OCR-Datensatz ist eine zusätzliche, überlappende Qualitätsdimension und darf vollständige Blöcke aus Kalibrierung oder Abnahme wiederverwenden.
+- OCR-Mitgliedschaften überlappen nicht mit Last- oder Kapazitätsdatensätzen; diese Zwecke bleiben untereinander exklusiv.
+- Die Datenbank erzwingt die Eindeutigkeit eines Mitglieds innerhalb eines Datensatzes. Die serverseitige Transaktion erzwingt die Zweckregeln für zulässige beziehungsweise unzulässige Überschneidungen.
+
 ## Änderungs-Checkliste
 
 Vor einer Änderung an einem Kernprozess prüfen:

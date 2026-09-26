@@ -65,6 +65,43 @@ final class ContextSearchEvaluationDatasetCurationTest extends TestCase
         $this->postJson('/api/v2/admin/context-search/datasets/'.$first['id'].'/assign', $payload)->assertConflict();
     }
 
+    public function test_ocr_memberships_overlap_calibration_or_acceptance_but_not_other_purposes(): void
+    {
+        $this->asAdmin();
+        [$calibrationMaterial] = $this->connectedSources();
+        [$acceptanceMaterial] = $this->connectedSources();
+        $calibration = $this->postJson('/api/v2/admin/context-search/datasets', ['purpose' => 'calibration'])->assertCreated()->json('dataset');
+        $acceptance = $this->postJson('/api/v2/admin/context-search/datasets', ['purpose' => 'acceptance'])->assertCreated()->json('dataset');
+        $ocr = $this->postJson('/api/v2/admin/context-search/datasets', ['purpose' => 'ocr'])->assertCreated()->json('dataset');
+        $load = $this->postJson('/api/v2/admin/context-search/datasets', ['purpose' => 'load'])->assertCreated()->json('dataset');
+        $calibrationPayload = ['material_ids' => [$calibrationMaterial->id], 'resource_ids' => [], 'expected_version' => 1, 'include_private' => false];
+        $acceptancePayload = ['material_ids' => [$acceptanceMaterial->id], 'resource_ids' => [], 'expected_version' => 1, 'include_private' => false];
+
+        $this->postJson('/api/v2/admin/context-search/datasets/'.$calibration['id'].'/assign', $calibrationPayload)->assertOk();
+        $this->postJson('/api/v2/admin/context-search/datasets/preview', [
+            'dataset' => $ocr['id'], 'material_ids' => [$calibrationMaterial->id], 'resource_ids' => [],
+        ])->assertOk()->assertJsonCount(0, 'preview.conflicts');
+        $this->postJson('/api/v2/admin/context-search/datasets/'.$ocr['id'].'/assign', [
+            ...$calibrationPayload, 'expected_version' => 1,
+        ])->assertOk();
+
+        $this->getJson('/api/v2/admin/context-search/datasets/candidates?dataset='.$ocr['id'].'&per_page=100')
+            ->assertOk()->assertJsonPath('data.0.assignment.overlap_allowed', true)
+            ->assertJsonCount(2, 'data.0.assignment.memberships');
+
+        $this->postJson('/api/v2/admin/context-search/datasets/'.$acceptance['id'].'/assign', $acceptancePayload)->assertOk();
+        $this->postJson('/api/v2/admin/context-search/datasets/'.$ocr['id'].'/assign', [
+            ...$acceptancePayload, 'expected_version' => 1,
+        ])->assertOk();
+
+        $this->postJson('/api/v2/admin/context-search/datasets/'.$load['id'].'/assign', [
+            ...$calibrationPayload, 'expected_version' => 1,
+        ])->assertUnprocessable();
+        $this->postJson('/api/v2/admin/context-search/datasets/'.$acceptance['id'].'/assign', [
+            ...$calibrationPayload, 'expected_version' => 1,
+        ])->assertUnprocessable();
+    }
+
     public function test_private_content_requires_explicit_reason_and_candidate_endpoint_marks_assignment(): void
     {
         $this->asAdmin();
