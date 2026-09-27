@@ -20,6 +20,7 @@ services:
             PHP_IDE_CONFIG: "serverName=materialpool"
         volumes:
             - '.:/var/www/html'
+#            - '/Volumes/Filmschnitt 2/2026-09-25-00-19-16/var/www/wissensbase/storage/app:/var/www/html/storage/app'
         networks:
             - sail
         depends_on:
