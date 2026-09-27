@@ -7,7 +7,7 @@
   "updateable": true,
   "privileged": false,
   "interface_port": 80,
-  "documentation": "https://github.com/stevenbuehner/materialpool/tree/semantische-suche/vagrant_web/deployment",
+  "documentation": "https://github.com/stevenbuehner/materialpool/tree/semantische-suche/deployment",
   "website": "https://github.com/stevenbuehner/materialpool",
   "repository": "https://github.com/stevenbuehner/materialpool",
   "architectures": ["amd64"],

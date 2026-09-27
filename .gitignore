@@ -1,6 +1,8 @@
 /node_modules
 /var/
 /vendor/
+/public/storage
+/public/hot
 /public/css/app.*.css
 /public/js/app.*.js
 /storage/framework/
@@ -14,3 +16,6 @@
 .env.dev
 .cache
 public/build
+/.idea
+Homestead.json
+Homestead.yaml

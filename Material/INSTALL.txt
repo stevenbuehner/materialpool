@@ -194,7 +194,7 @@ sudo chown -R www-data.www-data /var/www/wissensbase/bootstrap/cache
 
 
 # Dateien kopieren
-rsync -av --exclude=".git*" --exclude=".idea*" --exclude="*.DS_Store" --exclude="node_modules/*" --exclude=".env" --exclude="vendor/*" --exclude=".env.example" --exclude="storage/*" ~/Sites/material_pool/vagrant_web/ steven@192.168.3.3:/var/www/wissensbase
+rsync -av --exclude=".git*" --exclude=".idea*" --exclude="*.DS_Store" --exclude="node_modules/*" --exclude=".env" --exclude="vendor/*" --exclude=".env.example" --exclude="storage/*" ~/Sites/material_pool/ steven@192.168.3.3:/var/www/wissensbase
 
 # Anschließend System-Reset:
 sudo -u www-data php artisan config:clear
