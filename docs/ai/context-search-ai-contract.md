@@ -20,7 +20,7 @@ Maßgeblich bleiben außerdem:
 
 | Thema | Entscheidung |
 | --- | --- |
-| Fachliche Daten | MySQL bleibt führende Datenbank und alleinige fachliche Wahrheit. |
+| Fachliche Daten | Die relationale Anwendungsdatenbank bleibt alleinige fachliche Wahrheit: MySQL im Ubuntu-Altbetrieb, MariaDB im neuen Proxmox-LXC. Qdrant bleibt abgeleiteter Index. |
 | Vektorspeicher | Qdrant speichert den abgeleiteten und jederzeit neu aufbaubaren semantischen Suchindex. |
 | Qdrant-Anbindung | Laravel spricht Qdrant über dessen REST-API und den Laravel HTTP Client an. Eine zusätzliche PHP-Client-Abhängigkeit wird nur nach gesonderter Begründung eingeführt. |
 | Ergebnisobjekt | Primäres Suchergebnis ist ein Material. Darunter werden passende Ressourcen und exakte Fundstellen angezeigt. |
@@ -76,9 +76,9 @@ Die Architektur muss ungefähr 100.000 bis 200.000 Ressourcen und Materialien tr
 
 Bei durchschnittlich ein bis drei Chunks je Seite entstehen voraussichtlich 70.000 bis 660.000 aktive PDF-Chunks. Mit Textressourcen, Wachstum und Sicherheitsreserve wird für mindestens **1,5 Millionen aktive Punkte** geplant. Alte Generationen zählen zusätzlich und dürfen nicht unbegrenzt erhalten bleiben.
 
-Der Webserver besitzt 2 CPU-Kerne, 4 GB RAM und 40 GB SSD. Qdrant teilt sich diesen Host mit der Anwendung und weiteren Diensten. Das ist eine Pilot- und Startkonfiguration, keine bestätigte Zielkapazität. Vor dem vollständigen Backfill ist ein Capacity Gate Pflicht.
+Die ursprüngliche Pilotannahme war ein gemeinsamer Host mit 2 CPU-Kernen, 4 GB RAM und 40 GB SSD. Für **neue Proxmox-Installationen** gilt inzwischen das in [Deployment](../../deployment/README.md) festgelegte getrennte Zielbild: Laravel und MariaDB laufen in einem LXC, Qdrant in einem eigenen nativen LXC. Die 40-GB-Annahme darf daher nicht als bestätigte Qdrant-LXC-Größe oder als gemeinsame freie SSD-Reserve ausgelegt werden. Web-/Datenbank- und Qdrant-LXC benötigen getrennte Messungen und Kapazitätsgrenzen; vor dem vollständigen Backfill ist ein Capacity Gate Pflicht. Der bestehende Ubuntu-/MySQL-Betrieb bleibt ein gesondert zu prüfender Altpfad.
 
-Für die SSD gelten zunächst:
+Für das jeweils betroffene persistente Dateisystem gelten als vorläufige Schutzwerte; die Qdrant-LXC-Größe und dortige Warn-/Stoppschwellen sind vor einem Massenlauf gesondert festzulegen:
 
 - mindestens 8 GB bleiben als freie Notfallreserve erhalten;
 - unter 12 GB freiem Speicher werden Superadministratoren gewarnt und keine neuen Massenläufe begonnen;
@@ -94,7 +94,7 @@ Die erste inhaltsfreie Produktionsinventarisierung vom 26. September 2026 weist 
 ## 5. Zielarchitektur
 
 ```text
-MySQL – fachliche Wahrheit
+Relationale Anwendungsdatenbank – fachliche Wahrheit
   Materialien, Ressourcen, Zuordnungen, Rechte, menschliche Daten,
   angenommene Vorschläge, KI-Entwürfe, Audit und Betriebsprofile
              |
@@ -114,13 +114,13 @@ Laravel-Suchfusion
   bestehende direkte Suche + semantische Kandidaten + Gruppierung
              |
              v
-abschließende Autorisierungsprüfung und Materialabbildung in MySQL
+abschließende Autorisierungsprüfung und Materialabbildung in der Anwendungsdatenbank
              |
              v
 Materialtreffer mit Ressource, Seite, Textstelle und Suchart
 ```
 
-MySQL speichert alle fachlichen Daten, Beziehungen, Rechte, Konfigurationen, Auditdaten und Jobzustände. Qdrant enthält nur abgeleitete Chunks, Payloads und Vektoren. Ollama verarbeitet Text, ist aber kein dauerhaftes Datenlager. Laravel orchestriert Extraktion, Modellprofile, Jobs, Qdrant-Zugriff, Suchfusion, Rechteprüfung und Präsentation. Der Browser entscheidet niemals über Leserechte, Herkunft oder Annahme eines Vorschlags.
+Die relationale Anwendungsdatenbank speichert alle fachlichen Daten, Beziehungen, Rechte, Konfigurationen, Auditdaten und Jobzustände. Qdrant enthält nur abgeleitete Chunks, Payloads und Vektoren. Ollama verarbeitet Text, ist aber kein dauerhaftes Datenlager. Laravel orchestriert Extraktion, Modellprofile, Jobs, Qdrant-Zugriff, Suchfusion, Rechteprüfung und Präsentation. Der Browser entscheidet niemals über Leserechte, Herkunft oder Annahme eines Vorschlags.
 
 Der Suchindex ist eventual consistent. Fachliche Schreibvorgänge dürfen nicht von Ollama oder Qdrant abhängig sein. Indexjobs sind idempotent, unterbrechbar und resumierbar. Ein späterer Reconciliation-Prozess erkennt fehlende, veraltete oder verwaiste Punkte anhand stabiler IDs und Inhalts-Hashes.
 
@@ -302,6 +302,28 @@ Der Systemadministrator erhält vor Produktivbetrieb eine Betriebsanleitung mit 
 ## 14. Verbindlicher Umsetzungsplan
 
 Jeder folgende Schritt endet nach Abschnitt 3 mit einem eigenen Commit.
+
+### Bestandsaufnahme vom 27. September 2026
+
+Diese Einstufung beruht auf Repository-Code, vorhandenen Tests und den dokumentierten lokalen Messungen in der [Queue-Betriebsanleitung](context-search-queue-operations.md), **nicht** auf einer erneuten Live-, Produktions- oder vollständigen Testabnahme. „Implementiert“ bedeutet hier Code vorhanden, nicht betriebsbereit. Nicht committete Arbeiten an der OCR-Oberfläche zählen nicht als abgeschlossener Schritt.
+
+| Schritt | Nachweisbarer Ist-Stand | Noch offene Abnahme / nächste Handlung |
+| --- | --- | --- |
+| 0–1 Vertrag und Altbereinigung | Qdrant-Zielbild und Bereinigungscommits vorhanden; kein PostgreSQL-Vektorspeicher im aktuellen Kontextsuche-Code ersichtlich. | Vor Freigabe Repository-Scan und vollständige passende Tests erneut ausführen; historische Dokumente nicht als aktive Architektur lesen. |
+| 2 Qdrant-Grundlage | REST-Client, Collection-Provisionierung, Aliasverwaltung und Tests vorhanden. | Ziel-LXC, Netzschutz, API-Key, Snapshot/Restore und reale Provisionierung gegen die gewählte Qdrant-Version prüfen. |
+| 3 Ollama-Profil und Pool | Profilprüfung, Digest-/Dimensionsschutz, Verteilung, Failover und Unit-Tests vorhanden. | Alle tatsächlich eingesetzten Server und das konkrete Embedding-Profil erneut verifizieren; Durchsatz und Ausfall unter Last messen. |
+| 4 PDF-/Textindexierung | Manuelles CLI, seitenweise Extraktion/OCR, Chunking, Artefakte, revisionsgebundene Veröffentlichung und gezielte Tests vorhanden. | Neue Indexläufe sind mit `dispatch_enabled=false` und der Umgebungsprüfung absichtlich gesperrt; Schritt 4 ist damit **nicht betrieblich abgenommen**. Quellen-/Rechtewirkung und Reconciliation im vollständigen Ablauf prüfen. |
+| 4a–4b Evaluationsdaten | Inventar, Kuratierung, Freeze, Export, Hashprüfung, isolierter Import und Global-Admin-Oberfläche sind implementiert. | Vor Nutzung die tatsächlichen Datensätze, ihre Trennung/Überlappung, Importvollständigkeit und Berechtigungen prüfen; frühere Testberichte ersetzen keine aktuelle Abnahme. |
+| 4c Queue-Stabilisierung | Teil 1 und 2 sind vorbereitet: eigene Connection, Queue-Namen, Checks und deaktivierte Worker-Vorlage. Teil 3 enthält Seitenzustände, Artefakt-Reparatur und Publikationsschutz. Ein lokaler 15-Seiten-OCR-Kalibrierungslauf erreichte laut Betriebsbericht `reviewing`, nicht die fachliche Freigabe. | Vollständige OCR-Review und Schwellenwertfreigabe, reale Worker-Crash-/Restore-/Last-/Kapazitätsgates, Zielhostmessung und einmaliger Cutover fehlen. Keine Produktions- oder allgemeine Indexworker-Freigabe. Für Proxmox muss statt der Alt-Supervisor-Vorlage ein eigener, geprüfter systemd-Betriebsweg festgelegt werden. |
+| 5 Capacity Gate | Schutz vor zu wenig freiem Speicher und zu tiefer Queue ist im Code vorbereitet; kleine lokale Stichproben sind dokumentiert. | Voll-Backfill-Projektion und Lastmessung auf **beiden** Ziel-LXC einschließlich Qdrant-Speicher, RAM, Latenz, Backup/Restore und Rückrollreserve fehlen. |
+| 6 Semantische Suche | Kein Qdrant-Suchaufruf im `QdrantClient` und keine Nutzer-Suchroute für semantische Treffer vorhanden. `ContextSearchPublicationGuard` ist nur eine vorbereitete Revisionsprüfung. | Abfragevertrag, MySQL-Sichtbarkeitsprüfung, Materialabbildung, Quellenanzeige, Funktionsschalter und Fehler-Fallback entwerfen, freigeben, implementieren und testen. |
+| 7 Hybride Suche | Die bestehende direkte Suche ist vorhanden; semantische Fusion ist noch nicht implementiert. | Suchzellen-Semantik, rangbasierte Fusion, Nulltreffer-/Rechteschutz und kalibrierte Gewichtung auf getrennten Sätzen abnehmen. |
+| 8 Vorschläge/Kurzbeschreibungen | Zielregeln sind dokumentiert, fachliche KI-Vorschlags- und Kurzbeschreibungsstrecke ist noch nicht umgesetzt. | Datenmodell, Berechtigungen, menschliche Annahme, Stale-Erkennung, Modell-/Promptprofile und UI gesondert entscheiden und umsetzen. |
+| 9 Automatisierung/Admin-Steuerung | Manuelle Stufe und Dataset-/OCR-Adminoberfläche existieren; automatische Reindexierung, Zeitfenster und interaktive Ausnahmeberechtigung nicht. | Erst nach stabiler manueller Abnahme und eigener Freigabe implementieren. |
+
+**Nächste verbindliche Reihenfolge:** (1) Schritt 4c Teil 3 vollständig auf der isolierten Evaluationsumgebung und dem vorgesehenen Betriebsprofil abnehmen, dabei den Proxmox-systemd-Weg explizit ergänzen; (2) Schritt 5 mit getrennten Laravel-/MariaDB- und Qdrant-LXC-Messungen abschließen; (3) Schritt 6 als zunächst abgeschaltete, serverseitig autorisierte Lesestrecke mit Quellenbelegen bauen; (4) Schritt 7 auf `calibration` einstellen und genau einmal auf `acceptance` abnehmen; (5) Schritte 8 und 9 separat freigeben. Ein grüner Unit-Test oder ein kleiner Dev-Lauf überspringt keine dieser Gates.
+
+**Jetzt gefahrlos vorbereitbar, ohne Produktionsumschaltung:** Testmatrix und erwartete Fundstellen für deutsche/englische Suchanfragen und Nulltreffer kuratieren; `acceptance` unangetastet als Holdout belassen; vorhandene OCR-Seiten fachlich beurteilen und Schwellenwerte ausschließlich auf `ocr`/`calibration` bestimmen; synthetische Testfälle für Rechtewechsel, Ressourcenlöschung, alte/unveröffentlichte Revisionen, Qdrant-Ausfall und identische Suchzellen anlegen; Metrik- und Restore-Protokoll für beide LXC ausarbeiten. Neue Routen, Datenbankfelder, Worker, UI oder Infrastruktur werden dadurch nicht stillschweigend freigegeben.
 
 ### Schritt 0 – Vertrag und Bestandsinventar
 
