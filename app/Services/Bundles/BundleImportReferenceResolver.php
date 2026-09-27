@@ -16,6 +16,10 @@ use StevenBuehner\BibleVerseBundle\Interfaces\BibleVerseInterface;
  * Bereits vorhandene Referenzen benötigen die Sperre dagegen nicht.
  */
 class BundleImportReferenceResolver {
+	public function person(string $name): Keyword {
+		return $this->keyword($name, 'person');
+	}
+
 	/**
 	 * @throws InvalidKeywordTypeException
 	 */
@@ -29,7 +33,7 @@ class BundleImportReferenceResolver {
 		return Cache::lock('bundle-import:keyword-tree', 30)->block(10, function () use ($value, $type) {
 			$keyword = Keyword::make($value, $type);
 
-			if (! $keyword->exists) {
+			if (!$keyword->exists) {
 				$keyword->saveOrFail();
 			}
 
@@ -37,21 +41,17 @@ class BundleImportReferenceResolver {
 		});
 	}
 
-	public function person(string $name): Keyword {
-		return $this->keyword($name, 'person');
-	}
-
-	public function bibleverse(BibleVerseInterface $bibleverse, ?int $bibleId = null): Bibleverse {
+	public function bibleverse(BibleVerseInterface $bibleverse, ?int $bibleId = NULL): Bibleverse {
 		[$from, $to] = Bibleverse::getFromToCombi($bibleverse);
 		$query = Bibleverse::query()->where(['from' => $from, 'to' => $to]);
-		if ($bibleId === null) {
+		if ($bibleId === NULL) {
 			$query->whereNull('bible_id');
 		} else {
 			$query->where('bible_id', $bibleId);
 		}
 		$existing = $query->first();
 
-		if ($existing !== null) {
+		if ($existing !== NULL) {
 			return $existing;
 		}
 

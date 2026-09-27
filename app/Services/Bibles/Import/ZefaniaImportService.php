@@ -7,6 +7,7 @@ use App\Models\BibleContent;
 use App\Models\Bibleverse;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Log;
+use SimpleXMLElement;
 
 class ZefaniaImportService {
 
@@ -25,7 +26,7 @@ class ZefaniaImportService {
 
 		// see: http://www.bgfdb.de/zefaniaxml/bml/namespaces/global_namespace/namespace-overview.html
 
-		/** @var \SimpleXMLElement $xml */
+		/** @var SimpleXMLElement $xml */
 		$xml          = simplexml_load_file($xmlFilePath);
 		$title        = trim((string)$xml->INFORMATION->title);
 		$uid          = trim((string)$xml->INFORMATION->identifier);

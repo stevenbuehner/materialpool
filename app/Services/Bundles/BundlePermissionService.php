@@ -24,9 +24,22 @@ class BundlePermissionService {
 		return Permission::query()
 			->where('guard_name', 'web')
 			->pluck('name')
-			->filter(fn(string $name): bool => ($uuid = BundlePermissionName::uuidFrom($name)) !== null && $bundlesByUuid->has($uuid))
+			->filter(fn(string $name): bool => ($uuid = BundlePermissionName::uuidFrom($name)) !== NULL && $bundlesByUuid->has($uuid))
 			->values()
 			->all();
+	}
+
+	/** @param iterable<int> $bundleIds */
+	public function canReadAnyBundle(User $user, iterable $bundleIds): bool {
+		$readableBundleIds = array_flip($this->readableBundleIds($user));
+
+		foreach ($bundleIds as $bundleId) {
+			if (isset($readableBundleIds[$bundleId])) {
+				return TRUE;
+			}
+		}
+
+		return FALSE;
 	}
 
 	/** @return array<int> */
@@ -43,18 +56,5 @@ class BundlePermissionService {
 		}
 
 		return Bundle::query()->whereIn('uuid', $uuids)->pluck('id')->all();
-	}
-
-	/** @param iterable<int> $bundleIds */
-	public function canReadAnyBundle(User $user, iterable $bundleIds): bool {
-		$readableBundleIds = array_flip($this->readableBundleIds($user));
-
-		foreach ($bundleIds as $bundleId) {
-			if (isset($readableBundleIds[$bundleId])) {
-				return true;
-			}
-		}
-
-		return false;
 	}
 }

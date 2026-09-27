@@ -21,9 +21,9 @@ use Throwable;
 
 class BundleImportOrchestrator {
 	private const BATCH_COLUMNS = [
-		BundleImportPhase::Validating->value => 'validation_batch_id',
-		BundleImportPhase::DeletingMaterials->value => 'delete_materials_batch_id',
-		BundleImportPhase::DeletingResources->value => 'delete_resources_batch_id',
+		BundleImportPhase::Validating->value         => 'validation_batch_id',
+		BundleImportPhase::DeletingMaterials->value  => 'delete_materials_batch_id',
+		BundleImportPhase::DeletingResources->value  => 'delete_resources_batch_id',
 		BundleImportPhase::UpsertingResources->value => 'resources_batch_id',
 		BundleImportPhase::UpsertingMaterials->value => 'materials_batch_id',
 	];
@@ -32,7 +32,7 @@ class BundleImportOrchestrator {
 	}
 
 	public function start(BundleImportRun $run): void {
-		$runId = $run->id;
+		$runId          = $run->id;
 		$shouldDispatch = DB::transaction(function () use ($runId): bool {
 			$lockedRun = BundleImportRun::query()->lockForUpdate()->findOrFail($runId);
 			if ($lockedRun->status !== BundleImportStatus::Pending) {
@@ -40,8 +40,8 @@ class BundleImportOrchestrator {
 			}
 
 			$lockedRun->update([
-				'status' => BundleImportStatus::Running,
-				'phase' => BundleImportPhase::Validating,
+				'status'     => BundleImportStatus::Running,
+				'phase'      => BundleImportPhase::Validating,
 				'started_at' => now(),
 			]);
 
@@ -51,86 +51,6 @@ class BundleImportOrchestrator {
 		if ($shouldDispatch) {
 			$this->dispatchCurrentPhase($runId);
 		}
-	}
-
-	public function phaseSucceeded(string $runId, ?string $batchId = NULL): void {
-		$nextPhase = DB::transaction(function () use ($runId, $batchId): ?BundleImportPhase {
-			$run = BundleImportRun::query()->lockForUpdate()->findOrFail($runId);
-			if ($run->status !== BundleImportStatus::Running || ($batchId !== NULL && $run->current_batch_id !== $batchId)) {
-				return NULL;
-			}
-
-			$nextPhase = match ($run->phase) {
-				BundleImportPhase::Validating => BundleImportPhase::DeletingMaterials,
-				BundleImportPhase::DeletingMaterials => BundleImportPhase::DeletingResources,
-				BundleImportPhase::DeletingResources => BundleImportPhase::UpsertingResources,
-				BundleImportPhase::UpsertingResources => BundleImportPhase::UpsertingMaterials,
-				BundleImportPhase::UpsertingMaterials => BundleImportPhase::Finalizing,
-				default => NULL,
-			};
-
-			if ($nextPhase === NULL) {
-				return NULL;
-			}
-
-			$run->update(['phase' => $nextPhase, 'current_batch_id' => NULL]);
-
-			return $nextPhase;
-		});
-
-		if ($nextPhase === BundleImportPhase::Finalizing) {
-			$this->finalize($runId);
-		} elseif ($nextPhase !== NULL) {
-			$this->dispatchCurrentPhase($runId);
-		}
-	}
-
-	public function fail(string $runId, string $failureCode = 'bundle_import_failed'): void {
-		DB::transaction(function () use ($runId, $failureCode): void {
-			$run = BundleImportRun::query()->lockForUpdate()->findOrFail($runId);
-			if (in_array($run->status, [BundleImportStatus::Succeeded, BundleImportStatus::Failed], TRUE)) {
-				return;
-			}
-
-			$run->update([
-				'status' => BundleImportStatus::Failed,
-				'active_slot' => NULL,
-				'failure_code' => $failureCode,
-				'failure_message' => 'Der Bundle-Import konnte nicht abgeschlossen werden.',
-				'result_summary' => $this->resultSummary($run, $failureCode),
-				'finished_at' => now(),
-			]);
-		});
-	}
-
-	public function reconcile(string $runId, string $batchId): void {
-		$batch = Bus::findBatch($batchId);
-		if ($batch !== NULL && ($batch->cancelled() || $batch->failedJobs > 0)) {
-			$this->fail($runId);
-		}
-	}
-
-	/**
-	 * Schließt die Lücke zwischen Batch-Dispatch und dem Speichern seiner ID.
-	 *
-	 * Ein schneller Worker kann den Batch vorher abschließen. Der verzögerte
-	 * Koordinator darf deshalb mehrfach laufen, ohne die Phase doppelt zu ändern.
-	 */
-	public function advanceCompletedBatch(string $runId, string $batchId): bool {
-		$batch = Bus::findBatch($batchId);
-		if ($batch === NULL || !$batch->finished()) {
-			return FALSE;
-		}
-
-		if ($batch->cancelled() || $batch->failedJobs > 0) {
-			$this->fail($runId);
-
-			return TRUE;
-		}
-
-		$this->phaseSucceeded($runId, $batchId);
-
-		return TRUE;
 	}
 
 	private function dispatchCurrentPhase(string $runId): void {
@@ -169,8 +89,8 @@ class BundleImportOrchestrator {
 	}
 
 	private function jobsFor(BundleImportRun $run): array {
-		$bundle = $run->bundle;
-		$version = $run->target_version;
+		$bundle    = $run->bundle;
+		$version   = $run->target_version;
 		$uninstall = $run->operation === BundleImportOperation::Uninstall;
 
 		return match ($run->phase) {
@@ -184,9 +104,9 @@ class BundleImportOrchestrator {
 	}
 
 	private function resourceJobs(BundleImportRun $run): array {
-		$source = $this->bundlesService->getLocalBundleData($run->bundle);
+		$source           = $this->bundlesService->getLocalBundleData($run->bundle);
 		$invalidFileUuids = $run->source_warnings['file_uuids'] ?? [];
-		$jobs = [];
+		$jobs             = [];
 		for ($page = 1; ($files = collect($this->bundlesService->getBundleFiles($source, $page)))->isNotEmpty(); $page++) {
 			foreach ($files as $file) {
 				if (in_array($file->uuid, $invalidFileUuids, TRUE)) {
@@ -200,9 +120,9 @@ class BundleImportOrchestrator {
 	}
 
 	private function materialJobs(BundleImportRun $run): array {
-		$source = $this->bundlesService->getLocalBundleData($run->bundle);
+		$source             = $this->bundlesService->getLocalBundleData($run->bundle);
 		$invalidMaterialIds = $run->source_warnings['material_ids'] ?? [];
-		$jobs = [];
+		$jobs               = [];
 		for ($page = 1; ($materials = collect($this->bundlesService->getBundleMaterials($source, $page)))->isNotEmpty(); $page++) {
 			foreach ($materials as $material) {
 				if (in_array((int)$material->id, $invalidMaterialIds, TRUE)) {
@@ -215,9 +135,36 @@ class BundleImportOrchestrator {
 		return $jobs;
 	}
 
-	private function storeBatch(string $runId, BundleImportPhase $phase, string $batchId): void {
-		$batchColumn = self::BATCH_COLUMNS[$phase->value];
-		BundleImportRun::query()->whereKey($runId)->update([$batchColumn => $batchId, 'current_batch_id' => $batchId]);
+	public function phaseSucceeded(string $runId, ?string $batchId = NULL): void {
+		$nextPhase = DB::transaction(function () use ($runId, $batchId): ?BundleImportPhase {
+			$run = BundleImportRun::query()->lockForUpdate()->findOrFail($runId);
+			if ($run->status !== BundleImportStatus::Running || ($batchId !== NULL && $run->current_batch_id !== $batchId)) {
+				return NULL;
+			}
+
+			$nextPhase = match ($run->phase) {
+				BundleImportPhase::Validating => BundleImportPhase::DeletingMaterials,
+				BundleImportPhase::DeletingMaterials => BundleImportPhase::DeletingResources,
+				BundleImportPhase::DeletingResources => BundleImportPhase::UpsertingResources,
+				BundleImportPhase::UpsertingResources => BundleImportPhase::UpsertingMaterials,
+				BundleImportPhase::UpsertingMaterials => BundleImportPhase::Finalizing,
+				default => NULL,
+			};
+
+			if ($nextPhase === NULL) {
+				return NULL;
+			}
+
+			$run->update(['phase' => $nextPhase, 'current_batch_id' => NULL]);
+
+			return $nextPhase;
+		});
+
+		if ($nextPhase === BundleImportPhase::Finalizing) {
+			$this->finalize($runId);
+		} elseif ($nextPhase !== NULL) {
+			$this->dispatchCurrentPhase($runId);
+		}
 	}
 
 	private function finalize(string $runId): void {
@@ -235,35 +182,88 @@ class BundleImportOrchestrator {
 			}
 
 			$run->update([
-				'status' => BundleImportStatus::Succeeded,
-				'active_slot' => NULL,
+				'status'         => BundleImportStatus::Succeeded,
+				'active_slot'    => NULL,
 				'result_summary' => $this->resultSummary($run),
-				'finished_at' => now(),
+				'finished_at'    => now(),
 			]);
 		});
 	}
 
 	private function resultSummary(BundleImportRun $run, ?string $failureCode = NULL): array {
-		$warnings = $run->source_warnings ?? [];
-		$materials = $this->batchSummary($run->materials_batch_id, count($warnings['material_ids'] ?? []));
-		$resources = $this->batchSummary($run->resources_batch_id, count($warnings['file_uuids'] ?? []));
+		$warnings         = $run->source_warnings ?? [];
+		$materials        = $this->batchSummary($run->materials_batch_id, count($warnings['material_ids'] ?? []));
+		$resources        = $this->batchSummary($run->resources_batch_id, count($warnings['file_uuids'] ?? []));
 		$removedMaterials = $this->batchSummary($run->delete_materials_batch_id);
 		$removedResources = $this->batchSummary($run->delete_resources_batch_id);
-		$failedJobs = $materials['failed'] + $resources['failed'] + $removedMaterials['failed'] + $removedResources['failed'];
+		$failedJobs       = $materials['failed'] + $resources['failed'] + $removedMaterials['failed'] + $removedResources['failed'];
 
 		return [
 			'materials' => $materials,
 			'resources' => $resources,
-			'removed' => ['materials' => $removedMaterials, 'resources' => $removedResources],
-			'errors' => ['count' => max($failedJobs, $failureCode === NULL ? 0 : 1), 'code' => $failureCode],
+			'removed'   => ['materials' => $removedMaterials, 'resources' => $removedResources],
+			'errors'    => ['count' => max($failedJobs, $failureCode === NULL ? 0 : 1), 'code' => $failureCode],
 		];
 	}
 
 	private function batchSummary(?string $batchId, int $skipped = 0): array {
-		$batch = $batchId === NULL ? NULL : Bus::findBatch($batchId);
+		$batch     = $batchId === NULL ? NULL : Bus::findBatch($batchId);
 		$processed = $batch?->processedJobs() ?? 0;
-		$failed = $batch?->failedJobs ?? 0;
+		$failed    = $batch?->failedJobs ?? 0;
 
 		return ['successful' => max($processed - $failed, 0), 'skipped' => $skipped, 'failed' => $failed];
+	}
+
+	public function fail(string $runId, string $failureCode = 'bundle_import_failed'): void {
+		DB::transaction(function () use ($runId, $failureCode): void {
+			$run = BundleImportRun::query()->lockForUpdate()->findOrFail($runId);
+			if (in_array($run->status, [BundleImportStatus::Succeeded, BundleImportStatus::Failed], TRUE)) {
+				return;
+			}
+
+			$run->update([
+				'status'          => BundleImportStatus::Failed,
+				'active_slot'     => NULL,
+				'failure_code'    => $failureCode,
+				'failure_message' => 'Der Bundle-Import konnte nicht abgeschlossen werden.',
+				'result_summary'  => $this->resultSummary($run, $failureCode),
+				'finished_at'     => now(),
+			]);
+		});
+	}
+
+	public function reconcile(string $runId, string $batchId): void {
+		$batch = Bus::findBatch($batchId);
+		if ($batch !== NULL && ($batch->cancelled() || $batch->failedJobs > 0)) {
+			$this->fail($runId);
+		}
+	}
+
+	private function storeBatch(string $runId, BundleImportPhase $phase, string $batchId): void {
+		$batchColumn = self::BATCH_COLUMNS[$phase->value];
+		BundleImportRun::query()->whereKey($runId)->update([$batchColumn => $batchId, 'current_batch_id' => $batchId]);
+	}
+
+	/**
+	 * Schließt die Lücke zwischen Batch-Dispatch und dem Speichern seiner ID.
+	 *
+	 * Ein schneller Worker kann den Batch vorher abschließen. Der verzögerte
+	 * Koordinator darf deshalb mehrfach laufen, ohne die Phase doppelt zu ändern.
+	 */
+	public function advanceCompletedBatch(string $runId, string $batchId): bool {
+		$batch = Bus::findBatch($batchId);
+		if ($batch === NULL || !$batch->finished()) {
+			return FALSE;
+		}
+
+		if ($batch->cancelled() || $batch->failedJobs > 0) {
+			$this->fail($runId);
+
+			return TRUE;
+		}
+
+		$this->phaseSucceeded($runId, $batchId);
+
+		return TRUE;
 	}
 }

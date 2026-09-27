@@ -3,8 +3,9 @@
 namespace App\Services\Bundles;
 
 use App\Models\Bundle;
-use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
+use Illuminate\Filesystem\FilesystemAdapter;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -201,7 +202,7 @@ class BundlesService {
 	/**
 	 * @param      $rootPath
 	 * @param null $filterUuid
-	 * @return \Illuminate\Support\Collection|FALSE|array FALSE if $uuid was not Found; array if $uuid was found, Collection for multiple bundles in one file
+	 * @return Collection|FALSE|array FALSE if $uuid was not Found; array if $uuid was found, Collection for multiple bundles in one file
 	 * @throws FileNotFoundException
 	 */
 	public function getBundles($rootPath, $filterUuid = NULL) {

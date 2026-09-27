@@ -19,7 +19,7 @@ class BundleImportRunService {
 		return Cache::lock('bundle-import:start:' . $bundle->id, 30)->block(5, function () use ($bundle, $operation, $targetVersion, $requestedBy): BundleImportRun {
 			return DB::transaction(function () use ($bundle, $operation, $targetVersion, $requestedBy): BundleImportRun {
 				$lockedBundle = Bundle::query()->lockForUpdate()->findOrFail($bundle->id);
-				$activeRun = BundleImportRun::query()
+				$activeRun    = BundleImportRun::query()
 					->where('bundle_id', $lockedBundle->id)
 					->whereNotNull('active_slot')
 					->lockForUpdate()
@@ -34,11 +34,11 @@ class BundleImportRunService {
 				}
 
 				return BundleImportRun::query()->create([
-					'bundle_id' => $lockedBundle->id,
-					'requested_by' => $requestedBy?->id,
-					'operation' => $operation,
+					'bundle_id'      => $lockedBundle->id,
+					'requested_by'   => $requestedBy?->id,
+					'operation'      => $operation,
 					'target_version' => $targetVersion,
-					'queue_name' => $this->bundleQueueService->getQueueName($lockedBundle),
+					'queue_name'     => $this->bundleQueueService->getQueueName($lockedBundle),
 				]);
 			});
 		});

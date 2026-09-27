@@ -5,6 +5,7 @@ namespace App\Services\Bundles;
 use App\Jobs\Bundle\FinishImportAfterUpdate;
 use App\Jobs\Bundle\VersionInterface;
 use App\Models\Bundle;
+use Exception;
 use Illuminate\Queue\Worker;
 use Illuminate\Support\Facades\DB;
 
@@ -70,7 +71,7 @@ class BundleQueueService {
 					return $data->getVersion();
 				}
 
-			} catch (\Exception $e) {
+			} catch (Exception $e) {
 
 			}
 		}
@@ -81,7 +82,7 @@ class BundleQueueService {
 
 	public function hasFinishImportAfterUpdateJob($queueName) {
 
-		$className = substr(strrchr(FinishImportAfterUpdate::class, "\\"), 1);;
+		$className = substr(strrchr(FinishImportAfterUpdate::class, "\\"), 1);
 		$job = DB::table('jobs')
 			->where('queue', '=', $queueName)
 			->where('payload', 'LIKE', "%{$className}%")

@@ -11,11 +11,11 @@ use Illuminate\Support\Facades\DB;
 
 class BundleSourceValidator {
 	private const REQUIRED_COLUMNS = [
-		'bundle' => ['id', 'uuid', 'name', 'version', 'author', 'description', 'icons'],
-		'material' => ['id', 'bundle_id', 'uuid', 'material_created', 'material_modified', 'title', 'description', 'author_name', 'author_rating', 'from_bot'],
-		'files' => ['id', 'uuid', 'file_created', 'file_modified', 'notes', 'is_public', 'file_path', 'public_path', 'original_basename', 'mime_type'],
+		'bundle'         => ['id', 'uuid', 'name', 'version', 'author', 'description', 'icons'],
+		'material'       => ['id', 'bundle_id', 'uuid', 'material_created', 'material_modified', 'title', 'description', 'author_name', 'author_rating', 'from_bot'],
+		'files'          => ['id', 'uuid', 'file_created', 'file_modified', 'notes', 'is_public', 'file_path', 'public_path', 'original_basename', 'mime_type'],
 		'material_files' => ['material_id', 'file_id'],
-		'meta_data' => ['material_id', 'type', 'value', 'relevance', 'custom_icon_path'],
+		'meta_data'      => ['material_id', 'type', 'value', 'relevance', 'custom_icon_path'],
 	];
 
 	public function __construct(
@@ -38,7 +38,7 @@ class BundleSourceValidator {
 		$this->assertMaterialDataIsValid($connection, $bundleInfo['id']);
 		$warnings = $this->referencedFileWarnings($bundle, $connection, $bundleInfo['id']);
 
-		$databasePath = $bundle->container_root . '/' . BundlesService::LOCAL_DB_FILENAME;
+		$databasePath      = $bundle->container_root . '/' . BundlesService::LOCAL_DB_FILENAME;
 		$sourceFingerprint = hash_file('sha256', $this->bundlesService->getBundleDisk()->path($databasePath));
 		if ($sourceFingerprint === FALSE) {
 			throw new BundleSourceValidationException('bundle_source_fingerprint_failed');
@@ -77,7 +77,7 @@ class BundleSourceValidator {
 
 	private function assertMaterialDataIsValid(ConnectionInterface $connection, int $sourceBundleId): void {
 		$invalidIds = $connection->select('SELECT id FROM material WHERE bundle_id=:bundle_id AND author_rating IS NOT NULL AND (author_rating < 0 OR author_rating > :max_rating)', ['bundle_id' => $sourceBundleId, 'max_rating' => Material::MAX_RATING]);
-		$metadata = $connection->select('SELECT material.id AS material_id, meta_data.type, meta_data.value FROM meta_data INNER JOIN material ON material.id=meta_data.material_id WHERE material.bundle_id=:bundle_id', ['bundle_id' => $sourceBundleId]);
+		$metadata   = $connection->select('SELECT material.id AS material_id, meta_data.type, meta_data.value FROM meta_data INNER JOIN material ON material.id=meta_data.material_id WHERE material.bundle_id=:bundle_id', ['bundle_id' => $sourceBundleId]);
 		foreach ($metadata as $metadataEntry) {
 			if (in_array($metadataEntry->type, array_keys(Keyword::AVAILABLE_TYPES), TRUE)) {
 				continue;
@@ -98,11 +98,11 @@ class BundleSourceValidator {
 	 * @return array{material_ids: list<int>, file_uuids: list<string>, summary: array{skipped_materials: int, skipped_resources: int, reasons: array<string, int>}}
 	 */
 	private function referencedFileWarnings(Bundle $bundle, ConnectionInterface $connection, int $sourceBundleId): array {
-		$files = $connection->select('SELECT files.uuid, files.file_path, files.mime_type, material.id AS material_id FROM files INNER JOIN material_files ON material_files.file_id=files.id INNER JOIN material ON material.id=material_files.material_id WHERE material.bundle_id=:bundle_id ORDER BY material.id ASC, files.id ASC', ['bundle_id' => $sourceBundleId]);
-		$disk = $this->bundlesService->getBundleDisk();
+		$files              = $connection->select('SELECT files.uuid, files.file_path, files.mime_type, material.id AS material_id FROM files INNER JOIN material_files ON material_files.file_id=files.id INNER JOIN material ON material.id=material_files.material_id WHERE material.bundle_id=:bundle_id ORDER BY material.id ASC, files.id ASC', ['bundle_id' => $sourceBundleId]);
+		$disk               = $this->bundlesService->getBundleDisk();
 		$invalidFileReasons = [];
 		$invalidMaterialIds = [];
-		$fileMaterialIds = [];
+		$fileMaterialIds    = [];
 
 		foreach ($files as $file) {
 			if (!$this->isSafeRelativePath($file->file_path)) {
@@ -110,10 +110,10 @@ class BundleSourceValidator {
 			}
 
 			$fileMaterialIds[$file->uuid][] = (int)$file->material_id;
-			$reason = $this->invalidFileReason($bundle, $disk, $file->file_path, $file->mime_type);
+			$reason                         = $this->invalidFileReason($bundle, $disk, $file->file_path, $file->mime_type);
 			if ($reason !== NULL) {
 				$invalidFileReasons[$file->uuid] = $reason;
-				$invalidMaterialIds[] = (int)$file->material_id;
+				$invalidMaterialIds[]            = (int)$file->material_id;
 			}
 		}
 
@@ -129,20 +129,13 @@ class BundleSourceValidator {
 
 		return [
 			'material_ids' => $invalidMaterialIds,
-			'file_uuids' => array_keys($skippedFileReasons),
-			'summary' => [
+			'file_uuids'   => array_keys($skippedFileReasons),
+			'summary'      => [
 				'skipped_materials' => count($invalidMaterialIds),
 				'skipped_resources' => count($skippedFileReasons),
-				'reasons' => array_count_values(array_values($skippedFileReasons)),
+				'reasons'           => array_count_values(array_values($skippedFileReasons)),
 			],
 		];
-	}
-
-	private function invalidFileReason(Bundle $bundle, $disk, string $filePath, string $mimeType): ?string {
-		if (!$disk->exists($bundle->container_root . '/' . BundlesService::BUNDLE_FILES_DIR . '/' . $filePath)) {
-			return 'missing_file';
-		}
-		return NULL;
 	}
 
 	private function isSafeRelativePath(string $path): bool {
@@ -152,5 +145,12 @@ class BundleSourceValidator {
 		}
 
 		return !collect(explode('/', $normalizedPath))->contains(fn(string $segment) => $segment === '' || $segment === '.' || $segment === '..');
+	}
+
+	private function invalidFileReason(Bundle $bundle, $disk, string $filePath, string $mimeType): ?string {
+		if (!$disk->exists($bundle->container_root . '/' . BundlesService::BUNDLE_FILES_DIR . '/' . $filePath)) {
+			return 'missing_file';
+		}
+		return NULL;
 	}
 }
