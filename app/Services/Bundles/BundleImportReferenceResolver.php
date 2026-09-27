@@ -3,17 +3,17 @@
 namespace App\Services\Bundles;
 
 use App\Models\Bibleverse;
-use App\Models\Keyword;
 use App\Models\Exceptions\InvalidKeywordTypeException;
+use App\Models\Keyword;
 use Illuminate\Support\Facades\Cache;
 use StevenBuehner\BibleVerseBundle\Interfaces\BibleVerseInterface;
 
 /**
- * Resolves shared reference data created while bundle materials are imported.
+ * Löst gemeinsam genutzte Referenzen beim Import von Bundle-Materialien auf.
  *
- * Material jobs may run in parallel. Creating a nested-set keyword changes the
- * complete keyword tree, while a Bibleverse has a database-wide natural key.
- * Existing references deliberately take the lock-free fast path.
+ * Material-Jobs laufen parallel. Ein neues Nested-Set-Schlagwort verändert den
+ * gesamten Baum; eine Bibelstelle hat einen datenbankweiten natürlichen Schlüssel.
+ * Bereits vorhandene Referenzen benötigen die Sperre dagegen nicht.
  */
 class BundleImportReferenceResolver {
 	/**
@@ -29,7 +29,7 @@ class BundleImportReferenceResolver {
 		return Cache::lock('bundle-import:keyword-tree', 30)->block(10, function () use ($value, $type) {
 			$keyword = Keyword::make($value, $type);
 
-			if (!$keyword->exists) {
+			if (! $keyword->exists) {
 				$keyword->saveOrFail();
 			}
 
@@ -44,7 +44,11 @@ class BundleImportReferenceResolver {
 	public function bibleverse(BibleVerseInterface $bibleverse, ?int $bibleId = null): Bibleverse {
 		[$from, $to] = Bibleverse::getFromToCombi($bibleverse);
 		$query = Bibleverse::query()->where(['from' => $from, 'to' => $to]);
-		$bibleId === null ? $query->whereNull('bible_id') : $query->where('bible_id', $bibleId);
+		if ($bibleId === null) {
+			$query->whereNull('bible_id');
+		} else {
+			$query->where('bible_id', $bibleId);
+		}
 		$existing = $query->first();
 
 		if ($existing !== null) {

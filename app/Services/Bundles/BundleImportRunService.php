@@ -15,6 +15,7 @@ class BundleImportRunService {
 	}
 
 	public function start(Bundle $bundle, BundleImportOperation $operation, ?string $targetVersion, ?User $requestedBy = NULL): BundleImportRun {
+		// Die Cache-Sperre schützt den Einstieg; die Datenbanksperre sichert den Zustand auch bei parallelen Workern.
 		return Cache::lock('bundle-import:start:' . $bundle->id, 30)->block(5, function () use ($bundle, $operation, $targetVersion, $requestedBy): BundleImportRun {
 			return DB::transaction(function () use ($bundle, $operation, $targetVersion, $requestedBy): BundleImportRun {
 				$lockedBundle = Bundle::query()->lockForUpdate()->findOrFail($bundle->id);
