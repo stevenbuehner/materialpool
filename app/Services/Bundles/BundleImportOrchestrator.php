@@ -5,9 +5,9 @@ namespace App\Services\Bundles;
 use App\Enums\BundleImportOperation;
 use App\Enums\BundleImportPhase;
 use App\Enums\BundleImportStatus;
+use App\Jobs\Bundle\AdvanceBundleImportPhase;
 use App\Jobs\Bundle\DeleteMaterialIfNeeded;
 use App\Jobs\Bundle\DeleteResourceIfNeeded;
-use App\Jobs\Bundle\AdvanceBundleImportPhase;
 use App\Jobs\Bundle\InsertOrUpdateMaterial;
 use App\Jobs\Bundle\InsertOrUpdateResource;
 use App\Jobs\Bundle\ValidateBundleSource;
@@ -111,11 +111,10 @@ class BundleImportOrchestrator {
 	}
 
 	/**
-	 * Advance a completed batch after its ID has been persisted on the run.
+	 * Schließt die Lücke zwischen Batch-Dispatch und dem Speichern seiner ID.
 	 *
-	 * Laravel invokes batch callbacks from queue workers. A very fast worker can
-	 * therefore finish between batch dispatch and storeBatch(). This coordinator
-	 * is deliberately idempotent and closes that window.
+	 * Ein schneller Worker kann den Batch vorher abschließen. Der verzögerte
+	 * Koordinator darf deshalb mehrfach laufen, ohne die Phase doppelt zu ändern.
 	 */
 	public function advanceCompletedBatch(string $runId, string $batchId): bool {
 		$batch = Bus::findBatch($batchId);
