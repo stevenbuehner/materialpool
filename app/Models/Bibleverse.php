@@ -95,6 +95,92 @@ class Bibleverse extends Model implements BibleVerseInterface {
 		return (int)sprintf('%03d%03d%03d', $bookId, $chapter, $verse);
 	}
 
+	/**
+	 * Get bookId
+	 *
+	 * @return int
+	 * @throws MultipleBooksExceptions
+	 */
+	public function getBookId() {
+		$from = $this->getFromBookId();
+		$to   = $this->getToBookId();
+
+		if ($from === $to) {
+			return $from;
+		} else {
+			throw new MultipleBooksExceptions("Using different books in from ({$from}) and to ({$to})");
+		}
+	}
+
+	public function getFromBookId() {
+		return self::getBookFromCombi($this->getAttribute(self::$fromColumn));
+	}
+
+	/**
+	 * @param int $chapterVerseNum
+	 * @return int
+	 */
+	protected static function getBookFromCombi($chapterVerseNum) {
+		return (int)floor($chapterVerseNum / 1000000);
+	}
+
+	public function getToBookId() {
+		return self::getBookFromCombi($this->getAttribute(self::$toColumn));
+	}
+
+	/**
+	 * Get fromChapter
+	 *
+	 * @return int
+	 */
+	public function getFromChapter() {
+		return (self::getChapterFromCombi($this->getAttribute(self::$fromColumn)));
+	}
+
+	/**
+	 * @param int $chapterVerseNum
+	 * @return int
+	 */
+	protected static function getChapterFromCombi($chapterVerseNum) {
+		// cut off bookId and then cut of verses
+		return (int)floor(($chapterVerseNum % 1000000) / 1000);
+	}
+
+	/**
+	 * Get fromVerse
+	 *
+	 * @return int
+	 */
+	public function getFromVerse() {
+		return (self::getVerseFromCombi($this->getAttribute(self::$fromColumn)));
+	}
+
+	/**
+	 * @param int $chapterVerseNum
+	 * @return int
+	 */
+	protected static function getVerseFromCombi($chapterVerseNum) {
+		return (int)($chapterVerseNum % 1000);
+	}
+
+	/**
+	 * Get toChapter
+	 *
+	 * @return int
+	 */
+	public function getToChapter() {
+		return (self::getChapterFromCombi($this->getAttribute(self::$toColumn)));
+	}
+
+	/**
+	 * Get toVerse
+	 *
+	 * @return int
+	 */
+	public function getToVerse() {
+		return (self::getVerseFromCombi($this->getAttribute(self::$toColumn)));
+	}
+
 	public static function makeFromBibleverseInterface(BibleVerseInterface $bibleVerse, $bibleId = NULL) {
 		return new self(self::getBibleverseCreateData($bibleVerse, $bibleId));
 	}
@@ -178,18 +264,6 @@ class Bibleverse extends Model implements BibleVerseInterface {
 		return $this->getFromBookId();
 	}
 
-	public function getFromBookId() {
-		return self::getBookFromCombi($this->getAttribute(self::$fromColumn));
-	}
-
-	/**
-	 * @param int $chapterVerseNum
-	 * @return int
-	 */
-	protected static function getBookFromCombi($chapterVerseNum) {
-		return (int)floor($chapterVerseNum / 1000000);
-	}
-
 	public function setFromBookIdAttribute(int $fromBookId) {
 		$this->setFromBookId($fromBookId);
 	}
@@ -200,41 +274,6 @@ class Bibleverse extends Model implements BibleVerseInterface {
 
 	protected function setFromCombined($bookId, $chapter, $verse) {
 		$this->setAttribute(self::$fromColumn, self::getCombi($bookId, $chapter, $verse));
-	}
-
-	/**
-	 * Get fromChapter
-	 *
-	 * @return int
-	 */
-	public function getFromChapter() {
-		return (self::getChapterFromCombi($this->getAttribute(self::$fromColumn)));
-	}
-
-	/**
-	 * @param int $chapterVerseNum
-	 * @return int
-	 */
-	protected static function getChapterFromCombi($chapterVerseNum) {
-		// cut off bookId and then cut of verses
-		return (int)floor(($chapterVerseNum % 1000000) / 1000);
-	}
-
-	/**
-	 * Get fromVerse
-	 *
-	 * @return int
-	 */
-	public function getFromVerse() {
-		return (self::getVerseFromCombi($this->getAttribute(self::$fromColumn)));
-	}
-
-	/**
-	 * @param int $chapterVerseNum
-	 * @return int
-	 */
-	protected static function getVerseFromCombi($chapterVerseNum) {
-		return (int)($chapterVerseNum % 1000);
 	}
 
 	public function getFromChapterAttribute() {
@@ -275,10 +314,6 @@ class Bibleverse extends Model implements BibleVerseInterface {
 		return $this->getToBookId();
 	}
 
-	public function getToBookId() {
-		return self::getBookFromCombi($this->getAttribute(self::$toColumn));
-	}
-
 	public function setToBookIdAttribute(int $toBookId) {
 		$this->setToBookId($toBookId);
 	}
@@ -301,15 +336,6 @@ class Bibleverse extends Model implements BibleVerseInterface {
 		return $this->getToChapter();
 	}
 
-	/**
-	 * Get toChapter
-	 *
-	 * @return int
-	 */
-	public function getToChapter() {
-		return (self::getChapterFromCombi($this->getAttribute(self::$toColumn)));
-	}
-
 	public function setToChapterAttribute(int $toChapter) {
 		$this->setToChapter($toChapter);
 	}
@@ -321,15 +347,6 @@ class Bibleverse extends Model implements BibleVerseInterface {
 	 */
 	public function setToChapter($toChapter) {
 		$this->setToCombined($this->getToBookId(), $toChapter, $this->getToVerse());
-	}
-
-	/**
-	 * Get toVerse
-	 *
-	 * @return int
-	 */
-	public function getToVerse() {
-		return (self::getVerseFromCombi($this->getAttribute(self::$toColumn)));
 	}
 
 	public function getToVerseAttribute() {
@@ -361,23 +378,6 @@ class Bibleverse extends Model implements BibleVerseInterface {
 	public function setBookId($bookId) {
 		$this->setFromBookId($bookId);
 		$this->setToBookId($bookId);
-	}
-
-	/**
-	 * Get bookId
-	 *
-	 * @return int
-	 * @throws MultipleBooksExceptions
-	 */
-	public function getBookId() {
-		$from = $this->getFromBookId();
-		$to   = $this->getToBookId();
-
-		if ($from === $to) {
-			return $from;
-		} else {
-			throw new MultipleBooksExceptions("Using different books in from ({$from}) and to ({$to})");
-		}
 	}
 
 	/**

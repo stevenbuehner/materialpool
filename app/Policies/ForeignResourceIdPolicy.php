@@ -2,7 +2,6 @@
 
 namespace App\Policies;
 
-use App\Models\ForeignMaterialId;
 use App\Models\ForeignResourceId;
 use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
@@ -19,6 +18,14 @@ class ForeignResourceIdPolicy {
 	 */
 	public function view(User $user, ForeignResourceId $foreignResourceId) {
 		return $this->matchOrDeny($user, $foreignResourceId);
+	}
+
+	protected function matchOrDeny(User $user, ForeignResourceId $foreignResourceId) {
+		if ($user->id === $foreignResourceId->user_id) {
+			return TRUE;
+		} else {
+			$this->deny('The signed in user does not match the foreignResourceIds user.');
+		}
 	}
 
 	/**
@@ -51,13 +58,5 @@ class ForeignResourceIdPolicy {
 	 */
 	public function delete(User $user, ForeignResourceId $foreignResourceId) {
 		return $this->matchOrDeny($user, $foreignResourceId);
-	}
-
-	protected function matchOrDeny(User $user, ForeignResourceId $foreignResourceId) {
-		if ($user->id === $foreignResourceId->user_id) {
-			return TRUE;
-		} else {
-			$this->deny('The signed in user does not match the foreignResourceIds user.');
-		}
 	}
 }

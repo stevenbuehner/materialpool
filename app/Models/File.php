@@ -5,9 +5,12 @@ namespace App\Models;
 use App\Services\TagExtraction\ResourceHandles\FileExifHandler;
 use App\Services\TagExtraction\ResourceHandles\FileNameHandler;
 use App\Services\TagExtraction\ResourceHandles\HandlerInterface;
+use Illuminate\Contracts\Filesystem\Filesystem;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use InvalidArgumentException;
 use League\Flysystem\UnableToRetrieveMetadata;
 use Parental\HasChildren;
 
@@ -22,9 +25,9 @@ class File extends Resource {
 	use HasFactory;
 	use HasChildren;
 
-	protected static $singleTableType       = 'file';
-	protected static $ORIGINAL_FILENAME     = 'of';
-	protected $childTypes = [
+	protected static $singleTableType   = 'file';
+	protected static $ORIGINAL_FILENAME = 'of';
+	protected        $childTypes        = [
 		'file'  => File::class,
 		'audio' => AudioFile::class,
 		'video' => VideoFile::class,
@@ -34,14 +37,6 @@ class File extends Resource {
 	];
 
 	protected $cachedData = [];
-
-	protected static function booted(): void {
-		parent::booted();
-
-		static::addGlobalScope('file_types', function ($query): void {
-			$query->whereIn($query->getModel()->getTable().'.type', array_keys((new static())->getChildTypes()));
-		});
-	}
 
 	public function __construct(array $attributes = []) {
 		parent::__construct($attributes);
@@ -61,6 +56,14 @@ class File extends Resource {
 		return $rules;
 	}
 
+	protected static function booted(): void {
+		parent::booted();
+
+		static::addGlobalScope('file_types', function ($query): void {
+			$query->whereIn($query->getModel()->getTable() . '.type', array_keys((new static())->getChildTypes()));
+		});
+	}
+
 	/**
 	 * @return HandlerInterface[]
 	 */
@@ -78,35 +81,6 @@ class File extends Resource {
 
 	public function getOriginalFilenameAttribute() {
 		return $this->getOption(self::$ORIGINAL_FILENAME, NULL);
-	}
-
-	protected function logUnavailableLocalMetadata(string $metadataType): void {
-		Log::warning('Unable to retrieve local file metadata.', [
-			'resource_id' => $this->getKey(),
-			'metadata'    => $metadataType,
-		]);
-	}
-
-	protected function getLocalMimeTypeOrFallback(): string {
-		if (!$this->hasLocalFile()) {
-			return '';
-		}
-
-		try {
-			$mimeType = $this->getLocalMimeType();
-		} catch (FileNotFoundException|UnableToRetrieveMetadata $e) {
-			$this->logUnavailableLocalMetadata('mime_type');
-
-			return '';
-		}
-
-		if (!is_string($mimeType) || $mimeType === '') {
-			$this->logUnavailableLocalMetadata('mime_type');
-
-			return '';
-		}
-
-		return $mimeType;
 	}
 
 	public function setLocalStorageAndPath($storageName, $path) {
@@ -135,14 +109,124 @@ class File extends Resource {
 	}
 
 	/**
-	 * @return \Illuminate\Contracts\Filesystem\Filesystem|\Illuminate\Filesystem\FilesystemAdapter
+	 * @return false|resource
+	 * @throws FileNotFoundException
+	 */
+	public function getLocalFileStream() {
+		return $this->getLocalDisk()->readStream($this->getLocalFilePath());
+	}
+
+	public function deleteLocalFile() {
+		try {
+			$result = $this->getLocalDisk()->delete($this->getLocalFilePath());
+		} catch (FileNotFoundException $e) {
+			$result = FALSE;
+		}
+
+		$this->setAttribute('local_path', NULL);
+		$this->setAttribute('original_filename', '');
+
+		return $result;
+	}
+
+	public function getLocalLastModified() {
+		return $this->getLocalDisk()->lastModified($this->getLocalFilePath());
+	}
+
+	public function getLocalUrl() {
+		return $this->getLocalDisk()->url($this->getLocalFilePath());
+	}
+
+	/**
+	 * @return FilesystemAdapter
+	 */
+	public function getLocalSize() {
+		return $this->getLocalDisk()->size($this->getLocalFilePath());
+	}
+
+	/**
+	 * Returns the absolute SYSTEM-File-Path
+	 *
+	 * @return FALSE|string
+	 */
+	public function getAbsoluteLocalPath() {
+		list($storage, $path) = $this->getLocalStorageAndPath();
+
+		if (config("filesystems.disks.$storage.driver") === 'local') {
+			return $this->getLocalDisk()->path($path);
+		}
+
+		return FALSE;
+	}
+
+	public function localFileExists() {
+		$disk = $this->getLocalDisk();
+		$path = $this->getLocalFilePath();
+
+		return $disk->exists($path);
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function hasRemoteFile() {
+		return !empty($this->getAttribute('remote_path'));
+	}
+
+	public function getRemoteFileStream() {
+		// Todo: Never tested so far!
+		if (strpos($this->remote_path, 'http') == 0) {
+			// Http-Request
+			$stream = fopen($this->remote_path, 'r');
+
+			return $stream;
+		}
+
+		return FALSE;
+	}
+
+	protected function getLocalMimeTypeOrFallback(): string {
+		if (!$this->hasLocalFile()) {
+			return '';
+		}
+
+		try {
+			$mimeType = $this->getLocalMimeType();
+		} catch (FileNotFoundException|UnableToRetrieveMetadata $e) {
+			$this->logUnavailableLocalMetadata('mime_type');
+
+			return '';
+		}
+
+		if (!is_string($mimeType) || $mimeType === '') {
+			$this->logUnavailableLocalMetadata('mime_type');
+
+			return '';
+		}
+
+		return $mimeType;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function hasLocalFile() {
+		return !empty($this->getAttribute('local_path'));
+	}
+
+	public function getLocalMimeType() {
+		return $this->getLocalDisk()->mimeType($this->getLocalFilePath());
+	}
+
+	/**
+	 * @return Filesystem|FilesystemAdapter
 	 */
 	public function getLocalDisk() {
 		list($storage, $path) = $this->getLocalStorageAndPath();
 
 		try {
 			return Storage::disk($storage);
-		} catch (\InvalidArgumentException $e) {
+		} catch (InvalidArgumentException $e) {
 			// Wenn der gegebene $storage-String nicht existiert
 			Log::error('Given Storage-Name in DB does not exist.', ['id' => $this->id]);
 			throw $e;
@@ -183,92 +267,11 @@ class File extends Resource {
 		return $path;
 	}
 
-	/**
-	 * @return false|resource
-	 * @throws FileNotFoundException
-	 */
-	public function getLocalFileStream() {
-		return $this->getLocalDisk()->readStream($this->getLocalFilePath());
-	}
-
-	public function deleteLocalFile() {
-		try {
-			$result = $this->getLocalDisk()->delete($this->getLocalFilePath());
-		} catch (FileNotFoundException $e) {
-			$result = FALSE;
-		}
-
-		$this->setAttribute('local_path', NULL);
-		$this->setAttribute('original_filename', '');
-
-		return $result;
-	}
-
-	public function getLocalMimeType() {
-		return $this->getLocalDisk()->mimeType($this->getLocalFilePath());
-	}
-
-	public function getLocalLastModified() {
-		return $this->getLocalDisk()->lastModified($this->getLocalFilePath());
-	}
-
-	public function getLocalUrl() {
-		return $this->getLocalDisk()->url($this->getLocalFilePath());
-	}
-
-	/**
-	 * @return \Illuminate\Filesystem\FilesystemAdapter
-	 */
-	public function getLocalSize() {
-		return $this->getLocalDisk()->size($this->getLocalFilePath());
-	}
-
-	/**
-	 * Returns the absolute SYSTEM-File-Path
-	 *
-	 * @return FALSE|string
-	 */
-	public function getAbsoluteLocalPath() {
-		list($storage, $path) = $this->getLocalStorageAndPath();
-
-		if (config("filesystems.disks.$storage.driver") === 'local') {
-			return $this->getLocalDisk()->path($path);
-		}
-
-		return FALSE;
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function hasLocalFile() {
-		return !empty($this->getAttribute('local_path'));
-	}
-
-	public function localFileExists() {
-		$disk = $this->getLocalDisk();
-		$path = $this->getLocalFilePath();
-
-		return $disk->exists($path);
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function hasRemoteFile() {
-		return !empty($this->getAttribute('remote_path'));
-	}
-
-	public function getRemoteFileStream() {
-		// Todo: Never tested so far!
-		if (strpos($this->remote_path, 'http') == 0) {
-			// Http-Request
-			$stream = fopen($this->remote_path, 'r');
-
-			return $stream;
-		}
-
-		return FALSE;
+	protected function logUnavailableLocalMetadata(string $metadataType): void {
+		Log::warning('Unable to retrieve local file metadata.', [
+			'resource_id' => $this->getKey(),
+			'metadata'    => $metadataType,
+		]);
 	}
 
 

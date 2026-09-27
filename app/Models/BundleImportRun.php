@@ -14,9 +14,8 @@ class BundleImportRun extends Model {
 	use HasFactory;
 	use HasUuids;
 
-	protected $keyType = 'string';
-	public $incrementing = FALSE;
-
+	public    $incrementing = FALSE;
+	protected $keyType      = 'string';
 	protected $fillable = [
 		'bundle_id',
 		'requested_by',
@@ -44,24 +43,24 @@ class BundleImportRun extends Model {
 	];
 
 	protected $attributes = [
-		'status' => BundleImportStatus::Pending->value,
-		'phase' => BundleImportPhase::Pending->value,
-		'active_slot' => 1,
-		'expected_jobs' => 0,
+		'status'         => BundleImportStatus::Pending->value,
+		'phase'          => BundleImportPhase::Pending->value,
+		'active_slot'    => 1,
+		'expected_jobs'  => 0,
 		'processed_jobs' => 0,
 	];
 
 	protected $casts = [
-		'operation' => BundleImportOperation::class,
-		'status' => BundleImportStatus::class,
-		'phase' => BundleImportPhase::class,
-		'active_slot' => 'integer',
-		'expected_jobs' => 'integer',
-		'processed_jobs' => 'integer',
+		'operation'       => BundleImportOperation::class,
+		'status'          => BundleImportStatus::class,
+		'phase'           => BundleImportPhase::class,
+		'active_slot'     => 'integer',
+		'expected_jobs'   => 'integer',
+		'processed_jobs'  => 'integer',
 		'source_warnings' => 'array',
-		'result_summary' => 'array',
-		'started_at' => 'datetime',
-		'finished_at' => 'datetime',
+		'result_summary'  => 'array',
+		'started_at'      => 'datetime',
+		'finished_at'     => 'datetime',
 	];
 
 	public function bundle(): BelongsTo {

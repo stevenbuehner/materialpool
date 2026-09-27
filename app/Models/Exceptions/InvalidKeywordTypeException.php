@@ -8,5 +8,7 @@
 namespace App\Models\Exceptions;
 
 
-class InvalidKeywordTypeException extends \Exception {
+use Exception;
+
+class InvalidKeywordTypeException extends Exception {
 }

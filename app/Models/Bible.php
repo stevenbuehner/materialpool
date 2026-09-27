@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use DateTime;
 use Illuminate\Database\Eloquent\Concerns\HasTimestamps;
 use Illuminate\Database\Eloquent\Model;
 
@@ -13,7 +14,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $uuid
  * @property string $title
  * @property string $decription
- * @property \DateTime $ersion_date
+ * @property DateTime $ersion_date
  * @property string creator
  * @property string language
  * @property string rights

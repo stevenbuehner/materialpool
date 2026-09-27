@@ -8,5 +8,7 @@
 namespace App\Models\Exceptions;
 
 
-class MultipleBooksExceptions extends \Exception {
+use Exception;
+
+class MultipleBooksExceptions extends Exception {
 }

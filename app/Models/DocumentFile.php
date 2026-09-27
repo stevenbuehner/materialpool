@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Models\Traits\PageCountTrait;
 use App\Services\PreviewGeneration\Generators\DocumentPreviewGenerator;
+use App\Services\PreviewGeneration\Interfaces\PreviewGeneratorInterface;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Parental\HasParent;
 
@@ -33,7 +34,7 @@ class DocumentFile extends File {
 
 	/**
 	 * @param string $size
-	 * @return \App\Services\PreviewGeneration\Interfaces\PreviewGeneratorInterface|mixed
+	 * @return PreviewGeneratorInterface|mixed
 	 */
 	public function getPreviewGenerator($size = 'large') {
 		return resolve(DocumentPreviewGenerator::class);

@@ -8,5 +8,7 @@
 namespace App\Models\Exceptions;
 
 
-class InvalidParameterCombinationException extends \Exception {
+use Exception;
+
+class InvalidParameterCombinationException extends Exception {
 }

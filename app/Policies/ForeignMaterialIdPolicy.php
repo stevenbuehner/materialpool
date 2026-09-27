@@ -20,6 +20,14 @@ class ForeignMaterialIdPolicy {
 		return $this->matchOrDeny($user, $foreignMaterialId);
 	}
 
+	protected function matchOrDeny(User $user, ForeignMaterialId $foreignMaterialId) {
+		if ($user->id === $foreignMaterialId->user_id) {
+			return TRUE;
+		} else {
+			$this->deny('The signed in user does not match the foreignMaterialIds user.');
+		}
+	}
+
 	/**
 	 * Determine whether the user can create foreignMaterialIds.
 	 *
@@ -50,13 +58,5 @@ class ForeignMaterialIdPolicy {
 	 */
 	public function delete(User $user, ForeignMaterialId $foreignMaterialId) {
 		return $this->matchOrDeny($user, $foreignMaterialId);
-	}
-
-	protected function matchOrDeny(User $user, ForeignMaterialId $foreignMaterialId) {
-		if ($user->id === $foreignMaterialId->user_id) {
-			return TRUE;
-		} else {
-			$this->deny('The signed in user does not match the foreignMaterialIds user.');
-		}
 	}
 }

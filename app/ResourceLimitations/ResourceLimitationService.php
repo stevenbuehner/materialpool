@@ -10,6 +10,8 @@ namespace App\ResourceLimitations;
 
 use App\Models\Material;
 use App\Models\Resource;
+use Error;
+use Exception;
 
 class ResourceLimitationService {
 
@@ -50,7 +52,7 @@ class ResourceLimitationService {
 		try {
 			/** @var ResourceLimitationInterface $limitation */
 			$limitation = new  $className($data['value']);
-		} catch (\Error $e) {
+		} catch (Error $e) {
 			throw new InvalidLimitationRequestException('Could not create Limitation', 0, $e);
 		}
 
@@ -70,14 +72,14 @@ class ResourceLimitationService {
 	 *
 	 * @param ResourceLimitationInterface $limitation
 	 * @return string
-	 * @throws \Exception
+	 * @throws Exception
 	 */
 	public function getLimitationType(ResourceLimitationInterface $limitation) {
 		$basename = class_basename(get_class($limitation));
 		$type     = preg_replace('~^([a-zA-Z]+)Limitation$~', '$1', $basename);
 
 		if ($type == $basename) {
-			throw new \Exception('Invalid LimitationName');
+			throw new Exception('Invalid LimitationName');
 		}
 
 		return $type;

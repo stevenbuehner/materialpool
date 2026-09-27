@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use App\Support\Authorization\SystemPermissions;
 use App\Services\Bundles\BundlePermissionService;
+use App\Support\Authorization\SystemPermissions;
 use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -59,7 +59,7 @@ class Material extends Model {
 		'rating'      => NULL,
 		'description' => '',
 		'from_bot'    => FALSE,
-		'is_public'  => TRUE
+		'is_public'   => TRUE
 	];
 
 	protected $fillable = [
@@ -73,37 +73,6 @@ class Material extends Model {
 	protected $hidden = [
 		'author_id'
 	];
-
-	#[Scope]
-	protected function visibleTo(Builder $query, User $user): void {
-		if (!$user->isActive()) {
-			$query->whereRaw('1 = 0');
-
-			return;
-		}
-
-		if ($user->isSuperAdmin() || $user->can(SystemPermissions::MATERIALS_VIEW_ALL)) {
-			return;
-		}
-
-		$readableBundleIds = app(BundlePermissionService::class)->readableBundleIds($user);
-
-		$query->where(function (Builder $query) use ($user, $readableBundleIds): void {
-			$query->whereHas('foreignIds', fn(Builder $foreignIds) => $foreignIds
-				->whereNotNull('bundle_id')
-				->whereIn('bundle_id', $readableBundleIds)
-			)->orWhere(function (Builder $query) use ($user): void {
-				$query->whereDoesntHave('foreignIds', fn(Builder $foreignIds) => $foreignIds->whereNotNull('bundle_id'))
-					->where(function (Builder $query) use ($user): void {
-						$query->where('materials.created_by', $user->id);
-
-						if ($user->can(SystemPermissions::MATERIALS_VIEW_PUBLIC)) {
-							$query->orWhere('materials.is_public', true);
-						}
-					});
-			});
-		});
-	}
 
 	public function __construct(array $attributes = []) {
 		parent::__construct($attributes);
@@ -221,6 +190,37 @@ class Material extends Model {
 
 	public function userRankings(): HasMany {
 		return $this->hasMany(MaterialUserRanking::class, 'material_id');
+	}
+
+	#[Scope]
+	protected function visibleTo(Builder $query, User $user): void {
+		if (!$user->isActive()) {
+			$query->whereRaw('1 = 0');
+
+			return;
+		}
+
+		if ($user->isSuperAdmin() || $user->can(SystemPermissions::MATERIALS_VIEW_ALL)) {
+			return;
+		}
+
+		$readableBundleIds = app(BundlePermissionService::class)->readableBundleIds($user);
+
+		$query->where(function (Builder $query) use ($user, $readableBundleIds): void {
+			$query->whereHas('foreignIds', fn(Builder $foreignIds) => $foreignIds
+				->whereNotNull('bundle_id')
+				->whereIn('bundle_id', $readableBundleIds)
+			)->orWhere(function (Builder $query) use ($user): void {
+				$query->whereDoesntHave('foreignIds', fn(Builder $foreignIds) => $foreignIds->whereNotNull('bundle_id'))
+					->where(function (Builder $query) use ($user): void {
+						$query->where('materials.created_by', $user->id);
+
+						if ($user->can(SystemPermissions::MATERIALS_VIEW_PUBLIC)) {
+							$query->orWhere('materials.is_public', TRUE);
+						}
+					});
+			});
+		});
 	}
 
 

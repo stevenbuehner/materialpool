@@ -2,11 +2,12 @@
 
 namespace App\Models\Traits;
 
+use Exception;
 use Illuminate\Database\Eloquent\Builder;
 
 /**
  */
-Trait CompositeKeysTrait {
+trait CompositeKeysTrait {
 	/**
 	 * Execute a query for a single record by ID.
 	 *
@@ -38,8 +39,8 @@ Trait CompositeKeysTrait {
 	/**
 	 * Set the keys for a save update query.
 	 *
-	 * @param \Illuminate\Database\Eloquent\Builder $query
-	 * @return \Illuminate\Database\Eloquent\Builder
+	 * @param Builder $query
+	 * @return Builder
 	 */
 	protected function setKeysForSaveQuery(Builder $query) {
 		foreach ($this->getKeyName() as $key) {
@@ -47,7 +48,7 @@ Trait CompositeKeysTrait {
 			if (isset($this->$key)) {
 				$query->where($key, '=', $this->$key);
 			} else {
-				throw new \Exception(__METHOD__ . 'Missing part of the primary key: ' . $key);
+				throw new Exception(__METHOD__ . 'Missing part of the primary key: ' . $key);
 			}
 		}
 

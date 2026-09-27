@@ -2,16 +2,18 @@
 
 namespace App\Models;
 
+use App\Services\Bundles\BundlePermissionService;
 use App\Services\PreviewGeneration\Generators\NoPreviewGenerator;
 use App\Services\PreviewGeneration\Interfaces\PreviewGeneratorInterface;
 use App\Services\TagExtraction\ResourceHandles\HandlerInterface;
 use App\Support\Authorization\SystemPermissions;
-use App\Services\Bundles\BundlePermissionService;
 use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Parental\HasChildren;
 
 /**
@@ -37,9 +39,9 @@ class Resource extends Model {
 	use HasFactory;
 	use HasChildren;
 
-	static           $allResourceTypeKeys   = ['res', 'link', 'file', 'text', 'book', 'audio', 'video', 'image', 'doc'];
-	protected static $singleTableType       = 'res';
-	protected $childTypes = [
+	static           $allResourceTypeKeys = ['res', 'link', 'file', 'text', 'book', 'audio', 'video', 'image', 'doc'];
+	protected static $singleTableType     = 'res';
+	protected        $childTypes          = [
 		'res'   => Resource::class,
 		'link'  => Url::class,
 		'file'  => File::class,
@@ -70,34 +72,6 @@ class Resource extends Model {
 
 	protected $hidden = ['options', 'local_path'];
 
-	#[Scope]
-	protected function visibleTo(Builder $query, User $user): void {
-		if (!$user->isActive()) {
-			$query->whereRaw('1 = 0');
-
-			return;
-		}
-
-		if ($user->isSuperAdmin() || $user->can(SystemPermissions::RESOURCES_VIEW_ALL)) {
-			return;
-		}
-
-		$readableBundleIds = app(BundlePermissionService::class)->readableBundleIds($user);
-
-		$query->where(function (Builder $query) use ($user, $readableBundleIds): void {
-			$query->whereHas('foreignIds', fn(Builder $foreignIds) => $foreignIds
-				->whereNotNull('bundle_id')
-				->whereIn('bundle_id', $readableBundleIds)
-			)->orWhere(function (Builder $query) use ($user): void {
-				$query->whereDoesntHave('foreignIds', fn(Builder $foreignIds) => $foreignIds->whereNotNull('bundle_id'))
-					->where(fn(Builder $query) => $query
-						->where('resources.created_by', $user->id)
-						->orWhere('resources.is_public', true)
-					);
-			});
-		});
-	}
-
 	public function __construct(array $attributes = []) {
 		$this->options   = [];
 		$this->is_public = FALSE;
@@ -106,20 +80,14 @@ class Resource extends Model {
 		parent::__construct($attributes);
 	}
 
-	protected static function booted(): void {
-		static::creating(function (Resource $resource): void {
-			$resource->setAttribute('type', static::$singleTableType);
-		});
-	}
-
-	public static function getSingleTableTypeMap(): array {
-		return (new self())->getChildTypes();
-	}
-
 	public static function getSingleTableClass($key) {
 		$map = self::getSingleTableTypeMap();
 
 		return isset($map[$key]) ? $map[$key] : NULL;
+	}
+
+	public static function getSingleTableTypeMap(): array {
+		return (new self())->getChildTypes();
 	}
 
 	public static function getValidationRules() {
@@ -131,6 +99,12 @@ class Resource extends Model {
 
 		// Type, local_path, content_hash, options, file dürfen nicht berücksichtigt werden ... das sind keine Daten, die gesetzt werden sollen an dieser Stelle
 		// 'type'=> 'in:' . join(',', array_keys(self::getSingleTableTypeMap())),
+	}
+
+	protected static function booted(): void {
+		static::creating(function (Resource $resource): void {
+			$resource->setAttribute('type', static::$singleTableType);
+		});
 	}
 
 	public function toArray() {
@@ -163,7 +137,7 @@ class Resource extends Model {
 	}
 
 	/**
-	 * @return \Illuminate\Database\Eloquent\Relations\HasMany
+	 * @return HasMany
 	 */
 	public function foreignIds() {
 		return $this->hasMany(ForeignResourceId::class, 'resource_id');
@@ -193,12 +167,40 @@ class Resource extends Model {
 	}
 
 	/**
-	 * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+	 * @return BelongsToMany
 	 */
 	public function materials() {
 		return $this->belongsToMany(Material::class, 'material_resource', 'resource_id', 'material_id')
 			->withPivot('limitation')
 			->using(MaterialResource::class);
+	}
+
+	#[Scope]
+	protected function visibleTo(Builder $query, User $user): void {
+		if (!$user->isActive()) {
+			$query->whereRaw('1 = 0');
+
+			return;
+		}
+
+		if ($user->isSuperAdmin() || $user->can(SystemPermissions::RESOURCES_VIEW_ALL)) {
+			return;
+		}
+
+		$readableBundleIds = app(BundlePermissionService::class)->readableBundleIds($user);
+
+		$query->where(function (Builder $query) use ($user, $readableBundleIds): void {
+			$query->whereHas('foreignIds', fn(Builder $foreignIds) => $foreignIds
+				->whereNotNull('bundle_id')
+				->whereIn('bundle_id', $readableBundleIds)
+			)->orWhere(function (Builder $query) use ($user): void {
+				$query->whereDoesntHave('foreignIds', fn(Builder $foreignIds) => $foreignIds->whereNotNull('bundle_id'))
+					->where(fn(Builder $query) => $query
+						->where('resources.created_by', $user->id)
+						->orWhere('resources.is_public', TRUE)
+					);
+			});
+		});
 	}
 
 	/**

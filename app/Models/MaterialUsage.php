@@ -3,15 +3,16 @@
 namespace App\Models;
 
 use Carbon\Carbon;
+use DateTime;
 use Illuminate\Database\Eloquent\Model;
 
 /**
  * @property string $place
  * @property string $reason
  * @property int $used_by_id
- * @property \DateTime $datetime
- * @property \DateTime $created_at
- * @property \DateTime $updated_at
+ * @property DateTime $datetime
+ * @property DateTime $created_at
+ * @property DateTime $updated_at
  * @property int $material_id
  * @property int $created_by
  * @property int $updated_by
@@ -42,6 +43,10 @@ class MaterialUsage extends Model {
 		'created_by', 'updated_by', 'created_at', 'updated_at', 'used_by_id'
 	];
 
+	public function __construct(array $attributes = []) {
+		parent::__construct($attributes);
+	}
+
 	public function setPlaceAttribute($place) {
 		$this->attributes['place'] = (string)$place;
 	}
@@ -51,12 +56,8 @@ class MaterialUsage extends Model {
 	}
 
 	public function setDatetimeAttribute($datetime) {
-		$date = new Carbon($datetime);
+		$date                         = new Carbon($datetime);
 		$this->attributes['datetime'] = $date->toDateTimeString();
-	}
-
-	public function __construct(array $attributes = []) {
-		parent::__construct($attributes);
 	}
 
 	public function usedBy() {

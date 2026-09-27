@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * Class ForeignMaterialId
@@ -36,7 +37,7 @@ class ForeignMaterialId extends Model {
 	}
 
 	public static function scopeKey(?int $bundleId, ?int $userId): string {
-		return $bundleId !== null ? "bundle:{$bundleId}" : "user:{$userId}";
+		return $bundleId !== NULL ? "bundle:{$bundleId}" : "user:{$userId}";
 	}
 
 	public function getRouteKeyName() {
@@ -46,21 +47,21 @@ class ForeignMaterialId extends Model {
 	/**
 	 * Return the material assigned
 	 *
-	 * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+	 * @return BelongsTo
 	 */
 	public function material() {
 		return $this->belongsTo(Material::class);
 	}
 
 	/**
-	 * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+	 * @return BelongsTo
 	 */
 	public function user() {
 		return $this->belongsTo(User::class);
 	}
 
 	/**
-	 * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+	 * @return BelongsTo
 	 */
 	public function bundle() {
 		return $this->belongsTo(Bundle::class);

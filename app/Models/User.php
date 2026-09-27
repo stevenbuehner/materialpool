@@ -9,8 +9,8 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Laravel\Passport\Contracts\OAuthenticatable as PassportAuthenticatable;
 use Laravel\Passport\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
@@ -85,11 +85,7 @@ class User extends Authenticatable implements PassportAuthenticatable {
 		return $this->getAttribute('is_admin') === TRUE;
 	}
 
-	public function isActive(): bool {
-		return $this->status === UserStatus::Active;
-	}
-
-	public function findForPassport(string $username, mixed $client = null): ?self {
+	public function findForPassport(string $username, mixed $client = NULL): ?self {
 		return static::query()
 			->where('email', $username)
 			->where('status', UserStatus::Active->value)
@@ -100,8 +96,8 @@ class User extends Authenticatable implements PassportAuthenticatable {
 		return $this->isActive() && Hash::check($password, $this->password);
 	}
 
-	protected function getDefaultGuardName(): string {
-		return 'web';
+	public function isActive(): bool {
+		return $this->status === UserStatus::Active;
 	}
 
 	public function resources() {
@@ -118,7 +114,7 @@ class User extends Authenticatable implements PassportAuthenticatable {
 	 */
 	public function delete() {
 		$changedMaterials = new Collection();
-		$deleted = DB::transaction(function () use (&$changedMaterials) {
+		$deleted          = DB::transaction(function () use (&$changedMaterials) {
 			$changedMaterials = app(MaterialUserRankingService::class)->removeForUser($this);
 
 			return parent::delete();
@@ -129,5 +125,9 @@ class User extends Authenticatable implements PassportAuthenticatable {
 		}
 
 		return $deleted;
+	}
+
+	protected function getDefaultGuardName(): string {
+		return 'web';
 	}
 }

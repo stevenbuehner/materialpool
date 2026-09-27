@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use StevenBuehner\BibleVerseBundle\Interfaces\BibleVerseInterface;
@@ -15,9 +16,8 @@ use StevenBuehner\BibleVerseBundle\Interfaces\BibleVerseInterface;
 class BibleverseCrossReference extends Model {
 	use HasFactory;
 
-	protected $table      = 'bibleverses_cross_ref';
 	public    $timestamps = FALSE;
-
+	protected $table      = 'bibleverses_cross_ref';
 	protected $casts    = [
 		'source'      => 'integer',
 		'target_from' => 'integer',
@@ -37,7 +37,7 @@ class BibleverseCrossReference extends Model {
 		'relevance' => 0
 	];
 
-	public static function getCrossReferencesByBibleverseQuery(BibleVerseInterface $bibleVerse): \Illuminate\Database\Eloquent\Builder {
+	public static function getCrossReferencesByBibleverseQuery(BibleVerseInterface $bibleVerse): Builder {
 
 		$fromToArray = Bibleverse::getFromToCombi($bibleVerse);
 

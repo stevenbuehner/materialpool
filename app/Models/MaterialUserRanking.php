@@ -13,15 +13,15 @@ class MaterialUserRanking extends Model {
 
 	protected $fillable = ['rating'];
 
-	protected function casts(): array {
-		return ['rating' => 'integer'];
-	}
-
 	public function material(): BelongsTo {
 		return $this->belongsTo(Material::class);
 	}
 
 	public function user(): BelongsTo {
 		return $this->belongsTo(User::class);
+	}
+
+	protected function casts(): array {
+		return ['rating' => 'integer'];
 	}
 }

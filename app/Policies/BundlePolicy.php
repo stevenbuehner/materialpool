@@ -27,7 +27,7 @@ class BundlePolicy {
 	 * @return mixed
 	 */
 	public function view(User $user, Bundle $bundle) {
-		return true;
+		return TRUE;
 	}
 
 	/**

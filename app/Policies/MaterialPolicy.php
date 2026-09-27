@@ -6,8 +6,8 @@ use App\Models\Material;
 use App\Models\User;
 use App\Services\Bundles\BundlePermissionService;
 use App\Support\Authorization\SystemPermissions;
-use Illuminate\Auth\Access\Response;
 use Illuminate\Auth\Access\HandlesAuthorization;
+use Illuminate\Auth\Access\Response;
 
 class MaterialPolicy {
 	use HandlesAuthorization;

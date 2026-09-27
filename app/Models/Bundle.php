@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use DateTime;
 use Illuminate\Database\Eloquent\Concerns\HasTimestamps;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -13,11 +14,11 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $id
  * @property string $author
  * @property string installed_version
- * @property \DateTime last_update
+ * @property DateTime last_update
  * @property string $uuid
  * @property string $container_root
- * @property \DateTime $created_at
- * @property \DateTime $updated_at
+ * @property DateTime $created_at
+ * @property DateTime $updated_at
  * @property string $name
  * @property string $description
  * @property bool $is_installed

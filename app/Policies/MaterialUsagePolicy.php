@@ -48,6 +48,14 @@ class MaterialUsagePolicy {
 		return $this->matchOrDenyCreator($user, $materialUsage);
 	}
 
+	protected function matchOrDenyCreator(User $user, MaterialUsage $materialUsage) {
+		if ($materialUsage->created_by === $user->id || $user->id === $materialUsage->material->created_by) {
+			return TRUE;
+		} else {
+			$this->deny('The requested action is only allowed for the creator of this material.');
+		}
+	}
+
 	/**
 	 * Determine whether the user can delete the material.
 	 *
@@ -57,15 +65,6 @@ class MaterialUsagePolicy {
 	 */
 	public function delete(User $user, MaterialUsage $materialUsage) {
 		return $this->matchOrDenyCreator($user, $materialUsage);
-	}
-
-
-	protected function matchOrDenyCreator(User $user, MaterialUsage $materialUsage) {
-		if ($materialUsage->created_by === $user->id || $user->id === $materialUsage->material->created_by) {
-			return TRUE;
-		} else {
-			$this->deny('The requested action is only allowed for the creator of this material.');
-		}
 	}
 
 

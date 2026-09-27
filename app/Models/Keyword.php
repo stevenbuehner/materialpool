@@ -3,11 +3,14 @@
 namespace App\Models;
 
 use App\Models\Exceptions\InvalidKeywordTypeException;
+use DateTime;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Image;
 use Kalnoy\Nestedset\NodeTrait;
+use Storage;
 
 /**
  * Class Keyword
@@ -24,8 +27,8 @@ use Kalnoy\Nestedset\NodeTrait;
  * @property Collection $materials
  * @property int _lft
  * @property int _rgt
- * @property \DateTime created_at
- * @property \DateTime updated_at
+ * @property DateTime created_at
+ * @property DateTime updated_at
  * @property int $descendants_count
  * @property int $children_count
  * @property int $materials_count
@@ -216,7 +219,7 @@ class Keyword extends Model {
 	*/
 
 	/**
-	 * @return \Illuminate\Database\Eloquent\Builder
+	 * @return Builder
 	 */
 	public function descendantMaterials() {
 
@@ -293,7 +296,7 @@ class Keyword extends Model {
 		// if the image was erased
 		if ($value == NULL) {
 			// delete the image from disk
-			\Storage::disk($disk)->delete($this->image);
+			Storage::disk($disk)->delete($this->image);
 
 			// set null in the database column
 			$this->attributes[$attribute_name] = NULL;
@@ -302,11 +305,11 @@ class Keyword extends Model {
 		// if a base64 was sent, store it in the db
 		if (starts_with($value, 'data:image')) {
 			// 0. Make the image
-			$image = \Image::make($value);
+			$image = Image::make($value);
 			// 1. Generate a filename.
 			$filename = md5($value . time()) . '.jpg';
 			// 2. Store the image on disk.
-			\Storage::disk($disk)->put($destination_path . '/' . $filename, $image->stream());
+			Storage::disk($disk)->put($destination_path . '/' . $filename, $image->stream());
 			// 3. Save the path to the database
 			$this->attributes[$attribute_name] = $destination_path . '/' . $filename;
 		}
