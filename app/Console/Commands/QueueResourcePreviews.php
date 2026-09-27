@@ -23,9 +23,9 @@ class QueueResourcePreviews extends Command {
 			return self::INVALID;
 		}
 
-		$query = (new Resource())->newQueryWithoutScopes()->select('id')->orderBy('id');
+		$query         = (new Resource())->newQueryWithoutScopes()->select('id')->orderBy('id');
 		$resourceCount = (clone $query)->count();
-		$jobCount = 0;
+		$jobCount      = 0;
 
 		$query->chunkById($chunkSize, function ($resources) use (&$jobCount): void {
 			foreach ($resources as $resource) {

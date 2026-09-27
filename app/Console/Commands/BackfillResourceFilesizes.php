@@ -26,10 +26,10 @@ class BackfillResourceFilesizes extends Command {
 			return self::INVALID;
 		}
 
-		$force = (bool)$this->option('force');
-		$query = $this->eligibleResources($force);
+		$force         = (bool)$this->option('force');
+		$query         = $this->eligibleResources($force);
 		$resourceCount = (clone $query)->count();
-		$jobCount = 0;
+		$jobCount      = 0;
 
 		$query->chunkById($chunkSize, function ($resources) use ($force, &$jobCount): void {
 			UpdateResourceFilesizesBatch::dispatch($resources->modelKeys(), $force)

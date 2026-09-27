@@ -3,149 +3,147 @@
 namespace App\Console\Commands;
 
 use App\Models\ContextSearchIndexRun;
+use App\Models\ContextSearchIndexRunPage;
 use App\Models\ContextSearchIndexRunResource;
 use App\Models\Resource;
-use App\Services\ContextSearch\ContextSearchQueueSafety;
-use App\Services\ContextSearch\ContextSearchIndexPipeline;
 use App\Services\ContextSearch\ContextSearchCapacityGate;
+use App\Services\ContextSearch\ContextSearchIndexPipeline;
+use App\Services\ContextSearch\ContextSearchQueueSafety;
 use App\Services\ContextSearch\EmbeddingProfile;
 use App\Services\ContextSearch\Qdrant\QdrantClient;
 use Illuminate\Console\Command;
+use InvalidArgumentException;
+use RuntimeException;
 use Throwable;
 
-final class StartContextSearchIndexing extends Command
-{
-    protected $signature = 'context-search:index
+final class StartContextSearchIndexing extends Command {
+	protected $signature = 'context-search:index
         {resource? : Optionale ID einer einzelnen PDF- oder Textressource}
         {--after= : Nur Ressourcen mit einer höheren ID einplanen}
         {--limit=100 : Maximale Anzahl von Ressourcen für einen neuen Lauf}
         {--resume= : Einen fehlgeschlagenen Lauf fortsetzen}';
 
-    protected $description = 'Startet oder setzt einen manuellen, Qdrant-basierten Kontextsuche-Indexlauf fort.';
+	protected $description = 'Startet oder setzt einen manuellen, Qdrant-basierten Kontextsuche-Indexlauf fort.';
 
-    public function handle(ContextSearchQueueSafety $queueSafety): int
-    {
-        if (! config('context_search.enabled')) {
-            $this->components->error('Die Kontextsuche ist deaktiviert. Setze CONTEXT_SEARCH_ENABLED=true erst nach betrieblicher Freigabe.');
+	public function handle(ContextSearchQueueSafety $queueSafety): int {
+		if (!config('context_search.enabled')) {
+			$this->components->error('Die Kontextsuche ist deaktiviert. Setze CONTEXT_SEARCH_ENABLED=true erst nach betrieblicher Freigabe.');
 
-            return self::FAILURE;
-        }
+			return self::FAILURE;
+		}
 
-        try {
-            $queueSafety->assertDispatchAllowed();
-            app(ContextSearchCapacityGate::class)->assertCanStart();
-            $run = filled($this->option('resume'))
-                ? $this->resume((string) $this->option('resume'))
-                : $this->start(app(QdrantClient::class), app(EmbeddingProfile::class));
-        } catch (Throwable $exception) {
-            report($exception);
-            $this->components->error($exception->getMessage());
+		try {
+			$queueSafety->assertDispatchAllowed();
+			app(ContextSearchCapacityGate::class)->assertCanStart();
+			$run = filled($this->option('resume'))
+				? $this->resume((string)$this->option('resume'))
+				: $this->start(app(QdrantClient::class), app(EmbeddingProfile::class));
+		} catch (Throwable $exception) {
+			report($exception);
+			$this->components->error($exception->getMessage());
 
-            return self::FAILURE;
-        }
+			return self::FAILURE;
+		}
 
-        $this->components->info("Indexlauf {$run->getKey()} plant {$run->total_resources} Ressourcen auf Queue {$this->queueName()} ein.");
-        $this->components->info('Der Lauf ist nur manuell gestartet; es wurden keine Resource- oder Material-Listener aktiviert.');
+		$this->components->info("Indexlauf {$run->getKey()} plant {$run->total_resources} Ressourcen auf Queue {$this->queueName()} ein.");
+		$this->components->info('Der Lauf ist nur manuell gestartet; es wurden keine Resource- oder Material-Listener aktiviert.');
 
-        return self::SUCCESS;
-    }
+		return self::SUCCESS;
+	}
 
-    private function start(QdrantClient $qdrant, EmbeddingProfile $profile): ContextSearchIndexRun
-    {
-        $resource = $this->argument('resource');
-        $limit = (int) $this->option('limit');
+	private function resume(string $runId): ContextSearchIndexRun {
+		$run = ContextSearchIndexRun::query()->findOrFail($runId);
 
-        if ($limit < 1 || $limit > 1000) {
-            throw new \InvalidArgumentException('Die Option --limit muss zwischen 1 und 1000 liegen.');
-        }
+		if ($run->status === ContextSearchIndexRun::STATUS_COMPLETED) {
+			throw new RuntimeException('Ein abgeschlossener Indexlauf kann nicht fortgesetzt werden. Starte stattdessen einen neuen Lauf.');
+		}
 
-        $collection = $qdrant->aliases()[(string) config('context_search.qdrant.active_alias')] ?? null;
+		$pending = ContextSearchIndexRunResource::query()
+			->where('run_id', $run->getKey())
+			->whereIn('status', [ContextSearchIndexRun::STATUS_PENDING, ContextSearchIndexRun::STATUS_FAILED, ContextSearchIndexRunResource::STATUS_RUNNING])
+			->orderBy('resource_id')
+			->get(['id', 'resource_id', 'status']);
 
-        if (! is_string($collection)) {
-            throw new \RuntimeException('Der aktive Qdrant-Alias fehlt. Provisioniere und aktiviere zuerst die Ziel-Collection.');
-        }
+		if ($pending->isEmpty()) {
+			throw new RuntimeException('Dieser Lauf enthält keine fortsetzbaren Ressourcen.');
+		}
 
-        $query = (new Resource())->newQueryWithoutScopes()
-            ->whereIn('type', ['pdf', 'text'])
-            ->orderBy('id');
+		$run->update([
+			'status'          => ContextSearchIndexRun::STATUS_RUNNING,
+			'failure_message' => NULL,
+			'finished_at'     => NULL,
+		]);
 
-        if (filled($resource)) {
-            $query->whereKey((int) $resource);
-        } elseif (filled($this->option('after'))) {
-            $query->whereKey('>', (int) $this->option('after'));
-        }
+		$pipeline = app(ContextSearchIndexPipeline::class);
+		foreach ($pending as $runResource) {
+			if ($runResource->status === ContextSearchIndexRun::STATUS_FAILED) {
+				ContextSearchIndexRunResource::query()->whereKey($runResource->getKey())
+					->update(['status' => ContextSearchIndexRun::STATUS_PENDING, 'failure_message' => NULL]);
+				ContextSearchIndexRunPage::query()->where('run_resource_id', $runResource->getKey())
+					->where('status', ContextSearchIndexRunPage::STATUS_FAILED)
+					->update(['status' => ContextSearchIndexRunPage::STATUS_PENDING, 'failure_code' => NULL]);
+			} elseif ($runResource->status === ContextSearchIndexRunResource::STATUS_RUNNING) {
+				$pipeline->requeueResource((int)$runResource->getKey());
+			}
+		}
+		$pipeline->advanceRun($run->getKey());
 
-        $resourceIds = $query->limit($resource === null ? $limit : 1)->pluck('id')->all();
+		return $run;
+	}
 
-        if ($resourceIds === []) {
-            throw new \RuntimeException('Keine passende PDF- oder Textressource für diesen Lauf gefunden.');
-        }
+	private function start(QdrantClient $qdrant, EmbeddingProfile $profile): ContextSearchIndexRun {
+		$resource = $this->argument('resource');
+		$limit    = (int)$this->option('limit');
 
-        $run = ContextSearchIndexRun::query()->create([
-            'status' => ContextSearchIndexRun::STATUS_RUNNING,
-            'collection_name' => $collection,
-            'embedding_profile' => $profile->id(),
-            'cursor_resource_id' => max($resourceIds),
-            'total_resources' => count($resourceIds),
-            'started_at' => now(),
-        ]);
+		if ($limit < 1 || $limit > 1000) {
+			throw new InvalidArgumentException('Die Option --limit muss zwischen 1 und 1000 liegen.');
+		}
 
-        foreach ($resourceIds as $resourceId) {
-            ContextSearchIndexRunResource::query()->create([
-                'run_id' => $run->getKey(),
-                'resource_id' => $resourceId,
-                'status' => ContextSearchIndexRun::STATUS_PENDING,
-            ]);
-        }
+		$collection = $qdrant->aliases()[(string)config('context_search.qdrant.active_alias')] ?? NULL;
 
-        app(ContextSearchIndexPipeline::class)->advanceRun($run->getKey());
+		if (!is_string($collection)) {
+			throw new RuntimeException('Der aktive Qdrant-Alias fehlt. Provisioniere und aktiviere zuerst die Ziel-Collection.');
+		}
 
-        return $run;
-    }
+		$query = (new Resource())->newQueryWithoutScopes()
+			->whereIn('type', ['pdf', 'text'])
+			->orderBy('id');
 
-    private function resume(string $runId): ContextSearchIndexRun
-    {
-        $run = ContextSearchIndexRun::query()->findOrFail($runId);
+		if (filled($resource)) {
+			$query->whereKey((int)$resource);
+		} elseif (filled($this->option('after'))) {
+			$query->whereKey('>', (int)$this->option('after'));
+		}
 
-        if ($run->status === ContextSearchIndexRun::STATUS_COMPLETED) {
-            throw new \RuntimeException('Ein abgeschlossener Indexlauf kann nicht fortgesetzt werden. Starte stattdessen einen neuen Lauf.');
-        }
+		$resourceIds = $query->limit($resource === NULL ? $limit : 1)->pluck('id')->all();
 
-        $pending = ContextSearchIndexRunResource::query()
-            ->where('run_id', $run->getKey())
-            ->whereIn('status', [ContextSearchIndexRun::STATUS_PENDING, ContextSearchIndexRun::STATUS_FAILED, ContextSearchIndexRunResource::STATUS_RUNNING])
-            ->orderBy('resource_id')
-            ->get(['id', 'resource_id', 'status']);
+		if ($resourceIds === []) {
+			throw new RuntimeException('Keine passende PDF- oder Textressource für diesen Lauf gefunden.');
+		}
 
-        if ($pending->isEmpty()) {
-            throw new \RuntimeException('Dieser Lauf enthält keine fortsetzbaren Ressourcen.');
-        }
+		$run = ContextSearchIndexRun::query()->create([
+			'status'             => ContextSearchIndexRun::STATUS_RUNNING,
+			'collection_name'    => $collection,
+			'embedding_profile'  => $profile->id(),
+			'cursor_resource_id' => max($resourceIds),
+			'total_resources'    => count($resourceIds),
+			'started_at'         => now(),
+		]);
 
-        $run->update([
-            'status' => ContextSearchIndexRun::STATUS_RUNNING,
-            'failure_message' => null,
-            'finished_at' => null,
-        ]);
+		foreach ($resourceIds as $resourceId) {
+			ContextSearchIndexRunResource::query()->create([
+				'run_id'      => $run->getKey(),
+				'resource_id' => $resourceId,
+				'status'      => ContextSearchIndexRun::STATUS_PENDING,
+			]);
+		}
 
-        $pipeline = app(ContextSearchIndexPipeline::class);
-        foreach ($pending as $runResource) {
-            if ($runResource->status === ContextSearchIndexRun::STATUS_FAILED) {
-                ContextSearchIndexRunResource::query()->whereKey($runResource->getKey())
-                    ->update(['status' => ContextSearchIndexRun::STATUS_PENDING, 'failure_message' => null]);
-                \App\Models\ContextSearchIndexRunPage::query()->where('run_resource_id', $runResource->getKey())
-                    ->where('status', \App\Models\ContextSearchIndexRunPage::STATUS_FAILED)
-                    ->update(['status' => \App\Models\ContextSearchIndexRunPage::STATUS_PENDING, 'failure_code' => null]);
-            } elseif ($runResource->status === ContextSearchIndexRunResource::STATUS_RUNNING) {
-                $pipeline->requeueResource((int) $runResource->getKey());
-            }
-        }
-        $pipeline->advanceRun($run->getKey());
+		app(ContextSearchIndexPipeline::class)->advanceRun($run->getKey());
 
-        return $run;
-    }
+		return $run;
+	}
 
-    private function queueName(): string
-    {
-        return (string) config('context_search.indexing.queue');
-    }
+	private function queueName(): string {
+		return (string)config('context_search.indexing.queue');
+	}
 }

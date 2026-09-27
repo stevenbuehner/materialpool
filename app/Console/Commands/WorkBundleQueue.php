@@ -14,7 +14,7 @@ class WorkBundleQueue extends Command {
 
 	public function handle(): int {
 		$bundle = Bundle::query()->find($this->argument('bundle'));
-		if ($bundle === null) {
+		if ($bundle === NULL) {
 			$this->error('Das angegebene Bundle existiert nicht.');
 
 			return self::INVALID;
@@ -25,7 +25,7 @@ class WorkBundleQueue extends Command {
 			->whereIn('status', [BundleImportStatus::Pending, BundleImportStatus::Running])
 			->latest('created_at')
 			->first();
-		if ($run === null) {
+		if ($run === NULL) {
 			$this->warn('Für dieses Bundle gibt es keinen aktiven Importlauf. Es wurde kein neuer Lauf gestartet.');
 
 			return self::FAILURE;
@@ -37,12 +37,12 @@ class WorkBundleQueue extends Command {
 		}
 
 		return $this->call('queue:work', [
-			'connection' => 'database',
-			'--queue' => $run->queue_name,
-			'--stop-when-empty' => true,
-			'--timeout' => 120,
-			'--tries' => 0,
-			'--backoff' => 5,
+			'connection'        => 'database',
+			'--queue'           => $run->queue_name,
+			'--stop-when-empty' => TRUE,
+			'--timeout'         => 120,
+			'--tries'           => 0,
+			'--backoff'         => 5,
 		]);
 	}
 }

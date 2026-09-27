@@ -13,8 +13,8 @@ class PreflightBundleIdentifiers extends Command {
 	protected $description = 'Prüft Bundle-UUIDs und Bundle-Foreign-IDs read-only auf Constraint-Konflikte.';
 
 	public function handle(): int {
-		$emptyUuids = Bundle::query()->whereNull('uuid')->orWhere('uuid', '')->count();
-		$duplicateUuids = Bundle::query()
+		$emptyUuids         = Bundle::query()->whereNull('uuid')->orWhere('uuid', '')->count();
+		$duplicateUuids     = Bundle::query()
 			->whereNotNull('uuid')
 			->where('uuid', '!=', '')
 			->select('uuid')
