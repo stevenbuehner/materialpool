@@ -12,6 +12,7 @@ use App\Services\TagExtraction\Properties\CreateDateProperty;
 use App\Services\TagExtraction\Properties\KeywordProperty;
 use App\Services\TagExtraction\Properties\TitleProperty;
 use App\Services\TagExtraction\TagExtractionService;
+use Exception;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -77,7 +78,7 @@ class FileExifHandler implements HandlerInterface {
 
 			$result = $this->filterIgnorePatterns($result);
 
-		} catch (\Exception $e) {
+		} catch (Exception $e) {
 			Log::error($e->getMessage());
 		}
 
@@ -107,45 +108,6 @@ class FileExifHandler implements HandlerInterface {
 			return strlen($tp->getValue());
 		});
 		*/
-
-		return $result;
-	}
-
-	/**
-	 * All String-Values found for the given keys. Dublicate and empty values have been removed.
-	 *
-	 * @param Exif $exifData
-	 * @param string[] $keys
-	 * @return String[]
-	 */
-	protected function allMatchesValuesForKeys(Exif $exifData, $keys) {
-		$result = [];
-
-
-		foreach ($exifData->getRawData() as $exifName => $value) {
-
-			if (in_array($exifName, $keys)) {
-
-				$result[] = $value;
-
-				continue;
-
-			}
-		}
-
-		foreach ($result as $id => $value) {
-			$value = str_replace("\n", '', $value);
-
-			// Check if string is base64 encoded. If yes => decode
-			$dec = base64_decode($value);
-
-			if (base64_encode($dec) === $value) {
-				// $value was encoded => ignore it (for now)
-				Log::info('Base64 Encoded Information will be ignored: ' . $value);
-				unset($result[$id]);
-			}
-		}
-
 
 		return $result;
 	}
@@ -205,7 +167,6 @@ class FileExifHandler implements HandlerInterface {
 		return $tags;
 	}
 
-
 	/**
 	 * @param Exif $exifData
 	 * @return Collection
@@ -227,34 +188,6 @@ class FileExifHandler implements HandlerInterface {
 			) {
 				$result->push(new AuthorProperty($author, RelevanceInterface::RELEVANCE_EXIF_MAX));
 				$result->push(new KeywordProperty($author, 'person', RelevanceInterface::RELEVANCE_EXIF_MAX));
-			}
-		}
-
-		return $result;
-	}
-
-	/**
-	 * Split each value for commas and semikolons and join all parts to one array with dublicates and empty lines
-	 * removed.
-	 *
-	 * @param string|string[] $values
-	 * @return string[]
-	 */
-	protected function getCombinedSplitValues($values) {
-		if (!is_array($values)) {
-			$values = [$values];
-		}
-
-		$result = [];
-		foreach ($values as $stringValue) {
-			$splitValues = preg_split('~ *[,;]+ *~', $stringValue);
-
-			foreach ($splitValues as $val) {
-				$val = trim($val);
-
-				if (strlen($val) > 0 && !in_array($val, $result)) {
-					$result [] = $val;
-				}
 			}
 		}
 
@@ -321,6 +254,34 @@ class FileExifHandler implements HandlerInterface {
 	}
 
 	/**
+	 * Split each value for commas and semikolons and join all parts to one array with dublicates and empty lines
+	 * removed.
+	 *
+	 * @param string|string[] $values
+	 * @return string[]
+	 */
+	protected function getCombinedSplitValues($values) {
+		if (!is_array($values)) {
+			$values = [$values];
+		}
+
+		$result = [];
+		foreach ($values as $stringValue) {
+			$splitValues = preg_split('~ *[,;]+ *~', $stringValue);
+
+			foreach ($splitValues as $val) {
+				$val = trim($val);
+
+				if (strlen($val) > 0 && !in_array($val, $result)) {
+					$result [] = $val;
+				}
+			}
+		}
+
+		return $result;
+	}
+
+	/**
 	 * Returns the best match of the requested keys ... currently the first found element or $default
 	 *
 	 * @param Exif $exifData
@@ -337,6 +298,45 @@ class FileExifHandler implements HandlerInterface {
 		} else {
 			return $default;
 		}
+	}
+
+	/**
+	 * All String-Values found for the given keys. Dublicate and empty values have been removed.
+	 *
+	 * @param Exif $exifData
+	 * @param string[] $keys
+	 * @return String[]
+	 */
+	protected function allMatchesValuesForKeys(Exif $exifData, $keys) {
+		$result = [];
+
+
+		foreach ($exifData->getRawData() as $exifName => $value) {
+
+			if (in_array($exifName, $keys)) {
+
+				$result[] = $value;
+
+				continue;
+
+			}
+		}
+
+		foreach ($result as $id => $value) {
+			$value = str_replace("\n", '', $value);
+
+			// Check if string is base64 encoded. If yes => decode
+			$dec = base64_decode($value);
+
+			if (base64_encode($dec) === $value) {
+				// $value was encoded => ignore it (for now)
+				Log::info('Base64 Encoded Information will be ignored: ' . $value);
+				unset($result[$id]);
+			}
+		}
+
+
+		return $result;
 	}
 
 

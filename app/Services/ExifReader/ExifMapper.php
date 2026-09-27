@@ -2,6 +2,7 @@
 
 namespace App\Services\ExifReader;
 
+use DateTime;
 use PHPExif\Exif;
 use PHPExif\Mapper\Exiftool;
 
@@ -20,7 +21,7 @@ class ExifMapper extends Exiftool {
 		$this->getFirstFoundValue(['PDF:Author', 'Author', 'XMP-dc:Creator', 'By-line', self::ARTIST], $rawData, Exif::AUTHOR, FALSE);
 
 		$dateString                      = $this->getFirstFoundValue(['XML:CreateDate', 'PDF:CreateDate', self::DATETIMEORIGINAL, 'System:FileInodeChangeDate', 'System:FileModifyDate'], $rawData, FALSE, FALSE);
-		$this->data[EXIF::CREATION_DATE] = new \DateTime($dateString);
+		$this->data[EXIF::CREATION_DATE] = new DateTime($dateString);
 
 		$this->prioritiseKeywords(['XML:Keywords', 'XML:Category', 'AppleKeywords', 'XML:Bibelstelle'], $rawData, Exif::KEYWORDS);
 		// $this->prioritiseKeywords(['XML:Bibelstelle'], $rawData, self::BIBLEVERSES);
@@ -28,21 +29,6 @@ class ExifMapper extends Exiftool {
 		return $this->data;
 
 	}
-
-
-	protected function prioritiseKeywords($keys, &$data, $storageKey) {
-
-		$keywordList = $this->getAllFoundValues($keys, $data, '');
-		$joined      = join(', ', $keywordList);
-
-		if (strlen($joined) > 0) {
-			$this->data[$storageKey] = $joined;
-		}
-
-		return $joined;
-
-	}
-
 
 	protected function getFirstFoundValue($keys, &$data, $storageKey, $default = FALSE) {
 
@@ -60,6 +46,19 @@ class ExifMapper extends Exiftool {
 		}
 
 		return $result;
+
+	}
+
+	protected function prioritiseKeywords($keys, &$data, $storageKey) {
+
+		$keywordList = $this->getAllFoundValues($keys, $data, '');
+		$joined      = join(', ', $keywordList);
+
+		if (strlen($joined) > 0) {
+			$this->data[$storageKey] = $joined;
+		}
+
+		return $joined;
 
 	}
 

@@ -6,6 +6,7 @@ use App\Services\TagExtraction\AbstractTagRecognition;
 use App\Services\TagExtraction\Interfaces\PreRecognitionProcessInterface;
 use App\Services\TagExtraction\Properties\CreateDateProperty;
 use App\Services\TagExtraction\Properties\Property;
+use DateTime;
 
 class Created extends AbstractTagRecognition implements PreRecognitionProcessInterface {
 
@@ -35,7 +36,7 @@ class Created extends AbstractTagRecognition implements PreRecognitionProcessInt
 			$tagValue = $this->recognizeStringFromDate($tagValue);
 
 			if ($tagValue !== FALSE) {
-				/** @var $tagValue \DateTime */
+				/** @var $tagValue DateTime */
 				$result[] = new CreateDateProperty($tagValue); // Don't set a priority, because we don't know the source of our guessed information
 			}
 		}
@@ -52,22 +53,22 @@ class Created extends AbstractTagRecognition implements PreRecognitionProcessInt
 
 		// First match german date
 		if (preg_match('~^' . self::GERMAN_DATE_REGEX . '$~', $str, $matches) === 1) {
-			$d = new \DateTime();
+			$d = new DateTime();
 			$d->setDate($matches[3], $matches[2], $matches[1]);
 		} else if (preg_match('~^' . self::ENG_GERM_DATE_REGEX . '$~', $str, $matches) === 1) {
 			// Deutsche Verwendung des englischen Datums Y-m-d
-			$d = new \DateTime();
+			$d = new DateTime();
 			$d->setDate($matches[1], $matches[2], $matches[3]);
 		}
 
-		if ($d instanceof \DateTime && $this->isValidDate($d) === FALSE) {
+		if ($d instanceof DateTime && $this->isValidDate($d) === FALSE) {
 			$d = FALSE;
 		}
 
 		return $d;
 	}
 
-	protected function isValidDate(\DateTime $dateTime) {
+	protected function isValidDate(DateTime $dateTime) {
 
 		$year = $dateTime->format('Y');
 

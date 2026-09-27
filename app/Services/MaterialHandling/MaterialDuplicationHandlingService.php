@@ -8,6 +8,7 @@ use App\Models\ForeignMaterialId;
 use App\Models\Keyword;
 use App\Models\Material;
 use App\Models\Resource;
+use Exception;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
 
@@ -18,12 +19,12 @@ class MaterialDuplicationHandlingService {
 	protected $materialUserRankingService;
 
 	public function __construct(MaterialHandlingService $materialHandlingService, MaterialUserRankingService $materialUserRankingService) {
-		$this->materialHandlingService = $materialHandlingService;
+		$this->materialHandlingService    = $materialHandlingService;
 		$this->materialUserRankingService = $materialUserRankingService;
 	}
 
 	/**
-	 * @param \App\Models\Resource $resource
+	 * @param Resource $resource
 	 */
 	public function mergeMaterialDublicates(Resource $resource) {
 
@@ -64,7 +65,7 @@ class MaterialDuplicationHandlingService {
 							$this->mergeMaterials($main, $second);
 							DB::commit();
 
-						} catch (\Exception $e) {
+						} catch (Exception $e) {
 
 							DB::rollBack();
 							throw $e;
@@ -104,11 +105,11 @@ class MaterialDuplicationHandlingService {
 
 		// Compare resource ids
 		$r1Ids = $col1->flatMap(function (Resource $r) {
-			/** @var \App\Models\Resource $r */
+			/** @var Resource $r */
 			return [$r->id];
 		});
 		$r2Ids = $col2->flatMap(function (Resource $r) {
-			/** @var \App\Models\Resource $r */
+			/** @var Resource $r */
 			return [$r->id];
 		});
 

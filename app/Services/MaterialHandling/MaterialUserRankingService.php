@@ -13,16 +13,16 @@ class MaterialUserRankingService {
 	public function set(Material $material, User $user, int $rating): Material {
 		[$material, $defaultChanged] = DB::transaction(function () use ($material, $user, $rating): array {
 			$lockedMaterial = $this->lockMaterial($material->getKey());
-			$ranking = MaterialUserRanking::query()
+			$ranking        = MaterialUserRanking::query()
 				->where('material_id', $lockedMaterial->id)
 				->where('user_id', $user->id)
 				->first();
 
-			if ($ranking === null) {
-				$ranking = new MaterialUserRanking();
+			if ($ranking === NULL) {
+				$ranking              = new MaterialUserRanking();
 				$ranking->material_id = $lockedMaterial->id;
-				$ranking->user_id = $user->id;
-				$ranking->rating = $rating;
+				$ranking->user_id     = $user->id;
+				$ranking->rating      = $rating;
 			} else {
 				$ranking->rating = $rating;
 			}
@@ -36,6 +36,27 @@ class MaterialUserRankingService {
 		}
 
 		return $material;
+	}
+
+	private function lockMaterial(int $materialId): Material {
+		return Material::query()->lockForUpdate()->findOrFail($materialId);
+	}
+
+	private function recalculateLocked(Material $material): bool {
+		$average = MaterialUserRanking::query()->where('material_id', $material->id)->avg('rating');
+		if ($average === NULL) {
+			return FALSE;
+		}
+
+		$rating = (int)round((float)$average, 0, PHP_ROUND_HALF_UP);
+		if ($material->rating !== NULL && (int)$material->rating === $rating) {
+			return FALSE;
+		}
+
+		$material->rating = $rating;
+		$material->save();
+
+		return TRUE;
 	}
 
 	public function remove(Material $material, User $user): Material {
@@ -63,7 +84,7 @@ class MaterialUserRankingService {
 	 * @return Collection<int, Material>
 	 */
 	public function removeForUser(User $user): Collection {
-		$materialIds = MaterialUserRanking::query()
+		$materialIds      = MaterialUserRanking::query()
 			->where('user_id', $user->id)
 			->orderBy('material_id')
 			->pluck('material_id');
@@ -91,8 +112,8 @@ class MaterialUserRankingService {
 			->lockForUpdate()
 			->get()
 			->keyBy('id');
-		$main = $materials->get($main->id);
-		$second = $materials->get($second->id);
+		$main      = $materials->get($main->id);
+		$second    = $materials->get($second->id);
 
 		$secondRankings = MaterialUserRanking::query()
 			->where('material_id', $second->id)
@@ -105,11 +126,11 @@ class MaterialUserRankingService {
 				->where('user_id', $secondRanking->user_id)
 				->first();
 
-			if ($mainRanking === null || $secondRanking->updated_at->gt($mainRanking->updated_at)) {
+			if ($mainRanking === NULL || $secondRanking->updated_at->gt($mainRanking->updated_at)) {
 				MaterialUserRanking::query()->updateOrCreate(
 					['material_id' => $main->id, 'user_id' => $secondRanking->user_id],
 					[
-						'rating' => $secondRanking->rating,
+						'rating'     => $secondRanking->rating,
 						'created_at' => $secondRanking->created_at,
 						'updated_at' => $secondRanking->updated_at,
 					]
@@ -121,9 +142,16 @@ class MaterialUserRankingService {
 		$this->recalculateLocked($main);
 	}
 
+	/** @param Collection<int, Material> $materials */
+	public function presentCollection(Collection $materials, User $user): Collection {
+		$materials->load(['userRankings' => fn($query) => $query->where('user_id', $user->id)]);
+
+		return $materials->each(fn(Material $material) => $this->present($material, $user));
+	}
+
 	public function present(Material $material, User $user): Material {
 		if (!$material->relationLoaded('userRankings')) {
-			$material->load(['userRankings' => fn ($query) => $query->where('user_id', $user->id)]);
+			$material->load(['userRankings' => fn($query) => $query->where('user_id', $user->id)]);
 		}
 
 		$ranking = $material->userRankings->firstWhere('user_id', $user->id);
@@ -132,33 +160,5 @@ class MaterialUserRankingService {
 		$material->makeHidden('userRankings');
 
 		return $material;
-	}
-
-	/** @param Collection<int, Material> $materials */
-	public function presentCollection(Collection $materials, User $user): Collection {
-		$materials->load(['userRankings' => fn ($query) => $query->where('user_id', $user->id)]);
-
-		return $materials->each(fn (Material $material) => $this->present($material, $user));
-	}
-
-	private function lockMaterial(int $materialId): Material {
-		return Material::query()->lockForUpdate()->findOrFail($materialId);
-	}
-
-	private function recalculateLocked(Material $material): bool {
-		$average = MaterialUserRanking::query()->where('material_id', $material->id)->avg('rating');
-		if ($average === null) {
-			return false;
-		}
-
-		$rating = (int) round((float) $average, 0, PHP_ROUND_HALF_UP);
-		if ($material->rating !== null && (int) $material->rating === $rating) {
-			return false;
-		}
-
-		$material->rating = $rating;
-		$material->save();
-
-		return true;
 	}
 }

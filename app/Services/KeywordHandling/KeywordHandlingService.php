@@ -103,26 +103,6 @@ class KeywordHandlingService {
 
 	/**
 	 * @param Keyword $keyword
-	 * @return Keyword
-	 */
-	public function extractAndPreserveAllKeywordChildren(Keyword $keyword) {
-
-		// Nehme das Keyword aus allen Parent-Child Funktionen heraus
-		/** @var Keyword[] $allChildren */
-		$allChildren = $keyword->children;
-
-		foreach ($allChildren as $childKeyword) {
-			// Implicit save
-			$childKeyword->insertAfterNode($keyword);
-		}
-
-		$keyword->load('children');
-
-		return $keyword;
-	}
-
-	/**
-	 * @param Keyword $keyword
 	 * @return bool
 	 */
 	public function isKeywordUsedByMaterials(Keyword $keyword) {
@@ -188,6 +168,26 @@ class KeywordHandlingService {
 		$keyword->delete();
 		Log::info('Keyword deleted', $keyword->toArray());
 
+	}
+
+	/**
+	 * @param Keyword $keyword
+	 * @return Keyword
+	 */
+	public function extractAndPreserveAllKeywordChildren(Keyword $keyword) {
+
+		// Nehme das Keyword aus allen Parent-Child Funktionen heraus
+		/** @var Keyword[] $allChildren */
+		$allChildren = $keyword->children;
+
+		foreach ($allChildren as $childKeyword) {
+			// Implicit save
+			$childKeyword->insertAfterNode($keyword);
+		}
+
+		$keyword->load('children');
+
+		return $keyword;
 	}
 
 	/**

@@ -8,6 +8,7 @@ use App\Services\TagExtraction\Interfaces\PreRecognitionProcessInterface;
 use App\Services\TagExtraction\Interfaces\TagRecognitionInterface;
 use App\Services\TagExtraction\Properties\BibleverseProperty;
 use Illuminate\Support\Collection;
+use StevenBuehner\BibleVerseBundle\Exceptions\InvalidBookIdException;
 use StevenBuehner\BibleVerseBundle\Interfaces\BibleVerseInterface;
 use StevenBuehner\BibleVerseBundle\Service\BibleVerseService;
 
@@ -31,7 +32,7 @@ class TagExtractionService {
 	 * @param int $numRequiredCommasForResult (Default = 2)
 	 * @param array $context (Data, that may be passed to the tagRecognition etc.)
 	 * @return Collection
-	 * @throws \StevenBuehner\BibleVerseBundle\Exceptions\InvalidBookIdException
+	 * @throws InvalidBookIdException
 	 */
 	public function extractPartsFromStrings($strings, $numRequiredCommasForResult = 2, $context = []) {
 		if (!is_array($strings)) {
@@ -190,7 +191,7 @@ class TagExtractionService {
 			}
 
 			// Don't use too big tags
-			if(strlen($tagValue) > 190){
+			if (strlen($tagValue) > 190) {
 				continue;
 			}
 

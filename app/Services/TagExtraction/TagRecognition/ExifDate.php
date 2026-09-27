@@ -4,6 +4,7 @@ namespace App\Services\TagExtraction\TagRecognition;
 
 use App\Services\TagExtraction\Interfaces\PropertyInterface;
 use App\Services\TagExtraction\Properties\CreateDateProperty;
+use DateTime;
 
 class ExifDate extends Created {
 
@@ -26,7 +27,7 @@ class ExifDate extends Created {
 			$tagValue = $this->recognizeStringFromDate($tagValue);
 
 			if ($tagValue !== FALSE) {
-				/** @var $tagValue \DateTime */
+				/** @var $tagValue DateTime */
 				$result[] = new CreateDateProperty($tagValue); // Don't set a priority, because we don't know the source of our guessed information
 			}
 		}
@@ -54,11 +55,11 @@ class ExifDate extends Created {
 				$str,
 				$matches) === 1
 		) {
-			$d = new \DateTime();
+			$d = new DateTime();
 			$d->setDate($matches[1], $matches[2], $matches[3]);
 		}
 
-		if ($d instanceof \DateTime && $this->isValidDate($d) === FALSE) {
+		if ($d instanceof DateTime && $this->isValidDate($d) === FALSE) {
 			$d = FALSE;
 		}
 

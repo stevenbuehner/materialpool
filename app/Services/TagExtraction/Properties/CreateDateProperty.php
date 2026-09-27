@@ -8,12 +8,13 @@
 namespace App\Services\TagExtraction\Properties;
 
 use App\Models\Material;
+use DateTime;
 
 /**
  * Class CreateDateProperty
  *
  * @package App\Services\TagExtraction\Properties
- * @method \DateTime getValue
+ * @method DateTime getValue
  */
 class CreateDateProperty extends Property {
 
@@ -28,7 +29,7 @@ class CreateDateProperty extends Property {
 
 	function getCompareString() {
 		$d = $this->getValue();
-		$d = ($d instanceof \DateTime) ? $d->format('Y-m-d') : '';
+		$d = ($d instanceof DateTime) ? $d->format('Y-m-d') : '';
 
 		return 'type=' . self::class . ',value=' . $d;
 	}

@@ -11,6 +11,7 @@ namespace App\Services\MaterialHandling;
 use App\Events\MaterialWasCreated;
 use App\Events\MaterialWasDeleted;
 use App\Events\ResourceWasDetached;
+use App\Http\Controllers\MaterialController;
 use App\Jobs\CheckLonelyBibleverse;
 use App\Jobs\CheckLonelyKeyword;
 use App\Jobs\CheckLonelyResource;
@@ -21,13 +22,16 @@ use App\Services\ResourceHandling\Exceptions\LocalFileDoesNotExistException;
 use App\Services\ResourceHandling\Exceptions\RemoteFileDoesNotExistException;
 use App\Services\ResourceHandling\FileHandlingService;
 use App\Services\TagExtraction\ResourceHandles\TextContentInterface;
+use Exception;
 use Illuminate\Support\Arr;
+use Log;
+use ZipArchive;
 
 class MaterialHandlingService {
 
 	/**
 	 * @param Material $material
-	 * @throws \Exception
+	 * @throws Exception
 	 */
 	public function deleteMaterialAndDetachAssociations(Material $material) {
 
@@ -104,7 +108,7 @@ class MaterialHandlingService {
 	public function copyMaterial(Material $material) {
 
 		/** @var Material $clone */
-		$clone = $material->replicate();
+		$clone             = $material->replicate();
 		$clone->created_at = $material->created_at;
 		$clone->save();
 		// $clone->setRelations([]);
@@ -136,7 +140,7 @@ class MaterialHandlingService {
 
 		event(new MaterialWasCreated($clone));
 
-		return $clone->fresh(\App\Http\Controllers\MaterialController::withAttributes());
+		return $clone->fresh(MaterialController::withAttributes());
 
 	}
 
@@ -145,14 +149,14 @@ class MaterialHandlingService {
 		$public_dir      = public_path($subPathInPublic);
 		$baseDir         = $this->createFilenameFromMaterial($material); // String ohne Datei-Extension
 		$zipFileName     = 'Material_' . $material->id . '_' . uniqid() . '.zip';
-		$zip             = new \ZipArchive();
+		$zip             = new ZipArchive();
 
 		/** @var FileHandlingService $fileHandlingService */
 		$fileHandlingService = resolve(FileHandlingService::class);
 
-		if ($zip->open($public_dir . DIRECTORY_SEPARATOR . $zipFileName, \ZipArchive::CREATE) === TRUE) {
+		if ($zip->open($public_dir . DIRECTORY_SEPARATOR . $zipFileName, ZipArchive::CREATE) === TRUE) {
 
-			$zip->filename =  $this->createFilenameFromMaterial($material); // Scheint nicht zu funktionieren
+			$zip->filename = $this->createFilenameFromMaterial($material); // Scheint nicht zu funktionieren
 			$zip->setArchiveComment('All the resources from material ' . $material->id);
 
 			foreach ($material->resources as $resource) {
@@ -163,9 +167,9 @@ class MaterialHandlingService {
 						$absPath = $fileHandlingService->getLocalFilePath($resource);
 						$zip->addFile($absPath, $baseDir . DIRECTORY_SEPARATOR . $resource->original_filename);
 					} catch (LocalFileDoesNotExistException $e) {
-						\Log::error($e->getMessage(), $resource->toArray());
+						Log::error($e->getMessage(), $resource->toArray());
 					} catch (RemoteFileDoesNotExistException $e) {
-						\Log::error($e->getMessage(), $resource->toArray());
+						Log::error($e->getMessage(), $resource->toArray());
 					}
 
 				} else if ($resource instanceof TextContentInterface) {
