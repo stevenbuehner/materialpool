@@ -7,6 +7,10 @@ output="$(mkdir -p "$2" && cd "$2" && pwd)"
 [[ "$version" =~ ^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]] || { echo "Ungültige Version" >&2; exit 64; }
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 cd "$root"
+if git ls-files -- .env '.env.*' | grep -vFx '.env.example' | grep -q .; then
+  echo "Eine lokale Umgebungsdatei ist in Git versioniert." >&2
+  exit 1
+fi
 [[ -f public/build/manifest.json && ! -e public/hot ]] || { echo "Vite-Build fehlt oder Hot-Modus aktiv" >&2; exit 1; }
 [[ -f composer.lock && -f package-lock.json ]] || { echo "Lockfile fehlt" >&2; exit 1; }
 commit="${GITHUB_SHA:-$(git rev-parse HEAD)}"

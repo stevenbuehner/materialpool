@@ -11,8 +11,9 @@
 /storage/tmp/
 /storage/framework/cache
 /storage/*.key
-.env.local
-.env.dev
+.env
+.env.*
+!.env.example
 .cache
 public/build
 /.idea

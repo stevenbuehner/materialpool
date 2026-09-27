@@ -18,6 +18,12 @@ jobs:
           --health-interval=10s --health-timeout=5s --health-retries=10
     steps:
       - uses: actions/checkout@v4
+      - name: Keine lokalen Umgebungsdateien im Git-Index
+        run: |
+          if git ls-files -- .env '.env.*' | grep -vFx '.env.example' | grep -q .; then
+            echo 'Eine lokale Umgebungsdatei ist in Git versioniert.' >&2
+            exit 1
+          fi
       - uses: shivammathur/setup-php@v2
         with:
           php-version: '8.4'

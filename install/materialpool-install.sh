@@ -61,6 +61,7 @@ if [[ ! -x /usr/bin/mysqldump && -x /usr/bin/mariadb-dump ]]; then
   ln -s /usr/bin/mariadb-dump /usr/bin/mysqldump
 fi
 [[ -x /usr/bin/mysqldump ]] || { msg_error "Materialpool benötigt mysqldump für Backups."; exit 1; }
+umask 077
 install -d -m 0700 /etc/materialpool
 # shellcheck disable=SC2034 # Read by setup_mariadb_db from the Community helper.
 MARIADB_DB_NAME=materialpool
@@ -169,7 +170,13 @@ for unit in materialpool-queue.service materialpool-schedule.service materialpoo
 done
 systemctl daemon-reload
 nginx_enable_site materialpool
+unset GITHUB_TOKEN
 /usr/local/sbin/materialpool-update update
+msg_info "Ersten Global-Admin anlegen"
+if ! runuser -u www-data -- env -u APP_ENV php /srv/materialpool/current/artisan users:manage create --first-admin </dev/tty; then
+  msg_error "Anwendung installiert, aber der erste Global-Admin fehlt. Im LXC den dokumentierten users:manage-Befehl erneut ausführen."
+  exit 1
+fi
 motd_ssh
 customize
 # Das Community-Standardkommando zielt auf dessen Script-Repository; Materialpool

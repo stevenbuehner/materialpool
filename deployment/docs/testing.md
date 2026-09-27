@@ -8,6 +8,7 @@ Diese Schritte gelten für einen isolierten Test-LXC und ein Test-Repository bez
 git branch --show-current
 git status --short
 ./vendor/bin/sail up -d
+./vendor/bin/sail exec -e APP_ENV=testing -e DB_CONNECTION=mysql -e DB_HOST=mysql -e DB_DATABASE=testing laravel.test php artisan test tests/Feature/Admin/ManageUsersTest.php
 ./vendor/bin/sail test
 npm run test:ci
 npm run build
@@ -38,7 +39,7 @@ Proxmox-Shell öffnen, **vorher ein isoliertes privates Netz und blockierende Fi
 
 ## E. Laravel-LXC neu installieren
 
-Proxmox-Shell und Materialpool-Checkout öffnen; `COMMUNITY_SCRIPTS_ROOT="$PWD" bash ct/materialpool.sh` ausführen. Default oder Advanced wählen, dann Container-ID, Storage, Netzwerk, 2 CPU/3072 MiB/24 GiB oder gemessene Werte festlegen. Reale HTTPS-, Proxy-, SMTP-, S3- und Qdrant-Werte interaktiv eingeben. Im LXC prüfen:
+Proxmox-Shell und Materialpool-Checkout öffnen; `COMMUNITY_SCRIPTS_ROOT="$PWD" bash ct/materialpool.sh` ausführen. Default oder Advanced wählen, dann Container-ID, Storage, Netzwerk, 2 CPU/3072 MiB/24 GiB oder gemessene Werte festlegen. Reale HTTPS-, Proxy-, SMTP-, S3- und Qdrant-Werte interaktiv eingeben. Nach dem ersten Release den ersten Global-Admin mit Name, E-Mail und verdeckt eingegebenem Passwort anlegen. Im LXC prüfen:
 
 ```bash
 cat /srv/materialpool/current/release.json
@@ -53,7 +54,7 @@ systemctl status nginx php8.4-fpm mariadb materialpool-queue.service materialpoo
 curl -i http://127.0.0.1/up
 ```
 
-Danach im Browser über den TLS-Reverse-Proxy Anmeldung, geschützte Seite, Resource-Download, Upload/Vorschau und API testen. Qdrant nur mit eingerichtetem Schlüssel aus dem Laravel-LXC testen. Der Fresh-Installer erzeugt keine fachlichen Admin-Konten oder Passport-Clients; deren Einrichtung muss separat autorisiert und getestet werden.
+`migrate:status` muss alle für das Release vorgesehenen Migrationen als ausgeführt anzeigen. Danach im Browser über den TLS-Reverse-Proxy die Anmeldung des gerade angelegten Global-Admins, geschützte Seite, Resource-Download, Upload/Vorschau und API testen. Im Test-LXC zusätzlich `runuser -u www-data -- php /srv/materialpool/current/artisan users:manage update` für diesen Testbenutzer ausführen und den Login mit der geänderten E-Mail und dem neuen Passwort prüfen; alte Zugangsdaten dürfen nicht mehr funktionieren. Qdrant nur mit eingerichtetem Schlüssel aus dem Laravel-LXC testen. Passport-Clients für eine frische Instanz benötigen einen gesondert geprüften Einrichtungsschritt.
 
 ## F. Kein Node im Produktions-LXC
 
@@ -61,7 +62,7 @@ Danach im Browser über den TLS-Reverse-Proxy Anmeldung, geschützte Seite, Reso
 
 ## G. Update testen
 
-In einem eigenen Testbranch eine harmlose, sichtbare Textänderung mit bestehendem Übersetzungsmechanismus vornehmen, CI vollständig abwarten, `git tag v0.0.2 && git push github v0.0.2` ausführen und Assets/Checksumme wie in C prüfen. Im **Test-LXC** vor `update` die Werte aus `current/release.json`, `readlink -f current`, `.env`-Prüfsumme und einen Testdatensatz/Testupload notieren. `update` ausführen. Danach neues Release, Backup unter `/srv/materialpool/shared/backups`, Migrationstatus, `systemctl is-active` aller Dienste, `/up`, Browser, Queue und persistente Daten prüfen. Nochmaliges `update` muss „bereits aktuell“ melden.
+In einem eigenen Testbranch eine harmlose, sichtbare Textänderung mit bestehendem Übersetzungsmechanismus vornehmen, CI vollständig abwarten, `git tag v0.0.2 && git push github v0.0.2` ausführen und Assets/Checksumme wie in C prüfen. Im **Test-LXC** vor `update` die Werte aus `current/release.json`, `readlink -f current`, `.env`-Prüfsumme und einen Testdatensatz/Testupload notieren. `update` ausführen. Danach neues Release, Backup unter `/srv/materialpool/shared/backups`, `migrate:status` mit allen Migrationen des neuen Release, `systemctl is-active` aller Dienste, `/up`, Browser, Queue, Admin-Login und persistente Daten prüfen. Das Update darf keinen weiteren ersten Admin anlegen und bestehende Zugangsdaten nicht ersetzen. Nochmaliges `update` muss „bereits aktuell“ melden.
 
 ## H. Persistenztest
 
@@ -98,6 +99,7 @@ Zunächst aktuelle Testdatenbank separat mit `mariadb-dump --single-transaction 
 - [ ] Im Laravel-LXC kein Docker, Node oder npm
 - [ ] Nginx, PHP-FPM, MariaDB, Queue und Scheduler aktiv
 - [ ] `/up`, Login, API, Upload und Browser geprüft
+- [ ] Migrationen und interaktiver erster Global-Admin im Test-LXC geprüft; Admin-Login bleibt nach Update möglich
 - [ ] `APP_DEBUG=false`, `.env` nicht öffentlich, Proxy-CIDR konkret
 - [ ] Qdrant aus Laravel erreichbar und nur intern zugänglich
 - [ ] Lokaler/S3-Backup-Restore und Proxmox-Backup geprüft

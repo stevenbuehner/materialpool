@@ -34,6 +34,8 @@ Diese README ist der zentrale Einstieg. Bei Abweichungen gelten die spezielleren
 
 **Neuer Installationsweg:** Für neue Proxmox-Installationen gilt [Materialpool auf Proxmox VE](deployment/README.md) mit [Installation](deployment/docs/installation.md), [Update](deployment/docs/update.md) und [vollständiger Testanleitung](deployment/docs/testing.md). GitHub Actions testet und baut versionierte Releases; der unprivilegierte Debian-LXC betreibt Laravel mit Nginx, PHP-FPM 8.4 und MariaDB ohne Docker oder Node. Qdrant läuft in einem separaten LXC. Im Laravel-LXC startet `update` nach Veröffentlichung eines stabilen GitHub-Releases den geprüften Updateablauf. Ein bestehender Datenbestand benötigt einen gesondert verifizierten Restore; der Fresh-Installer verweigert die Übernahme.
 
+Der Proxmox-Installer führt die Datenbankmigrationen beim ersten Release aus und fragt anschließend den ersten aktiven Global-Admin ab. Im LXC kann ein vorhandener Benutzer interaktiv mit `runuser -u www-data -- php /srv/materialpool/current/artisan users:manage update` bearbeitet werden; dabei lassen sich insbesondere E-Mail und Passwort ändern, ohne das Passwort als Befehlsargument oder im Terminalprotokoll auszugeben. Der produktive Datenbankzugang und `APP_KEY` liegen dauerhaft in `/srv/materialpool/shared/.env`, auf die jedes Release verweist. Weitere Einzelheiten und der Wiederanlauf bei abgebrochener Admin-Eingabe stehen in der [Installationsanleitung](deployment/docs/installation.md).
+
 **Altbetrieb:** Die nachstehenden Abschnitte 1.1 bis 1.3 beschreiben weiterhin den vorhandenen Ubuntu-24.04-/MySQL-8-Server und `ops/production/`. Diese Befehle gelten nicht für den neuen Proxmox-LXC. Der neue Betrieb ist erst nach den in der Proxmox-Testanleitung beschriebenen externen Tests freigegeben.
 
 Die Produktion läuft auf einem einzelnen Ubuntu-24.04-LTS-Server mit Nginx, PHP-FPM 8.4 und MySQL 8 hinter einem externen TLS-Reverse-Proxy. Supervisor betreibt den Default-Queue-Worker; Cron startet jede Minute Laravels Scheduler. Node.js wird auf dem Produktionsserver nicht benötigt.
@@ -371,14 +373,13 @@ Abhängigkeiten werden aus `composer.lock` und `package-lock.json` installiert. 
 ```sh
 composer install
 test -f .env || cp .env.example .env
-php artisan key:generate
 npm ci --ignore-scripts
 ./vendor/bin/sail up -d
 ```
 
-`composer install` und die beiden Host-PHP-Befehle setzen PHP 8.4 mit den benötigten Erweiterungen voraus. Ist das lokal nicht verfügbar, Composer und Artisan in einem passenden PHP-8.4-Container ausführen. Das ältere Host-PHP ist keine gültige Referenz für das Projekt.
+Nur bei einer frisch angelegten `.env` ohne `APP_KEY` einmal `./vendor/bin/sail artisan key:generate` ausführen. Bei bestehenden verschlüsselten Daten den vorhandenen Schlüssel übernehmen und nicht ersetzen. `composer install` setzt PHP 8.4 mit den benötigten Erweiterungen voraus; ist das lokal nicht verfügbar, Composer in einem passenden PHP-8.4-Container ausführen. Das ältere Host-PHP ist keine gültige Referenz für das Projekt.
 
-Die lokale `.env` muss auf den Sail-MySQL-Dienst zeigen (`DB_HOST=mysql`). Entwicklungsdaten und Testdaten bleiben getrennt. Anschließend das Entwicklungssystem starten:
+Die lokale `.env` wird nicht versioniert. Docker Compose liest aus ihr die Werte für MySQL und Qdrant; Laravel verwendet dieselbe Datei über das eingebundene Projektverzeichnis. `DB_HOST=mysql`, `DB_DATABASE`, `DB_USERNAME` und `DB_PASSWORD` müssen zur lokalen MySQL-Instanz passen. Eine zusätzliche `.env.local` ist dafür nicht erforderlich. Entwicklungsdaten und Testdaten bleiben getrennt. Anschließend das Entwicklungssystem starten:
 
 ```sh
 ./vendor/bin/sail artisan dev

@@ -9,6 +9,7 @@ Lokale Entwicklung verwendet Laravel Sail. GitHub Actions prüft PHP und JavaScr
 | Qdrant | separater LXC, TCP 6333 nur vom Laravel-Netz |
 | Anwendung | `/srv/materialpool/current` → `/srv/materialpool/releases/vX.Y.Z` |
 | Dauerhafte Daten | `/srv/materialpool/shared/.env`, `storage`, `public-uploads` |
+| Erster Admin | interaktiv nach den Fresh-Migrationen über `users:manage create --first-admin` |
 | Deployment-Backups | `/srv/materialpool/shared/backups` |
 | Update | im LXC `update` |
 | Queue | `materialpool-queue.service`, `default,resource-previews-low` |
