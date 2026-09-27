@@ -1,8 +1,13 @@
 <template>
   <main class="container-fluid py-3 ocr-calibration">
     <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-3">
-      <div><h1 class="h3">{{ $t('pool.ocr-calibration-title') }}</h1><p class="text-muted">{{ $t('pool.ocr-calibration-intro') }}</p></div>
-      <router-link class="btn btn-outline-secondary" :to="{name: 'context-search-evaluation-datasets'}">{{ $t('pool.ai-datasets') }}</router-link>
+      <div>
+        <h1 class="h3">{{ $t('pool.ocr-calibration-title') }}</h1>
+        <p class="text-muted">{{ $t('pool.ocr-calibration-intro') }}</p>
+      </div>
+      <router-link class="btn btn-outline-secondary" :to="{name: 'context-search-evaluation-datasets'}">
+        {{ $t('pool.ai-datasets') }}
+      </router-link>
     </div>
     <div v-if="error" class="alert alert-danger" role="alert">{{ error }}</div>
     <div class="alert alert-warning">{{ $t('pool.ocr-calibration-dev-only') }}</div>
@@ -39,7 +44,19 @@ import CopyIcon from '@icons/vendor/svg-icon/trimmed-svg/bootstrap/copy.svg';
 export default {
   name: 'ContextSearchOcrCalibration',
   components: {MaterialpoolSpinner, HistoryIcon, CheckIcon, CopyIcon},
-  data: () => ({datasets: [], runs: [], run: null, datasetId: '', sampleLimit: 50, title: '', busy: false, savingPageId: null, copiedPageId: null, error: '', labels: ['usable', 'unusable', 'uncertain', 'handwriting', 'blank']}),
+  data: () => ({
+    datasets: [],
+    runs: [],
+    run: null,
+    datasetId: '',
+    sampleLimit: 50,
+    title: '',
+    busy: false,
+    savingPageId: null,
+    copiedPageId: null,
+    error: '',
+    labels: ['usable', 'unusable', 'uncertain', 'handwriting', 'blank'],
+  }),
   computed: {
     approvedEnv() {
       const profile = this.run?.approved_profile || {};
@@ -58,15 +75,28 @@ export default {
       return settings.join('\n');
     },
   },
-  async mounted() { await this.load(); },
-  beforeUnmount() { this.stopPolling(); clearTimeout(this.copyResetTimer); },
+  async mounted() {
+    await this.load();
+  },
+  beforeUnmount() {
+    this.stopPolling();
+    clearTimeout(this.copyResetTimer);
+  },
   methods: {
     ocrOutput,
     async load() { try { const {data} = await axios.get('/api/v2/admin/context-search/ocr-calibration'); this.datasets = data.datasets; this.runs = data.runs; if (this.run) await this.selectRun(this.run.id); } catch (error) { this.error = error.response?.data?.message || error.message; } },
     async createRun() { this.busy = true; this.error = ''; try { const {data} = await axios.post('/api/v2/admin/context-search/ocr-calibration/runs', {dataset_id: this.datasetId, sample_limit: this.sampleLimit, title: this.title || null}); this.runs.unshift(data.run); await this.selectRun(data.run.id); } catch (error) { this.error = error.response?.data?.message || error.message; } finally { this.busy = false; } },
     async selectRun(id) { this.stopPolling(); const version = this.pollVersion; this.error = ''; try { const {data} = await axios.get(`/api/v2/admin/context-search/ocr-calibration/runs/${id}`); if (version !== this.pollVersion) return; this.run = data.run; const index = this.runs.findIndex(item => item.id === id); if (index >= 0) this.runs.splice(index, 1, {...this.runs[index], ...data.run}); this.schedulePoll(); } catch (error) { this.error = error.response?.data?.message || error.message; } },
-    stopPolling() { clearTimeout(this.pollTimer); this.pollTimer = null; this.pollVersion = (this.pollVersion || 0) + 1; },
-    schedulePoll() { if (this.run?.status === 'processing') this.pollTimer = setTimeout(() => this.pollProgress(), 10000); },
+    stopPolling() {
+      clearTimeout(this.pollTimer);
+      this.pollTimer = null;
+      this.pollVersion = (this.pollVersion || 0) + 1;
+    },
+    schedulePoll() {
+      if (this.run?.status === 'processing') {
+        this.pollTimer = setTimeout(() => this.pollProgress(), 10000);
+      }
+    },
     async pollProgress() {
       const version = this.pollVersion;
       const runId = this.run?.id;
@@ -105,9 +135,15 @@ export default {
     async saveReview(page) { this.busy = true; this.savingPageId = page.id; try { const {data} = await axios.put(`/api/v2/admin/context-search/ocr-calibration/runs/${this.run.id}/pages/${page.id}`, {quality_label: page.quality_label, reference_text: page.reference_text, review_note: page.review_note}); this.run = data.run; } catch (error) { this.error = error.response?.data?.message || error.message; } finally { this.busy = false; this.savingPageId = null; } },
     async evaluate() { this.busy = true; try { await axios.post(`/api/v2/admin/context-search/ocr-calibration/runs/${this.run.id}/evaluate`); await this.selectRun(this.run.id); } catch (error) { this.error = error.response?.data?.message || error.message; } finally { this.busy = false; } },
     async approve() { this.busy = true; try { await axios.post(`/api/v2/admin/context-search/ocr-calibration/runs/${this.run.id}/approve`); await this.selectRun(this.run.id); await this.load(); } catch (error) { this.error = error.response?.data?.message || error.message; } finally { this.busy = false; } },
-    preview(page) { return pdfPreviewImageForPageLarge({id: page.resource_id}, page.page_number); },
-    status(value) { return this.$t(`pool.ocr-calibration-status-${value}`); },
-    percent(value) { return value === null || value === undefined ? '—' : `${(Number(value) * 100).toFixed(1)} %`; },
+    preview(page) {
+      return pdfPreviewImageForPageLarge({id: page.resource_id}, page.page_number);
+    },
+    status(value) {
+      return this.$t(`pool.ocr-calibration-status-${value}`);
+    },
+    percent(value) {
+      return value === null || value === undefined ? '—' : `${(Number(value) * 100).toFixed(1)} %`;
+    },
   },
 };
 </script>
