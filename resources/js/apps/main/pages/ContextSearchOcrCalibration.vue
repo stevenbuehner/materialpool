@@ -20,7 +20,7 @@
       <div class="col-xl-9" v-if="run">
         <section class="card mb-3"><div class="card-body d-flex justify-content-between flex-wrap gap-2"><div><h2 class="h5 mb-1">{{ run.title || run.id }}</h2><div class="text-muted small">{{ run.ocr_profile?.profile_id }} · {{ run.ocr_profile?.languages }} · {{ run.ocr_profile?.render_dpi }} dpi · PSM {{ run.ocr_profile?.page_segmentation_mode }} · {{ run.ocr_profile?.tesseract_version }}</div></div><button class="btn btn-outline-primary" @click="evaluate" :disabled="busy || run.processed_pages < run.total_pages">{{ $t('pool.ocr-calibration-evaluate') }}</button></div><div class="progress rounded-0" role="progressbar" :aria-valuenow="run.processed_pages" :aria-valuemax="run.total_pages"><div class="progress-bar" :style="{width: `${run.total_pages ? run.processed_pages / run.total_pages * 100 : 0}%`}"></div></div></section>
         <section v-if="run.sweep_results" class="card mb-3"><div class="card-body"><h2 class="h5">{{ $t('pool.ocr-calibration-results') }}</h2><p>{{ $t('pool.ocr-calibration-recommendation', {threshold: run.sweep_results.recommended_threshold ?? '—'}) }}</p><p v-if="run.sweep_results.holdout">{{ $t('pool.ocr-calibration-holdout', {precision: percent(run.sweep_results.holdout.usable_precision), coverage: percent(run.sweep_results.holdout.coverage), cer: percent(run.sweep_results.holdout.character_error_rate), wer: percent(run.sweep_results.holdout.word_error_rate)}) }}</p><div class="table-responsive"><table class="table table-sm"><thead><tr><th>{{ $t('pool.ocr-calibration-threshold') }}</th><th>{{ $t('pool.ocr-calibration-coverage') }}</th><th>{{ $t('pool.ocr-calibration-precision') }}</th><th>CER</th><th>WER</th></tr></thead><tbody><tr v-for="score in run.sweep_results.threshold_sweep" :key="score.threshold" :class="{'table-success': score.threshold === run.sweep_results.recommended_threshold}"><td>{{ percent(score.threshold) }}</td><td>{{ percent(score.coverage) }}</td><td>{{ percent(score.usable_precision) }}</td><td>{{ percent(score.character_error_rate) }}</td><td>{{ percent(score.word_error_rate) }}</td></tr></tbody></table></div><button v-if="run.status === 'evaluated'" class="btn btn-success" @click="approve" :disabled="busy">{{ $t('pool.ocr-calibration-approve') }}</button><div v-if="run.approved_profile_hash" class="alert alert-success mt-3 mb-0"><strong>{{ $t('pool.ocr-calibration-profile-approved') }}</strong><div class="small font-monospace">SHA-256: {{ run.approved_profile_hash }}</div><pre class="small mt-2 mb-0">{{ JSON.stringify(run.approved_profile, null, 2) }}</pre><label class="form-label mt-3">{{ $t('pool.ocr-calibration-env-settings') }}</label><pre class="small mb-0">{{ approvedEnv }}</pre></div></div></section>
-        <section><h2 class="h5">{{ $t('pool.ocr-calibration-pages') }} ({{ run.pages.length }})</h2><article v-for="page in run.pages" :key="page.id" class="card mb-3" :class="{'border-warning': page.split === 'holdout'}"><div class="card-header d-flex justify-content-between flex-wrap gap-2"><span>Resource {{ page.resource_id }} · {{ $t('pool.ocr-calibration-page') }} {{ page.page_number }} · {{ page.split === 'holdout' ? $t('pool.ocr-calibration-holdout-set') : $t('pool.ocr-calibration-calibration-set') }}</span><span>{{ page.status }}<template v-if="page.metrics"> · {{ $t('pool.ocr-calibration-confidence') }} {{ percent(page.metrics.mean_confidence) }} · {{ page.metrics.recognized_word_count }} {{ $t('pool.ocr-calibration-words') }}</template></span></div><div class="card-body"><div class="row g-3"><div class="col-lg-5"><div class="ocr-preview border bg-light"><img class="img-fluid" :key="preview(page)" :src="preview(page)" :alt="$t('pool.ocr-calibration-page-preview')" v-image-queue.hide @q-queued="page.previewLoadState = 'queued'" @q-loading="page.previewLoadState = 'loading'" @q-loaded="page.previewLoadState = 'loaded'" @q-error="page.previewLoadState = 'error'"><div v-if="page.previewLoadState === 'loading'" class="ocr-preview-indicator"><materialpool-spinner size="lg"/></div><div v-else-if="!page.previewLoadState || page.previewLoadState === 'queued'" class="ocr-preview-indicator" :title="$t('pool.Preview-waiting-in-queue')"><history-icon aria-hidden="true"/><span class="visually-hidden">{{ $t('pool.Preview-waiting-in-queue') }}</span></div><span v-else-if="page.previewLoadState === 'error'" class="ocr-preview-indicator">{{ $t('pool.ocr-calibration-page-preview') }}</span></div></div><div class="col-lg-7"><label class="form-label">{{ $t('pool.ocr-calibration-ocr-output') }}</label><pre class="ocr-text">{{ ocrOutput(page, $t) }}</pre><div class="row g-2"><div class="col-md-5"><label class="form-label" :for="`label-${page.id}`">{{ $t('pool.ocr-calibration-quality-label') }}</label><select :id="`label-${page.id}`" v-model="page.quality_label" class="form-select"><option value="">—</option><option v-for="label in labels" :key="label" :value="label">{{ $t(`pool.ocr-calibration-label-${label}`) }}</option></select></div><div class="col-md-7"><label class="form-label" :for="`reference-${page.id}`">{{ $t('pool.ocr-calibration-reference') }}</label><textarea :id="`reference-${page.id}`" v-model="page.reference_text" class="form-control" rows="4" maxlength="30000"></textarea></div></div><label class="form-label mt-2" :for="`note-${page.id}`">{{ $t('pool.ocr-calibration-note') }}</label><div class="d-flex gap-2"><input :id="`note-${page.id}`" v-model="page.review_note" class="form-control" maxlength="2000"><button class="btn btn-outline-primary flex-shrink-0" :disabled="busy || page.status !== 'processed' || !page.quality_label" @click="saveReview(page)">{{ $t('pool.ocr-calibration-save-review') }}</button></div></div></div></div></article></section>
+        <section><h2 class="h5">{{ $t('pool.ocr-calibration-pages') }} ({{ run.pages.length }})</h2><article v-for="page in run.pages" :key="page.id" class="card mb-3" :class="{'border-warning': page.split === 'holdout'}"><div class="card-header d-flex justify-content-between flex-wrap gap-2"><span><router-link class="ocr-resource-link" :to="{name: 'resource-detail', params: {id: page.resource_id}}" target="_blank" rel="noopener noreferrer">Resource {{ page.resource_id }} · {{ $t('pool.ocr-calibration-page') }} {{ page.page_number }}</router-link> · {{ page.split === 'holdout' ? $t('pool.ocr-calibration-holdout-set') : $t('pool.ocr-calibration-calibration-set') }}</span><span>{{ page.status }}<template v-if="page.metrics"> · {{ $t('pool.ocr-calibration-confidence') }} {{ percent(page.metrics.mean_confidence) }} · {{ page.metrics.recognized_word_count }} {{ $t('pool.ocr-calibration-words') }}</template></span></div><div class="card-body"><div class="row g-3"><div class="col-lg-5"><div class="ocr-preview border bg-light"><img class="img-fluid" :key="preview(page)" :src="preview(page)" :alt="$t('pool.ocr-calibration-page-preview')" v-image-queue.hide @q-queued="page.previewLoadState = 'queued'" @q-loading="page.previewLoadState = 'loading'" @q-loaded="page.previewLoadState = 'loaded'" @q-error="page.previewLoadState = 'error'"><div v-if="page.previewLoadState === 'loading'" class="ocr-preview-indicator"><materialpool-spinner size="lg"/></div><div v-else-if="!page.previewLoadState || page.previewLoadState === 'queued'" class="ocr-preview-indicator" :title="$t('pool.Preview-waiting-in-queue')"><history-icon aria-hidden="true"/><span class="visually-hidden">{{ $t('pool.Preview-waiting-in-queue') }}</span></div><span v-else-if="page.previewLoadState === 'error'" class="ocr-preview-indicator">{{ $t('pool.ocr-calibration-page-preview') }}</span></div></div><div class="col-lg-7"><div class="d-flex align-items-center justify-content-between gap-2"><label class="form-label mb-0">{{ $t('pool.ocr-calibration-ocr-output') }}</label><button class="btn btn-sm btn-outline-secondary ocr-copy-button" type="button" :disabled="!page.ocr_text" :title="$t(copiedPageId === page.id ? 'pool.ocr-calibration-copied' : 'pool.Copy')" :aria-label="$t(copiedPageId === page.id ? 'pool.ocr-calibration-copied' : 'pool.Copy')" @click="copyOcrText(page)"><check-icon v-if="copiedPageId === page.id" aria-hidden="true"/><copy-icon v-else aria-hidden="true"/></button></div><pre class="ocr-text">{{ ocrOutput(page, $t) }}</pre><div class="row g-2"><div class="col-md-5"><label class="form-label" :for="`label-${page.id}`">{{ $t('pool.ocr-calibration-quality-label') }}</label><select :id="`label-${page.id}`" v-model="page.quality_label" class="form-select"><option value="">—</option><option v-for="label in labels" :key="label" :value="label">{{ $t(`pool.ocr-calibration-label-${label}`) }}</option></select></div><div class="col-md-7"><label class="form-label" :for="`reference-${page.id}`">{{ $t('pool.ocr-calibration-reference') }}</label><textarea :id="`reference-${page.id}`" v-model="page.reference_text" class="form-control" rows="4" maxlength="30000"></textarea></div></div><label class="form-label mt-2" :for="`note-${page.id}`">{{ $t('pool.ocr-calibration-note') }}</label><div class="d-flex gap-2"><input :id="`note-${page.id}`" v-model="page.review_note" class="form-control" maxlength="2000"><button class="btn btn-outline-primary flex-shrink-0" :disabled="busy || page.status !== 'processed' || !page.quality_label" @click="saveReview(page)"><materialpool-spinner v-if="savingPageId === page.id" size="sm" variant="primary" class="me-1"/>{{ $t('pool.ocr-calibration-save-review') }}</button></div></div></div></div></article></section>
       </div>
       <div v-else class="col-xl-9"><div class="alert alert-info">{{ $t('pool.ocr-calibration-select-run') }}</div></div>
     </section>
@@ -33,11 +33,13 @@ import {pdfPreviewImageForPageLarge} from '@/components/serverRoutes';
 import {ocrOutput} from './ocrCalibrationOutput';
 import MaterialpoolSpinner from '@/components/spinner/materialpool-spinner.vue';
 import HistoryIcon from '@primer/octicons/build/svg/history.svg';
+import CheckIcon from '@primer/octicons/build/svg/check.svg';
+import CopyIcon from '@icons/vendor/svg-icon/trimmed-svg/bootstrap/copy.svg';
 
 export default {
   name: 'ContextSearchOcrCalibration',
-  components: {MaterialpoolSpinner, HistoryIcon},
-  data: () => ({datasets: [], runs: [], run: null, datasetId: '', sampleLimit: 50, title: '', busy: false, error: '', labels: ['usable', 'unusable', 'uncertain', 'handwriting', 'blank']}),
+  components: {MaterialpoolSpinner, HistoryIcon, CheckIcon, CopyIcon},
+  data: () => ({datasets: [], runs: [], run: null, datasetId: '', sampleLimit: 50, title: '', busy: false, savingPageId: null, copiedPageId: null, error: '', labels: ['usable', 'unusable', 'uncertain', 'handwriting', 'blank']}),
   computed: {
     approvedEnv() {
       const profile = this.run?.approved_profile || {};
@@ -57,12 +59,50 @@ export default {
     },
   },
   async mounted() { await this.load(); },
+  beforeUnmount() { this.stopPolling(); clearTimeout(this.copyResetTimer); },
   methods: {
     ocrOutput,
     async load() { try { const {data} = await axios.get('/api/v2/admin/context-search/ocr-calibration'); this.datasets = data.datasets; this.runs = data.runs; if (this.run) await this.selectRun(this.run.id); } catch (error) { this.error = error.response?.data?.message || error.message; } },
     async createRun() { this.busy = true; this.error = ''; try { const {data} = await axios.post('/api/v2/admin/context-search/ocr-calibration/runs', {dataset_id: this.datasetId, sample_limit: this.sampleLimit, title: this.title || null}); this.runs.unshift(data.run); await this.selectRun(data.run.id); } catch (error) { this.error = error.response?.data?.message || error.message; } finally { this.busy = false; } },
-    async selectRun(id) { this.error = ''; try { const {data} = await axios.get(`/api/v2/admin/context-search/ocr-calibration/runs/${id}`); this.run = data.run; const index = this.runs.findIndex(item => item.id === id); if (index >= 0) this.runs.splice(index, 1, {...this.runs[index], ...data.run}); } catch (error) { this.error = error.response?.data?.message || error.message; } },
-    async saveReview(page) { this.busy = true; try { const {data} = await axios.put(`/api/v2/admin/context-search/ocr-calibration/runs/${this.run.id}/pages/${page.id}`, {quality_label: page.quality_label, reference_text: page.reference_text, review_note: page.review_note}); this.run = data.run; } catch (error) { this.error = error.response?.data?.message || error.message; } finally { this.busy = false; } },
+    async selectRun(id) { this.stopPolling(); const version = this.pollVersion; this.error = ''; try { const {data} = await axios.get(`/api/v2/admin/context-search/ocr-calibration/runs/${id}`); if (version !== this.pollVersion) return; this.run = data.run; const index = this.runs.findIndex(item => item.id === id); if (index >= 0) this.runs.splice(index, 1, {...this.runs[index], ...data.run}); this.schedulePoll(); } catch (error) { this.error = error.response?.data?.message || error.message; } },
+    stopPolling() { clearTimeout(this.pollTimer); this.pollTimer = null; this.pollVersion = (this.pollVersion || 0) + 1; },
+    schedulePoll() { if (this.run?.status === 'processing') this.pollTimer = setTimeout(() => this.pollProgress(), 10000); },
+    async pollProgress() {
+      const version = this.pollVersion;
+      const runId = this.run?.id;
+      if (!runId || this.run.status !== 'processing') return;
+      try {
+        const {data} = await axios.get('/api/v2/admin/context-search/ocr-calibration');
+        if (version !== this.pollVersion || this.run?.id !== runId) return;
+        const latest = data.runs.find(item => item.id === runId)
+          || (await axios.get(`/api/v2/admin/context-search/ocr-calibration/runs/${runId}`)).data.run;
+        if (version !== this.pollVersion || this.run?.id !== runId) return;
+        if (latest) {
+          Object.assign(this.run, {status: latest.status, processed_pages: latest.processed_pages, total_pages: latest.total_pages, reviewed_pages: latest.reviewed_pages});
+          const index = this.runs.findIndex(item => item.id === runId);
+          if (index >= 0) Object.assign(this.runs[index], latest);
+          if (latest.status !== 'processing') {
+            const {data: completed} = await axios.get(`/api/v2/admin/context-search/ocr-calibration/runs/${runId}`);
+            if (version !== this.pollVersion || this.run?.id !== runId) return;
+            for (const incoming of completed.run.pages) {
+              const local = this.run.pages.find(page => page.id === incoming.id);
+              if (local) Object.assign(local, {status: incoming.status, metrics: incoming.metrics, ocr_text: incoming.ocr_text});
+            }
+            return;
+          }
+        }
+      } catch (error) { this.error = error.response?.data?.message || error.message; }
+      if (version === this.pollVersion) this.schedulePoll();
+    },
+    async copyOcrText(page) {
+      try {
+        await navigator.clipboard.writeText(page.ocr_text);
+        this.copiedPageId = page.id;
+        clearTimeout(this.copyResetTimer);
+        this.copyResetTimer = setTimeout(() => { this.copiedPageId = null; }, 3000);
+      } catch (error) { this.error = this.$t('pool.ocr-calibration-copy-failed'); }
+    },
+    async saveReview(page) { this.busy = true; this.savingPageId = page.id; try { const {data} = await axios.put(`/api/v2/admin/context-search/ocr-calibration/runs/${this.run.id}/pages/${page.id}`, {quality_label: page.quality_label, reference_text: page.reference_text, review_note: page.review_note}); this.run = data.run; } catch (error) { this.error = error.response?.data?.message || error.message; } finally { this.busy = false; this.savingPageId = null; } },
     async evaluate() { this.busy = true; try { await axios.post(`/api/v2/admin/context-search/ocr-calibration/runs/${this.run.id}/evaluate`); await this.selectRun(this.run.id); } catch (error) { this.error = error.response?.data?.message || error.message; } finally { this.busy = false; } },
     async approve() { this.busy = true; try { await axios.post(`/api/v2/admin/context-search/ocr-calibration/runs/${this.run.id}/approve`); await this.selectRun(this.run.id); await this.load(); } catch (error) { this.error = error.response?.data?.message || error.message; } finally { this.busy = false; } },
     preview(page) { return pdfPreviewImageForPageLarge({id: page.resource_id}, page.page_number); },
@@ -73,8 +113,12 @@ export default {
 </script>
 
 <style scoped>
+.ocr-resource-link { color: inherit; text-decoration: none; }
+.ocr-resource-link:hover, .ocr-resource-link:focus-visible { color: inherit; text-decoration: underline; }
+.ocr-copy-button { line-height: 1; }
+.ocr-copy-button :deep(svg) { width: 1rem; height: 1rem; fill: currentColor; }
+.ocr-text { min-height: 7rem; max-height: 14rem; overflow: auto; white-space: pre-wrap; overflow-wrap: anywhere; background: var(--bs-light); border: 1px solid var(--bs-border-color); padding: .75rem; font-size: .9rem; }
 .ocr-preview { position: relative; min-height: 12rem; }
 .ocr-preview-indicator { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: var(--bs-primary); pointer-events: none; }
 .ocr-preview-indicator :deep(svg) { width: 2.5rem; height: 2.5rem; fill: currentColor; }
-.ocr-text { min-height: 7rem; max-height: 14rem; overflow: auto; white-space: pre-wrap; overflow-wrap: anywhere; background: var(--bs-light); border: 1px solid var(--bs-border-color); padding: .75rem; font-size: .9rem; }
 </style>

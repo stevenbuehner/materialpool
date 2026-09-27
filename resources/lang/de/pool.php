@@ -41,6 +41,8 @@ return [
 	'ocr-calibration-confidence' => 'Konfidenz',
 	'ocr-calibration-words' => 'Wörter',
 	'ocr-calibration-page-preview' => 'PDF-Seitenvorschau',
+	'ocr-calibration-copied' => 'Kopiert',
+	'ocr-calibration-copy-failed' => 'OCR-Text konnte nicht kopiert werden.',
 	'ocr-calibration-ocr-output' => 'Erkannter OCR-Text',
 	'ocr-calibration-no-text-recognized' => 'Kein Text erkannt.',
 	'ocr-calibration-text-unavailable' => 'OCR-Text noch nicht verfügbar.',
