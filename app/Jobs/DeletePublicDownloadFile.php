@@ -2,6 +2,8 @@
 
 namespace App\Jobs;
 
+use DateInterval;
+use DateTimeInterface;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -17,7 +19,7 @@ class DeletePublicDownloadFile implements ShouldQueue {
 	 * CheckLonelyResource constructor.
 	 *
 	 * @param String $filePath
-	 * @param \DateTimeInterface|\DateInterval|int|null $delay
+	 * @param DateTimeInterface|DateInterval|int|null $delay
 	 */
 	public function __construct(string $filePath, $delay) {
 

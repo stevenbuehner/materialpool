@@ -3,8 +3,8 @@
 namespace App\Jobs;
 
 use App\Models\Keyword;
-use App\Models\Material;
 use App\Services\KeywordHandling\KeywordHandlingService;
+use Exception;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Log;
 class CheckLonelyKeyword implements ShouldQueue {
 	use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-	/** @var Keyword $keywordToCheck*/
+	/** @var Keyword $keywordToCheck */
 	protected $keywordToCheck;
 
 	/**
@@ -31,7 +31,7 @@ class CheckLonelyKeyword implements ShouldQueue {
 	/**
 	 * Execute the job.
 	 * @param KeywordHandlingService $keywordHandlingService
-	 * @throws \Exception
+	 * @throws Exception
 	 */
 	public function handle(KeywordHandlingService $keywordHandlingService) {
 		$parent = $this->keywordToCheck->parent;
@@ -43,7 +43,7 @@ class CheckLonelyKeyword implements ShouldQueue {
 				CheckLonelyKeyword::dispatch($parent);
 			}
 
-		};
+		}
 	}
 
 	protected function deleteKeywordIfLonely(KeywordHandlingService $keywordHandlingService, Keyword $keyword) {

@@ -5,8 +5,8 @@ namespace App\Providers;
 use App\ResourceLimitations\ResourceLimitationService;
 use App\Services\Bundles\BundleQueueService;
 use App\Services\Bundles\BundlesService;
-use App\Services\ContextSearch\EmbeddingProfile;
 use App\Services\ContextSearch\ContextSearchResourceIndexer;
+use App\Services\ContextSearch\EmbeddingProfile;
 use App\Services\ContextSearch\Extraction\OcrProcessor;
 use App\Services\ContextSearch\Extraction\OcrQualityGate;
 use App\Services\ContextSearch\Extraction\ResourceTextExtractor;
@@ -99,65 +99,65 @@ class AppServiceProvider extends ServiceProvider {
 		$this->app->singleton(BundleQueueService::class);
 
 		// Context Search
-		$this->app->singleton(QdrantClient::class, fn (): QdrantClient => new HttpQdrantClient(
-			url: (string) config('context_search.qdrant.url'),
+		$this->app->singleton(QdrantClient::class, fn(): QdrantClient => new HttpQdrantClient(
+			url: (string)config('context_search.qdrant.url'),
 			apiKey: config('context_search.qdrant.api_key'),
-			connectTimeout: (int) config('context_search.qdrant.connect_timeout'),
-			timeout: (int) config('context_search.qdrant.timeout'),
+			connectTimeout: (int)config('context_search.qdrant.connect_timeout'),
+			timeout: (int)config('context_search.qdrant.timeout'),
 		));
-		$this->app->singleton(QdrantCollectionProvisioner::class, fn ($app): QdrantCollectionProvisioner => new QdrantCollectionProvisioner(
+		$this->app->singleton(QdrantCollectionProvisioner::class, fn($app): QdrantCollectionProvisioner => new QdrantCollectionProvisioner(
 			client: $app->make(QdrantClient::class),
-			collectionPrefix: (string) config('context_search.qdrant.collection_prefix'),
-			activeAlias: (string) config('context_search.qdrant.active_alias'),
-			distance: (string) config('context_search.qdrant.distance'),
-			vectorsOnDisk: (bool) config('context_search.qdrant.vectors_on_disk'),
-			payloadOnDisk: (bool) config('context_search.qdrant.payload_on_disk'),
+			collectionPrefix: (string)config('context_search.qdrant.collection_prefix'),
+			activeAlias: (string)config('context_search.qdrant.active_alias'),
+			distance: (string)config('context_search.qdrant.distance'),
+			vectorsOnDisk: (bool)config('context_search.qdrant.vectors_on_disk'),
+			payloadOnDisk: (bool)config('context_search.qdrant.payload_on_disk'),
 		));
-		$this->app->singleton(EmbeddingProfile::class, fn (): EmbeddingProfile => EmbeddingProfile::fromConfiguration(
-			(array) config('context_search.embedding'),
+		$this->app->singleton(EmbeddingProfile::class, fn(): EmbeddingProfile => EmbeddingProfile::fromConfiguration(
+			(array)config('context_search.embedding'),
 		));
-		$this->app->singleton(OllamaEmbeddingPool::class, fn ($app): OllamaEmbeddingPool => new OllamaEmbeddingPool(
+		$this->app->singleton(OllamaEmbeddingPool::class, fn($app): OllamaEmbeddingPool => new OllamaEmbeddingPool(
 			servers: OllamaServerConfiguration::parse(
-				(string) config('context_search.ollama.servers'),
-				(string) config('context_search.ollama.api_keys'),
+				(string)config('context_search.ollama.servers'),
+				(string)config('context_search.ollama.api_keys'),
 			),
 			profile: $app->make(EmbeddingProfile::class),
 			cache: $app['cache.store'],
-			connectTimeout: (int) config('context_search.ollama.connect_timeout'),
-			timeout: (int) config('context_search.embedding.timeout'),
-			failureThreshold: (int) config('context_search.ollama.failure_threshold'),
-			circuitCooldown: (int) config('context_search.ollama.circuit_cooldown'),
+			connectTimeout: (int)config('context_search.ollama.connect_timeout'),
+			timeout: (int)config('context_search.embedding.timeout'),
+			failureThreshold: (int)config('context_search.ollama.failure_threshold'),
+			circuitCooldown: (int)config('context_search.ollama.circuit_cooldown'),
 		));
-        $this->app->singleton(OcrProcessor::class, fn (): OcrProcessor => new TesseractOcrProcessor(
-			languages: (string) config('context_search.indexing.ocr_languages'),
-			timeout: (int) config('context_search.indexing.ocr_timeout'),
-            renderDpi: (int) config('context_search.indexing.ocr_render_dpi'),
-            maxImagePixels: (int) config('context_search.indexing.ocr_max_image_pixels'),
-            pageSegmentationMode: (int) config('context_search.indexing.ocr_page_segmentation_mode'),
-            engineVersion: (string) config('context_search.indexing.ocr_engine_version'),
-        ));
-        $this->app->singleton(OcrQualityGate::class, fn (): OcrQualityGate => new OcrQualityGate(
-            minimumMeanConfidence: (float) config('context_search.indexing.ocr_quality_minimum_mean_confidence'),
-            minimumRecognizedWords: (int) config('context_search.indexing.ocr_quality_minimum_recognized_words'),
-            minimumAlphanumericRatio: (float) config('context_search.indexing.ocr_quality_minimum_alphanumeric_ratio'),
-            maximumReplacementCharacterRatio: (float) config('context_search.indexing.ocr_quality_maximum_replacement_character_ratio'),
-        ));
-		$this->app->singleton(ResourceTextExtractor::class, fn ($app): ResourceTextExtractor => new ResourceTextExtractor(
+		$this->app->singleton(OcrProcessor::class, fn(): OcrProcessor => new TesseractOcrProcessor(
+			languages: (string)config('context_search.indexing.ocr_languages'),
+			timeout: (int)config('context_search.indexing.ocr_timeout'),
+			renderDpi: (int)config('context_search.indexing.ocr_render_dpi'),
+			maxImagePixels: (int)config('context_search.indexing.ocr_max_image_pixels'),
+			pageSegmentationMode: (int)config('context_search.indexing.ocr_page_segmentation_mode'),
+			engineVersion: (string)config('context_search.indexing.ocr_engine_version'),
+		));
+		$this->app->singleton(OcrQualityGate::class, fn(): OcrQualityGate => new OcrQualityGate(
+			minimumMeanConfidence: (float)config('context_search.indexing.ocr_quality_minimum_mean_confidence'),
+			minimumRecognizedWords: (int)config('context_search.indexing.ocr_quality_minimum_recognized_words'),
+			minimumAlphanumericRatio: (float)config('context_search.indexing.ocr_quality_minimum_alphanumeric_ratio'),
+			maximumReplacementCharacterRatio: (float)config('context_search.indexing.ocr_quality_maximum_replacement_character_ratio'),
+		));
+		$this->app->singleton(ResourceTextExtractor::class, fn($app): ResourceTextExtractor => new ResourceTextExtractor(
 			pdfs: $app->make(PdfHandlingService::class),
 			files: $app->make(FileHandlingService::class),
-            ocr: $app->make(OcrProcessor::class),
-            nativeTextMinimumCharacters: (int) config('context_search.indexing.pdf_native_text_minimum_characters'),
-            qualityGate: $app->make(OcrQualityGate::class),
+			ocr: $app->make(OcrProcessor::class),
+			nativeTextMinimumCharacters: (int)config('context_search.indexing.pdf_native_text_minimum_characters'),
+			qualityGate: $app->make(OcrQualityGate::class),
 		));
-		$this->app->singleton(TextChunker::class, fn (): TextChunker => new TextChunker(
-			targetCharacters: (int) config('context_search.chunking.target_characters'),
-			overlapCharacters: (int) config('context_search.chunking.overlap_characters'),
+		$this->app->singleton(TextChunker::class, fn(): TextChunker => new TextChunker(
+			targetCharacters: (int)config('context_search.chunking.target_characters'),
+			overlapCharacters: (int)config('context_search.chunking.overlap_characters'),
 		));
-		$this->app->singleton(ContextSearchResourceIndexer::class, fn ($app): ContextSearchResourceIndexer => new ContextSearchResourceIndexer(
+		$this->app->singleton(ContextSearchResourceIndexer::class, fn($app): ContextSearchResourceIndexer => new ContextSearchResourceIndexer(
 			chunker: $app->make(TextChunker::class),
 			embeddings: $app->make(OllamaEmbeddingPool::class),
 			qdrant: $app->make(QdrantClient::class),
-			embeddingBatchSize: (int) config('context_search.indexing.embedding_batch_size'),
+			embeddingBatchSize: (int)config('context_search.indexing.embedding_batch_size'),
 		));
 
 		// Keyword Handling

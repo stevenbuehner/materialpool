@@ -6,5 +6,4 @@ use Illuminate\Queue\SerializesModels;
 
 class MaterialWasDeleted extends MaterialWasChanged {
 	use SerializesModels;
-
 }

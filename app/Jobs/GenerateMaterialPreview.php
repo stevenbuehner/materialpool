@@ -17,7 +17,7 @@ class GenerateMaterialPreview implements ShouldQueue, ShouldBeUnique {
 	use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
 	public $timeout = 110;
-	public $tries = 3;
+	public $tries   = 3;
 	public $backoff = [30, 120];
 
 	public function __construct(protected int $materialId, protected int $resourceId) {
@@ -31,9 +31,9 @@ class GenerateMaterialPreview implements ShouldQueue, ShouldBeUnique {
 
 	public function middleware(): array {
 		return [(new WithoutOverlapping('material-preview:' . $this->materialId))
-			->shared()
-			->releaseAfter(10)
-			->expireAfter(140)];
+			        ->shared()
+			        ->releaseAfter(10)
+			        ->expireAfter(140)];
 	}
 
 	public function handle(MaterialPreviewService $previewService): void {

@@ -2,20 +2,19 @@
 
 namespace App\Jobs\Bundle;
 
-use App\Jobs\CheckLonelyBibleverse;
-use App\Jobs\CheckLonelyKeyword;
 use App\Models\Bundle;
 use App\Models\ForeignMaterialId;
 use App\Models\Material;
 use App\Services\Bundles\BundlesService;
 use App\Services\MaterialHandling\MaterialHandlingService;
-use Illuminate\Bus\Queueable;
 use Illuminate\Bus\Batchable;
+use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Illuminate\Queue\SerializesModels;
+use Log;
 
 class DeleteMaterialIfNeeded implements ShouldQueue, VersionInterface {
 	use Batchable, Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
@@ -64,7 +63,7 @@ class DeleteMaterialIfNeeded implements ShouldQueue, VersionInterface {
 					$materialHandlingService->deleteMaterialAndDetachAssociations($mat);
 				} else {
 					// Mehrere ForeignIds sind mit diesem Material verknüpft! => Material nicht löschen!
-					\Log::info('Material wird nicht gelöscht, weil nach andere ForeignIds existieren!', $mat->foreignIds->toArray());
+					Log::info('Material wird nicht gelöscht, weil nach andere ForeignIds existieren!', $mat->foreignIds->toArray());
 				}
 			} else {
 				// Material was Cch
@@ -81,9 +80,9 @@ class DeleteMaterialIfNeeded implements ShouldQueue, VersionInterface {
 
 	public function middleware(): array {
 		return [(new WithoutOverlapping('bundle:' . $this->bundle->id . ':delete-material:' . $this->foreignMaterialId->id))
-			->shared()
-			->releaseAfter(5)
-			->expireAfter(180)];
+			        ->shared()
+			        ->releaseAfter(5)
+			        ->expireAfter(180)];
 	}
 
 	public function getVersion() {

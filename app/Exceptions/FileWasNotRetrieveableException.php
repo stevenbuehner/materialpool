@@ -2,6 +2,8 @@
 
 namespace App\Exceptions;
 
-class FileWasNotRetrieveableException extends \Exception {
+use Exception;
+
+class FileWasNotRetrieveableException extends Exception {
 
 }

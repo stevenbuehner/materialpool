@@ -18,7 +18,7 @@ class AdvanceBundleImportPhase implements ShouldQueue {
 	use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
 	public $timeout = 120;
-	public $tries = 0;
+	public $tries   = 0;
 
 	public function __construct(private string $runId, private string $batchId) {
 	}

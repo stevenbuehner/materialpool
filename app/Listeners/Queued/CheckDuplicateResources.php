@@ -3,6 +3,7 @@
 namespace App\Listeners\Queued;
 
 use App\Events\ContainsOneResource;
+use App\Services\ResourceHandling\Exceptions\MissingResourceHashException;
 use App\Services\ResourceHandling\ResourceDuplicationHandlingService;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -11,8 +12,8 @@ use Illuminate\Queue\SerializesModels;
 class CheckDuplicateResources implements ShouldQueue, ShouldBeUnique {
 	use  SerializesModels;
 
-	public    $connection = 'database';
-	public    $afterCommit = TRUE;
+	public    $connection              = 'database';
+	public    $afterCommit             = TRUE;
 	public    $deleteWhenMissingModels = TRUE;
 	protected $service;
 
@@ -29,7 +30,7 @@ class CheckDuplicateResources implements ShouldQueue, ShouldBeUnique {
 	 * Execute the job.
 	 *
 	 * @param ContainsOneResource $event
-	 * @throws \App\Services\ResourceHandling\Exceptions\MissingResourceHashException
+	 * @throws MissingResourceHashException
 	 */
 	public function handle(ContainsOneResource $event) {
 		$this->service->mergeDuplicatesOfResource($event->getResource());

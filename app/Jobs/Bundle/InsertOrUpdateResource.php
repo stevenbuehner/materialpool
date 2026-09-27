@@ -14,16 +14,18 @@ use App\Services\Bundles\BundlesService;
 use App\Services\ResourceRecognition\ResourceRecognitionService;
 use App\Services\TagExtraction\ResourceHandles\TextContentInterface;
 use Carbon\Carbon;
-use Illuminate\Bus\Queueable;
+use Exception;
 use Illuminate\Bus\Batchable;
+use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Throwable;
 
 class InsertOrUpdateResource implements ShouldQueue, VersionInterface {
 	use Batchable, Dispatchable, InteractsWithQueue, Queueable, SerializesModels, ResourceHelperTrait;
@@ -54,7 +56,7 @@ class InsertOrUpdateResource implements ShouldQueue, VersionInterface {
 	 * Execute the job.
 	 *
 	 * @param BundlesService $bundlesService
-	 * @throws \Throwable
+	 * @throws Throwable
 	 */
 	public function handle(BundlesService $bundlesService) {
 		if ($this->batch()?->cancelled()) {
@@ -122,7 +124,7 @@ class InsertOrUpdateResource implements ShouldQueue, VersionInterface {
 			}
 
 			DB::commit();
-		} catch (\Exception $e) {
+		} catch (Exception $e) {
 			DB::rollBack();
 
 			throw $e;
@@ -130,14 +132,6 @@ class InsertOrUpdateResource implements ShouldQueue, VersionInterface {
 
 
 	}
-
-	public function middleware(): array {
-		return [(new WithoutOverlapping('bundle:' . $this->bundle->id . ':upsert-resource:' . $this->getUUID()))
-			->shared()
-			->releaseAfter(5)
-			->expireAfter(180)];
-	}
-
 
 	protected function getUUID() {
 		return $this->localFileInfo->uuid;
@@ -212,7 +206,6 @@ class InsertOrUpdateResource implements ShouldQueue, VersionInterface {
 
 	}
 
-
 	/**
 	 * @param BundlesService $bundlesService
 	 * @return File
@@ -233,6 +226,13 @@ class InsertOrUpdateResource implements ShouldQueue, VersionInterface {
 		// $resource->saveOrFail();
 
 		return $resource;
+	}
+
+	public function middleware(): array {
+		return [(new WithoutOverlapping('bundle:' . $this->bundle->id . ':upsert-resource:' . $this->getUUID()))
+			        ->shared()
+			        ->releaseAfter(5)
+			        ->expireAfter(180)];
 	}
 
 	public function getVersion() {

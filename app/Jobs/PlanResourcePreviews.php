@@ -6,8 +6,8 @@ use App\Models\DocumentFile;
 use App\Models\Material;
 use App\Models\PdfFile;
 use App\Models\Resource;
-use App\Services\PreviewGeneration\ResourcePreviewService;
 use App\Services\PreviewGeneration\PreviewSize;
+use App\Services\PreviewGeneration\ResourcePreviewService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUniqueUntilProcessing;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -19,7 +19,7 @@ class PlanResourcePreviews implements ShouldQueue, ShouldBeUniqueUntilProcessing
 	use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
 	public $timeout = 60;
-	public $tries = 3;
+	public $tries   = 3;
 	public $backoff = [30, 120];
 
 	public function __construct(protected int $resourceId) {

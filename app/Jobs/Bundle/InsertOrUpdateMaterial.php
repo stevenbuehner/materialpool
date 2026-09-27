@@ -2,9 +2,9 @@
 
 namespace App\Jobs\Bundle;
 
+use App\Exceptions\Bundles\BundleSourceValidationException;
 use App\Jobs\CheckLonelyBibleverse;
 use App\Jobs\CheckLonelyKeyword;
-use App\Exceptions\Bundles\BundleSourceValidationException;
 use App\Models\Bibleverse;
 use App\Models\Bundle;
 use App\Models\Exceptions\InvalidKeywordTypeException;
@@ -12,15 +12,16 @@ use App\Models\ForeignMaterialId;
 use App\Models\ForeignResourceId;
 use App\Models\Keyword;
 use App\Models\Material;
-use App\Services\Bundles\BundlesService;
 use App\Services\Bundles\BundleImportReferenceResolver;
-use Illuminate\Bus\Queueable;
+use App\Services\Bundles\BundlesService;
+use Exception;
 use Illuminate\Bus\Batchable;
+use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -112,19 +113,12 @@ class InsertOrUpdateMaterial implements ShouldQueue, VersionInterface {
 			}
 
 			DB::commit();
-		} catch (\Exception $e) {
+		} catch (Exception $e) {
 			DB::rollBack();
 
 			throw $e;
 		}
 
-	}
-
-	public function middleware(): array {
-		return [(new WithoutOverlapping('bundle:' . $this->bundle->id . ':upsert-material:' . $this->getUUID()))
-			->shared()
-			->releaseAfter(5)
-			->expireAfter(180)];
 	}
 
 	protected function getUUID() {
@@ -272,7 +266,7 @@ class InsertOrUpdateMaterial implements ShouldQueue, VersionInterface {
 		if ($allExistingKW->count() > 0) {
 			$material->keywords()->detach($allExistingKW->pluck('id'));
 			$allExistingKW->each(function ($kw) {
-				CheckLonelyKeyword::dispatch($kw)->onConnection($this->connection);;
+				CheckLonelyKeyword::dispatch($kw)->onConnection($this->connection);
 			});
 		}
 
@@ -280,7 +274,7 @@ class InsertOrUpdateMaterial implements ShouldQueue, VersionInterface {
 		if ($allExistingBV->count() > 0) {
 			$material->bibleverses()->detach($allExistingBV->pluck('id'));
 			$allExistingBV->each(function ($bv) {
-				CheckLonelyBibleverse::dispatch($bv)->onConnection($this->connection);;
+				CheckLonelyBibleverse::dispatch($bv)->onConnection($this->connection);
 			});
 		}
 
@@ -325,6 +319,13 @@ class InsertOrUpdateMaterial implements ShouldQueue, VersionInterface {
 		// $mat->save(); // is done in updateMaterial
 
 		return $mat;
+	}
+
+	public function middleware(): array {
+		return [(new WithoutOverlapping('bundle:' . $this->bundle->id . ':upsert-material:' . $this->getUUID()))
+			        ->shared()
+			        ->releaseAfter(5)
+			        ->expireAfter(180)];
 	}
 
 	public function getVersion() {

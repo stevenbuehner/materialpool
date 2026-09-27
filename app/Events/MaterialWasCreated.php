@@ -6,5 +6,4 @@ use Illuminate\Queue\SerializesModels;
 
 class MaterialWasCreated extends MaterialWasChanged {
 	use SerializesModels;
-
 }

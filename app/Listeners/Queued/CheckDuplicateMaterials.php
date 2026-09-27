@@ -4,6 +4,7 @@ namespace App\Listeners\Queued;
 
 use App\Events\ContainsOneResource;
 use App\Services\MaterialHandling\MaterialDuplicationHandlingService;
+use Exception;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\SerializesModels;
 
@@ -27,7 +28,7 @@ class CheckDuplicateMaterials implements ShouldQueue {
 	 *
 	 * @param ContainsOneResource $event
 	 * @return void
-	 * @throws \Exception
+	 * @throws Exception
 	 */
 	public function handle(ContainsOneResource $event) {
 		$this->service->mergeMaterialDublicates($event->getResource());

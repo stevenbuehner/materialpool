@@ -6,5 +6,4 @@ use Illuminate\Queue\SerializesModels;
 
 class ResourceWasCreated extends ResourceWasChanged {
 	use SerializesModels;
-
 }

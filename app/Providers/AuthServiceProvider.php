@@ -48,19 +48,17 @@ class AuthServiceProvider extends ServiceProvider {
 	public function boot(): void {
 		Gate::before(function (User $user): ?bool {
 			if (!$user->isActive()) {
-				return false;
+				return FALSE;
 			}
 
-			return $user->isSuperAdmin() ? true : null;
+			return $user->isSuperAdmin() ? TRUE : NULL;
 		});
-		Gate::define('keywords.create-value', fn(User $user): bool =>
-			$user->can(SystemPermissions::KEYWORDS_MANAGE)
+		Gate::define('keywords.create-value', fn(User $user): bool => $user->can(SystemPermissions::KEYWORDS_MANAGE)
 			|| $user->can(SystemPermissions::MATERIALS_CREATE)
 			|| $user->can(SystemPermissions::MATERIALS_UPDATE_METADATA_OWN)
 			|| $user->can(SystemPermissions::MATERIALS_UPDATE_METADATA_ALL)
 		);
-		Gate::define('bibleverses.create-value', fn(User $user): bool =>
-			$user->can(SystemPermissions::MATERIALS_CREATE)
+		Gate::define('bibleverses.create-value', fn(User $user): bool => $user->can(SystemPermissions::MATERIALS_CREATE)
 			|| $user->can(SystemPermissions::MATERIALS_UPDATE_METADATA_OWN)
 			|| $user->can(SystemPermissions::MATERIALS_UPDATE_METADATA_ALL)
 		);
@@ -77,13 +75,13 @@ class AuthServiceProvider extends ServiceProvider {
 		// Aktivstatus-Schutz. Ein zwischenzeitlich gesperrter Web-Login darf keine
 		// OAuth-Freigabe mehr bestätigen oder sehen.
 		foreach ([
-			'passport.authorizations.authorize',
-			'passport.authorizations.approve',
-			'passport.authorizations.deny',
-			'passport.device.authorizations.authorize',
-			'passport.device.authorizations.approve',
-			'passport.device.authorizations.deny',
-		] as $routeName) {
+			         'passport.authorizations.authorize',
+			         'passport.authorizations.approve',
+			         'passport.authorizations.deny',
+			         'passport.device.authorizations.authorize',
+			         'passport.device.authorizations.approve',
+			         'passport.device.authorizations.deny',
+		         ] as $routeName) {
 			Route::getRoutes()->getByName($routeName)?->middleware('active');
 		}
 

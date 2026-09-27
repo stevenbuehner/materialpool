@@ -2,6 +2,8 @@
 
 namespace App\Exceptions;
 
-class InvalidResourceTypeException extends \Exception {
+use Exception;
+
+class InvalidResourceTypeException extends Exception {
 
 }

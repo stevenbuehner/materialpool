@@ -5,6 +5,7 @@ namespace App\Listeners;
 use App\Events\ContainsOneResource;
 use App\Models\PdfFile;
 use App\Services\ResourceHandling\PdfHandlingService;
+use Exception;
 use Illuminate\Bus\Queueable;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
@@ -39,7 +40,7 @@ class CalculatePdfPageSize {
 
 			try {
 				$resource = $this->processor->countPdfPages($resource);
-			} catch (\Exception $e) {
+			} catch (Exception $e) {
 				Log::error('Error when Counting PDF-Pages in Resource', [
 						'exception' => $e->getMessage(),
 						'trace'     => $e->getTraceAsString(),

@@ -19,7 +19,7 @@ class ValidateBundleSource implements ShouldQueue {
 	use Batchable, Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
 	public $timeout = 120;
-	public $tries = 2;
+	public $tries   = 2;
 	public $backoff = 5;
 
 	public function __construct(private string $runId) {
@@ -48,8 +48,8 @@ class ValidateBundleSource implements ShouldQueue {
 
 	public function middleware(): array {
 		return [(new WithoutOverlapping('bundle-run:' . $this->runId . ':validate'))
-			->shared()
-			->releaseAfter(5)
-			->expireAfter(180)];
+			        ->shared()
+			        ->releaseAfter(5)
+			        ->expireAfter(180)];
 	}
 }
