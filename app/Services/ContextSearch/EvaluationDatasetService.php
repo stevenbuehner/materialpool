@@ -236,8 +236,11 @@ final class EvaluationDatasetService
         return ['manifest_hash' => $manifestHash, 'archive_hash' => $this->archiveHash($absolutePath, $onProgress)];
     }
 
-    /** @param null|callable(string, int, int): void $onProgress */
-    public function import(string $relativePath, string $expectedArchiveHash, ?callable $onProgress = null): ContextSearchEvaluationDataset
+    /**
+     * @param null|callable(string, int, int): void $onProgress
+     * @return array{dataset: ContextSearchEvaluationDataset, archive_hash: string}
+     */
+    public function import(string $relativePath, ?string $expectedArchiveHash = null, ?callable $onProgress = null): array
     {
         $missingRequirements = [];
         if (app()->isProduction()) {
@@ -250,12 +253,12 @@ final class EvaluationDatasetService
             throw new RuntimeException('Der Import ist ausschließlich in einer explizit freigegebenen Evaluationsumgebung erlaubt. '.implode(' ', $missingRequirements));
         }
 
-        if (! preg_match('/\A[a-f0-9]{64}\z/i', $expectedArchiveHash)) {
+        if ($expectedArchiveHash !== null && ! preg_match('/\A[a-f0-9]{64}\z/i', $expectedArchiveHash)) {
             throw new RuntimeException('Die erwartete Archiv-Prüfsumme muss ein SHA-256-Wert sein.');
         }
 
         $verified = $this->verify($relativePath, $onProgress);
-        if (! hash_equals(strtolower($expectedArchiveHash), $verified['archive_hash'])) {
+        if ($expectedArchiveHash !== null && ! hash_equals(strtolower($expectedArchiveHash), $verified['archive_hash'])) {
             throw new RuntimeException('Die Archiv-Prüfsumme stimmt nicht mit dem erwarteten Wert überein.');
         }
         $absolutePath = Storage::disk(self::DISK)->path($relativePath);
@@ -270,7 +273,7 @@ final class EvaluationDatasetService
                     throw new RuntimeException('Die Datensatz-ID ist bereits mit einem anderen Manifest importiert.');
                 }
 
-                return $dataset;
+                return ['dataset' => $dataset, 'archive_hash' => $verified['archive_hash']];
             }
 
             $storedFiles = [];
@@ -364,7 +367,7 @@ final class EvaluationDatasetService
             $zip->close();
         }
 
-        return $dataset;
+        return ['dataset' => $dataset, 'archive_hash' => $verified['archive_hash']];
     }
 
     /** @param array<int, int> $materialIds @param array<int, int> $resourceIds @return Collection<int, Resource> */

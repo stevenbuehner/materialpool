@@ -513,10 +513,17 @@ ARCHIVE_NAME='DATEINAME_AUS_EXPORTAUSGABE.zip'
 ./vendor/bin/sail artisan context-search:dataset:verify "incoming/$ARCHIVE_NAME"
 ```
 
-Erst nach dem Vergleich beider Prüfsummen importieren. Der Import verlangt die beim Export ausgegebene Archiv-Prüfsumme, vergleicht sie vor dem Schreiben mit der importierten Datei und gibt den geprüften Wert aus:
+Erst nach dem Vergleich beider Prüfsummen importieren. Die Archiv-Prüfsumme aus dem Export kann optional als zweites Argument übergeben werden; dann vergleicht der Import sie vor dem Schreiben mit der importierten Datei. Ohne zweites Argument importiert er ebenfalls und gibt die berechnete Archiv-Prüfsumme zur nachträglichen Kontrolle aus:
 
 ```sh
 ARCHIVE_NAME='DATEINAME_AUS_EXPORTAUSGABE.zip'
+./vendor/bin/sail artisan context-search:dataset:import "incoming/$ARCHIVE_NAME"
+
+```
+
+Alternativ kann die beim Export notierte Prüfsumme direkt beim Import abgeglichen werden:
+
+```sh
 ARCHIVE_SHA256='ARCHIV-PRUEFSUMME_AUS_EXPORTAUSGABE'
 ./vendor/bin/sail artisan context-search:dataset:import "incoming/$ARCHIVE_NAME" "$ARCHIVE_SHA256"
 ```
@@ -589,11 +596,15 @@ Diese Anleitung gilt für ein **isoliertes Dev-/Evaluationssystem**, nicht für 
 
    ```sh
    ARCHIVE_NAME='DATEINAME_AUS_EXPORTAUSGABE.zip'
-   ARCHIVE_SHA256='ARCHIV-PRUEFSUMME_AUS_EXPORTAUSGABE'
    ./vendor/bin/sail artisan context-search:dataset:verify "incoming/$ARCHIVE_NAME"
-   ./vendor/bin/sail artisan context-search:dataset:import "incoming/$ARCHIVE_NAME" "$ARCHIVE_SHA256"
+   ./vendor/bin/sail artisan context-search:dataset:import "incoming/$ARCHIVE_NAME"
 
-   ## Ggfs auch mit Environment Variable nötig. z.B.
+   ```
+
+   Statt des letzten Befehls kann die beim Export notierte Prüfsumme als optionales zweites Argument automatisch abgeglichen werden:
+
+   ```sh
+   ARCHIVE_SHA256='ARCHIV-PRUEFSUMME_AUS_EXPORTAUSGABE'
    ./vendor/bin/sail artisan context-search:dataset:import "incoming/$ARCHIVE_NAME" "$ARCHIVE_SHA256" --env=local
    ```
 

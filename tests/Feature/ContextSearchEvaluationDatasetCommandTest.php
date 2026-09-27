@@ -163,13 +163,16 @@ final class ContextSearchEvaluationDatasetCommandTest extends TestCase
         $this->artisan('context-search:dataset:import', ['archive' => 'incoming/'.$datasetId.'.zip', 'expected_sha256' => str_repeat('0', 64)])
             ->expectsOutputToContain('Archiv-Prüfsumme stimmt nicht')
             ->assertExitCode(1);
+        $this->artisan('context-search:dataset:import', ['archive' => 'incoming/'.$datasetId.'.zip', 'expected_sha256' => 'ungültig'])
+            ->expectsOutputToContain('muss ein SHA-256-Wert sein')
+            ->assertExitCode(1);
         $this->assertSame($materialsBefore, Material::query()->count());
         $this->assertSame($resourcesBefore, Text::query()->count());
         $this->assertSame($pdfsBefore, PdfFile::query()->count());
 
-        $this->artisan('context-search:dataset:import', ['archive' => 'incoming/'.$datasetId.'.zip', 'expected_sha256' => $archiveHash])
+        $this->artisan('context-search:dataset:import', ['archive' => 'incoming/'.$datasetId.'.zip'])
             ->expectsOutputToContain('isoliert importiert')
-            ->expectsOutputToContain('Geprüfte Archiv-Prüfsumme: '.$archiveHash)
+            ->expectsOutputToContain('Archiv-Prüfsumme: '.$archiveHash)
             ->assertExitCode(0);
         $this->assertSame($materialsBefore + 1, Material::query()->count());
         $this->assertSame($resourcesBefore + 1, Text::query()->count());
@@ -181,7 +184,9 @@ final class ContextSearchEvaluationDatasetCommandTest extends TestCase
         $this->assertContains(hash('sha256', 'Synthetischer Importtext.'), $hashes);
         $this->assertContains(hash('sha256', $pdfContent), $hashes);
 
-        $this->artisan('context-search:dataset:import', ['archive' => 'incoming/'.$datasetId.'.zip', 'expected_sha256' => $archiveHash])->assertExitCode(0);
+        $this->artisan('context-search:dataset:import', ['archive' => 'incoming/'.$datasetId.'.zip', 'expected_sha256' => $archiveHash])
+            ->expectsOutputToContain('Archiv-Prüfsumme: '.$archiveHash)
+            ->assertExitCode(0);
         $this->assertSame($materialsBefore + 1, Material::query()->count());
     }
 
