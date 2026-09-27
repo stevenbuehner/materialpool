@@ -21,16 +21,16 @@ use Illuminate\Support\Facades\Bus;
 
 class BundleImportController extends BaseController {
 	public function __construct(
-		private BundlesService $bundlesService,
-		private BundleQueueService $bundleQueueService,
-		private BundleImportRunService $runService,
+		private BundlesService           $bundlesService,
+		private BundleQueueService       $bundleQueueService,
+		private BundleImportRunService   $runService,
 		private BundleImportOrchestrator $orchestrator,
 	) {
 		$this->middleware(['auth:api']);
 	}
 
 	public function index(): array {
-		$bundles = $this->bundlesService->updateInstalledBundleInfos();
+		$bundles    = $this->bundlesService->updateInstalledBundleInfos();
 		$localInfos = collect();
 
 		foreach ($bundles as $bundle) {
@@ -80,6 +80,69 @@ class BundleImportController extends BaseController {
 		return $this->startRun($bundle, $operation, $source['version']);
 	}
 
+	private function error(string $code, int $status): JsonResponse {
+		return response()->json(['error' => ['code' => $code, 'message' => 'Das Bundle kann nicht verarbeitet werden.', 'run_id' => NULL]], $status);
+	}
+
+	private function startRun(Bundle $bundle, BundleImportOperation $operation, ?string $targetVersion): JsonResponse {
+		try {
+			$run = $this->runService->start($bundle, $operation, $targetVersion, request()->user());
+			$this->orchestrator->start($run);
+		} catch (BundleImportConflictException $exception) {
+			return response()->json(['error' => ['code' => 'bundle_import_conflict', 'message' => 'Für dieses Bundle läuft bereits eine andere Operation.', 'run_id' => $exception->activeRun->id]], 409);
+		} catch (BundleSourceValidationException $exception) {
+			return $this->error($exception->failureCode, 422);
+		}
+
+		return response()->json([
+			'updateAvailable' => TRUE,
+			'continueUpdate'  => $run->wasRecentlyCreated === FALSE,
+			'openJobs'        => $this->bundleQueueService->countJobsInBundleQueue($bundle),
+			'run'             => $this->serializeRun($run->fresh()),
+		], 202);
+	}
+
+	private function serializeRun(BundleImportRun $run): array {
+		$batch     = $run->current_batch_id === NULL ? NULL : Bus::findBatch($run->current_batch_id);
+		$total     = $run->expected_jobs;
+		$processed = $run->processed_jobs;
+		$failed    = 0;
+		if ($batch instanceof Batch) {
+			$total     = max($total, $batch->totalJobs);
+			$processed = max($processed, $batch->processedJobs());
+			$failed    = $batch->failedJobs;
+		}
+
+		return [
+			'id'             => $run->id,
+			'bundle_id'      => $run->bundle_id,
+			'operation'      => $run->operation->value,
+			'status'         => $run->status->value,
+			'phase'          => $run->phase->value,
+			'target_version' => $run->target_version,
+			'progress'       => ['total' => $total, 'processed' => $processed, 'failed' => $failed, 'percentage' => $total === 0 ? 0 : (int)floor($processed / $total * 100)],
+			'failure'        => $run->failure_code === NULL ? NULL : ['code' => $run->failure_code, 'message' => $run->failure_message],
+			'warnings'       => $this->serializeWarnings($run->source_warnings),
+			'summary'        => $this->serializeSummary($run->result_summary),
+		];
+	}
+
+	private function serializeWarnings(?array $warnings): array {
+		return $warnings['summary'] ?? ['skipped_materials' => 0, 'skipped_resources' => 0, 'reasons' => []];
+	}
+
+	private function serializeSummary(?array $summary): array {
+		return $summary ?? [
+			'materials' => ['successful' => 0, 'skipped' => 0, 'failed' => 0],
+			'resources' => ['successful' => 0, 'skipped' => 0, 'failed' => 0],
+			'removed'   => [
+				'materials' => ['successful' => 0, 'skipped' => 0, 'failed' => 0],
+				'resources' => ['successful' => 0, 'skipped' => 0, 'failed' => 0],
+			],
+			'errors'    => ['count' => 0, 'code' => NULL],
+		];
+	}
+
 	public function initUninstall(Bundle $bundle): JsonResponse {
 		return $this->startRun($bundle, BundleImportOperation::Uninstall, $bundle->installed_version);
 	}
@@ -108,11 +171,11 @@ class BundleImportController extends BaseController {
 			return ['done' => 0, 'open' => 0, 'bundle' => $bundle->fresh()];
 		}
 
-		$start = microtime(TRUE);
-		$options = new WorkerOptions(name: 'bundle-browser', backoff: 5, memory: 128, timeout: 120, sleep: 0, maxTries: 0);
-		$worker = resolve('queue.worker');
+		$start        = microtime(TRUE);
+		$options      = new WorkerOptions(name: 'bundle-browser', backoff: 5, memory: 128, timeout: 120, sleep: 0, maxTries: 0);
+		$worker       = resolve('queue.worker');
 		$finishedJobs = 0;
-		$openJobs = $this->bundleQueueService->countJobsInBundleQueue($bundle);
+		$openJobs     = $this->bundleQueueService->countJobsInBundleQueue($bundle);
 
 		while (microtime(TRUE) - $start <= 5 && $openJobs > 0) {
 			/** @var Worker $worker */
@@ -122,74 +185,11 @@ class BundleImportController extends BaseController {
 		}
 
 		$freshRun = $run->fresh();
-		$result = ['done' => $finishedJobs, 'open' => $openJobs, 'run' => $this->serializeRun($freshRun)];
+		$result   = ['done' => $finishedJobs, 'open' => $openJobs, 'run' => $this->serializeRun($freshRun)];
 		if ($openJobs === 0 && $freshRun->active_slot === NULL) {
 			$result['bundle'] = $bundle->fresh();
 		}
 
 		return $result;
-	}
-
-	private function startRun(Bundle $bundle, BundleImportOperation $operation, ?string $targetVersion): JsonResponse {
-		try {
-			$run = $this->runService->start($bundle, $operation, $targetVersion, request()->user());
-			$this->orchestrator->start($run);
-		} catch (BundleImportConflictException $exception) {
-			return response()->json(['error' => ['code' => 'bundle_import_conflict', 'message' => 'Für dieses Bundle läuft bereits eine andere Operation.', 'run_id' => $exception->activeRun->id]], 409);
-		} catch (BundleSourceValidationException $exception) {
-			return $this->error($exception->failureCode, 422);
-		}
-
-		return response()->json([
-			'updateAvailable' => TRUE,
-			'continueUpdate' => $run->wasRecentlyCreated === FALSE,
-			'openJobs' => $this->bundleQueueService->countJobsInBundleQueue($bundle),
-			'run' => $this->serializeRun($run->fresh()),
-		], 202);
-	}
-
-	private function serializeRun(BundleImportRun $run): array {
-		$batch = $run->current_batch_id === NULL ? NULL : Bus::findBatch($run->current_batch_id);
-		$total = $run->expected_jobs;
-		$processed = $run->processed_jobs;
-		$failed = 0;
-		if ($batch instanceof Batch) {
-			$total = max($total, $batch->totalJobs);
-			$processed = max($processed, $batch->processedJobs());
-			$failed = $batch->failedJobs;
-		}
-
-		return [
-			'id' => $run->id,
-			'bundle_id' => $run->bundle_id,
-			'operation' => $run->operation->value,
-			'status' => $run->status->value,
-			'phase' => $run->phase->value,
-			'target_version' => $run->target_version,
-			'progress' => ['total' => $total, 'processed' => $processed, 'failed' => $failed, 'percentage' => $total === 0 ? 0 : (int)floor($processed / $total * 100)],
-			'failure' => $run->failure_code === NULL ? NULL : ['code' => $run->failure_code, 'message' => $run->failure_message],
-			'warnings' => $this->serializeWarnings($run->source_warnings),
-			'summary' => $this->serializeSummary($run->result_summary),
-		];
-	}
-
-	private function serializeWarnings(?array $warnings): array {
-		return $warnings['summary'] ?? ['skipped_materials' => 0, 'skipped_resources' => 0, 'reasons' => []];
-	}
-
-	private function serializeSummary(?array $summary): array {
-		return $summary ?? [
-			'materials' => ['successful' => 0, 'skipped' => 0, 'failed' => 0],
-			'resources' => ['successful' => 0, 'skipped' => 0, 'failed' => 0],
-			'removed' => [
-				'materials' => ['successful' => 0, 'skipped' => 0, 'failed' => 0],
-				'resources' => ['successful' => 0, 'skipped' => 0, 'failed' => 0],
-			],
-			'errors' => ['count' => 0, 'code' => NULL],
-		];
-	}
-
-	private function error(string $code, int $status): JsonResponse {
-		return response()->json(['error' => ['code' => $code, 'message' => 'Das Bundle kann nicht verarbeitet werden.', 'run_id' => NULL]], $status);
 	}
 }

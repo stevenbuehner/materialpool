@@ -4,13 +4,15 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller as BaseController;
 use App\Models\Bible;
+use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 class BibleController extends BaseController {
 	/**
 	 * Display a listing of the resource.
 	 *
-	 * @return \Illuminate\Http\Response
+	 * @return Response
 	 */
 	public function index() {
 		return Bible::orderBy('usage_priority', 'DESC')->paginate(50);
@@ -19,18 +21,18 @@ class BibleController extends BaseController {
 	/**
 	 * Store a newly created resource in storage.
 	 *
-	 * @param \Illuminate\Http\Request $request
+	 * @param Request $request
 	 * @return void
-	 * @throws \Exception
+	 * @throws Exception
 	 */
 	public function store(Request $request) {
-		throw new \Exception('Not implemented yet');
+		throw new Exception('Not implemented yet');
 	}
 
 	/**
 	 * Display the specified resource.
 	 *
-	 * @param \App\Models\Bible $bible
+	 * @param Bible $bible
 	 * @return Bible
 	 */
 	public function show(Bible $bible) {
@@ -40,23 +42,23 @@ class BibleController extends BaseController {
 	/**
 	 * Update the specified resource in storage.
 	 *
-	 * @param \Illuminate\Http\Request $request
-	 * @param \App\Models\Bible $bible
+	 * @param Request $request
+	 * @param Bible $bible
 	 * @return void
-	 * @throws \Exception
+	 * @throws Exception
 	 */
 	public function update(Request $request, Bible $bible) {
-		throw new \Exception('Not implemented yet');
+		throw new Exception('Not implemented yet');
 	}
 
 	/**
 	 * Remove the specified resource from storage.
 	 *
-	 * @param \App\Models\Bible $bible
+	 * @param Bible $bible
 	 * @return void
-	 * @throws \Exception
+	 * @throws Exception
 	 */
 	public function destroy(Bible $bible) {
-		throw new \Exception('Not implemented yet');
+		throw new Exception('Not implemented yet');
 	}
 }

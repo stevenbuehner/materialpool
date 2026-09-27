@@ -2,6 +2,8 @@
 
 namespace App\Http\Video;
 
+use Exception;
+
 class MediaStream extends AbstractMediaStream {
 	protected $path;
 
@@ -12,11 +14,11 @@ class MediaStream extends AbstractMediaStream {
 	 * @param $stream
 	 * @param $filesize
 	 * @param $lastModified
-	 * @throws \Exception
+	 * @throws Exception
 	 */
 	function __construct($stream, $filesize, $lastModified, $mimeType) {
 		if (!is_resource($stream)) {
-			throw new \Exception('Invalid Stream-Resource');
+			throw new Exception('Invalid Stream-Resource');
 		}
 
 		$this->stream           = $stream;

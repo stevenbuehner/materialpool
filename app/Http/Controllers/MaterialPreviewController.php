@@ -12,7 +12,7 @@ class MaterialPreviewController {
 
 	protected MaterialPreviewService $materialPreviewService;
 
-	public functioN __construct(MaterialPreviewService $materialPreviewService) {
+	public function __construct(MaterialPreviewService $materialPreviewService) {
 		$this->materialPreviewService = $materialPreviewService;
 	}
 
@@ -26,7 +26,7 @@ class MaterialPreviewController {
 					$request->has('height') ? $request->integer('height') : NULL
 				)
 			);
-			$response = response($imageData, 200, ['Content-Type' => 'image/jpeg']);
+			$response  = response($imageData, 200, ['Content-Type' => 'image/jpeg']);
 			$response->setEtag(hash('sha256', $imageData));
 			$response->isNotModified($request);
 

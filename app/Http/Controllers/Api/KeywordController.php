@@ -10,6 +10,7 @@ use App\Models\Material;
 use App\Services\KeywordHandling\KeywordHandlingService;
 use App\Services\TagExtraction\Interfaces\RelevanceInterface;
 use App\Services\TagExtraction\TagExtractionService;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -27,7 +28,7 @@ class KeywordController extends BaseController {
 	 * Display a listing of the resource.
 	 *
 	 * @param Request $request
-	 * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
+	 * @return LengthAwarePaginator
 	 */
 	public function index(Request $request) {
 

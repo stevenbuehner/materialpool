@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Events\ResourceWasCreated;
 use App\Models\ForeignResourceId;
 use App\Models\Resource;
+use Auth;
 use Illuminate\Http\Request;
 
 class ForeignResourceController extends ResourceController {
@@ -26,7 +26,7 @@ class ForeignResourceController extends ResourceController {
 		// Check if a resource with this foreignResourceKey exists already
 
 		$foreignResource = ForeignResourceId::where([
-			'user_id'    => \Auth::id(),
+			'user_id'    => Auth::id(),
 			'foreign_id' => $validatedData['id']
 		])->get()->first();
 

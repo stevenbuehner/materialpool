@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Events\ResourceWasChanged;
+use App\Models\File;
 use App\Models\Resource as ResourceEntity;
 use App\Models\Text;
 use Illuminate\Http\Request;
@@ -47,7 +48,7 @@ class ResourceController extends Controller {
 	/**
 	 * Store a newly created resource or resoures (plural!) in storage and create single material for them.
 	 *
-	 * @param \Illuminate\Http\Request $request
+	 * @param Request $request
 	 * @return \Illuminate\Http\Response
 	 */
 	public function store(Request $request) {
@@ -92,6 +93,18 @@ class ResourceController extends Controller {
 	}
 
 	/**
+	 * Verknüpfte Materialien dürfen die Sichtbarkeitsprüfung nicht umgehen,
+	 * nur weil die Ressource selbst sichtbar ist.
+	 */
+	protected function visibleMaterialRelations(): array {
+		return [
+			'materials' => static fn($query) => $query->visibleTo(Auth::user()),
+			'materials.keywords',
+			'materials.bibleverses',
+		];
+	}
+
+	/**
 	 * Show the form for editing the specified resource.
 	 *
 	 * @param ResourceEntity $resource
@@ -106,21 +119,9 @@ class ResourceController extends Controller {
 	}
 
 	/**
-	 * Verknüpfte Materialien dürfen die Sichtbarkeitsprüfung nicht umgehen,
-	 * nur weil die Ressource selbst sichtbar ist.
-	 */
-	protected function visibleMaterialRelations(): array {
-		return [
-			'materials' => static fn($query) => $query->visibleTo(Auth::user()),
-			'materials.keywords',
-			'materials.bibleverses',
-		];
-	}
-
-	/**
 	 * Update the specified resource in storage.
 	 *
-	 * @param \Illuminate\Http\Request $request
+	 * @param Request $request
 	 * @param ResourceEntity $resource
 	 * @return \Illuminate\Http\Response
 	 */
@@ -145,7 +146,7 @@ class ResourceController extends Controller {
 
 	public function download(ResourceEntity $resource) {
 
-		if ($resource instanceof \App\Models\File && $resource->hasLocalFile()) {
+		if ($resource instanceof File && $resource->hasLocalFile()) {
 			$stream = $resource->getLocalFileStream();
 
 			return Response::stream(function () use ($stream) {

@@ -12,13 +12,16 @@ use App\Models\Text;
 use App\Services\ResourceRecognition\ResourceRecognitionService;
 use App\Services\TagExtraction\MaterialExtractionService;
 use App\Services\TagExtraction\ResourceHandles\TextContentInterface;
-use Illuminate\Contracts\Bus\Dispatcher;
+use Exception;
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpFoundation\Request;
+use Validator;
 
 trait ResourceHelperTrait {
 
@@ -52,7 +55,7 @@ trait ResourceHelperTrait {
 
 				event(new ResourceWasCreated($resources[$key]));
 
-			} catch (\Exception $e) {
+			} catch (Exception $e) {
 				//Todo: Cleanup again
 				Log::error('Error during File-Upload', [
 					'message' => $e->getMessage(),
@@ -91,7 +94,7 @@ trait ResourceHelperTrait {
 
 		$this->handleCreatedByRessourceAttributes($resource);
 
-		if ($resource instanceof \App\Models\File) {
+		if ($resource instanceof File) {
 			$disk = Storage::disk(config('app.disks.resources'));
 			// $tmpPath                     = $uploadedFile->getPath() . DIRECTORY_SEPARATOR . $uploadedFile->getFilename();
 			// $sha1                        = sha1_file($tmpPath);
@@ -110,7 +113,7 @@ trait ResourceHelperTrait {
 			$resource->setLocalStorageAndPath(config('app.disks.resources'), $relativeFilePath);
 
 		} else if ($resource instanceof Text) {
-			$resource->content           = \File::get($file->getRealPath());
+			$resource->content = \File::get($file->getRealPath());
 			// $resource->original_filename = $file->getClientOriginalName();
 		}
 
@@ -153,7 +156,7 @@ trait ResourceHelperTrait {
 	 * @param $resource - optional resource to save data to
 	 * @return Resource
 	 *
-	 * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException
+	 * @throws FileNotFoundException
 	 */
 	protected function handleSingleResourceFileData(Request $request, ?Resource $resource = NULL) {
 
@@ -166,7 +169,7 @@ trait ResourceHelperTrait {
 
 			event(new $postEvent($resource));
 
-		} catch (\Exception $e) {
+		} catch (Exception $e) {
 			//Todo: Cleanup again
 			Log::error('Error during File-Upload', [
 				'message' => $e->getMessage(),
@@ -232,7 +235,7 @@ trait ResourceHelperTrait {
 
 			event(new $postEvent($resource));
 
-		} catch (\Exception $e) {
+		} catch (Exception $e) {
 			//Todo: Cleanup again
 			Log::error('Error during Post-CreationJobs', [
 				'message' => $e->getMessage(),
@@ -252,7 +255,7 @@ trait ResourceHelperTrait {
 	 * @param Request $request
 	 * @param string $resourceClass
 	 * @param bool $partialUpdateAllowed only use rules for the parameters in $request (don't require any other parameters)
-	 * @throws \Illuminate\Validation\ValidationException
+	 * @throws ValidationException
 	 */
 	protected function validateResourceRequest(Request $request, $resourceClass, $partialUpdateAllowed = FALSE) {
 
@@ -263,7 +266,7 @@ trait ResourceHelperTrait {
 			$rules = Arr::only($rules, $request->keys());
 		}
 
-		$validator = \Validator::make($request->all(), $rules);
+		$validator = Validator::make($request->all(), $rules);
 		$validator->validate();
 	}
 

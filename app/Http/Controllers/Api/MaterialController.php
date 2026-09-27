@@ -6,10 +6,12 @@ use App\Events\MaterialWasChanged;
 use App\Events\MaterialWasCreated;
 use App\Http\Requests\MaterialRequest;
 use App\Jobs\DeletePublicDownloadFile;
+use App\Models\Exceptions\InvalidKeywordTypeException;
 use App\Models\Material;
 use App\Services\MaterialHandling\MaterialHandlingService;
 use App\Services\MaterialHandling\MaterialUserRankingService;
-use Illuminate\Http\Request;
+use Exception;
+use Illuminate\Http\Response;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Support\Facades\Auth;
 use StevenBuehner\BibleVerseBundle\Service\BibleVerseService;
@@ -25,8 +27,8 @@ class MaterialController extends BaseController {
 
 	public function __construct(BibleVerseService $bibleVerseService, MaterialHandlingService $materialHandlingService, MaterialUserRankingService $materialUserRankingService) {
 
-		$this->bibleVerseService       = $bibleVerseService;
-		$this->materialHandlingService = $materialHandlingService;
+		$this->bibleVerseService          = $bibleVerseService;
+		$this->materialHandlingService    = $materialHandlingService;
 		$this->materialUserRankingService = $materialUserRankingService;
 		$this->middleware(['auth:api']);
 	}
@@ -34,7 +36,7 @@ class MaterialController extends BaseController {
 	/**
 	 * Display a listing of the material.
 	 *
-	 * @return \Illuminate\Http\Response
+	 * @return Response
 	 */
 	public function index() {
 
@@ -49,6 +51,20 @@ class MaterialController extends BaseController {
 		return $materials;
 	}
 
+	protected function visibleWithAttributes(): array {
+		return \App\Http\Controllers\MaterialController::withVisibleAttributes(Auth::user());
+	}
+
+	/*
+		public function associateResources(Material $material, Request $request) {
+
+			$resourceIds         = $request->get('resource_id', []);
+			$response            = $this->doSync($material, $resourceIds);
+			$response['success'] = TRUE;
+
+			return $response;
+		}
+	*/
 
 	/**
 	 * Store a newly created material in storage.
@@ -80,17 +96,6 @@ class MaterialController extends BaseController {
 		return $this->materialUserRankingService->present($material, Auth::user());
 	}
 
-	/*
-		public function associateResources(Material $material, Request $request) {
-
-			$resourceIds         = $request->get('resource_id', []);
-			$response            = $this->doSync($material, $resourceIds);
-			$response['success'] = TRUE;
-
-			return $response;
-		}
-	*/
-
 	/**
 	 * Display the specified resource.
 	 *
@@ -110,12 +115,12 @@ class MaterialController extends BaseController {
 	 * @param MaterialRequest $request
 	 * @param Material $material
 	 * @return Material|null
-	 * @throws \App\Models\Exceptions\InvalidKeywordTypeException
+	 * @throws InvalidKeywordTypeException
 	 */
 	public function update(MaterialRequest $request, Material $material) {
 
 		$hasLegacyRating = $request->exists('rating');
-		$legacyRating = $request->input('rating');
+		$legacyRating    = $request->input('rating');
 		$material->fill($request->except('rating'));
 		if ($request->has('is_public')) {
 			$material->is_public = $request->boolean('is_public');
@@ -131,10 +136,10 @@ class MaterialController extends BaseController {
 		$this->syncBibleverses($request, $material);
 
 		if ($hasLegacyRating) {
-			if ($legacyRating === null) {
+			if ($legacyRating === NULL) {
 				$this->materialUserRankingService->remove($material, Auth::user());
 			} else {
-				$this->materialUserRankingService->set($material, Auth::user(), (int) $legacyRating);
+				$this->materialUserRankingService->set($material, Auth::user(), (int)$legacyRating);
 			}
 		}
 
@@ -148,7 +153,7 @@ class MaterialController extends BaseController {
 	 *
 	 * @param Material $material
 	 * @return array
-	 * @throws \Exception
+	 * @throws Exception
 	 */
 	public function destroy(Material $material) {
 
@@ -163,10 +168,6 @@ class MaterialController extends BaseController {
 	 */
 	public function copy(Material $material) {
 		return $this->materialUserRankingService->present($this->materialHandlingService->copyMaterial($material)->fresh($this->visibleWithAttributes()), Auth::user());
-	}
-
-	protected function visibleWithAttributes(): array {
-		return \App\Http\Controllers\MaterialController::withVisibleAttributes(Auth::user());
 	}
 
 	public function createPublicZipDownload(Material $material) {

@@ -22,8 +22,8 @@ use Throwable;
 class AdminUserController extends Controller {
 	public function index(Request $request): array {
 		$validated = $request->validate([
-			'search' => ['nullable', 'string', 'max:255'],
-			'status' => ['nullable', Rule::enum(UserStatus::class)],
+			'search'   => ['nullable', 'string', 'max:255'],
+			'status'   => ['nullable', Rule::enum(UserStatus::class)],
 			'per_page' => ['nullable', 'integer', 'min:1', 'max:100'],
 		]);
 
@@ -42,18 +42,31 @@ class AdminUserController extends Controller {
 		return $page->toArray();
 	}
 
+	private function serialize(User $user): array {
+		return [
+			'id'         => $user->id,
+			'name'       => $user->name,
+			'email'      => $user->email,
+			'status'     => $user->status->value,
+			'is_admin'   => $user->is_admin,
+			'groups'     => $user->roles->map->only(['id', 'name'])->values()->all(),
+			'created_at' => $user->created_at,
+			'updated_at' => $user->updated_at,
+		];
+	}
+
 	public function store(Request $request): JsonResponse {
-		$validated = $this->validateUser($request);
-		$actor = $request->user();
-		$invitationError = null;
+		$validated       = $this->validateUser($request);
+		$actor           = $request->user();
+		$invitationError = NULL;
 
 		$user = DB::transaction(function () use ($validated): User {
 			$user = User::create([
-				'name' => $validated['name'],
-				'email' => mb_strtolower($validated['email']),
+				'name'     => $validated['name'],
+				'email'    => mb_strtolower($validated['email']),
 				'password' => Hash::make(Str::random(80)),
-				'is_admin' => $validated['is_admin'] ?? false,
-				'status' => UserStatus::Invited,
+				'is_admin' => $validated['is_admin'] ?? FALSE,
+				'status'   => UserStatus::Invited,
 			]);
 
 			$groupIds = array_key_exists('group_ids', $validated)
@@ -69,37 +82,55 @@ class AdminUserController extends Controller {
 		} catch (Throwable $exception) {
 			$invitationError = __('admin.invitation_failed');
 			Log::error('admin.user.invitation_failed', [
-				'actor_id' => $actor->id,
+				'actor_id'       => $actor->id,
 				'target_user_id' => $user->id,
-				'exception' => $exception::class,
+				'exception'      => $exception::class,
 			]);
 		}
 
 		Log::notice('admin.user.created', ['actor_id' => $actor->id, 'target_user_id' => $user->id]);
 
 		return response()->json([
-			'user' => $this->serialize($user->fresh('roles:id,name')),
-			'invitation_sent' => $invitationError === null,
+			'user'             => $this->serialize($user->fresh('roles:id,name')),
+			'invitation_sent'  => $invitationError === NULL,
 			'invitation_error' => $invitationError,
 		], 201);
 	}
 
+	private function validateUser(Request $request, ?User $user = NULL, bool $partial = FALSE): array {
+		$prefix = $partial ? 'sometimes' : 'required';
+
+		return $request->validate([
+			'name'        => [$prefix, 'string', 'max:255'],
+			'email'       => [$prefix, 'email', 'max:255', Rule::unique('users', 'email')->ignore($user?->id)],
+			'is_admin'    => ['sometimes', 'boolean'],
+			'status'      => ['sometimes', Rule::enum(UserStatus::class)],
+			'group_ids'   => ['sometimes', 'array'],
+			'group_ids.*' => ['integer', Rule::exists('roles', 'id')->where('guard_name', 'web')],
+		]);
+	}
+
+	private function sendInvitation(User $user): void {
+		$token = Password::broker()->createToken($user);
+		$user->notify(new UserInvitation($token));
+	}
+
 	public function update(User $user, Request $request): array {
-		$validated = $this->validateUser($request, $user, true);
-		$actor = $request->user();
-		$wasSuspended = false;
-		$user = DB::transaction(function () use ($user, $validated, &$wasSuspended): User {
+		$validated    = $this->validateUser($request, $user, TRUE);
+		$actor        = $request->user();
+		$wasSuspended = FALSE;
+		$user         = DB::transaction(function () use ($user, $validated, &$wasSuspended): User {
 			// Konsistente Sperrreihenfolge verhindert, dass parallele Änderungen den letzten aktiven Admin entfernen.
 			$activeAdmins = User::query()
-				->where('is_admin', true)
+				->where('is_admin', TRUE)
 				->where('status', UserStatus::Active->value)
 				->orderBy('id')
 				->lockForUpdate()
 				->get();
-			$user = $activeAdmins->firstWhere('id', $user->id)
+			$user         = $activeAdmins->firstWhere('id', $user->id)
 				?? User::query()->lockForUpdate()->findOrFail($user->getKey());
-			$nextStatus = isset($validated['status']) ? UserStatus::from($validated['status']) : $user->status;
-			$nextIsAdmin = $validated['is_admin'] ?? $user->is_admin;
+			$nextStatus   = isset($validated['status']) ? UserStatus::from($validated['status']) : $user->status;
+			$nextIsAdmin  = $validated['is_admin'] ?? $user->is_admin;
 
 			if ($user->status === UserStatus::Invited && $nextStatus === UserStatus::Active) {
 				abort(422, 'Ein eingeladener Benutzer wird ausschließlich durch den Abschluss der Einladung aktiviert.');
@@ -113,11 +144,11 @@ class AdminUserController extends Controller {
 
 			$wasSuspended = $user->status === UserStatus::Suspended;
 			$user->fill(array_filter([
-				'name' => $validated['name'] ?? null,
-				'email' => isset($validated['email']) ? mb_strtolower($validated['email']) : null,
-			], fn($value) => $value !== null));
+				'name'  => $validated['name'] ?? NULL,
+				'email' => isset($validated['email']) ? mb_strtolower($validated['email']) : NULL,
+			], fn($value) => $value !== NULL));
 			$user->is_admin = $nextIsAdmin;
-			$user->status = $nextStatus;
+			$user->status   = $nextStatus;
 			$user->save();
 
 			if (array_key_exists('group_ids', $validated)) {
@@ -132,12 +163,21 @@ class AdminUserController extends Controller {
 		});
 
 		Log::notice('admin.user.updated', [
-			'actor_id' => $actor->id,
+			'actor_id'       => $actor->id,
 			'target_user_id' => $user->id,
-			'suspended' => !$wasSuspended && $user->status === UserStatus::Suspended,
+			'suspended'      => !$wasSuspended && $user->status === UserStatus::Suspended,
 		]);
 
 		return ['user' => $this->serialize($user->fresh('roles:id,name'))];
+	}
+
+	private function revokeTokens(User $user): void {
+		Passport::tokenModel()::query()->where('user_id', $user->getAuthIdentifier())->get()->each(function ($token): void {
+			$token->refreshToken()->update(['revoked' => TRUE]);
+			$token->revoke();
+		});
+		$user->setRememberToken(Str::random(60));
+		$user->save();
 	}
 
 	public function invitation(User $user, Request $request): array {
@@ -145,46 +185,6 @@ class AdminUserController extends Controller {
 		$this->sendInvitation($user);
 		Log::notice('admin.user.invitation_resent', ['actor_id' => $request->user()->id, 'target_user_id' => $user->id]);
 
-		return ['invitation_sent' => true];
-	}
-
-	private function validateUser(Request $request, ?User $user = null, bool $partial = false): array {
-		$prefix = $partial ? 'sometimes' : 'required';
-
-		return $request->validate([
-			'name' => [$prefix, 'string', 'max:255'],
-			'email' => [$prefix, 'email', 'max:255', Rule::unique('users', 'email')->ignore($user?->id)],
-			'is_admin' => ['sometimes', 'boolean'],
-			'status' => ['sometimes', Rule::enum(UserStatus::class)],
-			'group_ids' => ['sometimes', 'array'],
-			'group_ids.*' => ['integer', Rule::exists('roles', 'id')->where('guard_name', 'web')],
-		]);
-	}
-
-	private function sendInvitation(User $user): void {
-		$token = Password::broker()->createToken($user);
-		$user->notify(new UserInvitation($token));
-	}
-
-	private function revokeTokens(User $user): void {
-		Passport::tokenModel()::query()->where('user_id', $user->getAuthIdentifier())->get()->each(function ($token): void {
-			$token->refreshToken()->update(['revoked' => true]);
-			$token->revoke();
-		});
-		$user->setRememberToken(Str::random(60));
-		$user->save();
-	}
-
-	private function serialize(User $user): array {
-		return [
-			'id' => $user->id,
-			'name' => $user->name,
-			'email' => $user->email,
-			'status' => $user->status->value,
-			'is_admin' => $user->is_admin,
-			'groups' => $user->roles->map->only(['id', 'name'])->values()->all(),
-			'created_at' => $user->created_at,
-			'updated_at' => $user->updated_at,
-		];
+		return ['invitation_sent' => TRUE];
 	}
 }

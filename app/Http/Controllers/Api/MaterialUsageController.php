@@ -6,6 +6,9 @@ use App\Events\MaterialWasChanged;
 use App\Http\Requests\MaterialUsageRequest;
 use App\Models\Material;
 use App\Models\MaterialUsage;
+use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Contracts\Routing\ResponseFactory;
+use Illuminate\Http\Response;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Support\Facades\Auth;
 
@@ -47,7 +50,7 @@ class MaterialUsageController extends BaseController {
 		// $relations = array_merge($this->usageRelationsToLoad, ['material']);
 		event(new MaterialWasChanged($material));
 
-		return $mUsage->fresh($this->usageRelationsToLoad);;
+		return $mUsage->fresh($this->usageRelationsToLoad);
 	}
 
 
@@ -56,7 +59,7 @@ class MaterialUsageController extends BaseController {
 	 *
 	 * @param MaterialUsageRequest $request
 	 * @param MaterialUsage $materialUsage
-	 * @return MaterialUsage|\Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response|object|null
+	 * @return MaterialUsage|Application|ResponseFactory|Response|object|null
 	 */
 	public function update(MaterialUsageRequest $request, Material $material, MaterialUsage $materialUsage) {
 
@@ -76,7 +79,7 @@ class MaterialUsageController extends BaseController {
 			event(new MaterialWasChanged($material));
 		}
 
-		return $materialUsage->fresh($this->usageRelationsToLoad);;
+		return $materialUsage->fresh($this->usageRelationsToLoad);
 
 	}
 

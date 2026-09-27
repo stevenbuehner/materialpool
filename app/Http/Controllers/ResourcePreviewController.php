@@ -7,13 +7,15 @@ use App\Models\DocumentFile;
 use App\Models\PdfFile;
 use App\Models\Resource;
 use App\Services\PreviewGeneration\Exceptions\NotPreviewAbleException;
-use App\Services\PreviewGeneration\ResourcePreviewService;
 use App\Services\PreviewGeneration\PreviewSize;
+use App\Services\PreviewGeneration\ResourcePreviewService;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 class ResourcePreviewController {
 
 	protected $previewService;
+
 	public function __construct(ResourcePreviewService $previewService) {
 		$this->previewService = $previewService;
 	}
@@ -22,7 +24,7 @@ class ResourcePreviewController {
 	 * @param Resource $resource
 	 * @param int $width
 	 * @param int $height
-	 * @return \Illuminate\Http\Response
+	 * @return Response
 	 */
 	public function getImage(Request $request, Resource $resource, $width = NULL, $height = NULL) {
 		try {
@@ -37,6 +39,15 @@ class ResourcePreviewController {
 		}
 
 		return $this->imageResponse($request, $imageData);
+
+	}
+
+	protected function imageResponse(Request $request, string $imageData) {
+		$response = response($imageData, 200, ['Content-Type' => 'image/jpeg']);
+		$response->setEtag(hash('sha256', $imageData));
+		$response->isNotModified($request);
+
+		return $response;
 
 	}
 
@@ -68,15 +79,6 @@ class ResourcePreviewController {
 		}
 
 		return $this->imageResponse($request, $imageData);
-	}
-
-	protected function imageResponse(Request $request, string $imageData) {
-		$response = response($imageData, 200, ['Content-Type' => 'image/jpeg']);
-		$response->setEtag(hash('sha256', $imageData));
-		$response->isNotModified($request);
-
-		return $response;
-
 	}
 
 

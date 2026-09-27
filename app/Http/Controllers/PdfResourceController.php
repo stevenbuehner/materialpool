@@ -6,6 +6,7 @@ use App\Models\Material;
 use App\Models\PdfFile;
 use App\ResourceLimitations\PageLimitation;
 use App\Services\ResourceHandling\PdfHandlingService;
+use Exception;
 
 class PdfResourceController extends Controller {
 
@@ -29,7 +30,7 @@ class PdfResourceController extends Controller {
 		try {
 			$pdf = $this->pdfService->extractPdfPages($resource, $pages);
 			$pdf->Output('D', $filename);
-		} catch (\Exception $e) {
+		} catch (Exception $e) {
 			throw $e;
 		}
 

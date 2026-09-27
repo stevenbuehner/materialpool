@@ -6,8 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Services\Bundles\BundlePermissionService;
 use App\Support\Authorization\SystemPermissions;
-use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
 use Spatie\Permission\Models\Role;
@@ -17,18 +17,43 @@ class AdminGroupController extends Controller {
 		return ['data' => Role::query()->where('guard_name', 'web')->with('permissions:id,name')->orderBy('name')->get()->map(fn(Role $role) => $this->serialize($role))->all()];
 	}
 
+	private function serialize(Role $role): array {
+		return [
+			'id'          => $role->id,
+			'name'        => $role->name,
+			'permissions' => $role->permissions->pluck('name')->sort()->values()->all(),
+			'users_count' => User::role($role)->count(),
+		];
+	}
+
 	public function store(Request $request): JsonResponse {
 		$validated = $this->validateGroup($request);
-		$role = Role::create(['name' => $validated['name'], 'guard_name' => 'web']);
+		$role      = Role::create(['name' => $validated['name'], 'guard_name' => 'web']);
 		$role->syncPermissions($validated['permissions'] ?? []);
 		Log::notice('admin.group.created', ['actor_id' => $request->user()->id, 'group_id' => $role->id]);
 
 		return response()->json(['group' => $this->serialize($role->load('permissions:id,name'))], 201);
 	}
 
+	private function validateGroup(Request $request, ?Role $role = NULL, bool $partial = FALSE): array {
+		return $request->validate([
+			'name'          => [$partial ? 'sometimes' : 'required', 'string', 'max:255', Rule::unique('roles', 'name')->where('guard_name', 'web')->ignore($role?->id)],
+			'permissions'   => ['sometimes', 'array'],
+			'permissions.*' => ['string', Rule::in($this->assignablePermissions())],
+		]);
+	}
+
+	/** @return array<string> */
+	private function assignablePermissions(): array {
+		return array_values(array_unique([
+			...SystemPermissions::all(),
+			...app(BundlePermissionService::class)->assignablePermissionNames(),
+		]));
+	}
+
 	public function update(Role $group, Request $request): array {
 		abort_unless($group->guard_name === 'web', 404);
-		$validated = $this->validateGroup($request, $group, true);
+		$validated = $this->validateGroup($request, $group, TRUE);
 		abort_if(
 			$group->name === SystemPermissions::DEFAULT_GROUP
 			&& isset($validated['name'])
@@ -58,30 +83,5 @@ class AdminGroupController extends Controller {
 		Log::notice('admin.group.deleted', ['actor_id' => $request->user()->id, 'group_id' => $groupId]);
 
 		return response()->noContent();
-	}
-
-	private function validateGroup(Request $request, ?Role $role = null, bool $partial = false): array {
-		return $request->validate([
-			'name' => [$partial ? 'sometimes' : 'required', 'string', 'max:255', Rule::unique('roles', 'name')->where('guard_name', 'web')->ignore($role?->id)],
-			'permissions' => ['sometimes', 'array'],
-			'permissions.*' => ['string', Rule::in($this->assignablePermissions())],
-		]);
-	}
-
-	/** @return array<string> */
-	private function assignablePermissions(): array {
-		return array_values(array_unique([
-			...SystemPermissions::all(),
-			...app(BundlePermissionService::class)->assignablePermissionNames(),
-		]));
-	}
-
-	private function serialize(Role $role): array {
-		return [
-			'id' => $role->id,
-			'name' => $role->name,
-			'permissions' => $role->permissions->pluck('name')->sort()->values()->all(),
-			'users_count' => User::role($role)->count(),
-		];
 	}
 }

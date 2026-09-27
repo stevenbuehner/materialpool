@@ -13,6 +13,7 @@ use App\Models\Resource;
 use App\ResourceLimitations\InvalidLimitationRequestException;
 use App\ResourceLimitations\LimitationNotApplicableForResource;
 use App\ResourceLimitations\ResourceLimitationService;
+use Auth;
 
 trait ResourceMaterialTrait {
 
@@ -74,7 +75,7 @@ trait ResourceMaterialTrait {
 
 			$resource = $foreignResource->resource;
 
-			if (\Auth::user()->cannot('view', $resource)) {
+			if (Auth::user()->cannot('view', $resource)) {
 				return response([])->setStatusCode(403);
 			}
 		}

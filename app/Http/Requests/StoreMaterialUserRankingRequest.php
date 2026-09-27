@@ -6,7 +6,7 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class StoreMaterialUserRankingRequest extends FormRequest {
 	public function authorize(): bool {
-		return true;
+		return TRUE;
 	}
 
 	public function rules(): array {

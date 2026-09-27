@@ -18,15 +18,15 @@ class MaterialUserRankingController extends Controller {
 		return $this->response($material, $request);
 	}
 
-	public function destroy(Request $request, Material $material): array {
-		$material = $this->rankings->remove($material, $request->user());
-
-		return $this->response($material, $request);
-	}
-
 	private function response(Material $material, Request $request): array {
 		$this->rankings->present($material, $request->user());
 
 		return $material->only(['rating', 'user_rating', 'user_rating_updated_at']);
+	}
+
+	public function destroy(Request $request, Material $material): array {
+		$material = $this->rankings->remove($material, $request->user());
+
+		return $this->response($material, $request);
 	}
 }

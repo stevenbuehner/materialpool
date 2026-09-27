@@ -11,12 +11,16 @@ use App\Models\Resource;
 use App\Services\ResourceHandling\Exceptions\ResourceNotReplaceable;
 use App\Services\ResourceHandling\FileHandlingService;
 use App\Services\ResourceHandling\ResourceHandlingService;
+use Exception;
+use Illuminate\Contracts\Routing\ResponseFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\ValidationException;
+use Symfony\Component\HttpFoundation\Response;
 
 class ResourceController extends BaseController {
 
@@ -65,6 +69,27 @@ class ResourceController extends BaseController {
 
 		return $resource->load($this->visibleRelations($useRelations));
 
+	}
+
+	/**
+	 * Eine sichtbare Ressource kann einem für den aktuellen Benutzer unsichtbaren
+	 * Material zugeordnet sein. Deshalb wird die Relation in jeder API-Antwort
+	 * eingeschränkt geladen.
+	 */
+	protected function visibleRelations(array $relations): array {
+		$loadsMaterials = FALSE;
+
+		foreach ($relations as $key => $relation) {
+			$name           = is_int($key) ? $relation : $key;
+			$loadsMaterials = $loadsMaterials || (is_string($name) && str_starts_with($name, 'materials'));
+		}
+
+		if ($loadsMaterials) {
+			$relations              = array_filter($relations, static fn($relation): bool => $relation !== 'materials');
+			$relations['materials'] = fn($query) => $query->visibleTo(Auth::user());
+		}
+
+		return $relations;
 	}
 
 	public function find(Request $request) {
@@ -202,7 +227,6 @@ class ResourceController extends BaseController {
 
 	}
 
-
 	public function createMaterialFromResourceIds(Request $request) {
 
 		$meta        = $request->get('meta', '');
@@ -226,12 +250,11 @@ class ResourceController extends BaseController {
 
 	}
 
-
 	/**
 	 * @param Request $request
-	 * @param \App\Models\Resource $resource
+	 * @param Resource $resource
 	 * @return Resource
-	 * @throws \Illuminate\Validation\ValidationException
+	 * @throws ValidationException
 	 */
 	public function update(Request $request, Resource $resource) {
 
@@ -251,7 +274,7 @@ class ResourceController extends BaseController {
 				event(new ResourceWasChanged($resource));
 			}
 
-		} catch (\Exception $e) {
+		} catch (Exception $e) {
 			return response(['message' => $e->getMessage()])->setStatusCode(500);
 		}
 
@@ -262,7 +285,7 @@ class ResourceController extends BaseController {
 
 	/**
 	 * @param Resource $resource
-	 * @return array|\Illuminate\Contracts\Routing\ResponseFactory|\Symfony\Component\HttpFoundation\Response
+	 * @return array|ResponseFactory|Response
 	 */
 	public function destroy(Resource $resource) {
 
@@ -290,28 +313,6 @@ class ResourceController extends BaseController {
 		$resource->loadMissing($this->visibleRelations(self::DEFAULT_RELATIONS));
 		return $resource;
 	}
-
-	/**
-	 * Eine sichtbare Ressource kann einem für den aktuellen Benutzer unsichtbaren
-	 * Material zugeordnet sein. Deshalb wird die Relation in jeder API-Antwort
-	 * eingeschränkt geladen.
-	 */
-	protected function visibleRelations(array $relations): array {
-		$loadsMaterials = false;
-
-		foreach ($relations as $key => $relation) {
-			$name = is_int($key) ? $relation : $key;
-			$loadsMaterials = $loadsMaterials || (is_string($name) && str_starts_with($name, 'materials'));
-		}
-
-		if ($loadsMaterials) {
-			$relations = array_filter($relations, static fn($relation): bool => $relation !== 'materials');
-			$relations['materials'] = fn($query) => $query->visibleTo(Auth::user());
-		}
-
-		return $relations;
-	}
-
 
 	/**
 	 * @param Request $request

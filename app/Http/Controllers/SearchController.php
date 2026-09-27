@@ -6,8 +6,9 @@ use App\Http\Requests\SearchMaterialsRequest;
 use App\Models\Bibleverse;
 use App\Models\Keyword;
 use App\Models\Material;
-use App\Services\MaterialHandling\MaterialUserRankingService;
 use App\Models\Resource;
+use App\Services\MaterialHandling\MaterialUserRankingService;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\Paginator;
@@ -140,75 +141,11 @@ class SearchController extends Controller {
 		return $paginator;
 	}
 
-
-	public function guessKeywords(Request $request) {
-
-		$queryString    = $request->get('q') ?? '';
-		$queryString    = str_replace('%', '*', $queryString);
-		$queryType      = $request->get('t', FALSE);
-		$queryPage      = $request->get('page', 1);
-		$paginationSize = min((int)$request->get('limit', 15), 50);
-
-		if ($queryType && !in_array($queryType, array_keys(Keyword::AVAILABLE_TYPES))) {
-			$queryType = FALSE;
-		}
-
-		// Search for Keywords
-		$keywords = Keyword::searchQuery($queryString, $queryType)
-			// ->offset(($paginationSize) * ($queryPage - 1))
-			// ->limit($paginationSize)
-			->orderByRaw('LENGTH(title)')
-			->orderBy('_lft')
-			->paginate($paginationSize, ['*'], 'page', $queryPage)
-			->appends(['q' => $queryString, 't' => $queryType, 'limit' => $paginationSize]);
-//			->get();
-
-		return $keywords;
-	}
-
-	public function guessBibleverse(Request $request) {
-
-		$queryString = $request->get('q') ?? '';
-
-		/** @var BibleVerseService $bibleVerseExtraction */
-		$bibleVerseExtraction = resolve('BibleVerseService');
-		$result               = collect();
-
-		// Search For Bibleverses
-		$verses = $bibleVerseExtraction->stringToBibleVerse($queryString);
-
-		// Merge Bibleverse-Erkennung
-		// Ins Besondere für Bibelstellen die nur Kapitel enthalten wichtig, da diese ansonsten als zwei Bibelstellen erkannt werden
-		// Z.B. bei "2. Mose 3+4"
-		$verses = $bibleVerseExtraction->mergeBibleverses($verses);
-
-		// Remove duplicates:
-		$keys = [];
-		foreach ($verses as $key => $v) {
-			$s = $v->__toString();
-
-			if (isset($keys[$s])) {
-				unset($verses[$key]);
-			} else {
-				$keys[$s] = TRUE;
-			}
-		}
-
-		foreach ($verses as $verse) {
-			$temp = Bibleverse::makeFromBibleverseInterface($verse);
-			$temp->setHidden(['created_at', 'updated_at']);
-
-			$result->push($temp);
-		}
-
-		return $result;
-	}
-
 	/**
 	 * Suche
 	 *
 	 * @param SearchMaterialsRequest $request
-	 * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
+	 * @return LengthAwarePaginator
 	 */
 	public function get(SearchMaterialsRequest $request) {
 		$query          = $this->turnRequestIntoQuery($request);
@@ -240,7 +177,7 @@ class SearchController extends Controller {
 				'author',
 				'keywords',
 				'bibleverses',
-				'resources' => fn($query) => $query->visibleTo($user),
+				'resources'    => fn($query) => $query->visibleTo($user),
 				'userRankings' => fn($query) => $query->where('user_id', $user->id),
 			])
 			->groupBy(['materials.id']);
@@ -379,6 +316,69 @@ class SearchController extends Controller {
 		$matQuery->orderByDesc('materials.id');
 
 		return $matQuery;
+	}
+
+	public function guessKeywords(Request $request) {
+
+		$queryString    = $request->get('q') ?? '';
+		$queryString    = str_replace('%', '*', $queryString);
+		$queryType      = $request->get('t', FALSE);
+		$queryPage      = $request->get('page', 1);
+		$paginationSize = min((int)$request->get('limit', 15), 50);
+
+		if ($queryType && !in_array($queryType, array_keys(Keyword::AVAILABLE_TYPES))) {
+			$queryType = FALSE;
+		}
+
+		// Search for Keywords
+		$keywords = Keyword::searchQuery($queryString, $queryType)
+			// ->offset(($paginationSize) * ($queryPage - 1))
+			// ->limit($paginationSize)
+			->orderByRaw('LENGTH(title)')
+			->orderBy('_lft')
+			->paginate($paginationSize, ['*'], 'page', $queryPage)
+			->appends(['q' => $queryString, 't' => $queryType, 'limit' => $paginationSize]);
+//			->get();
+
+		return $keywords;
+	}
+
+	public function guessBibleverse(Request $request) {
+
+		$queryString = $request->get('q') ?? '';
+
+		/** @var BibleVerseService $bibleVerseExtraction */
+		$bibleVerseExtraction = resolve('BibleVerseService');
+		$result               = collect();
+
+		// Search For Bibleverses
+		$verses = $bibleVerseExtraction->stringToBibleVerse($queryString);
+
+		// Merge Bibleverse-Erkennung
+		// Ins Besondere für Bibelstellen die nur Kapitel enthalten wichtig, da diese ansonsten als zwei Bibelstellen erkannt werden
+		// Z.B. bei "2. Mose 3+4"
+		$verses = $bibleVerseExtraction->mergeBibleverses($verses);
+
+		// Remove duplicates:
+		$keys = [];
+		foreach ($verses as $key => $v) {
+			$s = $v->__toString();
+
+			if (isset($keys[$s])) {
+				unset($verses[$key]);
+			} else {
+				$keys[$s] = TRUE;
+			}
+		}
+
+		foreach ($verses as $verse) {
+			$temp = Bibleverse::makeFromBibleverseInterface($verse);
+			$temp->setHidden(['created_at', 'updated_at']);
+
+			$result->push($temp);
+		}
+
+		return $result;
 	}
 
 }

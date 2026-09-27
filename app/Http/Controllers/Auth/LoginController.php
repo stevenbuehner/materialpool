@@ -40,8 +40,8 @@ class LoginController extends Controller {
 	protected function credentials(Request $request): array {
 		return [
 			$this->username() => $request->input($this->username()),
-			'password' => $request->input('password'),
-			'status' => UserStatus::Active->value,
+			'password'        => $request->input('password'),
+			'status'          => UserStatus::Active->value,
 		];
 	}
 }

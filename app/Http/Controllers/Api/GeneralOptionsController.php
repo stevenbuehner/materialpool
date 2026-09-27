@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller as BaseController;
-use Illuminate\Support\Facades\Auth;
 use App\Support\Authorization\SystemPermissions;
+use Illuminate\Support\Facades\Auth;
 
 
 class GeneralOptionsController extends BaseController {
@@ -17,19 +17,19 @@ class GeneralOptionsController extends BaseController {
 		$user = $this->getUserInformation();
 
 		return [
-			'user'       => $user,
+			'user'        => $user,
 			'permissions' => $user['permissions'],
-			'server'     => [
+			'server'      => [
 				'max_upload' => $this->file_upload_max_size()
 			],
-			'systemname' => config('app.name')
+			'systemname'  => config('app.name')
 		];
 
 	}
 
 	protected function getUserInformation() {
-		$user = Auth::user();
-		$data = $user->makeVisible(['frontend_user_settings', 'email', 'is_admin'])->toArray();
+		$user                = Auth::user();
+		$data                = $user->makeVisible(['frontend_user_settings', 'email', 'is_admin'])->toArray();
 		$data['permissions'] = $user->isSuperAdmin()
 			? SystemPermissions::all()
 			: $user->getAllPermissions()->pluck('name')->sort()->values()->all();

@@ -14,8 +14,10 @@ use App\Services\MaterialHandling\MaterialUserRankingService;
 use App\Services\ResourceHandling\FileHandlingService;
 use App\Services\TagExtraction\Properties\Property;
 use App\Services\TagExtraction\TagExtractionService;
-use Illuminate\Http\Request;
+use Exception;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
@@ -27,6 +29,35 @@ class MaterialController extends Controller {
 		$this->middleware('can:view,material')->only(['show']);
 		$this->middleware('can:updateMetadata,material')->only(['edit', 'update']);
 		$this->middleware('can:delete,material')->only(['delete', 'destroy']);
+	}
+
+	/**
+	 * Display a listing of the resource.
+	 *
+	 * @return Response
+	 */
+	public function index() {
+		$materials = Material::query()
+			->visibleTo(Auth::user())
+			->with(self::withVisibleAttributes(Auth::user()))
+			->orderBy('updated_at')
+			->paginate(50);
+		$title     = "Alle Materialien";
+
+		return view('materials.listing', compact('materials', 'title'));
+	}
+
+	/**
+	 * Lädt Materialdetails, ohne Ressourcen sichtbar zu machen, für die der
+	 * aktuelle Benutzer kein Leserecht hat. Antwortpfade verwenden diese
+	 * Variante anstelle von withAttributes().
+	 */
+	public static function withVisibleAttributes(User $user): array {
+		$relations                 = array_filter(self::withAttributes(), static fn($relation): bool => $relation !== 'resources');
+		$relations['resources']    = static fn($query) => $query->visibleTo($user);
+		$relations['userRankings'] = static fn($query) => $query->where('user_id', $user->id);
+
+		return $relations;
 	}
 
 	public static function withAttributes() {
@@ -43,35 +74,6 @@ class MaterialController extends Controller {
 			'usages.usedBy',
 			'author'
 		];
-	}
-
-	/**
-	 * Lädt Materialdetails, ohne Ressourcen sichtbar zu machen, für die der
-	 * aktuelle Benutzer kein Leserecht hat. Antwortpfade verwenden diese
-	 * Variante anstelle von withAttributes().
-	 */
-	public static function withVisibleAttributes(User $user): array {
-		$relations = array_filter(self::withAttributes(), static fn($relation): bool => $relation !== 'resources');
-		$relations['resources'] = static fn($query) => $query->visibleTo($user);
-		$relations['userRankings'] = static fn($query) => $query->where('user_id', $user->id);
-
-		return $relations;
-	}
-
-	/**
-	 * Display a listing of the resource.
-	 *
-	 * @return \Illuminate\Http\Response
-	 */
-	public function index() {
-		$materials = Material::query()
-			->visibleTo(Auth::user())
-			->with(self::withVisibleAttributes(Auth::user()))
-			->orderBy('updated_at')
-			->paginate(50);
-		$title     = "Alle Materialien";
-
-		return view('materials.listing', compact('materials', 'title'));
 	}
 
 	public function indexBySingleKeyword($lcKeyword) {
@@ -115,7 +117,7 @@ class MaterialController extends Controller {
 		try {
 			$bibleVerse = new Bibleverse(['from' => $from, 'to' => $to]);
 			$title      = "Suche nach " . $bibleVerse->label;
-		} catch (\Exception $e) {
+		} catch (Exception $e) {
 			$title = "Ungültiger Bibelvers";
 		}
 
@@ -125,7 +127,7 @@ class MaterialController extends Controller {
 	/**
 	 * Show the form for creating a new resource.
 	 *
-	 * @return \Illuminate\Http\Response
+	 * @return Response
 	 */
 	public function create() {
 	}
@@ -133,8 +135,8 @@ class MaterialController extends Controller {
 	/**
 	 * Store a newly created resource in storage.
 	 *
-	 * @param \Illuminate\Http\Request $request
-	 * @return \Illuminate\Http\Response
+	 * @param Request $request
+	 * @return Response
 	 */
 	public function store(MaterialRequest $request) {
 		$resourceIds    = $request->get('resources', FALSE);
@@ -185,7 +187,7 @@ class MaterialController extends Controller {
 				try {
 					$limitation                   = $limitationService->createLimitation($data);
 					$resources[$id]['limitation'] = serialize($limitation);
-				} catch (\Exception $e) {
+				} catch (Exception $e) {
 
 				}
 			}
@@ -232,7 +234,7 @@ class MaterialController extends Controller {
 	 * Display the specified resource.
 	 *
 	 * @param Material $material
-	 * @return \Illuminate\Http\Response
+	 * @return Response
 	 */
 	public function show(Material $material) {
 		$material->load(self::withVisibleAttributes(Auth::user()));
@@ -255,7 +257,7 @@ class MaterialController extends Controller {
 	 * Show the form for editing the specified resource.
 	 *
 	 * @param Material $material
-	 * @return \Illuminate\Http\Response
+	 * @return Response
 	 */
 	public function edit(Material $material) {
 		$material->load(self::withVisibleAttributes(Auth::user()));
@@ -266,13 +268,13 @@ class MaterialController extends Controller {
 	/**
 	 * Update the specified resource in storage.
 	 *
-	 * @param \Illuminate\Http\Request $request
+	 * @param Request $request
 	 * @param Material $material
-	 * @return \Illuminate\Http\Response
+	 * @return Response
 	 */
 	public function update(MaterialRequest $request, Material $material) {
 		$hasLegacyRating = $request->exists('rating');
-		$legacyRating = $request->input('rating');
+		$legacyRating    = $request->input('rating');
 
 		$material->fill($request->except('rating'));
 		if ($request->has('is_public')) {
@@ -281,10 +283,10 @@ class MaterialController extends Controller {
 		$material->save();
 		if ($hasLegacyRating) {
 			$rankings = resolve(MaterialUserRankingService::class);
-			if ($legacyRating === null) {
+			if ($legacyRating === NULL) {
 				$rankings->remove($material, Auth::user());
 			} else {
-				$rankings->set($material, Auth::user(), (int) $legacyRating);
+				$rankings->set($material, Auth::user(), (int)$legacyRating);
 			}
 		}
 
@@ -295,7 +297,7 @@ class MaterialController extends Controller {
 	 * Remove the specified resource from storage.
 	 *
 	 * @param Material $material
-	 * @return \Illuminate\Http\Response
+	 * @return Response
 	 */
 	public function delete(Material $material) {
 
@@ -310,7 +312,7 @@ class MaterialController extends Controller {
 	 *
 	 * @param Material $material
 	 * @param           $request
-	 * @return \Illuminate\Http\Response
+	 * @return Response
 	 */
 	public function destroy(Material $material, Request $request) {
 
@@ -327,7 +329,7 @@ class MaterialController extends Controller {
 			/** @var FileHandlingService $service */
 			$service = resolve(FileHandlingService::class);
 
-			/** @var \App\Models\Resource $resource */
+			/** @var Resource $resource */
 			foreach ($material->resources as $resource) {
 
 				if ($resource->materials->count() > 1) {

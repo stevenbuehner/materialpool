@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Services\System\SystemShutdownService;
+use Illuminate\Http\Response;
 use Illuminate\Routing\Controller as BaseController;
 
 class SystemController extends BaseController {
@@ -21,7 +22,7 @@ class SystemController extends BaseController {
 	/**
 	 * Show the application dashboard.
 	 *
-	 * @return \Illuminate\Http\Response
+	 * @return Response
 	 */
 	public function shutdown() {
 

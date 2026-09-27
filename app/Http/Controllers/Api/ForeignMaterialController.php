@@ -4,9 +4,9 @@ namespace App\Http\Controllers\Api;
 
 use App\Events\MaterialWasChanged;
 use App\Events\MaterialWasCreated;
-use App\Events\MaterialWasDeleted;
 use App\Http\Requests\FullMaterialRequest;
 use App\Models\Bibleverse;
+use App\Models\Exceptions\InvalidKeywordTypeException;
 use App\Models\ForeignMaterialId;
 use App\Models\ForeignResourceId;
 use App\Models\Keyword;
@@ -20,7 +20,9 @@ use App\Services\TagExtraction\Properties\KeywordProperty;
 use App\Services\TagExtraction\Properties\OcrTextProperty;
 use App\Services\TagExtraction\Properties\RatingProperty;
 use App\Services\TagExtraction\Properties\TitleProperty;
+use Illuminate\Contracts\Routing\ResponseFactory;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
@@ -58,7 +60,7 @@ class ForeignMaterialController extends BaseController {
 	/**
 	 * Display a listing of the material.
 	 *
-	 * @return \Illuminate\Http\Response
+	 * @return Response
 	 */
 	public function index() {
 
@@ -265,8 +267,8 @@ class ForeignMaterialController extends BaseController {
 	/**
 	 * @param FullMaterialRequest $request
 	 * @param                     $foreignMaterialId
-	 * @return array|\Illuminate\Contracts\Routing\ResponseFactory|\Symfony\Component\HttpFoundation\Response
-	 * @throws \App\Models\Exceptions\InvalidKeywordTypeException
+	 * @return array|ResponseFactory|\Symfony\Component\HttpFoundation\Response
+	 * @throws InvalidKeywordTypeException
 	 */
 	public function store(FullMaterialRequest $request, $foreignMaterialId) {
 
@@ -316,7 +318,7 @@ class ForeignMaterialController extends BaseController {
 	 *
 	 * @param FullMaterialRequest $request
 	 * @param ForeignMaterialId $foreignMaterialId
-	 * @return \Illuminate\Http\Response
+	 * @return Response
 	 */
 	public function update(FullMaterialRequest $request, ForeignMaterialId $foreignMaterialId) {
 
