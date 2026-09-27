@@ -237,7 +237,7 @@ final class EvaluationDatasetService
     }
 
     /** @param null|callable(string, int, int): void $onProgress */
-    public function import(string $relativePath, ?callable $onProgress = null): ContextSearchEvaluationDataset
+    public function import(string $relativePath, string $expectedArchiveHash, ?callable $onProgress = null): ContextSearchEvaluationDataset
     {
         $missingRequirements = [];
         if (app()->isProduction()) {
@@ -250,7 +250,14 @@ final class EvaluationDatasetService
             throw new RuntimeException('Der Import ist ausschließlich in einer explizit freigegebenen Evaluationsumgebung erlaubt. '.implode(' ', $missingRequirements));
         }
 
-        $this->verify($relativePath, $onProgress);
+        if (! preg_match('/\A[a-f0-9]{64}\z/i', $expectedArchiveHash)) {
+            throw new RuntimeException('Die erwartete Archiv-Prüfsumme muss ein SHA-256-Wert sein.');
+        }
+
+        $verified = $this->verify($relativePath, $onProgress);
+        if (! hash_equals(strtolower($expectedArchiveHash), $verified['archive_hash'])) {
+            throw new RuntimeException('Die Archiv-Prüfsumme stimmt nicht mit dem erwarteten Wert überein.');
+        }
         $absolutePath = Storage::disk(self::DISK)->path($relativePath);
         $zip = new ZipArchive();
         $zip->open($absolutePath);

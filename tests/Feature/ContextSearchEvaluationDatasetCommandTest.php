@@ -109,6 +109,7 @@ final class ContextSearchEvaluationDatasetCommandTest extends TestCase
 
     public function test_imports_a_synthetic_verified_text_and_pdf_dataset_only_when_explicitly_enabled(): void
     {
+        config()->set('context_search.evaluation.import_enabled', false);
         Storage::fake('context_search_evaluation');
         Storage::fake('resources');
         $datasetId = (string) Str::uuid();
@@ -149,19 +150,26 @@ final class ContextSearchEvaluationDatasetCommandTest extends TestCase
         $zip->addFromString('texts/8001.txt', 'Synthetischer Importtext.');
         $zip->addFromString('files/8002.pdf', $pdfContent);
         $zip->close();
+        $archiveHash = hash_file('sha256', $archive);
 
-        $this->artisan('context-search:dataset:import', ['archive' => 'incoming/'.$datasetId.'.zip'])
+        $this->artisan('context-search:dataset:import', ['archive' => 'incoming/'.$datasetId.'.zip', 'expected_sha256' => $archiveHash])
             ->expectsOutputToContain('context_search.evaluation.import_enabled ist deaktiviert')
-            ->expectsOutputToContain('CONTEXT_SEARCH_EVALUATION_IMPORT_ENABLED=true')
-            ->expectsOutputToContain('artisan config:clear')
             ->assertExitCode(1);
         config()->set('context_search.evaluation.import_enabled', true);
 
         $materialsBefore = Material::query()->count();
         $resourcesBefore = Text::query()->count();
         $pdfsBefore = PdfFile::query()->count();
-        $this->artisan('context-search:dataset:import', ['archive' => 'incoming/'.$datasetId.'.zip'])
+        $this->artisan('context-search:dataset:import', ['archive' => 'incoming/'.$datasetId.'.zip', 'expected_sha256' => str_repeat('0', 64)])
+            ->expectsOutputToContain('Archiv-Prüfsumme stimmt nicht')
+            ->assertExitCode(1);
+        $this->assertSame($materialsBefore, Material::query()->count());
+        $this->assertSame($resourcesBefore, Text::query()->count());
+        $this->assertSame($pdfsBefore, PdfFile::query()->count());
+
+        $this->artisan('context-search:dataset:import', ['archive' => 'incoming/'.$datasetId.'.zip', 'expected_sha256' => $archiveHash])
             ->expectsOutputToContain('isoliert importiert')
+            ->expectsOutputToContain('Geprüfte Archiv-Prüfsumme: '.$archiveHash)
             ->assertExitCode(0);
         $this->assertSame($materialsBefore + 1, Material::query()->count());
         $this->assertSame($resourcesBefore + 1, Text::query()->count());
@@ -173,7 +181,7 @@ final class ContextSearchEvaluationDatasetCommandTest extends TestCase
         $this->assertContains(hash('sha256', 'Synthetischer Importtext.'), $hashes);
         $this->assertContains(hash('sha256', $pdfContent), $hashes);
 
-        $this->artisan('context-search:dataset:import', ['archive' => 'incoming/'.$datasetId.'.zip'])->assertExitCode(0);
+        $this->artisan('context-search:dataset:import', ['archive' => 'incoming/'.$datasetId.'.zip', 'expected_sha256' => $archiveHash])->assertExitCode(0);
         $this->assertSame($materialsBefore + 1, Material::query()->count());
     }
 
@@ -182,9 +190,8 @@ final class ContextSearchEvaluationDatasetCommandTest extends TestCase
         config()->set('context_search.evaluation.import_enabled', true);
         $this->app->instance('env', 'production');
 
-        $this->artisan('context-search:dataset:import', ['archive' => 'incoming/example.zip'])
+        $this->artisan('context-search:dataset:import', ['archive' => 'incoming/example.zip', 'expected_sha256' => str_repeat('0', 64)])
             ->expectsOutputToContain('APP_ENV=production ist gesperrt')
-            ->expectsOutputToContain('getrennten Evaluationsumgebung')
             ->assertExitCode(1);
     }
 

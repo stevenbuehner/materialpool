@@ -8,14 +8,15 @@ use Throwable;
 
 final class ImportContextSearchEvaluationDataset extends Command
 {
-    protected $signature = 'context-search:dataset:import {archive : Relativer Pfad im privaten Evaluationsspeicher}';
+    protected $signature = 'context-search:dataset:import {archive : Relativer Pfad im privaten Evaluationsspeicher} {expected_sha256 : Archiv-Prüfsumme aus dem Export}';
     protected $description = 'Importiert ein geprüftes Archiv ausschließlich in eine explizit freigegebene Evaluationsumgebung.';
 
     public function handle(EvaluationDatasetService $datasets): int
     {
         $progress = new EvaluationDatasetProgress($this);
         try {
-            $dataset = $datasets->import((string) $this->argument('archive'), $progress);
+            $expectedHash = (string) $this->argument('expected_sha256');
+            $dataset = $datasets->import((string) $this->argument('archive'), $expectedHash, $progress);
             $progress->finish();
         } catch (Throwable $exception) {
             $progress->abort();
@@ -26,6 +27,7 @@ final class ImportContextSearchEvaluationDataset extends Command
         }
 
         $this->components->info("Evaluationsdatensatz {$dataset->getKey()} wurde isoliert importiert.");
+        $this->components->info("Geprüfte Archiv-Prüfsumme: {$expectedHash}");
 
         return self::SUCCESS;
     }
