@@ -3,285 +3,269 @@
 namespace App\Services\ContextSearch\Ollama;
 
 use App\Services\ContextSearch\EmbeddingProfile;
-use Illuminate\Contracts\Cache\Repository as CacheRepository;
 use Illuminate\Contracts\Cache\LockTimeoutException;
+use Illuminate\Contracts\Cache\Repository as CacheRepository;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
 
-final class OllamaEmbeddingPool
-{
-    /** @param array<int, OllamaServer> $servers */
-    public function __construct(
-        private readonly array $servers,
-        private readonly EmbeddingProfile $profile,
-        private readonly CacheRepository $cache,
-        private readonly int $connectTimeout,
-        private readonly int $timeout,
-        private readonly int $failureThreshold,
-        private readonly int $circuitCooldown,
-    ) {
-        if ($this->servers === []) {
-            throw new OllamaEmbeddingPoolException('At least one Ollama server must be configured.');
-        }
+final class OllamaEmbeddingPool {
+	/** @param array<int, OllamaServer> $servers */
+	public function __construct(
+		private readonly array            $servers,
+		private readonly EmbeddingProfile $profile,
+		private readonly CacheRepository  $cache,
+		private readonly int              $connectTimeout,
+		private readonly int              $timeout,
+		private readonly int              $failureThreshold,
+		private readonly int              $circuitCooldown,
+	) {
+		if ($this->servers === []) {
+			throw new OllamaEmbeddingPoolException('At least one Ollama server must be configured.');
+		}
 
-        if ($this->connectTimeout < 1 || $this->timeout < 1 || $this->failureThreshold < 1 || $this->circuitCooldown < 1) {
-            throw new OllamaEmbeddingPoolException('Ollama pool timeouts and limits must be positive.');
-        }
-    }
+		if ($this->connectTimeout < 1 || $this->timeout < 1 || $this->failureThreshold < 1 || $this->circuitCooldown < 1) {
+			throw new OllamaEmbeddingPoolException('Ollama pool timeouts and limits must be positive.');
+		}
+	}
 
-    public function profile(): EmbeddingProfile
-    {
-        return $this->profile;
-    }
+	public function profile(): EmbeddingProfile {
+		return $this->profile;
+	}
 
-    /**
-     * Performs the profile self-test for every configured server.
-     *
-     * @return array<int, array{name: string, digest: string, dimensions: int}>
-     */
-    public function verifyProfile(): array
-    {
-        $verified = [];
+	/**
+	 * Performs the profile self-test for every configured server.
+	 *
+	 * @return array<int, array{name: string, digest: string, dimensions: int}>
+	 */
+	public function verifyProfile(): array {
+		$verified = [];
 
-        foreach ($this->servers as $server) {
-            $this->assertServerProfile($server);
-            $verified[] = [
-                'name' => $server->name,
-                'digest' => $this->profile->digest,
-                'dimensions' => $this->profile->dimensions,
-            ];
-        }
+		foreach ($this->servers as $server) {
+			$this->assertServerProfile($server);
+			$verified[] = [
+				'name'       => $server->name,
+				'digest'     => $this->profile->digest,
+				'dimensions' => $this->profile->dimensions,
+			];
+		}
 
-        return $verified;
-    }
+		return $verified;
+	}
 
-    /**
-     * @param array<int, string> $inputs
-     */
-    public function embed(array $inputs, string $routingKey): OllamaEmbeddingResponse
-    {
-        if ($inputs === [] || ! array_is_list($inputs) || collect($inputs)->contains(fn (mixed $input): bool => ! is_string($input) || blank($input))) {
-            throw new OllamaEmbeddingPoolException('Embedding inputs must be a non-empty list of non-blank strings.');
-        }
+	private function assertServerProfile(OllamaServer $server): void {
+		$response = $this->request($server)->get('/api/tags');
+		$this->assertResponse($response, $server, 'GET', '/api/tags');
 
-        $attempted = [];
+		$models = $response->json('models');
 
-        foreach ($this->orderedServers($routingKey) as $server) {
-            if ($this->circuitIsOpen($server)) {
-                continue;
-            }
+		if (!is_array($models)) {
+			throw new OllamaProfileMismatchException("Ollama server {$server->name} returned an invalid model list.");
+		}
 
-            $slot = $this->reserveSlot($server);
+		foreach ($models as $model) {
+			if (!is_array($model)
+				|| (($model['name'] ?? NULL) !== $this->profile->model && ($model['model'] ?? NULL) !== $this->profile->model)) {
+				continue;
+			}
 
-            if ($slot === null) {
-                continue;
-            }
+			if (($model['digest'] ?? NULL) !== $this->profile->digest) {
+				throw new OllamaProfileMismatchException("Ollama server {$server->name} has a different digest for the configured embedding model.");
+			}
 
-            try {
-                $attempted[] = $server->name;
-                $this->assertServerProfile($server);
-                $response = $this->embedOn($server, $inputs);
-                $this->clearFailures($server);
+			$probe = $this->request($server)->post('/api/embed', $this->embeddingPayload([
+				'model'      => $this->profile->model,
+				'input'      => ['Materialpool embedding profile verification.'],
+				'dimensions' => $this->profile->dimensions,
+				'truncate'   => FALSE,
+			]));
+			$this->assertResponse($probe, $server, 'POST', '/api/embed');
+			$this->assertEmbeddingResponse($probe, $server, 1);
 
-                return $response;
-            } catch (OllamaProfileMismatchException $exception) {
-                throw $exception;
-            } catch (ConnectionException $exception) {
-                $this->recordTransientFailure($server);
-            } catch (OllamaTransientException $exception) {
-                $this->recordTransientFailure($server);
-            } finally {
-                $slot->release();
-            }
-        }
+			return;
+		}
 
-        $servers = $attempted === [] ? 'no healthy Ollama server' : implode(', ', $attempted);
+		throw new OllamaProfileMismatchException("Ollama server {$server->name} does not provide the configured embedding model.");
+	}
 
-        throw new OllamaEmbeddingPoolException("No Ollama server could generate the requested embedding ({$servers}).");
-    }
+	private function request(OllamaServer $server): PendingRequest {
+		$request = Http::baseUrl(rtrim($server->url, '/'))
+			->acceptJson()
+			->asJson()
+			->connectTimeout($this->connectTimeout)
+			->timeout($this->timeout);
 
-    /** @return array<int, OllamaServer> */
-    private function orderedServers(string $routingKey): array
-    {
-        $servers = $this->servers;
-        $offset = hexdec(substr(hash('sha256', $routingKey), 0, 8)) % count($servers);
+		if (filled($server->apiKey)) {
+			$request->withToken($server->apiKey);
+		}
 
-        return array_merge(array_slice($servers, $offset), array_slice($servers, 0, $offset));
-    }
+		return $request;
+	}
 
-    private function assertServerProfile(OllamaServer $server): void
-    {
-        $response = $this->request($server)->get('/api/tags');
-        $this->assertResponse($response, $server, 'GET', '/api/tags');
+	private function assertResponse(Response $response, OllamaServer $server, string $method, string $path): void {
+		if ($response->successful()) {
+			return;
+		}
 
-        $models = $response->json('models');
+		if ($response->status() === 401 || $response->status() === 403 || $response->status() === 400 || $response->status() === 404) {
+			throw new OllamaProfileMismatchException("Ollama server {$server->name} rejected {$method} {$path} as a configuration error.");
+		}
 
-        if (! is_array($models)) {
-            throw new OllamaProfileMismatchException("Ollama server {$server->name} returned an invalid model list.");
-        }
+		if ($response->status() === 408 || $response->status() === 429 || $response->serverError()) {
+			throw new OllamaTransientException("Ollama server {$server->name} is temporarily unavailable.");
+		}
 
-        foreach ($models as $model) {
-            if (! is_array($model)
-                || (($model['name'] ?? null) !== $this->profile->model && ($model['model'] ?? null) !== $this->profile->model)) {
-                continue;
-            }
+		throw new OllamaEmbeddingPoolException("Ollama server {$server->name} returned HTTP {$response->status()}.");
+	}
 
-            if (($model['digest'] ?? null) !== $this->profile->digest) {
-                throw new OllamaProfileMismatchException("Ollama server {$server->name} has a different digest for the configured embedding model.");
-            }
+	/** @param array<string, mixed> $payload
+	 * @return array<string, mixed>
+	 */
+	private function embeddingPayload(array $payload): array {
+		if ($this->profile->options !== []) {
+			$payload['options'] = $this->profile->options;
+		}
 
-            $probe = $this->request($server)->post('/api/embed', $this->embeddingPayload([
-                'model' => $this->profile->model,
-                'input' => ['Materialpool embedding profile verification.'],
-                'dimensions' => $this->profile->dimensions,
-                'truncate' => false,
-            ]));
-            $this->assertResponse($probe, $server, 'POST', '/api/embed');
-            $this->assertEmbeddingResponse($probe, $server, 1);
+		return $payload;
+	}
 
-            return;
-        }
+	/** @return array<int, array<float>> */
+	private function assertEmbeddingResponse(Response $response, OllamaServer $server, int $expectedCount): array {
+		if (($response->json('model') ?? $this->profile->model) !== $this->profile->model) {
+			throw new OllamaProfileMismatchException("Ollama server {$server->name} returned a different embedding model.");
+		}
 
-        throw new OllamaProfileMismatchException("Ollama server {$server->name} does not provide the configured embedding model.");
-    }
+		$embeddings = $response->json('embeddings');
 
-    /** @param array<int, string> $inputs */
-    private function embedOn(OllamaServer $server, array $inputs): OllamaEmbeddingResponse
-    {
-        $response = $this->request($server)->post('/api/embed', $this->embeddingPayload([
-            'model' => $this->profile->model,
-            'input' => $inputs,
-            'dimensions' => $this->profile->dimensions,
-            'truncate' => false,
-        ]));
-        $this->assertResponse($response, $server, 'POST', '/api/embed');
-        $embeddings = $this->assertEmbeddingResponse($response, $server, count($inputs));
+		if (!is_array($embeddings) || count($embeddings) !== $expectedCount) {
+			throw new OllamaProfileMismatchException("Ollama server {$server->name} returned an unexpected embedding count.");
+		}
 
-        return new OllamaEmbeddingResponse($server->name, $this->profile->id(), $embeddings);
-    }
+		foreach ($embeddings as $embedding) {
+			if (!is_array($embedding) || count($embedding) !== $this->profile->dimensions) {
+				throw new OllamaProfileMismatchException("Ollama server {$server->name} returned incompatible embedding dimensions.");
+			}
 
-    private function request(OllamaServer $server): PendingRequest
-    {
-        $request = Http::baseUrl(rtrim($server->url, '/'))
-            ->acceptJson()
-            ->asJson()
-            ->connectTimeout($this->connectTimeout)
-            ->timeout($this->timeout);
+			foreach ($embedding as $value) {
+				if (!is_numeric($value) || !is_finite((float)$value)) {
+					throw new OllamaProfileMismatchException("Ollama server {$server->name} returned an invalid embedding value.");
+				}
+			}
+		}
 
-        if (filled($server->apiKey)) {
-            $request->withToken($server->apiKey);
-        }
+		/** @var array<int, array<float>> $embeddings */
+		return $embeddings;
+	}
 
-        return $request;
-    }
+	/**
+	 * @param array<int, string> $inputs
+	 */
+	public function embed(array $inputs, string $routingKey): OllamaEmbeddingResponse {
+		if ($inputs === [] || !array_is_list($inputs) || collect($inputs)->contains(fn(mixed $input): bool => !is_string($input) || blank($input))) {
+			throw new OllamaEmbeddingPoolException('Embedding inputs must be a non-empty list of non-blank strings.');
+		}
 
-    private function assertResponse(Response $response, OllamaServer $server, string $method, string $path): void
-    {
-        if ($response->successful()) {
-            return;
-        }
+		$attempted = [];
 
-        if ($response->status() === 401 || $response->status() === 403 || $response->status() === 400 || $response->status() === 404) {
-            throw new OllamaProfileMismatchException("Ollama server {$server->name} rejected {$method} {$path} as a configuration error.");
-        }
+		foreach ($this->orderedServers($routingKey) as $server) {
+			if ($this->circuitIsOpen($server)) {
+				continue;
+			}
 
-        if ($response->status() === 408 || $response->status() === 429 || $response->serverError()) {
-            throw new OllamaTransientException("Ollama server {$server->name} is temporarily unavailable.");
-        }
+			$slot = $this->reserveSlot($server);
 
-        throw new OllamaEmbeddingPoolException("Ollama server {$server->name} returned HTTP {$response->status()}.");
-    }
+			if ($slot === NULL) {
+				continue;
+			}
 
-    /** @return array<int, array<float>> */
-    private function assertEmbeddingResponse(Response $response, OllamaServer $server, int $expectedCount): array
-    {
-        if (($response->json('model') ?? $this->profile->model) !== $this->profile->model) {
-            throw new OllamaProfileMismatchException("Ollama server {$server->name} returned a different embedding model.");
-        }
+			try {
+				$attempted[] = $server->name;
+				$this->assertServerProfile($server);
+				$response = $this->embedOn($server, $inputs);
+				$this->clearFailures($server);
 
-        $embeddings = $response->json('embeddings');
+				return $response;
+			} catch (OllamaProfileMismatchException $exception) {
+				throw $exception;
+			} catch (ConnectionException $exception) {
+				$this->recordTransientFailure($server);
+			} catch (OllamaTransientException $exception) {
+				$this->recordTransientFailure($server);
+			} finally {
+				$slot->release();
+			}
+		}
 
-        if (! is_array($embeddings) || count($embeddings) !== $expectedCount) {
-            throw new OllamaProfileMismatchException("Ollama server {$server->name} returned an unexpected embedding count.");
-        }
+		$servers = $attempted === [] ? 'no healthy Ollama server' : implode(', ', $attempted);
 
-        foreach ($embeddings as $embedding) {
-            if (! is_array($embedding) || count($embedding) !== $this->profile->dimensions) {
-                throw new OllamaProfileMismatchException("Ollama server {$server->name} returned incompatible embedding dimensions.");
-            }
+		throw new OllamaEmbeddingPoolException("No Ollama server could generate the requested embedding ({$servers}).");
+	}
 
-            foreach ($embedding as $value) {
-                if (! is_numeric($value) || ! is_finite((float) $value)) {
-                    throw new OllamaProfileMismatchException("Ollama server {$server->name} returned an invalid embedding value.");
-                }
-            }
-        }
+	/** @return array<int, OllamaServer> */
+	private function orderedServers(string $routingKey): array {
+		$servers = $this->servers;
+		$offset  = hexdec(substr(hash('sha256', $routingKey), 0, 8)) % count($servers);
 
-        /** @var array<int, array<float>> $embeddings */
-        return $embeddings;
-    }
+		return array_merge(array_slice($servers, $offset), array_slice($servers, 0, $offset));
+	}
 
-    private function reserveSlot(OllamaServer $server): ?object
-    {
-        for ($slot = 0; $slot < $server->maxConcurrency; $slot++) {
-            $lock = $this->cache->lock("context-search:ollama:slot:{$server->name}:{$slot}", $this->timeout + 5);
+	private function circuitIsOpen(OllamaServer $server): bool {
+		$state = $this->cache->get($this->circuitKey($server), []);
 
-            if ($lock->get()) {
-                return $lock;
-            }
-        }
+		return is_array($state) && (int)($state['open_until'] ?? 0) > now()->getTimestamp();
+	}
 
-        return null;
-    }
+	private function circuitKey(OllamaServer $server): string {
+		return "context-search:ollama:circuit:{$this->profile->id()}:{$server->name}";
+	}
 
-    private function circuitIsOpen(OllamaServer $server): bool
-    {
-        $state = $this->cache->get($this->circuitKey($server), []);
+	private function reserveSlot(OllamaServer $server): ?object {
+		for ($slot = 0; $slot < $server->maxConcurrency; $slot++) {
+			$lock = $this->cache->lock("context-search:ollama:slot:{$server->name}:{$slot}", $this->timeout + 5);
 
-        return is_array($state) && (int) ($state['open_until'] ?? 0) > now()->getTimestamp();
-    }
+			if ($lock->get()) {
+				return $lock;
+			}
+		}
 
-    private function recordTransientFailure(OllamaServer $server): void
-    {
-        try {
-            $this->cache->lock("{$this->circuitKey($server)}:lock", 5)->block(1, function () use ($server): void {
-                $state = $this->cache->get($this->circuitKey($server), []);
-                $failures = (int) ($state['failures'] ?? 0) + 1;
-                $openUntil = $failures >= $this->failureThreshold
-                    ? now()->addSeconds($this->circuitCooldown)->getTimestamp()
-                    : 0;
+		return NULL;
+	}
 
-                $this->cache->put($this->circuitKey($server), [
-                    'failures' => $failures,
-                    'open_until' => $openUntil,
-                ], now()->addSeconds($this->circuitCooldown));
-            });
-        } catch (LockTimeoutException) {
-            // A concurrent worker is updating the state. The current request already fails over safely.
-        }
-    }
+	/** @param array<int, string> $inputs */
+	private function embedOn(OllamaServer $server, array $inputs): OllamaEmbeddingResponse {
+		$response = $this->request($server)->post('/api/embed', $this->embeddingPayload([
+			'model'      => $this->profile->model,
+			'input'      => $inputs,
+			'dimensions' => $this->profile->dimensions,
+			'truncate'   => FALSE,
+		]));
+		$this->assertResponse($response, $server, 'POST', '/api/embed');
+		$embeddings = $this->assertEmbeddingResponse($response, $server, count($inputs));
 
-    private function clearFailures(OllamaServer $server): void
-    {
-        $this->cache->forget($this->circuitKey($server));
-    }
+		return new OllamaEmbeddingResponse($server->name, $this->profile->id(), $embeddings);
+	}
 
-    private function circuitKey(OllamaServer $server): string
-    {
-        return "context-search:ollama:circuit:{$this->profile->id()}:{$server->name}";
-    }
+	private function clearFailures(OllamaServer $server): void {
+		$this->cache->forget($this->circuitKey($server));
+	}
 
-    /** @param array<string, mixed> $payload
-     *  @return array<string, mixed>
-     */
-    private function embeddingPayload(array $payload): array
-    {
-        if ($this->profile->options !== []) {
-            $payload['options'] = $this->profile->options;
-        }
+	private function recordTransientFailure(OllamaServer $server): void {
+		try {
+			$this->cache->lock("{$this->circuitKey($server)}:lock", 5)->block(1, function () use ($server): void {
+				$state     = $this->cache->get($this->circuitKey($server), []);
+				$failures  = (int)($state['failures'] ?? 0) + 1;
+				$openUntil = $failures >= $this->failureThreshold
+					? now()->addSeconds($this->circuitCooldown)->getTimestamp()
+					: 0;
 
-        return $payload;
-    }
+				$this->cache->put($this->circuitKey($server), [
+					'failures'   => $failures,
+					'open_until' => $openUntil,
+				], now()->addSeconds($this->circuitCooldown));
+			});
+		} catch (LockTimeoutException) {
+			// A concurrent worker is updating the state. The current request already fails over safely.
+		}
+	}
 }

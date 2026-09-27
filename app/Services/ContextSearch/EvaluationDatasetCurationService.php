@@ -7,9 +7,10 @@ use App\Models\ContextSearchEvaluationDatasetMember;
 use App\Models\Material;
 use App\Models\Resource;
 use App\Models\Text;
-use Illuminate\Support\Collection;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use InvalidArgumentException;
 use RuntimeException;
 
 /**
@@ -18,319 +19,303 @@ use RuntimeException;
  * The member table is the membership ledger. Its per-dataset unique key is
  * the final concurrency guard; preview conflict handling is only advisory.
  */
-final class EvaluationDatasetCurationService
-{
-    /** @var array<string, array{materials: int, resources: int, quotas: array<string, int>}> */
-    private const DEFAULT_TARGETS = [
-        'calibration' => ['materials' => 300, 'resources' => 450, 'quotas' => ['pdf' => 60, 'text' => 300, 'public' => 150, 'private' => 150]],
-        'acceptance' => ['materials' => 170, 'resources' => 250, 'quotas' => ['pdf' => 30, 'text' => 170, 'public' => 80, 'private' => 80]],
-        'ocr' => ['materials' => 75, 'resources' => 100, 'quotas' => ['pdf' => 100]],
-        'load' => ['materials' => 1400, 'resources' => 2000, 'quotas' => ['pdf' => 300, 'text' => 1400, 'public' => 700, 'private' => 700]],
-        'capacity' => ['materials' => 5600, 'resources' => 8000, 'quotas' => ['pdf' => 800, 'text' => 5600, 'public' => 2800, 'private' => 2800]],
-    ];
+final class EvaluationDatasetCurationService {
+	/** @var array<string, array{materials: int, resources: int, quotas: array<string, int>}> */
+	private const DEFAULT_TARGETS = [
+		'calibration' => ['materials' => 300, 'resources' => 450, 'quotas' => ['pdf' => 60, 'text' => 300, 'public' => 150, 'private' => 150]],
+		'acceptance'  => ['materials' => 170, 'resources' => 250, 'quotas' => ['pdf' => 30, 'text' => 170, 'public' => 80, 'private' => 80]],
+		'ocr'         => ['materials' => 75, 'resources' => 100, 'quotas' => ['pdf' => 100]],
+		'load'        => ['materials' => 1400, 'resources' => 2000, 'quotas' => ['pdf' => 300, 'text' => 1400, 'public' => 700, 'private' => 700]],
+		'capacity'    => ['materials' => 5600, 'resources' => 8000, 'quotas' => ['pdf' => 800, 'text' => 5600, 'public' => 2800, 'private' => 2800]],
+	];
 
-    /** @return array<string, array{materials: int, resources: int, quotas: array<string, int>}> */
-    public static function defaultTargets(): array
-    {
-        return self::DEFAULT_TARGETS;
-    }
+	/** @return array{material_ids: array<int, int>, resource_ids: array<int, int>, excluded_resource_count: int, conflicts: array<int, array<string, mixed>>, counts: array<string, int>} */
+	public function preview(array $materialIds, array $resourceIds, ?ContextSearchEvaluationDataset $dataset = NULL): array {
+		$closure   = $this->closure($materialIds, $resourceIds);
+		$conflicts = $this->conflictingMembers($dataset, $closure)
+			->with('dataset:id,purpose,title,status')
+			->orderBy('member_type')
+			->orderBy('member_id')
+			->get()
+			->map(fn(ContextSearchEvaluationDatasetMember $member): array => [
+				'member_type' => $member->member_type,
+				'member_id'   => $member->member_id,
+				'dataset'     => $member->dataset?->only(['id', 'purpose', 'title', 'status']),
+			])->all();
 
-    public function create(string $purpose, ?string $title = null): ContextSearchEvaluationDataset
-    {
-        $targets = self::defaultTargets()[$purpose] ?? null;
-        if ($targets === null) {
-            throw new \InvalidArgumentException('Der Zweck des Evaluationsdatensatzes ist ungültig.');
-        }
+		return $closure + ['conflicts' => $conflicts, 'counts' => $this->counts($closure['material_ids'], $closure['resource_ids'])];
+	}
 
-        return ContextSearchEvaluationDataset::query()->create([
-            'purpose' => $purpose,
-            'title' => $title,
-            'status' => ContextSearchEvaluationDataset::STATUS_DRAFT,
-            'version' => 1,
-            'includes_private' => false,
-            'manifest' => [],
-            'manifest_hash' => hash('sha256', Str::uuid()->toString()),
-            'material_count' => 0,
-            'resource_count' => 0,
-            'target_material_count' => $targets['materials'],
-            'target_resource_count' => $targets['resources'],
-            'target_quotas' => $targets['quotas'],
-        ]);
-    }
+	/** @return array{material_ids: array<int, int>, resource_ids: array<int, int>, excluded_resource_count: int} */
+	private function closure(array $materialIds, array $resourceIds): array {
+		$materialIds      = array_values(array_unique(array_map('intval', $materialIds)));
+		$resourceIds      = array_values(array_unique(array_map('intval', $resourceIds)));
+		$seenMaterials    = [];
+		$seenResources    = [];
+		$pendingMaterials = $materialIds;
+		$pendingResources = $resourceIds;
 
-    /** @return array{material_ids: array<int, int>, resource_ids: array<int, int>, excluded_resource_count: int, conflicts: array<int, array<string, mixed>>, counts: array<string, int>} */
-    public function preview(array $materialIds, array $resourceIds, ?ContextSearchEvaluationDataset $dataset = null): array
-    {
-        $closure = $this->closure($materialIds, $resourceIds);
-        $conflicts = $this->conflictingMembers($dataset, $closure)
-            ->with('dataset:id,purpose,title,status')
-            ->orderBy('member_type')
-            ->orderBy('member_id')
-            ->get()
-            ->map(fn (ContextSearchEvaluationDatasetMember $member): array => [
-                'member_type' => $member->member_type,
-                'member_id' => $member->member_id,
-                'dataset' => $member->dataset?->only(['id', 'purpose', 'title', 'status']),
-            ])->all();
+		while ($pendingMaterials !== [] || $pendingResources !== []) {
+			$newMaterials     = array_values(array_diff($pendingMaterials, $seenMaterials));
+			$newResources     = array_values(array_diff($pendingResources, $seenResources));
+			$pendingMaterials = [];
+			$pendingResources = [];
+			if ($newMaterials === [] && $newResources === []) {
+				break;
+			}
+			$seenMaterials = array_values(array_unique([...$seenMaterials, ...$newMaterials]));
+			$seenResources = array_values(array_unique([...$seenResources, ...$newResources]));
 
-        return $closure + ['conflicts' => $conflicts, 'counts' => $this->counts($closure['material_ids'], $closure['resource_ids'])];
-    }
+			$links               = DB::table('material_resource')
+				->where(function ($query) use ($newMaterials, $newResources): void {
+					if ($newMaterials !== []) $query->whereIn('material_id', $newMaterials);
+					if ($newResources !== []) $newMaterials === [] ? $query->whereIn('resource_id', $newResources) : $query->orWhereIn('resource_id', $newResources);
+				})->get(['material_id', 'resource_id']);
+			$linkedResourceIds   = $links->pluck('resource_id')->map(fn($id) => (int)$id)->unique()->all();
+			$linkedMaterialIds   = $links->pluck('material_id')->map(fn($id) => (int)$id)->unique()->all();
+			$eligibleResourceIds = Resource::query()->withoutGlobalScopes()->whereIn('id', $linkedResourceIds)->whereIn('type', ['pdf', 'text'])->pluck('id')->map(fn($id) => (int)$id)->all();
+			$pendingMaterials    = array_values(array_diff($linkedMaterialIds, $seenMaterials));
+			$pendingResources    = array_values(array_diff($eligibleResourceIds, $seenResources));
+		}
 
-    public function assign(ContextSearchEvaluationDataset $dataset, int $expectedVersion, array $materialIds, array $resourceIds, bool $includePrivate, ?string $privateReason): ContextSearchEvaluationDataset
-    {
-        return DB::transaction(function () use ($dataset, $expectedVersion, $materialIds, $resourceIds, $includePrivate, $privateReason): ContextSearchEvaluationDataset {
-            $this->assertNoUnreconciledFrozenDatasets();
-            $dataset = ContextSearchEvaluationDataset::query()->lockForUpdate()->findOrFail($dataset->getKey());
-            $this->assertMutable($dataset, $expectedVersion);
-            $closure = $this->closure($materialIds, $resourceIds);
-            if ($closure['resource_ids'] === [] || $closure['material_ids'] === []) {
-                throw new RuntimeException('Die Auswahl enthält keinen vollständigen Block aus Material und geeigneter PDF- oder Textressource.');
-            }
+		$eligibleDirect = Resource::query()->withoutGlobalScopes()->whereIn('id', $resourceIds)->whereIn('type', ['pdf', 'text'])->pluck('id')->map(fn($id) => (int)$id)->all();
+		$seenResources  = array_values(array_unique([...$seenResources, ...$eligibleDirect]));
+		$seenMaterials  = Material::query()->withoutGlobalScopes()->whereIn('id', $seenMaterials)->pluck('id')->map(fn($id) => (int)$id)->all();
+		$excluded       = max(0, count($resourceIds) - count($eligibleDirect));
 
-            $this->lockMembers($closure);
-            $this->assertNoConflicts($dataset, $closure);
-            $owned = $dataset->members()->get(['member_type', 'member_id']);
-            $closure['material_ids'] = array_values(array_diff($closure['material_ids'], $owned->where('member_type', ContextSearchEvaluationDatasetMember::TYPE_MATERIAL)->pluck('member_id')->map(fn ($id) => (int) $id)->all()));
-            $closure['resource_ids'] = array_values(array_diff($closure['resource_ids'], $owned->where('member_type', ContextSearchEvaluationDatasetMember::TYPE_RESOURCE)->pluck('member_id')->map(fn ($id) => (int) $id)->all()));
-            if ($closure['material_ids'] === [] && $closure['resource_ids'] === []) {
-                throw new RuntimeException('Der vollständige zusammenhängende Block gehört bereits zu diesem Entwurf.');
-            }
-            $counts = $this->counts($closure['material_ids'], $closure['resource_ids']);
-            $hasPrivate = $counts['private_materials'] > 0 || $counts['private_resources'] > 0;
-            if ($hasPrivate && (! $includePrivate || blank($privateReason))) {
-                throw new RuntimeException('Private Inhalte verlangen die ausdrückliche Freigabe und eine Begründung.');
-            }
+		return ['material_ids' => $seenMaterials, 'resource_ids' => $seenResources, 'excluded_resource_count' => $excluded];
+	}
 
-            $resources = Resource::query()->withoutGlobalScopes()->whereIn('id', $closure['resource_ids'])->get()->keyBy('id');
-            foreach ($closure['material_ids'] as $id) {
-                ContextSearchEvaluationDatasetMember::query()->create([
-                    'dataset_id' => $dataset->getKey(),
-                    'member_type' => ContextSearchEvaluationDatasetMember::TYPE_MATERIAL,
-                    'member_id' => $id,
-                ]);
-            }
-            foreach ($closure['resource_ids'] as $id) {
-                ContextSearchEvaluationDatasetMember::query()->create([
-                    'dataset_id' => $dataset->getKey(),
-                    'member_type' => ContextSearchEvaluationDatasetMember::TYPE_RESOURCE,
-                    'member_id' => $id,
-                    'source_revision_hash' => $this->revisionHash($resources->get($id)),
-                ]);
-            }
+	/** @param array{material_ids: array<int, int>, resource_ids: array<int, int>} $closure */
+	private function conflictingMembers(?ContextSearchEvaluationDataset $dataset, array $closure): Builder {
+		$query = ContextSearchEvaluationDatasetMember::query()
+			->where(function ($query) use ($closure): void {
+				$query->where(fn($members) => $members->where('member_type', ContextSearchEvaluationDatasetMember::TYPE_MATERIAL)->whereIn('member_id', $closure['material_ids']))
+					->orWhere(fn($members) => $members->where('member_type', ContextSearchEvaluationDatasetMember::TYPE_RESOURCE)->whereIn('member_id', $closure['resource_ids']));
+			});
 
-            return $this->refreshState($dataset, $hasPrivate, $privateReason);
-        });
-    }
+		if ($dataset === NULL) {
+			return $query;
+		}
 
-    public function removeConnectedBlock(ContextSearchEvaluationDataset $dataset, int $expectedVersion, string $memberType, int $memberId): ContextSearchEvaluationDataset
-    {
-        return DB::transaction(function () use ($dataset, $expectedVersion, $memberType, $memberId): ContextSearchEvaluationDataset {
-            $dataset = ContextSearchEvaluationDataset::query()->lockForUpdate()->findOrFail($dataset->getKey());
-            $this->assertMutable($dataset, $expectedVersion);
-            $exists = $dataset->members()->where('member_type', $memberType)->where('member_id', $memberId)->exists();
-            if (! $exists) {
-                throw new RuntimeException('Die Zuordnung ist nicht Teil dieses Entwurfs.');
-            }
-            $closure = $this->closure($memberType === ContextSearchEvaluationDatasetMember::TYPE_MATERIAL ? [$memberId] : [], $memberType === ContextSearchEvaluationDatasetMember::TYPE_RESOURCE ? [$memberId] : []);
-            $dataset->members()->where(function ($query) use ($closure): void {
-                $query->where(fn ($members) => $members->where('member_type', ContextSearchEvaluationDatasetMember::TYPE_MATERIAL)->whereIn('member_id', $closure['material_ids']))
-                    ->orWhere(fn ($members) => $members->where('member_type', ContextSearchEvaluationDatasetMember::TYPE_RESOURCE)->whereIn('member_id', $closure['resource_ids']));
-            })->delete();
+		$allowedPurposes = EvaluationDatasetOverlapPolicy::allowedPurposes($dataset->purpose);
+		$query->where(function ($members) use ($dataset, $allowedPurposes): void {
+			$members->where('dataset_id', '!=', $dataset->getKey())
+				->whereHas('dataset', fn($related) => $related->whereNotIn('purpose', $allowedPurposes));
+		});
 
-            return $this->refreshState($dataset, false, null);
-        });
-    }
+		return $query;
+	}
 
-    /** @return array<int, array<string, mixed>> */
-    public function summaries(): array
-    {
-        $datasets = ContextSearchEvaluationDataset::query()->orderBy('purpose')->orderBy('created_at')->get([
-            'id', 'purpose', 'title', 'status', 'version', 'includes_private', 'private_reason',
-            'target_material_count', 'target_resource_count', 'target_quotas', 'ready_at', 'frozen_at',
-        ]);
-        $counts = $this->datasetCounts($datasets->modelKeys());
+	/** @param array<int, int> $materialIds @param array<int, int> $resourceIds @return array<string, int> */
+	private function counts(array $materialIds, array $resourceIds): array {
+		$materials = Material::query()->withoutGlobalScopes()->whereIn('id', $materialIds)->get(['id', 'is_public']);
+		$resources = Resource::query()->withoutGlobalScopes()->whereIn('id', $resourceIds)->get(['id', 'type', 'is_public']);
+		return [
+			'materials'         => $materials->count(), 'resources' => $resources->count(),
+			'private_materials' => $materials->where('is_public', FALSE)->count(), 'private_resources' => $resources->where('is_public', FALSE)->count(),
+			'public'            => $resources->where('is_public', TRUE)->count(), 'private' => $resources->where('is_public', FALSE)->count(),
+			'pdf'               => $resources->where('type', 'pdf')->count(), 'text' => $resources->where('type', 'text')->count(),
+		];
+	}
 
-        return $datasets->map(fn (ContextSearchEvaluationDataset $dataset): array => $this->summary($dataset, $counts[$dataset->getKey()] ?? $this->emptyCounts()))->all();
-    }
+	public function assign(ContextSearchEvaluationDataset $dataset, int $expectedVersion, array $materialIds, array $resourceIds, bool $includePrivate, ?string $privateReason): ContextSearchEvaluationDataset {
+		return DB::transaction(function () use ($dataset, $expectedVersion, $materialIds, $resourceIds, $includePrivate, $privateReason): ContextSearchEvaluationDataset {
+			$this->assertNoUnreconciledFrozenDatasets();
+			$dataset = ContextSearchEvaluationDataset::query()->lockForUpdate()->findOrFail($dataset->getKey());
+			$this->assertMutable($dataset, $expectedVersion);
+			$closure = $this->closure($materialIds, $resourceIds);
+			if ($closure['resource_ids'] === [] || $closure['material_ids'] === []) {
+				throw new RuntimeException('Die Auswahl enthält keinen vollständigen Block aus Material und geeigneter PDF- oder Textressource.');
+			}
 
-    /** @return array<string, mixed> */
-    public function summary(ContextSearchEvaluationDataset $dataset, ?array $counts = null): array
-    {
-        $counts ??= $this->datasetCounts([$dataset->getKey()])[$dataset->getKey()] ?? $this->emptyCounts();
-        $targetQuotas = $dataset->target_quotas ?? [];
-        $quotas = collect($targetQuotas)->map(fn (int $target, string $key): array => ['actual' => $counts[$key] ?? 0, 'target' => $target, 'remaining' => max(0, $target - ($counts[$key] ?? 0))])->all();
+			$this->lockMembers($closure);
+			$this->assertNoConflicts($dataset, $closure);
+			$owned                   = $dataset->members()->get(['member_type', 'member_id']);
+			$closure['material_ids'] = array_values(array_diff($closure['material_ids'], $owned->where('member_type', ContextSearchEvaluationDatasetMember::TYPE_MATERIAL)->pluck('member_id')->map(fn($id) => (int)$id)->all()));
+			$closure['resource_ids'] = array_values(array_diff($closure['resource_ids'], $owned->where('member_type', ContextSearchEvaluationDatasetMember::TYPE_RESOURCE)->pluck('member_id')->map(fn($id) => (int)$id)->all()));
+			if ($closure['material_ids'] === [] && $closure['resource_ids'] === []) {
+				throw new RuntimeException('Der vollständige zusammenhängende Block gehört bereits zu diesem Entwurf.');
+			}
+			$counts     = $this->counts($closure['material_ids'], $closure['resource_ids']);
+			$hasPrivate = $counts['private_materials'] > 0 || $counts['private_resources'] > 0;
+			if ($hasPrivate && (!$includePrivate || blank($privateReason))) {
+				throw new RuntimeException('Private Inhalte verlangen die ausdrückliche Freigabe und eine Begründung.');
+			}
 
-        return [
-            'id' => $dataset->getKey(), 'purpose' => $dataset->purpose, 'title' => $dataset->title, 'status' => $dataset->status,
-            'version' => $dataset->version, 'includes_private' => $dataset->includes_private, 'private_reason' => $dataset->private_reason,
-            'material_count' => $counts['materials'], 'resource_count' => $counts['resources'],
-            'target_material_count' => $dataset->target_material_count, 'target_resource_count' => $dataset->target_resource_count,
-            'materials_remaining' => max(0, (int) $dataset->target_material_count - $counts['materials']),
-            'resources_remaining' => max(0, (int) $dataset->target_resource_count - $counts['resources']),
-            'quotas' => $quotas, 'ready_at' => $dataset->ready_at?->toAtomString(), 'frozen_at' => $dataset->frozen_at?->toAtomString(),
-        ];
-    }
+			$resources = Resource::query()->withoutGlobalScopes()->whereIn('id', $closure['resource_ids'])->get()->keyBy('id');
+			foreach ($closure['material_ids'] as $id) {
+				ContextSearchEvaluationDatasetMember::query()->create([
+					'dataset_id'  => $dataset->getKey(),
+					'member_type' => ContextSearchEvaluationDatasetMember::TYPE_MATERIAL,
+					'member_id'   => $id,
+				]);
+			}
+			foreach ($closure['resource_ids'] as $id) {
+				ContextSearchEvaluationDatasetMember::query()->create([
+					'dataset_id'           => $dataset->getKey(),
+					'member_type'          => ContextSearchEvaluationDatasetMember::TYPE_RESOURCE,
+					'member_id'            => $id,
+					'source_revision_hash' => $this->revisionHash($resources->get($id)),
+				]);
+			}
 
-    /** @param array<int, string> $datasetIds @return array<string, array<string, int>> */
-    private function datasetCounts(array $datasetIds): array
-    {
-        if ($datasetIds === []) return [];
+			return $this->refreshState($dataset, $hasPrivate, $privateReason);
+		});
+	}
 
-        return DB::table('context_search_evaluation_dataset_members as members')
-            ->leftJoin('materials as material', fn ($join) => $join->on('material.id', '=', 'members.member_id')->where('members.member_type', '=', ContextSearchEvaluationDatasetMember::TYPE_MATERIAL))
-            ->leftJoin('resources as resource', fn ($join) => $join->on('resource.id', '=', 'members.member_id')->where('members.member_type', '=', ContextSearchEvaluationDatasetMember::TYPE_RESOURCE))
-            ->whereIn('members.dataset_id', $datasetIds)
-            ->groupBy('members.dataset_id')
-            ->select('members.dataset_id')
-            ->selectRaw('COUNT(material.id) as materials, COUNT(resource.id) as resources')
-            ->selectRaw('SUM(CASE WHEN material.id IS NOT NULL AND material.is_public = 0 THEN 1 ELSE 0 END) as private_materials')
-            ->selectRaw('SUM(CASE WHEN resource.id IS NOT NULL AND resource.is_public = 0 THEN 1 ELSE 0 END) as private_resources')
-            ->selectRaw('SUM(CASE WHEN resource.id IS NOT NULL AND resource.is_public = 1 THEN 1 ELSE 0 END) as public')
-            ->selectRaw('SUM(CASE WHEN resource.id IS NOT NULL AND resource.is_public = 0 THEN 1 ELSE 0 END) as private')
-            ->selectRaw("SUM(CASE WHEN resource.type = 'pdf' THEN 1 ELSE 0 END) as pdf")
-            ->selectRaw("SUM(CASE WHEN resource.type = 'text' THEN 1 ELSE 0 END) as text")
-            ->get()->mapWithKeys(function ($row): array {
-                $counts = (array) $row;
-                unset($counts['dataset_id']);
+	private function assertNoUnreconciledFrozenDatasets(): void {
+		$exists = ContextSearchEvaluationDataset::query()->whereIn('status', [ContextSearchEvaluationDataset::STATUS_FROZEN, ContextSearchEvaluationDataset::STATUS_EXPORTED])
+			->where('resource_count', '>', 0)->whereDoesntHave('members')->exists();
+		if ($exists) throw new RuntimeException('Eingefrorene Alt-Datensätze besitzen noch keine Mitgliedschaftsbilanz. Zuerst context-search:dataset:reconcile-memberships prüfen und gegebenenfalls mit --apply abgleichen.');
+	}
 
-                return [$row->dataset_id => array_map('intval', $counts)];
-            })->all();
-    }
+	private function assertMutable(ContextSearchEvaluationDataset $dataset, int $expectedVersion): void {
+		if ($dataset->status !== ContextSearchEvaluationDataset::STATUS_DRAFT && $dataset->status !== ContextSearchEvaluationDataset::STATUS_READY) throw new RuntimeException('Nur Entwürfe können verändert werden.');
+		if ($dataset->version !== $expectedVersion) throw new RuntimeException('Der Entwurf wurde zwischenzeitlich geändert. Bitte aktualisieren und erneut prüfen.');
+	}
 
-    /** @return array<string, int> */
-    private function emptyCounts(): array
-    {
-        return array_fill_keys(['materials', 'resources', 'private_materials', 'private_resources', 'public', 'private', 'pdf', 'text'], 0);
-    }
+	/**
+	 * Serialize competing purpose assignments for the same connected block.
+	 * The per-dataset unique key alone cannot enforce cross-dataset purpose rules.
+	 *
+	 * @param array{material_ids: array<int, int>, resource_ids: array<int, int>} $closure
+	 */
+	private function lockMembers(array $closure): void {
+		$materialIds = $closure['material_ids'];
+		$resourceIds = $closure['resource_ids'];
+		sort($materialIds);
+		sort($resourceIds);
 
-    /** @return array{material_ids: array<int, int>, resource_ids: array<int, int>, excluded_resource_count: int} */
-    private function closure(array $materialIds, array $resourceIds): array
-    {
-        $materialIds = array_values(array_unique(array_map('intval', $materialIds)));
-        $resourceIds = array_values(array_unique(array_map('intval', $resourceIds)));
-        $seenMaterials = []; $seenResources = [];
-        $pendingMaterials = $materialIds; $pendingResources = $resourceIds;
+		Material::query()->withoutGlobalScopes()->whereIn('id', $materialIds)->orderBy('id')->lockForUpdate()->get(['id']);
+		Resource::query()->withoutGlobalScopes()->whereIn('id', $resourceIds)->orderBy('id')->lockForUpdate()->get(['id']);
+	}
 
-        while ($pendingMaterials !== [] || $pendingResources !== []) {
-            $newMaterials = array_values(array_diff($pendingMaterials, $seenMaterials));
-            $newResources = array_values(array_diff($pendingResources, $seenResources));
-            $pendingMaterials = []; $pendingResources = [];
-            if ($newMaterials === [] && $newResources === []) {
-                break;
-            }
-            $seenMaterials = array_values(array_unique([...$seenMaterials, ...$newMaterials]));
-            $seenResources = array_values(array_unique([...$seenResources, ...$newResources]));
+	private function assertNoConflicts(ContextSearchEvaluationDataset $dataset, array $closure): void {
+		$conflict = $this->conflictingMembers($dataset, $closure)->exists();
+		if ($conflict) throw new RuntimeException('Mindestens ein Material oder eine Ressource ist bereits dauerhaft einem anderen Datensatz zugeordnet.');
+	}
 
-            $links = DB::table('material_resource')
-                ->where(function ($query) use ($newMaterials, $newResources): void {
-                    if ($newMaterials !== []) $query->whereIn('material_id', $newMaterials);
-                    if ($newResources !== []) $newMaterials === [] ? $query->whereIn('resource_id', $newResources) : $query->orWhereIn('resource_id', $newResources);
-                })->get(['material_id', 'resource_id']);
-            $linkedResourceIds = $links->pluck('resource_id')->map(fn ($id) => (int) $id)->unique()->all();
-            $linkedMaterialIds = $links->pluck('material_id')->map(fn ($id) => (int) $id)->unique()->all();
-            $eligibleResourceIds = Resource::query()->withoutGlobalScopes()->whereIn('id', $linkedResourceIds)->whereIn('type', ['pdf', 'text'])->pluck('id')->map(fn ($id) => (int) $id)->all();
-            $pendingMaterials = array_values(array_diff($linkedMaterialIds, $seenMaterials));
-            $pendingResources = array_values(array_diff($eligibleResourceIds, $seenResources));
-        }
+	public function create(string $purpose, ?string $title = NULL): ContextSearchEvaluationDataset {
+		$targets = self::defaultTargets()[$purpose] ?? NULL;
+		if ($targets === NULL) {
+			throw new InvalidArgumentException('Der Zweck des Evaluationsdatensatzes ist ungültig.');
+		}
 
-        $eligibleDirect = Resource::query()->withoutGlobalScopes()->whereIn('id', $resourceIds)->whereIn('type', ['pdf', 'text'])->pluck('id')->map(fn ($id) => (int) $id)->all();
-        $seenResources = array_values(array_unique([...$seenResources, ...$eligibleDirect]));
-        $seenMaterials = Material::query()->withoutGlobalScopes()->whereIn('id', $seenMaterials)->pluck('id')->map(fn ($id) => (int) $id)->all();
-        $excluded = max(0, count($resourceIds) - count($eligibleDirect));
+		return ContextSearchEvaluationDataset::query()->create([
+			'purpose'               => $purpose,
+			'title'                 => $title,
+			'status'                => ContextSearchEvaluationDataset::STATUS_DRAFT,
+			'version'               => 1,
+			'includes_private'      => FALSE,
+			'manifest'              => [],
+			'manifest_hash'         => hash('sha256', Str::uuid()->toString()),
+			'material_count'        => 0,
+			'resource_count'        => 0,
+			'target_material_count' => $targets['materials'],
+			'target_resource_count' => $targets['resources'],
+			'target_quotas'         => $targets['quotas'],
+		]);
+	}
 
-        return ['material_ids' => $seenMaterials, 'resource_ids' => $seenResources, 'excluded_resource_count' => $excluded];
-    }
+	/** @return array<string, array{materials: int, resources: int, quotas: array<string, int>}> */
+	public static function defaultTargets(): array {
+		return self::DEFAULT_TARGETS;
+	}
 
-    /** @param array<int, int> $materialIds @param array<int, int> $resourceIds @return array<string, int> */
-    private function counts(array $materialIds, array $resourceIds): array
-    {
-        $materials = Material::query()->withoutGlobalScopes()->whereIn('id', $materialIds)->get(['id', 'is_public']);
-        $resources = Resource::query()->withoutGlobalScopes()->whereIn('id', $resourceIds)->get(['id', 'type', 'is_public']);
-        return [
-            'materials' => $materials->count(), 'resources' => $resources->count(),
-            'private_materials' => $materials->where('is_public', false)->count(), 'private_resources' => $resources->where('is_public', false)->count(),
-            'public' => $resources->where('is_public', true)->count(), 'private' => $resources->where('is_public', false)->count(),
-            'pdf' => $resources->where('type', 'pdf')->count(), 'text' => $resources->where('type', 'text')->count(),
-        ];
-    }
+	private function revisionHash(?Resource $resource): ?string {
+		if ($resource === NULL) return NULL;
+		if ($resource instanceof Text) return hash('sha256', (string)$resource->content);
+		return $resource->content_hash ?: hash('sha256', implode('|', [(string)$resource->local_path, (string)$resource->filesize, (string)$resource->updated_at]));
+	}
 
-    private function assertNoConflicts(ContextSearchEvaluationDataset $dataset, array $closure): void
-    {
-        $conflict = $this->conflictingMembers($dataset, $closure)->exists();
-        if ($conflict) throw new RuntimeException('Mindestens ein Material oder eine Ressource ist bereits dauerhaft einem anderen Datensatz zugeordnet.');
-    }
+	private function refreshState(ContextSearchEvaluationDataset $dataset, bool $newPrivate, ?string $privateReason): ContextSearchEvaluationDataset {
+		$summary = $this->summary($dataset);
+		$ready   = $summary['materials_remaining'] === 0 && $summary['resources_remaining'] === 0 && collect($summary['quotas'])->every(fn(array $quota): bool => $quota['remaining'] === 0);
+		$dataset->forceFill([
+			'status'           => $ready ? ContextSearchEvaluationDataset::STATUS_READY : ContextSearchEvaluationDataset::STATUS_DRAFT,
+			'version'          => $dataset->version + 1,
+			'includes_private' => $dataset->includes_private || $newPrivate,
+			'private_reason'   => $dataset->private_reason ?? $privateReason,
+			'material_count'   => $summary['material_count'], 'resource_count' => $summary['resource_count'],
+			'ready_at'         => $ready ? ($dataset->ready_at ?? now()) : NULL,
+		])->save();
+		return $dataset->fresh();
+	}
 
-    /**
-     * Serialize competing purpose assignments for the same connected block.
-     * The per-dataset unique key alone cannot enforce cross-dataset purpose rules.
-     *
-     * @param array{material_ids: array<int, int>, resource_ids: array<int, int>} $closure
-     */
-    private function lockMembers(array $closure): void
-    {
-        $materialIds = $closure['material_ids'];
-        $resourceIds = $closure['resource_ids'];
-        sort($materialIds);
-        sort($resourceIds);
+	/** @return array<string, mixed> */
+	public function summary(ContextSearchEvaluationDataset $dataset, ?array $counts = NULL): array {
+		$counts       ??= $this->datasetCounts([$dataset->getKey()])[$dataset->getKey()] ?? $this->emptyCounts();
+		$targetQuotas = $dataset->target_quotas ?? [];
+		$quotas       = collect($targetQuotas)->map(fn(int $target, string $key): array => ['actual' => $counts[$key] ?? 0, 'target' => $target, 'remaining' => max(0, $target - ($counts[$key] ?? 0))])->all();
 
-        Material::query()->withoutGlobalScopes()->whereIn('id', $materialIds)->orderBy('id')->lockForUpdate()->get(['id']);
-        Resource::query()->withoutGlobalScopes()->whereIn('id', $resourceIds)->orderBy('id')->lockForUpdate()->get(['id']);
-    }
+		return [
+			'id'                    => $dataset->getKey(), 'purpose' => $dataset->purpose, 'title' => $dataset->title, 'status' => $dataset->status,
+			'version'               => $dataset->version, 'includes_private' => $dataset->includes_private, 'private_reason' => $dataset->private_reason,
+			'material_count'        => $counts['materials'], 'resource_count' => $counts['resources'],
+			'target_material_count' => $dataset->target_material_count, 'target_resource_count' => $dataset->target_resource_count,
+			'materials_remaining'   => max(0, (int)$dataset->target_material_count - $counts['materials']),
+			'resources_remaining'   => max(0, (int)$dataset->target_resource_count - $counts['resources']),
+			'quotas'                => $quotas, 'ready_at' => $dataset->ready_at?->toAtomString(), 'frozen_at' => $dataset->frozen_at?->toAtomString(),
+		];
+	}
 
-    /** @param array{material_ids: array<int, int>, resource_ids: array<int, int>} $closure */
-    private function conflictingMembers(?ContextSearchEvaluationDataset $dataset, array $closure): \Illuminate\Database\Eloquent\Builder
-    {
-        $query = ContextSearchEvaluationDatasetMember::query()
-            ->where(function ($query) use ($closure): void {
-                $query->where(fn ($members) => $members->where('member_type', ContextSearchEvaluationDatasetMember::TYPE_MATERIAL)->whereIn('member_id', $closure['material_ids']))
-                    ->orWhere(fn ($members) => $members->where('member_type', ContextSearchEvaluationDatasetMember::TYPE_RESOURCE)->whereIn('member_id', $closure['resource_ids']));
-            });
+	/** @param array<int, string> $datasetIds @return array<string, array<string, int>> */
+	private function datasetCounts(array $datasetIds): array {
+		if ($datasetIds === []) return [];
 
-        if ($dataset === null) {
-            return $query;
-        }
+		return DB::table('context_search_evaluation_dataset_members as members')
+			->leftJoin('materials as material', fn($join) => $join->on('material.id', '=', 'members.member_id')->where('members.member_type', '=', ContextSearchEvaluationDatasetMember::TYPE_MATERIAL))
+			->leftJoin('resources as resource', fn($join) => $join->on('resource.id', '=', 'members.member_id')->where('members.member_type', '=', ContextSearchEvaluationDatasetMember::TYPE_RESOURCE))
+			->whereIn('members.dataset_id', $datasetIds)
+			->groupBy('members.dataset_id')
+			->select('members.dataset_id')
+			->selectRaw('COUNT(material.id) as materials, COUNT(resource.id) as resources')
+			->selectRaw('SUM(CASE WHEN material.id IS NOT NULL AND material.is_public = 0 THEN 1 ELSE 0 END) as private_materials')
+			->selectRaw('SUM(CASE WHEN resource.id IS NOT NULL AND resource.is_public = 0 THEN 1 ELSE 0 END) as private_resources')
+			->selectRaw('SUM(CASE WHEN resource.id IS NOT NULL AND resource.is_public = 1 THEN 1 ELSE 0 END) as public')
+			->selectRaw('SUM(CASE WHEN resource.id IS NOT NULL AND resource.is_public = 0 THEN 1 ELSE 0 END) as private')
+			->selectRaw("SUM(CASE WHEN resource.type = 'pdf' THEN 1 ELSE 0 END) as pdf")
+			->selectRaw("SUM(CASE WHEN resource.type = 'text' THEN 1 ELSE 0 END) as text")
+			->get()->mapWithKeys(function ($row): array {
+				$counts = (array)$row;
+				unset($counts['dataset_id']);
 
-        $allowedPurposes = EvaluationDatasetOverlapPolicy::allowedPurposes($dataset->purpose);
-        $query->where(function ($members) use ($dataset, $allowedPurposes): void {
-            $members->where('dataset_id', '!=', $dataset->getKey())
-                ->whereHas('dataset', fn ($related) => $related->whereNotIn('purpose', $allowedPurposes));
-        });
+				return [$row->dataset_id => array_map('intval', $counts)];
+			})->all();
+	}
 
-        return $query;
-    }
+	/** @return array<string, int> */
+	private function emptyCounts(): array {
+		return array_fill_keys(['materials', 'resources', 'private_materials', 'private_resources', 'public', 'private', 'pdf', 'text'], 0);
+	}
 
-    private function assertMutable(ContextSearchEvaluationDataset $dataset, int $expectedVersion): void
-    {
-        if ($dataset->status !== ContextSearchEvaluationDataset::STATUS_DRAFT && $dataset->status !== ContextSearchEvaluationDataset::STATUS_READY) throw new RuntimeException('Nur Entwürfe können verändert werden.');
-        if ($dataset->version !== $expectedVersion) throw new RuntimeException('Der Entwurf wurde zwischenzeitlich geändert. Bitte aktualisieren und erneut prüfen.');
-    }
+	public function removeConnectedBlock(ContextSearchEvaluationDataset $dataset, int $expectedVersion, string $memberType, int $memberId): ContextSearchEvaluationDataset {
+		return DB::transaction(function () use ($dataset, $expectedVersion, $memberType, $memberId): ContextSearchEvaluationDataset {
+			$dataset = ContextSearchEvaluationDataset::query()->lockForUpdate()->findOrFail($dataset->getKey());
+			$this->assertMutable($dataset, $expectedVersion);
+			$exists = $dataset->members()->where('member_type', $memberType)->where('member_id', $memberId)->exists();
+			if (!$exists) {
+				throw new RuntimeException('Die Zuordnung ist nicht Teil dieses Entwurfs.');
+			}
+			$closure = $this->closure($memberType === ContextSearchEvaluationDatasetMember::TYPE_MATERIAL ? [$memberId] : [], $memberType === ContextSearchEvaluationDatasetMember::TYPE_RESOURCE ? [$memberId] : []);
+			$dataset->members()->where(function ($query) use ($closure): void {
+				$query->where(fn($members) => $members->where('member_type', ContextSearchEvaluationDatasetMember::TYPE_MATERIAL)->whereIn('member_id', $closure['material_ids']))
+					->orWhere(fn($members) => $members->where('member_type', ContextSearchEvaluationDatasetMember::TYPE_RESOURCE)->whereIn('member_id', $closure['resource_ids']));
+			})->delete();
 
-    private function assertNoUnreconciledFrozenDatasets(): void
-    {
-        $exists = ContextSearchEvaluationDataset::query()->whereIn('status', [ContextSearchEvaluationDataset::STATUS_FROZEN, ContextSearchEvaluationDataset::STATUS_EXPORTED])
-            ->where('resource_count', '>', 0)->whereDoesntHave('members')->exists();
-        if ($exists) throw new RuntimeException('Eingefrorene Alt-Datensätze besitzen noch keine Mitgliedschaftsbilanz. Zuerst context-search:dataset:reconcile-memberships prüfen und gegebenenfalls mit --apply abgleichen.');
-    }
+			return $this->refreshState($dataset, FALSE, NULL);
+		});
+	}
 
-    private function refreshState(ContextSearchEvaluationDataset $dataset, bool $newPrivate, ?string $privateReason): ContextSearchEvaluationDataset
-    {
-        $summary = $this->summary($dataset);
-        $ready = $summary['materials_remaining'] === 0 && $summary['resources_remaining'] === 0 && collect($summary['quotas'])->every(fn (array $quota): bool => $quota['remaining'] === 0);
-        $dataset->forceFill([
-            'status' => $ready ? ContextSearchEvaluationDataset::STATUS_READY : ContextSearchEvaluationDataset::STATUS_DRAFT,
-            'version' => $dataset->version + 1,
-            'includes_private' => $dataset->includes_private || $newPrivate,
-            'private_reason' => $dataset->private_reason ?? $privateReason,
-            'material_count' => $summary['material_count'], 'resource_count' => $summary['resource_count'],
-            'ready_at' => $ready ? ($dataset->ready_at ?? now()) : null,
-        ])->save();
-        return $dataset->fresh();
-    }
+	/** @return array<int, array<string, mixed>> */
+	public function summaries(): array {
+		$datasets = ContextSearchEvaluationDataset::query()->orderBy('purpose')->orderBy('created_at')->get([
+			'id', 'purpose', 'title', 'status', 'version', 'includes_private', 'private_reason',
+			'target_material_count', 'target_resource_count', 'target_quotas', 'ready_at', 'frozen_at',
+		]);
+		$counts   = $this->datasetCounts($datasets->modelKeys());
 
-    private function revisionHash(?Resource $resource): ?string
-    {
-        if ($resource === null) return null;
-        if ($resource instanceof Text) return hash('sha256', (string) $resource->content);
-        return $resource->content_hash ?: hash('sha256', implode('|', [(string) $resource->local_path, (string) $resource->filesize, (string) $resource->updated_at]));
-    }
+		return $datasets->map(fn(ContextSearchEvaluationDataset $dataset): array => $this->summary($dataset, $counts[$dataset->getKey()] ?? $this->emptyCounts()))->all();
+	}
 }

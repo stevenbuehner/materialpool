@@ -2,6 +2,5 @@
 
 namespace App\Services\ContextSearch\Ollama;
 
-final class OllamaTransientException extends OllamaEmbeddingPoolException
-{
+final class OllamaTransientException extends OllamaEmbeddingPoolException {
 }

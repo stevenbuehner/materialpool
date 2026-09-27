@@ -10,229 +10,216 @@ use Illuminate\Support\Facades\Http;
 use InvalidArgumentException;
 use Throwable;
 
-final class HttpQdrantClient implements QdrantClient
-{
-    public function __construct(
-        private readonly string $url,
-        private readonly ?string $apiKey,
-        private readonly int $connectTimeout,
-        private readonly int $timeout,
-    ) {
-        $parts = parse_url($this->url);
+final class HttpQdrantClient implements QdrantClient {
+	public function __construct(
+		private readonly string  $url,
+		private readonly ?string $apiKey,
+		private readonly int     $connectTimeout,
+		private readonly int     $timeout,
+	) {
+		$parts = parse_url($this->url);
 
-        if (! is_array($parts)
-            || ! in_array($parts['scheme'] ?? null, ['http', 'https'], true)
-            || blank($parts['host'] ?? null)
-            || isset($parts['user'], $parts['pass'], $parts['query'], $parts['fragment'])) {
-            throw new InvalidArgumentException('The Qdrant URL must be an HTTP(S) base URL without credentials, query, or fragment.');
-        }
+		if (!is_array($parts)
+			|| !in_array($parts['scheme'] ?? NULL, ['http', 'https'], TRUE)
+			|| blank($parts['host'] ?? NULL)
+			|| isset($parts['user'], $parts['pass'], $parts['query'], $parts['fragment'])) {
+			throw new InvalidArgumentException('The Qdrant URL must be an HTTP(S) base URL without credentials, query, or fragment.');
+		}
 
-        if ($this->connectTimeout < 1 || $this->timeout < 1) {
-            throw new InvalidArgumentException('Qdrant timeouts must be positive.');
-        }
-    }
+		if ($this->connectTimeout < 1 || $this->timeout < 1) {
+			throw new InvalidArgumentException('Qdrant timeouts must be positive.');
+		}
+	}
 
-    public function isReady(): bool
-    {
-        try {
-            return $this->safeRequest()->get('/readyz')->successful();
-        } catch (ConnectionException) {
-            return false;
-        }
-    }
+	public function isReady(): bool {
+		try {
+			return $this->safeRequest()->get('/readyz')->successful();
+		} catch (ConnectionException) {
+			return FALSE;
+		}
+	}
 
-    public function collection(string $name): ?array
-    {
-        $response = $this->safeRequest()->get('/collections/'.rawurlencode($name));
+	private function safeRequest(): PendingRequest {
+		return $this->request()->retry(
+			[100, 300],
+			when: static fn(Throwable $exception): bool => $exception instanceof ConnectionException
+				|| ($exception instanceof RequestException
+					&& ($exception->response->serverError() || $exception->response->status() === 429)),
+			throw: FALSE,
+		);
+	}
 
-        if ($response->notFound()) {
-            return null;
-        }
+	private function request(): PendingRequest {
+		$request = Http::baseUrl(rtrim($this->url, '/'))
+			->acceptJson()
+			->asJson()
+			->connectTimeout($this->connectTimeout)
+			->timeout($this->timeout);
 
-        $this->assertSuccessful($response, 'GET', '/collections/{collection}');
+		if (filled($this->apiKey)) {
+			$request->withHeaders(['api-key' => $this->apiKey]);
+		}
 
-        $result = $response->json('result');
+		return $request;
+	}
 
-        if (! is_array($result)) {
-            throw new QdrantRequestException('Qdrant returned an invalid collection response.');
-        }
+	public function collection(string $name): ?array {
+		$response = $this->safeRequest()->get('/collections/' . rawurlencode($name));
 
-        return $result;
-    }
+		if ($response->notFound()) {
+			return NULL;
+		}
 
-    public function createCollection(
-        string $name,
-        int $dimensions,
-        string $distance,
-        bool $vectorsOnDisk,
-        bool $payloadOnDisk,
-    ): void {
-        $response = $this->safeRequest()->put('/collections/'.rawurlencode($name), [
-            'vectors' => [
-                'size' => $dimensions,
-                'distance' => $distance,
-                'on_disk' => $vectorsOnDisk,
-            ],
-            'on_disk_payload' => $payloadOnDisk,
-        ]);
+		$this->assertSuccessful($response, 'GET', '/collections/{collection}');
 
-        if ($response->conflict()) {
-            return;
-        }
+		$result = $response->json('result');
 
-        $this->assertSuccessful($response, 'PUT', '/collections/{collection}');
-    }
+		if (!is_array($result)) {
+			throw new QdrantRequestException('Qdrant returned an invalid collection response.');
+		}
 
-    public function createPayloadIndex(string $collection, string $field, string $schema): void
-    {
-        $response = $this->safeRequest()->put('/collections/'.rawurlencode($collection).'/index?wait=true', [
-            'field_name' => $field,
-            'field_schema' => $schema,
-        ]);
+		return $result;
+	}
 
-        if ($response->conflict()) {
-            return;
-        }
+	private function assertSuccessful(Response $response, string $method, string $path): void {
+		if (!$response->successful()) {
+			throw new QdrantRequestException(sprintf(
+				'Qdrant request %s %s failed with HTTP %d.',
+				$method,
+				$path,
+				$response->status(),
+			));
+		}
+	}
 
-        $this->assertSuccessful($response, 'PUT', '/collections/{collection}/index');
-    }
+	public function createCollection(
+		string $name,
+		int    $dimensions,
+		string $distance,
+		bool   $vectorsOnDisk,
+		bool   $payloadOnDisk,
+	): void {
+		$response = $this->safeRequest()->put('/collections/' . rawurlencode($name), [
+			'vectors'         => [
+				'size'     => $dimensions,
+				'distance' => $distance,
+				'on_disk'  => $vectorsOnDisk,
+			],
+			'on_disk_payload' => $payloadOnDisk,
+		]);
 
-    public function aliases(): array
-    {
-        $response = $this->safeRequest()->get('/aliases');
-        $this->assertSuccessful($response, 'GET', '/aliases');
+		if ($response->conflict()) {
+			return;
+		}
 
-        $aliases = $response->json('result.aliases');
+		$this->assertSuccessful($response, 'PUT', '/collections/{collection}');
+	}
 
-        if (! is_array($aliases)) {
-            throw new QdrantRequestException('Qdrant returned an invalid alias response.');
-        }
+	public function createPayloadIndex(string $collection, string $field, string $schema): void {
+		$response = $this->safeRequest()->put('/collections/' . rawurlencode($collection) . '/index?wait=true', [
+			'field_name'   => $field,
+			'field_schema' => $schema,
+		]);
 
-        $result = [];
+		if ($response->conflict()) {
+			return;
+		}
 
-        foreach ($aliases as $alias) {
-            if (is_array($alias)
-                && is_string($alias['alias_name'] ?? null)
-                && is_string($alias['collection_name'] ?? null)) {
-                $result[$alias['alias_name']] = $alias['collection_name'];
-            }
-        }
+		$this->assertSuccessful($response, 'PUT', '/collections/{collection}/index');
+	}
 
-        return $result;
-    }
+	public function replaceAlias(string $alias, string $collection): void {
+		$currentCollection = $this->aliases()[$alias] ?? NULL;
 
-    public function replaceAlias(string $alias, string $collection): void
-    {
-        $currentCollection = $this->aliases()[$alias] ?? null;
+		if ($currentCollection === $collection) {
+			return;
+		}
 
-        if ($currentCollection === $collection) {
-            return;
-        }
+		$actions = [];
 
-        $actions = [];
+		if ($currentCollection !== NULL) {
+			$actions[] = ['delete_alias' => ['alias_name' => $alias]];
+		}
 
-        if ($currentCollection !== null) {
-            $actions[] = ['delete_alias' => ['alias_name' => $alias]];
-        }
+		$actions[] = ['create_alias' => [
+			'alias_name'      => $alias,
+			'collection_name' => $collection,
+		]];
 
-        $actions[] = ['create_alias' => [
-            'alias_name' => $alias,
-            'collection_name' => $collection,
-        ]];
+		$response = $this->request()->post('/collections/aliases', ['actions' => $actions]);
+		$this->assertSuccessful($response, 'POST', '/collections/aliases');
+	}
 
-        $response = $this->request()->post('/collections/aliases', ['actions' => $actions]);
-        $this->assertSuccessful($response, 'POST', '/collections/aliases');
-    }
+	public function aliases(): array {
+		$response = $this->safeRequest()->get('/aliases');
+		$this->assertSuccessful($response, 'GET', '/aliases');
 
-    public function upsertPoints(string $collection, array $points): void
-    {
-        if ($points === []) {
-            return;
-        }
+		$aliases = $response->json('result.aliases');
 
-        $response = $this->safeRequest()->put('/collections/'.rawurlencode($collection).'/points?wait=true', [
-            'points' => $points,
-        ]);
+		if (!is_array($aliases)) {
+			throw new QdrantRequestException('Qdrant returned an invalid alias response.');
+		}
 
-        $this->assertSuccessful($response, 'PUT', '/collections/{collection}/points');
-        $this->assertCompleted($response, 'PUT', '/collections/{collection}/points');
-    }
+		$result = [];
 
-    public function deleteResourcePoints(string $collection, int $resourceId, string $embeddingProfile): void
-    {
-        $response = $this->safeRequest()->post('/collections/'.rawurlencode($collection).'/points/delete?wait=true', [
-            'filter' => [
-                'must' => [
-                    ['key' => 'resource_id', 'match' => ['value' => $resourceId]],
-                    ['key' => 'embedding_profile', 'match' => ['value' => $embeddingProfile]],
-                ],
-            ],
-        ]);
+		foreach ($aliases as $alias) {
+			if (is_array($alias)
+				&& is_string($alias['alias_name'] ?? NULL)
+				&& is_string($alias['collection_name'] ?? NULL)) {
+				$result[$alias['alias_name']] = $alias['collection_name'];
+			}
+		}
 
-        $this->assertSuccessful($response, 'POST', '/collections/{collection}/points/delete');
-        $this->assertCompleted($response, 'POST', '/collections/{collection}/points/delete');
-    }
+		return $result;
+	}
 
-    public function deleteResourceRevisionPoints(string $collection, int $resourceId, string $embeddingProfile, string $revision): void
-    {
-        if (! preg_match('/\A[a-f0-9]{64}\z/i', $revision)) {
-            throw new InvalidArgumentException('The document revision must be a SHA-256 digest.');
-        }
+	public function upsertPoints(string $collection, array $points): void {
+		if ($points === []) {
+			return;
+		}
 
-        $response = $this->safeRequest()->post('/collections/'.rawurlencode($collection).'/points/delete?wait=true', [
-            'filter' => ['must' => [
-                ['key' => 'resource_id', 'match' => ['value' => $resourceId]],
-                ['key' => 'embedding_profile', 'match' => ['value' => $embeddingProfile]],
-                ['key' => 'index_revision', 'match' => ['value' => $revision]],
-            ]],
-        ]);
+		$response = $this->safeRequest()->put('/collections/' . rawurlencode($collection) . '/points?wait=true', [
+			'points' => $points,
+		]);
 
-        $this->assertSuccessful($response, 'POST', '/collections/{collection}/points/delete');
-        $this->assertCompleted($response, 'POST', '/collections/{collection}/points/delete');
-    }
+		$this->assertSuccessful($response, 'PUT', '/collections/{collection}/points');
+		$this->assertCompleted($response, 'PUT', '/collections/{collection}/points');
+	}
 
-    private function request(): PendingRequest
-    {
-        $request = Http::baseUrl(rtrim($this->url, '/'))
-            ->acceptJson()
-            ->asJson()
-            ->connectTimeout($this->connectTimeout)
-            ->timeout($this->timeout);
+	private function assertCompleted(Response $response, string $method, string $path): void {
+		if ($response->json('result.status') !== 'completed') {
+			throw new QdrantRequestException(sprintf('Qdrant request %s %s was not confirmed as completed.', $method, $path));
+		}
+	}
 
-        if (filled($this->apiKey)) {
-            $request->withHeaders(['api-key' => $this->apiKey]);
-        }
+	public function deleteResourcePoints(string $collection, int $resourceId, string $embeddingProfile): void {
+		$response = $this->safeRequest()->post('/collections/' . rawurlencode($collection) . '/points/delete?wait=true', [
+			'filter' => [
+				'must' => [
+					['key' => 'resource_id', 'match' => ['value' => $resourceId]],
+					['key' => 'embedding_profile', 'match' => ['value' => $embeddingProfile]],
+				],
+			],
+		]);
 
-        return $request;
-    }
+		$this->assertSuccessful($response, 'POST', '/collections/{collection}/points/delete');
+		$this->assertCompleted($response, 'POST', '/collections/{collection}/points/delete');
+	}
 
-    private function safeRequest(): PendingRequest
-    {
-        return $this->request()->retry(
-            [100, 300],
-            when: static fn (Throwable $exception): bool => $exception instanceof ConnectionException
-                || ($exception instanceof RequestException
-                    && ($exception->response->serverError() || $exception->response->status() === 429)),
-            throw: false,
-        );
-    }
+	public function deleteResourceRevisionPoints(string $collection, int $resourceId, string $embeddingProfile, string $revision): void {
+		if (!preg_match('/\A[a-f0-9]{64}\z/i', $revision)) {
+			throw new InvalidArgumentException('The document revision must be a SHA-256 digest.');
+		}
 
-    private function assertSuccessful(Response $response, string $method, string $path): void
-    {
-        if (! $response->successful()) {
-            throw new QdrantRequestException(sprintf(
-                'Qdrant request %s %s failed with HTTP %d.',
-                $method,
-                $path,
-                $response->status(),
-            ));
-        }
-    }
+		$response = $this->safeRequest()->post('/collections/' . rawurlencode($collection) . '/points/delete?wait=true', [
+			'filter' => ['must' => [
+				['key' => 'resource_id', 'match' => ['value' => $resourceId]],
+				['key' => 'embedding_profile', 'match' => ['value' => $embeddingProfile]],
+				['key' => 'index_revision', 'match' => ['value' => $revision]],
+			]],
+		]);
 
-    private function assertCompleted(Response $response, string $method, string $path): void
-    {
-        if ($response->json('result.status') !== 'completed') {
-            throw new QdrantRequestException(sprintf('Qdrant request %s %s was not confirmed as completed.', $method, $path));
-        }
-    }
+		$this->assertSuccessful($response, 'POST', '/collections/{collection}/points/delete');
+		$this->assertCompleted($response, 'POST', '/collections/{collection}/points/delete');
+	}
 }
