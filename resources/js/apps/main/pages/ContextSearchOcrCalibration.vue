@@ -84,9 +84,49 @@ export default {
   },
   methods: {
     ocrOutput,
-    async load() { try { const {data} = await axios.get('/api/v2/admin/context-search/ocr-calibration'); this.datasets = data.datasets; this.runs = data.runs; if (this.run) await this.selectRun(this.run.id); } catch (error) { this.error = error.response?.data?.message || error.message; } },
-    async createRun() { this.busy = true; this.error = ''; try { const {data} = await axios.post('/api/v2/admin/context-search/ocr-calibration/runs', {dataset_id: this.datasetId, sample_limit: this.sampleLimit, title: this.title || null}); this.runs.unshift(data.run); await this.selectRun(data.run.id); } catch (error) { this.error = error.response?.data?.message || error.message; } finally { this.busy = false; } },
-    async selectRun(id) { this.stopPolling(); const version = this.pollVersion; this.error = ''; try { const {data} = await axios.get(`/api/v2/admin/context-search/ocr-calibration/runs/${id}`); if (version !== this.pollVersion) return; this.run = data.run; const index = this.runs.findIndex(item => item.id === id); if (index >= 0) this.runs.splice(index, 1, {...this.runs[index], ...data.run}); this.schedulePoll(); } catch (error) { this.error = error.response?.data?.message || error.message; } },
+    async load() {
+      try {
+        const {data} = await axios.get('/api/v2/admin/context-search/ocr-calibration');
+        this.datasets = data.datasets;
+        this.runs = data.runs;
+        if (this.run) await this.selectRun(this.run.id);
+      } catch (error) {
+        this.error = error.response?.data?.message || error.message;
+      }
+    },
+    async createRun() {
+      this.busy = true;
+      this.error = '';
+      try {
+        const {data} = await axios.post('/api/v2/admin/context-search/ocr-calibration/runs', {
+          dataset_id: this.datasetId,
+          sample_limit: this.sampleLimit,
+          title: this.title || null,
+        });
+        this.runs.unshift(data.run);
+        await this.selectRun(data.run.id);
+      } catch (error) {
+        this.error = error.response?.data?.message || error.message;
+      } finally {
+        this.busy = false;
+      }
+    },
+    async selectRun(id) {
+      this.stopPolling();
+      const version = this.pollVersion;
+      this.error = '';
+      try {
+        const {data} = await axios.get(`/api/v2/admin/context-search/ocr-calibration/runs/${id}`);
+        if (version !== this.pollVersion) return;
+        this.run = data.run;
+        const index = this.runs.findIndex(item => item.id === id);
+        if (index >= 0) this.runs.splice(index, 1, {...this.runs[index], ...data.run});
+        this.schedulePoll();
+      } catch (error) {
+        this.error = error.response?.data?.message || error.message;
+      }
+    },
+    // Der Versionszähler verwirft Antworten älterer Polling-Anfragen nach einem Laufwechsel.
     stopPolling() {
       clearTimeout(this.pollTimer);
       this.pollTimer = null;
@@ -121,7 +161,9 @@ export default {
             return;
           }
         }
-      } catch (error) { this.error = error.response?.data?.message || error.message; }
+      } catch (error) {
+        this.error = error.response?.data?.message || error.message;
+      }
       if (version === this.pollVersion) this.schedulePoll();
     },
     async copyOcrText(page) {
@@ -129,12 +171,56 @@ export default {
         await navigator.clipboard.writeText(page.ocr_text);
         this.copiedPageId = page.id;
         clearTimeout(this.copyResetTimer);
-        this.copyResetTimer = setTimeout(() => { this.copiedPageId = null; }, 3000);
-      } catch (error) { this.error = this.$t('pool.ocr-calibration-copy-failed'); }
+        this.copyResetTimer = setTimeout(() => {
+          this.copiedPageId = null;
+        }, 3000);
+      } catch (error) {
+        this.error = this.$t('pool.ocr-calibration-copy-failed');
+      }
     },
-    async saveReview(page) { this.busy = true; this.savingPageId = page.id; try { const {data} = await axios.put(`/api/v2/admin/context-search/ocr-calibration/runs/${this.run.id}/pages/${page.id}`, {quality_label: page.quality_label, reference_text: page.reference_text, review_note: page.review_note}); this.run = data.run; } catch (error) { this.error = error.response?.data?.message || error.message; } finally { this.busy = false; this.savingPageId = null; } },
-    async evaluate() { this.busy = true; try { await axios.post(`/api/v2/admin/context-search/ocr-calibration/runs/${this.run.id}/evaluate`); await this.selectRun(this.run.id); } catch (error) { this.error = error.response?.data?.message || error.message; } finally { this.busy = false; } },
-    async approve() { this.busy = true; try { await axios.post(`/api/v2/admin/context-search/ocr-calibration/runs/${this.run.id}/approve`); await this.selectRun(this.run.id); await this.load(); } catch (error) { this.error = error.response?.data?.message || error.message; } finally { this.busy = false; } },
+    async saveReview(page) {
+      this.busy = true;
+      this.savingPageId = page.id;
+      try {
+        const {data} = await axios.put(
+          `/api/v2/admin/context-search/ocr-calibration/runs/${this.run.id}/pages/${page.id}`,
+          {
+            quality_label: page.quality_label,
+            reference_text: page.reference_text,
+            review_note: page.review_note,
+          },
+        );
+        this.run = data.run;
+      } catch (error) {
+        this.error = error.response?.data?.message || error.message;
+      } finally {
+        this.busy = false;
+        this.savingPageId = null;
+      }
+    },
+    async evaluate() {
+      this.busy = true;
+      try {
+        await axios.post(`/api/v2/admin/context-search/ocr-calibration/runs/${this.run.id}/evaluate`);
+        await this.selectRun(this.run.id);
+      } catch (error) {
+        this.error = error.response?.data?.message || error.message;
+      } finally {
+        this.busy = false;
+      }
+    },
+    async approve() {
+      this.busy = true;
+      try {
+        await axios.post(`/api/v2/admin/context-search/ocr-calibration/runs/${this.run.id}/approve`);
+        await this.selectRun(this.run.id);
+        await this.load();
+      } catch (error) {
+        this.error = error.response?.data?.message || error.message;
+      } finally {
+        this.busy = false;
+      }
+    },
     preview(page) {
       return pdfPreviewImageForPageLarge({id: page.resource_id}, page.page_number);
     },
@@ -149,12 +235,57 @@ export default {
 </script>
 
 <style scoped>
-.ocr-resource-link { color: inherit; text-decoration: none; }
-.ocr-resource-link:hover, .ocr-resource-link:focus-visible { color: inherit; text-decoration: underline; }
-.ocr-copy-button { line-height: 1; }
-.ocr-copy-button :deep(svg) { width: 1rem; height: 1rem; fill: currentColor; }
-.ocr-text { min-height: 7rem; max-height: 14rem; overflow: auto; white-space: pre-wrap; overflow-wrap: anywhere; background: var(--bs-light); border: 1px solid var(--bs-border-color); padding: .75rem; font-size: .9rem; }
-.ocr-preview { position: relative; min-height: 12rem; }
-.ocr-preview-indicator { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: var(--bs-primary); pointer-events: none; }
-.ocr-preview-indicator :deep(svg) { width: 2.5rem; height: 2.5rem; fill: currentColor; }
+.ocr-resource-link {
+  color: inherit;
+  text-decoration: none;
+}
+
+.ocr-resource-link:hover,
+.ocr-resource-link:focus-visible {
+  color: inherit;
+  text-decoration: underline;
+}
+
+.ocr-copy-button {
+  line-height: 1;
+}
+
+.ocr-copy-button :deep(svg) {
+  width: 1rem;
+  height: 1rem;
+  fill: currentColor;
+}
+
+.ocr-text {
+  min-height: 7rem;
+  max-height: 14rem;
+  overflow: auto;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  background: var(--bs-light);
+  border: 1px solid var(--bs-border-color);
+  padding: .75rem;
+  font-size: .9rem;
+}
+
+.ocr-preview {
+  position: relative;
+  min-height: 12rem;
+}
+
+.ocr-preview-indicator {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--bs-primary);
+  pointer-events: none;
+}
+
+.ocr-preview-indicator :deep(svg) {
+  width: 2.5rem;
+  height: 2.5rem;
+  fill: currentColor;
+}
 </style>
