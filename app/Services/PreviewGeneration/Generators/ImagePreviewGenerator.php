@@ -14,8 +14,10 @@ use App\Models\Resource as ResourceEntity;
 use App\ResourceLimitations\ResourceLimitationInterface;
 use App\Services\PreviewGeneration\Exceptions\NotPreviewAbleException;
 use App\Services\PreviewGeneration\Interfaces\PreviewGeneratorInterface;
+use Exception;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Support\Facades\View;
+use Imagick;
 use Intervention\Image\Constraint;
 use Intervention\Image\ImageManager;
 use Intervention\Image\Size;
@@ -32,7 +34,7 @@ class ImagePreviewGenerator implements PreviewGeneratorInterface {
 	 * @param ResourceEntity $resource
 	 * @param Size $size
 	 * @param null $page
-	 * @return \Imagick
+	 * @return Imagick
 	 * @throws NotPreviewAbleException
 	 */
 	public function getImagePreview(ResourceEntity $resource, Size $size, $page = NULL) {
@@ -63,7 +65,7 @@ class ImagePreviewGenerator implements PreviewGeneratorInterface {
 				// $image = $this->imageManager->make($localFile);
 			} catch (FileNotFoundException $e) {
 				throw new NotPreviewAbleException("Original imagefile not found", 0, $e);
-			} catch (\Exception $e) {
+			} catch (Exception $e) {
 				throw new NotPreviewAbleException("Error while creating preview image", 0, $e);
 			}
 

@@ -7,6 +7,8 @@
 
 namespace App\Services\ResourceHandling\Exceptions;
 
-class RemoteFileDoesNotExistException extends \Exception {
+use Exception;
+
+class RemoteFileDoesNotExistException extends Exception {
 
 }

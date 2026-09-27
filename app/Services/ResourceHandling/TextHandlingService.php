@@ -6,6 +6,7 @@ use App\Models\Resource;
 use App\Services\ResourceHandling\Exceptions\InvalidResourceTypeException;
 use App\Services\TagExtraction\ResourceHandles\TextContentInterface;
 use Illuminate\Support\Facades\Storage;
+use League\Flysystem\FileExistsException;
 
 class TextHandlingService extends ResourceHandlingService {
 
@@ -13,7 +14,7 @@ class TextHandlingService extends ResourceHandlingService {
 	 * @param Resource $resource
 	 * @return array|void
 	 * @throws InvalidResourceTypeException
-	 * @throws \League\Flysystem\FileExistsException
+	 * @throws FileExistsException
 	 */
 	public function archiveResource(Resource $resource) {
 

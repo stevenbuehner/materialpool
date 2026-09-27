@@ -17,6 +17,7 @@ use App\Services\TagExtraction\ResourceHandles\TextContentInterface;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\Str;
 use Intervention\Image\AbstractFont;
+use Intervention\Image\Image;
 use Intervention\Image\ImageManager;
 use Intervention\Image\Size;
 
@@ -32,7 +33,7 @@ class TextLargePreviewGenerator implements PreviewGeneratorInterface {
 	 * @param ResourceEntity $resource
 	 * @param Size $size
 	 * @param null $page
-	 * @return \Intervention\Image\Image
+	 * @return Image
 	 * @throws NotPreviewAbleException
 	 */
 	public function getImagePreview(ResourceEntity $resource, Size $size, $page = NULL) {

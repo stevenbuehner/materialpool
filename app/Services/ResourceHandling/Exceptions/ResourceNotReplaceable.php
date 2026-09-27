@@ -2,6 +2,8 @@
 
 namespace App\Services\ResourceHandling\Exceptions;
 
-class ResourceNotReplaceable extends \Exception {
+use Exception;
+
+class ResourceNotReplaceable extends Exception {
 
 }

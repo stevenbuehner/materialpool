@@ -6,18 +6,24 @@ use App\Models\PdfFile;
 use App\Services\ResourceHandling\Exceptions\InvalidPageNoException;
 use App\Services\ResourceHandling\Exceptions\LocalFileDoesNotExistException;
 use App\Services\ResourceHandling\Exceptions\RemoteFileDoesNotExistException;
+use Exception;
 use Howtomakeaturn\PDFInfo\Exceptions\CommandNotFoundException;
 use Howtomakeaturn\PDFInfo\Exceptions\OpenOutputException;
 use Howtomakeaturn\PDFInfo\Exceptions\OpenPDFException;
 use Howtomakeaturn\PDFInfo\Exceptions\OtherException;
 use Howtomakeaturn\PDFInfo\Exceptions\PDFPermissionException;
 use Howtomakeaturn\PDFInfo\PDFInfo;
-use Illuminate\Http\File;
 use Illuminate\Support\Facades\Log;
+use RuntimeException;
 use setasign\Fpdi\Fpdi;
 use setasign\Fpdi\PdfParser\CrossReference\CrossReferenceException;
+use setasign\Fpdi\PdfParser\Filter\FilterException;
+use setasign\Fpdi\PdfParser\PdfParserException;
+use setasign\Fpdi\PdfParser\Type\PdfTypeException;
+use setasign\Fpdi\PdfReader\PdfReaderException;
 use Spatie\PdfToText\Exceptions\PdfNotFound;
 use Spatie\PdfToText\Pdf;
+use Storage;
 use Symfony\Component\Process\Process;
 
 class PdfHandlingService {
@@ -42,7 +48,7 @@ class PdfHandlingService {
 
 		} else if ($resource->hasRemoteFile()) {
 
-			$tmpStorage = \Storage::disk('local_tmp');
+			$tmpStorage = Storage::disk('local_tmp');
 			$tmpDir     = 'dl_for_pdf_count';
 			$tmpName    = uniqid('tmp_dl_', TRUE);
 
@@ -59,7 +65,7 @@ class PdfHandlingService {
 
 				$this->doPageCount($resource, $localPdfPath);
 
-			} catch (\Exception $e) {
+			} catch (Exception $e) {
 				Log::Error('Could not download and Count PDF-Pages from remoteFile', ['remote_path' => $resource->remote_path, 'tempPath' => $tmpDir . '/' . $tmpName, 'id' => $resource->id]);
 			} finally {
 				// Cleanup
@@ -122,11 +128,11 @@ class PdfHandlingService {
 	 * @throws InvalidPageNoException
 	 * @throws LocalFileDoesNotExistException
 	 * @throws RemoteFileDoesNotExistException
-	 * @throws \setasign\Fpdi\PdfParser\CrossReference\CrossReferenceException
-	 * @throws \setasign\Fpdi\PdfParser\Filter\FilterException
-	 * @throws \setasign\Fpdi\PdfParser\PdfParserException
-	 * @throws \setasign\Fpdi\PdfParser\Type\PdfTypeException
-	 * @throws \setasign\Fpdi\PdfReader\PdfReaderException
+	 * @throws CrossReferenceException
+	 * @throws FilterException
+	 * @throws PdfParserException
+	 * @throws PdfTypeException
+	 * @throws PdfReaderException
 	 */
 	public function extractPdfPages(PdfFile $resource, $pages = NULL) {
 
@@ -141,11 +147,11 @@ class PdfHandlingService {
 	 * @param null $pages
 	 * @return Fpdi
 	 * @throws InvalidPageNoException
-	 * @throws \setasign\Fpdi\PdfParser\CrossReference\CrossReferenceException
-	 * @throws \setasign\Fpdi\PdfParser\Filter\FilterException
-	 * @throws \setasign\Fpdi\PdfParser\PdfParserException
-	 * @throws \setasign\Fpdi\PdfParser\Type\PdfTypeException
-	 * @throws \setasign\Fpdi\PdfReader\PdfReaderException
+	 * @throws CrossReferenceException
+	 * @throws FilterException
+	 * @throws PdfParserException
+	 * @throws PdfTypeException
+	 * @throws PdfReaderException
 	 */
 	public function extractPdfPagesInFilepath($path, $pages = NULL) {
 		try {
@@ -157,7 +163,7 @@ class PdfHandlingService {
 
 			$normalizedPath = tempnam(sys_get_temp_dir(), 'materialpool-pdf-');
 			if ($normalizedPath === FALSE) {
-				throw new \RuntimeException('Could not create temporary PDF file.', 0, $e);
+				throw new RuntimeException('Could not create temporary PDF file.', 0, $e);
 			}
 
 			try {
@@ -209,6 +215,24 @@ class PdfHandlingService {
 		return $pdf;
 	}
 
+	public function pdfResourceToText(PdfFile $resource, $fromPage = NULL, $toPage = NULL) {
+
+		try {
+			$pdfSrcFilePath = $this->fileHandlingService->getLocalFilePath($resource);
+		} catch (LocalFileDoesNotExistException $e) {
+			Log::error('Local File does not exist', [$e->getTraceAsString()]);
+
+			return '';
+		} catch (RemoteFileDoesNotExistException $e) {
+			Log::error('Remote File does not exist', [$e->getTraceAsString()]);
+
+			return '';
+		}
+
+		return $this->pdfToText($pdfSrcFilePath, $fromPage, $toPage);
+
+	}
+
 	public function pdfToText($pdfPath, $fromPage = NULL, $toPage = NULL) {
 
 		try {
@@ -232,25 +256,6 @@ class PdfHandlingService {
 		}
 
 		return $pdfObject->setOptions($options)->text();
-
-	}
-
-
-	public function pdfResourceToText(PdfFile $resource, $fromPage = NULL, $toPage = NULL) {
-
-		try {
-			$pdfSrcFilePath = $this->fileHandlingService->getLocalFilePath($resource);
-		} catch (LocalFileDoesNotExistException $e) {
-			Log::error('Local File does not exist', [$e->getTraceAsString()]);
-
-			return '';
-		} catch (RemoteFileDoesNotExistException $e) {
-			Log::error('Remote File does not exist', [$e->getTraceAsString()]);
-
-			return '';
-		}
-
-		return $this->pdfToText($pdfSrcFilePath, $fromPage, $toPage);
 
 	}
 

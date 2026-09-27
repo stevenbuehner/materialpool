@@ -7,6 +7,8 @@
 
 namespace App\Services\ResourceHandling\Exceptions;
 
-class MissingResourceHashException extends \Exception {
+use Exception;
+
+class MissingResourceHashException extends Exception {
 
 }

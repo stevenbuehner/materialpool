@@ -11,6 +11,13 @@ use Illuminate\Support\Facades\Log;
 use League\Flysystem\UnableToRetrieveMetadata;
 
 class ResourceFilesizeProcessor {
+	public static function fileTypeKeys(): array {
+		return array_keys(array_filter(
+			Resource::getSingleTableTypeMap(),
+			fn(string $class): bool => is_a($class, File::class, TRUE)
+		));
+	}
+
 	public function updateResourceFilesize(Resource $resource): bool {
 		$filesize = $this->calculate($resource);
 
@@ -52,12 +59,5 @@ class ResourceFilesizeProcessor {
 
 			return NULL;
 		}
-	}
-
-	public static function fileTypeKeys(): array {
-		return array_keys(array_filter(
-			Resource::getSingleTableTypeMap(),
-			fn (string $class): bool => is_a($class, File::class, TRUE)
-		));
 	}
 }

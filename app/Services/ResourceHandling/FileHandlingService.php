@@ -8,9 +8,11 @@ use App\Models\Resource;
 use App\Services\ResourceHandling\Exceptions\InvalidResourceTypeException;
 use App\Services\ResourceHandling\Exceptions\LocalFileDoesNotExistException;
 use App\Services\ResourceHandling\Exceptions\RemoteFileDoesNotExistException;
+use Exception;
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Contracts\Filesystem\FileNotFoundException;
+use League\Flysystem\FileExistsException;
 
 class FileHandlingService extends ResourceHandlingService {
 
@@ -46,7 +48,7 @@ class FileHandlingService extends ResourceHandlingService {
 
 				Log::info('Cleaned up local file of Resource (ID: ' . $resource->id . ')');
 
-			} catch (\Exception $e) {
+			} catch (Exception $e) {
 				Log::error('Error while cleanup / deleting local file', [
 					'message' => $e->getMessage(),
 					'trace'   => $e->getTrace()
@@ -58,9 +60,9 @@ class FileHandlingService extends ResourceHandlingService {
 
 
 	/**
-	 * @param \App\Models\Resource $resource
+	 * @param Resource $resource
 	 * @param bool $keepLocalFiles Die lokale Datei nicht löschen (nötig beim deinstallieren von Bundles)
-	 * @throws \Exception
+	 * @throws Exception
 	 */
 	public function deleteResourceCompletely(Resource $resource, $keepLocalFiles = FALSE) {
 
@@ -149,7 +151,7 @@ class FileHandlingService extends ResourceHandlingService {
 	 * @param File $resource
 	 * @return string
 	 * @throws FileNotFoundException
-	 * @throws \League\Flysystem\FileExistsException
+	 * @throws FileExistsException
 	 */
 	public function makeLocalCopy(File $resource) {
 		// Make a local copy of the movie (copy to local, whereever it is)

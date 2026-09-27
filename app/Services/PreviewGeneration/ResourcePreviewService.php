@@ -3,13 +3,11 @@
 namespace App\Services\PreviewGeneration;
 
 use App\Models\DocumentFile;
-use App\Models\Resource;
 use App\Models\Resource as ResourceEntity;
 use App\ResourceLimitations\ResourceLimitationInterface;
 use App\Services\PreviewGeneration\Exceptions\NotPreviewAbleException;
 use App\Services\PreviewGeneration\Generators\DocumentPreviewGenerator;
 use App\Services\PreviewGeneration\Interfaces\PreviewGeneratorInterface;
-use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
 use Intervention\Image\AbstractFont;
@@ -33,11 +31,14 @@ class ResourcePreviewService extends AbstractPreviewService {
 		return $generator->imagePreviewAble($resource);
 	}
 
-	protected function getCacheKey(Model $model, $additionalData = NULL) {
-		return parent::getCacheKey($model, [
-			'version' => self::CACHE_KEY_VERSION,
-			'variant' => $additionalData,
-		]);
+	/**
+	 * Wraps the generator function of the resource and catches errors to log them but not show them in the frontend
+	 *
+	 * @param ResourceEntity $resource
+	 * @return bool
+	 */
+	public function imagePreviewAble(ResourceEntity $resource, $size) {
+		return $resource->getPreviewGenerator($size)->imagePreviewAble($resource);
 	}
 
 	/**
@@ -62,6 +63,37 @@ class ResourcePreviewService extends AbstractPreviewService {
 
 		return $this->getCachedImage($resource, $size, $pageOrSeconds);
 
+	}
+
+	/**
+	 * @param ResourceEntity $resource
+	 * @param Size $size
+	 * @param null $pageOrSeconds
+	 * @param bool $clearCache
+	 * @return Image
+	 */
+	public function getCachedImage(ResourceEntity $resource, Size $size, $pageOrSeconds = NULL, bool $clearCache = FALSE) {
+		return $this->imageManager->make($this->getCachedImageData($resource, $size, $pageOrSeconds, $clearCache));
+	}
+
+	public function getCachedImageData(ResourceEntity $resource, Size $size, $pageOrSeconds = NULL, bool $clearCache = FALSE): string {
+
+		$cacheKey = $this->getCacheKey($resource, [$size, (int)$pageOrSeconds]);
+
+		return $this->cacheImageData(
+			$cacheKey,
+			fn() => $this->getFreshImagePreview($resource, $size, $pageOrSeconds),
+			fn() => $this->registerCacheKey($resource, $cacheKey),
+			$clearCache
+		);
+
+	}
+
+	protected function getCacheKey(Model $model, $additionalData = NULL) {
+		return parent::getCacheKey($model, [
+			'version' => self::CACHE_KEY_VERSION,
+			'variant' => $additionalData,
+		]);
 	}
 
 	/**
@@ -98,77 +130,8 @@ class ResourcePreviewService extends AbstractPreviewService {
 
 	}
 
-	/**
-	 * @param     $text
-	 * @param int $width
-	 * @param int $height
-	 * @return \Intervention\Image\Image
-	 */
-	public function getImageWithText($text, $width = 200, $height = 200) {
-		$useWidth  = max($width, 200);
-		$useHeight = max($height, 200);
-		$image     = $this->imageManager->canvas($useWidth, $useHeight, '#ffff');
-		$image->text($text, 50, 50, function ($font) {
-			/** @var $font AbstractFont */
-			$font->valign('top');
-			$font->size(14);
-			$font->file(resource_path('fonts/Courier New.ttf'));
-		});
-
-		return $image;
-	}
-
-	/**
-	 * @param ResourceEntity $resource
-	 * @param Size $size
-	 * @param null $pageOrSeconds
-	 * @param bool $clearCache
-	 * @return Image
-	 */
-	public function getCachedImage(ResourceEntity $resource, Size $size, $pageOrSeconds = NULL, bool $clearCache = FALSE) {
-		return $this->imageManager->make($this->getCachedImageData($resource, $size, $pageOrSeconds, $clearCache));
-	}
-
-	public function getCachedImageData(ResourceEntity $resource, Size $size, $pageOrSeconds = NULL, bool $clearCache = FALSE): string {
-
-		$cacheKey = $this->getCacheKey($resource, [$size, (int)$pageOrSeconds]);
-
-		return $this->cacheImageData(
-			$cacheKey,
-			fn () => $this->getFreshImagePreview($resource, $size, $pageOrSeconds),
-			fn () => $this->registerCacheKey($resource, $cacheKey),
-			$clearCache
-		);
-
-	}
-
-	public function hasCachedImage(ResourceEntity $resource, Size $size, $pageOrSeconds = NULL): bool {
-		$cacheKey = $this->getCacheKey($resource, [$size, (int)$pageOrSeconds]);
-
-		return $this->getCacheStore()->has($cacheKey);
-	}
-
-	public function clearAllImageCaches(ResourceEntity $resource): void {
-		$cache = $this->getCacheStore();
-		$indexKey = $this->getCacheIndexKey($resource);
-
-		$cache->lock($this->getCacheIndexLockKey($resource), 10)->block(5, function () use ($cache, $indexKey): void {
-			$cacheKeys = $cache->get($indexKey, []);
-
-			foreach ($cacheKeys as $cacheKey) {
-				$cache->delete($cacheKey);
-			}
-
-			$cache->delete($indexKey);
-		});
-
-		if ($resource instanceof DocumentFile) {
-			resolve(DocumentPreviewGenerator::class)->clearTemporaryPreviews($resource);
-		}
-	}
-
 	protected function registerCacheKey(ResourceEntity $resource, string $cacheKey): void {
-		$cache = $this->getCacheStore();
+		$cache    = $this->getCacheStore();
 		$indexKey = $this->getCacheIndexKey($resource);
 
 		$cache->lock($this->getCacheIndexLockKey($resource), 10)->block(5, function () use ($cache, $indexKey, $cacheKey): void {
@@ -187,6 +150,51 @@ class ResourcePreviewService extends AbstractPreviewService {
 
 	protected function getCacheIndexLockKey(ResourceEntity $resource): string {
 		return 'resource-preview-index-lock:' . $resource->getKey();
+	}
+
+	/**
+	 * @param     $text
+	 * @param int $width
+	 * @param int $height
+	 * @return Image
+	 */
+	public function getImageWithText($text, $width = 200, $height = 200) {
+		$useWidth  = max($width, 200);
+		$useHeight = max($height, 200);
+		$image     = $this->imageManager->canvas($useWidth, $useHeight, '#ffff');
+		$image->text($text, 50, 50, function ($font) {
+			/** @var $font AbstractFont */
+			$font->valign('top');
+			$font->size(14);
+			$font->file(resource_path('fonts/Courier New.ttf'));
+		});
+
+		return $image;
+	}
+
+	public function hasCachedImage(ResourceEntity $resource, Size $size, $pageOrSeconds = NULL): bool {
+		$cacheKey = $this->getCacheKey($resource, [$size, (int)$pageOrSeconds]);
+
+		return $this->getCacheStore()->has($cacheKey);
+	}
+
+	public function clearAllImageCaches(ResourceEntity $resource): void {
+		$cache    = $this->getCacheStore();
+		$indexKey = $this->getCacheIndexKey($resource);
+
+		$cache->lock($this->getCacheIndexLockKey($resource), 10)->block(5, function () use ($cache, $indexKey): void {
+			$cacheKeys = $cache->get($indexKey, []);
+
+			foreach ($cacheKeys as $cacheKey) {
+				$cache->delete($cacheKey);
+			}
+
+			$cache->delete($indexKey);
+		});
+
+		if ($resource instanceof DocumentFile) {
+			resolve(DocumentPreviewGenerator::class)->clearTemporaryPreviews($resource);
+		}
 	}
 
 	/**
@@ -217,16 +225,6 @@ class ResourcePreviewService extends AbstractPreviewService {
 	 */
 	public function htmlPreviewAble(ResourceEntity $resource, $size) {
 		return $resource->getPreviewGenerator($size)->htmlPreviewAble($resource);
-	}
-
-	/**
-	 * Wraps the generator function of the resource and catches errors to log them but not show them in the frontend
-	 *
-	 * @param ResourceEntity $resource
-	 * @return bool
-	 */
-	public function imagePreviewAble(ResourceEntity $resource, $size) {
-		return $resource->getPreviewGenerator($size)->imagePreviewAble($resource);
 	}
 
 	protected function getPreviewPath(ResourceEntity $resource, $fileType, $width = NULL, $height = NULL, $quality = 75, $limitation = NULL) {

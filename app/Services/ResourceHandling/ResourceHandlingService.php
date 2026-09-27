@@ -19,8 +19,8 @@ use App\ResourceLimitations\TimeLimitation;
 use App\Services\ResourceHandling\Exceptions\InvalidResourceTypeException;
 use App\Services\ResourceHandling\Exceptions\ResourceNotReplaceable;
 use App\Services\TagExtraction\ResourceHandles\TextContentInterface;
+use Exception;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 
 class ResourceHandlingService {
 
@@ -68,7 +68,7 @@ class ResourceHandlingService {
 		$handler = resolve(ResourceDuplicationHandlingService::class);
 		try {
 			$handler->migrateSlaveIntoMasterResource($oldResource, $newResource);
-		} catch (\Exception $e) {
+		} catch (Exception $e) {
 			throw new ResourceNotReplaceable($e);
 		}
 

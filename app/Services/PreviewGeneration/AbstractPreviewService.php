@@ -2,10 +2,12 @@
 
 namespace App\Services\PreviewGeneration;
 
+use Illuminate\Contracts\Cache\Repository;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Cache;
 use Intervention\Image\Image;
 use Intervention\Image\ImageManager;
+use RuntimeException;
 
 
 abstract class AbstractPreviewService {
@@ -22,19 +24,32 @@ abstract class AbstractPreviewService {
 		$this->imageManager = $imageManager;
 	}
 
-	protected function getCacheKey(Model $model, $additionalData = NULL) {
-		return $model->getTable() . $model->getKey() . json_encode($additionalData);
-	}
-
 	public function clearImageCache(Model $model, $additionalData = NULL) {
 		$key = $this->getCacheKey($model, $additionalData);
 		$this->clearCache($key);
 	}
 
+	protected function getCacheKey(Model $model, $additionalData = NULL) {
+		return $model->getTable() . $model->getKey() . json_encode($additionalData);
+	}
+
+	protected function clearCache($cacheKey) {
+		$cache = $this->getCacheStore();
+
+		$cache->delete($cacheKey);
+	}
+
+	/**
+	 * @return \Illuminate\Cache\Repository|Repository
+	 */
+	protected function getCacheStore() {
+		return Cache::store('previewimages');
+	}
+
 	/**
 	 * @param      $cacheKey
 	 * @param null $default
-	 * @return \Intervention\Image\Image|null
+	 * @return Image|null
 	 */
 	protected function getImageObjectFromCache($cacheKey, $default = NULL) {
 		// see:  https://github.com/Intervention/imagecache/blob/master/src/Intervention/Image/ImageCache.php
@@ -48,40 +63,6 @@ abstract class AbstractPreviewService {
 
 		return $default;
 
-	}
-
-	/**
-	 * @return \Illuminate\Cache\Repository|\Illuminate\Contracts\Cache\Repository
-	 */
-	protected function getCacheStore() {
-		return Cache::store('previewimages');
-	}
-
-	/**
-	 * @param Image $image
-	 * @param       $cacheKey
-	 * @return Image
-	 */
-	protected function putImageObjectToCache(Image $image, $cacheKey) {
-		// see:  https://github.com/Intervention/imagecache/blob/master/src/Intervention/Image/ImageCache.php
-
-		$cache = $this->getCacheStore();
-
-		// encode image data only if image is not encoded yet
-		$encoded = (string)$image->encode(
-			config('app.preview.outputFormat'),
-			config('app.resource.preview.quality')
-		);
-
-		$cache->put($cacheKey, $encoded, $this->cacheLifeTimeInMinutes);
-
-		return $image;
-	}
-
-	protected function getImageDataFromCache($cacheKey): ?string {
-		$cachedImageData = $this->getCacheStore()->get($cacheKey);
-
-		return is_string($cachedImageData) ? $cachedImageData : NULL;
 	}
 
 	protected function cacheImageData(string $cacheKey, callable $generateImage, ?callable $onCached = NULL, bool $clearCache = FALSE): string {
@@ -109,13 +90,34 @@ abstract class AbstractPreviewService {
 				$onCached();
 			}
 
-			return $this->getImageDataFromCache($cacheKey) ?? throw new \RuntimeException('Preview image cache could not be populated.');
+			return $this->getImageDataFromCache($cacheKey) ?? throw new RuntimeException('Preview image cache could not be populated.');
 		});
 	}
 
-	protected function clearCache($cacheKey) {
+	protected function getImageDataFromCache($cacheKey): ?string {
+		$cachedImageData = $this->getCacheStore()->get($cacheKey);
+
+		return is_string($cachedImageData) ? $cachedImageData : NULL;
+	}
+
+	/**
+	 * @param Image $image
+	 * @param       $cacheKey
+	 * @return Image
+	 */
+	protected function putImageObjectToCache(Image $image, $cacheKey) {
+		// see:  https://github.com/Intervention/imagecache/blob/master/src/Intervention/Image/ImageCache.php
+
 		$cache = $this->getCacheStore();
 
-		$cache->delete($cacheKey);
+		// encode image data only if image is not encoded yet
+		$encoded = (string)$image->encode(
+			config('app.preview.outputFormat'),
+			config('app.resource.preview.quality')
+		);
+
+		$cache->put($cacheKey, $encoded, $this->cacheLifeTimeInMinutes);
+
+		return $image;
 	}
 }

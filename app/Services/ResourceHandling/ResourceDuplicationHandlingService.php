@@ -86,7 +86,7 @@ class ResourceDuplicationHandlingService {
 		$slaveResource->load('materials');
 		$masterResource->load('materials');
 
-		$masterMaterialIds = $masterResource->materials->modelKeys();
+		$masterMaterialIds    = $masterResource->materials->modelKeys();
 		$newAttachedMaterials = $slaveResource->materials->except($masterMaterialIds);
 
 		DB::transaction(function () use ($slaveResource, $masterResource, $masterMaterialIds): void {

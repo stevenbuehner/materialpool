@@ -7,9 +7,10 @@
 
 namespace App\Services\PreviewGeneration\Exceptions;
 
+use Exception;
 use Throwable;
 
-class NotPreviewAbleException extends \Exception {
+class NotPreviewAbleException extends Exception {
 
 	public function __construct($message = "No Preview can be created from this", $code = 0, ?Throwable $previous = NULL) {
 		parent::__construct($message, $code, $previous);

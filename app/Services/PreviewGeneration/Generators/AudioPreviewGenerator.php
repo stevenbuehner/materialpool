@@ -13,12 +13,15 @@ use App\ResourceLimitations\ResourceLimitationInterface;
 use App\Services\PreviewGeneration\Exceptions\NotPreviewAbleException;
 use App\Services\PreviewGeneration\Interfaces\PreviewGeneratorInterface;
 use App\Services\ResourceHandling\FileHandlingService;
+use Exception;
 use FFMpeg\Coordinate\TimeCode;
 use FFMpeg\FFMpeg;
 use Intervention\Image\Constraint;
 use Intervention\Image\Image;
 use Intervention\Image\ImageManager;
 use Intervention\Image\Size;
+use League\Flysystem\FileExistsException;
+use League\Flysystem\FileNotFoundException;
 
 class AudioPreviewGenerator implements PreviewGeneratorInterface {
 
@@ -36,8 +39,8 @@ class AudioPreviewGenerator implements PreviewGeneratorInterface {
 	 * @param null $seconds
 	 * @return Image
 	 * @throws NotPreviewAbleException
-	 * @throws \League\Flysystem\FileExistsException
-	 * @throws \League\Flysystem\FileNotFoundException
+	 * @throws FileExistsException
+	 * @throws FileNotFoundException
 	 */
 	public function getImagePreview(ResourceEntity $resource, Size $size, $seconds = NULL) {
 
@@ -77,7 +80,7 @@ class AudioPreviewGenerator implements PreviewGeneratorInterface {
 				$constraint->upsize();
 			});
 
-		} catch (\Exception $e) {
+		} catch (Exception $e) {
 		} finally {
 			// Cleanup
 			if ($localPath !== NULL) {

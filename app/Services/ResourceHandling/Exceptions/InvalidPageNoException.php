@@ -7,6 +7,8 @@
 
 namespace App\Services\ResourceHandling\Exceptions;
 
-class InvalidPageNoException extends \Exception {
+use Exception;
+
+class InvalidPageNoException extends Exception {
 
 }

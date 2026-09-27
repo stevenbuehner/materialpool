@@ -7,6 +7,8 @@
 
 namespace App\Services\ResourceHandling\Exceptions;
 
-class MissingRelationException extends \Exception {
+use Exception;
+
+class MissingRelationException extends Exception {
 
 }

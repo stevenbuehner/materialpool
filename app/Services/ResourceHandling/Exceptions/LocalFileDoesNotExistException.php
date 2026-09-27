@@ -7,6 +7,8 @@
 
 namespace App\Services\ResourceHandling\Exceptions;
 
-class LocalFileDoesNotExistException extends \Exception {
+use Exception;
+
+class LocalFileDoesNotExistException extends Exception {
 
 }

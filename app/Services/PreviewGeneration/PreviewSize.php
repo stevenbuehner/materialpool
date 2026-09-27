@@ -15,19 +15,19 @@ final class PreviewSize {
 		);
 	}
 
-	public static function large(): Size {
-		return new Size(
-			config('app.resource.preview.maxWidth'),
-			config('app.resource.preview.maxHeight')
-		);
-	}
-
 	public static function constrained(?int $width, ?int $height): Size {
 		$large = self::large();
 
 		return new Size(
 			min(max(1, $width ?? $large->getWidth()), $large->getWidth()),
 			min(max(1, $height ?? $large->getHeight()), $large->getHeight())
+		);
+	}
+
+	public static function large(): Size {
+		return new Size(
+			config('app.resource.preview.maxWidth'),
+			config('app.resource.preview.maxHeight')
 		);
 	}
 }

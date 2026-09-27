@@ -75,8 +75,14 @@ class DocumentPreviewGenerator extends PdfPreviewGenerator implements PreviewGen
 
 	}
 
+	protected function getTemporaryPreviewName(DocumentFile $resource): string {
+		$revision = $resource->content_hash ?: sha1((string)$resource->getAttribute('local_path'));
+
+		return 'resource-' . $resource->getKey() . '-' . $revision . '.pdf';
+	}
+
 	public function clearTemporaryPreviews(DocumentFile $resource): void {
-		$disk = Storage::disk('local_tmp');
+		$disk   = Storage::disk('local_tmp');
 		$prefix = 'resource-' . $resource->getKey() . '-';
 
 		foreach ($disk->files('preview-documents') as $path) {
@@ -84,12 +90,6 @@ class DocumentPreviewGenerator extends PdfPreviewGenerator implements PreviewGen
 				$disk->delete($path);
 			}
 		}
-	}
-
-	protected function getTemporaryPreviewName(DocumentFile $resource): string {
-		$revision = $resource->content_hash ?: sha1((string)$resource->getAttribute('local_path'));
-
-		return 'resource-' . $resource->getKey() . '-' . $revision . '.pdf';
 	}
 
 	/**
