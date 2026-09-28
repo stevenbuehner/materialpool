@@ -5,6 +5,7 @@ namespace App\Services\ContextSearch;
 use App\Models\PdfFile;
 use App\Models\Resource;
 use App\Models\Text;
+use App\Services\ContextSearch\Extraction\TesseractOcrProcessor;
 use RuntimeException;
 
 final class ContextSearchSourceSnapshot {
@@ -37,9 +38,11 @@ final class ContextSearchSourceSnapshot {
 
 	public function extractionProfile(): string {
 		$settings = (array)config('context_search.indexing');
+		// Die feste Renderer-Version muss auch bei einem alten .env-Profilnamen die Indexrevision ändern.
+		$settings['ocr_render_box'] = TesseractOcrProcessor::RENDER_BOX;
 		$keys     = [
 			'pdf_native_text_minimum_characters', 'ocr_languages', 'ocr_render_dpi',
-			'ocr_max_image_pixels', 'ocr_page_segmentation_mode', 'ocr_engine_version',
+			'ocr_max_image_pixels', 'ocr_page_segmentation_mode', 'ocr_engine_version', 'ocr_render_box',
 			'ocr_quality_profile', 'ocr_quality_minimum_mean_confidence',
 			'ocr_quality_minimum_recognized_words', 'ocr_quality_minimum_alphanumeric_ratio',
 			'ocr_quality_maximum_replacement_character_ratio',

@@ -7,6 +7,8 @@ use RuntimeException;
 use Symfony\Component\Process\Process;
 
 final class TesseractOcrProcessor implements OcrProcessor {
+	public const RENDER_BOX = 'crop';
+
 	public function __construct(
 		private readonly string $languages,
 		private readonly int    $timeout,
@@ -33,7 +35,14 @@ final class TesseractOcrProcessor implements OcrProcessor {
 
 		try {
 			$effectiveDpi = $this->effectiveRenderDpi($pdfPath, $pageNumber);
-			$this->run(['pdftoppm', '-f', (string)$pageNumber, '-l', (string)$pageNumber, '-r', (string)$effectiveDpi, '-png', '-singlefile', $pdfPath, $imageBase]);
+			/*
+			 * pdfinfo liefert für effectiveRenderDpi() die Maße der sichtbaren CropBox.
+			 * pdftoppm verwendet ohne -cropbox dagegen die MediaBox. Diese kann bei
+			 * Satz-PDFs unsichtbare Produktionsvermerke oder Dateinamen enthalten.
+			 * Der Schalter hält OCR-Inhalt und Pixelbudget auf demselben Seitenausschnitt.
+			 * RENDER_BOX kennzeichnet diesen Extraktionsweg in Kalibrierung und Indexrevision.
+			 */
+			$this->run(['pdftoppm', '-f', (string)$pageNumber, '-l', (string)$pageNumber, '-r', (string)$effectiveDpi, '-' . self::RENDER_BOX . 'box', '-png', '-singlefile', $pdfPath, $imageBase]);
 			$this->run(['tesseract', $imagePath, $outputBase, '-l', $this->languages, '--dpi', (string)$effectiveDpi, '--psm', (string)$this->pageSegmentationMode, 'txt', 'tsv']);
 			$text = file_get_contents($outputBase . '.txt');
 			$tsv  = file_get_contents($outputBase . '.tsv');

@@ -35,6 +35,30 @@ final class ContextSearchPagePipelineTest extends TestCase
 {
     use RefreshDatabase;
 
+    public function test_cropbox_rendering_changes_the_index_revision_with_a_legacy_profile_name(): void
+    {
+        config()->set('context_search.indexing.ocr_quality_profile', 'tesseract-de-en-300dpi-v2');
+        $snapshot = new ContextSearchSourceSnapshot();
+        $sourceRevision = str_repeat('a', 64);
+        $embeddingProfile = 'test-embedding-profile';
+
+        // Die frühere Schlüsselliste bildet den bereits gespeicherten Index-Hash nach.
+        $legacyKeys = [
+            'pdf_native_text_minimum_characters', 'ocr_languages', 'ocr_render_dpi',
+            'ocr_max_image_pixels', 'ocr_page_segmentation_mode', 'ocr_engine_version',
+            'ocr_quality_profile', 'ocr_quality_minimum_mean_confidence',
+            'ocr_quality_minimum_recognized_words', 'ocr_quality_minimum_alphanumeric_ratio',
+            'ocr_quality_maximum_replacement_character_ratio',
+        ];
+        $legacySettings = array_intersect_key((array) config('context_search.indexing'), array_flip($legacyKeys));
+        $legacyExtractionProfile = hash('sha256', json_encode($legacySettings, JSON_THROW_ON_ERROR));
+        $legacyIndexRevision = hash('sha256', implode(':', [
+            $sourceRevision, $embeddingProfile, $legacyExtractionProfile, $snapshot->chunkingProfile(),
+        ]));
+
+        $this->assertNotSame($legacyIndexRevision, $snapshot->indexRevision($sourceRevision, $embeddingProfile));
+    }
+
     public function test_missing_ocr_artifact_requeues_only_the_affected_page_for_extraction(): void
     {
         Storage::fake('local');

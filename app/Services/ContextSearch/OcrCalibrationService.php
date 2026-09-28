@@ -9,6 +9,7 @@ use App\Models\ContextSearchOcrCalibrationPage;
 use App\Models\ContextSearchOcrCalibrationRun;
 use App\Models\PdfFile;
 use App\Models\User;
+use App\Services\ContextSearch\Extraction\TesseractOcrProcessor;
 use App\Services\ResourceHandling\FileHandlingService;
 use App\Services\ResourceHandling\PdfHandlingService;
 use Illuminate\Support\Facades\DB;
@@ -87,6 +88,7 @@ final class OcrCalibrationService {
 			'profile_id'             => (string)config('context_search.indexing.ocr_quality_profile'),
 			'languages'              => (string)config('context_search.indexing.ocr_languages'),
 			'render_dpi'             => (int)config('context_search.indexing.ocr_render_dpi', 300),
+			'render_box'             => TesseractOcrProcessor::RENDER_BOX,
 			'max_image_pixels'       => (int)config('context_search.indexing.ocr_max_image_pixels', 12_000_000),
 			'page_segmentation_mode' => (int)config('context_search.indexing.ocr_page_segmentation_mode', 3),
 			'tesseract_version'      => (string)config('context_search.indexing.ocr_engine_version', 'tesseract-5'),

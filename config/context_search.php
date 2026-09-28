@@ -62,7 +62,8 @@ return [
         'ocr_max_image_pixels' => (int) env('CONTEXT_SEARCH_OCR_MAX_IMAGE_PIXELS', 12_000_000),
         'ocr_page_segmentation_mode' => (int) env('CONTEXT_SEARCH_OCR_PSM', 3),
         'ocr_engine_version' => env('CONTEXT_SEARCH_OCR_ENGINE_VERSION', 'tesseract-5'),
-        'ocr_quality_profile' => env('CONTEXT_SEARCH_OCR_QUALITY_PROFILE', 'tesseract-de-en-300dpi-v2'),
+        // v3 bezeichnet CropBox-Rendering. Der feste Render-Ausschnitt wird zusätzlich in der Indexrevision gespeichert.
+        'ocr_quality_profile' => env('CONTEXT_SEARCH_OCR_QUALITY_PROFILE', 'tesseract-de-en-300dpi-cropbox-v3'),
         'ocr_quality_minimum_mean_confidence' => (float) env('CONTEXT_SEARCH_OCR_MINIMUM_MEAN_CONFIDENCE', 0),
         'ocr_quality_minimum_recognized_words' => (int) env('CONTEXT_SEARCH_OCR_MINIMUM_RECOGNIZED_WORDS', 1),
         'ocr_quality_minimum_alphanumeric_ratio' => (float) env('CONTEXT_SEARCH_OCR_MINIMUM_ALPHANUMERIC_RATIO', 0),

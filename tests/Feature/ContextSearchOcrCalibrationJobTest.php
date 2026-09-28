@@ -226,6 +226,7 @@ final class ContextSearchOcrCalibrationJobTest extends TestCase
         $run = app(OcrCalibrationService::class)->start($dataset->getKey(), $user, 15);
 
         $this->assertSame(2, $run->total_pages);
+        $this->assertSame('crop', $run->ocr_profile['render_box']);
         $this->assertEqualsCanonicalizing(
             [str_repeat('1', 64), str_repeat('2', 64)],
             $run->pages->pluck('source_revision_hash')->all(),
