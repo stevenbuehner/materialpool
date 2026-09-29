@@ -138,7 +138,13 @@ ln -s "$base/shared/public-uploads" "$stage/public/uploads"
 chown -R materialpool:www-data "$stage"
 chmod -R u=rwX,g=rX,o= "$stage"
 chmod -R g+rwX "$stage/bootstrap/cache"
-runuser -u materialpool -- composer install --working-dir="$stage" --no-dev --no-interaction --prefer-dist --optimize-autoloader
+# Composer installiert den Code als Deploy-Nutzer. Laravel schreibt beim Discovern
+# in bootstrap/cache und Shared-Storage; das erfolgt als Laufzeitnutzer www-data.
+runuser -u materialpool -- composer install --working-dir="$stage" --no-dev --no-interaction --prefer-dist --optimize-autoloader --no-scripts
+for writable in "$stage/bootstrap/cache" "$stage/storage/framework/cache/data" "$stage/storage/framework/views" "$stage/storage/logs"; do
+  runuser -u www-data -- test -w "$writable" || { echo "Laufzeitverzeichnis nicht beschreibbar: $writable" >&2; exit 1; }
+done
+runuser -u www-data -- php "$stage/artisan" package:discover --ansi
 [[ ! -e "$stage/public/hot" ]] || exit 1
 if [[ ! -L "$base/current" ]]; then
   private_key="$base/shared/storage/oauth-private.key"
