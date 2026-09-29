@@ -2,26 +2,26 @@
 
 ## Zweck und Geltungsbereich
 
-`README.md` ist der zentrale deutschsprachige Einstieg für Administration, Entwicklung und Anwendung. Sicherheitskritische Spezialverträge unter `docs/ai/` bleiben die maßgebliche Detailquelle. Diese Anweisung gilt für Menschen und KI-Agenten, sobald Routen, sichtbare Oberfläche, Texte, CLI-Befehle, Installation, Deployment oder die README selbst geändert werden.
+`README.md` ist die zentrale deutschsprachige Übersichtsseite. Die Zielgruppeninhalte stehen in `docs/anwendung.md`, `docs/administration.md` und `docs/entwicklung.md`. Sicherheitskritische Spezialverträge unter `docs/ai/` bleiben die maßgebliche Detailquelle. Diese Anweisung gilt für Menschen und KI-Agenten, sobald Routen, sichtbare Oberfläche, Texte, CLI-Befehle, Installation, Deployment oder diese Einstiegsdokumente geändert werden.
 
-Die README behält genau drei nummerierte Hauptabschnitte:
+Die drei Zielgruppendokumente sind:
 
-1. Administration
-2. Entwicklung
-3. Anwendung
+1. Anwendung
+2. Administration
+3. Entwicklung
 
-Einleitung, Inhaltsverzeichnis und Quellenhinweis dürfen davor stehen. Neue Themen werden in den passenden Hauptabschnitt eingeordnet; keine vierte parallele Zielgruppe eröffnen.
+Die README verlinkt diese Dokumente und die wichtigsten weiterführenden Einstiege. Sie enthält nur eine kurze Proxmox-Einführung mit dem ausführbaren Link; Details gehören in die Installationsanleitung. Neue Themen werden im passenden Zielgruppendokument oder Spezialvertrag ergänzt.
 
 ## Quellenprüfung vor Änderungen
 
-README-Aussagen nie aus Erinnerung übernehmen. Vor einer Änderung mindestens die unmittelbar betroffenen Quellen lesen:
+Aussagen in den Einstiegsdokumenten nie aus Erinnerung übernehmen. Vor einer Änderung mindestens die unmittelbar betroffenen Quellen lesen:
 
 - Routen, Controller, Requests, Policies, Services, Modelle, Events, Jobs und Vue-Komponenten für Anwenderabläufe;
 - `composer.json`, `package.json`, `.node-version`, Command-Signaturen und `--help` für Befehle und Versionen;
 - `ops/production/` und `production-deployment-contract.md` für Produktion;
 - `architecture.md`, `domain-invariants.md`, `design-system.md` und `quality-gates.md` für technische Verträge.
 
-Dokumentiere nur Befehle, Optionen und Wirkungen, die der aktuelle Stand belegt. Platzhalter müssen als solche erkennbar sein. Produktive Secrets, reale Domains, Benutzer, IDs, Datenbankinhalte oder lokale Pfade mit vertraulichen Angaben gehören nicht in die README.
+Dokumentiere nur Befehle, Optionen und Wirkungen, die der aktuelle Stand belegt. Platzhalter müssen als solche erkennbar sein. Produktive Secrets, reale Domains, Benutzer, IDs, Datenbankinhalte oder lokale Pfade mit vertraulichen Angaben gehören nicht in die Einstiegsdokumente.
 
 ## Schreib- und Sicherheitsregeln
 
@@ -38,7 +38,7 @@ Dokumentiere nur Befehle, Optionen und Wirkungen, die der aktuelle Stand belegt.
 
 Dokumentationsbilder liegen ausschließlich unter `docs/readme/screenshots/`. Die Visual-Regression-Baselines unter `tests/browser/*-snapshots/` erfüllen einen anderen Zweck und werden nicht als README-Bilder verwendet.
 
-Jedes README-Bild besitzt unmittelbar davor genau einen Block `README-SCREENSHOT` mit diesen Feldern:
+Jedes Bild in `docs/anwendung.md` besitzt unmittelbar davor genau einen Block `README-SCREENSHOT` mit diesen Feldern:
 
 ```md
 <!-- README-SCREENSHOT
@@ -51,7 +51,7 @@ fixture: docs-v1
 source: tests/browser/readme-screenshots.spec.js#testname
 refresh: konkrete Änderungsauslöser
 -->
-![Aussagekräftiger deutscher Alternativtext](docs/readme/screenshots/datei.png)
+![Aussagekräftiger deutscher Alternativtext](readme/screenshots/datei.png)
 ```
 
 Der Block beschreibt den Sollzustand. Bei einer Änderung werden Kommentar, Testzustand, Bild, Alternativtext, Bildunterschrift und erklärender Text gemeinsam geprüft.
@@ -75,7 +75,7 @@ Kann die vorgesehene Umgebung nicht ausgeführt werden, kein Bild manuell erfind
 
 ## Aktualisierungsauslöser
 
-Mindestens folgende Änderungen verlangen eine README-Prüfung:
+Mindestens folgende Änderungen verlangen eine Prüfung der README und der betroffenen Zielgruppendokumente:
 
 - neue, entfernte oder umbenannte Route, Navigation oder Rolle;
 - sichtbarer Text, Layout, Breakpoint, Formular, Dialog oder Aktionsablauf;
