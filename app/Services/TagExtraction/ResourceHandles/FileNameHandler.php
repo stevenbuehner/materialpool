@@ -26,7 +26,7 @@ class FileNameHandler implements HandlerInterface {
 	 */
 	public function handle(Resource $resource) {
 
-		$filename = $resource->original_filename;
+		$filename = $resource->original_filename ?? '';
 
 		// the more commas and other stuff the filename hast, the less likely is it a title
 		$title       = trim(pathinfo($filename, PATHINFO_FILENAME));

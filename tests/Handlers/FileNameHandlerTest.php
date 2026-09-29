@@ -49,6 +49,15 @@ class FileNameHandlerTest extends TestCase {
 		$this->assertEquals('test Dateiname', $result[0]->getValue());
 	}
 
+	public function testHandlesMissingOriginalFilename() {
+		$resource = $this->createResourceWithFilename(NULL);
+
+		$result = $this->service->handle($resource);
+
+		$this->assertInstanceOf(Collection::class, $result);
+		$this->assertCount(0, $result);
+	}
+
 	public function testExtractMultipleCommas() {
 		$resource = $this->createResourceWithFilename('test, Dateiname, von Steven B; Haus.jpg');
 		$this->assertNotNull($resource);
