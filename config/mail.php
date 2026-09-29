@@ -14,6 +14,7 @@ return [
     */
 
 	'default' => env('MAIL_MAILER', 'smtp'),
+	'configured' => env('MAIL_CONFIGURED', env('MAIL_MAILER', 'smtp') === 'smtp'),
 
 	/*
     |--------------------------------------------------------------------------

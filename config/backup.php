@@ -1,6 +1,7 @@
 <?php
 
 return [
+	'enabled' => env('BACKUP_ENABLED', true),
 
 	'backup'          => [
 
@@ -94,10 +95,7 @@ return [
 			/*
 			 * The disk names on which the backups will be stored.
 			 */
-			'disks'           => [
-				'backup',
-				'backup_s3',
-			],
+			'disks'           => env('BACKUP_ENABLED', true) ? ['backup', 'backup_s3'] : ['backup'],
 
 			'continue_on_failure' => false,
 		],
@@ -179,7 +177,7 @@ return [
 	'monitor_backups' => [
 		[
 			'name'          => config('app.name'),
-			'disks'         => ['backup', 'backup_s3'],
+			'disks'         => env('BACKUP_ENABLED', true) ? ['backup', 'backup_s3'] : ['backup'],
 			'health_checks' => [
 				\Spatie\Backup\Tasks\Monitor\HealthChecks\MaximumAgeInDays::class          => 2,
 				\Spatie\Backup\Tasks\Monitor\HealthChecks\MaximumStorageInMegabytes::class => 1024*300,

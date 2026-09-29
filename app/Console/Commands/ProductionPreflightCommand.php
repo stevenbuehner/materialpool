@@ -10,7 +10,7 @@ use Throwable;
 class ProductionPreflightCommand extends Command {
 	protected $signature = 'production:preflight {--configuration-only : Skip filesystem, executable and database checks}';
 
-	protected $description = 'Validate the mandatory Materialpool production contract without displaying secrets';
+	protected $description = 'Validate the Materialpool production configuration without displaying secrets';
 
 	public function handle(): int {
 		$errors = $this->configurationErrors();
@@ -41,8 +41,9 @@ class ProductionPreflightCommand extends Command {
 		$this->require($errors, app()->environment('production'), 'APP_ENV muss production sein.');
 		$this->require($errors, config('app.debug') === FALSE, 'APP_DEBUG muss false sein.');
 		$this->require($errors, $this->isConfigured(config('app.key')), 'Der bestehende APP_KEY fehlt.');
-		$this->require($errors, str_starts_with((string)config('app.url'), 'https://'), 'APP_URL muss HTTPS verwenden.');
-		$this->require($errors, config('session.secure') === TRUE, 'SESSION_SECURE_COOKIE muss true sein.');
+		$appUrl = (string)config('app.url');
+		$this->require($errors, filter_var($appUrl, FILTER_VALIDATE_URL) !== FALSE && in_array(parse_url($appUrl, PHP_URL_SCHEME), ['http', 'https'], TRUE), 'APP_URL muss eine gültige HTTP- oder HTTPS-URL sein.');
+		$this->require($errors, config('session.secure') === (parse_url($appUrl, PHP_URL_SCHEME) === 'https'), 'SESSION_SECURE_COOKIE muss zum APP_URL-Schema passen.');
 		$this->require($errors, config('queue.default') === 'database', 'QUEUE_CONNECTION muss database sein.');
 		$this->require($errors, (int)config('queue.connections.database.retry_after') > 120, 'QUEUE_RETRY_AFTER muss größer als 120 sein.');
 		$this->require($errors, config('database.default') === 'mysql', 'DB_CONNECTION muss mysql sein.');
@@ -59,46 +60,42 @@ class ProductionPreflightCommand extends Command {
 		);
 
 		$proxies = $this->proxyList(config('trustedproxy.proxies'));
-		$this->require($errors, $proxies !== [], 'TRUSTED_PROXIES muss explizite IP-Adressen oder CIDR-Netze enthalten.');
-
 		foreach ($proxies as $proxy) {
 			$this->require($errors, $this->isIpOrCidr($proxy), "Ungültiger TRUSTED_PROXIES-Eintrag: {$proxy}");
 		}
 
-		$this->require($errors, config('backup.backup.destination.disks') === ['backup', 'backup_s3'], 'Backups müssen lokal und auf backup_s3 geschrieben werden.');
-		$this->require($errors, config('backup.backup.encryption') === 'none', 'Backup-Archivverschlüsselung muss deaktiviert sein.');
-		$this->require($errors, config('backup.backup.password') === NULL, 'BACKUP_ARCHIVE_PASSWORD darf nicht gesetzt sein.');
+		if (config('backup.enabled') === TRUE) {
+			$this->require($errors, config('backup.backup.destination.disks') === ['backup', 'backup_s3'], 'Aktivierte Backups müssen lokal und auf backup_s3 geschrieben werden.');
+			$this->require($errors, config('backup.backup.encryption') === 'none', 'Backup-Archivverschlüsselung muss deaktiviert sein.');
+			$this->require($errors, config('backup.backup.password') === NULL, 'BACKUP_ARCHIVE_PASSWORD darf nicht gesetzt sein.');
 
-		$recipient = (string)config('backup.notifications.mail.to');
-		$this->require($errors, config('backup.notifications.mail.recipient_is_explicit') === TRUE, 'BACKUP_NOTIFICATION_EMAIL muss explizit gesetzt sein.');
-		$this->require(
-			$errors,
-			filter_var($recipient, FILTER_VALIDATE_EMAIL) !== FALSE
-			&& !str_ends_with($recipient, '@example.com')
-			&& !str_ends_with($recipient, '.invalid'),
-			'BACKUP_NOTIFICATION_EMAIL muss eine reale Empfängeradresse sein.'
-		);
+			$recipient = (string)config('backup.notifications.mail.to');
+			$this->require($errors, config('backup.notifications.mail.recipient_is_explicit') === TRUE, 'BACKUP_NOTIFICATION_EMAIL muss explizit gesetzt sein.');
+			$this->require($errors, filter_var($recipient, FILTER_VALIDATE_EMAIL) !== FALSE && !str_ends_with($recipient, '@example.com') && !str_ends_with($recipient, '.invalid'), 'BACKUP_NOTIFICATION_EMAIL muss eine gültige Empfängeradresse sein.');
 
-		$this->require($errors, config('mail.default') === 'smtp', 'MAIL_MAILER muss smtp sein.');
-
-		foreach ([
-			         'mail.mailers.smtp.host'               => 'MAIL_HOST',
-			         'mail.mailers.smtp.username'           => 'MAIL_USERNAME',
-			         'mail.mailers.smtp.password'           => 'MAIL_PASSWORD',
-			         'filesystems.disks.backup_s3.key'      => 'BACKUP_S3_KEY',
-			         'filesystems.disks.backup_s3.secret'   => 'BACKUP_S3_SECRET',
-			         'filesystems.disks.backup_s3.region'   => 'BACKUP_S3_REGION',
-			         'filesystems.disks.backup_s3.bucket'   => 'BACKUP_S3_BUCKET',
-			         'filesystems.disks.backup_s3.endpoint' => 'BACKUP_S3_ENDPOINT',
-		         ] as $configKey => $environmentKey) {
-			$this->require($errors, $this->isConfigured(config($configKey)), "{$environmentKey} fehlt.");
+			foreach ([
+				         'filesystems.disks.backup_s3.key' => 'BACKUP_S3_KEY',
+				         'filesystems.disks.backup_s3.secret' => 'BACKUP_S3_SECRET',
+				         'filesystems.disks.backup_s3.region' => 'BACKUP_S3_REGION',
+				         'filesystems.disks.backup_s3.bucket' => 'BACKUP_S3_BUCKET',
+				         'filesystems.disks.backup_s3.endpoint' => 'BACKUP_S3_ENDPOINT',
+			         ] as $configKey => $environmentKey) {
+				$this->require($errors, $this->isConfigured(config($configKey)), "{$environmentKey} fehlt.");
+			}
+			$this->require($errors, str_starts_with((string)config('filesystems.disks.backup_s3.endpoint'), 'https://'), 'BACKUP_S3_ENDPOINT muss HTTPS verwenden.');
 		}
 
-		$this->require(
-			$errors,
-			str_starts_with((string)config('filesystems.disks.backup_s3.endpoint'), 'https://'),
-			'BACKUP_S3_ENDPOINT muss HTTPS verwenden.'
-		);
+		if (config('mail.configured') === TRUE) {
+			$this->require($errors, config('mail.default') === 'smtp', 'MAIL_MAILER muss smtp sein, wenn E-Mail aktiviert ist.');
+			foreach ([
+				         'mail.mailers.smtp.host' => 'MAIL_HOST', 'mail.mailers.smtp.username' => 'MAIL_USERNAME',
+				         'mail.mailers.smtp.password' => 'MAIL_PASSWORD', 'mail.from.address' => 'MAIL_FROM_ADDRESS',
+			         ] as $configKey => $environmentKey) {
+				$this->require($errors, $this->isConfigured(config($configKey)), "{$environmentKey} fehlt.");
+			}
+		} else {
+			$this->require($errors, config('mail.default') === 'log', 'Nicht eingerichteter Mailversand muss den log-Mailer verwenden.');
+		}
 
 		return $errors;
 	}

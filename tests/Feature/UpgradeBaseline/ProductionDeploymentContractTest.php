@@ -88,6 +88,24 @@ class ProductionDeploymentContractTest extends TestCase
         ));
     }
 
+    public function test_scheduled_backup_tasks_are_skipped_when_backup_is_disabled(): void
+    {
+        $schedule = new Schedule();
+        $method = new ReflectionMethod(Kernel::class, 'schedule');
+        $method->setAccessible(true);
+        $method->invoke(resolve(Kernel::class), $schedule);
+        $backupEvent = collect($schedule->events())->first(
+            fn ($event): bool => str_contains((string)$event->command, 'backup:run')
+        );
+
+        $this->assertNotNull($backupEvent);
+        config(['backup.enabled' => false]);
+        $this->assertFalse($backupEvent->filtersPass($this->app));
+
+        config(['backup.enabled' => true]);
+        $this->assertTrue($backupEvent->filtersPass($this->app));
+    }
+
     public function test_production_backup_targets_are_local_and_unencrypted_offsite(): void
     {
         $this->assertSame(['backup', 'backup_s3'], config('backup.backup.destination.disks'));
@@ -122,9 +140,12 @@ class ProductionDeploymentContractTest extends TestCase
             'database.connections.mysql.host' => '127.0.0.1',
             'database.connections.mysql.database' => 'materialpool',
             'trustedproxy.proxies' => '10.20.0.0/16,2001:db8::/48',
+            'backup.enabled' => true,
+            'backup.backup.destination.disks' => ['backup', 'backup_s3'],
             'backup.notifications.mail.to' => 'backup@pool.example.test',
             'backup.notifications.mail.recipient_is_explicit' => true,
             'mail.default' => 'smtp',
+            'mail.configured' => true,
             'mail.mailers.smtp.host' => 'smtp.example.test',
             'mail.mailers.smtp.username' => 'test-user',
             'mail.mailers.smtp.password' => 'test-password',
@@ -140,6 +161,30 @@ class ProductionDeploymentContractTest extends TestCase
         $this->assertSame(0, $exitCode, Artisan::output());
         $this->assertStringNotContainsString('test-secret', Artisan::output());
         $this->assertStringNotContainsString('test-password', Artisan::output());
+    }
+
+    public function test_production_preflight_allows_optional_services_and_direct_http_setup(): void
+    {
+        $this->app->detectEnvironment(fn (): string => 'production');
+        config([
+            'app.debug' => false,
+            'app.key' => 'base64:dGVzdC1vbmx5LWFwcGxpY2F0aW9uLWtleQ==',
+            'app.url' => 'http://192.0.2.20',
+            'session.secure' => false,
+            'queue.default' => 'database',
+            'queue.connections.database.retry_after' => 150,
+            'database.default' => 'mysql',
+            'database.connections.mysql.host' => '127.0.0.1',
+            'database.connections.mysql.database' => 'materialpool',
+            'trustedproxy.proxies' => null,
+            'backup.enabled' => false,
+            'mail.configured' => false,
+            'mail.default' => 'log',
+        ]);
+
+        $exitCode = Artisan::call('production:preflight', ['--configuration-only' => true]);
+
+        $this->assertSame(0, $exitCode, Artisan::output());
     }
 
     public function test_production_operations_assets_are_versioned(): void

@@ -28,11 +28,14 @@ class Kernel extends ConsoleKernel {
 
 		// Bereinigung, Backup und Monitoring laufen im regulären Ablauf zeitversetzt.
 		$schedule->command(CleanupCommand::class)
+			->when(fn (): bool => (bool)config('backup.enabled'))
 			->dailyAt('00:30');
 		$schedule->command(BackupCommand::class, [])
+			->when(fn (): bool => (bool)config('backup.enabled'))
 			->dailyAt('01:30')
 			->runInBackground();
 		$schedule->command(MonitorCommand::class)
+			->when(fn (): bool => (bool)config('backup.enabled'))
 			->dailyAt('03:00');
 
 	}

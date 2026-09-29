@@ -78,7 +78,7 @@ bash -n ops/production/*.sh
 ./vendor/bin/sail artisan production:preflight --configuration-only
 ```
 
-Der letzte Befehl muss mit der lokalen Testkonfiguration bewusst fehlschlagen; erfolgreich sein darf er erst mit vollständigen Produktionswerten. Auf einer produktionsnahen Zielplattform folgen `production:preflight` ohne Ausnahme, `nginx -t`, `php-fpm8.4 -t`, Supervisor-/Cron-/systemd-/Rechte-/Firewall-Prüfung sowie der S3-Download-/Restore-Test bei verifizierten restriktiven Zugriffen auf beide Backup-Ziele.
+Der letzte Befehl muss mit der lokalen Testkonfiguration bewusst fehlschlagen. Er darf mit vollständigen Kernwerten und konsistenten, aktivierten Integrationen erfolgreich sein; ausgelassene optionale Integrationen blockiert er absichtlich nicht. Vor öffentlicher Produktionsfreigabe müssen SMTP und S3 trotzdem eingerichtet und getestet sein. Auf einer produktionsnahen Zielplattform folgen `production:preflight` ohne Ausnahme, `nginx -t`, `php-fpm8.4 -t`, systemd-/Rechte-/Firewall-Prüfung sowie der S3-Download-/Restore-Test bei verifizierten restriktiven Zugriffen auf beide Backup-Ziele.
 
 ## Laravel-13-Referenzgates
 

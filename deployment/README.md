@@ -13,6 +13,8 @@ Die [Neuinstallation](docs/installation.md) startet über einen einzigen Skript-
 | Dauerhafte Daten | `/srv/materialpool/shared/.env`, `storage`, `public-uploads` |
 | Erster Admin | interaktiv nach den Fresh-Migrationen über `users:manage create --first-admin` |
 | Deployment-Backups | `/srv/materialpool/shared/backups` |
+| SMTP einrichten | im LXC als root `php /srv/materialpool/current/artisan mail:configure` |
+| Backup einrichten | im LXC als root `php /srv/materialpool/current/artisan backup:configure` |
 | Update | im LXC `update` |
 | Queue | `materialpool-queue.service`, `default,resource-previews-low` |
 | Scheduler | `materialpool-schedule.timer`, jede Minute |

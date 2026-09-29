@@ -19,7 +19,7 @@ Für eine **neue** Installation den folgenden Befehl in der **Proxmox-VE-Shell**
 bash -c "$(curl -fsSL https://raw.githubusercontent.com/stevenbuehner/materialpool/master/ct/materialpool.sh)"
 ```
 
-Containerwerte können wie bei Community Scripts vorangestellt werden, zum Beispiel `var_cpu=4 var_ram=4096 var_disk=32 var_ctid=123`. Vor dem Start die [Installationsanleitung mit Voraussetzungen und Sicherheitsgrenzen](deployment/docs/installation.md) lesen. Bestehende Daten benötigen einen gesondert geprüften Restore; der Befehl ist für frische Installationen bestimmt.
+Containerwerte können wie bei Community Scripts vorangestellt werden, zum Beispiel `var_cpu=4 var_ram=4096 var_disk=32 var_ctid=123`. Vor dem Start die [Installationsanleitung mit Voraussetzungen und Sicherheitsgrenzen](deployment/docs/installation.md) lesen. Sie beschreibt auch die optionale SMTP- und Backup-Konfiguration. Bestehende Daten benötigen einen gesondert geprüften Restore; der Befehl ist für frische Installationen bestimmt.
 
 ## Weitere Dokumentation
 
