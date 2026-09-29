@@ -2,17 +2,21 @@
 
 ## Vorbedingungen
 
-Ein neuer, unprivilegierter Debian-13-LXC auf Proxmox VE 9 wird über das [Materialpool-Installationsskript](../../ct/materialpool.sh) (`ct/materialpool.sh`) erstellt. Das Community-Core-System lädt das [Skript für die Einrichtung im LXC](../../install/materialpool-install.sh) (`install/materialpool-install.sh`) aus dem Skriptrepository. Das [Materialpool-Repository](https://github.com/stevenbuehner/materialpool) liegt unter `stevenbuehner/materialpool`; die Sichtbarkeit und der Default-Branch sind lokal nicht nachweisbar. Der Administrator kann den Skript-Checkout auf dem Proxmox-Host bereitstellen und `COMMUNITY_SCRIPTS_ROOT` auf das Hauptverzeichnis dieses Checkouts setzen. Bei einem öffentlich erreichbaren Branch kann alternativ `COMMUNITY_SCRIPTS_URL` auf dessen Raw-URL gesetzt werden. Ein privates Raw-Skriptrepository unterstützt der Community-Core-Resolver laut aktueller Dokumentation nicht; dafür bleibt ein lokaler Checkout auf dem Proxmox-Host nötig. Im Laravel-LXC wird kein Git installiert.
+Ein neuer, unprivilegierter Debian-13-LXC auf Proxmox VE 9 wird über das [Materialpool-Startskript](../../ct/materialpool.sh) erstellt. Es setzt die Skriptquelle für den Community-Core auf den öffentlichen `master`-Branch des [Materialpool-Repositories](https://github.com/stevenbuehner/materialpool). Der Core lädt anschließend das [Installationsskript für den LXC](../../install/materialpool-install.sh). Auf dem Proxmox-Host und im LXC ist kein Repository-Klon erforderlich; im Laravel-LXC wird kein Git installiert. Das Installationsskript lädt ein versioniertes GitHub-Release-Archiv samt SHA-256-Datei. Anwendungscode und gebaute Frontend-Dateien stammen aus diesem Archiv; PHP-Abhängigkeiten installiert Composer nach `composer.lock`.
 
-Vor der Installation müssen reale Werte für HTTPS-Domain, Reverse-Proxy-IP/CIDR, SMTP, S3-Offsite-Backup und gegebenenfalls privaten GitHub-Release-Zugriff bereitstehen. Diese Werte fragt der Installer interaktiv ab. Er akzeptiert für eingegebene Konfigurationswerte nur einfache druckbare Zeichen ohne Leerzeichen, `$`, `#` oder Anführungszeichen; abweichende Secrets müssen vorab sicher neu vergeben werden. Eingaben für Passwörter und Tokens erfolgen ohne Echo. Der GitHub-Repository-Name wird aus `composer.json` und dem Remote mit `stevenbuehner/materialpool` vorbelegt. Die Repository-Sichtbarkeit ließ sich aus dem lokalen Checkout nicht feststellen.
+Vor der Installation muss ein [stabiles versioniertes GitHub-Release](release.md) mit `materialpool-vX.Y.Z.tar.gz` und passender `.sha256`-Datei veröffentlicht sein. Außerdem müssen reale Werte für HTTPS-Domain, Reverse-Proxy-IP/CIDR, SMTP und S3-Offsite-Backup bereitstehen. Diese Werte fragt der Installer interaktiv ab. Er akzeptiert für eingegebene Konfigurationswerte nur einfache druckbare Zeichen ohne Leerzeichen, `$`, `#` oder Anführungszeichen; abweichende Secrets müssen vorab sicher neu vergeben werden. Eingaben für Passwörter und Tokens erfolgen ohne Echo. Das Repository `stevenbuehner/materialpool` ist vorbelegt. Für ein künftig privates Repository reicht der öffentliche Ein-Link-Einstieg nicht aus und muss neu geplant werden.
 
 1. Zuerst den [Qdrant-LXC](qdrant.md) installieren und absichern, falls die Kontextsuche genutzt werden soll.
-2. Auf dem Proxmox-Host den [Materialpool-Checkout](https://github.com/stevenbuehner/materialpool) bereitstellen und im Hauptverzeichnis `COMMUNITY_SCRIPTS_ROOT="$PWD" bash ct/materialpool.sh` ausführen. Der kopierbare Installationspfad innerhalb des Checkouts lautet `ct/materialpool.sh`. Default oder Advanced Setup, Container-ID, Storage, Netzwerk und Ressourcen wählen. Default: 2 CPU, 3072 MiB RAM, 24 GiB Disk, Debian 13, amd64, unprivilegiert.
+2. In der Proxmox-VE-Shell den folgenden Befehl ausführen. Der [Skript-Link](https://github.com/stevenbuehner/materialpool/blob/master/ct/materialpool.sh) verweist auf `ct/materialpool.sh` im öffentlichen `master`-Branch. Default oder Advanced Setup, Container-ID, Storage, Netzwerk und Ressourcen wählen. Default: 2 CPU, 3072 MiB RAM, 24 GiB Disk, Debian 13, amd64, unprivilegiert.
 
    ```bash
-   git clone https://github.com/stevenbuehner/materialpool.git
-   cd materialpool
-   COMMUNITY_SCRIPTS_ROOT="$PWD" bash ct/materialpool.sh
+   bash -c "$(curl -fsSL https://raw.githubusercontent.com/stevenbuehner/materialpool/master/ct/materialpool.sh)"
+   ```
+
+   Optional können Containerwerte vorangestellt werden; `var_ram` ist in MiB und `var_disk` in GiB. Die gewählte Container-ID muss frei sein:
+
+   ```bash
+   var_cpu=4 var_ram=4096 var_disk=32 var_ctid=123 bash -c "$(curl -fsSL https://raw.githubusercontent.com/stevenbuehner/materialpool/master/ct/materialpool.sh)"
    ```
 
 3. Die abgefragten Produktionswerte eingeben. Der Installer nutzt Community-Helper für PHP, Composer, MariaDB, Datenbank und Nginx, lädt das neueste stabile Release samt SHA256, installiert systemd-Units und führt den Release-Updater aus. Dieser führt `php artisan migrate --force` aus. Anschließend Name, E-Mail und ein Passwort mit mindestens zwölf Zeichen für den ersten aktiven Global-Admin interaktiv eingeben. Das Passwort wird verdeckt abgefragt und erscheint nicht als Befehlsargument.

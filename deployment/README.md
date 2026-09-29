@@ -2,6 +2,8 @@
 
 Lokale Entwicklung verwendet Laravel Sail. GitHub Actions prüft PHP und JavaScript, baut Vite mit Node 24 und veröffentlicht bei einem SemVer-Tag ein geprüftes GitHub Release. Ein Debian-13-LXC betreibt Nginx, PHP-FPM 8.4, MariaDB, Composer, Laravel, einen systemd-Queue-Worker und einen systemd-Scheduler-Timer. Qdrant läuft in einem eigenen nativen LXC. Im Laravel-LXC werden weder Docker noch Node noch Git für Deployments benötigt.
 
+Die [Neuinstallation](docs/installation.md) startet über einen einzigen Skript-Link in der Proxmox-VE-Shell. Ein Repository-Klon ist weder auf dem Host noch im LXC nötig. Anwendung und Updater werden aus einem versionierten, prüfsummengeschützten Release-Archiv installiert; `update` lädt spätere Release-Archive nach Veröffentlichung eines neuen Tags.
+
 | Bereich | Wert |
 | --- | --- |
 | Web | TCP 80, nur vom TLS-Reverse-Proxy erreichbar |

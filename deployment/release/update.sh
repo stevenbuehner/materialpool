@@ -18,8 +18,16 @@ if [[ -n "${TOKEN_FILE:-}" ]]; then
   token_args=(-H "Authorization: Bearer $(<"$TOKEN_FILE")")
 fi
 
+archive_override=""
 case "${1:-update}" in
-  update) ;;
+  update)
+    if [[ $# -eq 3 && "$2" == --archive ]]; then
+      archive_override="$3"
+      [[ ! -L "$base/current" ]] || { echo "Ein lokales Archiv ist nur bei der Erstinstallation zulässig." >&2; exit 64; }
+      [[ -f "$archive_override" && -f "$archive_override.sha256" ]] || { echo "Installationsarchiv oder Prüfsumme fehlt." >&2; exit 64; }
+    elif [[ $# -ne 0 && $# -ne 1 ]]; then
+      exit 64
+    fi ;;
   rollback)
     # Der Rollback wechselt nur den Code; eine bereits migrierte Datenbank bleibt bestehen.
     [[ $# -eq 2 && "$2" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ && -d "$base/releases/$2" ]] || exit 64
@@ -41,6 +49,7 @@ esac
 tmp="$(mktemp -d)"
 stage=""
 prepared_release=""
+updater_next=""
 critical=0
 switched=0
 cleanup() {
@@ -60,6 +69,7 @@ cleanup() {
       fi
     fi
   fi
+  [[ -z "$updater_next" ]] || rm -f -- "$updater_next"
   [[ -z "$stage" || ! -d "$stage" ]] || rm -rf -- "$stage"
   if ((status != 0)) && [[ -n "$prepared_release" && -d "$prepared_release" ]]; then
     active_release="$(readlink -f "$base/current" 2>/dev/null || true)"
@@ -70,11 +80,20 @@ cleanup() {
 trap cleanup EXIT
 
 # Download und Prüfung erfolgen vollständig vor dem Wartungsmodus.
-api="https://api.github.com/repos/$REPOSITORY/releases/latest"
-curl -fsSL --retry 3 -H 'Accept: application/vnd.github+json' "${token_args[@]}" "$api" -o "$tmp/latest.json"
-version="$(jq -r '.tag_name // empty' "$tmp/latest.json")"
-[[ "$version" =~ ^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]] || { echo "Kein stabiles SemVer-Release." >&2; exit 1; }
-jq -e '.draft == false and .prerelease == false' "$tmp/latest.json" >/dev/null
+if [[ -n "$archive_override" ]]; then
+  artifact="$(basename "$archive_override")"
+  [[ "$artifact" =~ ^materialpool-(v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*))\.tar\.gz$ ]] || { echo "Ungültiger Archivname." >&2; exit 64; }
+  version="${BASH_REMATCH[1]}"
+  cp -- "$archive_override" "$tmp/$artifact"
+  cp -- "$archive_override.sha256" "$tmp/$artifact.sha256"
+else
+  api="https://api.github.com/repos/$REPOSITORY/releases/latest"
+  curl -fsSL --retry 3 -H 'Accept: application/vnd.github+json' "${token_args[@]}" "$api" -o "$tmp/latest.json"
+  version="$(jq -r '.tag_name // empty' "$tmp/latest.json")"
+  [[ "$version" =~ ^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]] || { echo "Kein stabiles SemVer-Release." >&2; exit 1; }
+  jq -e '.draft == false and .prerelease == false' "$tmp/latest.json" >/dev/null
+  artifact="materialpool-$version.tar.gz"
+fi
 installed=""
 if [[ -f "$base/current/release.json" ]]; then
   installed="$(jq -r '.version' "$base/current/release.json")"
@@ -84,13 +103,14 @@ if [[ "$version" == "$installed" ]]; then
   exit 0
 fi
 [[ ! -e "$base/releases/$version" ]] || { echo "Release-Verzeichnis existiert bereits: $version" >&2; exit 1; }
-artifact="materialpool-$version.tar.gz"
-for name in "$artifact" "$artifact.sha256"; do
-  asset_id="$(jq -r --arg name "$name" '.assets[] | select(.name == $name) | .id' "$tmp/latest.json")"
-  [[ "$asset_id" =~ ^[0-9]+$ ]] || { echo "Release-Asset fehlt: $name" >&2; exit 1; }
-  curl -fsSL --retry 3 -H 'Accept: application/octet-stream' "${token_args[@]}" \
-    "https://api.github.com/repos/$REPOSITORY/releases/assets/$asset_id" -o "$tmp/$name"
-done
+if [[ -z "$archive_override" ]]; then
+  for name in "$artifact" "$artifact.sha256"; do
+    asset_id="$(jq -r --arg name "$name" '.assets[] | select(.name == $name) | .id' "$tmp/latest.json")"
+    [[ "$asset_id" =~ ^[0-9]+$ ]] || { echo "Release-Asset fehlt: $name" >&2; exit 1; }
+    curl -fsSL --retry 3 -H 'Accept: application/octet-stream' "${token_args[@]}" \
+      "https://api.github.com/repos/$REPOSITORY/releases/assets/$asset_id" -o "$tmp/$name"
+  done
+fi
 expected="$(awk -v name="$artifact" 'NF == 2 && $2 == name { print $1 }' "$tmp/$artifact.sha256")"
 [[ "$expected" =~ ^[0-9a-f]{64}$ && "$(wc -l < "$tmp/$artifact.sha256")" -eq 1 ]] || { echo "Ungültige Prüfsummendatei" >&2; exit 1; }
 [[ "$(sha256sum "$tmp/$artifact" | cut -d' ' -f1)" == "$expected" ]] || { echo "SHA256 stimmt nicht" >&2; exit 1; }
@@ -107,6 +127,8 @@ tar -xzf "$tmp/$artifact" -C "$stage" --no-same-owner
 [[ "$(jq -r '.version' "$stage/release.json")" == "$version" ]] || exit 1
 [[ "$(jq -r '.commit' "$stage/release.json")" =~ ^[0-9a-f]{40}$ ]] || exit 1
 [[ ! -e "$stage/.env" && ! -e "$stage/node_modules" && ! -e "$stage/vendor" ]] || exit 1
+[[ -f "$stage/deployment/release/update.sh" ]] || { echo "Updater fehlt im Release." >&2; exit 1; }
+bash -n "$stage/deployment/release/update.sh"
 # Persistente Konfiguration, Uploads und Storage bleiben außerhalb jedes Releases.
 rm -rf -- "$stage/storage"
 ln -s "$base/shared/.env" "$stage/.env"
@@ -172,6 +194,10 @@ for service in materialpool-queue.service materialpool-schedule.timer php8.4-fpm
 done
 runuser -u www-data -- php "$base/current/artisan" up
 curl -fsS --max-time 10 http://127.0.0.1/up | grep -qx OK
+updater_next="$(mktemp /usr/local/sbin/.materialpool-update.XXXXXX)"
+install -m 0750 -o root -g root "$release/deployment/release/update.sh" "$updater_next"
+mv -f -- "$updater_next" /usr/local/sbin/materialpool-update
+updater_next=""
 critical=0
 echo "Materialpool $version aktiviert; Backup: $backup"
 # Nur Deployment-Backups kürzen. Laravel-/S3- und Proxmox-Backups bleiben unberührt.

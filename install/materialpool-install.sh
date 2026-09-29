@@ -145,11 +145,12 @@ chown root:www-data /srv/materialpool/shared/.env
 chmod 0640 /srv/materialpool/shared/.env
 unset app_key mail_password s3_secret qdrant_api_key MARIADB_DB_PASS
 
-version="$(get_latest_github_release "$repository" false)"
-[[ "$version" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]] || exit 1
 tmp="$(mktemp -d)"
 trap 'rm -rf -- "$tmp"' EXIT
 github_api_call "https://api.github.com/repos/$repository/releases/latest" "$tmp/release.json"
+version="$(jq -r '.tag_name // empty' "$tmp/release.json")"
+[[ "$version" =~ ^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]] || { msg_error "Kein stabiles SemVer-Release."; exit 1; }
+jq -e '.draft == false and .prerelease == false' "$tmp/release.json" >/dev/null
 artifact="materialpool-$version.tar.gz"
 token_args=()
 [[ -z "${GITHUB_TOKEN:-}" ]] || token_args=(-H "Authorization: Bearer $GITHUB_TOKEN")
@@ -162,8 +163,9 @@ done
 expected="$(awk -v name="$artifact" 'NF == 2 && $2 == name { print $1 }' "$tmp/$artifact.sha256")"
 [[ "$expected" =~ ^[0-9a-f]{64}$ && "$(wc -l < "$tmp/$artifact.sha256")" -eq 1 ]] || exit 1
 [[ "$(sha256sum "$tmp/$artifact" | cut -d' ' -f1)" == "$expected" ]] || exit 1
-tar -xOf "$tmp/$artifact" ./deployment/release/update.sh > /usr/local/sbin/materialpool-update
-chmod 0750 /usr/local/sbin/materialpool-update
+tar -xOf "$tmp/$artifact" ./deployment/release/update.sh > "$tmp/materialpool-update"
+bash -n "$tmp/materialpool-update"
+install -m 0750 "$tmp/materialpool-update" /usr/local/sbin/materialpool-update
 tar -xOf "$tmp/$artifact" ./deployment/nginx/materialpool.conf > /etc/nginx/sites-available/materialpool
 for unit in materialpool-queue.service materialpool-schedule.service materialpool-schedule.timer; do
   tar -xOf "$tmp/$artifact" "./deployment/systemd/$unit" > "/etc/systemd/system/$unit"
@@ -171,7 +173,7 @@ done
 systemctl daemon-reload
 nginx_enable_site materialpool
 unset GITHUB_TOKEN
-/usr/local/sbin/materialpool-update update
+/usr/local/sbin/materialpool-update update --archive "$tmp/$artifact"
 msg_info "Ersten Global-Admin anlegen"
 if ! runuser -u www-data -- env -u APP_ENV php /srv/materialpool/current/artisan users:manage create --first-admin </dev/tty; then
   msg_error "Anwendung installiert, aber der erste Global-Admin fehlt. Im LXC den dokumentierten users:manage-Befehl erneut ausführen."

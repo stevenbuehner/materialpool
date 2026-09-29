@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# Beim Start per curl kennt der Community-Core das Quellrepository nicht.
+COMMUNITY_SCRIPTS_URL="${COMMUNITY_SCRIPTS_URL:-https://raw.githubusercontent.com/stevenbuehner/materialpool/master}"
+export COMMUNITY_SCRIPTS_URL
 _cs_boot="${COMMUNITY_SCRIPTS_CORE_DIR:-$(dirname "${BASH_SOURCE[0]}")/../../core}/core/build.func"
 # shellcheck source=/dev/null
 source "$_cs_boot" 2>/dev/null || source <(curl -fsSL "${COMMUNITY_SCRIPTS_CORE_URL:-https://raw.githubusercontent.com/community-scripts/core/main}/core/build.func")
