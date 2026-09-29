@@ -33,10 +33,10 @@ final class ContextSearchEvaluationDatasetCurationTest extends TestCase
         $material = Material::factory()->create(['created_by' => $owner->id, 'modified_by' => $owner->id, 'is_public' => true]);
         $pdfs = collect([300, 1, null])->map(function (?int $pages) use ($owner, $material): PdfFile {
             $pdf = PdfFile::factory()->create(['created_by' => $owner->id, 'is_public' => true]);
-            if ($pages !== null) {
-                $pdf->page_count = $pages;
-                $pdf->save();
-            }
+            // The factory's PDF fixture is inspected when the resource is created,
+            // so explicitly clear that detected value for the unknown-page case.
+            $pdf->page_count = $pages;
+            $pdf->save();
             $material->resources()->attach($pdf->id);
             return $pdf;
         });

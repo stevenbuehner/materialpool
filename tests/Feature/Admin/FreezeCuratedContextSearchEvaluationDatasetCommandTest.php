@@ -104,11 +104,11 @@ final class FreezeCuratedContextSearchEvaluationDatasetCommandTest extends TestC
         $choice = $ready->id.' (calibration)';
         $this->artisan('context-search:dataset:freeze-curated')
             ->expectsTable(
-                ['UUID', 'Zweck', 'Phase', 'Status', 'Materialien', 'Ressourcen', 'Bewertung'],
+                ['UUID', 'Zweck', 'Phase', 'Status', 'Materialien', 'Ressourcen', 'PDF-Seiten', 'Bewertung'],
                 [
-                    [$incomplete->id, 'acceptance', 'offen', 'draft', '0/170', '0/250', 'offen: 170 Materialien, 250 Ressourcen, pdf: 30, text: 170, public: 80, private: 80, Auswahl leer, Status draft'],
-                    [$ready->id, 'calibration', 'offen', 'ready', '1/1', '1/1', 'einfrierbar'],
-                    [$closed->id, 'ocr', 'geschlossen', 'frozen', '0/75', '0/100', 'bereits eingefroren'],
+                    [$incomplete->id, 'acceptance', 'offen', 'draft', '0/170', '0/250', '—', 'offen: 170 Materialien, 250 Ressourcen, pdf: 30, text: 170, public: 80, private: 80, Auswahl leer, Status draft'],
+                    [$ready->id, 'calibration', 'offen', 'ready', '1/1', '1/1', '—', 'einfrierbar'],
+                    [$closed->id, 'ocr', 'geschlossen', 'frozen', '0/75', '0/100', '0/300', 'bereits eingefroren'],
                 ],
             )
             ->expectsChoice('Welchen Datensatz einfrieren?', $choice, [$choice, 'Abbrechen'])
