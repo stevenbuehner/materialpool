@@ -743,7 +743,7 @@ Nützliche Entwicklungsbefehle:
 
 ### Tests und isolierte Datenbank
 
-Die verbindliche Backend-Referenz ist der Sail-PHP-8.4-Container. Vor destruktiven Testbefehlen muss die aufgelöste Verbindung ausdrücklich geprüft werden:
+Die verbindliche Backend-Referenz ist der Sail-PHP-8.4-Container. Die GitHub-PHP-Jobs legen `storage/framework/views` in jedem frischen Checkout vor den Tests an. Laravel benötigt diesen Pfad zum Kompilieren von Blade-Views; das leere Verzeichnis ist nicht versioniert. Vor destruktiven Testbefehlen muss die aufgelöste Verbindung ausdrücklich geprüft werden:
 
 ```sh
 ./vendor/bin/sail exec \
