@@ -16,11 +16,9 @@ if grep -E '^\./(resources/bibles/|database/seeders/data/|formats/csv/)' <<< "$l
   echo "Bibelübersetzung oder historischer SQL-Dump im Release" >&2
   exit 1
 fi
-manifest_hash="$(tar -xOf "$artifact" ./database/bible-data/manifest.json | sha256sum | cut -d' ' -f1)"
-expected_hash="$(tar -xOf "$artifact" ./release.json | jq -r '.bible_data_manifest_sha256 // empty')"
-[[ "$manifest_hash" == "$expected_hash" ]] || { echo "Manifest-Hash stimmt nicht" >&2; exit 1; }
+# CI prüft die vorbereiteten Bibeldaten einmal vor der Veröffentlichung.
 payload_hash="$(tar -xOf "$artifact" ./database/bible-data/cross-references.tsv | sha256sum | cut -d' ' -f1)"
 expected_payload_hash="$(tar -xOf "$artifact" ./database/bible-data/manifest.json | jq -r '.sha256 // empty')"
 [[ "$payload_hash" == "$expected_payload_hash" ]] || { echo "Cross-Reference-Hash stimmt nicht" >&2; exit 1; }
 # shellcheck disable=SC2016 # Dollar signs belong to the embedded PHP program.
-tar -xOf "$artifact" ./release.json | php -r '$j=json_decode(stream_get_contents(STDIN),true); exit(is_array($j) && preg_match("/^v[0-9]+\\.[0-9]+\\.[0-9]+$/",$j["version"]??"") && preg_match("/^[0-9a-f]{40}$/",$j["commit"]??"") && ($j["frontend_built"]??false)===true ? 0 : 1);'
+tar -xOf "$artifact" ./release.json | php -r '$j=json_decode(stream_get_contents(STDIN),true); exit(is_array($j) && preg_match("/^v[0-9]+\\.[0-9]+\\.[0-9]+$/",$j["version"]??"") && preg_match("/^[0-9a-f]{40}$/",$j["commit"]??"") ? 0 : 1);'

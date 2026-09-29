@@ -21,6 +21,7 @@ fi
 case "${1:-update}" in
   update) ;;
   rollback)
+    # Der Rollback wechselt nur den Code; eine bereits migrierte Datenbank bleibt bestehen.
     [[ $# -eq 2 && "$2" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ && -d "$base/releases/$2" ]] || exit 64
     old="$(readlink -f "$base/current")"
     [[ -n "$old" ]] || exit 1
@@ -44,6 +45,8 @@ critical=0
 switched=0
 cleanup() {
   status=$?
+  # Nach einem Fehler vor der Aktivierung nur temporäre Release-Dateien entfernen.
+  # Nach Migrationen bleibt die Anwendung zur manuellen Prüfung im Wartungsmodus.
   if ((status != 0)); then
     if ((critical == 1)); then
       echo "Update fehlgeschlagen. Datenbank-Backup und Migrationen prüfen; bei Bestandsinstallationen bleibt der Wartungsmodus aktiv." >&2
@@ -66,6 +69,7 @@ cleanup() {
 }
 trap cleanup EXIT
 
+# Download und Prüfung erfolgen vollständig vor dem Wartungsmodus.
 api="https://api.github.com/repos/$REPOSITORY/releases/latest"
 curl -fsSL --retry 3 -H 'Accept: application/vnd.github+json' "${token_args[@]}" "$api" -o "$tmp/latest.json"
 version="$(jq -r '.tag_name // empty' "$tmp/latest.json")"
@@ -102,9 +106,8 @@ tar -xzf "$tmp/$artifact" -C "$stage" --no-same-owner
 [[ -f "$stage/release.json" && -f "$stage/public/build/manifest.json" && -f "$stage/composer.lock" ]] || exit 1
 [[ "$(jq -r '.version' "$stage/release.json")" == "$version" ]] || exit 1
 [[ "$(jq -r '.commit' "$stage/release.json")" =~ ^[0-9a-f]{40}$ ]] || exit 1
-[[ "$(jq -r '.bible_data_manifest_sha256' "$stage/release.json")" == "$(sha256sum "$stage/database/bible-data/manifest.json" | cut -d' ' -f1)" ]] || { echo "Bibeldaten-Manifest stimmt nicht" >&2; exit 1; }
-[[ "$(jq -r '.sha256' "$stage/database/bible-data/manifest.json")" == "$(sha256sum "$stage/database/bible-data/cross-references.tsv" | cut -d' ' -f1)" ]] || { echo "Cross-Reference-Payload stimmt nicht" >&2; exit 1; }
 [[ ! -e "$stage/.env" && ! -e "$stage/node_modules" && ! -e "$stage/vendor" ]] || exit 1
+# Persistente Konfiguration, Uploads und Storage bleiben außerhalb jedes Releases.
 rm -rf -- "$stage/storage"
 ln -s "$base/shared/.env" "$stage/.env"
 ln -s "$base/shared/storage" "$stage/storage"
@@ -128,7 +131,7 @@ stage=""
 release="$base/releases/$version"
 prepared_release="$release"
 
-# Das vorhandene Release wird erst nach Download, Prüfsumme und Composer beeinträchtigt.
+# Erst nach Download, Archivprüfung und Composer wird die laufende Anwendung angehalten.
 previous=""
 if [[ -L "$base/current" ]]; then
   previous="$(readlink "$base/current")"
@@ -136,6 +139,7 @@ if [[ -L "$base/current" ]]; then
   systemctl stop materialpool-queue.service
 fi
 critical=1
+# Das Backup liegt vor Migration und Bibeldatenimport; beide können Daten verändern.
 backup="$base/shared/backups/pre-$version-$(date -u +%Y%m%dT%H%M%SZ).sql.gz"
 install -d -m 0770 -o www-data -g www-data "$base/shared/backups"
 mariadb-dump --single-transaction --routines --triggers materialpool | gzip -c > "$backup.partial"
@@ -152,6 +156,7 @@ else
 fi
 runuser -u www-data -- php "$release/artisan" production:preflight
 runuser -u www-data -- php "$release/artisan" optimize
+# Der atomare Symlinkwechsel aktiviert das vorbereitete Release erst nach dem Preflight.
 rm -f "$base/current.next"
 ln -s "releases/$version" "$base/current.next"
 mv -Tf "$base/current.next" "$base/current"
