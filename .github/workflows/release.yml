@@ -54,6 +54,7 @@ jobs:
       - run: npm install --global npm@11.19.0
       - run: npm ci --ignore-scripts
       - run: npm run test:ci
+      - run: npm run docs:check
       - run: npm run build
       - run: git diff --exit-code -- composer.lock package-lock.json
       - name: OpenBible-Cross-References für das Release aufbereiten
