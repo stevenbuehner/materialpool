@@ -22,15 +22,11 @@ if [[ -z "$app_url" ]]; then
   app_url="http://$system_ip"
 fi
 read -r -p 'TRUSTED_PROXIES (konkrete IP/CIDR): ' trusted_proxies </dev/tty
-read -r -p 'QDRANT_URL des getrennten LXC (leer wenn derzeit deaktiviert): ' qdrant_url </dev/tty
-qdrant_api_key=''
-if [[ -n "$qdrant_url" ]]; then read -r -s -p 'QDRANT_API_KEY: ' qdrant_api_key </dev/tty; echo; fi
-[[ -z "$qdrant_url" || -n "$qdrant_api_key" ]] || { msg_error "Qdrant benötigt einen API-Key."; exit 64; }
 [[ "$app_url" =~ ^https?://[^[:space:]]+$ ]] || {
   msg_error "APP_URL muss eine HTTP- oder HTTPS-URL ohne Leerzeichen sein."
   exit 64
 }
-for value in "$app_url" "$trusted_proxies" "$qdrant_url" "$qdrant_api_key"; do
+for value in "$app_url" "$trusted_proxies"; do
   [[ "$value" =~ ^[A-Za-z0-9._~!@%+=:/,-]*$ ]] || { msg_error "Ein Konfigurationswert enthält ein nicht unterstütztes Zeichen."; exit 64; }
 done
 
@@ -97,8 +93,10 @@ SESSION_DRIVER=file
 SESSION_SECURE_COOKIE=$([[ "$app_url" == https://* ]] && echo true || echo false)
 TRUSTED_PROXIES=$trusted_proxies
 CONTEXT_SEARCH_ENABLED=false
-QDRANT_URL=$qdrant_url
-QDRANT_API_KEY=$qdrant_api_key
+QDRANT_URL=
+QDRANT_API_KEY=
+CONTEXT_SEARCH_OLLAMA_SERVERS=
+CONTEXT_SEARCH_OLLAMA_API_KEYS=
 MAIL_CONFIGURED=false
 MAIL_MAILER=log
 MAIL_HOST=
@@ -122,7 +120,7 @@ BACKUP_S3_USE_PATH_STYLE_ENDPOINT=false
 EOF
 chown root:www-data /srv/materialpool/shared/.env
 chmod 0640 /srv/materialpool/shared/.env
-unset app_key qdrant_api_key MARIADB_DB_PASS
+unset app_key MARIADB_DB_PASS
 
 tmp="$(mktemp -d)"
 trap 'rm -rf -- "$tmp"' EXIT
@@ -150,6 +148,9 @@ done
 systemctl daemon-reload
 nginx_enable_site materialpool
 /usr/local/sbin/materialpool-update update --archive "$tmp/$artifact"
+if ! php /srv/materialpool/current/artisan context-search:configure </dev/tty; then
+  msg_info "Kontextsuche bleibt deaktiviert. Im LXC kann context-search:configure später erneut ausgeführt werden."
+fi
 php /srv/materialpool/current/artisan mail:configure </dev/tty
 php /srv/materialpool/current/artisan backup:configure </dev/tty
 msg_info "Ersten Global-Admin anlegen"

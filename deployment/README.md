@@ -15,6 +15,8 @@ Die [Neuinstallation](docs/installation.md) startet über einen einzigen Skript-
 | Deployment-Backups | `/srv/materialpool/shared/backups` |
 | SMTP einrichten | im LXC als root `php /srv/materialpool/current/artisan mail:configure` |
 | Backup einrichten | im LXC als root `php /srv/materialpool/current/artisan backup:configure` |
+| Qdrant einrichten | im LXC als root `php /srv/materialpool/current/artisan context-search:qdrant:configure` |
+| Kontextsuche einrichten | im LXC als root `php /srv/materialpool/current/artisan context-search:configure` |
 | Update | im LXC `update` |
 | Queue | `materialpool-queue.service`, `default,resource-previews-low` |
 | Scheduler | `materialpool-schedule.timer`, jede Minute |
