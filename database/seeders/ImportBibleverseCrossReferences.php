@@ -4,106 +4,93 @@ namespace Database\Seeders;
 
 use App\Models\BibleverseCrossReference;
 use Illuminate\Database\Seeder;
+use RuntimeException;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Output\ConsoleOutput;
 
-class ImportBibleverseCrossReferences extends Seeder {
+class ImportBibleverseCrossReferences extends Seeder
+{
+    protected function sourcePath(): string
+    {
+        return database_path('seeders/data/cross_references/cross_reference-mysql.sql');
+    }
 
-	/**
-	 * Run the database seeds.
-	 *
-	 * @return void
-	 */
-	public function run() {
+    public function run(): void
+    {
+        $filePath = $this->sourcePath();
 
-		// From: https://github.com/scrollmapper/bible_databases
-		$filePath = realpath(__DIR__ . '/../../resources/cross_references/cross_reference-mysql.sql');
+        if (!is_file($filePath) || !is_readable($filePath)) {
+            throw new RuntimeException('Cross-reference SQL file is missing or unreadable: '.$filePath);
+        }
 
-		$output = new ConsoleOutput();
-		$output->writeln('<info>Start importing cross references</info>');
+        $handle = fopen($filePath, 'r');
 
-		if (!file_exists($filePath)) {
-			$msg = 'Corss-Reference SQL-File does not exist at ' . $filePath;
-			$output->writeln('<error>$msg</error>');
+        if ($handle === false) {
+            throw new RuntimeException('Could not open cross-reference SQL file: '.$filePath);
+        }
 
-			throw new \Exception($msg);
-		}
+        $output = new ConsoleOutput();
+        $output->writeln('<info>Start importing cross references</info>');
 
-		$progressBar = new ProgressBar($output);
-		$progressBar->setFormat(' %current% [%bar%] %elapsed:6s% %memory:6s%');
-		$progressBar->minSecondsBetweenRedraws(0.5);
-		$progressBar->maxSecondsBetweenRedraws(2);
+        $progressBar = new ProgressBar($output);
+        $progressBar->setFormat(' %current% [%bar%] %elapsed:6s% %memory:6s%');
+        $progressBar->minSecondsBetweenRedraws(0.5);
+        $progressBar->maxSecondsBetweenRedraws(2);
 
-		$handle           = fopen($filePath, "r");
-		$skippedLines     = 0;
-		$continueSkipping = TRUE;
-		$totalImportLines = 0;
-		$batch            = [];
-		$batchSize        = 100;
+        $importing = false;
+        $batch = [];
+        $batchSize = 100;
 
-		if ($handle) {
+        try {
+            while (($line = fgets($handle)) !== false) {
+                if (!$importing) {
+                    if (!str_starts_with($line, 'INSERT INTO `cross_reference`')) {
+                        continue;
+                    }
 
-			$line = fgets($handle);
+                    // A rerun replaces the imported reference set.
+                    $countDropped = BibleverseCrossReference::query()->delete();
 
-			while ($line !== FALSE) {
+                    if ($countDropped > 0) {
+                        $output->writeln("<comment>$countDropped entries were deleted before import</comment>");
+                    }
 
-				if ($continueSkipping === TRUE) {
-					if (str_starts_with($line, 'INSERT INTO `cross_reference`')) {
-						$continueSkipping = FALSE;
+                    $importing = true;
+                    $progressBar->start();
+                    continue;
+                }
 
-						// Drop all entries
-						$countDropped = BibleverseCrossReference::query()->delete();
+                if (preg_match('~^\((?<source>\d+),\s*(?<relevance>\d+),\s*(?<target_from>\d+),\s*(?<target_to>\d+)\)[,;]\s*$~', $line, $match) === 1) {
+                    $batch[] = [
+                        'source' => $match['source'],
+                        'relevance' => $match['relevance'],
+                        'target_from' => $match['target_from'],
+                        'target_to' => $match['target_to'],
+                    ];
+                } elseif (str_starts_with(ltrim($line), '(')) {
+                    throw new RuntimeException('Invalid cross-reference row in SQL file.');
+                }
 
-						if ($countDropped > 0) {
-							$output->writeln("<comment>$countDropped entries where deleted before import</comment>");
-						}
+                if (count($batch) >= $batchSize) {
+                    BibleverseCrossReference::insert($batch);
+                    $progressBar->advance(count($batch));
+                    $batch = [];
+                }
+            }
 
-						$progressBar->start();
+            if (!$importing) {
+                throw new RuntimeException('Cross-reference INSERT statement was not found in SQL file.');
+            }
 
-					} else {
-						$skippedLines++;
-					}
+            if ($batch !== []) {
+                BibleverseCrossReference::insert($batch);
+                $progressBar->advance(count($batch));
+            }
+        } finally {
+            fclose($handle);
+        }
 
-				} else {
-
-					$totalImportLines++;
-
-					// (01001001, 10, 19104030, 00000000),
-					if (preg_match('~(?<source>\d+),\s*(?<relevance>\d+),\s*(?<target_from>\d+),\s*(?<target_to>\d+)\s*~', $line, $match) === 1) {
-
-						$batch[] = [
-							'source'      => $match['source'],
-							'relevance'   => $match['relevance'],
-							'target_from' => $match['target_from'],
-							'target_to'   => $match['target_to'],
-						];
-
-
-					}
-
-					// Create in one batch
-					if (count($batch) >= $batchSize) {
-						BibleverseCrossReference::insert(
-							$batch
-						);
-						$progressBar->advance(count($batch));
-						$batch = [];
-					}
-
-
-				}
-
-				$line = fgets($handle);
-
-			}
-
-			fclose($handle);
-
-			$progressBar->setProgress($totalImportLines);
-			$progressBar->finish();
-			$output->writeln('<info>Import finished</info>');
-
-		}
-	}
-
+        $progressBar->finish();
+        $output->writeln('<info>Import finished</info>');
+    }
 }

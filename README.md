@@ -761,6 +761,19 @@ Nur wenn die Ausgabe zweifelsfrei die dedizierte, entbehrliche Datenbank `testin
 
 `--env=testing` allein ist kein Isolationsnachweis, weil Laravel bei fehlender `.env.testing` auf andere Werte zurückfallen kann. Seed-Ausgaben mit Test-Client-Secrets dürfen nicht gespeichert oder weitergegeben werden.
 
+Die Migration für `bibleverses_cross_ref` erstellt nur die Tabelle. Der allgemeine `DatabaseSeeder` importiert keine Querverweise. In der zuvor verifizierten, entbehrlichen Testdatenbank lässt sich der Import bei Bedarf gezielt starten:
+
+```sh
+./vendor/bin/sail exec \
+  -e APP_ENV=testing \
+  -e DB_CONNECTION=mysql \
+  -e DB_HOST=mysql \
+  -e DB_DATABASE=testing \
+  laravel.test php artisan db:seed --class=ImportBibleverseCrossReferences --env=testing --force
+```
+
+Der gezielte Seeder ersetzt sämtliche vorhandenen Querverweise. Quelle, Feldzuordnung und Aktualisierung stehen unter [`database/seeders/data/cross_references/README.md`](database/seeders/data/cross_references/README.md). Für Produktionsdaten gilt weiterhin das Verbot von `db:seed` im [Produktionsvertrag](docs/ai/production-deployment-contract.md); ein produktiver Import benötigt einen gesondert geprüften Betriebsablauf.
+
 | Änderung | Mindestprüfung |
 | --- | --- |
 | PHP/Backend | PHP-Syntax und betroffene PHPUnit-Tests im Sail-Container. |

@@ -1,0 +1,5 @@
+# Bibel-Querverweise
+
+`cross_reference-mysql.sql` stammt aus [scrollmapper/bible_databases](https://github.com/scrollmapper/bible_databases) (SQL-Dump vom 9. Februar 2016). Der Seeder `ImportBibleverseCrossReferences` liest ausschließlich die `INSERT INTO cross_reference`-Zeilen. Er ordnet `vid` → `source`, `r` → `relevance`, `sv` → `target_from` und `ev` → `target_to` zu; führende Nullen werden als numerische Bibelstellen-IDs gespeichert. `ev = 00000000` bleibt `target_to = 0`.
+
+Die Migration `2022_02_08_211944_add_bible_cross_references.php` legt nur die Zieltabelle an. Der Seeder gehört nicht zum allgemeinen `DatabaseSeeder` und muss ausdrücklich gestartet werden. Ein erneuter Lauf löscht vor dem Import alle vorhandenen Einträge in `bibleverses_cross_ref`. Bei einer Aktualisierung zuerst den neuen SQL-Dump auf Format und Herkunft prüfen, diese Datei ersetzen und den gezielten Seed-Lauf nur in einer freigegebenen Umgebung nach Datenbanksicherung ausführen. Der Produktionsvertrag verbietet derzeit `db:seed`; für einen produktiven Lauf ist deshalb eine gesonderte Betriebsfreigabe erforderlich.

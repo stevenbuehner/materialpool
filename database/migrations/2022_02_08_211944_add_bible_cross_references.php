@@ -14,28 +14,21 @@ class AddBibleCrossReferences extends Migration {
 	 * @return void
 	 */
 	public function up() {
+		Schema::create(self::TABLE_NAME, function (Blueprint $table) {
 
-		// Nur erstellen, wenn sie noch nicht existiert - um abgebrochene Import-Seed Prozesse nicht nochmal neustarten zu müssen
-		if (!Schema::hasTable(self::TABLE_NAME)) {
-			Schema::create(self::TABLE_NAME, function (Blueprint $table) {
+			$table->increments('id');
 
-				$table->increments('id');
+			$table->integer('source')->unsigned()->nullable(FALSE);
+			$table->integer('relevance')->unsigned()->nullable(FALSE)->default(0);
+			$table->integer('target_from')->unsigned()->nullable(FALSE);
+			$table->integer('target_to')->unsigned()->nullable(FALSE);
 
-				$table->integer('source')->unsigned()->nullable(FALSE);
-				$table->integer('relevance')->unsigned()->nullable(FALSE)->default(0);
-				$table->integer('target_from')->unsigned()->nullable(FALSE);
-				$table->integer('target_to')->unsigned()->nullable(FALSE);
+			$table->unique(['source', 'target_from', 'target_to']);
+			$table->index('source');
+			$table->index('relevance');
+			$table->index(['source', 'relevance']);
 
-				$table->unique(['source', 'target_from', 'target_to']);
-				$table->index('source');
-				$table->index('relevance');
-				$table->index(['source', 'relevance']);
-
-			});
-		}
-
-		// Run Import Seeder
-		Artisan::call('db:seed', array('--class' => 'ImportBibleverseCrossReferences'));
+		});
 
 	}
 
