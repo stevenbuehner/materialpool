@@ -62,7 +62,7 @@
         </div>
       </aside>
       <div class="col-xl-9" v-if="run">
-        <section class="card mb-3"><div class="card-body d-flex justify-content-between flex-wrap gap-2"><div><h2 class="h5 mb-1">{{ run.title || run.id }}</h2><div class="text-muted small">{{ run.ocr_profile?.profile_id }} · {{ run.ocr_profile?.languages }} · {{ run.ocr_profile?.render_dpi }} dpi · PSM {{ run.ocr_profile?.page_segmentation_mode }} · {{ run.ocr_profile?.tesseract_version }}</div></div><button class="btn btn-outline-primary" @click="evaluate" :disabled="busy || run.processed_pages < run.total_pages">{{ $t('pool.ocr-calibration-evaluate') }}</button></div><div class="progress rounded-0" role="progressbar" :aria-valuenow="run.processed_pages" :aria-valuemax="run.total_pages"><div class="progress-bar" :style="{width: `${run.total_pages ? run.processed_pages / run.total_pages * 100 : 0}%`}"></div></div></section>
+        <section class="card mb-3"><div class="card-body d-flex justify-content-between flex-wrap gap-2"><div><h2 class="h5 mb-1">{{ run.title || run.id }}</h2><div class="text-muted small">{{ run.ocr_profile?.profile_id }} · {{ run.ocr_profile?.languages }} · {{ run.ocr_profile?.render_dpi }} dpi · PSM {{ run.ocr_profile?.page_segmentation_mode }} · {{ run.ocr_profile?.tesseract_version }}</div></div><button class="btn btn-outline-primary" @click="showEvaluateCommand" :disabled="busy || run.processed_pages < run.total_pages || run.status === 'approved'">{{ $t('pool.ocr-calibration-evaluate') }}</button></div><div class="progress rounded-0" role="progressbar" :aria-valuenow="run.processed_pages" :aria-valuemax="run.total_pages"><div class="progress-bar" :style="{width: `${run.total_pages ? run.processed_pages / run.total_pages * 100 : 0}%`}"></div></div></section>
         <section v-if="run.sweep_results" class="card mb-3"><div class="card-body"><h2 class="h5">{{ $t('pool.ocr-calibration-results') }}</h2><p>{{ $t('pool.ocr-calibration-recommendation', {threshold: run.sweep_results.recommended_threshold ?? '—'}) }}</p><p v-if="run.sweep_results.holdout">{{ $t('pool.ocr-calibration-holdout', {precision: percent(run.sweep_results.holdout.usable_precision), coverage: percent(run.sweep_results.holdout.coverage), cer: percent(run.sweep_results.holdout.character_error_rate), wer: percent(run.sweep_results.holdout.word_error_rate)}) }}</p><div class="table-responsive"><table class="table table-sm"><thead><tr><th>{{ $t('pool.ocr-calibration-threshold') }}</th><th>{{ $t('pool.ocr-calibration-coverage') }}</th><th>{{ $t('pool.ocr-calibration-precision') }}</th><th>CER</th><th>WER</th></tr></thead><tbody><tr v-for="score in run.sweep_results.threshold_sweep" :key="score.threshold" :class="{'table-success': score.threshold === run.sweep_results.recommended_threshold}"><td>{{ percent(score.threshold) }}</td><td>{{ percent(score.coverage) }}</td><td>{{ percent(score.usable_precision) }}</td><td>{{ percent(score.character_error_rate) }}</td><td>{{ percent(score.word_error_rate) }}</td></tr></tbody></table></div><button v-if="run.status === 'evaluated'" class="btn btn-success" @click="approve" :disabled="busy">{{ $t('pool.ocr-calibration-approve') }}</button><div v-if="run.approved_profile_hash" class="alert alert-success mt-3 mb-0"><strong>{{ $t('pool.ocr-calibration-profile-approved') }}</strong><div class="small font-monospace">SHA-256: {{ run.approved_profile_hash }}</div><pre class="small mt-2 mb-0">{{ JSON.stringify(run.approved_profile, null, 2) }}</pre><label class="form-label mt-3">{{ $t('pool.ocr-calibration-env-settings') }}</label><pre class="small mb-0">{{ approvedEnv }}</pre></div></div></section>
         <section>
           <h2 class="h5">{{ $t('pool.ocr-calibration-pages') }} ({{ reviewedPageCount }}/{{ run.pages.length }})</h2>
@@ -81,6 +81,15 @@
       </div>
       <div v-else class="col-xl-9"><div class="alert alert-info">{{ $t('pool.ocr-calibration-select-run') }}</div></div>
     </section>
+    <b-modal ref="evaluateCommandModal" hide-footer :title="$t('pool.ocr-calibration-evaluate-command-title')">
+      <p>{{ $t('pool.ocr-calibration-evaluate-command-intro') }}</p>
+      <label class="form-label" for="ocr-evaluate-command">{{ $t('pool.ocr-calibration-evaluate-command-label') }}</label>
+      <div class="d-grid gap-2">
+        <textarea id="ocr-evaluate-command" class="form-control font-monospace" rows="3" readonly :value="evaluateCommand" @focus="$event.target.select()"></textarea>
+        <button type="button" class="btn btn-outline-primary" @click="copyEvaluateCommand">{{ $t(commandCopied ? 'pool.ocr-calibration-copied' : 'pool.ocr-calibration-evaluate-command-copy') }}</button>
+      </div>
+      <p class="text-muted small mt-3 mb-0">{{ $t('pool.ocr-calibration-evaluate-command-after') }}</p>
+    </b-modal>
   </main>
 </template>
 
@@ -90,6 +99,7 @@ import {pdfPreviewImageForPage, pdfPreviewImageForPageLarge} from '@/components/
 import {ocrOutput} from './ocrCalibrationOutput';
 import {copyOcrTextToClipboard} from './ocrCalibrationClipboard';
 import {filterOcrCalibrationPages, validConfidencePercent} from './ocrCalibrationFilters';
+import {BModal} from '@/adapters/bootstrap';
 import MaterialpoolSpinner from '@/components/spinner/materialpool-spinner.vue';
 import HistoryIcon from '@primer/octicons/build/svg/history.svg';
 import CheckIcon from '@primer/octicons/build/svg/check.svg';
@@ -98,7 +108,7 @@ import ReferenceIcon from '@icons/vendor/svg-icon/svg/material/description.svg';
 
 export default {
   name: 'ContextSearchOcrCalibration',
-  components: {MaterialpoolSpinner, HistoryIcon, CheckIcon, CopyIcon, ReferenceIcon},
+  components: {BModal, MaterialpoolSpinner, HistoryIcon, CheckIcon, CopyIcon, ReferenceIcon},
   data: () => ({
     datasets: [],
     runs: [],
@@ -116,6 +126,7 @@ export default {
     busy: false,
     savingPageId: null,
     copiedPageId: null,
+    commandCopied: false,
     error: '',
     labels: ['usable', 'unusable', 'uncertain', 'handwriting', 'blank'],
     qualityFilter: '',
@@ -124,6 +135,9 @@ export default {
     minimumConfidence: '',
   }),
   computed: {
+    evaluateCommand() {
+      return this.run ? `./vendor/bin/sail artisan context-search:ocr-calibration:evaluate ${this.run.id}` : '';
+    },
     validMinimumConfidence() {
       return validConfidencePercent(this.minimumConfidence);
     },
@@ -171,6 +185,7 @@ export default {
   beforeUnmount() {
     this.stopPolling();
     clearTimeout(this.copyResetTimer);
+    clearTimeout(this.commandCopyResetTimer);
   },
   methods: {
     ocrOutput,
@@ -367,15 +382,20 @@ export default {
         this.savingPageId = null;
       }
     },
-    async evaluate() {
-      this.busy = true;
+    showEvaluateCommand() {
+      this.commandCopied = false;
+      this.$refs.evaluateCommandModal.show();
+    },
+    async copyEvaluateCommand() {
       try {
-        await axios.post(`/api/v2/admin/context-search/ocr-calibration/runs/${this.run.id}/evaluate`);
-        await this.selectRun(this.run.id);
+        await copyOcrTextToClipboard(this.evaluateCommand);
+        this.commandCopied = true;
+        clearTimeout(this.commandCopyResetTimer);
+        this.commandCopyResetTimer = setTimeout(() => {
+          this.commandCopied = false;
+        }, 3000);
       } catch (error) {
-        this.error = error.response?.data?.message || error.message;
-      } finally {
-        this.busy = false;
+        this.error = this.$t('pool.ocr-calibration-copy-failed');
       }
     },
     async approve() {
