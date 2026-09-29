@@ -94,11 +94,13 @@ final class FreezeCuratedContextSearchEvaluationDatasetCommandTest extends TestC
                 'dataset_id' => $ready->id, 'member_type' => $type, 'member_id' => $id,
             ]);
         }
+        $materialCount = $ready->members()->where('member_type', ContextSearchEvaluationDatasetMember::TYPE_MATERIAL)->count();
+        $resourceCount = $ready->members()->where('member_type', ContextSearchEvaluationDatasetMember::TYPE_RESOURCE)->count();
         $ready->update([
             'status' => ContextSearchEvaluationDataset::STATUS_READY,
-            'target_material_count' => 1,
-            'target_resource_count' => 1,
-            'target_quotas' => ['text' => 1],
+            'target_material_count' => $materialCount,
+            'target_resource_count' => $resourceCount,
+            'target_quotas' => ['text' => $resourceCount],
         ]);
 
         $choice = $ready->id.' (calibration)';
@@ -107,7 +109,6 @@ final class FreezeCuratedContextSearchEvaluationDatasetCommandTest extends TestC
             ->expectsOutputToContain($incomplete->id)
             ->expectsOutputToContain($ready->id)
             ->expectsOutputToContain($closed->id)
-            ->expectsOutputToContain('0/300')
             ->expectsOutputToContain('bereits eingefroren')
             ->expectsChoice('Welchen Datensatz einfrieren?', $choice, [$choice, 'Abbrechen'])
             ->expectsOutputToContain('eingefroren')

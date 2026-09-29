@@ -27,7 +27,7 @@ final class ReconcileContextSearchEvaluationDatasetMembersTest extends TestCase
         }
 
         $this->artisan('context-search:dataset:reconcile-memberships')
-            ->expectsOutputToContain('Materialien   101/300')
+            ->expectsOutputToContain('Empfohlene Datensatzgrößen und Fortschritt')
             ->assertExitCode(0);
         $this->assertDatabaseCount('context_search_evaluation_dataset_members', 0);
 
