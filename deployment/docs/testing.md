@@ -15,10 +15,14 @@ npm run build
 bash -n ct/materialpool.sh install/materialpool-install.sh deployment/release/*.sh
 shellcheck ct/materialpool.sh install/materialpool-install.sh deployment/release/*.sh
 npm run docs:check
+php artisan bible:prepare:cross-references
 bash deployment/release/package.sh v0.0.1 /tmp/materialpool-test-release
 bash deployment/release/check-package.sh /tmp/materialpool-test-release/materialpool-v0.0.1.tar.gz
 tar -tzf /tmp/materialpool-test-release/materialpool-v0.0.1.tar.gz | less
-tar -tzf /tmp/materialpool-test-release/materialpool-v0.0.1.tar.gz | grep -E '(node_modules|^\./\.env|public/uploads)' && exit 1 || true
+if tar -tzf /tmp/materialpool-test-release/materialpool-v0.0.1.tar.gz | grep -E '^\./(\.agents|\.ai|\.codex|\.github|\.git|\.idea|\.vscode|docs|ops|tests|node_modules|vendor|\.env($|\.[^/]+)|public/uploads|public/hot)(/|$)'; then
+  echo 'Unerlaubter Paketinhalt' >&2
+  exit 1
+fi
 tar -tzf /tmp/materialpool-test-release/materialpool-v0.0.1.tar.gz | grep -F './public/build/manifest.json'
 cd /tmp/materialpool-test-release && sha256sum -c materialpool-v0.0.1.tar.gz.sha256
 ```
