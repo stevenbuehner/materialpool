@@ -97,7 +97,9 @@ install -d -m 0770 -o www-data -g www-data /srv/materialpool/shared/storage/app/
 install -d -m 0770 -o www-data -g www-data /srv/materialpool/shared/storage/app/archived
 install -d -m 0770 -o www-data -g www-data /srv/materialpool/shared/storage/app/bundles
 install -d -m 0770 -o www-data -g www-data /srv/materialpool/shared/storage/app/tmp
+install -d -m 0770 -o www-data -g www-data /srv/materialpool/shared/storage/framework/cache
 install -d -m 0770 -o www-data -g www-data /srv/materialpool/shared/storage/framework/cache/data
+install -d -m 0770 -o www-data -g www-data /srv/materialpool/shared/storage/framework/cache/previewimages
 install -d -m 0770 -o www-data -g www-data /srv/materialpool/shared/storage/framework/sessions
 install -d -m 0770 -o www-data -g www-data /srv/materialpool/shared/storage/framework/views
 install -d -m 0770 -o www-data -g www-data /srv/materialpool/shared/storage/framework/backup-temp

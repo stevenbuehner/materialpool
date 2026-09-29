@@ -135,13 +135,19 @@ ln -s "$base/shared/.env" "$stage/.env"
 ln -s "$base/shared/storage" "$stage/storage"
 rm -rf -- "$stage/public/uploads"
 ln -s "$base/shared/public-uploads" "$stage/public/uploads"
+# Ältere Installer haben nur cache/data angelegt; das Elternverzeichnis kann
+# dadurch root gehören. AppServiceProvider benötigt dort previewimages.
+install -d -m 0770 -o www-data -g www-data "$base/shared/storage/framework/cache"
+install -d -m 0770 -o www-data -g www-data "$base/shared/storage/framework/cache/previewimages"
+chown www-data:www-data "$base/shared/storage/framework/cache" "$base/shared/storage/framework/cache/previewimages"
+chmod 0770 "$base/shared/storage/framework/cache" "$base/shared/storage/framework/cache/previewimages"
 chown -R materialpool:www-data "$stage"
 chmod -R u=rwX,g=rX,o= "$stage"
 chmod -R g+rwX "$stage/bootstrap/cache"
 # Composer installiert den Code als Deploy-Nutzer. Laravel schreibt beim Discovern
 # in bootstrap/cache und Shared-Storage; das erfolgt als Laufzeitnutzer www-data.
 runuser -u materialpool -- composer install --working-dir="$stage" --no-dev --no-interaction --prefer-dist --optimize-autoloader --no-scripts
-for writable in "$stage/bootstrap/cache" "$stage/storage/framework/cache/data" "$stage/storage/framework/views" "$stage/storage/logs"; do
+for writable in "$stage/bootstrap/cache" "$stage/storage/framework/cache" "$stage/storage/framework/cache/data" "$stage/storage/framework/cache/previewimages" "$stage/storage/framework/views" "$stage/storage/logs"; do
   runuser -u www-data -- test -w "$writable" || { echo "Laufzeitverzeichnis nicht beschreibbar: $writable" >&2; exit 1; }
 done
 runuser -u www-data -- php "$stage/artisan" package:discover --ansi
