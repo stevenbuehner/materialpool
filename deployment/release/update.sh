@@ -119,12 +119,15 @@ chmod -R g+rwX "$stage/bootstrap/cache"
 runuser -u materialpool -- composer install --working-dir="$stage" --no-dev --no-interaction --prefer-dist --optimize-autoloader
 [[ ! -e "$stage/public/hot" ]] || exit 1
 if [[ ! -L "$base/current" ]]; then
-  [[ ! -e "$base/shared/storage/oauth-private.key" && ! -e "$base/shared/storage/oauth-public.key" ]] || {
+  private_key="$base/shared/storage/oauth-private.key"
+  public_key="$base/shared/storage/oauth-public.key"
+  if [[ ! -e "$private_key" && ! -e "$public_key" ]]; then
+    runuser -u www-data -- php "$stage/artisan" passport:keys
+    chmod 0600 "$private_key"
+  elif [[ ! -f "$private_key" || ! -f "$public_key" ]]; then
     echo "Unvollständiger Passport-Schlüsselbestand; Installation gestoppt." >&2
     exit 1
-  }
-  runuser -u www-data -- php "$stage/artisan" passport:keys
-  chmod 0600 "$base/shared/storage/oauth-private.key"
+  fi
 fi
 mv "$stage" "$base/releases/$version"
 stage=""

@@ -49,7 +49,9 @@ Proxmox-Shell und Materialpool-Checkout öffnen; `COMMUNITY_SCRIPTS_ROOT="$PWD" 
 cat /srv/materialpool/current/release.json
 readlink -f /srv/materialpool/current
 ls -la /srv/materialpool/releases
-stat -c '%a %U:%G' /srv/materialpool/shared/.env /srv/materialpool/shared/storage/oauth-private.key
+stat -c '%a %U:%G' /srv/materialpool/shared/.env /srv/materialpool/shared/storage/oauth-private.key /srv/materialpool/shared/storage/oauth-public.key
+runuser -u www-data -- openssl pkey -in /srv/materialpool/shared/storage/oauth-private.key -noout
+runuser -u www-data -- openssl pkey -pubin -in /srv/materialpool/shared/storage/oauth-public.key -noout
 grep -E '^(APP_ENV|APP_DEBUG|DB_HOST|QUEUE_CONNECTION|QDRANT_URL)=' /srv/materialpool/shared/.env
 mariadb -e 'SHOW DATABASES LIKE "materialpool";'
 php /srv/materialpool/current/artisan migrate:status
@@ -58,7 +60,7 @@ systemctl status nginx php8.4-fpm mariadb materialpool-queue.service materialpoo
 curl -i http://127.0.0.1/up
 ```
 
-`migrate:status` muss alle für das Release vorgesehenen Migrationen als ausgeführt anzeigen. Danach im Browser über den TLS-Reverse-Proxy die Anmeldung des gerade angelegten Global-Admins, geschützte Seite, Resource-Download, Upload/Vorschau und API testen. Im Test-LXC zusätzlich `runuser -u www-data -- php /srv/materialpool/current/artisan users:manage update` für diesen Testbenutzer ausführen und den Login mit der geänderten E-Mail und dem neuen Passwort prüfen; alte Zugangsdaten dürfen nicht mehr funktionieren. Qdrant nur mit eingerichtetem Schlüssel aus dem Laravel-LXC testen. Passport-Clients für eine frische Instanz benötigen einen gesondert geprüften Einrichtungsschritt.
+`migrate:status` muss alle für das Release vorgesehenen Migrationen als ausgeführt anzeigen. Beide Passport-Schlüssel müssen lesbar sein, der private mit Modus `600`; die OpenSSL-Prüfungen dürfen keinen Fehler melden und geben keinen Schlüsselinhalt aus. Danach im Browser über den TLS-Reverse-Proxy die Anmeldung des gerade angelegten Global-Admins, geschützte Seite, Resource-Download, Upload/Vorschau und API testen. Im Test-LXC zusätzlich `runuser -u www-data -- php /srv/materialpool/current/artisan users:manage update` für diesen Testbenutzer ausführen und den Login mit der geänderten E-Mail und dem neuen Passwort prüfen; alte Zugangsdaten dürfen nicht mehr funktionieren. Qdrant nur mit eingerichtetem Schlüssel aus dem Laravel-LXC testen. Passport-Clients für eine frische Instanz benötigen einen gesondert geprüften Einrichtungsschritt.
 
 ## F. Kein Node im Produktions-LXC
 
@@ -66,7 +68,7 @@ curl -i http://127.0.0.1/up
 
 ## G. Update testen
 
-In einem eigenen Testbranch eine harmlose, sichtbare Textänderung mit bestehendem Übersetzungsmechanismus vornehmen, CI vollständig abwarten, `git tag v0.0.2 && git push github v0.0.2` ausführen und Assets/Checksumme wie in C prüfen. Im **Test-LXC** vor `update` die Werte aus `current/release.json`, `readlink -f current`, `.env`-Prüfsumme, Bibeldatenstatus und einen Testdatensatz/Testupload notieren. `update` ausführen. Der Updater muss `bible:import --update-translations --update-cross-references --no-interaction` ohne neue Auswahl ausführen; bei unverändertem Inhalt sind Verse und Referenzen nicht neu zu schreiben. Danach neues Release, Backup unter `/srv/materialpool/shared/backups`, `migrate:status` mit allen Migrationen des neuen Release, Bibeldatenstatus, `systemctl is-active` aller Dienste, `/up`, Browser, Queue, Admin-Login und persistente Daten prüfen. Das Update darf keinen weiteren ersten Admin anlegen und bestehende Zugangsdaten nicht ersetzen. Nochmaliges `update` muss „bereits aktuell“ melden.
+In einem eigenen Testbranch eine harmlose, sichtbare Textänderung mit bestehendem Übersetzungsmechanismus vornehmen, CI vollständig abwarten, `git tag v0.0.2 && git push github v0.0.2` ausführen und Assets/Checksumme wie in C prüfen. Im **Test-LXC** vor `update` die Werte aus `current/release.json`, `readlink -f current`, `.env`-Prüfsumme, Prüfsummen beider Passport-Schlüssel, Bibeldatenstatus und einen Testdatensatz/Testupload notieren. `update` ausführen. Der Updater muss `bible:import --update-translations --update-cross-references --no-interaction` ohne neue Auswahl ausführen; bei unverändertem Inhalt sind Verse und Referenzen nicht neu zu schreiben. Danach neues Release, Backup unter `/srv/materialpool/shared/backups`, `migrate:status` mit allen Migrationen des neuen Release, Bibeldatenstatus, `systemctl is-active` aller Dienste, `/up`, Browser, Queue, Admin-Login und persistente Daten prüfen. Die Prüfsummen beider Passport-Schlüssel müssen unverändert bleiben. Das Update darf keinen weiteren ersten Admin anlegen und bestehende Zugangsdaten nicht ersetzen. Nochmaliges `update` muss „bereits aktuell“ melden.
 
 ## H. Persistenztest
 
@@ -74,7 +76,7 @@ In einem eigenen Testbranch eine harmlose, sichtbare Textänderung mit bestehend
 
 Im isolierten Test-LXC zusätzlich den Bibeldatenpfad prüfen: `runuser -u www-data -- php /srv/materialpool/current/artisan bible:import --no-interaction` darf keine Netzwerkverbindung auslösen und nur Status ausgeben. Ein zweiter Aufruf mit `--update-translations --update-cross-references --no-interaction` muss die bereits gewählten Datensätze als unverändert melden. Eine weitere Übersetzung darf dabei nicht installiert werden. Für einen negativen Test ausgehendes GitHub-HTTPS im Test-LXC vorübergehend sperren und denselben Update-Aufruf wiederholen: Bei installierter Übersetzung muss er fehlschlagen, der bisherige Hash erhalten bleiben und der Updater im Wartungsmodus bleiben. HTTPS danach wieder freigeben; das vorbereitete, nicht aktivierte Release darf einen erneuten Versuch nicht blockieren. Beschädigte Manifestdaten und eine absichtlich fehlgeschlagene Datenbankeinfügung ausschließlich mit Test-Releases beziehungsweise isolierter Testdatenbank prüfen; alte Verse, Referenzen und Importstatus müssen erhalten bleiben. Einen Restore aus dem verifizierten Test-Backup und einen Code-Rollback ohne rückwärts gerichteten Bibelimport nachweisen.
 
-Vor G einen isolierten Testdatensatz und einen ungefährlichen Upload in der Testinstanz anlegen; `.env`-Prüfsumme mit `sha256sum /srv/materialpool/shared/.env` notieren. Nach G Datensatz, Datei, `APP_KEY`, DB-Zugang, Qdrant-URL und Prüfsumme vergleichen. Geheimwerte nicht in den Testbericht kopieren. `readlink` der neuen Release-Links zu `shared/storage`, `shared/public-uploads` und `shared/.env` prüfen.
+Vor G einen isolierten Testdatensatz und einen ungefährlichen Upload in der Testinstanz anlegen; `.env`- und Passport-Schlüssel-Prüfsummen mit `sha256sum /srv/materialpool/shared/.env /srv/materialpool/shared/storage/oauth-private.key /srv/materialpool/shared/storage/oauth-public.key` notieren. Nach G Datensatz, Datei, `APP_KEY`, DB-Zugang, Qdrant-URL und Prüfsummen vergleichen. Geheimwerte nicht in den Testbericht kopieren. `readlink` der neuen Release-Links zu `shared/storage`, `shared/public-uploads` und `shared/.env` prüfen.
 
 ## I. Falsche Checksumme
 

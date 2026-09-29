@@ -42,6 +42,7 @@ jobs:
       - run: |
           cp .env.example .env
           php artisan key:generate --force
+          php artisan passport:keys
           DB_HOST=127.0.0.1 DB_DATABASE=testing DB_USERNAME=root DB_PASSWORD=testing php artisan migrate:fresh --env=testing --force
           DB_HOST=127.0.0.1 DB_DATABASE=testing DB_USERNAME=root DB_PASSWORD=testing php artisan db:seed --env=testing --force
           DB_HOST=127.0.0.1 DB_DATABASE=testing DB_USERNAME=root DB_PASSWORD=testing php artisan test
