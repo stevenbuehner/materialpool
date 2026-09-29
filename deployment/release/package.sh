@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
 
-[[ $# -eq 2 ]] || { echo "Aufruf: $0 vX.Y.Z AUSGABEVERZEICHNIS" >&2; exit 64; }
+[[ $# -eq 2 ]] || { echo "Aufruf: $0 X.Y.Z[a-z] AUSGABEVERZEICHNIS" >&2; exit 64; }
 version="$1"
 output="$(mkdir -p "$2" && cd "$2" && pwd)"
-[[ "$version" =~ ^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]] || { echo "Ungültige Version" >&2; exit 64; }
+[[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+[a-z]?$ ]] || { echo "Ungültige Version" >&2; exit 64; }
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 cd "$root"
 if git ls-files -- .env '.env.*' | grep -vFx '.env.example' | grep -q .; then

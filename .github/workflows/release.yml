@@ -1,7 +1,7 @@
 name: Release
 on:
   push:
-    tags: ['v*']
+    tags: ['[0-9]*']
 permissions:
   contents: read
 jobs:
@@ -29,7 +29,7 @@ jobs:
       - name: Version prüfen
         env:
           TAG: ${{ github.ref_name }}
-        run: '[[ "$TAG" =~ ^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]]'
+        run: '[[ "$TAG" =~ ^[0-9]+\.[0-9]+\.[0-9]+[a-z]?$ ]]'
         shell: bash
       - uses: shivammathur/setup-php@v2
         with:
@@ -86,15 +86,22 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           TAG: ${{ github.ref_name }}
-        run: gh release create "$TAG" release/* --repo "$GITHUB_REPOSITORY" --verify-tag --generate-notes
+        run: |
+          if [[ "$TAG" =~ [a-z]$ ]]; then
+            gh release create "$TAG" release/* --repo "$GITHUB_REPOSITORY" --verify-tag --generate-notes --prerelease --latest=false
+          else
+            gh release create "$TAG" release/* --repo "$GITHUB_REPOSITORY" --verify-tag --generate-notes
+          fi
       - name: Veröffentlichtes Release und Assets prüfen
         env:
           GH_TOKEN: ${{ github.token }}
           TAG: ${{ github.ref_name }}
         run: |
+          prerelease=false
+          [[ "$TAG" =~ [a-z]$ ]] && prerelease=true
           gh api "repos/$GITHUB_REPOSITORY/releases/tags/$TAG" |
-            jq -e --arg tag "$TAG" '
-              .tag_name == $tag and .draft == false and .prerelease == false and
+            jq -e --arg tag "$TAG" --argjson prerelease "$prerelease" '
+              .tag_name == $tag and .draft == false and .prerelease == $prerelease and
               ((.assets | map(.name) | sort) ==
                (["materialpool-\($tag).tar.gz", "materialpool-\($tag).tar.gz.sha256"] | sort))
             '

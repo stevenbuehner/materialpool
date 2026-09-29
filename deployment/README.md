@@ -1,6 +1,6 @@
 # Materialpool auf Proxmox VE
 
-Lokale Entwicklung verwendet Laravel Sail. GitHub Actions prüft PHP und JavaScript, baut Vite mit Node 24 und veröffentlicht bei einem SemVer-Tag ein geprüftes GitHub Release. Ein Debian-13-LXC betreibt Nginx, PHP-FPM 8.4, MariaDB, Composer, Laravel, einen systemd-Queue-Worker und einen systemd-Scheduler-Timer. Qdrant läuft in einem eigenen nativen LXC. Im Laravel-LXC werden weder Docker noch Node noch Git für Deployments benötigt.
+Lokale Entwicklung verwendet Laravel Sail. GitHub Actions prüft PHP und JavaScript, baut Vite mit Node 24 und veröffentlicht bei einem Tag im Format `MAJOR.MINOR.PATCH([a-z]?)` ein geprüftes GitHub Release. Ein Debian-13-LXC betreibt Nginx, PHP-FPM 8.4, MariaDB, Composer, Laravel, einen systemd-Queue-Worker und einen systemd-Scheduler-Timer. Qdrant läuft in einem eigenen nativen LXC. Im Laravel-LXC werden weder Docker noch Node noch Git für Deployments benötigt.
 
 Die [Neuinstallation](docs/installation.md) startet über einen einzigen Skript-Link in der Proxmox-VE-Shell. Ein Repository-Klon ist weder auf dem Host noch im LXC nötig. Anwendung und Updater werden aus einem versionierten, prüfsummengeschützten Release-Archiv installiert; `update` lädt spätere Release-Archive nach Veröffentlichung eines neuen Tags.
 
@@ -9,7 +9,7 @@ Die [Neuinstallation](docs/installation.md) startet über einen einzigen Skript-
 | Web | TCP 80, nur vom TLS-Reverse-Proxy erreichbar |
 | MariaDB | lokal, TCP 3306/Socket; nicht von außen |
 | Qdrant | separater LXC, TCP 6333 nur vom Laravel-Netz |
-| Anwendung | `/srv/materialpool/current` → `/srv/materialpool/releases/vX.Y.Z` |
+| Anwendung | `/srv/materialpool/current` → `/srv/materialpool/releases/X.Y.Z` |
 | Dauerhafte Daten | `/srv/materialpool/shared/.env`, `storage`, `public-uploads` |
 | Erster Admin | interaktiv nach den Fresh-Migrationen über `users:manage create --first-admin` |
 | Deployment-Backups | `/srv/materialpool/shared/backups` |

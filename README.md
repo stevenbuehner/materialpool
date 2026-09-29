@@ -13,7 +13,7 @@ Materialpool ist eine geschützte Anwendung zur Verwaltung von Materialien, Date
 
 ## Proxmox-Installation
 
-Für eine **neue** Installation muss zuerst ein erfolgreich veröffentlichtes, stabiles GitHub-Release mit Tag `vMAJOR.MINOR.PATCH` und Archiv samt SHA-256-Datei vorliegen. Dann den folgenden Befehl in der **Proxmox-VE-Shell** ausführen. Er lädt das Materialpool-Startskript; dieses erstellt den Debian-LXC und lädt dort das versionierte, geprüfte Release-Archiv. Ein Repository-Klon ist nicht erforderlich.
+Für eine **neue** Installation muss zuerst ein erfolgreich veröffentlichtes, stabiles GitHub-Release mit Tag `MAJOR.MINOR.PATCH` und Archiv samt SHA-256-Datei vorliegen. Dann den folgenden Befehl in der **Proxmox-VE-Shell** ausführen. Er lädt das Materialpool-Startskript; dieses erstellt den Debian-LXC und lädt dort das versionierte, geprüfte Release-Archiv. Ein Repository-Klon ist nicht erforderlich.
 
 ```bash
 bash -c "$(curl -fsSL https://raw.githubusercontent.com/stevenbuehner/materialpool/master/ct/materialpool.sh)"

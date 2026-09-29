@@ -21,4 +21,4 @@ payload_hash="$(tar -xOf "$artifact" ./database/bible-data/cross-references.tsv 
 expected_payload_hash="$(tar -xOf "$artifact" ./database/bible-data/manifest.json | jq -r '.sha256 // empty')"
 [[ "$payload_hash" == "$expected_payload_hash" ]] || { echo "Cross-Reference-Hash stimmt nicht" >&2; exit 1; }
 # shellcheck disable=SC2016 # Dollar signs belong to the embedded PHP program.
-tar -xOf "$artifact" ./release.json | php -r '$j=json_decode(stream_get_contents(STDIN),true); exit(is_array($j) && preg_match("/^v[0-9]+\\.[0-9]+\\.[0-9]+$/",$j["version"]??"") && preg_match("/^[0-9a-f]{40}$/",$j["commit"]??"") ? 0 : 1);'
+tar -xOf "$artifact" ./release.json | php -r '$j=json_decode(stream_get_contents(STDIN),true); exit(is_array($j) && preg_match("/^[0-9]+\\.[0-9]+\\.[0-9]+[a-z]?$/",$j["version"]??"") && preg_match("/^[0-9a-f]{40}$/",$j["commit"]??"") ? 0 : 1);'

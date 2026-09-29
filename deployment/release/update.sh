@@ -30,7 +30,7 @@ case "${1:-update}" in
     fi ;;
   rollback)
     # Der Rollback wechselt nur den Code; eine bereits migrierte Datenbank bleibt bestehen.
-    [[ $# -eq 2 && "$2" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ && -d "$base/releases/$2" ]] || exit 64
+    [[ $# -eq 2 && "$2" =~ ^v?[0-9]+\.[0-9]+\.[0-9]+[a-z]?$ && -d "$base/releases/$2" ]] || exit 64
     old="$(readlink -f "$base/current")"
     [[ -n "$old" ]] || exit 1
     runuser -u www-data -- php "$old/artisan" down
@@ -43,7 +43,7 @@ case "${1:-update}" in
     curl -fsS --max-time 10 http://127.0.0.1/up | grep -qx OK
     echo "Code-Rollback auf $2. Datenbankänderungen wurden nicht zurückgenommen."
     exit 0 ;;
-  *) echo "Aufruf: update [update|rollback vX.Y.Z]" >&2; exit 64 ;;
+  *) echo "Aufruf: update [update|rollback X.Y.Z[a-z]]" >&2; exit 64 ;;
 esac
 
 tmp="$(mktemp -d)"
@@ -82,7 +82,7 @@ trap cleanup EXIT
 # Download und Prüfung erfolgen vollständig vor dem Wartungsmodus.
 if [[ -n "$archive_override" ]]; then
   artifact="$(basename "$archive_override")"
-  [[ "$artifact" =~ ^materialpool-(v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*))\.tar\.gz$ ]] || { echo "Ungültiger Archivname." >&2; exit 64; }
+  [[ "$artifact" =~ ^materialpool-(v?[0-9]+\.[0-9]+\.[0-9]+[a-z]?)\.tar\.gz$ ]] || { echo "Ungültiger Archivname." >&2; exit 64; }
   version="${BASH_REMATCH[1]}"
   cp -- "$archive_override" "$tmp/$artifact"
   cp -- "$archive_override.sha256" "$tmp/$artifact.sha256"
@@ -90,7 +90,7 @@ else
   api="https://api.github.com/repos/$REPOSITORY/releases/latest"
   curl -fsSL --retry 3 -H 'Accept: application/vnd.github+json' "${token_args[@]}" "$api" -o "$tmp/latest.json"
   version="$(jq -r '.tag_name // empty' "$tmp/latest.json")"
-  [[ "$version" =~ ^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]] || { echo "Kein stabiles SemVer-Release." >&2; exit 1; }
+  [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || { echo "Kein stabiles Release im Format X.Y.Z." >&2; exit 1; }
   jq -e '.draft == false and .prerelease == false' "$tmp/latest.json" >/dev/null
   artifact="materialpool-$version.tar.gz"
 fi
@@ -201,7 +201,7 @@ updater_next=""
 critical=0
 echo "Materialpool $version aktiviert; Backup: $backup"
 # Nur Deployment-Backups kürzen. Laravel-/S3- und Proxmox-Backups bleiben unberührt.
-find "$base/shared/backups" -maxdepth 1 -name 'pre-v*.sql.gz' -type f -printf '%T@ %p\n' | sort -nr | tail -n +11 | cut -d' ' -f2- | xargs -r rm -f --
-find "$base/releases" -mindepth 1 -maxdepth 1 -type d -name 'v*' -printf '%T@ %p\n' | sort -nr | tail -n +5 | cut -d' ' -f2- | while IFS= read -r old; do
+find "$base/shared/backups" -regextype posix-extended -maxdepth 1 -type f -regex '.*/pre-v?[0-9]+\.[0-9]+\.[0-9]+[a-z]?-[0-9]{8}T[0-9]{6}Z\.sql\.gz' -printf '%T@ %p\n' | sort -nr | tail -n +11 | cut -d' ' -f2- | xargs -r rm -f --
+find "$base/releases" -regextype posix-extended -mindepth 1 -maxdepth 1 -type d -regex '.*/v?[0-9]+\.[0-9]+\.[0-9]+[a-z]?' -printf '%T@ %p\n' | sort -nr | tail -n +5 | cut -d' ' -f2- | while IFS= read -r old; do
   [[ "$old" == "$(readlink -f "$base/current")" ]] || rm -rf -- "$old"
 done

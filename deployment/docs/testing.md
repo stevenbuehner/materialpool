@@ -1,6 +1,6 @@
 # Manuelle Abnahme: Proxmox-Releaseweg
 
-Diese Schritte gelten für einen isolierten Test-LXC und ein Test-Repository beziehungsweise Test-Releases. Die vorhandene Produktionsdatenbank und ihre Dateien dürfen durch keine Fehlersimulation verändert werden. `v0.0.1` und `v0.0.2` sind nur zu verwenden, solange diese Tags im Zielrepository noch nicht existieren. Vor den GitHub-Tests ein separates Test-Repository mit denselben Actions einrichten und als Git-Remote `test` hinzufügen; dessen Ziel-URL vor jedem Push prüfen. Das produktive Remote `github` darf für absichtlich fehlerhafte Teststände und Test-Tags nicht verwendet werden. Der öffentliche Einstieg lädt das Start- und Installationsskript aus `master`; die CI läuft unabhängig davon ohne Branchfilter.
+Diese Schritte gelten für einen isolierten Test-LXC und ein Test-Repository beziehungsweise Test-Releases. Die vorhandene Produktionsdatenbank und ihre Dateien dürfen durch keine Fehlersimulation verändert werden. `0.0.1` und `0.0.2` sind nur zu verwenden, solange diese Tags im Zielrepository noch nicht existieren. Vor den GitHub-Tests ein separates Test-Repository mit denselben Actions einrichten und als Git-Remote `test` hinzufügen; dessen Ziel-URL vor jedem Push prüfen. Das produktive Remote `github` darf für absichtlich fehlerhafte Teststände und Test-Tags nicht verwendet werden. Der öffentliche Einstieg lädt das Start- und Installationsskript aus `master`; die CI läuft unabhängig davon ohne Branchfilter.
 
 ## A. Lokale Vorprüfung
 
@@ -16,15 +16,15 @@ bash -n ct/materialpool.sh install/materialpool-install.sh deployment/release/*.
 shellcheck ct/materialpool.sh install/materialpool-install.sh deployment/release/*.sh
 npm run docs:check
 php artisan bible:prepare:cross-references
-bash deployment/release/package.sh v0.0.1 /tmp/materialpool-test-release
-bash deployment/release/check-package.sh /tmp/materialpool-test-release/materialpool-v0.0.1.tar.gz
-tar -tzf /tmp/materialpool-test-release/materialpool-v0.0.1.tar.gz | less
-if tar -tzf /tmp/materialpool-test-release/materialpool-v0.0.1.tar.gz | grep -E '^\./(\.agents|\.ai|\.codex|\.github|\.git|\.idea|\.vscode|docs|ops|tests|node_modules|vendor|\.env($|\.[^/]+)|public/uploads|public/hot)(/|$)'; then
+bash deployment/release/package.sh 0.0.1 /tmp/materialpool-test-release
+bash deployment/release/check-package.sh /tmp/materialpool-test-release/materialpool-0.0.1.tar.gz
+tar -tzf /tmp/materialpool-test-release/materialpool-0.0.1.tar.gz | less
+if tar -tzf /tmp/materialpool-test-release/materialpool-0.0.1.tar.gz | grep -E '^\./(\.agents|\.ai|\.codex|\.github|\.git|\.idea|\.vscode|docs|ops|tests|node_modules|vendor|\.env($|\.[^/]+)|public/uploads|public/hot)(/|$)'; then
   echo 'Unerlaubter Paketinhalt' >&2
   exit 1
 fi
-tar -tzf /tmp/materialpool-test-release/materialpool-v0.0.1.tar.gz | grep -F './public/build/manifest.json'
-cd /tmp/materialpool-test-release && sha256sum -c materialpool-v0.0.1.tar.gz.sha256
+tar -tzf /tmp/materialpool-test-release/materialpool-0.0.1.tar.gz | grep -F './public/build/manifest.json'
+cd /tmp/materialpool-test-release && sha256sum -c materialpool-0.0.1.tar.gz.sha256
 ```
 
 Workflow-YAML mit einem lokal verfügbaren YAML-Parser prüfen (zum Beispiel `ruby -e 'require "yaml"; ARGV.each { |p| YAML.load_file(p) }' .github/workflows/{ci,release}.yml`) und GitHub Actions als maßgeblichen Validator beobachten. Das lokal erzeugte Paket ist nur eine Inhaltsprobe; für ein Release zählt ausschließlich der saubere, getaggte Actions-Build.
@@ -35,9 +35,9 @@ Nach Sicherung fremder Änderungen einen eigenen Testbranch vom vorgesehenen Int
 
 ## C. Release Workflow testen
 
-Nach dem Publish-Job muss auch „Veröffentlichtes Release und Assets prüfen“ erfolgreich sein. Ein Tag ohne führendes `v` darf nur einen CI-Hinweis erzeugen und keinen Release-Lauf starten.
+Nach dem Publish-Job muss auch „Veröffentlichtes Release und Assets prüfen“ erfolgreich sein. Ein Tag im Format `MAJOR.MINOR.PATCH([a-z]?)` muss den Release-Lauf starten. Einen zusätzlichen freien Tag mit Buchstaben, etwa `0.0.1b`, im isolierten Test-Repository prüfen: Er muss als Prerelease mit beiden Assets erscheinen und darf `/releases/latest` nicht ersetzen.
 
-Nach grünem CI und nur falls noch frei: `git tag v0.0.1 && git push test v0.0.1`. **Actions → Release** muss `verify` vor `publish` erfolgreich ausführen. Im GitHub Release müssen `materialpool-v0.0.1.tar.gz` und `.sha256` liegen. Beide Assets lokal in ein leeres Testverzeichnis laden und `sha256sum -c materialpool-v0.0.1.tar.gz.sha256` sowie `tar -xOf materialpool-v0.0.1.tar.gz ./release.json | jq .` ausführen. Die `release.json` im Archiv enthält Version und Commit. `tar -tzf` muss `public/build/manifest.json` und `database/bible-data/{manifest.json,cross-references.tsv}` zeigen, aber keine Bibelübersetzungsdateien, `.env`, `node_modules`, `vendor` oder Uploads enthalten. Ein Testrelease nur nach Prüfung gezielt im Test-Repository löschen und anschließend den Testtag dort entfernen; produktive Tags niemals pauschal löschen.
+Nach grünem CI und nur falls noch frei: `git tag 0.0.1 && git push test 0.0.1`. **Actions → Release** muss `verify` vor `publish` erfolgreich ausführen. Im GitHub Release müssen `materialpool-0.0.1.tar.gz` und `.sha256` liegen. Beide Assets lokal in ein leeres Testverzeichnis laden und `sha256sum -c materialpool-0.0.1.tar.gz.sha256` sowie `tar -xOf materialpool-0.0.1.tar.gz ./release.json | jq .` ausführen. Die `release.json` im Archiv enthält Version und Commit. `tar -tzf` muss `public/build/manifest.json` und `database/bible-data/{manifest.json,cross-references.tsv}` zeigen, aber keine Bibelübersetzungsdateien, `.env`, `node_modules`, `vendor` oder Uploads enthalten. Ein Testrelease nur nach Prüfung gezielt im Test-Repository löschen und anschließend den Testtag dort entfernen; produktive Tags niemals pauschal löschen.
 
 ## D. Qdrant-LXC installieren
 
@@ -73,7 +73,7 @@ curl -i http://127.0.0.1/up
 
 ## G. Update testen
 
-In einem eigenen Testbranch eine harmlose, sichtbare Textänderung mit bestehendem Übersetzungsmechanismus vornehmen, CI vollständig abwarten, `git tag v0.0.2 && git push test v0.0.2` ausführen und Assets/Checksumme wie in C prüfen. Im **Test-LXC** vor `update` die Werte aus `current/release.json`, `readlink -f current`, `.env`-Prüfsumme, Prüfsummen beider Passport-Schlüssel, Bibeldatenstatus und einen Testdatensatz/Testupload notieren. `update` ausführen. Der Updater muss `bible:import --update-translations --update-cross-references --no-interaction` ohne neue Auswahl ausführen; bei unverändertem Inhalt sind Verse und Referenzen nicht neu zu schreiben. Danach neues Release, Backup unter `/srv/materialpool/shared/backups`, `migrate:status` mit allen Migrationen des neuen Release, Bibeldatenstatus, `systemctl is-active` aller Dienste, `/up`, Browser, Queue, Admin-Login und persistente Daten prüfen. `cmp /usr/local/sbin/materialpool-update /srv/materialpool/current/deployment/release/update.sh` muss auch nach dem Upgrade erfolgreich sein. Die Prüfsummen beider Passport-Schlüssel müssen unverändert bleiben. Das Update darf keinen weiteren ersten Admin anlegen und bestehende Zugangsdaten nicht ersetzen. Nochmaliges `update` muss „bereits aktuell“ melden.
+In einem eigenen Testbranch eine harmlose, sichtbare Textänderung mit bestehendem Übersetzungsmechanismus vornehmen, CI vollständig abwarten, `git tag 0.0.2 && git push test 0.0.2` ausführen und Assets/Checksumme wie in C prüfen. Im **Test-LXC** vor `update` die Werte aus `current/release.json`, `readlink -f current`, `.env`-Prüfsumme, Prüfsummen beider Passport-Schlüssel, Bibeldatenstatus und einen Testdatensatz/Testupload notieren. `update` ausführen. Der Updater muss `bible:import --update-translations --update-cross-references --no-interaction` ohne neue Auswahl ausführen; bei unverändertem Inhalt sind Verse und Referenzen nicht neu zu schreiben. Danach neues Release, Backup unter `/srv/materialpool/shared/backups`, `migrate:status` mit allen Migrationen des neuen Release, Bibeldatenstatus, `systemctl is-active` aller Dienste, `/up`, Browser, Queue, Admin-Login und persistente Daten prüfen. `cmp /usr/local/sbin/materialpool-update /srv/materialpool/current/deployment/release/update.sh` muss auch nach dem Upgrade erfolgreich sein. Die Prüfsummen beider Passport-Schlüssel müssen unverändert bleiben. Das Update darf keinen weiteren ersten Admin anlegen und bestehende Zugangsdaten nicht ersetzen. Nochmaliges `update` muss „bereits aktuell“ melden.
 
 ## H. Persistenztest
 
@@ -85,7 +85,7 @@ Vor G einen isolierten Testdatensatz und einen ungefährlichen Upload in der Tes
 
 ## I. Falsche Checksumme
 
-Lokal ein ausschließlich für Tests erzeugtes Archiv kopieren und ein Byte verändern: `cp /tmp/materialpool-test-release/materialpool-v0.0.1.tar.gz /tmp/materialpool-bad.tar.gz; printf x >> /tmp/materialpool-bad.tar.gz; sed 's/materialpool-v0.0.1.tar.gz/materialpool-bad.tar.gz/' /tmp/materialpool-test-release/materialpool-v0.0.1.tar.gz.sha256 > /tmp/materialpool-bad.tar.gz.sha256`. `bash deployment/release/check-package.sh /tmp/materialpool-bad.tar.gz` muss fehlschlagen. Für den echten Updater ein isoliertes Test-Repository mit absichtlich falschem Checksum-Asset verwenden; vor/nach `update` `readlink -f /srv/materialpool/current`, `migrate:status` und `/up` vergleichen. Keine Änderung und kein Maintenance Mode sind erwartet. Nie ein fehlerhaftes Asset in einem produktiven Repository veröffentlichen.
+Lokal ein ausschließlich für Tests erzeugtes Archiv kopieren und ein Byte verändern: `cp /tmp/materialpool-test-release/materialpool-0.0.1.tar.gz /tmp/materialpool-bad.tar.gz; printf x >> /tmp/materialpool-bad.tar.gz; sed 's/materialpool-0.0.1.tar.gz/materialpool-bad.tar.gz/' /tmp/materialpool-test-release/materialpool-0.0.1.tar.gz.sha256 > /tmp/materialpool-bad.tar.gz.sha256`. `bash deployment/release/check-package.sh /tmp/materialpool-bad.tar.gz` muss fehlschlagen. Für den echten Updater ein isoliertes Test-Repository mit absichtlich falschem Checksum-Asset verwenden; vor/nach `update` `readlink -f /srv/materialpool/current`, `migrate:status` und `/up` vergleichen. Keine Änderung und kein Maintenance Mode sind erwartet. Nie ein fehlerhaftes Asset in einem produktiven Repository veröffentlichen.
 
 ## J. Fehlgeschlagenes Deployment
 
@@ -93,11 +93,11 @@ Im isolierten Test-Repository ein Release-Asset mit gültiger SHA256, aber inkon
 
 ## K. Code-Rollback
 
-Im Test-LXC aktive und vorherige Version mit `cat current/release.json` und `ls /srv/materialpool/releases` bestimmen. Dann `sudo /usr/local/sbin/materialpool-update rollback v0.0.1`, `readlink -f current`, `systemctl status materialpool-queue.service`, `curl -fsS http://127.0.0.1/up` und Browser prüfen. Dieser Test betrifft **nur Code**. Eine nicht abwärtskompatible Migration verlangt gegebenenfalls den Restore des zugehörigen DB-Backups.
+Im Test-LXC aktive und vorherige Version mit `cat current/release.json` und `ls /srv/materialpool/releases` bestimmen. Dann `sudo /usr/local/sbin/materialpool-update rollback 0.0.1`, `readlink -f current`, `systemctl status materialpool-queue.service`, `curl -fsS http://127.0.0.1/up` und Browser prüfen. Dieser Test betrifft **nur Code**. Eine nicht abwärtskompatible Migration verlangt gegebenenfalls den Restore des zugehörigen DB-Backups.
 
 ## L. Datenbank-Recovery, nur Testinstanz
 
-Zunächst aktuelle Testdatenbank separat mit `mariadb-dump --single-transaction materialpool | gzip > /root/materialpool-before-recovery.sql.gz` sichern. Gewünschtes `pre-v*.sql.gz` unter `/srv/materialpool/shared/backups` bewusst auswählen. Testanwendung in Maintenance Mode setzen, Queue stoppen und `gzip -dc /pfad/zum/geprüften-backup.sql.gz | mariadb materialpool` ausführen. Danach `php /srv/materialpool/current/artisan migrate:status`, Datenintegrität und Uploads prüfen; Queue und Anwendung kontrolliert starten. **Diesen Restore niemals ungeprüft auf Produktion ausführen.** Proxmox-Snapshot/Storage-Backup bleibt eine zusätzliche Ebene.
+Zunächst aktuelle Testdatenbank separat mit `mariadb-dump --single-transaction materialpool | gzip > /root/materialpool-before-recovery.sql.gz` sichern. Gewünschtes `pre-*.sql.gz` unter `/srv/materialpool/shared/backups` bewusst auswählen. Testanwendung in Maintenance Mode setzen, Queue stoppen und `gzip -dc /pfad/zum/geprüften-backup.sql.gz | mariadb materialpool` ausführen. Danach `php /srv/materialpool/current/artisan migrate:status`, Datenintegrität und Uploads prüfen; Queue und Anwendung kontrolliert starten. **Diesen Restore niemals ungeprüft auf Produktion ausführen.** Proxmox-Snapshot/Storage-Backup bleibt eine zusätzliche Ebene.
 
 ## M. Logs und Diagnose
 

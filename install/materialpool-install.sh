@@ -38,7 +38,7 @@ if ! release_status="$(curl -sSL --retry 3 --connect-timeout 10 --max-time 30 -o
 fi
 case "$release_status" in
   200) msg_ok "Stabiles Materialpool-Release ist erreichbar" ;;
-  404) msg_error "Kein stabiles GitHub-Release veröffentlicht. Erforderlich ist ein erfolgreicher Release-Workflow für einen Tag vX.Y.Z."; exit 1 ;;
+  404) msg_error "Kein stabiles GitHub-Release veröffentlicht. Erforderlich ist ein erfolgreicher Release-Workflow für einen Tag X.Y.Z."; exit 1 ;;
   *) msg_error "GitHub-Release-Abfrage fehlgeschlagen (HTTP $release_status)."; exit 1 ;;
 esac
 
@@ -161,7 +161,7 @@ trap 'rm -rf -- "$tmp"' EXIT
 msg_info "Release-Metadaten werden geladen"
 github_api_call "$release_api" "$tmp/release.json"
 version="$(jq -r '.tag_name // empty' "$tmp/release.json")"
-[[ "$version" =~ ^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]] || { msg_error "Kein stabiles SemVer-Release."; exit 1; }
+[[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || { msg_error "Kein stabiles Release im Format X.Y.Z."; exit 1; }
 jq -e '.draft == false and .prerelease == false' "$tmp/release.json" >/dev/null
 msg_ok "Stabiles Release $version gefunden"
 artifact="materialpool-$version.tar.gz"
