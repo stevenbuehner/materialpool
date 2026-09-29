@@ -19,7 +19,7 @@ jobs:
           --health-cmd="mysqladmin ping -h localhost -ptesting"
           --health-interval=10s --health-timeout=5s --health-retries=10
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Keine lokalen Umgebungsdateien im Git-Index
         run: |
           if git ls-files -- .env '.env.*' | grep -vFx '.env.example' | grep -q .; then
@@ -45,7 +45,7 @@ jobs:
           DB_HOST=127.0.0.1 DB_DATABASE=testing DB_USERNAME=root DB_PASSWORD=testing php artisan migrate:fresh --env=testing --force
           DB_HOST=127.0.0.1 DB_DATABASE=testing DB_USERNAME=root DB_PASSWORD=testing php artisan db:seed --env=testing --force
           DB_HOST=127.0.0.1 DB_DATABASE=testing DB_USERNAME=root DB_PASSWORD=testing php artisan test
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version-file: .node-version
           cache: npm
