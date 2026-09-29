@@ -93,7 +93,10 @@ class BundleBibleBackupContractTest extends TestCase
         $this->assertSame(['backup', 'backup_s3'], config('backup.backup.destination.disks'));
         $this->assertSame('none', config('backup.backup.encryption'));
         $this->assertNull(config('backup.backup.password'));
-        $this->assertSame(storage_path('backups'), config('backup.backup.temporary_directory'));
+        $this->assertSame(
+            env('BACKUP_TEMPORARY_DIRECTORY', storage_path('backups')),
+            config('backup.backup.temporary_directory')
+        );
         $this->assertSame(14, config('backup.cleanup.default_strategy.keep_all_backups_for_days'));
         $this->assertSame(30, config('backup.cleanup.default_strategy.keep_daily_backups_for_days'));
         $this->assertSame(8, config('backup.cleanup.default_strategy.keep_weekly_backups_for_weeks'));
