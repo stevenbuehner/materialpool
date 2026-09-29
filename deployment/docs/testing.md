@@ -67,6 +67,8 @@ curl -i http://127.0.0.1/up
 
 `migrate:status` muss alle für das Release vorgesehenen Migrationen als ausgeführt anzeigen. Beide Passport-Schlüssel müssen lesbar sein, der private mit Modus `600`; die OpenSSL-Prüfungen dürfen keinen Fehler melden und geben keinen Schlüsselinhalt aus. Danach im Browser über den TLS-Reverse-Proxy die Anmeldung des gerade angelegten Global-Admins, geschützte Seite, Resource-Download, Upload/Vorschau und API testen. Im Test-LXC zusätzlich `runuser -u www-data -- php /srv/materialpool/current/artisan users:manage update` für diesen Testbenutzer ausführen und den Login mit der geänderten E-Mail und dem neuen Passwort prüfen; alte Zugangsdaten dürfen nicht mehr funktionieren. Qdrant nur mit eingerichtetem Schlüssel aus dem Laravel-LXC testen. Passport-Clients für eine frische Instanz benötigen einen gesondert geprüften Einrichtungsschritt.
 
+Im isolierten Test-LXC bei der ersten Admin-Eingabe zunächst ein zu kurzes Passwort eingeben: Der Dialog muss bei Name, E-Mail und Passwort neu beginnen, ohne dass der Installer abbricht oder ein Benutzer angelegt wird. Danach gültige Angaben eingeben und den erfolgreichen Installationsabschluss prüfen. In einem separaten isolierten Testlauf Ctrl+C während der Admin-Eingabe drücken: Der Installer muss mit Fehlerstatus enden; anschließend den ersten Admin mit `users:manage create --first-admin` im LXC nachholen.
+
 ## F. Kein Node im Produktions-LXC
 
 `command -v node; command -v npm; command -v docker` darf jeweils keinen Pfad liefern. Gleichzeitig müssen `curl -fsS http://127.0.0.1/up` und der Browser-Test erfolgreich sein. `test -s /srv/materialpool/current/public/build/manifest.json` belegt die gebauten Vite-Assets.

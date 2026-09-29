@@ -45,14 +45,22 @@ class ManageUsers extends Command {
 			return self::FAILURE;
 		}
 
-		$name         = trim((string)$this->ask('Name'));
-		$email        = mb_strtolower(trim((string)$this->ask('E-Mail')));
-		$password     = (string)$this->secret('Passwort (mindestens 12 Zeichen)', FALSE);
-		$confirmation = (string)$this->secret('Passwort bestätigen', FALSE);
+		do {
+			$name         = trim((string)$this->ask('Name'));
+			$email        = mb_strtolower(trim((string)$this->ask('E-Mail')));
+			$password     = (string)$this->secret('Passwort (mindestens 12 Zeichen)', FALSE);
+			$confirmation = (string)$this->secret('Passwort bestätigen', FALSE);
 
-		if (!$this->validInput($name, $email, $password, $confirmation)) {
-			return self::INVALID;
-		}
+			if ($this->validInput($name, $email, $password, $confirmation)) {
+				break;
+			}
+
+			if (!$firstAdmin) {
+				return self::INVALID;
+			}
+
+			$this->components->warn('Eingabe ungültig. Bitte Name, E-Mail und Passwort erneut eingeben.');
+		} while (TRUE);
 
 		$user = DB::transaction(function () use ($name, $email, $password, $firstAdmin): User {
 			if ($firstAdmin && User::query()->exists()) {

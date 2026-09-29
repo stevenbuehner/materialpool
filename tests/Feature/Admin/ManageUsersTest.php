@@ -118,15 +118,34 @@ class ManageUsersTest extends TestCase
         $this->assertSame($originalName, $user->name);
     }
 
-    public function test_invalid_password_does_not_create_a_user(): void
+    public function test_invalid_first_admin_password_restarts_input_and_creates_only_valid_admin(): void
     {
         $this->artisan('users:manage', ['action' => 'create', '--first-admin' => true])
             ->expectsQuestion('Name', 'Administrator')
             ->expectsQuestion('E-Mail', 'admin@example.test')
             ->expectsQuestion('Passwort (mindestens 12 Zeichen)', 'kurz')
             ->expectsQuestion('Passwort bestätigen', 'kurz')
+            ->expectsQuestion('Name', 'Administratorin')
+            ->expectsQuestion('E-Mail', 'admin@example.test')
+            ->expectsQuestion('Passwort (mindestens 12 Zeichen)', 'ein-langes-testpasswort')
+            ->expectsQuestion('Passwort bestätigen', 'ein-langes-testpasswort')
+            ->assertExitCode(0);
+
+        $this->assertDatabaseCount('users', 1);
+        $this->assertSame('Administratorin', User::query()->sole()->name);
+    }
+
+    public function test_invalid_password_for_later_user_still_exits_without_creating_a_user(): void
+    {
+        User::factory()->create(['is_admin' => true]);
+
+        $this->artisan('users:manage', ['action' => 'create'])
+            ->expectsQuestion('Name', 'Standardnutzer')
+            ->expectsQuestion('E-Mail', 'standard@example.test')
+            ->expectsQuestion('Passwort (mindestens 12 Zeichen)', 'kurz')
+            ->expectsQuestion('Passwort bestätigen', 'kurz')
             ->assertExitCode(2);
 
-        $this->assertDatabaseCount('users', 0);
+        $this->assertDatabaseCount('users', 1);
     }
 }
