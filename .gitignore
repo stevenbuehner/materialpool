@@ -16,6 +16,7 @@
 !.env.example
 .cache
 public/build
+/database/bible-data/
 /.idea
 Homestead.json
 Homestead.yaml

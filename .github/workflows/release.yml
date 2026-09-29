@@ -54,6 +54,8 @@ jobs:
       - run: npm run test:ci
       - run: npm run build
       - run: git diff --exit-code -- composer.lock package-lock.json
+      - name: OpenBible-Cross-References für das Release aufbereiten
+        run: php artisan bible:prepare:cross-references
       - name: Release-Paket erstellen
         env:
           TAG: ${{ github.ref_name }}

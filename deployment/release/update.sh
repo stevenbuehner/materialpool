@@ -39,6 +39,7 @@ esac
 
 tmp="$(mktemp -d)"
 stage=""
+prepared_release=""
 critical=0
 switched=0
 cleanup() {
@@ -57,6 +58,10 @@ cleanup() {
     fi
   fi
   [[ -z "$stage" || ! -d "$stage" ]] || rm -rf -- "$stage"
+  if ((status != 0)) && [[ -n "$prepared_release" && -d "$prepared_release" ]]; then
+    active_release="$(readlink -f "$base/current" 2>/dev/null || true)"
+    [[ "$active_release" == "$prepared_release" ]] || rm -rf -- "$prepared_release"
+  fi
   rm -rf -- "$tmp"
 }
 trap cleanup EXIT
@@ -97,6 +102,8 @@ tar -xzf "$tmp/$artifact" -C "$stage" --no-same-owner
 [[ -f "$stage/release.json" && -f "$stage/public/build/manifest.json" && -f "$stage/composer.lock" ]] || exit 1
 [[ "$(jq -r '.version' "$stage/release.json")" == "$version" ]] || exit 1
 [[ "$(jq -r '.commit' "$stage/release.json")" =~ ^[0-9a-f]{40}$ ]] || exit 1
+[[ "$(jq -r '.bible_data_manifest_sha256' "$stage/release.json")" == "$(sha256sum "$stage/database/bible-data/manifest.json" | cut -d' ' -f1)" ]] || { echo "Bibeldaten-Manifest stimmt nicht" >&2; exit 1; }
+[[ "$(jq -r '.sha256' "$stage/database/bible-data/manifest.json")" == "$(sha256sum "$stage/database/bible-data/cross-references.tsv" | cut -d' ' -f1)" ]] || { echo "Cross-Reference-Payload stimmt nicht" >&2; exit 1; }
 [[ ! -e "$stage/.env" && ! -e "$stage/node_modules" && ! -e "$stage/vendor" ]] || exit 1
 rm -rf -- "$stage/storage"
 ln -s "$base/shared/.env" "$stage/.env"
@@ -119,6 +126,7 @@ fi
 mv "$stage" "$base/releases/$version"
 stage=""
 release="$base/releases/$version"
+prepared_release="$release"
 
 # Das vorhandene Release wird erst nach Download, Prüfsumme und Composer beeinträchtigt.
 previous=""
@@ -136,6 +144,12 @@ chown root:www-data "$backup.partial"
 chmod 0640 "$backup.partial"
 mv "$backup.partial" "$backup"
 runuser -u www-data -- php "$release/artisan" migrate --force
+if [[ -n "$previous" ]]; then
+  runuser -u www-data -- php "$release/artisan" bible:import --update-translations --update-cross-references --no-interaction
+else
+  [[ -r /dev/tty && -w /dev/tty ]] || { echo "Erstinstallation benötigt eine interaktive TTY für die Bibelauswahl." >&2; exit 1; }
+  runuser -u www-data -- php "$release/artisan" bible:import < /dev/tty > /dev/tty
+fi
 runuser -u www-data -- php "$release/artisan" production:preflight
 runuser -u www-data -- php "$release/artisan" optimize
 rm -f "$base/current.next"

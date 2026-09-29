@@ -1,0 +1,1105 @@
+{
+    "source_commit": "e1b254cef86d0e65b1a5d1a94b8b112d0f296a2c",
+    "entries": {
+        "ACV": {
+            "books": 66,
+            "verses": 31102,
+            "placeholders": 0,
+            "unsupported_books": []
+        },
+        "AKJV": {
+            "books": 66,
+            "verses": 31102,
+            "placeholders": 0,
+            "unsupported_books": []
+        },
+        "ASV": {
+            "books": 66,
+            "verses": 31086,
+            "placeholders": 16,
+            "unsupported_books": []
+        },
+        "Alb": {
+            "books": 66,
+            "verses": 31102,
+            "placeholders": 0,
+            "unsupported_books": []
+        },
+        "Anderson": {
+            "books": 27,
+            "verses": 7946,
+            "placeholders": 23156,
+            "unsupported_books": []
+        },
+        "ArmEastern": {
+            "books": 6,
+            "verses": 6478,
+            "placeholders": 24624,
+            "unsupported_books": []
+        },
+        "BBE": {
+            "books": 66,
+            "verses": 31086,
+            "placeholders": 16,
+            "unsupported_books": []
+        },
+        "BSB": {
+            "books": 66,
+            "verses": 31086,
+            "placeholders": 16,
+            "unsupported_books": []
+        },
+        "BeaMRK": {
+            "books": 1,
+            "verses": 678,
+            "placeholders": 30424,
+            "unsupported_books": []
+        },
+        "BurJudson": {
+            "books": 66,
+            "verses": 31088,
+            "placeholders": 14,
+            "unsupported_books": []
+        },
+        "Byz": {
+            "books": 27,
+            "verses": 7949,
+            "placeholders": 23153,
+            "unsupported_books": []
+        },
+        "CPDV": {
+            "books": 73,
+            "verses": 35812,
+            "placeholders": 1443,
+            "unsupported_books": [
+                "Baruch",
+                "I Maccabees",
+                "II Maccabees",
+                "Judith",
+                "Sirach",
+                "Tobit",
+                "Wisdom"
+            ]
+        },
+        "CSlElizabeth": {
+            "books": 76,
+            "verses": 36000,
+            "placeholders": 1099,
+            "unsupported_books": [
+                "Baruch",
+                "Epistle of Jeremiah",
+                "I Esdras",
+                "I Maccabees",
+                "II Maccabees",
+                "Judith",
+                "Prayer of Manasses",
+                "Sirach",
+                "Tobit",
+                "Wisdom"
+            ]
+        },
+        "CebPinadayag": {
+            "books": 66,
+            "verses": 31102,
+            "placeholders": 0,
+            "unsupported_books": []
+        },
+        "Che1860": {
+            "books": 27,
+            "verses": 7957,
+            "placeholders": 23145,
+            "unsupported_books": []
+        },
+        "ChiSB": {
+            "books": 73,
+            "verses": 35471,
+            "placeholders": 31,
+            "unsupported_books": [
+                "Baruch",
+                "I Maccabees",
+                "II Maccabees",
+                "Judith",
+                "Sirach",
+                "Tobit",
+                "Wisdom"
+            ]
+        },
+        "ChiUn": {
+            "books": 66,
+            "verses": 31103,
+            "placeholders": 1,
+            "unsupported_books": []
+        },
+        "ChiUnL": {
+            "books": 66,
+            "verses": 31095,
+            "placeholders": 9,
+            "unsupported_books": []
+        },
+        "CopSahBible2": {
+            "books": 68,
+            "verses": 26406,
+            "placeholders": 13188,
+            "unsupported_books": [
+                "Baruch",
+                "Epistle of Jeremiah",
+                "I Enoch",
+                "I Esdras",
+                "II Maccabees",
+                "Judith",
+                "Sirach",
+                "Tobit"
+            ]
+        },
+        "CroSaric": {
+            "books": 73,
+            "verses": 35448,
+            "placeholders": 54,
+            "unsupported_books": [
+                "Baruch",
+                "I Maccabees",
+                "II Maccabees",
+                "Judith",
+                "Sirach",
+                "Tobit",
+                "Wisdom"
+            ]
+        },
+        "CzeBKR": {
+            "books": 66,
+            "verses": 31102,
+            "placeholders": 0,
+            "unsupported_books": []
+        },
+        "CzeCSP": {
+            "books": 66,
+            "verses": 31169,
+            "placeholders": 3,
+            "unsupported_books": []
+        },
+        "DRC": {
+            "books": 73,
+            "verses": 35805,
+            "placeholders": 1450,
+            "unsupported_books": [
+                "Baruch",
+                "I Maccabees",
+                "II Maccabees",
+                "Judith",
+                "Sirach",
+                "Tobit",
+                "Wisdom"
+            ]
+        },
+        "DaOT1871NT1907": {
+            "books": 66,
+            "verses": 31063,
+            "placeholders": 41,
+            "unsupported_books": []
+        },
+        "Darby": {
+            "books": 66,
+            "verses": 31099,
+            "placeholders": 3,
+            "unsupported_books": []
+        },
+        "DutSVV": {
+            "books": 67,
+            "verses": 31312,
+            "placeholders": 5507,
+            "unsupported_books": [
+                "Baruch"
+            ]
+        },
+        "DutSVVA": {
+            "books": 81,
+            "verses": 36939,
+            "placeholders": 852,
+            "unsupported_books": [
+                "Baruch",
+                "Bel and the Dragon",
+                "Esther (Greek)",
+                "I Esdras",
+                "I Maccabees",
+                "II Esdras",
+                "II Maccabees",
+                "III Maccabees",
+                "Judith",
+                "Prayer of Azariah",
+                "Prayer of Manasses",
+                "Sirach",
+                "Susanna",
+                "Tobit",
+                "Wisdom"
+            ]
+        },
+        "Esperanto": {
+            "books": 66,
+            "verses": 31102,
+            "placeholders": 0,
+            "unsupported_books": []
+        },
+        "Est": {
+            "books": 28,
+            "verses": 9459,
+            "placeholders": 21643,
+            "unsupported_books": []
+        },
+        "FinBiblia": {
+            "books": 78,
+            "verses": 35445,
+            "placeholders": 2346,
+            "unsupported_books": [
+                "Baruch",
+                "Bel and the Dragon",
+                "Esther (Greek)",
+                "I Maccabees",
+                "II Maccabees",
+                "Judith",
+                "Prayer of Azariah",
+                "Prayer of Manasses",
+                "Sirach",
+                "Susanna",
+                "Tobit",
+                "Wisdom"
+            ]
+        },
+        "FinPR": {
+            "books": 78,
+            "verses": 35439,
+            "placeholders": 2352,
+            "unsupported_books": [
+                "Baruch",
+                "Bel and the Dragon",
+                "Esther (Greek)",
+                "I Maccabees",
+                "II Maccabees",
+                "Judith",
+                "Prayer of Azariah",
+                "Prayer of Manasses",
+                "Sirach",
+                "Susanna",
+                "Tobit",
+                "Wisdom"
+            ]
+        },
+        "FinSTLK2017": {
+            "books": 66,
+            "verses": 31162,
+            "placeholders": 10,
+            "unsupported_books": []
+        },
+        "FreBBB": {
+            "books": 66,
+            "verses": 31102,
+            "placeholders": 0,
+            "unsupported_books": []
+        },
+        "FreBDM1744": {
+            "books": 66,
+            "verses": 31166,
+            "placeholders": 4,
+            "unsupported_books": []
+        },
+        "FreCrampon": {
+            "books": 73,
+            "verses": 35486,
+            "placeholders": 124,
+            "unsupported_books": [
+                "Baruch",
+                "I Maccabees",
+                "II Maccabees",
+                "Judith",
+                "Sirach",
+                "Tobit",
+                "Wisdom"
+            ]
+        },
+        "FreGeneve1669": {
+            "books": 27,
+            "verses": 7948,
+            "placeholders": 23156,
+            "unsupported_books": []
+        },
+        "FreJND": {
+            "books": 66,
+            "verses": 31167,
+            "placeholders": 5,
+            "unsupported_books": []
+        },
+        "FreLXX": {
+            "books": 53,
+            "verses": 28772,
+            "placeholders": 10822,
+            "unsupported_books": [
+                "Baruch",
+                "Bel and the Dragon",
+                "Epistle of Jeremiah",
+                "I Esdras",
+                "I Maccabees",
+                "II Maccabees",
+                "III Maccabees",
+                "IV Maccabees",
+                "Judith",
+                "Psalms of Solomon",
+                "Sirach",
+                "Susanna",
+                "Tobit",
+                "Wisdom"
+            ]
+        },
+        "FreLXXGiguet": {
+            "books": 55,
+            "verses": 29309,
+            "placeholders": 10285,
+            "unsupported_books": [
+                "Baruch",
+                "Bel and the Dragon",
+                "Epistle of Jeremiah",
+                "I Enoch",
+                "I Esdras",
+                "I Maccabees",
+                "II Maccabees",
+                "III Maccabees",
+                "IV Maccabees",
+                "Judith",
+                "Prayer of Manasses",
+                "Psalms of Solomon",
+                "Sirach",
+                "Susanna",
+                "Tobit",
+                "Wisdom"
+            ]
+        },
+        "FreOltramare1874": {
+            "books": 27,
+            "verses": 7957,
+            "placeholders": 23145,
+            "unsupported_books": []
+        },
+        "FrePGR": {
+            "books": 66,
+            "verses": 31102,
+            "placeholders": 0,
+            "unsupported_books": []
+        },
+        "FreStapfer1889": {
+            "books": 27,
+            "verses": 7956,
+            "placeholders": 23146,
+            "unsupported_books": []
+        },
+        "FreSynodale1921": {
+            "books": 28,
+            "verses": 10418,
+            "placeholders": 20684,
+            "unsupported_books": []
+        },
+        "Geneva1599": {
+            "books": 66,
+            "verses": 31064,
+            "placeholders": 40,
+            "unsupported_books": []
+        },
+        "GerAlbrecht": {
+            "books": 28,
+            "verses": 10387,
+            "placeholders": 20715,
+            "unsupported_books": []
+        },
+        "GerBoLut": {
+            "books": 66,
+            "verses": 31164,
+            "placeholders": 8,
+            "unsupported_books": []
+        },
+        "GerElb1871": {
+            "books": 66,
+            "verses": 31071,
+            "placeholders": 31,
+            "unsupported_books": []
+        },
+        "GerElb1905": {
+            "books": 66,
+            "verses": 31102,
+            "placeholders": 2,
+            "unsupported_books": []
+        },
+        "GerGruenewald": {
+            "books": 66,
+            "verses": 30956,
+            "placeholders": 146,
+            "unsupported_books": []
+        },
+        "GerLeoNA28": {
+            "books": 27,
+            "verses": 7941,
+            "placeholders": 23163,
+            "unsupported_books": []
+        },
+        "GerMenge": {
+            "books": 76,
+            "verses": 35436,
+            "placeholders": 333,
+            "unsupported_books": [
+                "Additions to Daniel",
+                "Additions to Esther",
+                "Baruch",
+                "I Maccabees",
+                "II Maccabees",
+                "Judith",
+                "Prayer of Manasses",
+                "Sirach",
+                "Tobit",
+                "Wisdom"
+            ]
+        },
+        "GerOffBiSt": {
+            "books": 55,
+            "verses": 7919,
+            "placeholders": 23183,
+            "unsupported_books": []
+        },
+        "GerSch": {
+            "books": 66,
+            "verses": 31170,
+            "placeholders": 2,
+            "unsupported_books": []
+        },
+        "GerTafel": {
+            "books": 56,
+            "verses": 25977,
+            "placeholders": 5125,
+            "unsupported_books": []
+        },
+        "GerTextbibel": {
+            "books": 66,
+            "verses": 31152,
+            "placeholders": 20,
+            "unsupported_books": []
+        },
+        "GerZurcher": {
+            "books": 66,
+            "verses": 31060,
+            "placeholders": 44,
+            "unsupported_books": []
+        },
+        "GreVamvas": {
+            "books": 66,
+            "verses": 31102,
+            "placeholders": 0,
+            "unsupported_books": []
+        },
+        "Haitian": {
+            "books": 66,
+            "verses": 31101,
+            "placeholders": 1,
+            "unsupported_books": []
+        },
+        "Haweis": {
+            "books": 27,
+            "verses": 7957,
+            "placeholders": 23145,
+            "unsupported_books": []
+        },
+        "HebModern": {
+            "books": 66,
+            "verses": 31102,
+            "placeholders": 0,
+            "unsupported_books": []
+        },
+        "HunKar": {
+            "books": 66,
+            "verses": 31126,
+            "placeholders": 44,
+            "unsupported_books": []
+        },
+        "JPS": {
+            "books": 39,
+            "verses": 23194,
+            "placeholders": 19,
+            "unsupported_books": []
+        },
+        "JapBungo": {
+            "books": 66,
+            "verses": 31099,
+            "placeholders": 3,
+            "unsupported_books": []
+        },
+        "JapDenmo": {
+            "books": 13,
+            "verses": 5516,
+            "placeholders": 25586,
+            "unsupported_books": []
+        },
+        "JapKougo": {
+            "books": 66,
+            "verses": 30629,
+            "placeholders": 473,
+            "unsupported_books": []
+        },
+        "Jubilee2000": {
+            "books": 66,
+            "verses": 31102,
+            "placeholders": 0,
+            "unsupported_books": []
+        },
+        "KJV": {
+            "books": 66,
+            "verses": 31102,
+            "placeholders": 0,
+            "unsupported_books": []
+        },
+        "KJVA": {
+            "books": 80,
+            "verses": 36819,
+            "placeholders": 0,
+            "unsupported_books": [
+                "Additions to Esther",
+                "Baruch",
+                "Bel and the Dragon",
+                "I Esdras",
+                "I Maccabees",
+                "II Esdras",
+                "II Maccabees",
+                "Judith",
+                "Prayer of Azariah",
+                "Prayer of Manasses",
+                "Sirach",
+                "Susanna",
+                "Tobit",
+                "Wisdom"
+            ]
+        },
+        "KJVPCE": {
+            "books": 66,
+            "verses": 31098,
+            "placeholders": 4,
+            "unsupported_books": []
+        },
+        "KLV": {
+            "books": 66,
+            "verses": 31092,
+            "placeholders": 10,
+            "unsupported_books": []
+        },
+        "KorHKJV": {
+            "books": 66,
+            "verses": 31102,
+            "placeholders": 0,
+            "unsupported_books": []
+        },
+        "KorRV": {
+            "books": 66,
+            "verses": 31084,
+            "placeholders": 20,
+            "unsupported_books": []
+        },
+        "LEB": {
+            "books": 66,
+            "verses": 31082,
+            "placeholders": 20,
+            "unsupported_books": []
+        },
+        "LITV": {
+            "books": 66,
+            "verses": 31102,
+            "placeholders": 0,
+            "unsupported_books": []
+        },
+        "LvGluck8": {
+            "books": 66,
+            "verses": 31102,
+            "placeholders": 0,
+            "unsupported_books": []
+        },
+        "MKJV": {
+            "books": 66,
+            "verses": 31102,
+            "placeholders": 0,
+            "unsupported_books": []
+        },
+        "Mal1910": {
+            "books": 66,
+            "verses": 31094,
+            "placeholders": 10,
+            "unsupported_books": []
+        },
+        "ManxGaelic": {
+            "books": 5,
+            "verses": 3313,
+            "placeholders": 27789,
+            "unsupported_books": []
+        },
+        "Maori": {
+            "books": 66,
+            "verses": 31102,
+            "placeholders": 0,
+            "unsupported_books": []
+        },
+        "MapM": {
+            "books": 39,
+            "verses": 23213,
+            "placeholders": 0,
+            "unsupported_books": []
+        },
+        "Mg1865": {
+            "books": 66,
+            "verses": 31163,
+            "placeholders": 9,
+            "unsupported_books": []
+        },
+        "NHEB": {
+            "books": 66,
+            "verses": 31097,
+            "placeholders": 7,
+            "unsupported_books": []
+        },
+        "NHEBJE": {
+            "books": 66,
+            "verses": 31097,
+            "placeholders": 7,
+            "unsupported_books": []
+        },
+        "NHEBME": {
+            "books": 66,
+            "verses": 31097,
+            "placeholders": 7,
+            "unsupported_books": []
+        },
+        "NlCanisius1939": {
+            "books": 73,
+            "verses": 35518,
+            "placeholders": 1737,
+            "unsupported_books": [
+                "Baruch",
+                "I Maccabees",
+                "II Maccabees",
+                "Judith",
+                "Sirach",
+                "Tobit",
+                "Wisdom"
+            ]
+        },
+        "NorSMB": {
+            "books": 66,
+            "verses": 31060,
+            "placeholders": 42,
+            "unsupported_books": []
+        },
+        "Norsk": {
+            "books": 66,
+            "verses": 31101,
+            "placeholders": 1,
+            "unsupported_books": []
+        },
+        "Noyes": {
+            "books": 49,
+            "verses": 18212,
+            "placeholders": 12890,
+            "unsupported_books": []
+        },
+        "OEB": {
+            "books": 28,
+            "verses": 10348,
+            "placeholders": 20754,
+            "unsupported_books": []
+        },
+        "OEBcth": {
+            "books": 28,
+            "verses": 10348,
+            "placeholders": 20754,
+            "unsupported_books": []
+        },
+        "Peshitta": {
+            "books": 27,
+            "verses": 7956,
+            "placeholders": 23146,
+            "unsupported_books": []
+        },
+        "PohnOld": {
+            "books": 28,
+            "verses": 10415,
+            "placeholders": 20689,
+            "unsupported_books": []
+        },
+        "PolGdanska": {
+            "books": 66,
+            "verses": 31073,
+            "placeholders": 29,
+            "unsupported_books": []
+        },
+        "PolUGdanska": {
+            "books": 66,
+            "verses": 31102,
+            "placeholders": 0,
+            "unsupported_books": []
+        },
+        "PorBLivre": {
+            "books": 66,
+            "verses": 31102,
+            "placeholders": 2,
+            "unsupported_books": []
+        },
+        "PorBLivreTR": {
+            "books": 66,
+            "verses": 31102,
+            "placeholders": 2,
+            "unsupported_books": []
+        },
+        "PorNVA": {
+            "books": 66,
+            "verses": 31094,
+            "placeholders": 10,
+            "unsupported_books": []
+        },
+        "RLT": {
+            "books": 66,
+            "verses": 31102,
+            "placeholders": 0,
+            "unsupported_books": []
+        },
+        "RNKJV": {
+            "books": 66,
+            "verses": 31102,
+            "placeholders": 0,
+            "unsupported_books": []
+        },
+        "RWebster": {
+            "books": 66,
+            "verses": 31102,
+            "placeholders": 0,
+            "unsupported_books": []
+        },
+        "Rotherham": {
+            "books": 66,
+            "verses": 31086,
+            "placeholders": 16,
+            "unsupported_books": []
+        },
+        "RusMakarij": {
+            "books": 5,
+            "verses": 5553,
+            "placeholders": 25549,
+            "unsupported_books": []
+        },
+        "RusSynodal": {
+            "books": 78,
+            "verses": 37098,
+            "placeholders": 1,
+            "unsupported_books": [
+                "Baruch",
+                "Epistle of Jeremiah",
+                "I Esdras",
+                "I Maccabees",
+                "II Esdras",
+                "II Maccabees",
+                "III Maccabees",
+                "Judith",
+                "Prayer of Manasses",
+                "Sirach",
+                "Tobit",
+                "Wisdom"
+            ]
+        },
+        "SP": {
+            "books": 5,
+            "verses": 5852,
+            "placeholders": 17361,
+            "unsupported_books": []
+        },
+        "SloChraska": {
+            "books": 66,
+            "verses": 31102,
+            "placeholders": 0,
+            "unsupported_books": []
+        },
+        "SloKJV": {
+            "books": 66,
+            "verses": 31102,
+            "placeholders": 0,
+            "unsupported_books": []
+        },
+        "SloOjacano": {
+            "books": 2,
+            "verses": 2610,
+            "placeholders": 28494,
+            "unsupported_books": []
+        },
+        "SloStritar": {
+            "books": 28,
+            "verses": 10474,
+            "placeholders": 25028,
+            "unsupported_books": []
+        },
+        "SpaPlatense": {
+            "books": 73,
+            "verses": 35791,
+            "placeholders": 1464,
+            "unsupported_books": [
+                "Baruch",
+                "I Maccabees",
+                "II Maccabees",
+                "Judith",
+                "Sirach",
+                "Tobit",
+                "Wisdom"
+            ]
+        },
+        "SpaRV": {
+            "books": 66,
+            "verses": 31084,
+            "placeholders": 18,
+            "unsupported_books": []
+        },
+        "SpaRV1865": {
+            "books": 66,
+            "verses": 31098,
+            "placeholders": 4,
+            "unsupported_books": []
+        },
+        "SpaRVG": {
+            "books": 0,
+            "verses": 0,
+            "placeholders": 31102,
+            "unsupported_books": []
+        },
+        "SrKDEkavski": {
+            "books": 66,
+            "verses": 31075,
+            "placeholders": 29,
+            "unsupported_books": []
+        },
+        "SrKDIjekav": {
+            "books": 66,
+            "verses": 31093,
+            "placeholders": 77,
+            "unsupported_books": []
+        },
+        "StatResGNT": {
+            "books": 27,
+            "verses": 7914,
+            "placeholders": 31680,
+            "unsupported_books": []
+        },
+        "Swe1917": {
+            "books": 78,
+            "verses": 35350,
+            "placeholders": 2441,
+            "unsupported_books": [
+                "Baruch",
+                "Bel and the Dragon",
+                "Esther (Greek)",
+                "I Maccabees",
+                "II Maccabees",
+                "Judith",
+                "Prayer of Azariah",
+                "Prayer of Manasses",
+                "Sirach",
+                "Susanna",
+                "Tobit",
+                "Wisdom"
+            ]
+        },
+        "SweKarlXII": {
+            "books": 44,
+            "verses": 22149,
+            "placeholders": 8953,
+            "unsupported_books": []
+        },
+        "SweKarlXII1873": {
+            "books": 66,
+            "verses": 31075,
+            "placeholders": 27,
+            "unsupported_books": []
+        },
+        "TR": {
+            "books": 27,
+            "verses": 7957,
+            "placeholders": 23145,
+            "unsupported_books": []
+        },
+        "TagAngBiblia": {
+            "books": 66,
+            "verses": 31102,
+            "placeholders": 0,
+            "unsupported_books": []
+        },
+        "Tausug": {
+            "books": 27,
+            "verses": 7959,
+            "placeholders": 23145,
+            "unsupported_books": []
+        },
+        "ThaiKJV": {
+            "books": 66,
+            "verses": 31102,
+            "placeholders": 0,
+            "unsupported_books": []
+        },
+        "TpiKJPB": {
+            "books": 66,
+            "verses": 31101,
+            "placeholders": 1,
+            "unsupported_books": []
+        },
+        "Twenty": {
+            "books": 27,
+            "verses": 7940,
+            "placeholders": 23162,
+            "unsupported_books": []
+        },
+        "Tyndale": {
+            "books": 10,
+            "verses": 7888,
+            "placeholders": 23214,
+            "unsupported_books": []
+        },
+        "UKJV": {
+            "books": 66,
+            "verses": 31102,
+            "placeholders": 0,
+            "unsupported_books": []
+        },
+        "UkrOgienko": {
+            "books": 66,
+            "verses": 31112,
+            "placeholders": 6353,
+            "unsupported_books": []
+        },
+        "Viet": {
+            "books": 66,
+            "verses": 31102,
+            "placeholders": 0,
+            "unsupported_books": []
+        },
+        "VulgClementine": {
+            "books": 73,
+            "verses": 35809,
+            "placeholders": 1446,
+            "unsupported_books": [
+                "Baruch",
+                "I Maccabees",
+                "II Maccabees",
+                "Judith",
+                "Sirach",
+                "Tobit",
+                "Wisdom"
+            ]
+        },
+        "VulgConte": {
+            "books": 73,
+            "verses": 35745,
+            "placeholders": 1510,
+            "unsupported_books": [
+                "Baruch",
+                "I Maccabees",
+                "II Maccabees",
+                "Judith",
+                "Sirach",
+                "Tobit",
+                "Wisdom"
+            ]
+        },
+        "VulgHetzenauer": {
+            "books": 73,
+            "verses": 35808,
+            "placeholders": 1447,
+            "unsupported_books": [
+                "Baruch",
+                "I Maccabees",
+                "II Maccabees",
+                "Judith",
+                "Sirach",
+                "Tobit",
+                "Wisdom"
+            ]
+        },
+        "VulgSistine": {
+            "books": 73,
+            "verses": 35807,
+            "placeholders": 1448,
+            "unsupported_books": [
+                "Baruch",
+                "I Maccabees",
+                "II Maccabees",
+                "Judith",
+                "Sirach",
+                "Tobit",
+                "Wisdom"
+            ]
+        },
+        "Vulgate": {
+            "books": 78,
+            "verses": 37248,
+            "placeholders": 7,
+            "unsupported_books": [
+                "Additional Psalm",
+                "Baruch",
+                "I Esdras",
+                "I Maccabees",
+                "II Esdras",
+                "II Maccabees",
+                "Judith",
+                "Laodiceans",
+                "Prayer of Manasses",
+                "Sirach",
+                "Tobit",
+                "Wisdom"
+            ]
+        },
+        "WLC": {
+            "books": 39,
+            "verses": 23213,
+            "placeholders": 0,
+            "unsupported_books": []
+        },
+        "Webster": {
+            "books": 66,
+            "verses": 31102,
+            "placeholders": 0,
+            "unsupported_books": []
+        },
+        "Wulfila": {
+            "books": 18,
+            "verses": 3626,
+            "placeholders": 27476,
+            "unsupported_books": []
+        },
+        "Wycliffe": {
+            "books": 76,
+            "verses": 36227,
+            "placeholders": 1028,
+            "unsupported_books": [
+                "Baruch",
+                "I Esdras",
+                "I Maccabees",
+                "II Maccabees",
+                "Judith",
+                "Laodiceans",
+                "Prayer of Manasses",
+                "Sirach",
+                "Tobit",
+                "Wisdom"
+            ]
+        },
+        "YLT": {
+            "books": 66,
+            "verses": 31102,
+            "placeholders": 0,
+            "unsupported_books": []
+        },
+        "sml_BL_2008": {
+            "books": 35,
+            "verses": 12700,
+            "placeholders": 18404,
+            "unsupported_books": []
+        },
+        "vlsJoNT": {
+            "books": 27,
+            "verses": 7956,
+            "placeholders": 23148,
+            "unsupported_books": []
+        }
+    }
+}

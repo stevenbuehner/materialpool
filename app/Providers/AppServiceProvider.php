@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Services\Bibles\Import\ScrollmapperSource;
+use App\Services\Bibles\Import\TranslationSource;
 use App\ResourceLimitations\ResourceLimitationService;
 use App\Services\Bundles\BundleQueueService;
 use App\Services\Bundles\BundlesService;
@@ -71,6 +73,8 @@ class AppServiceProvider extends ServiceProvider {
 	 * @return void
 	 */
 	public function register(): void {
+		$this->app->singleton(ScrollmapperSource::class);
+		$this->app->bind(TranslationSource::class, fn($app): ScrollmapperSource => $app->make(ScrollmapperSource::class));
 		if ($this->app->environment() == 'local') {
 			$this->app->register('Illuminate\Translation\TranslationServiceProvider');
 		}

@@ -312,6 +312,10 @@ Ein erfolgreich erzeugtes oder hochgeladenes Archiv ist noch kein verifiziertes 
 | `php artisan resources:backfill-filesizes [--chunk=100] [--force]` | Nach freigegebener Migration | Fehlende persistierte Dateigrößen ergänzen | Plant Batches mit 1–1000 Resources auf `database/default` ein. | mittel; `--force` berechnet alle geeigneten Werte neu |
 | `php artisan resources:check:duplicates` | Nur nach Backup und fachlicher Prüfung | Nachgewiesene Hash-Dubletten bereinigen | Führt Resource-Dubletten und Materialzuordnungen zusammen. | **hoch; Datenmutation** |
 | `php artisan import:zefaniabible <absoluter-xml-pfad>` | Nur kontrollierte Administration | Eine geprüfte Zefania-Bibel importieren | Importiert Bibelinhalt aus XML in die Datenbank. | **hoch; Datenmutation** |
+| `php artisan bible:import` | Erstinstallation mit TTY, als `www-data` | Bibeltexte und Cross References auswählen | Zwei getrennte Fragen; Übersetzungen direkt von Scrollmapper, Cross References aus dem Release. Rechtehinweis ohne Zustimmungsfrage. | **hoch; Datenmutation** |
+| `php artisan bible:import --update-translations --update-cross-references --no-interaction` | Proxmox-Update, als `www-data` | Bereits installierte Daten prüfen | Aktualisiert nur zuvor installierte Datensätze bei geändertem Inhalt. Ohne ausgewählte Übersetzung ist keine GitHub-Verbindung nötig. | **hoch; Datenmutation** |
+| `php artisan bible:import --translation=scrollmapper:GerElb1905 --cross-references --no-interaction` | Gezielte Administration, nach Backup | Konkrete Übersetzung und Cross References installieren | `--translation` ist wiederholbar; `--cross-references` installiert ausdrücklich auch ohne Vorbestand. | **hoch; Datenmutation** |
+| `php artisan bible:prepare:cross-references` | GitHub-Release-Build | Vor Paketierung | Lädt OpenBible direkt, prüft und erstellt Payload samt Manifest. | mittel; lokale Release-Daten |
 
 #### Bundle-Störung beheben
 
@@ -768,18 +772,7 @@ Nur wenn die Ausgabe zweifelsfrei die dedizierte, entbehrliche Datenbank `testin
 
 `--env=testing` allein ist kein Isolationsnachweis, weil Laravel bei fehlender `.env.testing` auf andere Werte zurückfallen kann. Seed-Ausgaben mit Test-Client-Secrets dürfen nicht gespeichert oder weitergegeben werden.
 
-Die Migration für `bibleverses_cross_ref` erstellt nur die Tabelle. Der allgemeine `DatabaseSeeder` importiert keine Querverweise. In der zuvor verifizierten, entbehrlichen Testdatenbank lässt sich der Import bei Bedarf gezielt starten:
-
-```sh
-./vendor/bin/sail exec \
-  -e APP_ENV=testing \
-  -e DB_CONNECTION=mysql \
-  -e DB_HOST=mysql \
-  -e DB_DATABASE=testing \
-  laravel.test php artisan db:seed --class=ImportBibleverseCrossReferences --env=testing --force
-```
-
-Der gezielte Seeder ersetzt sämtliche vorhandenen Querverweise. Quelle, Feldzuordnung und Aktualisierung stehen unter [`database/seeders/data/cross_references/README.md`](database/seeders/data/cross_references/README.md). Für Produktionsdaten gilt weiterhin das Verbot von `db:seed` im [Produktionsvertrag](docs/ai/production-deployment-contract.md); ein produktiver Import benötigt einen gesondert geprüften Betriebsablauf.
+Die Migrationen erstellen nur die Bibel- und Cross-Reference-Tabellen sowie den Importstatus. Der produktive Import erfolgt ausschließlich mit `bible:import`; ein allgemeines `db:seed` bleibt in Produktion verboten. Bei der Erstinstallation benötigt die Auswahl eine TTY und ausgehendes HTTPS zum [Scrollmapper-Katalog](https://github.com/scrollmapper/bible_databases). Ein textfreier Prüfsnapshot zeigt bei der bekannten Quellrevision Umfang und nicht installierbare Ausgaben; aktuell sind 25 Ausgaben mit zusätzlichen Büchern und eine leere Ausgabe vom Import ausgeschlossen. Bei einer neuen Quellrevision prüft der Befehl den Umfang der gewählten Datei vor dem Import. Cross References stammen aus dem geprüften Release und können nicht interaktiv offline importiert werden. `--update-translations` und `--update-cross-references` installieren keine neuen Datensätze. Ohne Aktionsoptionen gibt `--no-interaction` nur den lokalen Status aus. Quelle, Versionierung, Rechtehinweis, Fehlergrenzen und Bestandseinführung stehen im [Bibel-Installationsvertrag](docs/ai/bible-data-installation-contract.md).
 
 | Änderung | Mindestprüfung |
 | --- | --- |
