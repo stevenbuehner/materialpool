@@ -61,7 +61,7 @@ final class ContextSearchEvaluationDatasetController extends Controller {
 		$page        = $query->paginate($data['per_page'] ?? 25, ['materials.id'], total: $total);
 		$materialIds = $page->getCollection()->modelKeys();
 		$materials   = Material::query()->withoutGlobalScopes()->whereKey($materialIds)->with(['resources' => function ($resources) use ($type, $visibility): void {
-			$resources->withoutGlobalScopes()->whereIn('type', $type === 'all' ? ['pdf', 'text'] : [$type])->select(['resources.id', 'type', 'notes', 'is_public']);
+			$resources->withoutGlobalScopes()->whereIn('type', $type === 'all' ? ['pdf', 'text'] : [$type])->select(['resources.id', 'type', 'notes', 'is_public', 'options']);
 			if ($visibility !== 'all') $resources->where('is_public', $visibility === 'public');
 		}])->get(['materials.id', 'materials.title', 'materials.description', 'materials.is_public'])->keyBy('id');
 		$page->setCollection($page->getCollection()->map(fn(Material $material): Material => $materials[$material->id]));
@@ -77,6 +77,7 @@ final class ContextSearchEvaluationDatasetController extends Controller {
 			'assignments' => $assignments['material:' . $material->id]['all'] ?? [],
 			'resources'   => $material->resources->map(fn(Resource $resource): array => [
 				'id'          => $resource->id, 'type' => $resource->type, 'notes' => $resource->notes, 'is_public' => (bool)$resource->is_public,
+				'page_count'  => $resource->type === 'pdf' ? ($resource->options['pdfPageCount'] ?? NULL) : NULL,
 				'assignment'  => $assignments['resource:' . $resource->id]['assignment'] ?? NULL,
 				'assignments' => $assignments['resource:' . $resource->id]['all'] ?? [],
 			])->values(),
@@ -95,7 +96,7 @@ final class ContextSearchEvaluationDatasetController extends Controller {
 
 		return $memberships->mapWithKeys(function ($members, string $key) use ($targetDataset): array {
 			$all        = $members->map(fn(ContextSearchEvaluationDatasetMember $member): array => [
-				'id' => $member->dataset_id, 'purpose' => $member->dataset?->purpose, 'title' => $member->dataset?->title, 'status' => $member->dataset?->status,
+				'id' => $member->dataset_id, 'purpose' => $member->dataset?->purpose, 'title' => $member->dataset?->title, 'status' => $member->dataset?->status, 'document_type' => $member->document_type,
 			])->values()->all();
 			$current    = $targetDataset === NULL ? NULL : collect($all)->first(fn(array $assignment): bool => $assignment['id'] === $targetDataset->getKey());
 			$blocking   = collect($all)->first(fn(array $assignment): bool => $targetDataset === NULL
@@ -146,6 +147,19 @@ final class ContextSearchEvaluationDatasetController extends Controller {
 		$data = $request->validate(['expected_version' => ['required', 'integer', 'min:1']]);
 		try {
 			$dataset = $curation->removeConnectedBlock($dataset, $data['expected_version'], $memberType, $memberId);
+		} catch (RuntimeException $exception) {
+			return response()->json(['message' => $exception->getMessage()], str_contains($exception->getMessage(), 'zwischenzeitlich') ? 409 : 422);
+		}
+		return ['dataset' => $curation->summary($dataset)];
+	}
+
+	public function classify(ContextSearchEvaluationDataset $dataset, int $memberId, Request $request, EvaluationDatasetCurationService $curation): JsonResponse|array {
+		$data = $request->validate([
+			'expected_version' => ['required', 'integer', 'min:1'],
+			'document_type' => ['required', Rule::in(['book', 'worksheet', 'presentation'])],
+		]);
+		try {
+			$dataset = $curation->classifyOcrResource($dataset, $memberId, $data['expected_version'], $data['document_type']);
 		} catch (RuntimeException $exception) {
 			return response()->json(['message' => $exception->getMessage()], str_contains($exception->getMessage(), 'zwischenzeitlich') ? 409 : 422);
 		}

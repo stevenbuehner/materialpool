@@ -105,6 +105,7 @@ Route::group([
 		Route::post('context-search/datasets/preview', 'Admin\\ContextSearchEvaluationDatasetController@preview')->name('context-search.datasets.preview');
 		Route::post('context-search/datasets/{dataset}/assign', 'Admin\\ContextSearchEvaluationDatasetController@assign')->name('context-search.datasets.assign');
 		Route::delete('context-search/datasets/{dataset}/members/{memberType}/{memberId}', 'Admin\\ContextSearchEvaluationDatasetController@remove')->where('memberId', '[0-9]+')->name('context-search.datasets.members.remove');
+		Route::put('context-search/datasets/{dataset}/resources/{memberId}/document-type', 'Admin\\ContextSearchEvaluationDatasetController@classify')->where('memberId', '[0-9]+')->name('context-search.datasets.resources.document-type');
 		Route::post('context-search/datasets/{dataset}/freeze', 'Admin\\ContextSearchEvaluationDatasetController@freeze')->name('context-search.datasets.freeze');
 		Route::get('context-search/ocr-calibration', 'Admin\\ContextSearchOcrCalibrationController@index')->name('context-search.ocr-calibration.index');
 		Route::post('context-search/ocr-calibration/runs', 'Admin\\ContextSearchOcrCalibrationController@store')->name('context-search.ocr-calibration.runs.store');

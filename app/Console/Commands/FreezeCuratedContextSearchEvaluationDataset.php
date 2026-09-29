@@ -92,8 +92,9 @@ final class FreezeCuratedContextSearchEvaluationDataset extends Command {
 				$summary['purpose'],
 				in_array($summary['status'], [ContextSearchEvaluationDataset::STATUS_DRAFT, ContextSearchEvaluationDataset::STATUS_READY], TRUE) ? 'offen' : 'geschlossen',
 				$summary['status'],
-				$summary['material_count'] . '/' . $summary['target_material_count'],
-				$summary['resource_count'] . '/' . $summary['target_resource_count'],
+				$summary['purpose'] === 'ocr' && $summary['target_material_count'] === 0 ? '—' : $summary['material_count'] . '/' . $summary['target_material_count'],
+				$summary['purpose'] === 'ocr' && $summary['target_resource_count'] === 0 ? '—' : $summary['resource_count'] . '/' . $summary['target_resource_count'],
+				isset($summary['quotas']['pdf_pages']) ? $summary['quotas']['pdf_pages']['actual'] . '/' . $summary['quotas']['pdf_pages']['target'] : '—',
 				$assessment,
 			];
 			if ($assessment === 'einfrierbar') {
@@ -101,7 +102,7 @@ final class FreezeCuratedContextSearchEvaluationDataset extends Command {
 			}
 		}
 
-		$this->table(['UUID', 'Zweck', 'Phase', 'Status', 'Materialien', 'Ressourcen', 'Bewertung'], $rows);
+		$this->table(['UUID', 'Zweck', 'Phase', 'Status', 'Materialien', 'Ressourcen', 'PDF-Seiten', 'Bewertung'], $rows);
 		$this->components->info('Die Bewertung prüft Status, Mengen und Quoten. Quelldateien werden beim Einfrieren geprüft.');
 
 		if ($choices === []) {
@@ -139,7 +140,8 @@ final class FreezeCuratedContextSearchEvaluationDataset extends Command {
 		}
 		foreach ($summary['quotas'] as $name => $quota) {
 			if ($quota['remaining'] > 0) {
-				$missing[] = $name . ': ' . $quota['remaining'];
+				$label = ['pdf_pages' => 'PDF-Seiten', 'book' => 'Bücher', 'worksheet' => 'Arbeitsblätter', 'presentation' => 'Präsentationen'][$name] ?? $name;
+				$missing[] = $label . ': ' . $quota['remaining'];
 			}
 		}
 		if ($summary['material_count'] === 0 || $summary['resource_count'] === 0) {

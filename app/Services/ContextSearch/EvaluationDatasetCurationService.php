@@ -24,7 +24,7 @@ final class EvaluationDatasetCurationService {
 	private const DEFAULT_TARGETS = [
 		'calibration' => ['materials' => 300, 'resources' => 450, 'quotas' => ['pdf' => 60, 'text' => 300, 'public' => 150, 'private' => 150]],
 		'acceptance'  => ['materials' => 170, 'resources' => 250, 'quotas' => ['pdf' => 30, 'text' => 170, 'public' => 80, 'private' => 80]],
-		'ocr'         => ['materials' => 75, 'resources' => 100, 'quotas' => ['pdf' => 100]],
+		'ocr'         => ['materials' => 0, 'resources' => 0, 'quotas' => ['pdf_pages' => 300, 'book' => 1, 'worksheet' => 1, 'presentation' => 1]],
 		'load'        => ['materials' => 1400, 'resources' => 2000, 'quotas' => ['pdf' => 300, 'text' => 1400, 'public' => 700, 'private' => 700]],
 		'capacity'    => ['materials' => 5600, 'resources' => 8000, 'quotas' => ['pdf' => 800, 'text' => 5600, 'public' => 2800, 'private' => 2800]],
 	];
@@ -110,12 +110,16 @@ final class EvaluationDatasetCurationService {
 	/** @param array<int, int> $materialIds @param array<int, int> $resourceIds @return array<string, int> */
 	private function counts(array $materialIds, array $resourceIds): array {
 		$materials = Material::query()->withoutGlobalScopes()->whereIn('id', $materialIds)->get(['id', 'is_public']);
-		$resources = Resource::query()->withoutGlobalScopes()->whereIn('id', $resourceIds)->get(['id', 'type', 'is_public']);
+		$resources = Resource::query()->withoutGlobalScopes()->whereIn('id', $resourceIds)->get(['id', 'type', 'is_public', 'options']);
+		$pdfs      = $resources->where('type', 'pdf');
+		$knownPages = $pdfs->map(fn(Resource $resource): int|false => filter_var($resource->options['pdfPageCount'] ?? NULL, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]));
 		return [
 			'materials'         => $materials->count(), 'resources' => $resources->count(),
 			'private_materials' => $materials->where('is_public', FALSE)->count(), 'private_resources' => $resources->where('is_public', FALSE)->count(),
 			'public'            => $resources->where('is_public', TRUE)->count(), 'private' => $resources->where('is_public', FALSE)->count(),
 			'pdf'               => $resources->where('type', 'pdf')->count(), 'text' => $resources->where('type', 'text')->count(),
+			'pdf_pages'         => $knownPages->sum(fn(int|false $pages): int => $pages === FALSE ? 0 : $pages),
+			'unknown_page_count' => $knownPages->filter(fn(int|false $pages): bool => $pages === FALSE)->count(),
 		];
 	}
 
@@ -243,6 +247,21 @@ final class EvaluationDatasetCurationService {
 		return $dataset->fresh();
 	}
 
+	public function classifyOcrResource(ContextSearchEvaluationDataset $dataset, int $resourceId, int $expectedVersion, string $documentType): ContextSearchEvaluationDataset {
+		if (!in_array($documentType, ['book', 'worksheet', 'presentation'], TRUE)) throw new InvalidArgumentException('Ungültige Dokumentart.');
+		return DB::transaction(function () use ($dataset, $resourceId, $expectedVersion, $documentType): ContextSearchEvaluationDataset {
+			$dataset = ContextSearchEvaluationDataset::query()->lockForUpdate()->findOrFail($dataset->getKey());
+			$this->assertMutable($dataset, $expectedVersion);
+			if ($dataset->purpose !== 'ocr') throw new RuntimeException('Dokumentarten können nur im OCR-Datensatz festgelegt werden.');
+			$member = $dataset->members()->where('member_type', ContextSearchEvaluationDatasetMember::TYPE_RESOURCE)->where('member_id', $resourceId)->first();
+			if ($member === NULL || !Resource::query()->withoutGlobalScopes()->whereKey($resourceId)->where('type', 'pdf')->exists()) {
+				throw new RuntimeException('Die PDF-Ressource gehört nicht zu diesem OCR-Datensatz.');
+			}
+			$member->forceFill(['document_type' => $documentType])->save();
+			return $this->refreshState($dataset, FALSE, NULL);
+		});
+	}
+
 	/** @return array<string, mixed> */
 	public function summary(ContextSearchEvaluationDataset $dataset, ?array $counts = NULL): array {
 		$counts       ??= $this->datasetCounts([$dataset->getKey()])[$dataset->getKey()] ?? $this->emptyCounts();
@@ -257,6 +276,7 @@ final class EvaluationDatasetCurationService {
 			'materials_remaining'   => max(0, (int)$dataset->target_material_count - $counts['materials']),
 			'resources_remaining'   => max(0, (int)$dataset->target_resource_count - $counts['resources']),
 			'quotas'                => $quotas, 'ready_at' => $dataset->ready_at?->toAtomString(), 'frozen_at' => $dataset->frozen_at?->toAtomString(),
+			'unknown_page_count'   => $counts['unknown_page_count'] ?? 0,
 		];
 	}
 
@@ -277,6 +297,11 @@ final class EvaluationDatasetCurationService {
 			->selectRaw('SUM(CASE WHEN resource.id IS NOT NULL AND resource.is_public = 0 THEN 1 ELSE 0 END) as private')
 			->selectRaw("SUM(CASE WHEN resource.type = 'pdf' THEN 1 ELSE 0 END) as pdf")
 			->selectRaw("SUM(CASE WHEN resource.type = 'text' THEN 1 ELSE 0 END) as text")
+			->selectRaw("SUM(CASE WHEN resource.type = 'pdf' THEN CASE WHEN JSON_UNQUOTE(JSON_EXTRACT(resource.options, '$.pdfPageCount')) REGEXP '^[1-9][0-9]*$' THEN CAST(JSON_UNQUOTE(JSON_EXTRACT(resource.options, '$.pdfPageCount')) AS UNSIGNED) ELSE 0 END ELSE 0 END) as pdf_pages")
+			->selectRaw("SUM(CASE WHEN resource.type = 'pdf' AND (JSON_UNQUOTE(JSON_EXTRACT(resource.options, '$.pdfPageCount')) IS NULL OR JSON_UNQUOTE(JSON_EXTRACT(resource.options, '$.pdfPageCount')) NOT REGEXP '^[1-9][0-9]*$') THEN 1 ELSE 0 END) as unknown_page_count")
+			->selectRaw("SUM(CASE WHEN resource.type = 'pdf' AND members.document_type = 'book' THEN 1 ELSE 0 END) as book")
+			->selectRaw("SUM(CASE WHEN resource.type = 'pdf' AND members.document_type = 'worksheet' THEN 1 ELSE 0 END) as worksheet")
+			->selectRaw("SUM(CASE WHEN resource.type = 'pdf' AND members.document_type = 'presentation' THEN 1 ELSE 0 END) as presentation")
 			->get()->mapWithKeys(function ($row): array {
 				$counts = (array)$row;
 				unset($counts['dataset_id']);
@@ -287,7 +312,7 @@ final class EvaluationDatasetCurationService {
 
 	/** @return array<string, int> */
 	private function emptyCounts(): array {
-		return array_fill_keys(['materials', 'resources', 'private_materials', 'private_resources', 'public', 'private', 'pdf', 'text'], 0);
+		return array_fill_keys(['materials', 'resources', 'private_materials', 'private_resources', 'public', 'private', 'pdf', 'text', 'pdf_pages', 'unknown_page_count', 'book', 'worksheet', 'presentation'], 0);
 	}
 
 	public function removeConnectedBlock(ContextSearchEvaluationDataset $dataset, int $expectedVersion, string $memberType, int $memberId): ContextSearchEvaluationDataset {

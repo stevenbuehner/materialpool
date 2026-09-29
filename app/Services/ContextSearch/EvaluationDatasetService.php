@@ -26,6 +26,8 @@ final class EvaluationDatasetService {
 	private const DISK                = 'context_search_evaluation';
 	private const MANIFEST_BATCH_SIZE = 100;
 
+	public function __construct(private readonly EvaluationDatasetCurationService $curation) {}
+
 	/** @param array<int, int> $materialIds @param array<int, int> $resourceIds */
 	public function freeze(string $purpose, array $materialIds, array $resourceIds, bool $includePrivate, ?string $privateReason): ContextSearchEvaluationDataset {
 		if (!in_array($purpose, ContextSearchEvaluationDataset::PURPOSES, TRUE)) {
@@ -396,6 +398,12 @@ final class EvaluationDatasetService {
 			$dataset = ContextSearchEvaluationDataset::query()->lockForUpdate()->findOrFail($dataset->getKey());
 			if ($dataset->status !== ContextSearchEvaluationDataset::STATUS_READY) {
 				throw new RuntimeException('Der Entwurf wurde zwischenzeitlich geändert.');
+			}
+			if ($dataset->purpose === 'ocr' && array_key_exists('pdf_pages', $dataset->target_quotas ?? [])) {
+				$summary = $this->curation->summary($dataset);
+				if (collect($summary['quotas'])->contains(fn(array $quota): bool => $quota['remaining'] > 0)) {
+					throw new RuntimeException('Der OCR-Datensatz erfüllt seine Seiten- oder Dokumentart-Ziele nicht mehr.');
+				}
 			}
 			$resources = $this->manifestMembers($dataset, ContextSearchEvaluationDatasetMember::TYPE_RESOURCE);
 			$materials = $this->manifestMembers($dataset, ContextSearchEvaluationDatasetMember::TYPE_MATERIAL);

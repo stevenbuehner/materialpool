@@ -7,6 +7,7 @@ use App\Models\ContextSearchEvaluationDatasetMember;
 use App\Models\Bundle;
 use App\Models\ForeignMaterialId;
 use App\Models\Material;
+use App\Models\PdfFile;
 use App\Models\Text;
 use App\Models\User;
 use App\Services\ContextSearch\EvaluationDatasetCurationService;
@@ -23,6 +24,53 @@ final class ContextSearchEvaluationDatasetCurationTest extends TestCase
         Passport::actingAs(User::factory()->create());
 
         $this->getJson('/api/v2/admin/context-search/datasets')->assertNotFound();
+    }
+
+    public function test_ocr_readiness_uses_known_pages_and_three_document_types(): void
+    {
+        $this->asAdmin();
+        $owner = User::factory()->create();
+        $material = Material::factory()->create(['created_by' => $owner->id, 'modified_by' => $owner->id, 'is_public' => true]);
+        $pdfs = collect([300, 1, null])->map(function (?int $pages) use ($owner, $material): PdfFile {
+            $pdf = PdfFile::factory()->create(['created_by' => $owner->id, 'is_public' => true]);
+            if ($pages !== null) {
+                $pdf->page_count = $pages;
+                $pdf->save();
+            }
+            $material->resources()->attach($pdf->id);
+            return $pdf;
+        });
+
+        $dataset = $this->postJson('/api/v2/admin/context-search/datasets', ['purpose' => 'ocr'])
+            ->assertCreated()->assertJsonPath('dataset.target_material_count', 0)
+            ->assertJsonPath('dataset.target_resource_count', 0)
+            ->assertJsonPath('dataset.quotas.pdf_pages.target', 300)->json('dataset');
+        $assigned = $this->postJson('/api/v2/admin/context-search/datasets/'.$dataset['id'].'/assign', [
+            'material_ids' => [$material->id], 'resource_ids' => [], 'expected_version' => 1, 'include_private' => false,
+        ])->assertOk()->assertJsonPath('dataset.status', 'draft')
+            ->assertJsonPath('dataset.quotas.pdf_pages.actual', 301)
+            ->assertJsonPath('dataset.unknown_page_count', 1)->json('dataset');
+
+        $this->putJson('/api/v2/admin/context-search/datasets/'.$dataset['id'].'/resources/'.$pdfs[0]->id.'/document-type', [
+            'expected_version' => $assigned['version'], 'document_type' => 'invalid',
+        ])->assertUnprocessable();
+
+        $this->putJson('/api/v2/admin/context-search/datasets/'.$dataset['id'].'/resources/'.$pdfs[0]->id.'/document-type', [
+            'expected_version' => 1, 'document_type' => 'book',
+        ])->assertConflict();
+
+        foreach (['book', 'worksheet', 'presentation'] as $index => $type) {
+            $assigned = $this->putJson('/api/v2/admin/context-search/datasets/'.$dataset['id'].'/resources/'.$pdfs[$index]->id.'/document-type', [
+                'expected_version' => $assigned['version'], 'document_type' => $type,
+            ])->assertOk()->json('dataset');
+        }
+        $this->assertSame('ready', $assigned['status']);
+        $this->assertSame(1, $assigned['quotas']['presentation']['actual']);
+
+        Passport::actingAs(User::factory()->create());
+        $this->putJson('/api/v2/admin/context-search/datasets/'.$dataset['id'].'/resources/'.$pdfs[0]->id.'/document-type', [
+            'expected_version' => $assigned['version'], 'document_type' => 'book',
+        ])->assertNotFound();
     }
 
     public function test_reconciliation_command_prints_inhaltsfreie_target_progress_overview(): void

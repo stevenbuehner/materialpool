@@ -9,7 +9,7 @@ class ContextSearchEvaluationDatasetMember extends Model {
 	public const TYPE_MATERIAL = 'material';
 	public const TYPE_RESOURCE = 'resource';
 
-	protected $fillable = ['dataset_id', 'member_type', 'member_id', 'source_revision_hash'];
+	protected $fillable = ['dataset_id', 'member_type', 'member_id', 'source_revision_hash', 'document_type'];
 
 	public function dataset(): BelongsTo {
 		return $this->belongsTo(ContextSearchEvaluationDataset::class, 'dataset_id');

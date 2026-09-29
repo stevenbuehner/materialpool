@@ -8,6 +8,11 @@
 - [Installation im Altbetrieb](#installation)
 - [Updates im Altbetrieb](#updates)
 - [Wartung im Altbetrieb](#wartung)
+- [OCR-Evaluationsdatensatz](#ocr-evaluationsdatensatz)
+
+## OCR-Evaluationsdatensatz
+
+Globale Administratoren öffnen in der Anwendung **KI-Datensätze** und wählen den OCR-Datensatz oder legen einen neuen an. Neue OCR-Entwürfe verwenden 300 bekannte PDF-Seiten sowie mindestens je ein Buch, Arbeitsblatt und eine Präsentation als Ziel. Nach dem Hinzufügen eines PDF-Blocks wird die Dokumentart an jeder PDF-Ressource im Datensatz gewählt. PDF-Seiten ohne bekannte Seitenzahl werden angezeigt, zählen aber nicht zum Seitenziel. Materialien und Ressourcen werden weiter als zusammenhängende Blöcke zugeordnet; ihre Anzahl ist für neue OCR-Entwürfe keine Zielgröße. Eingefrorene und ältere OCR-Datensätze behalten ihre gespeicherten Ziele.
 
 ## Neuer Proxmox-Betrieb
 
