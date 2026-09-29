@@ -64,7 +64,20 @@
       <div class="col-xl-9" v-if="run">
         <section class="card mb-3"><div class="card-body d-flex justify-content-between flex-wrap gap-2"><div><h2 class="h5 mb-1">{{ run.title || run.id }}</h2><div class="text-muted small">{{ run.ocr_profile?.profile_id }} · {{ run.ocr_profile?.languages }} · {{ run.ocr_profile?.render_dpi }} dpi · PSM {{ run.ocr_profile?.page_segmentation_mode }} · {{ run.ocr_profile?.tesseract_version }}</div></div><button class="btn btn-outline-primary" @click="evaluate" :disabled="busy || run.processed_pages < run.total_pages">{{ $t('pool.ocr-calibration-evaluate') }}</button></div><div class="progress rounded-0" role="progressbar" :aria-valuenow="run.processed_pages" :aria-valuemax="run.total_pages"><div class="progress-bar" :style="{width: `${run.total_pages ? run.processed_pages / run.total_pages * 100 : 0}%`}"></div></div></section>
         <section v-if="run.sweep_results" class="card mb-3"><div class="card-body"><h2 class="h5">{{ $t('pool.ocr-calibration-results') }}</h2><p>{{ $t('pool.ocr-calibration-recommendation', {threshold: run.sweep_results.recommended_threshold ?? '—'}) }}</p><p v-if="run.sweep_results.holdout">{{ $t('pool.ocr-calibration-holdout', {precision: percent(run.sweep_results.holdout.usable_precision), coverage: percent(run.sweep_results.holdout.coverage), cer: percent(run.sweep_results.holdout.character_error_rate), wer: percent(run.sweep_results.holdout.word_error_rate)}) }}</p><div class="table-responsive"><table class="table table-sm"><thead><tr><th>{{ $t('pool.ocr-calibration-threshold') }}</th><th>{{ $t('pool.ocr-calibration-coverage') }}</th><th>{{ $t('pool.ocr-calibration-precision') }}</th><th>CER</th><th>WER</th></tr></thead><tbody><tr v-for="score in run.sweep_results.threshold_sweep" :key="score.threshold" :class="{'table-success': score.threshold === run.sweep_results.recommended_threshold}"><td>{{ percent(score.threshold) }}</td><td>{{ percent(score.coverage) }}</td><td>{{ percent(score.usable_precision) }}</td><td>{{ percent(score.character_error_rate) }}</td><td>{{ percent(score.word_error_rate) }}</td></tr></tbody></table></div><button v-if="run.status === 'evaluated'" class="btn btn-success" @click="approve" :disabled="busy">{{ $t('pool.ocr-calibration-approve') }}</button><div v-if="run.approved_profile_hash" class="alert alert-success mt-3 mb-0"><strong>{{ $t('pool.ocr-calibration-profile-approved') }}</strong><div class="small font-monospace">SHA-256: {{ run.approved_profile_hash }}</div><pre class="small mt-2 mb-0">{{ JSON.stringify(run.approved_profile, null, 2) }}</pre><label class="form-label mt-3">{{ $t('pool.ocr-calibration-env-settings') }}</label><pre class="small mb-0">{{ approvedEnv }}</pre></div></div></section>
-        <section><h2 class="h5">{{ $t('pool.ocr-calibration-pages') }} ({{ reviewedPageCount }}/{{ run.pages.length }})</h2><article v-for="page in run.pages" :id="`ocr-calibration-page-${page.id}`" :key="page.id" class="card mb-3" :class="{'border-warning': page.split === 'holdout'}"><div class="card-header d-flex justify-content-between flex-wrap gap-2"><span><router-link class="ocr-resource-link" :to="{name: 'resource-detail', params: {id: page.resource_id}}" target="_blank" rel="noopener noreferrer">Resource {{ page.resource_id }} · {{ $t('pool.ocr-calibration-page') }} {{ page.page_number }}</router-link> · {{ page.split === 'holdout' ? $t('pool.ocr-calibration-holdout-set') : $t('pool.ocr-calibration-calibration-set') }}</span><span>{{ page.status }}<template v-if="page.metrics"> · {{ $t('pool.ocr-calibration-confidence') }} {{ percent(page.metrics.mean_confidence) }} · {{ page.metrics.recognized_word_count }} {{ $t('pool.ocr-calibration-words') }}</template></span></div><div class="card-body"><div class="row g-3"><div class="col-lg-5"><div class="ocr-preview border bg-light" @mouseenter="updatePreviewZoom(page, $event)" @mousemove="updatePreviewZoom(page, $event)" @mouseleave="clearPreviewZoom"><img class="img-fluid ocr-preview-image" :key="preview(page)" :src="preview(page)" :alt="$t('pool.ocr-calibration-page-preview')" v-image-queue.hide @q-queued="page.previewLoadState = 'queued'" @q-loading="page.previewLoadState = 'loading'" @q-loaded="onPreviewLoaded(page)" @q-error="onPreviewLoadError(page)"><img v-if="zoomPageId === page.id" v-show="zoomLoadedPageId === page.id" class="ocr-preview-zoom" :src="previewLarge(page)" :style="previewZoomStyle()" alt="" aria-hidden="true" @load="onPreviewZoomLoaded(page, $event)" @error="onPreviewZoomError(page)"><div v-if="page.previewLoadState === 'loading'" class="ocr-preview-indicator"><materialpool-spinner size="lg"/></div><div v-else-if="!page.previewLoadState || page.previewLoadState === 'queued'" class="ocr-preview-indicator" :title="$t('pool.Preview-waiting-in-queue')"><history-icon aria-hidden="true"/><span class="visually-hidden">{{ $t('pool.Preview-waiting-in-queue') }}</span></div><span v-else-if="page.previewLoadState === 'error'" class="ocr-preview-indicator">{{ $t('pool.ocr-calibration-page-preview') }}</span></div></div><div class="col-lg-7"><label class="form-label">{{ $t('pool.ocr-calibration-ocr-output') }}</label><div class="ocr-text-wrapper"><pre class="ocr-text bg-light">{{ ocrOutput(page, $t) }}</pre><div class="ocr-copy-actions"><button class="ocr-copy-button" type="button" :disabled="!page.ocr_text" :title="$t(copiedPageId === page.id ? 'pool.ocr-calibration-copied' : 'pool.Copy')" :aria-label="$t(copiedPageId === page.id ? 'pool.ocr-calibration-copied' : 'pool.Copy')" @click="copyOcrText(page)"><check-icon v-if="copiedPageId === page.id" aria-hidden="true"/><copy-icon v-else aria-hidden="true"/></button><button class="ocr-copy-button" type="button" :disabled="!page.ocr_text" :title="$t('pool.ocr-calibration-copy-to-reference')" :aria-label="$t('pool.ocr-calibration-copy-to-reference')" @click="copyOcrTextToReference(page)"><reference-icon aria-hidden="true"/></button></div></div><div class="mb-2"><label class="form-label" :for="`reference-${page.id}`">{{ $t('pool.ocr-calibration-reference') }}</label><textarea :id="`reference-${page.id}`" ref="referenceFields" v-model="page.reference_text" class="form-control" rows="10" maxlength="30000"></textarea></div><div class="row g-2 align-items-end"><div class="col-md-4"><label class="form-label" :for="`label-${page.id}`">{{ $t('pool.ocr-calibration-quality-label') }}</label><select :id="`label-${page.id}`" v-model="page.quality_label" class="form-select"><option value="">—</option><option v-for="label in labels" :key="label" :value="label">{{ $t(`pool.ocr-calibration-label-${label}`) }}</option></select></div><div class="col-md-8"><label class="form-label" :for="`note-${page.id}`">{{ $t('pool.ocr-calibration-note') }}</label><div class="d-flex gap-2"><input :id="`note-${page.id}`" v-model="page.review_note" class="form-control" maxlength="2000"><button class="btn btn-outline-primary flex-shrink-0" :disabled="busy || page.status !== 'processed' || !page.quality_label" @click="saveReview(page)"><materialpool-spinner v-if="savingPageId === page.id" size="sm" variant="primary" class="me-1"/>{{ $t(page.reviewSaved ? 'pool.ocr-calibration-change-review' : 'pool.ocr-calibration-save-review') }}</button></div></div></div></div></div></div></article></section>
+        <section>
+          <h2 class="h5">{{ $t('pool.ocr-calibration-pages') }} ({{ reviewedPageCount }}/{{ run.pages.length }})</h2>
+          <div class="card mb-3"><div class="card-body">
+            <div class="row g-2 align-items-end">
+              <div class="col-sm-6 col-lg-3"><label class="form-label" for="ocr-filter-quality">{{ $t('pool.ocr-calibration-filter-quality') }}</label><select id="ocr-filter-quality" v-model="qualityFilter" class="form-select"><option value="">{{ $t('pool.ocr-calibration-filter-all') }}</option><option v-for="label in labels" :key="label" :value="label">{{ $t(`pool.ocr-calibration-label-${label}`) }}</option></select></div>
+              <div class="col-sm-6 col-lg-3"><label class="form-label" for="ocr-filter-reviewed">{{ $t('pool.ocr-calibration-filter-review') }}</label><select id="ocr-filter-reviewed" v-model="reviewFilter" class="form-select"><option value="">{{ $t('pool.ocr-calibration-filter-all') }}</option><option value="reviewed">{{ $t('pool.ocr-calibration-filter-reviewed') }}</option><option value="unreviewed">{{ $t('pool.ocr-calibration-filter-unreviewed') }}</option></select></div>
+              <div class="col-sm-6 col-lg-3"><label class="form-label" for="ocr-filter-reference">{{ $t('pool.ocr-calibration-filter-reference') }}</label><select id="ocr-filter-reference" v-model="referenceFilter" class="form-select"><option value="">{{ $t('pool.ocr-calibration-filter-all') }}</option><option value="with">{{ $t('pool.ocr-calibration-filter-with-reference') }}</option><option value="without">{{ $t('pool.ocr-calibration-filter-without-reference') }}</option></select></div>
+              <div class="col-sm-6 col-lg-3"><label class="form-label" for="ocr-filter-confidence">{{ $t('pool.ocr-calibration-filter-confidence') }}</label><input id="ocr-filter-confidence" v-model="minimumConfidence" class="form-control" type="number" min="0" max="100" step="0.1" :class="{'is-invalid': !validMinimumConfidence}" :aria-invalid="!validMinimumConfidence"><div v-if="!validMinimumConfidence" class="invalid-feedback">{{ $t('pool.ocr-calibration-filter-confidence-invalid') }}</div></div>
+            </div>
+            <p class="small text-muted mb-0 mt-2" role="status">{{ $t('pool.ocr-calibration-filter-count', {visible: filteredPages.length, total: run.pages.length}) }}</p>
+          </div></div>
+          <p v-if="!filteredPages.length" class="text-muted">{{ $t('pool.ocr-calibration-filter-empty') }}</p>
+          <article v-for="page in filteredPages" :id="`ocr-calibration-page-${page.id}`" :key="page.id" class="card mb-3" :class="{'border-warning': page.split === 'holdout'}"><div class="card-header d-flex justify-content-between flex-wrap gap-2"><span><router-link class="ocr-resource-link" :to="{name: 'resource-detail', params: {id: page.resource_id}}" target="_blank" rel="noopener noreferrer">Resource {{ page.resource_id }} · {{ $t('pool.ocr-calibration-page') }} {{ page.page_number }}</router-link> · {{ page.split === 'holdout' ? $t('pool.ocr-calibration-holdout-set') : $t('pool.ocr-calibration-calibration-set') }}</span><span>{{ page.status }}<template v-if="page.metrics"> · {{ $t('pool.ocr-calibration-confidence') }} {{ percent(page.metrics.mean_confidence) }} · {{ page.metrics.recognized_word_count }} {{ $t('pool.ocr-calibration-words') }}</template></span></div><div class="card-body"><div class="row g-3"><div class="col-lg-5"><div class="ocr-preview border bg-light" @mouseenter="updatePreviewZoom(page, $event)" @mousemove="updatePreviewZoom(page, $event)" @mouseleave="clearPreviewZoom"><img class="img-fluid ocr-preview-image" :key="preview(page)" :src="preview(page)" :alt="$t('pool.ocr-calibration-page-preview')" v-image-queue.hide @q-queued="page.previewLoadState = 'queued'" @q-loading="page.previewLoadState = 'loading'" @q-loaded="onPreviewLoaded(page)" @q-error="onPreviewLoadError(page)"><img v-if="zoomPageId === page.id" v-show="zoomLoadedPageId === page.id" class="ocr-preview-zoom" :src="previewLarge(page)" :style="previewZoomStyle()" alt="" aria-hidden="true" @load="onPreviewZoomLoaded(page, $event)" @error="onPreviewZoomError(page)"><div v-if="page.previewLoadState === 'loading'" class="ocr-preview-indicator"><materialpool-spinner size="lg"/></div><div v-else-if="!page.previewLoadState || page.previewLoadState === 'queued'" class="ocr-preview-indicator" :title="$t('pool.Preview-waiting-in-queue')"><history-icon aria-hidden="true"/><span class="visually-hidden">{{ $t('pool.Preview-waiting-in-queue') }}</span></div><span v-else-if="page.previewLoadState === 'error'" class="ocr-preview-indicator">{{ $t('pool.ocr-calibration-page-preview') }}</span></div></div><div class="col-lg-7"><label class="form-label">{{ $t('pool.ocr-calibration-ocr-output') }}</label><div class="ocr-text-wrapper"><pre class="ocr-text bg-light">{{ ocrOutput(page, $t) }}</pre><div class="ocr-copy-actions"><button class="ocr-copy-button" type="button" :disabled="!page.ocr_text" :title="$t(copiedPageId === page.id ? 'pool.ocr-calibration-copied' : 'pool.Copy')" :aria-label="$t(copiedPageId === page.id ? 'pool.ocr-calibration-copied' : 'pool.Copy')" @click="copyOcrText(page)"><check-icon v-if="copiedPageId === page.id" aria-hidden="true"/><copy-icon v-else aria-hidden="true"/></button><button class="ocr-copy-button" type="button" :disabled="!page.ocr_text" :title="$t('pool.ocr-calibration-copy-to-reference')" :aria-label="$t('pool.ocr-calibration-copy-to-reference')" @click="copyOcrTextToReference(page)"><reference-icon aria-hidden="true"/></button></div></div><div class="mb-2"><label class="form-label" :for="`reference-${page.id}`">{{ $t('pool.ocr-calibration-reference') }}</label><textarea :id="`reference-${page.id}`" ref="referenceFields" v-model="page.reference_text" class="form-control" rows="10" maxlength="30000"></textarea></div><div class="row g-2 align-items-end"><div class="col-md-4"><label class="form-label" :for="`label-${page.id}`">{{ $t('pool.ocr-calibration-quality-label') }}</label><select :id="`label-${page.id}`" v-model="page.quality_label" class="form-select"><option value="">—</option><option v-for="label in labels" :key="label" :value="label">{{ $t(`pool.ocr-calibration-label-${label}`) }}</option></select></div><div class="col-md-8"><label class="form-label" :for="`note-${page.id}`">{{ $t('pool.ocr-calibration-note') }}</label><div class="d-flex gap-2"><input :id="`note-${page.id}`" v-model="page.review_note" class="form-control" maxlength="2000"><button class="btn btn-outline-primary flex-shrink-0" :disabled="busy || page.status !== 'processed' || !page.quality_label" @click="saveReview(page)"><materialpool-spinner v-if="savingPageId === page.id" size="sm" variant="primary" class="me-1"/>{{ $t(page.reviewSaved ? 'pool.ocr-calibration-change-review' : 'pool.ocr-calibration-save-review') }}</button></div></div></div></div></div></div></article>
+        </section>
       </div>
       <div v-else class="col-xl-9"><div class="alert alert-info">{{ $t('pool.ocr-calibration-select-run') }}</div></div>
     </section>
@@ -76,6 +89,7 @@ import axios from 'axios';
 import {pdfPreviewImageForPage, pdfPreviewImageForPageLarge} from '@/components/serverRoutes';
 import {ocrOutput} from './ocrCalibrationOutput';
 import {copyOcrTextToClipboard} from './ocrCalibrationClipboard';
+import {filterOcrCalibrationPages, validConfidencePercent} from './ocrCalibrationFilters';
 import MaterialpoolSpinner from '@/components/spinner/materialpool-spinner.vue';
 import HistoryIcon from '@primer/octicons/build/svg/history.svg';
 import CheckIcon from '@primer/octicons/build/svg/check.svg';
@@ -104,8 +118,23 @@ export default {
     copiedPageId: null,
     error: '',
     labels: ['usable', 'unusable', 'uncertain', 'handwriting', 'blank'],
+    qualityFilter: '',
+    reviewFilter: '',
+    referenceFilter: '',
+    minimumConfidence: '',
   }),
   computed: {
+    validMinimumConfidence() {
+      return validConfidencePercent(this.minimumConfidence);
+    },
+    filteredPages() {
+      return filterOcrCalibrationPages(this.run?.pages || [], {
+        quality: this.qualityFilter,
+        review: this.reviewFilter,
+        reference: this.referenceFilter,
+        minimumConfidence: this.minimumConfidence,
+      });
+    },
     reviewedPageCount() {
       return this.run?.pages?.filter(page => page.reviewSaved).length || 0;
     },
@@ -191,7 +220,7 @@ export default {
         const {data} = await axios.get(`/api/v2/admin/context-search/ocr-calibration/runs/${id}`);
         if (version !== this.pollVersion) return;
         this.run = data.run;
-        for (const loadedPage of this.run.pages) loadedPage.reviewSaved = Boolean(loadedPage.quality_label);
+        for (const loadedPage of this.run.pages) this.markSavedReview(loadedPage);
         const index = this.runs.findIndex(item => item.id === id);
         if (index >= 0) this.runs.splice(index, 1, {...this.runs[index], ...data.run});
         await this.$nextTick();
@@ -202,7 +231,7 @@ export default {
       }
     },
     scrollToFirstUnreviewedPage() {
-      const page = this.run?.pages.find(item => !item.reviewSaved);
+      const page = this.filteredPages.find(item => !item.reviewSaved);
       if (!page) return;
       const target = document.getElementById(`ocr-calibration-page-${page.id}`);
       if (!target) return;
@@ -326,7 +355,7 @@ export default {
         );
         this.run = data.run;
         for (const updatedPage of this.run.pages) {
-          updatedPage.reviewSaved = Boolean(updatedPage.quality_label);
+          this.markSavedReview(updatedPage);
           if (previewLoadStates.has(updatedPage.id)) {
             updatedPage.previewLoadState = previewLoadStates.get(updatedPage.id);
           }
@@ -363,6 +392,11 @@ export default {
     },
     preview(page) {
       return pdfPreviewImageForPage({id: page.resource_id}, page.page_number);
+    },
+    markSavedReview(page) {
+      page.reviewSaved = Boolean(page.quality_label);
+      page.savedQualityLabel = page.quality_label;
+      page.savedReferencePresent = Boolean(page.reference_text?.trim());
     },
     previewLarge(page) {
       return pdfPreviewImageForPageLarge({id: page.resource_id}, page.page_number);
