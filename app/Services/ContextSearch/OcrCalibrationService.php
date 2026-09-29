@@ -160,7 +160,7 @@ final class OcrCalibrationService {
 		$run->save();
 	}
 
-	public function evaluate(ContextSearchOcrCalibrationRun $run): array {
+	public function evaluate(ContextSearchOcrCalibrationRun $run, ?callable $onProgress = null): array {
 		$labeled     = $run->pages()->where('status', ContextSearchOcrCalibrationPage::STATUS_PROCESSED)
 			->whereIn('quality_label', ['usable', 'unusable', 'handwriting', 'blank'])->get();
 		$calibration = $labeled->where('split', 'calibration');
@@ -172,14 +172,41 @@ final class OcrCalibrationService {
 			|| $holdout->filter(fn($page): bool => $page->quality_label === 'usable' && filled($page->reference_text))->count() < 1) {
 			throw new RuntimeException('Provide exact reference transcriptions for at least 3 usable calibration pages and 1 usable holdout page before evaluation.');
 		}
-		$sweep = [];
+		$thresholds = [];
 		for ($threshold = 0.0; $threshold <= 1.0001; $threshold += 0.05) {
-			$sweep[] = $this->score($calibration, round($threshold, 2));
+			$thresholds[] = round($threshold, 2);
+		}
+		$sweepSteps = count($thresholds) * $calibration->count();
+		$sweepDone  = 0;
+		$sweep      = [];
+		if ($onProgress !== NULL) {
+			$onProgress('sweep', 0, $sweepSteps, $thresholds[0]);
+		}
+		foreach ($thresholds as $threshold) {
+			if ($onProgress !== NULL) {
+				$onProgress('sweep', $sweepDone, $sweepSteps, $threshold);
+			}
+			$sweep[] = $this->score($calibration, $threshold, function (int $_completed, int $_total) use (&$sweepDone, $sweepSteps, $threshold, $onProgress): void {
+				$sweepDone++;
+				if ($onProgress !== NULL) {
+					$onProgress('sweep', $sweepDone, $sweepSteps, $threshold);
+				}
+			});
 		}
 		$eligible = array_values(array_filter($sweep, static fn(array $score): bool => $score['usable_precision'] !== NULL && $score['usable_precision'] >= 0.95));
 		usort($eligible, static fn(array $a, array $b): int => ($b['coverage'] <=> $a['coverage']) ?: ($b['threshold'] <=> $a['threshold']));
 		$recommended   = $eligible[0] ?? NULL;
-		$holdoutResult = $recommended === NULL ? NULL : $this->score($holdout, $recommended['threshold']);
+		$holdoutResult = NULL;
+		if ($recommended !== NULL) {
+			if ($onProgress !== NULL) {
+				$onProgress('holdout', 0, $holdout->count(), $recommended['threshold']);
+			}
+			$holdoutResult = $this->score($holdout, $recommended['threshold'], function (int $done, int $_total) use ($holdout, $recommended, $onProgress): void {
+				if ($onProgress !== NULL) {
+					$onProgress('holdout', $done, $holdout->count(), $recommended['threshold']);
+				}
+			});
+		}
 		$results       = [
 			'method'                   => 'max_coverage_at_minimum_95_percent_usable_precision',
 			'calibration_pages'        => $calibration->count(),
@@ -194,9 +221,12 @@ final class OcrCalibrationService {
 		return $results;
 	}
 
-	private function score($pages, float $threshold): array {
+	private function score($pages, float $threshold, ?callable $onPageScored = null): array {
 		$accepted  = $usable = 0;
 		$cerErrors = $cerChars = $werErrors = $werWords = 0;
+		$referencePagesMeasured = 0;
+		$completed = 0;
+		$total     = $pages->count();
 		foreach ($pages as $page) {
 			$predicted = (float)($page->metrics['mean_confidence'] ?? 0) >= $threshold
 				&& (int)($page->metrics['recognized_word_count'] ?? 0) >= (int)config('context_search.indexing.ocr_quality_minimum_recognized_words', 1)
@@ -207,16 +237,22 @@ final class OcrCalibrationService {
 				$accepted++;
 				$usable += (int)$actual;
 				if ($actual && filled($page->reference_text)) {
-					[$ce, $cc] = $this->editStats($this->characters($page->reference_text), $this->characters($page->ocr_text ?? ''));
-					[$we, $wc] = $this->editStats($this->words($page->reference_text), $this->words($page->ocr_text ?? ''));
+					$referenceCharacters = $this->characters($page->reference_text);
+					$referenceWords     = $this->words($page->reference_text);
+					$referencePagesMeasured += (int)($referenceCharacters !== []);
+					[$ce, $cc] = $this->editStats($referenceCharacters, $this->characters($page->ocr_text ?? ''));
+					[$we, $wc] = $this->editStats($referenceWords, $this->words($page->ocr_text ?? ''));
 					$cerErrors += $ce;
 					$cerChars  += $cc;
 					$werErrors += $we;
 					$werWords  += $wc;
 				}
 			}
+			$completed++;
+			if ($onPageScored !== NULL) {
+				$onPageScored($completed, $total);
+			}
 		}
-		$total = count($pages);
 		return [
 			'threshold'                => $threshold,
 			'labeled_pages'            => $total,
@@ -225,7 +261,7 @@ final class OcrCalibrationService {
 			'usable_precision'         => $accepted === 0 ? NULL : $usable / $accepted,
 			'character_error_rate'     => $cerChars === 0 ? NULL : $cerErrors / $cerChars,
 			'word_error_rate'          => $werWords === 0 ? NULL : $werErrors / $werWords,
-			'reference_pages_measured' => $cerChars === 0 ? 0 : $pages->filter(fn($page): bool => $page->quality_label === 'usable' && filled($page->reference_text) && (float)($page->metrics['mean_confidence'] ?? 0) >= $threshold)->count(),
+			'reference_pages_measured' => $referencePagesMeasured,
 		];
 	}
 
