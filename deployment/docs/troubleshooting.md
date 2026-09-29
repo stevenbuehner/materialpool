@@ -1,5 +1,21 @@
 # Fehlersuche
 
+## Installation bleibt nach „Updated Container OS“ stehen
+
+Der Community-Helper lädt nach dieser Erfolgsmeldung noch `lib/tools.func`. Erst danach meldet Materialpool für jedes direkt installierte Laufzeitpaket den Beginn und die installierte Version; anschließend folgen PHP, Composer und MariaDB. Bleibt die Ausgabe davor oder während eines Schritts stehen, in einer zweiten Proxmox-Shell die Container-ID der laufenden Installation einsetzen und den Zustand nur lesend prüfen:
+
+```bash
+pct exec <CTID> -- ps -eo pid,etime,stat,args
+pct exec <CTID> -- tail -n 50 /var/log/apt/term.log
+pct exec <CTID> -- tail -n 50 /var/log/dpkg.log
+```
+
+Die APT-Protokolle erscheinen erst, wenn die Paketinstallation begonnen hat. Fehlen sie noch, Netzwerk und Download des Community-Helpers prüfen. Die Prozessliste zeigt, ob `curl`, `apt`, `dpkg`, PHP-, Composer- oder MariaDB-Einrichtung läuft. Protokolle können vertrauliche Angaben enthalten und dürfen vor einer Weitergabe nur bereinigt werden. Einen laufenden Paketmanager nicht parallel starten.
+
+## GitHub-Release wird nicht gefunden
+
+Der Installer fragt `https://api.github.com/repos/stevenbuehner/materialpool/releases/latest` ab. HTTP 404 bedeutet bei einem öffentlichen Repository ohne veröffentlichte stabile Releases, dass noch kein installierbares Archiv vorliegt. Ein Git-Tag allein ist kein GitHub-Release. Der Release-Workflow läuft nur bei einem neu gepushten Tag `vMAJOR.MINOR.PATCH`; Tags ohne `v` und Beta-Tags starten ihn nicht. Unter [GitHub Actions → Release](https://github.com/stevenbuehner/materialpool/actions/workflows/release.yml) den Lauf und unter [GitHub Releases](https://github.com/stevenbuehner/materialpool/releases) die beiden Assets prüfen. Erst nach erfolgreichem `verify`- und `publish`-Job mit Archiv und `.sha256` die Neuinstallation starten. Die [Release-Anleitung](release.md) beschreibt den Tag-Schritt.
+
 Im Laravel-LXC:
 
 ```bash

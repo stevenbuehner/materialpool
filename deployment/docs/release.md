@@ -1,8 +1,8 @@
 # Release erstellen
 
-`ci.yml` läuft bei Push und Pull Request mit Leserechten. `release.yml` läuft bei einem gepushten Tag `vMAJOR.MINOR.PATCH`, prüft SemVer erneut und führt PHP-Tests, npm-Tests, Dokumentationslinks, Lint und Vite-Build vor Veröffentlichung aus. Nur der Publish-Job erhält `contents: write`; er erstellt mit `GITHUB_TOKEN` das GitHub Release. Es wird kein Server per SSH kontaktiert. Ein Release-Upgrade erfordert daher einen neuen Tag und dessen erfolgreich veröffentlichtes Archiv; ein Branch-Push allein aktualisiert keinen LXC.
+`ci.yml` läuft bei Push und Pull Request mit Leserechten. Bei einem Tag ohne stabiles `vMAJOR.MINOR.PATCH` gibt CI einen Hinweis aus, erzeugt aber kein Release. `release.yml` läuft nur bei einem neu gepushten Tag `vMAJOR.MINOR.PATCH`, prüft SemVer erneut und führt PHP-Tests, npm-Tests, Dokumentationslinks, Lint und Vite-Build vor Veröffentlichung aus. Nur der Publish-Job erhält `contents: write`; er erstellt mit `GITHUB_TOKEN` das GitHub Release und prüft anschließend den veröffentlichten Tag und beide Assets über die GitHub-API. Es wird kein Server per SSH kontaktiert. Ein Release-Upgrade erfordert daher einen neuen Tag und dessen erfolgreich veröffentlichtes Archiv; ein Branch-Push oder ein Tag wie `2.0.0b` allein aktualisiert keinen LXC.
 
-Beispiel nach grünem CI und geprüftem Commit: Zuerst mit `git remote -v` das Ziel des Remotes `github` kontrollieren. Der Tag veröffentlicht nach erfolgreicher Action ein produktiv auswählbares Release.
+Beispiel nach grünem CI und geprüftem Commit: Zuerst mit `git remote -v` das Ziel des Remotes `github` kontrollieren. Die Beispielversion nur verwenden, wenn sie zum freigegebenen Release passt und der Tag noch nicht existiert. Der Tag veröffentlicht nach erfolgreicher Action ein produktiv auswählbares Release.
 
 ```bash
 git tag v0.0.1

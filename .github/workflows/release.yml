@@ -87,3 +87,15 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           TAG: ${{ github.ref_name }}
         run: gh release create "$TAG" release/* --repo "$GITHUB_REPOSITORY" --verify-tag --generate-notes
+      - name: Veröffentlichtes Release und Assets prüfen
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          gh api "repos/$GITHUB_REPOSITORY/releases/tags/$TAG" |
+            jq -e --arg tag "$TAG" '
+              .tag_name == $tag and .draft == false and .prerelease == false and
+              ((.assets | map(.name) | sort) ==
+               (["materialpool-\($tag).tar.gz", "materialpool-\($tag).tar.gz.sha256"] | sort))
+            '
+          echo "Materialpool $TAG mit Archiv und SHA-256-Datei veröffentlicht." >> "$GITHUB_STEP_SUMMARY"

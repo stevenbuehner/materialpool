@@ -30,13 +30,47 @@ for value in "$app_url" "$trusted_proxies"; do
   [[ "$value" =~ ^[A-Za-z0-9._~!@%+=:/,-]*$ ]] || { msg_error "Ein Konfigurationswert enthält ein nicht unterstütztes Zeichen."; exit 64; }
 done
 
+release_api="https://api.github.com/repos/$repository/releases/latest"
+msg_info "Stabiles Materialpool-Release wird geprüft"
+if ! release_status="$(curl -sSL --retry 3 --connect-timeout 10 --max-time 30 -o /dev/null -w '%{http_code}' "$release_api")"; then
+  msg_error "GitHub-Release-Abfrage fehlgeschlagen. Netzwerk und DNS prüfen."
+  exit 1
+fi
+case "$release_status" in
+  200) msg_ok "Stabiles Materialpool-Release ist erreichbar" ;;
+  404) msg_error "Kein stabiles GitHub-Release veröffentlicht. Erforderlich ist ein erfolgreicher Release-Workflow für einen Tag vX.Y.Z."; exit 1 ;;
+  *) msg_error "GitHub-Release-Abfrage fehlgeschlagen (HTTP $release_status)."; exit 1 ;;
+esac
+
 update_os
-install_packages_with_retry nginx jq curl ca-certificates unzip openssl rsync \
+for package in nginx jq curl ca-certificates unzip openssl rsync \
   mariadb-client poppler-utils qpdf libreoffice ghostscript \
-  tesseract-ocr tesseract-ocr-deu tesseract-ocr-eng
+  tesseract-ocr tesseract-ocr-deu tesseract-ocr-eng; do
+  msg_info "$package wird installiert"
+  install_packages_with_retry "$package"
+  package_status="$(dpkg-query -W -f='${Status}' "$package" 2>/dev/null || true)"
+  package_version="$(dpkg-query -W -f='${Version}' "$package" 2>/dev/null || true)"
+  [[ "$package_status" == 'install ok installed' && -n "$package_version" ]] || {
+    msg_error "$package wurde nicht vollständig installiert."
+    exit 1
+  }
+  msg_ok "$package installiert (Version $package_version)"
+done
+msg_info "PHP 8.4 und Erweiterungen werden eingerichtet"
 PHP_VERSION=8.4 PHP_FPM=YES setup_php
+php_version="$(php -r 'echo PHP_VERSION;')"
+[[ -n "$php_version" ]] || { msg_error "PHP-Version konnte nicht ermittelt werden."; exit 1; }
+msg_ok "PHP eingerichtet (Version $php_version)"
+msg_info "Composer wird eingerichtet"
 setup_composer
+composer_version="$(composer --no-ansi --version)"
+[[ -n "$composer_version" ]] || { msg_error "Composer-Version konnte nicht ermittelt werden."; exit 1; }
+msg_ok "Composer eingerichtet ($composer_version)"
+msg_info "MariaDB wird eingerichtet"
 setup_mariadb
+mariadb_version="$(mariadb --version)"
+[[ -n "$mariadb_version" ]] || { msg_error "MariaDB-Version konnte nicht ermittelt werden."; exit 1; }
+msg_ok "MariaDB eingerichtet ($mariadb_version)"
 if [[ ! -x /usr/bin/mysqldump && -x /usr/bin/mariadb-dump ]]; then
   ln -s /usr/bin/mariadb-dump /usr/bin/mysqldump
 fi
@@ -124,10 +158,12 @@ unset app_key MARIADB_DB_PASS
 
 tmp="$(mktemp -d)"
 trap 'rm -rf -- "$tmp"' EXIT
-github_api_call "https://api.github.com/repos/$repository/releases/latest" "$tmp/release.json"
+msg_info "Release-Metadaten werden geladen"
+github_api_call "$release_api" "$tmp/release.json"
 version="$(jq -r '.tag_name // empty' "$tmp/release.json")"
 [[ "$version" =~ ^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]] || { msg_error "Kein stabiles SemVer-Release."; exit 1; }
 jq -e '.draft == false and .prerelease == false' "$tmp/release.json" >/dev/null
+msg_ok "Stabiles Release $version gefunden"
 artifact="materialpool-$version.tar.gz"
 for name in "$artifact" "$artifact.sha256"; do
   asset_id="$(jq -r --arg n "$name" '.assets[] | select(.name == $n) | .id' "$tmp/release.json")"
