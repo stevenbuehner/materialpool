@@ -13,6 +13,8 @@ abstract class TestCase extends BaseTestCase
     {
         parent::setUp();
 
+        $this->withoutVite();
+
         Storage::fake(config('app.disks.resources'));
         Storage::fake(config('app.disks.archive'));
     }
