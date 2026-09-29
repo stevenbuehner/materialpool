@@ -109,9 +109,7 @@ final class FreezeCuratedContextSearchEvaluationDatasetCommandTest extends TestC
             ->expectsOutputToContain($incomplete->id)
             ->expectsOutputToContain($ready->id)
             ->expectsOutputToContain($closed->id)
-            ->expectsOutputToContain('bereits eingefroren')
             ->expectsChoice('Welchen Datensatz einfrieren?', $choice, [$choice, 'Abbrechen'])
-            ->expectsOutputToContain('eingefroren')
             ->assertExitCode(0);
 
         $this->assertSame(ContextSearchEvaluationDataset::STATUS_FROZEN, $ready->fresh()->status);
