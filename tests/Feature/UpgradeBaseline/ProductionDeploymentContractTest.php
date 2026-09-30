@@ -126,6 +126,15 @@ class ProductionDeploymentContractTest extends TestCase
         $this->assertGreaterThan(120, config('queue.connections.database.retry_after'));
     }
 
+    public function test_proxmox_queue_worker_restarts_after_its_planned_lifetime(): void
+    {
+        $unit = file_get_contents(base_path('deployment/systemd/materialpool-queue.service'));
+
+        $this->assertStringContainsString('--queue=default,resource-previews-low', $unit);
+        $this->assertStringContainsString('--max-time=3600', $unit);
+        $this->assertStringContainsString('Restart=always', $unit);
+    }
+
     public function test_production_preflight_accepts_complete_explicit_configuration(): void
     {
         $this->app->detectEnvironment(fn (): string => 'production');
