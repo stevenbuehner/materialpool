@@ -27,6 +27,12 @@ Antworte und dokumentiere auf Deutsch; belasse etablierte technische Bezeichner,
 4. **Umsetzung:** Ergänze oder aktualisiere passende Tests. Berücksichtige Ereignisse, Queues, Caches, Speicherdateien und Autorisierung.
 5. **Prüfen und berichten:** Führe die angemessenen Prüfungen aus. Berichte am Ende: geänderte Bereiche, ausgeführte Prüfungen, nicht ausgeführte Prüfungen samt Grund, Auswirkungen und verbleibende Risiken.
 
+## Commits
+
+- Gliedere Änderungen in sinnvolle, thematisch zusammengehörige Teilabschnitte und erstelle für jeden Teilabschnitt einen eigenen Commit.
+- Formuliere jede Commit-Nachricht als kurze, aussagekräftige Beschreibung auf Deutsch.
+- Nimm nur die Dateien des jeweiligen Teilabschnitts in den Commit auf; fremde oder bereits vorhandene Änderungen bleiben unangetastet.
+
 ## Was ohne Rückfrage erlaubt ist
 
 - Fehlerbehebungen und kleine Refactorings mit nachweislich unverändertem Verhalten.
