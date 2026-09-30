@@ -16,7 +16,7 @@
           @dragend="onDragend"
     >
       <component :is="iconName" class="keywordIcon"/>
-      {{ label }}
+      <span class="keywordLabel">{{ label }}</span>
     </span>
 
     <span @click="openKeywordDetail" v-once>
@@ -166,6 +166,8 @@ export default {
   }
 
   .label {
+    display: inline-flex;
+    align-items: center;
     border: .05rem solid grey;
     padding: .1rem .5rem .2rem .5rem;
     border-radius: .25rem;
@@ -181,6 +183,9 @@ export default {
 
     .keywordIcon {
       height: 1em;
+      width: 1em;
+      flex-shrink: 0;
+      margin-right: .25em;
     }
   }
 

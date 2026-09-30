@@ -711,6 +711,11 @@ test('Keyword tree loads, filters and force-refreshes through Pinia', async ({pa
 
     const keywordNode = page.locator('.sbTreeNode:not(.hasChildren)').filter({hasText: 'Compat keyword'});
     await expect(keywordNode).toBeVisible();
+    const icon = await keywordNode.locator('.keywordIcon').boundingBox();
+    const label = await keywordNode.locator('.keywordLabel').boundingBox();
+    expect(icon.width).toBeCloseTo(icon.height, 0);
+    expect(label.x).toBeGreaterThan(icon.x + icon.width);
+    expect(label.x - icon.x - icon.width).toBeLessThan(8);
     await expect.poll(() => keywordIndexRequests.length).toBe(1);
     const treeSearch = page.getByPlaceholder('Suchen', {exact: true});
     await treeSearch.fill('Compat');
