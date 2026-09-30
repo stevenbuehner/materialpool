@@ -269,7 +269,7 @@ return [
 		'large' => [
 			'maxWidth' => 1500,
 			'maxHeight' => 2000,
-			'resolution' => 144,
+			'resolution' => 200,
 			'quality' => 80,
 			'outputFormat' => 'jpg',
 		],
