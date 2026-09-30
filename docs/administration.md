@@ -13,9 +13,11 @@
 
 ## Jobs und Queues
 
-Globale Administratoren öffnen **Admin → Jobs und Queues** in der Hauptnavigation. Die Seite zeigt die vorhandenen Datensätze aus `jobs`, `failed_jobs` und `job_batches` in getrennten Tabs, nach Queue-Namen gruppiert. Filter und Seitenwechsel begrenzen die Listen. Alle fünf Sekunden wird die sichtbare Ansicht aktualisiert, solange der Browser-Tab aktiv ist; der Zeitpunkt der letzten erfolgreichen Aktualisierung bleibt sichtbar.
+Globale Administratoren öffnen **Admin → Jobs und Queues** in der Hauptnavigation. Die Seite zeigt die vorhandenen Datensätze aus `jobs`, `failed_jobs` und `job_batches` in getrennten Tabs, nach Queue-Namen gruppiert. Filter und Seitenwechsel begrenzen die Listen. Der Aktualisieren-Button zeigt einen Countdown; alle fünf Sekunden wird die sichtbare Ansicht automatisch aktualisiert, solange der Browser-Tab aktiv ist. Ein Klick aktualisiert sofort.
 
-„Reserviert“ bedeutet, dass ein Worker den Job übernommen hat. Nach einem Worker-Abbruch kann diese Markierung vorübergehend bestehen bleiben und bestätigt deshalb keinen aktuell laufenden Prozess. Erfolgreiche Einzeljobs werden nicht historisch aufbewahrt. Die Seite kann Jobs weder neu priorisieren noch verschieben, wiederholen oder löschen. Fehlermeldungen und Job-Payloads werden nicht angezeigt. Ein Batch erhält nur dann einen Queue-Namen, wenn ein vorhandener Bundle-Importlauf ihn eindeutig zuordnet.
+„Reserviert“ bedeutet, dass ein Worker den Job übernommen hat. Nach einem Worker-Abbruch kann diese Markierung vorübergehend bestehen bleiben und bestätigt deshalb keinen aktuell laufenden Prozess. Erfolgreiche Einzeljobs werden nicht historisch aufbewahrt. Ein Batch erhält nur dann einen Queue-Namen, wenn ein vorhandener Bundle-Importlauf ihn eindeutig zuordnet.
+
+Im Tab **Fehlgeschlagene Jobs** öffnet **Details** die gespeicherte Exception und Payload des einzelnen Jobs. Beide können vertrauliche Inhalte enthalten und werden deshalb nur auf Anforderung eines Global-Admins geladen und nicht im Listen-Endpunkt übertragen. Nach Prüfung kann der Admin diesen Job mit Bestätigung in seine ursprüngliche Queue zurückstellen oder den gespeicherten Fehler aus der Liste löschen. Das Löschen ist endgültig; Wiederholen kann die fachliche Verarbeitung erneut auslösen. Für die noch nicht freigegebenen Kontextsuche-Queues und ungültige Payloads ist Wiederholen gesperrt. Wartende Jobs können weiterhin weder priorisiert noch verschoben werden.
 
 ## OCR-Evaluationsdatensatz
 
