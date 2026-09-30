@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 
@@ -60,6 +61,7 @@ class QueueOverviewController extends Controller {
 				'uuid' => $job->uuid,
 				'queue' => $job->queue,
 				'connection' => $job->connection,
+				'can_retry' => $this->canRetry($job),
 				'type' => $this->jobType($job->payload),
 				'failed_at' => $job->failed_at,
 			]);
@@ -111,6 +113,59 @@ class QueueOverviewController extends Controller {
 
 		return response()->json(['summary' => $summary, 'data' => $items, 'queues' => $queueNames, 'refreshed_at' => now()->toIso8601String()])
 			->header('Cache-Control', 'private, no-store');
+	}
+
+	public function showFailed(string $failedJob): JsonResponse {
+		$job = $this->failedJob($failedJob);
+
+		return response()->json([
+			'uuid' => $job->uuid,
+			'queue' => $job->queue,
+			'connection' => $job->connection,
+			'type' => $this->jobType($job->payload),
+			'failed_at' => $job->failed_at,
+			'payload' => $job->payload,
+			'exception' => $job->exception,
+			'can_retry' => $this->canRetry($job),
+		])->header('Cache-Control', 'private, no-store');
+	}
+
+	public function retryFailed(string $failedJob): JsonResponse {
+		return DB::transaction(function () use ($failedJob): JsonResponse {
+			$job = DB::table('failed_jobs')->where('uuid', $failedJob)->lockForUpdate()->first();
+			abort_if($job === null, 404);
+			abort_unless($this->canRetry($job), 409, __('pool.queue-retry-unavailable'));
+
+			Artisan::call('queue:retry', ['id' => [$job->uuid]]);
+			abort_if(DB::table('failed_jobs')->where('uuid', $failedJob)->exists(), 409, __('pool.queue-retry-failed'));
+
+			return response()->json(['message' => __('pool.queue-retried')])->header('Cache-Control', 'private, no-store');
+		});
+	}
+
+	public function deleteFailed(string $failedJob): JsonResponse {
+		abort_unless(DB::table('failed_jobs')->where('uuid', $failedJob)->delete() > 0, 404);
+
+		return response()->json(['message' => __('pool.queue-deleted')])->header('Cache-Control', 'private, no-store');
+	}
+
+	private function failedJob(string $uuid): object {
+		$job = DB::table('failed_jobs')->select('uuid', 'queue', 'connection', 'payload', 'exception', 'failed_at')->where('uuid', $uuid)->first();
+		abort_if($job === null, 404);
+
+		return $job;
+	}
+
+	private function canRetry(object $job): bool {
+		$payload = json_decode($job->payload, true);
+
+		return $job->connection !== 'context_search'
+			&& !str_starts_with($job->queue, 'context-search-')
+			&& array_key_exists($job->connection, config('queue.connections'))
+			&& is_array($payload)
+			&& ($payload['uuid'] ?? null) === $job->uuid
+			&& is_string($payload['job'] ?? null)
+			&& $payload['job'] !== '';
 	}
 
 	private function jobType(string $payload): string {

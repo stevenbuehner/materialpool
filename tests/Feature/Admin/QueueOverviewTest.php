@@ -82,4 +82,84 @@ class QueueOverviewTest extends TestCase {
 		$this->getJson(route('api.v2.admin.queue-overview.index', ['tab' => 'invalid']))->assertUnprocessable();
 		$this->getJson(route('api.v2.admin.queue-overview.index', ['tab' => 'jobs', 'status' => 'finished']))->assertUnprocessable();
 	}
+
+	public function test_only_global_admin_can_read_or_change_failed_jobs(): void {
+		$uuid = '00000000-0000-0000-0000-000000000010';
+		$this->getJson(route('api.v2.admin.queue-overview.failed.show', $uuid))->assertUnauthorized();
+		$this->postJson(route('api.v2.admin.queue-overview.failed.retry', $uuid))->assertUnauthorized();
+		$this->deleteJson(route('api.v2.admin.queue-overview.failed.delete', $uuid))->assertUnauthorized();
+
+		Passport::actingAs(User::factory()->create());
+		$this->getJson(route('api.v2.admin.queue-overview.failed.show', $uuid))->assertNotFound();
+		$this->postJson(route('api.v2.admin.queue-overview.failed.retry', $uuid))->assertNotFound();
+		$this->deleteJson(route('api.v2.admin.queue-overview.failed.delete', $uuid))->assertNotFound();
+	}
+
+	public function test_failed_job_details_are_loaded_individually_and_can_be_deleted(): void {
+		Passport::actingAs(User::factory()->create(['is_admin' => true]));
+		$uuid = '00000000-0000-0000-0000-000000000011';
+		DB::table('failed_jobs')->insert([
+			'uuid' => $uuid, 'connection' => 'database', 'queue' => 'default',
+			'payload' => json_encode(['displayName' => 'App\\Jobs\\Example', 'secret' => 'private-payload']),
+			'exception' => 'private-exception', 'failed_at' => now(),
+		]);
+		DB::table('failed_jobs')->insert([
+			'uuid' => '00000000-0000-0000-0000-000000000015', 'connection' => 'database', 'queue' => 'other',
+			'payload' => '{}', 'exception' => 'other failure', 'failed_at' => now(),
+		]);
+
+		$this->getJson(route('api.v2.admin.queue-overview.index', ['tab' => 'failed']))
+			->assertOk()->assertDontSee('private-payload')->assertDontSee('private-exception');
+		$this->getJson(route('api.v2.admin.queue-overview.failed.show', $uuid))
+			->assertOk()->assertJsonPath('uuid', $uuid)->assertJsonPath('exception', 'private-exception')
+			->assertSee('private-payload')->assertHeader('Cache-Control', 'no-store, private');
+		$this->deleteJson(route('api.v2.admin.queue-overview.failed.delete', $uuid))->assertOk();
+		$this->assertDatabaseMissing('failed_jobs', ['uuid' => $uuid]);
+		$this->assertDatabaseHas('failed_jobs', ['uuid' => '00000000-0000-0000-0000-000000000015']);
+		$this->getJson(route('api.v2.admin.queue-overview.failed.show', $uuid))->assertNotFound();
+		$this->deleteJson(route('api.v2.admin.queue-overview.failed.delete', $uuid))->assertNotFound();
+	}
+
+	public function test_a_single_failed_job_can_be_retried_on_its_original_queue(): void {
+		Passport::actingAs(User::factory()->create(['is_admin' => true]));
+		$uuid = '00000000-0000-0000-0000-000000000012';
+		DB::table('failed_jobs')->insert([
+			'uuid' => $uuid, 'connection' => 'database', 'queue' => 'resource-previews-low',
+			'payload' => json_encode(['uuid' => $uuid, 'job' => 'App\\Jobs\\Example', 'displayName' => 'App\\Jobs\\Example']),
+			'exception' => 'previous failure', 'failed_at' => now(),
+		]);
+
+		$this->postJson(route('api.v2.admin.queue-overview.failed.retry', $uuid))->assertOk();
+		$this->assertDatabaseMissing('failed_jobs', ['uuid' => $uuid]);
+		$this->assertDatabaseHas('jobs', ['queue' => 'resource-previews-low']);
+		$this->postJson(route('api.v2.admin.queue-overview.failed.retry', $uuid))->assertNotFound();
+	}
+
+	public function test_context_search_failed_jobs_cannot_be_retried(): void {
+		Passport::actingAs(User::factory()->create(['is_admin' => true]));
+		$uuid = '00000000-0000-0000-0000-000000000013';
+		DB::table('failed_jobs')->insert([
+			'uuid' => $uuid, 'connection' => 'context_search', 'queue' => 'context-search-extraction',
+			'payload' => json_encode(['uuid' => $uuid, 'displayName' => 'App\\Jobs\\Example']),
+			'exception' => 'previous failure', 'failed_at' => now(),
+		]);
+
+		$this->getJson(route('api.v2.admin.queue-overview.index', ['tab' => 'failed']))->assertJsonPath('data.data.0.can_retry', false);
+		$this->postJson(route('api.v2.admin.queue-overview.failed.retry', $uuid))->assertStatus(409);
+		$this->assertDatabaseHas('failed_jobs', ['uuid' => $uuid]);
+		$this->assertDatabaseCount('jobs', 0);
+	}
+
+	public function test_invalid_failed_payload_is_preserved_instead_of_queued(): void {
+		Passport::actingAs(User::factory()->create(['is_admin' => true]));
+		$uuid = '00000000-0000-0000-0000-000000000014';
+		DB::table('failed_jobs')->insert([
+			'uuid' => $uuid, 'connection' => 'database', 'queue' => 'default',
+			'payload' => '{invalid-json', 'exception' => 'previous failure', 'failed_at' => now(),
+		]);
+
+		$this->postJson(route('api.v2.admin.queue-overview.failed.retry', $uuid))->assertStatus(409);
+		$this->assertDatabaseHas('failed_jobs', ['uuid' => $uuid]);
+		$this->assertDatabaseCount('jobs', 0);
+	}
 }

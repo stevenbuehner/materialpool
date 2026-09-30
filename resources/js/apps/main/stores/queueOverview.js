@@ -1,6 +1,6 @@
 import {defineStore} from 'pinia';
 import axios from '../axiosInstance';
-import {api_v2_admin_queue_overview} from '../../../components/serverRoutes';
+import {api_v2_admin_failed_job, api_v2_admin_failed_job_retry, api_v2_admin_queue_overview} from '../../../components/serverRoutes';
 import {convertErrorResponseToMessage} from '../store/modules/handleErrorsHelper';
 
 export const useQueueOverviewStore = defineStore('queueOverview', {
@@ -15,6 +15,12 @@ export const useQueueOverviewStore = defineStore('queueOverview', {
 		loading: false,
 		pendingPage: null,
 		error: null,
+		failedDetail: null,
+		failedDetailLoading: false,
+		failedDetailRequest: 0,
+		failedActionLoading: false,
+		failedDetailError: null,
+		actionMessage: null,
 	}),
 	actions: {
 		async load(page = 1) {
@@ -50,6 +56,46 @@ export const useQueueOverviewStore = defineStore('queueOverview', {
 					this.pendingPage = null;
 					await this.load(nextPage);
 				}
+			}
+		},
+		resetFailedDetail() {
+			this.failedDetailRequest++;
+			this.failedDetail = null;
+			this.failedDetailLoading = false;
+			this.failedDetailError = null;
+		},
+		async loadFailedDetail(uuid) {
+			this.resetFailedDetail();
+			const request = this.failedDetailRequest;
+			this.failedDetailLoading = true;
+			try {
+				const {data} = await axios.get(api_v2_admin_failed_job(uuid));
+				if (request === this.failedDetailRequest) this.failedDetail = data;
+			} catch (error) {
+				if (request === this.failedDetailRequest) this.failedDetailError = convertErrorResponseToMessage(error);
+			} finally {
+				if (request === this.failedDetailRequest) this.failedDetailLoading = false;
+			}
+		},
+		async retryFailed(uuid) {
+			return this.runFailedAction(() => axios.post(api_v2_admin_failed_job_retry(uuid)));
+		},
+		async deleteFailed(uuid) {
+			return this.runFailedAction(() => axios.delete(api_v2_admin_failed_job(uuid)));
+		},
+		async runFailedAction(request) {
+			this.failedActionLoading = true;
+			this.failedDetailError = null;
+			try {
+				const {data} = await request();
+				this.actionMessage = data.message;
+				this.failedDetail = null;
+				return true;
+			} catch (error) {
+				this.failedDetailError = convertErrorResponseToMessage(error);
+				return false;
+			} finally {
+				this.failedActionLoading = false;
 			}
 		},
 	},

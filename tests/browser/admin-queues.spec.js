@@ -25,6 +25,12 @@ test('Bundle manager keeps Bundle access without global admin links', async ({pa
 
 test('Global admin sees grouped queue jobs and separate failed and batch tabs', async ({page}, testInfo) => {
     let requestCount = 0;
+    const pageErrors = [];
+    page.on('pageerror', error => pageErrors.push(error.message));
+    const failedRows = [
+        {id: 12, uuid: '00000000-0000-0000-0000-000000000012', queue: 'default', type: 'App\\Jobs\\Example', connection: 'database', can_retry: true, failed_at: '2026-09-30T12:00:00Z'},
+        {id: 13, uuid: '00000000-0000-0000-0000-000000000013', queue: 'default', type: 'App\\Jobs\\Example', connection: 'database', can_retry: true, failed_at: '2026-09-30T12:00:00Z'},
+    ];
     await page.route('**/vue/admin/queues', route => route.fulfill({
         contentType: 'text/html',
         body: `<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">${viteStylesheetTags}</head><body><div id="app"></div><script>window.Laravel = {csrfToken: 'synthetic-csrf-token'}; window.materialpool = {route: '/admin/queues', store: {materials: []}};</script>${viteScriptTag}</body></html>`,
@@ -39,7 +45,7 @@ test('Global admin sees grouped queue jobs and separate failed and batch tabs', 
         const rows = tab === 'jobs'
             ? [{id: 10, queue: 'default', type: 'App\\Jobs\\Example', status: 'reserved', attempts: 1, created_at: 1780250000, available_at: 1780250000}, {id: 11, queue: 'resource-previews-low', type: 'App\\Jobs\\Preview', status: 'waiting', attempts: 0, created_at: 1780250000, available_at: 1780250000}]
             : tab === 'failed'
-                ? [{id: 12, queue: 'default', type: 'App\\Jobs\\Example', connection: 'database', failed_at: '2026-09-30T12:00:00Z'}]
+                ? failedRows
                 : [{id: 'batch-1', name: 'bundle:test', queue: null, total_jobs: 4, pending_jobs: 2, failed_jobs: 0, created_at: 1780250000, cancelled_at: null, finished_at: null}];
         return route.fulfill({contentType: 'application/json', body: JSON.stringify({
             summary: {waiting: 1, delayed: 0, reserved: 1, failed: 1},
@@ -47,20 +53,47 @@ test('Global admin sees grouped queue jobs and separate failed and batch tabs', 
             queues: ['default', 'resource-previews-low'], refreshed_at: '2026-09-30T12:00:00Z',
         })});
     });
+    await page.route('**/api/v2/admin/queue-overview/failed/**', route => {
+        const url = new URL(route.request().url());
+        const uuid = url.pathname.split('/')[6];
+        const job = failedRows.find(row => row.uuid === uuid);
+        if (!job) return route.fulfill({status: 404, contentType: 'application/json', body: '{}'});
+        if (route.request().method() === 'GET') return route.fulfill({contentType: 'application/json', body: JSON.stringify({...job, payload: '{"secret":"synthetic-payload"}', exception: 'synthetic-exception'})});
+        failedRows.splice(failedRows.indexOf(job), 1);
+        return route.fulfill({contentType: 'application/json', body: JSON.stringify({message: 'Aktion erfolgreich'})});
+    });
+    page.on('dialog', dialog => dialog.accept());
 
     await page.goto('/vue/admin/queues');
     await expect(page.getByRole('heading', {name: 'Jobs und Queues'})).toBeVisible();
+    const refreshButton = page.getByRole('button', {name: /Jetzt aktualisieren/});
+    await expect(refreshButton).toContainText(/in [1-5] Sek/);
+    const refreshWidth = (await refreshButton.boundingBox()).width;
     await expect(page.getByRole('region', {name: 'default'})).toBeVisible();
     await expect(page.getByRole('region', {name: 'resource-previews-low'})).toBeVisible();
     await expect(page.getByText('Reserviert (möglicherweise laufend)').first()).toBeVisible();
     await page.screenshot({path: testInfo.outputPath('admin-queues.png'), fullPage: true});
     await expect.poll(() => requestCount, {timeout: 7000}).toBeGreaterThan(1);
+    await expect(page.getByRole('button', {name: /Jetzt aktualisieren/})).toBeVisible();
+    expect((await refreshButton.boundingBox()).width).toBe(refreshWidth);
+    await expect(page.getByText('Letzte Aktualisierung')).toHaveCount(0);
 
     await page.getByRole('tab', {name: 'Fehlgeschlagene Jobs'}).click();
     await expect(page.getByRole('columnheader', {name: 'Fehlgeschlagen am'})).toBeVisible();
+    await page.getByRole('button', {name: 'Details'}).first().click();
+    await expect(page.getByText('synthetic-exception')).toBeVisible();
+    await expect(page.getByText('synthetic-payload')).toBeVisible();
+    await page.screenshot({path: testInfo.outputPath('admin-failed-detail.png'), fullPage: true});
+    await page.getByRole('button', {name: 'Job erneut starten'}).click();
+    await expect(page.getByRole('status').getByText('Aktion erfolgreich')).toBeVisible();
+    await expect(page.getByRole('button', {name: 'Details'})).toHaveCount(1);
+    await page.getByRole('button', {name: 'Details'}).click();
+    await page.getByRole('button', {name: 'Fehlgeschlagenen Job löschen'}).click();
+    await expect(page.getByText('Keine Einträge für diese Auswahl.')).toBeVisible();
     await page.getByRole('tab', {name: 'Job-Batches'}).click();
     await expect(page.getByRole('region', {name: 'Queue unbekannt'})).toBeVisible();
     await expect(page.getByText('2 / 4')).toBeVisible();
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth);
     expect(overflow).toBe(false);
+    expect(pageErrors).toEqual([]);
 });

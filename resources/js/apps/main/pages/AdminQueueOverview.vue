@@ -5,11 +5,13 @@
         <h1 class="h3 mb-1">{{ $t('pool.queue-overview-title') }}</h1>
         <p class="text-muted mb-0">{{ $t('pool.queue-overview-intro') }}</p>
       </div>
-      <button class="btn btn-outline-primary" type="button" :disabled="store.loading" @click="store.load(store.pagination.current_page)">{{ $t('pool.queue-refresh') }}</button>
+      <button class="btn btn-outline-primary queue-refresh-button" type="button" :disabled="store.loading" @click="refresh()">
+        {{ store.loading ? $t('pool.queue-loading') : $t('pool.queue-refresh-countdown', {seconds: countdown}) }}
+      </button>
     </div>
 
     <div v-if="store.error" class="alert alert-danger" role="alert">{{ store.error }} {{ $t('pool.queue-stale') }}</div>
-    <p class="small text-muted" role="status">{{ $t('pool.queue-last-update') }}: {{ store.refreshedAt ? dateTime(store.refreshedAt) : '–' }}<span v-if="store.loading"> · {{ $t('pool.queue-loading') }}</span></p>
+    <div v-if="store.actionMessage" class="alert alert-success alert-dismissible" role="status">{{ store.actionMessage }}<button type="button" class="btn-close" :aria-label="$t('pool.close')" @click="store.actionMessage = null"></button></div>
 
     <section class="row g-2 mb-4" :aria-label="$t('pool.queue-summary')">
       <div v-for="metric in summaryMetrics" :key="metric.key" class="col-6 col-lg-3">
@@ -54,7 +56,7 @@
       <div class="table-responsive">
         <table class="table table-striped align-middle mb-0">
           <thead v-if="store.tab === 'jobs'"><tr><th>ID</th><th>{{ $t('pool.queue-job-type') }}</th><th>{{ $t('pool.Status') }}</th><th>{{ $t('pool.queue-created') }}</th><th>{{ $t('pool.queue-available') }}</th><th>{{ $t('pool.queue-attempts') }}</th></tr></thead>
-          <thead v-else-if="store.tab === 'failed'"><tr><th>ID</th><th>{{ $t('pool.queue-job-type') }}</th><th>{{ $t('pool.queue-connection') }}</th><th>{{ $t('pool.queue-failed-at') }}</th></tr></thead>
+          <thead v-else-if="store.tab === 'failed'"><tr><th>ID</th><th>{{ $t('pool.queue-job-type') }}</th><th>{{ $t('pool.queue-connection') }}</th><th>{{ $t('pool.queue-failed-at') }}</th><th>{{ $t('pool.Actions') }}</th></tr></thead>
           <thead v-else><tr><th>{{ $t('pool.queue-batch') }}</th><th>{{ $t('pool.Status') }}</th><th>{{ $t('pool.queue-progress') }}</th><th>{{ $t('pool.queue-failed') }}</th><th>{{ $t('pool.queue-created') }}</th></tr></thead>
           <tbody>
             <tr v-for="item in group.items" :key="item.id">
@@ -62,7 +64,7 @@
                 <td>{{ item.id }}</td><td class="text-break">{{ item.type }}</td><td>{{ statusLabel(item.status) }}</td><td>{{ epochTime(item.created_at) }}</td><td>{{ epochTime(item.available_at) }}</td><td>{{ item.attempts }}</td>
               </template>
               <template v-else-if="store.tab === 'failed'">
-                <td>{{ item.id }}</td><td class="text-break">{{ item.type }}</td><td>{{ item.connection }}</td><td>{{ dateTime(item.failed_at) }}</td>
+                <td>{{ item.id }}</td><td class="text-break">{{ item.type }}</td><td>{{ item.connection }}</td><td>{{ dateTime(item.failed_at) }}</td><td><button class="btn btn-sm btn-outline-primary" type="button" @click="openFailedDetail(item)">{{ $t('pool.queue-details') }}</button></td>
               </template>
               <template v-else>
                 <td class="text-break">{{ item.name }}<div class="small text-muted">{{ item.id }}</div></td><td>{{ batchStatus(item) }}</td><td>{{ item.total_jobs - item.pending_jobs }} / {{ item.total_jobs }}</td><td>{{ item.failed_jobs }}</td><td>{{ epochTime(item.created_at) }}</td>
@@ -81,11 +83,30 @@
         <button class="btn btn-outline-secondary" type="button" :disabled="store.loading || store.pagination.current_page >= store.pagination.last_page" @click="store.load(store.pagination.current_page + 1)">›</button>
       </div>
     </nav>
+
+    <b-modal ref="failedDetailModal" size="xl" scrollable hide-footer :title="$t('pool.queue-failed-detail-title')" @hidden="store.resetFailedDetail()">
+      <p v-if="store.failedDetailLoading" role="status">{{ $t('pool.queue-loading') }}</p>
+      <div v-if="store.failedDetailError" class="alert alert-danger" role="alert">{{ store.failedDetailError }}</div>
+      <template v-if="store.failedDetail">
+        <p class="text-break"><strong>{{ store.failedDetail.type }}</strong><br>{{ store.failedDetail.queue }} · {{ store.failedDetail.connection }} · {{ dateTime(store.failedDetail.failed_at) }}<br><small>{{ store.failedDetail.uuid }}</small></p>
+        <h2 class="h6">{{ $t('pool.queue-exception') }}</h2>
+        <pre class="queue-detail-text border rounded p-2 bg-light">{{ store.failedDetail.exception }}</pre>
+        <h2 class="h6">{{ $t('pool.queue-payload') }}</h2>
+        <pre class="queue-detail-text border rounded p-2 bg-light">{{ formattedPayload }}</pre>
+        <p v-if="!store.failedDetail.can_retry" class="small text-muted">{{ $t('pool.queue-retry-unavailable') }}</p>
+        <div class="d-flex flex-wrap justify-content-end gap-2">
+          <button class="btn btn-outline-secondary" type="button" :disabled="store.failedActionLoading" @click="failedDetailModal.hide()">{{ $t('pool.close') }}</button>
+          <button class="btn btn-outline-danger" type="button" :disabled="store.failedActionLoading" @click="runFailedAction('delete')">{{ $t('pool.queue-delete') }}</button>
+          <button class="btn btn-primary" type="button" :disabled="store.failedActionLoading || !store.failedDetail.can_retry" @click="runFailedAction('retry')">{{ $t('pool.queue-retry') }}</button>
+        </div>
+      </template>
+    </b-modal>
   </main>
 </template>
 
 <script setup>
-import {computed, getCurrentInstance, onMounted, onUnmounted} from 'vue';
+import {computed, getCurrentInstance, onMounted, onUnmounted, ref, watch} from 'vue';
+import {BModal} from '@/adapters/bootstrap';
 import {useQueueOverviewStore} from '../stores/queueOverview';
 
 const store = useQueueOverviewStore();
@@ -101,7 +122,30 @@ const groups = computed(() => {
   }
   return [...grouped].map(([name, items]) => ({name, items}));
 });
+const failedDetailModal = ref(null);
+const now = ref(Date.now());
+const nextRefreshAt = ref(null);
+const countdown = computed(() => Math.max(0, Math.ceil(((nextRefreshAt.value || now.value + 5000) - now.value) / 1000)));
+const formattedPayload = computed(() => {
+  const payload = store.failedDetail?.payload;
+  if (!payload) return '';
+  try { return JSON.stringify(JSON.parse(payload), null, 2); } catch (_) { return payload; }
+});
 let timer;
+
+watch(() => store.loading, loading => {
+  if (!loading) scheduleRefresh();
+});
+
+function scheduleRefresh() {
+  now.value = Date.now();
+  nextRefreshAt.value = now.value + 5000;
+}
+
+function refresh(page = store.pagination.current_page) {
+  scheduleRefresh();
+  return store.load(page);
+}
 
 function selectTab(tab) {
   if (store.tab === tab) return;
@@ -131,15 +175,33 @@ function batchStatus(batch) {
   return $t(batch.cancelled_at ? 'pool.queue-cancelled' : (batch.finished_at ? 'pool.queue-finished' : 'pool.queue-open'));
 }
 
+function openFailedDetail(item) {
+  failedDetailModal.value.show();
+  store.loadFailedDetail(item.uuid);
+}
+
+async function runFailedAction(action) {
+  const detail = store.failedDetail;
+  if (!detail || !window.confirm($t(action === 'retry' ? 'pool.queue-retry-confirm' : 'pool.queue-delete-confirm'))) return;
+  const succeeded = action === 'retry' ? await store.retryFailed(detail.uuid) : await store.deleteFailed(detail.uuid);
+  if (!succeeded) return;
+  failedDetailModal.value.hide();
+  await refresh();
+  if (store.items.length === 0 && store.pagination.current_page > store.pagination.last_page) await refresh(store.pagination.last_page);
+}
+
 onMounted(() => {
-  store.load(1);
+  refresh(1);
   timer = window.setInterval(() => {
-    if (document.visibilityState === 'visible') store.load(store.pagination.current_page);
-  }, 5000);
+    now.value = Date.now();
+    if (document.visibilityState === 'visible' && nextRefreshAt.value && now.value >= nextRefreshAt.value && !store.loading) refresh();
+  }, 1000);
 });
 onUnmounted(() => window.clearInterval(timer));
 </script>
 
 <style scoped>
 .table-responsive table { min-width: 48rem; }
+.queue-refresh-button { width: 17rem; max-width: 100%; font-variant-numeric: tabular-nums; }
+.queue-detail-text { max-height: 18rem; overflow: auto; white-space: pre-wrap; overflow-wrap: anywhere; }
 </style>
