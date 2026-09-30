@@ -50,6 +50,52 @@ class ManageUsersTest extends TestCase
         $this->assertSame(UserStatus::Active, $user->status);
     }
 
+    public function test_short_password_option_creates_first_admin_with_four_character_password(): void
+    {
+        $this->artisan('users:manage', ['action' => 'create', '--first-admin' => true, '--short-password' => true])
+            ->expectsQuestion('Name', 'Administratorin')
+            ->expectsQuestion('E-Mail', 'admin@example.test')
+            ->expectsQuestion('Passwort (mindestens 4 Zeichen)', 'abcd')
+            ->expectsQuestion('Passwort bestätigen', 'abcd')
+            ->assertExitCode(0);
+
+        $admin = User::query()->sole();
+        $this->assertTrue($admin->isSuperAdmin());
+        $this->assertTrue(Hash::check('abcd', $admin->password));
+
+        $this->post('/login', ['email' => 'admin@example.test', 'password' => 'abcd'])
+            ->assertRedirect('/home');
+        $this->assertAuthenticatedAs($admin);
+    }
+
+    public function test_short_password_option_retries_when_password_has_fewer_than_four_characters(): void
+    {
+        $this->artisan('users:manage', ['action' => 'create', '--first-admin' => true, '--short-password' => true])
+            ->expectsQuestion('Name', 'Administrator')
+            ->expectsQuestion('E-Mail', 'admin@example.test')
+            ->expectsQuestion('Passwort (mindestens 4 Zeichen)', 'abc')
+            ->expectsQuestion('Passwort bestätigen', 'abc')
+            ->expectsQuestion('Name', 'Administratorin')
+            ->expectsQuestion('E-Mail', 'admin@example.test')
+            ->expectsQuestion('Passwort (mindestens 4 Zeichen)', 'abcd')
+            ->expectsQuestion('Passwort bestätigen', 'abcd')
+            ->assertExitCode(0);
+
+        $this->assertDatabaseCount('users', 1);
+        $this->assertSame('Administratorin', User::query()->sole()->name);
+    }
+
+    public function test_short_password_option_is_rejected_without_first_admin(): void
+    {
+        $this->artisan('users:manage', ['action' => 'create', '--short-password' => true])
+            ->assertExitCode(2);
+
+        $this->artisan('users:manage', ['action' => 'update', '--short-password' => true])
+            ->assertExitCode(2);
+
+        $this->assertDatabaseCount('users', 0);
+    }
+
     public function test_existing_user_can_change_email_and_password_without_changing_status_or_role(): void
     {
         $user = User::factory()->create([

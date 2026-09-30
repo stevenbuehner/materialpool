@@ -18,24 +18,26 @@ use Spatie\Permission\Models\Role;
 class ManageUsers extends Command {
 	protected $signature = 'users:manage
         {action : create oder update}
-        {--first-admin : Nur den ersten Global-Admin einer leeren Installation anlegen}';
+        {--first-admin : Nur den ersten Global-Admin einer leeren Installation anlegen}
+        {--short-password : Beim ersten Global-Admin mindestens 4 statt 12 Zeichen verlangen}';
 
 	protected $description = 'Benutzer interaktiv anlegen oder Name, E-Mail und Passwort bearbeiten';
 
 	public function handle(): int {
-		$action     = (string)$this->argument('action');
-		$firstAdmin = (bool)$this->option('first-admin');
+		$action        = (string)$this->argument('action');
+		$firstAdmin    = (bool)$this->option('first-admin');
+		$shortPassword = (bool)$this->option('short-password');
 
-		if (!in_array($action, ['create', 'update'], TRUE) || ($firstAdmin && $action !== 'create')) {
-			$this->components->error('Aufruf: users:manage create|update [--first-admin]');
+		if (!in_array($action, ['create', 'update'], TRUE) || ($firstAdmin && $action !== 'create') || ($shortPassword && !$firstAdmin)) {
+			$this->components->error('Aufruf: users:manage create|update [--first-admin [--short-password]]');
 
 			return self::INVALID;
 		}
 
-		return $action === 'create' ? $this->createUser($firstAdmin) : $this->updateUser();
+		return $action === 'create' ? $this->createUser($firstAdmin, $shortPassword) : $this->updateUser();
 	}
 
-	private function createUser(bool $firstAdmin): int {
+	private function createUser(bool $firstAdmin, bool $shortPassword): int {
 		$hasUsers = User::query()->exists();
 		if (($firstAdmin && $hasUsers) || (!$firstAdmin && !$hasUsers)) {
 			$this->components->error($firstAdmin
@@ -48,10 +50,10 @@ class ManageUsers extends Command {
 		do {
 			$name         = trim((string)$this->ask('Name'));
 			$email        = mb_strtolower(trim((string)$this->ask('E-Mail')));
-			$password     = (string)$this->secret('Passwort (mindestens 12 Zeichen)', FALSE);
+			$password     = (string)$this->secret('Passwort (mindestens '.($shortPassword ? '4' : '12').' Zeichen)', FALSE);
 			$confirmation = (string)$this->secret('Passwort bestätigen', FALSE);
 
-			if ($this->validInput($name, $email, $password, $confirmation)) {
+			if ($this->validInput($name, $email, $password, $confirmation, NULL, $shortPassword)) {
 				break;
 			}
 
@@ -93,7 +95,8 @@ class ManageUsers extends Command {
 		string $email,
 		string $password,
 		string $confirmation,
-		?User  $user = NULL
+		?User  $user = NULL,
+		bool   $shortPassword = FALSE
 	): bool {
 		$data  = ['name' => $name, 'email' => $email];
 		$rules = [
@@ -104,7 +107,7 @@ class ManageUsers extends Command {
 		if ($user === NULL || $password !== '') {
 			$data['password']              = $password;
 			$data['password_confirmation'] = $confirmation;
-			$rules['password']             = ['required', 'string', 'min:12', 'confirmed'];
+			$rules['password']             = ['required', 'string', 'min:'.($shortPassword ? '4' : '12'), 'confirmed'];
 		}
 
 		$validator = Validator::make($data, $rules);

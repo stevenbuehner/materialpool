@@ -192,7 +192,8 @@ fi
 php /srv/materialpool/current/artisan mail:configure </dev/tty
 php /srv/materialpool/current/artisan backup:configure </dev/tty
 msg_info "Ersten Global-Admin anlegen"
-if ! runuser -u www-data -- env -u APP_ENV php /srv/materialpool/current/artisan users:manage create --first-admin </dev/tty; then
+msg_ok "Eingabe für den ersten Global-Admin starten"
+if ! runuser -u www-data -- env -u APP_ENV php /srv/materialpool/current/artisan users:manage create --first-admin --short-password </dev/tty; then
   msg_error "Anwendung installiert, aber der erste Global-Admin fehlt. Im LXC den dokumentierten users:manage-Befehl erneut ausführen."
   exit 1
 fi
