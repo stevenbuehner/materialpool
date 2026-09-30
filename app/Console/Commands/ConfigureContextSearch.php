@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Services\ContextSearch\EmbeddingProfile;
 use App\Services\ContextSearch\Ollama\OllamaEmbeddingPool;
 use App\Services\ContextSearch\Ollama\OllamaEmbeddingPoolException;
+use App\Services\ContextSearch\Ollama\OllamaModelDigest;
 use App\Services\ContextSearch\Ollama\OllamaServer;
 use App\Services\ContextSearch\Ollama\OllamaServerConfiguration;
 use App\Support\EnvironmentFile;
@@ -108,7 +109,8 @@ final class ConfigureContextSearch extends Command {
 
 			$parsed = OllamaServerConfiguration::parse($definitions, $keys);
 			$model = trim((string)$this->ask('CONTEXT_SEARCH_EMBEDDING_MODEL', (string)config('context_search.embedding.model')));
-			$digest = trim((string)$this->ask('CONTEXT_SEARCH_EMBEDDING_DIGEST (SHA-256)', (string)config('context_search.embedding.digest')));
+			$digest = app(OllamaModelDigest::class)->read($parsed[0], $model);
+			$this->line("Embedding-Digest von {$parsed[0]->name} ermittelt: {$digest}");
 			$dimensions = trim((string)$this->ask('CONTEXT_SEARCH_EMBEDDING_DIMENSIONS', (string)config('context_search.embedding.dimensions')));
 			$options = trim((string)$this->ask('CONTEXT_SEARCH_EMBEDDING_OPTIONS_JSON', (string)config('context_search.embedding.options_json')));
 			if (!ctype_digit($dimensions) || (int)$dimensions < 1) {

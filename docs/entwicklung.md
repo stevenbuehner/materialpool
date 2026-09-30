@@ -59,7 +59,7 @@ Der Befehl speichert noch keine Ressourcen oder Vektoren. Vor dem Aktivieren ein
 
 Der Kontextsuche-Pool verwendet ausschließlich `CONTEXT_SEARCH_EMBEDDING_MODEL`; ein generatives Modell kann daher nicht versehentlich Suchvektoren erzeugen. Jeder Poolserver muss exakt dieses Modell mit demselben Modell-Digest bereitstellen. Die Serverliste folgt dem Format `name=url|max_parallel_jobs`, mehrere Server werden durch Komma getrennt. Zugangsdaten stehen getrennt in `CONTEXT_SEARCH_OLLAMA_API_KEYS` als `name=secret`-Einträge und gehören ausschließlich in Server-Secrets, nie ins Repository.
 
-Vor einer Indexgeneration ist auf jedem Ollama-Server der Modell-Digest über `GET /api/tags` zu ermitteln und als `CONTEXT_SEARCH_EMBEDDING_DIGEST` zu setzen. Danach prüft der folgende lesende Selbsttest Modellname, Digest und die tatsächlich gelieferte Vektordimension auf allen konfigurierten Servern:
+Der interaktive Command `context-search:configure` ermittelt den Digest des gewählten Modells über `GET /api/tags` vom ersten Ollama-Server und speichert ihn als `CONTEXT_SEARCH_EMBEDDING_DIGEST`, nachdem er Digest und Probevektor auf allen Servern geprüft hat. Vor einer Indexgeneration prüft der folgende lesende Selbsttest Modellname, Digest und die tatsächlich gelieferte Vektordimension erneut auf allen konfigurierten Servern:
 
 ```sh
 ./vendor/bin/sail artisan context-search:ollama:verify
