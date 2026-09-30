@@ -8,8 +8,6 @@ test.beforeEach(async ({page}) => {
 });
 
 test('search-results', async ({page}, testInfo) => {
-    test.skip(testInfo.project.name !== 'desktop-webkit', 'README verwendet für diese Ansicht nur den Desktop-Viewport.');
-
     await page.route('**/vue/**', route => route.fulfill({
         contentType: 'text/html',
         body: `<!doctype html>
@@ -84,7 +82,7 @@ test('search-results', async ({page}, testInfo) => {
         }),
     }));
 
-    await page.route('**/material/*/preview', route => route.fulfill({
+    await page.route('**/material/*/preview?*', route => route.fulfill({
         contentType: 'image/svg+xml',
         body: '<svg xmlns="http://www.w3.org/2000/svg" width="320" height="180"><rect width="320" height="180" fill="#e9ecef"/><text x="160" y="95" text-anchor="middle" font-family="sans-serif" font-size="24" fill="#495057">Vorschau</text></svg>',
     }));
@@ -92,5 +90,11 @@ test('search-results', async ({page}, testInfo) => {
     await page.goto('/vue/');
     await expect(page.getByText('Ideen für die Jugendgruppe')).toBeVisible();
     await expect(page.getByText('Teamspiele zum Kennenlernen')).toBeVisible();
-    await saveReadmeScreenshot(page, testInfo, 'search-results-desktop.png');
+    const preview = page.locator('.materialListingItem .preview .image').first();
+    await expect(preview).toHaveJSProperty('naturalWidth', 320);
+    await expect(preview).toHaveCSS('object-fit', 'cover');
+    await expect(preview).toHaveCSS('object-position', '50% 50%');
+    if (testInfo.project.name === 'desktop-webkit') {
+        await saveReadmeScreenshot(page, testInfo, 'search-results-desktop.png');
+    }
 });
