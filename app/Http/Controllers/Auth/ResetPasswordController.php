@@ -39,6 +39,14 @@ class ResetPasswordController extends Controller {
 		$this->middleware('guest');
 	}
 
+	protected function rules(): array {
+		return [
+			'token' => ['required'],
+			'email' => ['required', 'email'],
+			'password' => ['required', 'string', 'min:'.config('password_policy.min_length'), 'confirmed'],
+		];
+	}
+
 	protected function resetPassword($user, $password): void {
 		$user->password = Hash::make($password);
 		$user->setRememberToken(Str::random(60));

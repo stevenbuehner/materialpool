@@ -19,7 +19,7 @@ class ManageUsers extends Command {
 	protected $signature = 'users:manage
         {action : create oder update}
         {--first-admin : Nur den ersten Global-Admin einer leeren Installation anlegen}
-        {--short-password : Beim ersten Global-Admin mindestens 4 statt 12 Zeichen verlangen}';
+        {--short-password : Beim ersten Global-Admin die verkürzte Mindestlänge verwenden}';
 
 	protected $description = 'Benutzer interaktiv anlegen oder Name, E-Mail und Passwort bearbeiten';
 
@@ -50,7 +50,7 @@ class ManageUsers extends Command {
 		do {
 			$name         = trim((string)$this->ask('Name'));
 			$email        = mb_strtolower(trim((string)$this->ask('E-Mail')));
-			$password     = (string)$this->secret('Passwort (mindestens '.($shortPassword ? '4' : '12').' Zeichen)', FALSE);
+			$password     = (string)$this->secret('Passwort (mindestens '.config($shortPassword ? 'password_policy.first_admin_min_length' : 'password_policy.min_length').' Zeichen)', FALSE);
 			$confirmation = (string)$this->secret('Passwort bestätigen', FALSE);
 
 			if ($this->validInput($name, $email, $password, $confirmation, NULL, $shortPassword)) {
@@ -107,7 +107,7 @@ class ManageUsers extends Command {
 		if ($user === NULL || $password !== '') {
 			$data['password']              = $password;
 			$data['password_confirmation'] = $confirmation;
-			$rules['password']             = ['required', 'string', 'min:'.($shortPassword ? '4' : '12'), 'confirmed'];
+			$rules['password']             = ['required', 'string', 'min:'.config($shortPassword ? 'password_policy.first_admin_min_length' : 'password_policy.min_length'), 'confirmed'];
 		}
 
 		$validator = Validator::make($data, $rules);

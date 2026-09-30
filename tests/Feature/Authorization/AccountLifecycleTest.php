@@ -47,8 +47,8 @@ class AccountLifecycleTest extends TestCase {
 		$this->post(route('password.update'), [
 			'token' => Password::broker()->createToken($invited),
 			'email' => $invited->email,
-			'password' => 'new-password',
-			'password_confirmation' => 'new-password',
+			'password' => 'new-long-password',
+			'password_confirmation' => 'new-long-password',
 		])->assertRedirect('/home');
 		$this->assertSame(UserStatus::Active, $invited->fresh()->status);
 
@@ -57,8 +57,8 @@ class AccountLifecycleTest extends TestCase {
 		$this->post(route('password.update'), [
 			'token' => Password::broker()->createToken($suspended),
 			'email' => $suspended->email,
-			'password' => 'another-password',
-			'password_confirmation' => 'another-password',
+			'password' => 'another-long-password',
+			'password_confirmation' => 'another-long-password',
 		])->assertRedirect('/home');
 		$this->assertSame(UserStatus::Suspended, $suspended->fresh()->status);
 		$this->assertGuest();
