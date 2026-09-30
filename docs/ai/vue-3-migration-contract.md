@@ -12,6 +12,7 @@ Stand: 16. September 2026.
 - Vite mit `laravel-vite-plugin`; Webpack und Laravel Mix dürfen nicht erneut eingeführt werden.
 - Bootstrap 5 mit BootstrapVueNext beziehungsweise kleinen lokalen Materialpool-Adaptern; Bootstrap 4 und BootstrapVue dürfen nicht erneut eingeführt werden.
 - Direkte Integrationen austauschbarer UI-Pakete liegen hinter `resources/js/adapters/` oder einer anwendungseigenen Wrapper-Komponente.
+- Der Datepicker verwendet `@vuepic/vue-datepicker` hinter der Materialpool-Wrappergrenze. Datumsformat, Grenztage und Formularzustände bleiben durch die vorhandenen Komponenten- und Browsertests geschützt; Tastaturnavigation und manuelle Texteingabe wurden beim Austausch nicht abgenommen und benötigen vor einer entsprechenden Verhaltensänderung eine eigene Prüfung.
 - `package-lock.json` gehört zum reproduzierbaren Installationsvertrag. Neue direkte Dependencies werden exakt gelockt und zusammen mit dem Quellcode geändert.
 - Options API bleibt für bestehenden Code zulässig. Neue komplexe, wiederverwendbare Zustandslogik darf als Composition API oder Composable umgesetzt werden; ein Stilumbau allein ist kein Änderungsgrund.
 
@@ -51,7 +52,7 @@ Für jede Frontendänderung gelten mindestens:
 5. Prüfung auf Page Errors und relevante Console Errors;
 6. dokumentierte Restlücken statt stillschweigender Annahmen.
 
-Die vollständigen Befehle und Release-Gates stehen in `docs/ai/quality-gates.md`. Der spezifische Austausch des Datepickers folgt `docs/ai/datepicker-vuepic-migration-contract.md`.
+Die vollständigen Befehle und Release-Gates stehen in `docs/ai/quality-gates.md`. Der abgeschlossene Datepicker-Austausch bleibt über Git und die bestehenden Tests nachvollziehbar.
 
 ## Fertig-Definition für Paketablösungen
 
