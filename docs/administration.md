@@ -282,6 +282,8 @@ Vor einem vollständigen Neuaufbau den Workerzustand prüfen und ausreichend fre
 
 ### Queue und Scheduler
 
+**Proxmox-LXC:** `systemctl status materialpool-queue.service materialpool-background.service materialpool-schedule.timer` prüft die drei getrennten Dienste. `materialpool-queue` verarbeitet `default`; `materialpool-background` wählt aktive Bundle-Queues, nur ausdrücklich freigegebene Kontextsuche und zuletzt `resource-previews-low`. Der Browser liest den Bundle-Fortschritt, führt aber selbst keine Jobs aus. Die systemd-Haupt-Units werden bei Installation, Update und Rollback mit dem Release abgeglichen; lokale Optionen gehören in Drop-ins. Die folgende Supervisor-Tabelle gilt ausschließlich für den älteren Ubuntu-Betrieb.
+
 | Befehl | Umgebung/Benutzer | Wann verwenden? | Wirkung | Risiko |
 | --- | --- | --- | --- | --- |
 | `supervisorctl reread && supervisorctl update` | Produktion, `root` | Nach Änderung von `materialpool-worker.conf` | Liest die Supervisor-Konfiguration neu ein und übernimmt Programmänderungen; kann betroffene Worker starten oder stoppen. | mittel |
@@ -291,7 +293,7 @@ Vor einem vollständigen Neuaufbau den Workerzustand prüfen und ausreichend fre
 | `php artisan schedule:run` | Produktion, `www-data` | Scheduler gezielt diagnostizieren | Führt alle aktuell fälligen Tasks einmal aus; kann Backup/Cleanup starten. | mittel |
 | `php artisan queue:work database --queue=default,resource-previews-low --sleep=3 --tries=50 --timeout=120 --max-time=3600` | Normalerweise nur Supervisor | Workerdefinition prüfen oder isoliert diagnostizieren | Verarbeitet normale Jobs vor nachrangigen Resource-Vorschauen. Nicht parallel zum regulären Worker starten. | hoch |
 
-Dynamische `bundle_<id>_queue`-Queues werden nicht vom Default-Worker konsumiert. Sie werden im normalen Ablauf über die Bundle-API schrittweise verarbeitet.
+Dynamische `bundle_<id>_queue`-Queues werden nicht vom Default-Worker konsumiert. Auf Proxmox verarbeitet sie der priorisierte Hintergrunddienst; im älteren Ubuntu-Betrieb verarbeitet sie weiterhin die Bundle-API schrittweise.
 
 ### Backups
 
@@ -329,7 +331,7 @@ Bei einem Fehler keine Migration und keine Datenkorrektur starten; zuerst die Ko
 <details>
 <summary>Manuelle Wiederaufnahme eines Bundle-Imports</summary>
 
-Dieser Notfallweg verarbeitet ausschließlich einen bereits gestarteten, aktiven Lauf. Er erzeugt keinen Import und kann daher parallel zum Browser genutzt werden. Vorher Bundle-ID, aktiven Lauf und Fehlerursache prüfen. Nie eine Beispiel-ID ungeprüft übernehmen.
+Dieser Notfallweg verarbeitet ausschließlich einen bereits gestarteten, aktiven Lauf. Im Proxmox-Profil zuerst `materialpool-background.service` und dessen Journal prüfen; ein manueller `bundles:work`-Lauf umgeht die automatische Prioritätsauswahl und ist nur für eine gezielte Störungsbehebung vorgesehen. Im älteren Ubuntu-Betrieb kann er parallel zum browsergesteuerten Lauf verwendet werden. Vorher Bundle-ID, aktiven Lauf und Fehlerursache prüfen. Nie eine Beispiel-ID ungeprüft übernehmen.
 
 Lauf und Queue zunächst nur lesend prüfen:
 

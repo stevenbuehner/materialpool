@@ -19,9 +19,13 @@ Die [Neuinstallation](docs/installation.md) startet über einen einzigen Skript-
 | Qdrant einrichten | im LXC als root `php /srv/materialpool/current/artisan context-search:qdrant:configure` |
 | Kontextsuche einrichten | im LXC als root `php /srv/materialpool/current/artisan context-search:configure` |
 | Update | im LXC `update` |
-| Queue | `materialpool-queue.service`, `default,resource-previews-low` |
+| Queue | `materialpool-queue.service` für `default`; `materialpool-background.service` für aktive Bundle-Queues, freigegebene Kontextsuche und `resource-previews-low` |
 | Scheduler | `materialpool-schedule.timer`, jede Minute |
-| Logs | `journalctl -u materialpool-queue`, `/var/log/nginx`, `storage/logs`, MariaDB-Journal |
+| Logs | `journalctl -u materialpool-queue -u materialpool-background`, `/var/log/nginx`, `storage/logs`, MariaDB-Journal |
+
+Der Hintergrunddienst wählt vor jedem Job die erste **bereite** Stufe: `default` blockiert niedrigere Starts, danach folgen aktive `bundle_<id>_queue`, die separat freigegebenen Kontextsuche-Queues und `resource-previews-low`. Laufende Jobs werden nicht unterbrochen. Kontextsuche-Indexjobs bleiben bis zur gesonderten Produktionsabnahme gesperrt. Der Scheduler startet keinen Queue-Worker.
+
+Der Installer setzt `PRIORITIZED_BACKGROUND_QUEUE=true` in der geschützten Shared-`.env`; der Updater ergänzt den Wert bei älteren Proxmox-Installationen. Auf dem bisherigen Ubuntu-Betrieb bleibt er aus und die Bundle-API verarbeitet die Bundle-Queue wie zuvor. Ein gezielt angehaltener oder verzögerter höher priorisierter Job blockiert niedrigere bereite Queues nicht.
 
 ## Pfade und Zuständigkeiten im Laravel-LXC
 
@@ -40,7 +44,7 @@ Die Pfade beziehen sich auf den **Laravel-LXC**, nicht auf den Proxmox-Host. „
 | `/etc/materialpool/release.conf` | Root-only Repository-Angabe und optionaler Pfad zu `github.token` | Bei bewusstem Wechsel der Release-Quelle durch root; Rechte `0600` erhalten | Bleibt erhalten |
 | `/etc/materialpool/github.token` | Optionales Token für private Release-Quellen; beim öffentlichen Standardrepository nicht angelegt | Nur root, etwa zur Tokenrotation; Rechte `0600` | Bleibt erhalten |
 | `/etc/mysql/mariadb.conf.d/90-materialpool.cnf` | Lokale MariaDB-Bind-Adresse; Datenbank selbst wird von MariaDB verwaltet | Nur bei bewusst geänderter Netz-/DB-Architektur | Bleibt erhalten |
-| `/etc/nginx/sites-available/materialpool`, `/etc/systemd/system/materialpool-queue.service`, `materialpool-schedule.service`, `materialpool-schedule.timer` | Beim Fresh-Install aus dem Release kopierte Web- und Dienstkonfiguration | Gezielte lokale Anpassungen durch root nach `nginx -t` bzw. `systemctl daemon-reload`; Änderungen auch beim Abgleich mit neuen Release-Vorlagen berücksichtigen | Der Updater kopiert diese Dateien **nicht** erneut; Release-Vorlagen unter `current/deployment/` wechseln jedoch mit dem Release |
+| `/etc/nginx/sites-available/materialpool`, `/etc/systemd/system/materialpool-queue.service`, `materialpool-background.service`, `materialpool-schedule.service`, `materialpool-schedule.timer` | Webkonfiguration und versionierte systemd-Dienste | Dienstanpassungen als systemd-Drop-ins vornehmen und prüfen; die Haupt-Units werden vom Release verwaltet | Installation und jedes Update gleichen die Haupt-Units mit dem aktiven Release ab, laden systemd neu und starten beide Queue-Dienste; Rollback übernimmt die Units des Zielrelease |
 | `/usr/local/sbin/materialpool-update`, `/usr/bin/update` | Updater bzw. Kurzaufruf | **Nicht bearbeiten**; Änderungen am Updater gehören ins Release | Updater wird nach erfolgreichem Healthcheck aus dem neuen Release ersetzt; Kurzaufruf bleibt bestehen |
 
 Das Verzeichnis `/var/lib/materialpool` ist das Home des Deploy-Benutzers. Die MariaDB-Datendateien liegen in der vom installierten MariaDB-Paket konfigurierten Datenablage; deren effektiven Wert im LXC prüfen, nicht aus einem Beispielpfad ableiten. Ein Spatie-Archiv enthält Datenbank, `storage/app` und `public/uploads`, aber **nicht** die Shared-`.env` oder das Passport-Schlüsselpaar. Der reine `pre-…`-Dump enthält auch keine Dateien. Für einen vollständigen Wiederanlauf deshalb Datenbank, Originaldateien, `.env`, Passport-Schlüssel sowie einen getesteten LXC-/Proxmox-Backup- und Restore-Ablauf gemeinsam berücksichtigen. Das externe S3-Ziel wird über `BACKUP_S3_BUCKET` und `BACKUP_S3_PREFIX` in der Shared-`.env` bestimmt.

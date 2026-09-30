@@ -63,7 +63,7 @@ Material- und Relation-Services lösen `MaterialWas…`, `ResourceWasAttached` u
 
 ### Bundle-Import
 
-`BundleImportController` baut eine bundle-spezifische Queue `bundle_{id}_queue` auf. Jobs legen Ressourcen/Materialien an, aktualisieren Foreign-ID-Mappings und finalisieren Import oder Deinstallation. Das Löschen oder Umordnen dieser Jobs verändert Datenbestände und verlangt Freigabe.
+`BundleImportController` baut eine bundle-spezifische Queue `bundle_{id}_queue` auf. Der Proxmox-Hintergrunddienst verarbeitet aktive Bundle-Läufe vor der Vorschau-Queue; die Browser-API zeigt nur noch den Fortschritt. Jobs legen Ressourcen/Materialien an, aktualisieren Foreign-ID-Mappings und finalisieren Import oder Deinstallation. Das Löschen oder Umordnen dieser Jobs verändert Datenbestände und verlangt Freigabe.
 
 Die geplante Härtung von Laufsteuerung, Laravel-Batches, Wiederaufnahme und bundlebezogenen Leserechten ist im [Bundle-Import-Updatevertrag](bundle-import-update-contract.md) beschrieben. Der Vertrag ist noch nicht implementiert und wird erst nach Bestätigung seiner offenen Entscheidungen verbindliche Zielarchitektur.
 

@@ -37,7 +37,7 @@ Nach Sicherung fremder Änderungen einen eigenen Testbranch vom vorgesehenen Int
 
 Nach dem Publish-Job muss auch „Veröffentlichtes Release und Assets prüfen“ erfolgreich sein. Ein Tag im Format `MAJOR.MINOR.PATCH([a-z]?)` muss den Release-Lauf starten. Einen zusätzlichen freien Tag mit Buchstaben, etwa `0.0.1b`, im isolierten Test-Repository prüfen: Er muss als Prerelease mit beiden Assets erscheinen und darf `/releases/latest` nicht ersetzen.
 
-Nach grünem CI und nur falls noch frei: `git tag 0.0.1 && git push test 0.0.1`. **Actions → Release** muss `verify` vor `publish` erfolgreich ausführen. Im GitHub Release müssen `materialpool-0.0.1.tar.gz` und `.sha256` liegen. Beide Assets lokal in ein leeres Testverzeichnis laden und `sha256sum -c materialpool-0.0.1.tar.gz.sha256` sowie `tar -xOf materialpool-0.0.1.tar.gz ./release.json | jq .` ausführen. Die `release.json` im Archiv enthält Version und Commit. `tar -tzf` muss `public/build/manifest.json` und `database/bible-data/{manifest.json,cross-references.tsv}` zeigen, aber keine Bibelübersetzungsdateien, `.env`, `node_modules`, `vendor` oder Uploads enthalten. Ein Testrelease nur nach Prüfung gezielt im Test-Repository löschen und anschließend den Testtag dort entfernen; produktive Tags niemals pauschal löschen.
+Nach grünem CI und nur falls noch frei: `git tag 0.0.1 && git push test 0.0.1`. **Actions → Release** muss `verify` vor `publish` erfolgreich ausführen. Im GitHub Release müssen `materialpool-0.0.1.tar.gz` und `.sha256` liegen. Beide Assets lokal in ein leeres Testverzeichnis laden und `sha256sum -c materialpool-0.0.1.tar.gz.sha256` sowie `tar -xOf materialpool-0.0.1.tar.gz ./release.json | jq .` ausführen. Die `release.json` im Archiv enthält Version und Commit. `tar -tzf` muss `public/build/manifest.json`, die vier `deployment/systemd/materialpool-*`-Units und `database/bible-data/{manifest.json,cross-references.tsv}` zeigen, aber keine Bibelübersetzungsdateien, `.env`, `node_modules`, `vendor` oder Uploads enthalten. Ein Testrelease nur nach Prüfung gezielt im Test-Repository löschen und anschließend den Testtag dort entfernen; produktive Tags niemals pauschal löschen.
 
 ## D. Qdrant-LXC installieren
 
@@ -61,7 +61,9 @@ grep -E '^(APP_ENV|APP_DEBUG|DB_HOST|QUEUE_CONNECTION|QDRANT_URL)=' /srv/materia
 mariadb -e 'SHOW DATABASES LIKE "materialpool";'
 php /srv/materialpool/current/artisan migrate:status
 nginx -t && php-fpm8.4 -t
-systemctl status nginx php8.4-fpm mariadb materialpool-queue.service materialpool-schedule.timer
+systemctl status nginx php8.4-fpm mariadb materialpool-queue.service materialpool-background.service materialpool-schedule.timer
+systemctl show materialpool-queue.service materialpool-background.service -p Restart -p ActiveState
+for unit in materialpool-queue.service materialpool-background.service materialpool-schedule.service materialpool-schedule.timer; do cmp "/etc/systemd/system/$unit" "/srv/materialpool/current/deployment/systemd/$unit"; done
 curl -i http://127.0.0.1/up
 ```
 
@@ -78,6 +80,8 @@ Am Ende der Installation, nach einem erfolgreichen `update` und bei „bereits a
 ## G. Update testen
 
 In einem eigenen Testbranch eine harmlose, sichtbare Textänderung mit bestehendem Übersetzungsmechanismus vornehmen, CI vollständig abwarten, `git tag 0.0.2 && git push test 0.0.2` ausführen und Assets/Checksumme wie in C prüfen. Für diesen Test muss der **isolierte Test-LXC** bereits mit einem Release aus dem Test-Repository installiert sein und `/etc/materialpool/release.conf` dort auf genau dieses Repository zeigen; der öffentliche Fresh-Installer richtet das nicht ein. Vor `update` die Werte aus `current/release.json`, `readlink -f current`, `.env`-Prüfsumme, Prüfsummen beider Passport-Schlüssel, Bibeldatenstatus und einen Testdatensatz/Testupload notieren. `update` ausführen. Der Updater muss `bible:import --update-translations --update-cross-references --no-interaction` ohne neue Auswahl ausführen; bei unverändertem Inhalt sind Verse und Referenzen nicht neu zu schreiben. Danach neues Release, Backup unter `/srv/materialpool/shared/backups`, `migrate:status` mit allen Migrationen des neuen Release, Bibeldatenstatus, `systemctl is-active` aller Dienste, `/up`, Browser, Queue, Admin-Login und persistente Daten prüfen. `cmp /usr/local/sbin/materialpool-update /srv/materialpool/current/deployment/release/update.sh` muss auch nach dem Upgrade erfolgreich sein. Die Prüfsummen beider Passport-Schlüssel müssen unverändert bleiben. Das Update darf keinen weiteren ersten Admin anlegen und bestehende Zugangsdaten nicht ersetzen. Nochmaliges `update` muss „bereits aktuell“ melden.
+
+Nach dem Update dieselben vier Unit-Dateien mit dem aktiven Release vergleichen. Im isolierten LXC einen ungefährlichen Testjob je Queue bereitstellen: `default` muss vor einem wartenden Bundle-Job starten, ein aktiver `bundle_<id>_queue`-Job vor einer Vorschau und `resource-previews-low` erst ohne höhere bereite Arbeit. Die Browser-Fortschrittsanfrage darf dabei keinen Job ausführen. Kontextsuche-Jobs bleiben trotz eingerichtetem Qdrant bis zur gesonderten Produktionsfreigabe unberührt. Mit `systemctl show ... -p Restart` für beide Queue-Units `always` nachweisen und nach einem kontrollierten Worker-Neustart erneut `is-active` prüfen. Den gleichen Unit-Abgleich nach einem Update auf bereits aktuelle Version durchführen.
 
 ## H. Persistenztest
 
@@ -97,7 +101,7 @@ Im isolierten Test-Repository ein Release-Asset mit gültiger SHA256, aber inkon
 
 ## K. Code-Rollback
 
-Im Test-LXC aktive und vorherige Version mit `cat current/release.json` und `ls /srv/materialpool/releases` bestimmen. Dann `sudo /usr/local/sbin/materialpool-update rollback 0.0.1`, `readlink -f current`, `systemctl status materialpool-queue.service`, `curl -fsS http://127.0.0.1/up` und Browser prüfen. Dieser Test betrifft **nur Code**. Eine nicht abwärtskompatible Migration verlangt gegebenenfalls den Restore des zugehörigen DB-Backups.
+Im Test-LXC aktive und vorherige Version mit `cat current/release.json` und `ls /srv/materialpool/releases` bestimmen. Dann `sudo /usr/local/sbin/materialpool-update rollback 0.0.1`, `readlink -f current`, `systemctl status materialpool-queue.service materialpool-background.service materialpool-schedule.timer`, `curl -fsS http://127.0.0.1/up` und Browser prüfen. Der Rollback wechselt Code und Dienst-Units; bei einem älteren Zielrelease ohne Hintergrunddienst muss dieser deaktiviert sein. Eine nicht abwärtskompatible Migration verlangt gegebenenfalls den Restore des zugehörigen DB-Backups.
 
 ## L. Datenbank-Recovery, nur Testinstanz
 
@@ -105,7 +109,7 @@ Zunächst aktuelle Testdatenbank separat mit `mariadb-dump --single-transaction 
 
 ## M. Logs und Diagnose
 
-`systemctl status nginx php8.4-fpm mariadb materialpool-queue.service materialpool-schedule.timer`; `journalctl -u materialpool-queue.service -u materialpool-schedule.service -n 100 --no-pager`; `journalctl -u mariadb -u php8.4-fpm -n 100 --no-pager`; `tail -n 100 /var/log/nginx/error.log`; `tail -n 100 /srv/materialpool/shared/storage/logs/laravel.log`. Im Qdrant-LXC: `systemctl status qdrant` und `journalctl -u qdrant -n 100 --no-pager`. Secrets/Nutzdaten vor Weitergabe aus Logs entfernen.
+`systemctl status nginx php8.4-fpm mariadb materialpool-queue.service materialpool-background.service materialpool-schedule.timer`; `journalctl -u materialpool-queue.service -u materialpool-background.service -u materialpool-schedule.service -n 100 --no-pager`; `journalctl -u mariadb -u php8.4-fpm -n 100 --no-pager`; `tail -n 100 /var/log/nginx/error.log`; `tail -n 100 /srv/materialpool/shared/storage/logs/laravel.log`. Im Qdrant-LXC: `systemctl status qdrant` und `journalctl -u qdrant -n 100 --no-pager`. Secrets/Nutzdaten vor Weitergabe aus Logs entfernen.
 
 ## N. Backup-Check
 

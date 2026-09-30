@@ -24,7 +24,7 @@ cmp -s /usr/local/sbin/materialpool-update /srv/materialpool/current/deployment/
 **Auf dem Laravel-LXC, lesend:**
 
 ```bash
-systemctl is-active nginx php8.4-fpm mariadb materialpool-queue.service materialpool-schedule.timer
+systemctl is-active nginx php8.4-fpm mariadb materialpool-queue.service materialpool-background.service materialpool-schedule.timer
 curl -fsS http://127.0.0.1/up
 test -s /srv/materialpool/current/public/build/manifest.json; echo "Vite-Manifest: $?"
 for tool in node npm docker; do if command -v "$tool" >/dev/null; then echo "$tool: vorhanden"; else echo "$tool: fehlt"; fi; done
@@ -41,9 +41,9 @@ php /srv/materialpool/current/artisan migrate:status
 
 ## 4. Qdrant und Hintergrundbetrieb
 
-**Auf beiden LXC, lesend:** Qdrant-Dienst, API-Key und Firewallregel für TCP 6333 prüfen. Einen authentifizierten Healthcheck vom Laravel-LXC ausführen, ohne den Key in die Rückmeldung zu kopieren. Queue und Scheduler mit `systemctl is-active` prüfen; bei Fehler `journalctl -u materialpool-queue.service -u materialpool-schedule.service -n 50 --no-pager` lokal sichten. Die produktiven Kontextsuche-Indexworker und der Indexdispatch bleiben bis zur gesonderten Abnahme nach [Kontextsuche-Queue-Vertrag](../../docs/ai/context-search-queue-change-contract.md) gesperrt.
+**Auf beiden LXC, lesend:** Qdrant-Dienst, API-Key und Firewallregel für TCP 6333 prüfen. Einen authentifizierten Healthcheck vom Laravel-LXC ausführen, ohne den Key in die Rückmeldung zu kopieren. Queue und Scheduler mit `systemctl is-active` prüfen; bei Fehler `journalctl -u materialpool-queue.service -u materialpool-background.service -u materialpool-schedule.service -n 50 --no-pager` lokal sichten. Die produktiven Kontextsuche-Indexworker und der Indexdispatch bleiben bis zur gesonderten Abnahme nach [Kontextsuche-Queue-Vertrag](../../docs/ai/context-search-queue-change-contract.md) gesperrt.
 
-**Bestanden:** Bei aktivierter Kontextsuche antwortet Qdrant nur authentifiziert aus dem erlaubten Netz und fremde Netze sind blockiert; andernfalls ist die Qdrant-Verbindung als `nicht anwendbar` markiert. Default-Queue und Scheduler laufen. **Rückmeldung:** Aktiv/inaktiv für Kontextsuche, gegebenenfalls Verbindungs- und Firewall-Ergebnis, Dienststatus.
+**Bestanden:** Bei aktivierter Kontextsuche antwortet Qdrant nur authentifiziert aus dem erlaubten Netz und fremde Netze sind blockiert; andernfalls ist die Qdrant-Verbindung als `nicht anwendbar` markiert. Default-Queue, Hintergrunddienst und Scheduler laufen; Kontextsuche-Indexjobs bleiben bis zur eigenen Abnahme gesperrt. **Rückmeldung:** Aktiv/inaktiv für Kontextsuche, gegebenenfalls Verbindungs- und Firewall-Ergebnis, Dienststatus.
 
 ## 5. Fachlicher Smoke-Test und Persistenz
 
