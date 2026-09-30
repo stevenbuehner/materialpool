@@ -12,6 +12,15 @@ Die folgende Anleitung verwendet eine **SDN Simple Zone mit SNAT**. Sie gilt, we
 
 Die Beispielwerte `mpzone`, `mpqnet` und `172.28.63.0/24` nur verwenden, wenn sie noch frei sind. Im Beispiel erhält der Proxmox-Node `172.28.63.1`, Laravel `172.28.63.10` und Qdrant `172.28.63.20`. Ein bestehendes Netz mit diesem CIDR würde zu falschem Routing führen.
 
+| Gerät | Proxmox-Netzkarte | Bridge/VNet | IPv4-Adresse | Gateway | Aufgabe |
+| --- | --- | --- | --- | --- | --- |
+| Proxmox-Node | SDN-VNet `mpqnet` | `mpqnet` | `172.28.63.1/24` | vorhandener Node-Gateway | Gateway und SNAT für das private Netz |
+| Qdrant-LXC | `net0` / `eth0` | `mpqnet` | `172.28.63.20/24` | `172.28.63.1` | Qdrant-REST-API und ausgehende Updates |
+| Materialpool-LXC | `net0` / `eth0` | bisherige Bridge, z. B. `vmbr0` | bisherige Adresse | bisheriger Gateway | Reverse Proxy, DNS und Updates |
+| Materialpool-LXC | `net1` / `eth1` | `mpqnet` | `172.28.63.10/24` | **leer** | direkte Verbindung zu Qdrant |
+
+Die Interface-Namen sind Beispiele für neue Container. Bei einem bestehenden Materialpool-LXC die tatsächlichen Namen unter **LXC → Network** ablesen; die vorhandene Netzkarte samt IP und Gateway nicht ersetzen.
+
 1. Im Proxmox-Webinterface den **Node auswählen**, auf dem beide LXC laufen sollen. Unter **System → Network** und auf dem Router die vorhandenen Netze ansehen. In der Node-Shell zusätzlich die Routen prüfen; `172.28.63.0/24` darf noch nicht verwendet werden:
 
    ```bash
@@ -39,8 +48,8 @@ Die Beispielwerte `mpzone`, `mpqnet` und `172.28.63.0/24` nur verwenden, wenn si
    bash -c "$(curl -fsSL https://raw.githubusercontent.com/community-scripts/ProxmoxVE/main/ct/qdrant.sh)"
    ```
 
-7. Im Script-Assistenten **Advanced** wählen. Container-ID, unprivilegierten LXC, Debian 13 und bemessene CPU/RAM/Disk festlegen. Für die **einzige Netzkarte** des Qdrant-LXC folgende Werte eintragen: Bridge/VNet `mpqnet`, IPv4 **statisch** `172.28.63.20/24`, Gateway `172.28.63.1`, einen für ausgehende Anfragen erreichbaren DNS-Server und Firewall **aktiviert**. Kein öffentliches Interface und keine Portweiterleitung hinzufügen. Wenn `mpqnet` nicht auswählbar ist oder der Installer damit keine ausgehende Verbindung herstellen kann, zunächst die SDN-/SNAT-Konfiguration prüfen und den Installer nicht auf eine öffentlich erreichbare Bridge ausweichen lassen.
-8. Auf dem **Proxmox-Host** Container und Netz prüfen. Die Abfrage verlangt die tatsächlich vergebene CTID; `pct enter` öffnet danach eine Shell im Qdrant-LXC:
+7. Im Script-Assistenten **Advanced** wählen und die Abfragen für CTID, Storage, Debian 13, **unprivilegierten** Container sowie CPU/RAM/Disk passend zur Last beantworten. Für die **einzige Netzkarte** des Qdrant-LXC `mpqnet` als Bridge/VNet, `172.28.63.20/24` als **statische IPv4**, `172.28.63.1` als IPv4-Gateway und **Firewall: Yes** wählen. Einen DNS-Server eintragen, den der Container über den Node-Gateway erreichen kann. Die genauen Feldnamen des Community-Scripts können sich ändern; entscheidend sind die Werte in der Tabelle und die Nachkontrolle in Schritt 8. Weder eine zweite Karte an `vmbr0` noch eine Portweiterleitung für Qdrant anlegen. Wenn `mpqnet` nicht auswählbar ist oder der Installer damit keine ausgehende Verbindung herstellen kann, SDN-Apply, Subnetz, SNAT und DNS prüfen, bevor die Installation fortgesetzt wird.
+8. Nach der Installation im Proxmox-Webinterface **Qdrant-LXC → Network** öffnen: Es muss genau **eine** Karte `net0` mit **Bridge: `mpqnet`**, **IPv4/CIDR: `172.28.63.20/24`**, **Gateway: `172.28.63.1`** und aktivierter **Firewall** geben. Unter **Qdrant-LXC → DNS** den gewählten DNS-Server kontrollieren. Falls ein Wert falsch ist, den neuen Qdrant-LXC kontrolliert stoppen, unter **Network → net0 → Edit** berichtigen und wieder starten; einen produktiv genutzten Container dabei nicht ohne Wartungsfenster unterbrechen. In der **Proxmox-Node-Shell** die tatsächlich vergebene CTID eingeben, Konfiguration und Status prüfen und die Qdrant-Shell öffnen:
 
    ```bash
    read -r -p 'Qdrant-CTID: ' QDRANT_CTID
@@ -49,6 +58,8 @@ Die Beispielwerte `mpzone`, `mpqnet` und `172.28.63.0/24` nur verwenden, wenn si
    pct enter "$QDRANT_CTID"
    ```
 
+   In `pct config` muss `net0` die Werte `bridge=mpqnet`, `ip=172.28.63.20/24`, `gw=172.28.63.1` und `firewall=1` enthalten. Vor den folgenden Proxmox-Schritten die Qdrant-Shell mit `exit` verlassen oder eine zweite Node-Shell öffnen.
+
 9. Vor der API-Key-Konfiguration die **Qdrant-Container-Firewall** im Proxmox-Webinterface einrichten. Zuerst unter **Datacenter → Firewall → Options** und **Node → Firewall → Options** den aktuellen Status prüfen. Ist die Datacenter-Firewall noch aus, vor ihrer Aktivierung die bestehenden Regeln für Proxmox-Weboberfläche (`8006/TCP`), SSH (`22/TCP`) und weitere benötigte Host-Dienste vom tatsächlichen Managementnetz prüfen und eine zweite Host-Konsole offen halten: Das Einschalten wirkt auf den gesamten Node beziehungsweise Cluster. Danach **Firewall: Yes** auf Datacenter- und Node-Ebene setzen. Unter **Qdrant-LXC → Network → net0 → Edit** die Option **Firewall** aktivieren. Unter **Qdrant-LXC → Firewall → Options** **Firewall: Yes**, **Input Policy: DROP** und **Output Policy: ACCEPT** setzen. Unter **Qdrant-LXC → Firewall → Add** genau eine eingehende Freigabe für Materialpool anlegen: **Direction: IN**, **Action: ACCEPT**, **Interface: net0**, **Source: `172.28.63.10/32`**, **Protocol: tcp**, **Dest. port: `6333`**, **Enable: Yes**. Keine Freigabe für `6334` hinzufügen. Die Container-Firewall benötigt sowohl die allgemeine Aktivierung als auch die Aktivierung an der Netzkarte. [Proxmox-Firewall](https://github.com/proxmox/pve-docs/blob/master/pve-firewall.adoc).
 
    Von der **Proxmox-Node-Shell** aus den gesperrten Zugriff auf den öffentlichen Health-Endpunkt prüfen. Der folgende Aufruf muss **fehlschlagen**, denn der Node benutzt `172.28.63.1` und die einzige Freigabe erlaubt `172.28.63.10`. Antwortet er mit HTTP 200, vor dem nächsten Schritt die Firewall-Aktivierung und Regelreihenfolge prüfen:
@@ -56,7 +67,7 @@ Die Beispielwerte `mpzone`, `mpqnet` und `172.28.63.0/24` nur verwenden, wenn si
    ```bash
    curl -fsS --connect-timeout 2 --max-time 4 http://172.28.63.20:6333/readyz
    ```
-10. Im **Qdrant-LXC** ausgehende Namensauflösung und HTTPS prüfen, damit Updates funktionieren. Ist einer der Aufrufe erfolglos, DNS, Gateway, SNAT und die Output Policy prüfen, bevor Qdrant angebunden wird:
+10. Im **Qdrant-LXC** Adresse, Route, Namensauflösung und HTTPS prüfen, damit Updates funktionieren. Es muss `172.28.63.20/24` auf `eth0` sowie genau die vorgesehene Default-Route über `172.28.63.1` sichtbar sein. Ist einer der Aufrufe erfolglos, DNS, Gateway, SNAT und die Output Policy prüfen, bevor Qdrant angebunden wird:
 
     ```bash
     ip -4 address show dev eth0
@@ -114,30 +125,65 @@ Die Beispielwerte `mpzone`, `mpqnet` und `172.28.63.0/24` nur verwenden, wenn si
 
 ### Materialpool verbinden und Betrieb prüfen
 
-14. Den **Laravel-LXC** nach der [Materialpool-Installationsanleitung](installation.md) auf seinem bisherigen Netz installieren beziehungsweise einen bestehenden Laravel-LXC verwenden. Bei einer Neuinstallation die optionale Kontextsuche-Frage zunächst mit **Nein** beantworten, da die private Laravel-Netzkarte noch fehlt; sie wird in Schritt 16 nachgeholt. Danach im Proxmox-Webinterface **Laravel-LXC → Network → Add → Network Device** öffnen. Den nächsten freien Gerätenamen wählen (im Normalfall `eth1`/`net1`), **Bridge** `mpqnet`, **IPv4** statisch `172.28.63.10/24`, **IPv4 Gateway leer** und **Firewall aktiviert** setzen. An dieser zweiten Karte keinen weiteren Default-Gateway eintragen; der bestehende `net0`-Zugang für Reverse Proxy, DNS und Updates bleibt erhalten. Bei einem bereits vorhandenen `net1` einen anderen freien Slot verwenden und dessen Namen in der eigenen Betriebsdokumentation festhalten. Wenn Proxmox die Änderung als *pending* markiert, den Laravel-LXC in einem Wartungsfenster neu starten. Im **Laravel-LXC** danach prüfen:
+14. Den **Materialpool-LXC** bei einer Neuinstallation nach der [Materialpool-Installationsanleitung](installation.md) anlegen. In der **Proxmox-Node-Shell** startet dieser Befehl das Materialpool-Script; es lädt und startet ebenfalls Fremdcode und setzt ein veröffentlichtes, versioniertes Materialpool-Release voraus:
+
+    ```bash
+    bash -c "$(curl -fsSL https://raw.githubusercontent.com/stevenbuehner/materialpool/master/ct/materialpool.sh)"
+    ```
+
+    Im Script-Assistenten die **bestehende Betriebs-Bridge** (zum Beispiel `vmbr0`) mit der vorgesehenen IP, dem bisherigen Gateway und DNS wählen; **nicht** `mpqnet` als einzige Netzkarte verwenden. Der Release-Installer fragt später „Context-Suche aktivieren?“: zunächst **Nein** antworten, weil die private zweite Netzkarte noch fehlt. Bei einem vorhandenen Materialpool-LXC dessen bisherigen Netzanschluss unverändert lassen.
+
+    Nach erfolgreicher Installation im Proxmox-Webinterface **Materialpool-LXC → Network** öffnen und `net0` samt Bridge, IPv4 und Gateway notieren. Dann **Add → Network Device** wählen und die zweite Karte genau so eintragen:
+
+    | Feld | Wert für das Beispiel |
+    | --- | --- |
+    | Name | `eth1` (Proxmox-Eintrag `net1`; bei belegtem Slot den nächsten freien Namen) |
+    | Bridge | `mpqnet` |
+    | VLAN Tag | leer; das VNet selbst ist die private Verbindung |
+    | IPv4 | Static |
+    | IPv4/CIDR | `172.28.63.10/24` |
+    | Gateway (IPv4) | **leer** |
+    | IPv6 | keine zusätzliche IPv6-Konfiguration für dieses Beispiel |
+    | Firewall | aktiviert |
+
+    Mit **Add** speichern. Auf `net1` keinen zweiten Default-Gateway oder abweichenden DNS eintragen; der bisherige Zugang für Reverse Proxy und Updates bleibt auf `net0`. Wenn Proxmox die Änderung als *pending* markiert, den Materialpool-LXC in einem Wartungsfenster neu starten. Auf dem **Proxmox-Host** die tatsächliche Materialpool-CTID eingeben und prüfen, dass `net0` weiterhin die bisherige Bridge und `net1` `bridge=mpqnet`, `ip=172.28.63.10/24` und `firewall=1`, aber **kein `gw=`**, enthält:
+
+    ```bash
+    read -r -p 'Materialpool-CTID: ' MATERIALPOOL_CTID
+    pct config "$MATERIALPOOL_CTID"
+    pct status "$MATERIALPOOL_CTID"
+    pct enter "$MATERIALPOOL_CTID"
+    ```
+
+    Im **Materialpool-LXC** danach die Adressen und Routen prüfen:
 
     ```bash
     ip -4 address
     ip -4 route
+    ip -4 route get 172.28.63.20
     ```
 
-    Es muss eine direkte Route zu `172.28.63.0/24` über die neue Karte geben; der bisherige Default-Gateway darf sich nicht ändern. Aus einem **anderen Netz** darf `172.28.63.20:6333` nicht erreichbar sein.
+    `route get` muss `dev eth1` und `src 172.28.63.10` zeigen (bei anderem Gerätenamen entsprechend angepasst). Es muss eine direkte Route zu `172.28.63.0/24` über die neue Karte geben; der bisherige Default-Gateway muss auf `net0` bleiben. Wenn `src` oder Interface abweichen, vor der Qdrant-Konfiguration die Interface-Adresse, Präfixlänge und vorhandene konkurrierende Routen korrigieren. Aus einem **anderen Netz** darf `172.28.63.20:6333` nicht erreichbar sein. Die Materialpool-Netzkarte benötigt für diese ausgehende Verbindung keine eingehende Portfreigabe; bei einer eigenen restriktiven Output Policy TCP 6333 zur Qdrant-IP ausdrücklich erlauben.
 
-15. Im **Laravel-LXC** als root die private Qdrant-Adresse und den Key interaktiv konfigurieren. Als URL `http://172.28.63.20:6333` angeben, bei TLS `https://...`. Der Command fragt den Key verdeckt ab, prüft `/readyz` und authentifiziert `/aliases`. Er schreibt `QDRANT_URL` und `QDRANT_API_KEY` nur nach erfolgreichem Test in die Shared-`.env`; eine leere Key-Eingabe übernimmt bei erneuter Konfiguration den bisherigen Key.
+15. Zuerst im **Materialpool-LXC** die Verbindung **vor** dem Speichern unabhängig prüfen. `/readyz` zeigt nur, ob der Dienst antwortet; `/aliases` ohne Key muss `401` oder `403` liefern. Den in Schritt 12 erzeugten Key verdeckt eingeben und `/aliases` erneut aufrufen. Der letzte Aufruf muss erfolgreiches JSON liefern; er bestätigt Erreichbarkeit und Authentifizierung, aber noch keine Schreibrechte. Den Key danach aus der Shell-Variablen entfernen:
+
+   ```bash
+   QDRANT_URL='http://172.28.63.20:6333'
+   curl -fsS --connect-timeout 2 --max-time 10 "$QDRANT_URL/readyz"
+   curl -s -o /dev/null -w '%{http_code}\n' --connect-timeout 2 --max-time 10 "$QDRANT_URL/aliases"
+   read -r -s -p 'Qdrant-API-Key: ' QDRANT_KEY; printf '\n'
+   curl -fsS --connect-timeout 2 --max-time 10 -H "api-key: $QDRANT_KEY" "$QDRANT_URL/aliases"
+   unset QDRANT_KEY
+   ```
+
+   Anschließend im **Materialpool-LXC** als root den interaktiven Command starten. Bei `QDRANT_URL` exakt `http://172.28.63.20:6333` eingeben; bei `QDRANT_API_KEY` denselben Key verdeckt einfügen. Der Command prüft `/readyz` und authentifiziert `/aliases`. Erst nach Erfolg schreibt er `QDRANT_URL` und `QDRANT_API_KEY` in die Shared-`.env` und leert den Laravel-Konfigurationscache; eine leere Key-Eingabe übernimmt bei erneuter Konfiguration den bisherigen Key.
 
    ```bash
    php /srv/materialpool/current/artisan context-search:qdrant:configure
    runuser -u www-data -- php /srv/materialpool/current/artisan materialpool:status
    ```
 
-   Die Statusanzeige soll die richtige URL und „API-Key konfiguriert: ja“ melden, ohne den Key auszugeben. Für einen unabhängigen Test aus dem **Laravel-LXC** den Key verdeckt eingeben:
-
-   ```bash
-   QDRANT_URL='http://172.28.63.20:6333'
-   read -r -s -p 'Qdrant-API-Key: ' QDRANT_KEY; printf '\n'
-   curl -fsS --connect-timeout 2 --max-time 10 -H "api-key: $QDRANT_KEY" "$QDRANT_URL/aliases"
-   unset QDRANT_KEY
-   ```
+   Die Statusanzeige soll die richtige URL und „API-Key konfiguriert: ja“ melden, ohne den Key auszugeben. Bei **Timeout** zuerst `ip -4 route get 172.28.63.20`, beide `pct config`-Ausgaben, die Qdrant-Container-Firewall und `systemctl status qdrant` prüfen. Bei **401/403** den im Materialpool-LXC eingegebenen Key mit dem aktiven Qdrant-Key vergleichen; keinen Key in ein Ticket oder Log kopieren. Wenn `curl` funktioniert, der Command aber scheitert, die tatsächlich geladene Release-Konfiguration und die Rechte der Shared-`.env` prüfen. Nach einem fehlgeschlagenen Command bleibt die bisherige Verbindung erhalten.
 
 16. Falls Ollama und Kontextsuche eingerichtet werden sollen, im **Laravel-LXC** den vorhandenen Assistenten ausführen:
 
