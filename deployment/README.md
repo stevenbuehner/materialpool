@@ -55,3 +55,4 @@ Der alte Ubuntu-/MySQL-Pfad unter `ops/production/` bleibt ausschließlich für 
 - [Qdrant](docs/qdrant.md)
 - [Fehlersuche](docs/troubleshooting.md)
 - [Vollständige Testanleitung](docs/testing.md)
+- [Geführte Abnahme mit Ergebnissen](docs/abnahme.md)

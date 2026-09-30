@@ -32,7 +32,7 @@ Nach Installation und Update zeigt `materialpool:status` farbig gegliederte Sekt
 - [Proxmox-Betriebsübersicht](deployment/README.md): Zielarchitektur, Dienste und dauerhafte Pfade.
 - [Release erstellen](deployment/docs/release.md): Tag, Paket, Prüfsumme und Veröffentlichung.
 - [Qdrant-LXC](deployment/docs/qdrant.md): optionale Kontextsuche im getrennten Container.
-- [Fehlersuche](deployment/docs/troubleshooting.md) und [manuelle Proxmox-Abnahme](deployment/docs/testing.md).
+- [Fehlersuche](deployment/docs/troubleshooting.md), [geführte Proxmox-Abnahme](deployment/docs/abnahme.md) und [vollständige Testanleitung](deployment/docs/testing.md).
 
 ### Entwicklung und technische Verträge
 
