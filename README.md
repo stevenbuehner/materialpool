@@ -27,6 +27,8 @@ Nach Installation und Update zeigt `materialpool:status` farbig gegliederte Sekt
 
 ## Weitere Dokumentation
 
+Die Bildvorschauen werden in `config/app.php` unter `app.preview.small` (Listen und Suche) und `app.preview.large` (Detail und Zoom) konfiguriert. Jedes Profil enthält maximale Breite und Höhe, PDF-Auflösung, Qualität und Ausgabeformat. Änderungen an den Profilen gelten nach dem üblichen Einlesen der Laravel-Konfiguration; neue Vorschaubilder erhalten eigene Cache-Schlüssel.
+
 ### Betrieb und Releases
 
 - [Proxmox-Betriebsübersicht](deployment/README.md): Zielarchitektur, Dienste und dauerhafte Pfade.
