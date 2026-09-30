@@ -37,6 +37,8 @@ php /srv/materialpool/current/artisan migrate:status
 
 **Lesend prüfen:** HTTPS über den echten Reverse Proxy, Login eines berechtigten Benutzers, Abweisung eines nicht berechtigten Kontos, `APP_DEBUG=false`, `SESSION_SECURE_COOKIE=true`, konkreter `TRUSTED_PROXIES`-Wert, fehlender externer Zugriff auf MariaDB und `.env`. Die vollständige `.env` nicht ausgeben. Vorhandene Konfiguration kann lokal gezielt mit `grep -E '^(APP_DEBUG|SESSION_SECURE_COOKIE)=' /srv/materialpool/shared/.env` geprüft werden. Die Proxyadresse nur vor Ort bewerten, nicht im Chat veröffentlichen.
 
+Den HTTPS- und Session-Test in einem frischen privaten Browserfenster von außerhalb des LXC durchführen: Die öffentliche `https://`-Adresse mit `/login` öffnen und Zertifikat sowie Adressleiste prüfen. Mit einem berechtigten Testkonto anmelden, `/vue` aufrufen und die geschützte Seite neu laden; die Anmeldung muss erhalten bleiben. In den Browser-Entwicklertools beim Cookie `materialpool_session` für die öffentliche Domain das Attribut `Secure` prüfen. Nur das Prüfergebnis festhalten, weder Cookie-Wert noch Zugangsdaten kopieren. Danach abmelden. Der interne Aufruf von `http://127.0.0.1/up` und die Konfigurationsanzeige von `materialpool:status` ersetzen diesen Browser-Test nicht.
+
 **Bestanden:** HTTPS und sichere Cookies funktionieren; unberechtigter Zugriff scheitert serverseitig; `.env` wird nicht ausgeliefert; MariaDB bindet ausschließlich lokal. **Rückmeldung:** Je Grenze Ja/Nein und Fehlersymptom, ohne echte Adressen oder Konten.
 
 ## 4. Qdrant und Hintergrundbetrieb

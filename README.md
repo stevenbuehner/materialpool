@@ -25,7 +25,7 @@ Beim ersten Global-Admin verlangt der Installer ein verdeckt eingegebenes Passwo
 
 Nach Installation und Update zeigt `materialpool:status` farbig gegliederte Sektionen mit Version und Update-Hinweis, der vollständigen Anwendungs-URL, konfigurierten Diensten sowie Daten- und Bibelbeständen. Die Backup-Sektion verwendet die lesende Übersicht `backup:list`. Der Proxmox-Updater zeigt diesen Status auch bei einer bereits aktuellen Version zum Abschluss an. Im LXC lässt sich die Anzeige als `runuser -u www-data -- php /srv/materialpool/current/artisan materialpool:status --ansi` erneut aufrufen. Ein Terminal kann die ausgeschriebene URL als anklickbaren Link erkennen; sie bleibt immer kopierbar.
 
-Wenn `SESSION_SECURE_COOKIE=false` ist und eine HTTPS-URL oder ein Trusted Proxy konfiguriert ist, zeigt der Status eine rote Konfigurationswarnung. Bei TLS-Zugriff muss der Wert `true` sein; ein Proxy-Eintrag allein bestätigt noch keine TLS-Verbindung.
+Wenn `SESSION_SECURE_COOKIE=false` ist und eine HTTPS-URL oder ein Trusted Proxy konfiguriert ist, zeigt der Status eine rote Konfigurationswarnung. Bei TLS-Zugriff muss der Wert `true` sein; ein Proxy-Eintrag allein bestätigt noch keine TLS-Verbindung. In beiden Fällen erinnert der Status an den [externen HTTPS-Login- und Cookie-Test](deployment/docs/abnahme.md#3-zugriff-und-schutzgrenzen).
 
 ## Weitere Dokumentation
 

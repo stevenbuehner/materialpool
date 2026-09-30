@@ -37,8 +37,12 @@ class InstallationStatus extends Command {
 		if ($proxies !== '') {
 			$this->line('<fg=cyan>Trusted Proxy:</> '.OutputFormatter::escape($proxies));
 		}
-		if (config('session.secure') === FALSE && (parse_url((string)config('app.url'), PHP_URL_SCHEME) === 'https' || $proxies !== '')) {
+		$httpsOrProxy = parse_url((string)config('app.url'), PHP_URL_SCHEME) === 'https' || $proxies !== '';
+		if (config('session.secure') === FALSE && $httpsOrProxy) {
 			$this->line('<fg=red>! SESSION_SECURE_COOKIE=false: Bei HTTPS beziehungsweise einem TLS-Reverse-Proxy muss der Wert true sein.</>');
+		}
+		if ($httpsOrProxy) {
+			$this->warningLine('HTTPS-Login und Secure-Attribut des Session-Cookies über die öffentliche Adresse im Browser prüfen.');
 		}
 
 		$this->newLine();
