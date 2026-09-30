@@ -9,11 +9,58 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
+use PHPUnit\Framework\Attributes\DataProvider;
+use Symfony\Component\Console\Output\BufferedOutput;
 use Tests\TestCase;
 
 class InstallationStatusTest extends TestCase
 {
     use RefreshDatabase;
+
+    public static function insecureHttpsConfigurations(): array
+    {
+        return [
+            'HTTPS-URL' => ['https://pool.example.test', null],
+            'Trusted Proxy' => ['http://pool.example.test', '192.0.2.1/32'],
+        ];
+    }
+
+    #[DataProvider('insecureHttpsConfigurations')]
+    public function test_status_warns_in_red_when_secure_session_cookies_are_disabled(string $url, ?string $proxies): void
+    {
+        config([
+            'app.url' => $url,
+            'trustedproxy.proxies' => $proxies,
+            'session.secure' => false,
+            'backup.enabled' => false,
+            'context_search.enabled' => false,
+        ]);
+        $output = new BufferedOutput(BufferedOutput::VERBOSITY_NORMAL, true);
+
+        $exitCode = Artisan::call('materialpool:status', ['--latest-version' => '1.2.3'], $output);
+
+        $this->assertSame(0, $exitCode);
+        $this->assertStringContainsString("\033[31m! SESSION_SECURE_COOKIE=false:", $output->fetch());
+    }
+
+    public function test_status_does_not_warn_when_secure_cookies_are_enabled_or_http_has_no_proxy(): void
+    {
+        config([
+            'app.url' => 'https://pool.example.test',
+            'trustedproxy.proxies' => '192.0.2.1/32',
+            'session.secure' => true,
+            'backup.enabled' => false,
+            'context_search.enabled' => false,
+        ]);
+
+        $this->assertSame(0, Artisan::call('materialpool:status', ['--latest-version' => '1.2.3']));
+        $this->assertStringNotContainsString('SESSION_SECURE_COOKIE=false', Artisan::output());
+
+        config(['app.url' => 'http://pool.example.test', 'trustedproxy.proxies' => null, 'session.secure' => false]);
+
+        $this->assertSame(0, Artisan::call('materialpool:status', ['--latest-version' => '1.2.3']));
+        $this->assertStringNotContainsString('SESSION_SECURE_COOKIE=false', Artisan::output());
+    }
 
     public function test_status_shows_installed_data_and_current_version_without_exposing_qdrant_key(): void
     {

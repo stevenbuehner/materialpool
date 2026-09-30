@@ -25,6 +25,8 @@ Beim ersten Global-Admin verlangt der Installer ein verdeckt eingegebenes Passwo
 
 Nach Installation und Update zeigt `materialpool:status` farbig gegliederte Sektionen mit Version und Update-Hinweis, der vollständigen Anwendungs-URL, konfigurierten Diensten sowie Daten- und Bibelbeständen. Die Backup-Sektion verwendet die lesende Übersicht `backup:list`. Der Proxmox-Updater zeigt diesen Status auch bei einer bereits aktuellen Version zum Abschluss an. Im LXC lässt sich die Anzeige als `runuser -u www-data -- php /srv/materialpool/current/artisan materialpool:status --ansi` erneut aufrufen. Ein Terminal kann die ausgeschriebene URL als anklickbaren Link erkennen; sie bleibt immer kopierbar.
 
+Wenn `SESSION_SECURE_COOKIE=false` ist und eine HTTPS-URL oder ein Trusted Proxy konfiguriert ist, zeigt der Status eine rote Konfigurationswarnung. Bei TLS-Zugriff muss der Wert `true` sein; ein Proxy-Eintrag allein bestätigt noch keine TLS-Verbindung.
+
 ## Weitere Dokumentation
 
 Die Bildvorschauen werden in `config/app.php` unter `app.preview.small` (Listen und Suche) und `app.preview.large` (Detail und Zoom) konfiguriert. Jedes Profil enthält maximale Breite und Höhe, PDF-Auflösung, Qualität und Ausgabeformat. Änderungen an den Profilen gelten nach dem üblichen Einlesen der Laravel-Konfiguration; neue Vorschaubilder erhalten eigene Cache-Schlüssel.
