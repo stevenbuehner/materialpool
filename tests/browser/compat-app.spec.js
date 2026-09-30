@@ -515,6 +515,8 @@ test('Keyword search optimization loads suggestions through Pinia', async ({page
 test('Bundle overview loads and completes an update through Pinia', async ({page}, testInfo) => {
     const pageErrors = [];
     const updateRequests = [];
+    let progressRequests = 0;
+    let bundleUpdated = false;
     page.on('pageerror', error => pageErrors.push(error.stack || error.message));
 
     await page.route('**/vue/**', route => route.fulfill({
@@ -568,10 +570,10 @@ test('Bundle overview loads and completes an update through Pinia', async ({page
                         name: 'Compat Bundle',
                         author: 'Synthetic Author',
                         description: 'Synthetic bundle description',
-                        installed_version: '1.0',
-                        update_available: true,
+                        installed_version: bundleUpdated ? '2.0' : '1.0',
+                        update_available: !bundleUpdated,
                         is_installed: true,
-                        updated_at: '2026-09-01 12:00:00',
+                        updated_at: bundleUpdated ? '2026-09-03 12:00:00' : '2026-09-01 12:00:00',
                     }],
                     infos: [{
                         uuid: 'compat-bundle',
@@ -603,11 +605,18 @@ test('Bundle overview loads and completes an update through Pinia', async ({page
 
         if (pathname === '/api/v1/bundles/7/run-update') {
             updateRequests.push({kind: 'run', options: route.request().postDataJSON()});
+            progressRequests += 1;
+            bundleUpdated = progressRequests > 1;
             await route.fulfill({
                 contentType: 'application/json',
-                body: JSON.stringify({
-                    done: 1,
+                body: JSON.stringify(progressRequests === 1 ? {
+                    done: 0,
+                    open: 1,
+                    run: {status: 'running', progress: {total: 1, processed: 0}},
+                } : {
+                    done: 0,
                     open: 0,
+                    run: {status: 'succeeded', progress: {total: 1, processed: 1}},
                     bundle: {
                         id: 7,
                         uuid: 'compat-bundle',
@@ -635,11 +644,11 @@ test('Bundle overview loads and completes an update through Pinia', async ({page
     const updateButton = bundleCard.getByRole('button', {name: /update auf V2\.0 durchführen/i});
     await saveReadmeScreenshot(page, testInfo, 'bundle-management-desktop.png');
     await updateButton.click();
-    await expect.poll(() => updateRequests.map(({kind}) => kind)).toEqual(['init', 'run']);
+    await expect.poll(() => updateRequests.map(({kind}) => kind)).toEqual(['init', 'run', 'run']);
     await expect(bundleCard).toContainText('Version 2.0');
     await expect(updateButton).toHaveCount(0);
     await expectResolvedNavigation(page);
-    expect(updateRequests.map(({options}) => options)).toEqual([{}, {}]);
+    expect(updateRequests.map(({options}) => options)).toEqual([{}, {}, {}]);
     expect(pageErrors).toEqual([]);
 });
 

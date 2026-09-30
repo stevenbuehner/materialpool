@@ -9,12 +9,41 @@ use App\Models\User;
 use App\Services\Bundles\BundleImportOrchestrator;
 use App\Services\Bundles\BundlesService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Laravel\Passport\Passport;
 use Mockery;
 use Tests\TestCase;
 
 class BundleImportStatusEndpointTest extends TestCase {
 	use RefreshDatabase;
+
+	public function test_browser_progress_request_does_not_consume_bundle_jobs(): void {
+		config(['queue.prioritized_background_enabled' => TRUE]);
+		$user = User::factory()->create(['is_admin' => TRUE]);
+		$bundle = Bundle::factory()->create();
+		$queue = 'bundle_' . $bundle->id . '_queue';
+		BundleImportRun::query()->create([
+			'bundle_id' => $bundle->id,
+			'operation' => BundleImportOperation::Update,
+			'target_version' => '2.0.0',
+			'queue_name' => $queue,
+		]);
+		DB::table('jobs')->insert([
+			'queue' => $queue,
+			'payload' => '{}',
+			'attempts' => 0,
+			'reserved_at' => NULL,
+			'available_at' => time(),
+			'created_at' => time(),
+		]);
+		Passport::actingAs($user);
+
+		$this->postJson(route('api.v1.bundles.update.run', $bundle))
+			->assertOk()
+			->assertJsonPath('done', 0)
+			->assertJsonPath('open', 1);
+		$this->assertDatabaseHas('jobs', ['queue' => $queue, 'reserved_at' => NULL]);
+	}
 
 	public function test_bundle_manager_can_read_its_import_run_status_but_not_another_bundles_run(): void {
 		$user = User::factory()->create(['is_admin' => TRUE]);

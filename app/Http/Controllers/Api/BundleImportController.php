@@ -168,25 +168,28 @@ class BundleImportController extends BaseController {
 	public function runJobs(Bundle $bundle): array {
 		$run = BundleImportRun::query()->where('bundle_id', $bundle->id)->whereNotNull('active_slot')->latest('created_at')->first();
 		if ($run === NULL) {
-			return ['done' => 0, 'open' => 0, 'bundle' => $bundle->fresh()];
+			$latest = BundleImportRun::query()->where('bundle_id', $bundle->id)->latest('created_at')->first();
+
+			return ['done' => 0, 'open' => 0, 'run' => $latest === NULL ? NULL : $this->serializeRun($latest), 'bundle' => $bundle->fresh()];
 		}
 
-		$start        = microtime(TRUE);
-		$options      = new WorkerOptions(name: 'bundle-browser', backoff: 5, memory: 128, timeout: 120, sleep: 0, maxTries: 0);
-		$worker       = resolve('queue.worker');
 		$finishedJobs = 0;
-		$openJobs     = $this->bundleQueueService->countJobsInBundleQueue($bundle);
-
-		while (microtime(TRUE) - $start <= 5 && $openJobs > 0) {
+		if (!config('queue.prioritized_background_enabled')) {
+			$start = microtime(TRUE);
+			$options = new WorkerOptions(name: 'bundle-browser', backoff: 5, memory: 128, timeout: 120, sleep: 0, maxTries: 0);
 			/** @var Worker $worker */
-			$worker->runNextJob('database', $run->queue_name, $options);
-			$finishedJobs++;
+			$worker = resolve('queue.worker');
 			$openJobs = $this->bundleQueueService->countJobsInBundleQueue($bundle);
+			while (microtime(TRUE) - $start <= 5 && $openJobs > 0) {
+				$worker->runNextJob('database', $run->queue_name, $options);
+				$finishedJobs++;
+				$openJobs = $this->bundleQueueService->countJobsInBundleQueue($bundle);
+			}
 		}
 
 		$freshRun = $run->fresh();
-		$result   = ['done' => $finishedJobs, 'open' => $openJobs, 'run' => $this->serializeRun($freshRun)];
-		if ($openJobs === 0 && $freshRun->active_slot === NULL) {
+		$result   = ['done' => $finishedJobs, 'open' => $this->bundleQueueService->countJobsInBundleQueue($bundle), 'run' => $this->serializeRun($freshRun)];
+		if ($result['open'] === 0 && $freshRun->active_slot === NULL) {
 			$result['bundle'] = $bundle->fresh();
 		}
 

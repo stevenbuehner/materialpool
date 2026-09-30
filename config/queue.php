@@ -14,6 +14,7 @@ return [
 	*/
 
 	'default' => env('QUEUE_CONNECTION', 'sync'),
+	'prioritized_background_enabled' => (bool)env('PRIORITIZED_BACKGROUND_QUEUE', FALSE),
 
 	/*
 	|--------------------------------------------------------------------------

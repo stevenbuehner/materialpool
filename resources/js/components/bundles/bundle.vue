@@ -340,10 +340,8 @@ export default {
                      this.isRunning = false;
                      useBundlesStore().allBundles(true)
                          .finally(() => this.showImportReport(run));
-                   } else if (open === 0) {
-                     window.setTimeout(() => this.runNextJobs(), 500);
                    } else {
-                     this.runNextJobs();
+                     window.setTimeout(() => this.runNextJobs(), 500);
                    }
 
                  }).catch(() => {
