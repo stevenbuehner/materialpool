@@ -122,7 +122,7 @@ return [
 
 	'log' => env('APP_LOG', 'single'),
 
-	'log_level' => env('APP_LOG_LEVEL', 'debug'),
+	'log_level' => env('APP_LOG_LEVEL', 'error'),
 
 	/*
 	|--------------------------------------------------------------------------
@@ -262,13 +262,13 @@ return [
 			'maxWidth' => 640,
 			'maxHeight' => 640,
 			'resolution' => 144,
-			'quality' => 80,
+			'quality' => 60,
 			'outputFormat' => 'jpg',
 		],
 		// Detailansicht und Zoom im Modal; wird bei Bedarf erzeugt.
 		'large' => [
-			'maxWidth' => 1536,
-			'maxHeight' => 1536,
+			'maxWidth' => 1500,
+			'maxHeight' => 2000,
 			'resolution' => 144,
 			'quality' => 80,
 			'outputFormat' => 'jpg',
