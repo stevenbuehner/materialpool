@@ -21,7 +21,9 @@ bash -c "$(curl -fsSL https://raw.githubusercontent.com/stevenbuehner/materialpo
 
 Containerwerte können wie bei Community Scripts vorangestellt werden, zum Beispiel `var_cpu=4 var_ram=4096 var_disk=32 var_ctid=123`. Vor dem Start die [Installationsanleitung mit Voraussetzungen und Sicherheitsgrenzen](deployment/docs/installation.md) lesen. Sie beschreibt auch die optionale Kontextsuche-, SMTP- und Backup-Konfiguration. Bestehende Daten benötigen einen gesondert geprüften Restore; der Befehl ist für frische Installationen bestimmt.
 
-Beim ersten Global-Admin startet der Eingabedialog nach ungültigen Angaben erneut. Ctrl+C bricht die Installation mit Fehlerstatus ab; der Admin kann anschließend wie in der Installationsanleitung beschrieben angelegt werden.
+Beim ersten Global-Admin verlangt der Installer ein verdeckt eingegebenes Passwort mit mindestens vier Zeichen. Der Eingabedialog startet nach ungültigen Angaben erneut. Ctrl+C bricht die Installation mit Fehlerstatus ab; der Admin kann anschließend wie in der Installationsanleitung beschrieben angelegt werden.
+
+Nach Installation und Update zeigt `materialpool:status` Version und Update-Hinweis, die vollständige Anwendungs-URL, konfigurierte Dienste sowie Daten- und Bibelbestände. Die Backup-Sektion verwendet die lesende Übersicht `backup:list`. Im LXC lässt sich die Anzeige als `runuser -u www-data -- php /srv/materialpool/current/artisan materialpool:status` erneut aufrufen. Ein Terminal kann die ausgeschriebene URL als anklickbaren Link erkennen; sie bleibt immer kopierbar.
 
 ## Weitere Dokumentation
 

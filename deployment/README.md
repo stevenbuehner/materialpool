@@ -11,7 +11,8 @@ Die [Neuinstallation](docs/installation.md) startet über einen einzigen Skript-
 | Qdrant | separater LXC, TCP 6333 nur vom Laravel-Netz |
 | Anwendung | `/srv/materialpool/current` → `/srv/materialpool/releases/X.Y.Z` |
 | Dauerhafte Daten | `/srv/materialpool/shared/.env`, `storage`, `public-uploads` |
-| Erster Admin | interaktiv nach den Fresh-Migrationen über `users:manage create --first-admin` |
+| Erster Admin | interaktiv nach den Fresh-Migrationen über `users:manage create --first-admin --short-password` |
+| Status | `runuser -u www-data -- php /srv/materialpool/current/artisan materialpool:status` |
 | Deployment-Backups | `/srv/materialpool/shared/backups` |
 | SMTP einrichten | im LXC als root `php /srv/materialpool/current/artisan mail:configure` |
 | Backup einrichten | im LXC als root `php /srv/materialpool/current/artisan backup:configure` |

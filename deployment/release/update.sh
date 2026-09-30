@@ -100,6 +100,9 @@ if [[ -f "$base/current/release.json" ]]; then
 fi
 if [[ "$version" == "$installed" ]]; then
   echo "Materialpool $version ist bereits aktuell."
+  if ! runuser -u www-data -- php "$base/current/artisan" materialpool:status --latest-version="$version"; then
+    echo "Statusanzeige konnte nicht vollständig erstellt werden." >&2
+  fi
   exit 0
 fi
 [[ ! -e "$base/releases/$version" ]] || { echo "Release-Verzeichnis existiert bereits: $version" >&2; exit 1; }
@@ -217,3 +220,6 @@ find "$base/shared/backups" -regextype posix-extended -maxdepth 1 -type f -regex
 find "$base/releases" -regextype posix-extended -mindepth 1 -maxdepth 1 -type d -regex '.*/v?[0-9]+\.[0-9]+\.[0-9]+[a-z]?' -printf '%T@ %p\n' | sort -nr | tail -n +5 | cut -d' ' -f2- | while IFS= read -r old; do
   [[ "$old" == "$(readlink -f "$base/current")" ]] || rm -rf -- "$old"
 done
+if ! runuser -u www-data -- php "$base/current/artisan" materialpool:status --latest-version="$version"; then
+  echo "Statusanzeige konnte nicht vollständig erstellt werden." >&2
+fi
