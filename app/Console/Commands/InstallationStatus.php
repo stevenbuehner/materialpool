@@ -8,6 +8,7 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Http;
+use Symfony\Component\Console\Formatter\OutputFormatter;
 use Throwable;
 
 class InstallationStatus extends Command {
@@ -19,56 +20,57 @@ class InstallationStatus extends Command {
 	public function handle(BibleDataImporter $importer): int {
 		$version = $this->installedVersion();
 		$latest = $this->latestVersion();
-		$this->line(config('app.name').' '.$version);
+		$this->section(config('app.name').' '.$version);
 		if ($latest === NULL) {
-			$this->line('Update-Status: nicht abrufbar');
+			$this->warningLine('Update-Status: nicht abrufbar');
 		} elseif ($version === 'unbekannt') {
-			$this->line('Update-Status: installierte Version unbekannt; neuestes Release '.$latest);
+			$this->warningLine('Update-Status: installierte Version unbekannt; neuestes Release '.$latest);
 		} elseif (version_compare($latest, $version, '>')) {
-			$this->line('Update verfügbar: '.$latest);
+			$this->warningLine('Update verfügbar: '.$latest);
 		} else {
-			$this->line('Update-Status: aktuell');
+			$this->successLine('Update-Status: aktuell');
 		}
 
 		// Eine vollständige URL kann der Terminal-Linker erkennen und bleibt auch kopierbar.
-		$this->line('URL: '.config('app.url'));
+		$this->line('<fg=cyan>URL:</> '.OutputFormatter::escape((string)config('app.url')));
 		$proxies = trim((string)config('trustedproxy.proxies'));
 		if ($proxies !== '') {
-			$this->line('Trusted Proxy: '.$proxies);
+			$this->line('<fg=cyan>Trusted Proxy:</> '.OutputFormatter::escape($proxies));
 		}
 
 		$this->newLine();
-		$this->line('Qdrant');
+		$this->section('Qdrant');
 		if (!config('context_search.enabled')) {
-			$this->line('Kontextsuche in der Konfiguration deaktiviert');
+			$this->warningLine('Kontextsuche in der Konfiguration deaktiviert');
 		} else {
-			$this->line('URL: '.config('context_search.qdrant.url'));
-			$this->line('Collection-Präfix: '.config('context_search.qdrant.collection_prefix'));
-			$this->line('Aktiver Alias: '.config('context_search.qdrant.active_alias'));
-			$this->line('API-Key konfiguriert: '.(filled(config('context_search.qdrant.api_key')) ? 'ja' : 'nein'));
+			$this->line('<fg=cyan>URL:</> '.OutputFormatter::escape((string)config('context_search.qdrant.url')));
+			$this->line('<fg=cyan>Collection-Präfix:</> '.OutputFormatter::escape((string)config('context_search.qdrant.collection_prefix')));
+			$this->line('<fg=cyan>Aktiver Alias:</> '.OutputFormatter::escape((string)config('context_search.qdrant.active_alias')));
+			$this->line('<fg=cyan>API-Key konfiguriert:</> '.(filled(config('context_search.qdrant.api_key')) ? '<fg=green>ja</>' : '<fg=yellow>nein</>'));
 		}
 
 		$this->newLine();
+		$this->section('Datenbank');
 		try {
 			$materials = DB::table('materials')->count();
 			$resources = DB::table('resources')->count();
 			$keywords = DB::table('keywords')->count();
 			$bibleverses = DB::table('bibleverses')->count();
-			$this->line('Datenbank: ok');
-			$this->line('Materialien: '.$materials);
-			$this->line('Ressourcen: '.$resources);
-			$this->line('Keywords: '.$keywords);
-			$this->line('Bibelstellen: '.$bibleverses);
+			$this->successLine('Datenbank: ok');
+			$this->line('<fg=cyan>Materialien:</> '.$materials);
+			$this->line('<fg=cyan>Ressourcen:</> '.$resources);
+			$this->line('<fg=cyan>Keywords:</> '.$keywords);
+			$this->line('<fg=cyan>Bibelstellen:</> '.$bibleverses);
 
 			$this->newLine();
-			$this->line('Seeds');
+			$this->section('Seeds');
 			$installed = $importer->installed();
 			$cross = $installed[OpenBibleData::ID] ?? NULL;
-			$this->line('Querverweise: '.($cross === NULL ? 'nicht installiert' : 'installiert ('.$cross->row_count.')'));
+			$this->line('<fg=cyan>Querverweise:</> '.($cross === NULL ? '<fg=yellow>nicht installiert</>' : '<fg=green>installiert ('.$cross->row_count.')</>'));
 			$translations = array_filter($installed, fn (object $entry): bool => $entry->kind === 'translation');
-			$this->line('Bibelübersetzungen: '.($translations === [] ? 'keine installiert' : count($translations).' installiert'));
+			$this->line('<fg=cyan>Bibelübersetzungen:</> '.($translations === [] ? '<fg=yellow>keine installiert</>' : '<fg=green>'.count($translations).' installiert</>'));
 			foreach ($translations as $entry) {
-				$this->line('  - '.preg_replace('/[\x00-\x1F\x7F]/u', '', $entry->title));
+				$this->line('  - '.OutputFormatter::escape(preg_replace('/[\x00-\x1F\x7F]/u', '', $entry->title)));
 			}
 		} catch (Throwable) {
 			$this->error('Datenbank und Seeds: Status nicht lesbar');
@@ -76,9 +78,9 @@ class InstallationStatus extends Command {
 		}
 
 		$this->newLine();
-		$this->line('Backup');
+		$this->section('Backup');
 		if (!config('backup.enabled')) {
-			$this->line('Nicht konfiguriert');
+			$this->warningLine('Nicht konfiguriert');
 			return self::SUCCESS;
 		}
 		try {
@@ -87,6 +89,18 @@ class InstallationStatus extends Command {
 			$this->error('Backup-Status nicht abrufbar');
 			return self::FAILURE;
 		}
+	}
+
+	private function section(string $title): void {
+		$this->line('<fg=cyan;options=bold>● '.OutputFormatter::escape($title).'</>');
+	}
+
+	private function successLine(string $message): void {
+		$this->line('<fg=green>✓ '.OutputFormatter::escape($message).'</>');
+	}
+
+	private function warningLine(string $message): void {
+		$this->line('<fg=yellow>! '.OutputFormatter::escape($message).'</>');
 	}
 
 	private function installedVersion(): string {
