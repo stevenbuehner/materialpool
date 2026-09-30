@@ -20,11 +20,11 @@ use Tests\TestCase;
 
 class PreviewVariantResponseTest extends TestCase {
 	public function test_preview_sizes_use_the_configured_small_and_large_dimensions(): void {
-		$this->assertSame(640, PreviewSize::small()->getWidth());
-		$this->assertSame(640, PreviewSize::small()->getHeight());
-		$this->assertSame(1536, PreviewSize::large()->getWidth());
-		$this->assertSame(1536, PreviewSize::large()->getHeight());
-		$this->assertSame(1536, PreviewSize::constrained(9999, 9999)->getWidth());
+		$this->assertSame(config('app.preview.small.maxWidth'), PreviewSize::small()->getWidth());
+		$this->assertSame(config('app.preview.small.maxHeight'), PreviewSize::small()->getHeight());
+		$this->assertSame(config('app.preview.large.maxWidth'), PreviewSize::large()->getWidth());
+		$this->assertSame(config('app.preview.large.maxHeight'), PreviewSize::large()->getHeight());
+		$this->assertSame(config('app.preview.large.maxWidth'), PreviewSize::constrained(9999, 9999)->getWidth());
 		$this->assertSame(config('app.preview.small'), PreviewSize::profile(PreviewSize::small()));
 		$this->assertSame(config('app.preview.large'), PreviewSize::profile(PreviewSize::large()));
 	}
@@ -90,7 +90,9 @@ class PreviewVariantResponseTest extends TestCase {
 		$resourceService->shouldReceive('getCachedImageData')->andReturn('png-preview');
 		$resourceController = new ResourcePreviewController($resourceService);
 		$small = $resourceController->getImage(Request::create('/resource/1/image/640/640'), new Text(), 640, 640);
-		$large = $resourceController->getImage(Request::create('/resource/1/image/1536/1536'), new Text(), 1536, 1536);
+		$largeWidth = config('app.preview.large.maxWidth');
+		$largeHeight = config('app.preview.large.maxHeight');
+		$large = $resourceController->getImage(Request::create("/resource/1/image/{$largeWidth}/{$largeHeight}"), new Text(), $largeWidth, $largeHeight);
 
 		$this->assertSame('image/png', $small->headers->get('Content-Type'));
 		$this->assertSame('image/jpeg', $large->headers->get('Content-Type'));

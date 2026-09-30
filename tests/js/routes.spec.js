@@ -1,6 +1,7 @@
 import {describe, expect, it} from 'vitest';
 
 import {routes, scrollBehavior} from '../../resources/js/apps/main/routes.js';
+import {max_preview_image_size_x, max_preview_image_size_y} from '../../resources/js/apps/config.js';
 import {
     material_preview_image,
     pdfPreviewImageForPage,
@@ -55,9 +56,9 @@ describe('main application routes', () => {
         const resource = {id: 42};
 
         expect(previewImageFirstPage(resource)).toBe('/resource/42/image/640/640');
-        expect(previewImageLarge(resource)).toBe('/resource/42/image/1536/1536');
+        expect(previewImageLarge(resource)).toBe(`/resource/42/image/${max_preview_image_size_x}/${max_preview_image_size_y}`);
         expect(pdfPreviewImageForPage(resource, 3)).toBe('/resource/42/image/page-3?width=640&height=640');
-        expect(pdfPreviewImageForPageLarge(resource, 3)).toBe('/resource/42/image/page-3?width=1536&height=1536');
+        expect(pdfPreviewImageForPageLarge(resource, 3)).toBe(`/resource/42/image/page-3?width=${max_preview_image_size_x}&height=${max_preview_image_size_y}`);
         expect(material_preview_image(8)).toBe('/material/8/preview?width=640&height=640');
     });
 });
