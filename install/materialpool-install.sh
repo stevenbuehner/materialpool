@@ -207,6 +207,6 @@ command -v node >/dev/null && { msg_error "Node wurde unerwartet installiert."; 
 command -v npm >/dev/null && { msg_error "npm wurde unerwartet installiert."; exit 1; }
 cleanup_lxc
 msg_ok "Materialpool $version installiert"
-if ! runuser -u www-data -- env -u APP_ENV php /srv/materialpool/current/artisan materialpool:status --latest-version="$version"; then
+if ! runuser -u www-data -- env -u APP_ENV php /srv/materialpool/current/artisan materialpool:status --ansi --latest-version="$version"; then
   echo "Statusanzeige konnte nicht vollständig erstellt werden." >&2
 fi

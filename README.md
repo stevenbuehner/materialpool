@@ -23,7 +23,7 @@ Containerwerte können wie bei Community Scripts vorangestellt werden, zum Beisp
 
 Beim ersten Global-Admin verlangt der Installer ein verdeckt eingegebenes Passwort mit mindestens vier Zeichen. Der Eingabedialog startet nach ungültigen Angaben erneut. Ctrl+C bricht die Installation mit Fehlerstatus ab; der Admin kann anschließend wie in der Installationsanleitung beschrieben angelegt werden.
 
-Nach Installation und Update zeigt `materialpool:status` Version und Update-Hinweis, die vollständige Anwendungs-URL, konfigurierte Dienste sowie Daten- und Bibelbestände. Die Backup-Sektion verwendet die lesende Übersicht `backup:list`. Im LXC lässt sich die Anzeige als `runuser -u www-data -- php /srv/materialpool/current/artisan materialpool:status` erneut aufrufen. Ein Terminal kann die ausgeschriebene URL als anklickbaren Link erkennen; sie bleibt immer kopierbar.
+Nach Installation und Update zeigt `materialpool:status` farbig gegliederte Sektionen mit Version und Update-Hinweis, der vollständigen Anwendungs-URL, konfigurierten Diensten sowie Daten- und Bibelbeständen. Die Backup-Sektion verwendet die lesende Übersicht `backup:list`. Der Proxmox-Updater zeigt diesen Status auch bei einer bereits aktuellen Version zum Abschluss an. Im LXC lässt sich die Anzeige als `runuser -u www-data -- php /srv/materialpool/current/artisan materialpool:status --ansi` erneut aufrufen. Ein Terminal kann die ausgeschriebene URL als anklickbaren Link erkennen; sie bleibt immer kopierbar.
 
 ## Weitere Dokumentation
 
