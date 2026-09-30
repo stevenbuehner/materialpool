@@ -9,6 +9,13 @@
 - [Updates im Altbetrieb](#updates)
 - [Wartung im Altbetrieb](#wartung)
 - [OCR-Evaluationsdatensatz](#ocr-evaluationsdatensatz)
+- [Jobs und Queues](#jobs-und-queues)
+
+## Jobs und Queues
+
+Globale Administratoren öffnen **Jobs und Queues** im Benutzermenü. Die Seite zeigt die vorhandenen Datensätze aus `jobs`, `failed_jobs` und `job_batches` in getrennten Tabs, nach Queue-Namen gruppiert. Filter und Seitenwechsel begrenzen die Listen. Alle fünf Sekunden wird die sichtbare Ansicht aktualisiert, solange der Browser-Tab aktiv ist; der Zeitpunkt der letzten erfolgreichen Aktualisierung bleibt sichtbar.
+
+„Reserviert“ bedeutet, dass ein Worker den Job übernommen hat. Nach einem Worker-Abbruch kann diese Markierung vorübergehend bestehen bleiben und bestätigt deshalb keinen aktuell laufenden Prozess. Erfolgreiche Einzeljobs werden nicht historisch aufbewahrt. Die Seite kann Jobs weder neu priorisieren noch verschieben, wiederholen oder löschen. Fehlermeldungen und Job-Payloads werden nicht angezeigt. Ein Batch erhält nur dann einen Queue-Namen, wenn ein vorhandener Bundle-Importlauf ihn eindeutig zuordnet.
 
 ## OCR-Evaluationsdatensatz
 
