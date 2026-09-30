@@ -39,6 +39,7 @@ describe('main application routes', () => {
             'bundle-list',
             'readbible',
 			'admin-users',
+			'admin-queues',
 			'context-search-evaluation-datasets',
 			'context-search-ocr-calibration',
             'system-shutdown',

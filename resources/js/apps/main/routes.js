@@ -18,6 +18,7 @@ const ResourceReplace = () => import('./pages/ResourceReplace.vue');
 const KeywordDetail = () => import('./pages/KeywordDetail.vue');
 const SystemShutdown = () => import('./pages/RequestShutdown.vue');
 const AdminUsers = () => import('./pages/AdminUsers.vue');
+const AdminQueueOverview = () => import('./pages/AdminQueueOverview.vue');
 const ContextSearchEvaluationDatasets = () => import('./pages/ContextSearchEvaluationDatasets.vue');
 const ContextSearchOcrCalibration = () => import('./pages/ContextSearchOcrCalibration.vue');
 
@@ -157,6 +158,11 @@ export const routes = [
 		component: AdminUsers,
 		name: 'admin-users',
 		props: false,
+	},
+	{
+		path: '/admin/queues',
+		component: AdminQueueOverview,
+		name: 'admin-queues',
 	},
 	{
 		path: '/admin/context-search/datasets',

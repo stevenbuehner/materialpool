@@ -67,6 +67,9 @@
             <b-dropdown-item :to="{name: 'admin-users'}" class="dropdown-hover" v-if="isAdmin">
               {{ $t('pool.User-management') }}
             </b-dropdown-item>
+            <b-dropdown-item :to="{name: 'admin-queues'}" class="dropdown-hover" v-if="isAdmin">
+              {{ $t('pool.queue-overview-title') }}
+            </b-dropdown-item>
             <li v-if="isAdmin" role="presentation">
               <button
                 type="button"

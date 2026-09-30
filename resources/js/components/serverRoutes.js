@@ -93,6 +93,7 @@ export const api_v1_general_options = '/api/v1/general/options';
 export const api_v2_admin_users = '/api/v2/admin/users';
 export const api_v2_admin_groups = '/api/v2/admin/groups';
 export const api_v2_admin_permissions = '/api/v2/admin/permissions';
+export const api_v2_admin_queue_overview = '/api/v2/admin/queue-overview';
 
 export function api_v2_admin_user(userId) {
 	return `${api_v2_admin_users}/${userId}`;
