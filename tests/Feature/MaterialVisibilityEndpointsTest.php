@@ -12,6 +12,16 @@ use Tests\TestCase;
 class MaterialVisibilityEndpointsTest extends TestCase {
 	use RefreshDatabase;
 
+	public function test_resource_find_returns_an_empty_page_when_no_resources_exist(): void {
+		Passport::actingAs(User::factory()->create());
+
+		$this->getJson(route('api.v1.resources.find', [
+			'order_by' => 'id',
+			'order_dir' => 'desc',
+			'page' => 1,
+		]))->assertOk()->assertJsonPath('total', 0)->assertJsonPath('data', []);
+	}
+
 	public function test_api_material_index_returns_only_materials_visible_to_the_current_user(): void {
 		$owner = User::factory()->create();
 		$viewer = User::factory()->create();

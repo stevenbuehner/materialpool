@@ -20,10 +20,14 @@
     </div>
 
     <b-alert variant="danger" :show="hasError">Error: {{ errorMessage }}</b-alert>
+    <div v-if="!isLoading && !hasError && materialIds.length === 0" class="alert alert-info">
+      {{ $t(poolEmpty ? 'pool.pool-empty' : 'pool.no-results') }}
+    </div>
 
     <hr>
 
     <b-pagination-nav
+        v-if="paging.total > 0"
         v-model="paging.current_page"
         :limit="10"
         :number-of-pages="paging.last_page"
@@ -46,6 +50,7 @@ import {
 }                          from "../../../../components/search/searchHelper";
 import MaterialpoolSpinner from "../../../../components/spinner/materialpool-spinner";
 import {useSearchStore}    from '../../stores/search';
+import {useResourcesStore} from '../../stores/resources';
 
 const searchScrollPositions = new Map();
 
@@ -85,12 +90,13 @@ export default {
         to: 3,
         total: 3,
       },
-      isLoading: false,
+      isLoading: true,
 
       searchObjects: {},
 
       hasError: false,
       errorMessage: '',
+      poolEmpty: false,
     };
   },
 
@@ -186,9 +192,23 @@ export default {
       useSearchStore().materials({
         query: searchData,
         page: this.page
-      }).then(({materials, paging}) => {
+      }).then(async ({materials, paging}) => {
         this.paging      = paging;
         this.materialIds = materials.map(m => m.id);
+        this.poolEmpty = false;
+        if (paging.total === 0) {
+          try {
+            const resources = await useResourcesStore().find({page: 1});
+            if (resources.total === 0) {
+              const allMaterials = this.query
+                  ? await useSearchStore().materials({query: [], page: 1})
+                  : {paging};
+              this.poolEmpty = allMaterials.paging.total === 0;
+            }
+          } catch {
+            // A failed availability check must not hide an otherwise valid empty result.
+          }
+        }
       }).catch((message) => {
         this.hasError     = true;
         this.errorMessage = message;

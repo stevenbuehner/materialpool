@@ -14,6 +14,7 @@ use Illuminate\Http\Request;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use StevenBuehner\BibleVerseBundle\Service\BibleVerseService;
 
 class SearchController extends Controller {
@@ -179,8 +180,7 @@ class SearchController extends Controller {
 				'bibleverses',
 				'resources'    => fn($query) => $query->visibleTo($user),
 				'userRankings' => fn($query) => $query->where('user_id', $user->id),
-			])
-			->groupBy(['materials.id']);
+			]);
 
 		$sumUpQueryParts = [];
 
@@ -305,14 +305,20 @@ class SearchController extends Controller {
 
 
 		if (count($sumUpQueryParts) > 0) {
+			// MariaDB erlaubt bei SELECT materials.* keine Gruppierung nur nach der ID.
+			// Die vollständige Spaltenliste hält auch spätere Materialspalten kompatibel.
+			$matQuery->groupBy(array_map(
+				static fn(string $column): string => 'materials.' . $column,
+				Schema::getColumnListing('materials')
+			));
 			// $matQuery->addSelect(DB::raw(join(' + ', $sumUpQueryParts) . ' as relevanceSum'));
 			$matQuery->orderByDesc(DB::raw(join(' + ', $sumUpQueryParts)));
+			$matQuery->orderByDesc(DB::raw('COALESCE(MAX(current_user_ranking.rating), MAX(materials.rating))'));
+		} else {
+			// Das persönliche Ranking ist pro Material und Benutzer eindeutig.
+			$matQuery->orderByDesc(DB::raw('COALESCE(current_user_ranking.rating, materials.rating)'));
 		}
 
-		// Die Suchabfrage gruppiert Materialien wegen optionaler Keyword-/Bibelstellen-Joins.
-		// Das persönliche Ranking ist pro Material und Benutzer eindeutig; MAX macht den
-		// Sortierausdruck dennoch mit MySQLs only_full_group_by kompatibel.
-		$matQuery->orderByDesc(DB::raw('COALESCE(MAX(current_user_ranking.rating), MAX(materials.rating))'));
 		$matQuery->orderByDesc('materials.id');
 
 		return $matQuery;

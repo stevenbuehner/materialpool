@@ -12,10 +12,14 @@
     </div>
 
     <b-alert variant="danger" :show="hasError">Error: {{ errorMessage }}</b-alert>
+    <div v-if="!isLoading && !hasError && materialIds.length === 0" class="alert alert-info">
+      {{ $t(poolEmpty ? 'pool.pool-empty' : 'pool.no-materials-found') }}
+    </div>
 
     <hr>
 
     <b-pagination-nav
+        v-if="paging.total > 0"
         v-model="paging.current_page"
         :limit="10"
         :number-of-pages="paging.last_page"
@@ -30,6 +34,7 @@ import {BAlert, BPaginationNav} from '@/adapters/bootstrap';
 import MaterialpoolSpinner      from '../../../components/spinner/materialpool-spinner';
 import SearchbarOutcome         from './search/searchbarOutcome.vue';
 import {useSearchStore}         from '../stores/search';
+import {useResourcesStore}      from '../stores/resources';
 
 export default {
   name: 'MaterialOrderedListing',
@@ -56,10 +61,12 @@ export default {
       paging: {
         current_page: 1,
         last_page: 1,
+        total: 0,
       },
-      isLoading: false,
+      isLoading: true,
       hasError: false,
       errorMessage: '',
+      poolEmpty: false,
     };
   },
 
@@ -81,9 +88,18 @@ export default {
         query: [],
         page: this.page,
         orderBy: this.orderBy,
-      }).then(({materials, paging}) => {
+      }).then(async ({materials, paging}) => {
         this.paging = paging;
         this.materialIds = materials.map(material => material.id);
+        this.poolEmpty = false;
+        if (paging.total === 0) {
+          try {
+            const resources = await useResourcesStore().find({page: 1});
+            this.poolEmpty = resources.total === 0;
+          } catch {
+            // Keep the material-specific message when the second request fails.
+          }
+        }
       }).catch(message => {
         this.hasError = true;
         this.errorMessage = message;

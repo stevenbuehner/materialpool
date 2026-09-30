@@ -9,6 +9,9 @@
     <div class="alert alert-info" v-if="isLoading">
       {{ $t('pool.Loading-resource') }}
     </div>
+    <div class="alert alert-info" v-else-if="!hasError && resources.length === 0">
+      {{ $t(poolEmpty ? 'pool.pool-empty' : 'pool.no-resources-found') }}
+    </div>
 
     <b-pagination-nav
         v-if="total > 0"
@@ -27,6 +30,7 @@ import {BPaginationNav}         from '@/adapters/bootstrap';
 import ResourcePreview           from "../../../components/resource/show/resource-preview";
 import {savingDialogs}           from "../../../helper/flashMessages";
 import {useResourcesStore}       from '../stores/resources';
+import {useSearchStore}          from '../stores/search';
 
 export default {
   name: "ResourceNewest",
@@ -40,6 +44,8 @@ export default {
       total: 1,
 
       isLoading: true,
+      hasError: false,
+      poolEmpty: false,
       refreshResources: 0,
     }
   },
@@ -49,21 +55,34 @@ export default {
     resources: {
       get() {
         this.isLoading = true;
+        this.hasError = false;
 
         return useResourcesStore().find({
           order_by: 'id',
           order_dir: 'desc',
           page: this.page
         })
-                   .then(({data, current_page, last_page, total}) => {
+                   .then(async ({data, current_page, last_page, total}) => {
                      this.page      = current_page;
                      this.numPages  = last_page;
                      this.total     = total;
+                     this.poolEmpty = false;
+                     if (total === 0) {
+                       try {
+                         const {paging} = await useSearchStore().materials({query: [], page: 1});
+                         this.poolEmpty = paging.total === 0;
+                       } catch {
+                         // The resource empty state remains accurate if the material check fails.
+                       }
+                     }
                      this.isLoading = false;
                      return data;
                    })
                    .catch((message) => {
+                     this.hasError = true;
+                     this.isLoading = false;
                      this.flashActionFailed(message);
+                     return [];
                    });
       },
       watch() {

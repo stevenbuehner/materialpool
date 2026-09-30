@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Models\VideoFile;
 use App\Support\Authorization\SystemPermissions;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
@@ -43,6 +44,58 @@ class SearchControllerTest extends TestCase
         $this->actingAs($user)->getJson(route('pool.searchbar.guess', ['q' => '']))->assertOk();
         $this->actingAs($user)->postJson(route('pool.searchbar.guessBibleverses'), ['q' => ''])->assertOk();
         $this->actingAs($user)->postJson(route('pool.searchbar.get'), ['q' => ''])->assertOk();
+    }
+
+    public function test_search_returns_an_empty_page_when_no_materials_exist(): void
+    {
+        $user = User::factory()->create();
+        $countQueries = [];
+        DB::listen(function ($query) use (&$countQueries): void {
+            if (str_contains($query->sql, 'count(*) as')) {
+                $countQueries[] = strtolower($query->sql);
+            }
+        });
+
+        $this->actingAs($user)->postJson(route('pool.searchbar.get'), [
+            'q' => [],
+            'page' => 1,
+            'per_page' => 30,
+        ])->assertOk()->assertJsonPath('total', 0)->assertJsonPath('data', []);
+
+        $this->assertNotEmpty($countQueries);
+        $this->assertStringNotContainsString('group by', $countQueries[0]);
+
+        $this->actingAs($user)->postJson(route('pool.searchbar.get'), [
+            'q' => [[['type' => '*', 'text' => 'nicht vorhanden']]],
+        ])->assertOk()->assertJsonPath('total', 0)->assertJsonPath('data', []);
+    }
+
+    public function test_keyword_search_groups_all_selected_material_columns_for_mariadb(): void
+    {
+        $user = User::factory()->create();
+        $keyword = Keyword::factory()->create();
+        $material = Material::factory()->create();
+        $lessRelevant = Material::factory()->create();
+        $material->keywords()->attach($keyword, ['relevance' => 100]);
+        $lessRelevant->keywords()->attach($keyword, ['relevance' => 50]);
+        $countQueries = [];
+        DB::listen(function ($query) use (&$countQueries): void {
+            if (str_contains($query->sql, 'count(*) as')) {
+                $countQueries[] = strtolower($query->sql);
+            }
+        });
+
+        $this->actingAs($user)->postJson(route('pool.searchbar.get'), [
+            'q' => [[['type' => 'k', 'id' => $keyword->id]]],
+        ])->assertOk()
+            ->assertJsonPath('total', 2)
+            ->assertJsonPath('data.0.id', $material->id)
+            ->assertJsonPath('data.1.id', $lessRelevant->id);
+
+        $this->assertNotEmpty($countQueries);
+        $this->assertStringContainsString('group by', $countQueries[0]);
+        $this->assertStringContainsString('`materials`.`title`', $countQueries[0]);
+        $this->assertStringContainsString('`materials`.`description`', $countQueries[0]);
     }
 
     public function test_search_serializes_a_material_with_a_missing_local_file(): void
