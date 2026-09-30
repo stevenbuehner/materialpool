@@ -27,10 +27,11 @@ class ResourcePreviewController {
 	 * @return Response
 	 */
 	public function getImage(Request $request, Resource $resource, $width = NULL, $height = NULL) {
+		$size = PreviewSize::constrained($width, $height);
 		try {
 			$imageData = $this->previewService->getCachedImageData(
 				$resource,
-				PreviewSize::constrained($width, $height),
+				$size,
 				NULL,
 				$request->boolean('refresh')
 			);
@@ -38,12 +39,13 @@ class ResourcePreviewController {
 			return response()->noContent();
 		}
 
-		return $this->imageResponse($request, $imageData);
+		return $this->imageResponse($request, $imageData, $size);
 
 	}
 
-	protected function imageResponse(Request $request, string $imageData) {
-		$response = response($imageData, 200, ['Content-Type' => 'image/jpeg']);
+	protected function imageResponse(Request $request, string $imageData, \Intervention\Image\Size $size) {
+		$format = PreviewSize::profile($size)['outputFormat'];
+		$response = response($imageData, 200, ['Content-Type' => 'image/' . ($format === 'jpg' ? 'jpeg' : $format)]);
 		$response->setEtag(hash('sha256', $imageData));
 		$response->isNotModified($request);
 
@@ -63,14 +65,15 @@ class ResourcePreviewController {
 		if (!$resource instanceof PdfFile && !$resource instanceof DocumentFile) {
 			throw new InvalidResourceTypeException('Only PDF and DOC resources can have page-preview images');
 		}
+		$size = PreviewSize::constrained(
+			$request->has('width') ? $request->integer('width') : NULL,
+			$request->has('height') ? $request->integer('height') : NULL
+		);
 
 		try {
 			$imageData = $this->previewService->getCachedImageData(
 				$resource,
-				PreviewSize::constrained(
-					$request->has('width') ? $request->integer('width') : NULL,
-					$request->has('height') ? $request->integer('height') : NULL
-				),
+				$size,
 				$page,
 				$clearCache === 'refresh' || $request->boolean('refresh')
 			);
@@ -78,7 +81,7 @@ class ResourcePreviewController {
 			return response()->noContent();
 		}
 
-		return $this->imageResponse($request, $imageData);
+		return $this->imageResponse($request, $imageData, $size);
 	}
 
 

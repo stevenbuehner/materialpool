@@ -247,23 +247,34 @@ return [
 		'bundles'   => 'bundles'
 	],
 
-	'resource' => [
-		'preview' => [
-			'smallWidth' => 640,
-			'smallHeight' => 640,
-			'maxWidth'  => 1536,
-			'maxHeight' => 1536,
-			'quality' => 80,
-			'cacheLockSeconds' => 140,
-			'cacheTime' => -1, // 60 * 24 * 30 // in Minutes | -1 => forever | 0 => no cache
-		]
-
-	],
-
-
+	/*
+	| Resource- und Materialvorschaubilder verwenden benannte Formate. Neue
+	| Formate koennen spaeter als weitere Profile ergaenzt werden. Die Groessen
+	| sind maximale Kantenlaengen in Pixeln; das Seitenverhaeltnis bleibt erhalten.
+	| resolution ist die DPI beim Rendern von PDF- und Dokumentseiten.
+	| quality ist die Kodierqualitaet (1-100), outputFormat das Bildformat
+	| (jpg, jpeg oder png). Bis zur kleinen Maximalgroesse gilt small,
+	| darueber large; Anfragen bleiben auf die grosse Maximalgroesse begrenzt.
+	*/
 	'preview' => [
-		'resolution'   => 144,
-		'outputFormat' => 'jpg' // 'jpg', 'jpeg', 'png',
+		// Karten, Suchergebnisse und vorab erzeugte Vorschaubilder.
+		'small' => [
+			'maxWidth' => 640,
+			'maxHeight' => 640,
+			'resolution' => 144,
+			'quality' => 80,
+			'outputFormat' => 'jpg',
+		],
+		// Detailansicht und Zoom im Modal; wird bei Bedarf erzeugt.
+		'large' => [
+			'maxWidth' => 1536,
+			'maxHeight' => 1536,
+			'resolution' => 144,
+			'quality' => 80,
+			'outputFormat' => 'jpg',
+		],
+		'cacheLockSeconds' => 140,
+		'cacheTime' => -1, // Minuten; -1: dauerhaft, 0: ohne Cache.
 	]
 
 ];

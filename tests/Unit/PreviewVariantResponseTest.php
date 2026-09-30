@@ -8,11 +8,13 @@ use App\Http\Middleware\CacheControlHeaders;
 use App\Models\Material;
 use App\Models\Text;
 use App\Services\PreviewGeneration\MaterialPreviewService;
+use App\Services\PreviewGeneration\AbstractPreviewService;
 use App\Services\PreviewGeneration\Exceptions\NotPreviewAbleException;
 use App\Services\PreviewGeneration\PreviewSize;
 use App\Services\PreviewGeneration\ResourcePreviewService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use Intervention\Image\ImageManager;
 use Mockery;
 use Tests\TestCase;
 
@@ -23,6 +25,42 @@ class PreviewVariantResponseTest extends TestCase {
 		$this->assertSame(1536, PreviewSize::large()->getWidth());
 		$this->assertSame(1536, PreviewSize::large()->getHeight());
 		$this->assertSame(1536, PreviewSize::constrained(9999, 9999)->getWidth());
+		$this->assertSame(config('app.preview.small'), PreviewSize::profile(PreviewSize::small()));
+		$this->assertSame(config('app.preview.large'), PreviewSize::profile(PreviewSize::large()));
+	}
+
+	public function test_preview_profiles_are_selected_for_requested_dimensions(): void {
+		config()->set('app.preview.small.maxWidth', 480);
+		config()->set('app.preview.small.maxHeight', 320);
+		config()->set('app.preview.small.outputFormat', 'png');
+		config()->set('app.preview.large.maxWidth', 1800);
+		config()->set('app.preview.large.maxHeight', 1200);
+
+		$this->assertSame(480, PreviewSize::small()->getWidth());
+		$this->assertSame(1200, PreviewSize::large()->getHeight());
+		$this->assertSame('png', PreviewSize::profile(PreviewSize::constrained(400, 300))['outputFormat']);
+		$this->assertSame('jpg', PreviewSize::profile(PreviewSize::constrained(500, 300))['outputFormat']);
+	}
+
+	public function test_preview_encoding_uses_each_profiles_output_format(): void {
+		config()->set('app.preview.small.outputFormat', 'png');
+		config()->set('app.preview.small.quality', 75);
+		config()->set('app.preview.large.quality', 90);
+		$image = Mockery::mock(\Intervention\Image\Image::class);
+		$image->shouldReceive('encode')->once()->with('png', 75)->andReturn('small-bytes');
+		$image->shouldReceive('encode')->once()->with('jpg', 90)->andReturn('large-bytes');
+		$manager = Mockery::mock(ImageManager::class);
+		$manager->shouldReceive('canvas')->twice()->andReturn($image);
+		$service = new class($manager) extends AbstractPreviewService {
+			public function encodeForTest(\Intervention\Image\Size $size, string $key): string {
+				$this->putImageObjectToCache($this->imageManager->canvas(2, 2, '#fff'), $key, $size);
+
+				return $this->getImageDataFromCache($key);
+			}
+		};
+
+		$this->assertSame('small-bytes', $service->encodeForTest(PreviewSize::small(), 'preview-encoding-small'));
+		$this->assertSame('large-bytes', $service->encodeForTest(PreviewSize::large(), 'preview-encoding-large'));
 	}
 
 	public function test_resource_preview_response_uses_cached_bytes_and_honours_an_etag(): void {
@@ -44,6 +82,24 @@ class PreviewVariantResponseTest extends TestCase {
 			640
 		);
 		$this->assertSame(304, $notModified->getStatusCode());
+	}
+
+	public function test_resource_and_material_responses_use_the_selected_output_format(): void {
+		config()->set('app.preview.small.outputFormat', 'png');
+		$resourceService = Mockery::mock(ResourcePreviewService::class);
+		$resourceService->shouldReceive('getCachedImageData')->andReturn('png-preview');
+		$resourceController = new ResourcePreviewController($resourceService);
+		$small = $resourceController->getImage(Request::create('/resource/1/image/640/640'), new Text(), 640, 640);
+		$large = $resourceController->getImage(Request::create('/resource/1/image/1536/1536'), new Text(), 1536, 1536);
+
+		$this->assertSame('image/png', $small->headers->get('Content-Type'));
+		$this->assertSame('image/jpeg', $large->headers->get('Content-Type'));
+
+		$materialService = Mockery::mock(MaterialPreviewService::class);
+		$materialService->shouldReceive('getCachedMaterialPreviewData')->andReturn('png-preview');
+		$materialController = new MaterialPreviewController($materialService);
+		$materialResponse = $materialController->getMaterialPreview(Request::create('/material/1/preview?width=640&height=640'), new Material());
+		$this->assertSame('image/png', $materialResponse->headers->get('Content-Type'));
 	}
 
 	public function test_resource_preview_response_has_no_content_when_no_preview_can_be_generated(): void {

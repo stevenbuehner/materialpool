@@ -13,6 +13,7 @@ use App\Models\Resource as ResourceEntity;
 use App\ResourceLimitations\ResourceLimitationInterface;
 use App\Services\PreviewGeneration\Exceptions\NotPreviewAbleException;
 use App\Services\PreviewGeneration\Interfaces\PreviewGeneratorInterface;
+use App\Services\PreviewGeneration\PreviewSize;
 use App\Services\ResourceHandling\Exceptions\LocalFileDoesNotExistException;
 use App\Services\ResourceHandling\Exceptions\RemoteFileDoesNotExistException;
 use App\Services\ResourceHandling\FileHandlingService;
@@ -87,7 +88,8 @@ class PdfPreviewGenerator implements PreviewGeneratorInterface {
 		try {
 			$im = new Imagick();
 
-			$im->setResolution(config('app.preview.resolution'), config('app.preview.resolution'));
+			$resolution = PreviewSize::profile($size)['resolution'];
+			$im->setResolution($resolution, $resolution);
 			$im->readImage(sprintf('%s[%s]', $path, max(0, $page - 1)));
 
 			// Hintergrund im bei transparenten Geschichten (z.B. in PDFs) weiß nehmen und AlphaChannel entfernen

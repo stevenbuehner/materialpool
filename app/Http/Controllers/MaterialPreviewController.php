@@ -17,16 +17,18 @@ class MaterialPreviewController {
 	}
 
 	public function getMaterialPreview(Request $request, Material $material) {
+		$size = PreviewSize::constrained(
+			$request->has('width') ? $request->integer('width') : NULL,
+			$request->has('height') ? $request->integer('height') : NULL
+		);
 
 		try {
 			$imageData = $this->materialPreviewService->getCachedMaterialPreviewData(
 				$material,
-				PreviewSize::constrained(
-					$request->has('width') ? $request->integer('width') : NULL,
-					$request->has('height') ? $request->integer('height') : NULL
-				)
+				$size
 			);
-			$response  = response($imageData, 200, ['Content-Type' => 'image/jpeg']);
+			$format = PreviewSize::profile($size)['outputFormat'];
+			$response  = response($imageData, 200, ['Content-Type' => 'image/' . ($format === 'jpg' ? 'jpeg' : $format)]);
 			$response->setEtag(hash('sha256', $imageData));
 			$response->isNotModified($request);
 

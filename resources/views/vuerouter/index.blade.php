@@ -12,6 +12,10 @@
     <script>
         window.Laravel = {!! json_encode([
             'csrfToken' => csrf_token(),
+            'previewSizes' => [
+                'small' => [config('app.preview.small.maxWidth'), config('app.preview.small.maxHeight')],
+                'large' => [config('app.preview.large.maxWidth'), config('app.preview.large.maxHeight')],
+            ],
         ]) !!};
     </script>
     @stack('scripts')

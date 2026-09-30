@@ -52,10 +52,11 @@ class MaterialPreviewService extends AbstractPreviewService {
 	}
 
 	public function getCachedMaterialPreviewData(Material $material, Size $size, bool $clearCache = FALSE): string {
-		$cacheKey = $this->getCacheKey($material, [$size]);
+		$cacheKey = $this->getCacheKey($material, [$size, PreviewSize::profile($size)]);
 
 		return $this->cacheImageData(
 			$cacheKey,
+			$size,
 			fn() => $this->getFreshMaterialPreview($material, $size),
 			fn() => $this->registerCacheKey($material, $cacheKey),
 			$clearCache

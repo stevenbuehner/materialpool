@@ -10,8 +10,8 @@ final class PreviewSize {
 
 	public static function small(): Size {
 		return new Size(
-			config('app.resource.preview.smallWidth'),
-			config('app.resource.preview.smallHeight')
+			config('app.preview.small.maxWidth'),
+			config('app.preview.small.maxHeight')
 		);
 	}
 
@@ -26,8 +26,16 @@ final class PreviewSize {
 
 	public static function large(): Size {
 		return new Size(
-			config('app.resource.preview.maxWidth'),
-			config('app.resource.preview.maxHeight')
+			config('app.preview.large.maxWidth'),
+			config('app.preview.large.maxHeight')
 		);
+	}
+
+	public static function profile(Size $size): array {
+		$small = self::small();
+		$name = $size->getWidth() <= $small->getWidth() && $size->getHeight() <= $small->getHeight()
+			? self::SMALL : self::LARGE;
+
+		return config('app.preview.' . $name);
 	}
 }

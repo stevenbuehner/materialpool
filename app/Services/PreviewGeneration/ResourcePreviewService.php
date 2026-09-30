@@ -16,7 +16,7 @@ use Intervention\Image\ImageManager;
 use Intervention\Image\Size;
 
 class ResourcePreviewService extends AbstractPreviewService {
-	private const CACHE_KEY_VERSION = 2;
+	private const CACHE_KEY_VERSION = 3;
 
 
 	public function __construct(ImageManager $imageManager) {
@@ -78,10 +78,11 @@ class ResourcePreviewService extends AbstractPreviewService {
 
 	public function getCachedImageData(ResourceEntity $resource, Size $size, $pageOrSeconds = NULL, bool $clearCache = FALSE): string {
 
-		$cacheKey = $this->getCacheKey($resource, [$size, (int)$pageOrSeconds]);
+		$cacheKey = $this->getCacheKey($resource, [$size, (int)$pageOrSeconds, PreviewSize::profile($size)]);
 
 		return $this->cacheImageData(
 			$cacheKey,
+			$size,
 			fn() => $this->getFreshImagePreview($resource, $size, $pageOrSeconds),
 			fn() => $this->registerCacheKey($resource, $cacheKey),
 			$clearCache
@@ -173,7 +174,7 @@ class ResourcePreviewService extends AbstractPreviewService {
 	}
 
 	public function hasCachedImage(ResourceEntity $resource, Size $size, $pageOrSeconds = NULL): bool {
-		$cacheKey = $this->getCacheKey($resource, [$size, (int)$pageOrSeconds]);
+		$cacheKey = $this->getCacheKey($resource, [$size, (int)$pageOrSeconds, PreviewSize::profile($size)]);
 
 		return $this->getCacheStore()->has($cacheKey);
 	}

@@ -14,6 +14,7 @@ use App\Models\Resource as ResourceEntity;
 use App\ResourceLimitations\ResourceLimitationInterface;
 use App\Services\PreviewGeneration\Exceptions\NotPreviewAbleException;
 use App\Services\PreviewGeneration\Interfaces\PreviewGeneratorInterface;
+use App\Services\PreviewGeneration\PreviewSize;
 use Exception;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Support\Facades\View;
@@ -51,7 +52,6 @@ class ImagePreviewGenerator implements PreviewGeneratorInterface {
 				// Todo: Noch besser wäre direkt via convert -verbose -density 144 /home/vagrant/web/storage/app/resources/1/doc/DaZzBkRHHMdBr7IU4JC5sCz5EG5Ppbh0Ko6HFYrs.pdf[1] -quality 90 -flatten -trim test.png
 
 				// $image = new \Imagick();
-				// $image->setResolution(config('app.preview.resolution'), config('app.preview.resolution'));
 				// $image->readImage($localFile);
 
 				// Hintergrund im bei transparenten Geschichten (z.B. in PDFs) weiß nehmen und AlphaChannel entfernen
@@ -59,7 +59,6 @@ class ImagePreviewGenerator implements PreviewGeneratorInterface {
 				// $im->setImageAlphaChannel(\Imagick::ALPHACHANNEL_REMOVE);
 				// $im->mergeImageLayers(\Imagick::LAYERMETHOD_FLATTEN);
 
-				// $im->setFormat(config('app.preview.outputFormat', 'png'));
 
 
 				// $image = $this->imageManager->make($localFile);
@@ -96,8 +95,8 @@ class ImagePreviewGenerator implements PreviewGeneratorInterface {
 		if ($resource->hasRemoteFile()) {
 			$src = $resource->remote_path;
 		} else {
-			$maxWidth  = config('app.resource.preview.maxWidth');
-			$maxHeight = config('app.resource.preview.maxHeight');
+			$maxWidth  = PreviewSize::large()->getWidth();
+			$maxHeight = PreviewSize::large()->getHeight();
 			$src       = route('resource.image.preview',
 				['resource' => $resource->id,
 				 'width'    => $maxWidth,

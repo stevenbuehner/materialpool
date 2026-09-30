@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Cache;
 use Intervention\Image\Image;
 use Intervention\Image\ImageManager;
+use Intervention\Image\Size;
 use RuntimeException;
 
 
@@ -18,7 +19,7 @@ abstract class AbstractPreviewService {
 
 
 	public function __construct(ImageManager $imageManager) {
-		$cacheTime                    = config('app.resource.preview.cacheTime', NULL);
+		$cacheTime                    = config('app.preview.cacheTime', NULL);
 		$this->cacheLifeTimeInMinutes = $cacheTime < 0 ? NULL : $cacheTime;
 
 		$this->imageManager = $imageManager;
@@ -65,7 +66,7 @@ abstract class AbstractPreviewService {
 
 	}
 
-	protected function cacheImageData(string $cacheKey, callable $generateImage, ?callable $onCached = NULL, bool $clearCache = FALSE): string {
+	protected function cacheImageData(string $cacheKey, Size $size, callable $generateImage, ?callable $onCached = NULL, bool $clearCache = FALSE): string {
 		$cache = $this->getCacheStore();
 
 		if (!$clearCache && ($cachedImageData = $this->getImageDataFromCache($cacheKey)) !== NULL) {
@@ -74,8 +75,8 @@ abstract class AbstractPreviewService {
 
 		return $cache->lock(
 			'preview-image-lock:' . hash('sha256', $cacheKey),
-			config('app.resource.preview.cacheLockSeconds')
-		)->block(config('app.resource.preview.cacheLockSeconds'), function () use ($cacheKey, $generateImage, $onCached, $clearCache): string {
+			config('app.preview.cacheLockSeconds')
+		)->block(config('app.preview.cacheLockSeconds'), function () use ($cacheKey, $size, $generateImage, $onCached, $clearCache): string {
 			if ($clearCache) {
 				$this->clearCache($cacheKey);
 			}
@@ -85,7 +86,7 @@ abstract class AbstractPreviewService {
 			}
 
 			$image = $generateImage();
-			$this->putImageObjectToCache($image, $cacheKey);
+			$this->putImageObjectToCache($image, $cacheKey, $size);
 			if ($onCached !== NULL) {
 				$onCached();
 			}
@@ -105,16 +106,14 @@ abstract class AbstractPreviewService {
 	 * @param       $cacheKey
 	 * @return Image
 	 */
-	protected function putImageObjectToCache(Image $image, $cacheKey) {
+	protected function putImageObjectToCache(Image $image, $cacheKey, Size $size) {
 		// see:  https://github.com/Intervention/imagecache/blob/master/src/Intervention/Image/ImageCache.php
 
 		$cache = $this->getCacheStore();
 
 		// encode image data only if image is not encoded yet
-		$encoded = (string)$image->encode(
-			config('app.preview.outputFormat'),
-			config('app.resource.preview.quality')
-		);
+		$profile = PreviewSize::profile($size);
+		$encoded = (string)$image->encode($profile['outputFormat'], $profile['quality']);
 
 		$cache->put($cacheKey, $encoded, $this->cacheLifeTimeInMinutes);
 
