@@ -150,6 +150,7 @@ class ProductionDeploymentContractTest extends TestCase
         $this->assertStringContainsString('save_units "$tmp/units"', $updater);
         $this->assertStringContainsString('restore_units "$tmp/units"', $updater);
         $this->assertStringContainsString('queues:work-background --configuration-only', $updater);
+        $this->assertStringContainsString('same_version_env_changed=1', $updater);
     }
 
     public function test_production_preflight_accepts_complete_explicit_configuration(): void

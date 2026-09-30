@@ -189,8 +189,28 @@ fi
 if [[ "$version" == "$installed" ]]; then
   same_version_tmp="$(mktemp -d)"
   save_units "$same_version_tmp/units"
-  if ! apply_units "$base/current" || ! start_units; then
+  same_version_env_changed=0
+  if [[ -f "$base/current/deployment/systemd/materialpool-background.service" ]] && ! grep -q '^PRIORITIZED_BACKGROUND_QUEUE=true$' "$base/shared/.env"; then
+    cp -p "$base/shared/.env" "$same_version_tmp/env-before"
+    same_version_env_changed=1
+    if ! { sed -i '/^PRIORITIZED_BACKGROUND_QUEUE=/d' "$base/shared/.env" && printf '%s\n' 'PRIORITIZED_BACKGROUND_QUEUE=true' >> "$base/shared/.env"; }; then
+      cp -p "$same_version_tmp/env-before" "$base/shared/.env"
+      rm -rf -- "$same_version_tmp"
+      exit 1
+    fi
+    if ! runuser -u www-data -- php "$base/current/artisan" optimize; then
+      cp -p "$same_version_tmp/env-before" "$base/shared/.env"
+      runuser -u www-data -- php "$base/current/artisan" optimize || true
+      rm -rf -- "$same_version_tmp"
+      exit 1
+    fi
+  fi
+  if ! apply_units "$base/current" || { [[ -f "$base/current/deployment/systemd/materialpool-background.service" ]] && ! runuser -u www-data -- php "$base/current/artisan" queues:work-background --configuration-only; } || ! start_units; then
     restore_units "$same_version_tmp/units"
+    if ((same_version_env_changed == 1)); then
+      cp -p "$same_version_tmp/env-before" "$base/shared/.env"
+      runuser -u www-data -- php "$base/current/artisan" optimize || true
+    fi
     start_units || true
     rm -rf -- "$same_version_tmp"
     exit 1
