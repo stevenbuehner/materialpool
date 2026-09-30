@@ -99,6 +99,7 @@ Route::group([
 		->name('api.v2.system.shutdown');
 
 	Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => 'admin'], function () {
+		Route::get('queue-overview', 'Admin\\QueueOverviewController@index')->name('queue-overview.index');
 		Route::get('context-search/datasets', 'Admin\\ContextSearchEvaluationDatasetController@index')->name('context-search.datasets.index');
 		Route::post('context-search/datasets', 'Admin\\ContextSearchEvaluationDatasetController@store')->name('context-search.datasets.store');
 		Route::get('context-search/datasets/candidates', 'Admin\\ContextSearchEvaluationDatasetController@candidates')->name('context-search.datasets.candidates');
