@@ -18,6 +18,62 @@ if [[ -n "${TOKEN_FILE:-}" ]]; then
   token_args=(-H "Authorization: Bearer $(<"$TOKEN_FILE")")
 fi
 
+managed_units=(materialpool-queue.service materialpool-background.service materialpool-schedule.service materialpool-schedule.timer)
+apply_units() {
+  local release="$1" unit
+  for unit in materialpool-queue.service materialpool-schedule.service materialpool-schedule.timer; do
+    [[ -f "$release/deployment/systemd/$unit" ]] || { echo "Dienstvorlage fehlt: $unit" >&2; return 1; }
+  done
+  if [[ ! -f "$release/deployment/systemd/materialpool-background.service" ]]; then
+    systemctl disable --now materialpool-background.service 2>/dev/null || true
+  fi
+  for unit in "${managed_units[@]}"; do
+    if [[ -f "$release/deployment/systemd/$unit" ]]; then
+      install -m 0644 "$release/deployment/systemd/$unit" "/etc/systemd/system/$unit"
+    else
+      rm -f "/etc/systemd/system/$unit"
+    fi
+  done
+  systemctl daemon-reload
+}
+save_units() {
+  local destination="$1" unit
+  mkdir -p "$destination"
+  for unit in "${managed_units[@]}"; do
+    if [[ -f "/etc/systemd/system/$unit" ]]; then
+      cp -p "/etc/systemd/system/$unit" "$destination/$unit"
+    else
+      touch "$destination/$unit.absent"
+    fi
+  done
+}
+restore_units() {
+  local source="$1" unit
+  for unit in "${managed_units[@]}"; do
+    if [[ -f "$source/$unit.absent" ]]; then
+      rm -f "/etc/systemd/system/$unit"
+    else
+      cp -p "$source/$unit" "/etc/systemd/system/$unit"
+    fi
+  done
+  systemctl daemon-reload
+}
+start_units() {
+  systemctl enable --now materialpool-queue.service materialpool-schedule.timer nginx mariadb
+  systemctl restart materialpool-queue.service
+  systemctl restart materialpool-schedule.timer
+  if [[ -f /etc/systemd/system/materialpool-background.service ]]; then
+    systemctl enable --now materialpool-background.service
+    systemctl restart materialpool-background.service
+  fi
+  for service in materialpool-queue.service materialpool-schedule.timer php8.4-fpm nginx mariadb; do
+    systemctl is-active --quiet "$service"
+  done
+  if [[ -f /etc/systemd/system/materialpool-background.service ]]; then
+    systemctl is-active --quiet materialpool-background.service
+  fi
+}
+
 archive_override=""
 case "${1:-update}" in
   update)
@@ -33,14 +89,35 @@ case "${1:-update}" in
     [[ $# -eq 2 && "$2" =~ ^v?[0-9]+\.[0-9]+\.[0-9]+[a-z]?$ && -d "$base/releases/$2" ]] || exit 64
     old="$(readlink -f "$base/current")"
     [[ -n "$old" ]] || exit 1
+    old_link="$(readlink "$base/current")"
+    rollback_tmp="$(mktemp -d)"
+    save_units "$rollback_tmp/units"
+    rollback_done=0
+    rollback_cleanup() {
+      if ((rollback_done == 0)); then
+        systemctl stop materialpool-background.service 2>/dev/null || true
+        systemctl stop materialpool-queue.service 2>/dev/null || true
+        restore_units "$rollback_tmp/units" || true
+        rm -f "$base/current.next"
+        ln -s "$old_link" "$base/current.next"
+        mv -Tf "$base/current.next" "$base/current"
+        systemctl reload php8.4-fpm || true
+        start_units || true
+      fi
+      rm -rf -- "$rollback_tmp"
+    }
+    trap rollback_cleanup EXIT
     runuser -u www-data -- php "$old/artisan" down
     systemctl stop materialpool-queue.service
+    systemctl stop materialpool-background.service 2>/dev/null || true
     ln -s "releases/$2" "$base/current.next"
     mv -Tf "$base/current.next" "$base/current"
+    apply_units "$base/current"
     systemctl reload php8.4-fpm
-    systemctl start materialpool-queue.service
+    start_units
     runuser -u www-data -- php "$base/current/artisan" up
     curl -fsS --max-time 10 http://127.0.0.1/up | grep -qx OK
+    rollback_done=1
     echo "Code-Rollback auf $2. Datenbankänderungen wurden nicht zurückgenommen."
     exit 0 ;;
   *) echo "Aufruf: update [update|rollback X.Y.Z[a-z]]" >&2; exit 64 ;;
@@ -52,15 +129,26 @@ prepared_release=""
 updater_next=""
 critical=0
 switched=0
+units_changed=0
+env_changed=0
 cleanup() {
   status=$?
   # Nach einem Fehler vor der Aktivierung nur temporäre Release-Dateien entfernen.
   # Nach Migrationen bleibt die Anwendung zur manuellen Prüfung im Wartungsmodus.
   if ((status != 0)); then
+    if ((env_changed == 1)); then
+      cp -p "$tmp/env-before" "$base/shared/.env" || true
+    fi
+    if ((units_changed == 1)); then
+      systemctl stop materialpool-background.service 2>/dev/null || true
+      systemctl stop materialpool-queue.service 2>/dev/null || true
+      restore_units "$tmp/units" || true
+    fi
     if ((critical == 1)); then
       echo "Update fehlgeschlagen. Datenbank-Backup und Migrationen prüfen; bei Bestandsinstallationen bleibt der Wartungsmodus aktiv." >&2
       if ((switched == 1)) && [[ -n "${previous:-}" ]]; then
         systemctl stop materialpool-queue.service || true
+        systemctl stop materialpool-background.service 2>/dev/null || true
         rm -f "$base/current.next"
         ln -s "$previous" "$base/current.next"
         mv -Tf "$base/current.next" "$base/current"
@@ -99,6 +187,15 @@ if [[ -f "$base/current/release.json" ]]; then
   installed="$(jq -r '.version' "$base/current/release.json")"
 fi
 if [[ "$version" == "$installed" ]]; then
+  same_version_tmp="$(mktemp -d)"
+  save_units "$same_version_tmp/units"
+  if ! apply_units "$base/current" || ! start_units; then
+    restore_units "$same_version_tmp/units"
+    start_units || true
+    rm -rf -- "$same_version_tmp"
+    exit 1
+  fi
+  rm -rf -- "$same_version_tmp"
   echo "Materialpool $version ist bereits aktuell."
   echo "Materialpool-Status:"
   if ! runuser -u www-data -- php "$base/current/artisan" materialpool:status --ansi --latest-version="$version"; then
@@ -132,6 +229,9 @@ tar -xzf "$tmp/$artifact" -C "$stage" --no-same-owner
 [[ "$(jq -r '.commit' "$stage/release.json")" =~ ^[0-9a-f]{40}$ ]] || exit 1
 [[ ! -e "$stage/.env" && ! -e "$stage/node_modules" && ! -e "$stage/vendor" ]] || exit 1
 [[ -f "$stage/deployment/release/update.sh" ]] || { echo "Updater fehlt im Release." >&2; exit 1; }
+for unit in "${managed_units[@]}"; do
+  [[ -f "$stage/deployment/systemd/$unit" ]] || { echo "Dienstvorlage fehlt im Release: $unit" >&2; exit 1; }
+done
 bash -n "$stage/deployment/release/update.sh"
 # Persistente Konfiguration, Uploads und Storage bleiben außerhalb jedes Releases.
 rm -rf -- "$stage/storage"
@@ -178,6 +278,7 @@ if [[ -L "$base/current" ]]; then
   previous="$(readlink "$base/current")"
   runuser -u www-data -- php "$base/current/artisan" down
   systemctl stop materialpool-queue.service
+  systemctl stop materialpool-background.service 2>/dev/null || true
 fi
 critical=1
 # Das Backup liegt vor Migration und Bibeldatenimport; beide können Daten verändern.
@@ -196,18 +297,24 @@ else
   runuser -u www-data -- php "$release/artisan" bible:import < /dev/tty > /dev/tty
 fi
 runuser -u www-data -- php "$release/artisan" production:preflight
+if ! grep -q '^PRIORITIZED_BACKGROUND_QUEUE=true$' "$base/shared/.env"; then
+  cp -p "$base/shared/.env" "$tmp/env-before"
+  env_changed=1
+  sed -i '/^PRIORITIZED_BACKGROUND_QUEUE=/d' "$base/shared/.env"
+  printf '%s\n' 'PRIORITIZED_BACKGROUND_QUEUE=true' >> "$base/shared/.env"
+fi
 runuser -u www-data -- php "$release/artisan" optimize
+runuser -u www-data -- php "$release/artisan" queues:work-background --configuration-only
 # Der atomare Symlinkwechsel aktiviert das vorbereitete Release erst nach dem Preflight.
 rm -f "$base/current.next"
 ln -s "releases/$version" "$base/current.next"
 mv -Tf "$base/current.next" "$base/current"
 switched=1
 systemctl reload php8.4-fpm
-systemctl enable --now materialpool-queue.service materialpool-schedule.timer nginx mariadb
-systemctl restart materialpool-queue.service
-for service in materialpool-queue.service materialpool-schedule.timer php8.4-fpm nginx mariadb; do
-  systemctl is-active --quiet "$service"
-done
+save_units "$tmp/units"
+units_changed=1
+apply_units "$release"
+start_units
 runuser -u www-data -- php "$base/current/artisan" up
 curl -fsS --max-time 10 http://127.0.0.1/up | grep -qx OK
 updater_next="$(mktemp /usr/local/sbin/.materialpool-update.XXXXXX)"

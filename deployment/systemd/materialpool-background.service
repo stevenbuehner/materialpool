@@ -1,0 +1,19 @@
+[Unit]
+Description=Materialpool Prioritized Background Queue
+After=network-online.target mariadb.service materialpool-queue.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=www-data
+Group=www-data
+WorkingDirectory=/srv/materialpool/current
+ExecStart=/usr/bin/php /srv/materialpool/current/artisan queues:work-background
+Restart=always
+RestartSec=5
+TimeoutStopSec=650
+KillMode=mixed
+KillSignal=SIGTERM
+
+[Install]
+WantedBy=multi-user.target

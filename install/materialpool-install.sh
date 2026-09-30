@@ -123,6 +123,7 @@ DB_DATABASE=materialpool
 DB_USERNAME=materialpool
 DB_PASSWORD=$MARIADB_DB_PASS
 QUEUE_CONNECTION=database
+PRIORITIZED_BACKGROUND_QUEUE=true
 QUEUE_RETRY_AFTER=150
 CACHE_DRIVER=file
 SESSION_DRIVER=file
@@ -180,7 +181,7 @@ tar -xOf "$tmp/$artifact" ./deployment/release/update.sh > "$tmp/materialpool-up
 bash -n "$tmp/materialpool-update"
 install -m 0750 "$tmp/materialpool-update" /usr/local/sbin/materialpool-update
 tar -xOf "$tmp/$artifact" ./deployment/nginx/materialpool.conf > /etc/nginx/sites-available/materialpool
-for unit in materialpool-queue.service materialpool-schedule.service materialpool-schedule.timer; do
+for unit in materialpool-queue.service materialpool-background.service materialpool-schedule.service materialpool-schedule.timer; do
   tar -xOf "$tmp/$artifact" "./deployment/systemd/$unit" > "/etc/systemd/system/$unit"
 done
 systemctl daemon-reload

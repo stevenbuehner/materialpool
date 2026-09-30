@@ -4,7 +4,7 @@ set -Eeuo pipefail
 artifact="$(cd "$(dirname "$1")" && pwd)/$(basename "$1")"
 (cd "$(dirname "$artifact")" && sha256sum -c "$(basename "$artifact").sha256")
 listing="$(tar -tzf "$artifact")"
-for expected in ./artisan ./composer.json ./composer.lock ./release.json ./public/build/manifest.json ./deployment/release/update.sh ./database/bible-data/manifest.json ./database/bible-data/cross-references.tsv; do
+for expected in ./artisan ./composer.json ./composer.lock ./release.json ./public/build/manifest.json ./deployment/release/update.sh ./deployment/systemd/materialpool-queue.service ./deployment/systemd/materialpool-background.service ./deployment/systemd/materialpool-schedule.service ./deployment/systemd/materialpool-schedule.timer ./database/bible-data/manifest.json ./database/bible-data/cross-references.tsv; do
   grep -qxF "$expected" <<< "$listing" || { echo "Fehlt: $expected" >&2; exit 1; }
 done
 # Repository-, Entwicklungs-, Test- und Betriebsdateien gehören nicht in das GitHub-Release.

@@ -129,10 +129,27 @@ class ProductionDeploymentContractTest extends TestCase
     public function test_proxmox_queue_worker_restarts_after_its_planned_lifetime(): void
     {
         $unit = file_get_contents(base_path('deployment/systemd/materialpool-queue.service'));
+        $background = file_get_contents(base_path('deployment/systemd/materialpool-background.service'));
 
-        $this->assertStringContainsString('--queue=default,resource-previews-low', $unit);
+        $this->assertStringContainsString('--queue=default ', $unit);
         $this->assertStringContainsString('--max-time=3600', $unit);
         $this->assertStringContainsString('Restart=always', $unit);
+        $this->assertStringContainsString('queues:work-background', $background);
+        $this->assertStringContainsString('Restart=always', $background);
+        $this->assertStringContainsString('KillMode=mixed', $background);
+    }
+
+    public function test_proxmox_install_and_updates_manage_both_queue_services(): void
+    {
+        $installer = file_get_contents(base_path('install/materialpool-install.sh'));
+        $updater = file_get_contents(base_path('deployment/release/update.sh'));
+
+        $this->assertStringContainsString('materialpool-background.service materialpool-schedule.service', $installer);
+        $this->assertStringContainsString('apply_units "$release"', $updater);
+        $this->assertStringContainsString('apply_units "$base/current"', $updater);
+        $this->assertStringContainsString('save_units "$tmp/units"', $updater);
+        $this->assertStringContainsString('restore_units "$tmp/units"', $updater);
+        $this->assertStringContainsString('queues:work-background --configuration-only', $updater);
     }
 
     public function test_production_preflight_accepts_complete_explicit_configuration(): void

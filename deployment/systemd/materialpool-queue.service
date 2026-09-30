@@ -8,7 +8,7 @@ Type=simple
 User=www-data
 Group=www-data
 WorkingDirectory=/srv/materialpool/current
-ExecStart=/usr/bin/php /srv/materialpool/current/artisan queue:work database --queue=default,resource-previews-low --sleep=3 --tries=50 --timeout=120 --max-time=3600
+ExecStart=/usr/bin/php /srv/materialpool/current/artisan queue:work database --queue=default --sleep=3 --tries=50 --timeout=120 --max-time=3600
 Restart=always
 RestartSec=5
 TimeoutStopSec=150
