@@ -4,6 +4,25 @@ import {viteScriptTag, viteStylesheetTags} from './viteAssets.js';
 
 test.beforeEach(async ({page}) => installRalewayFixture(page));
 
+test('Bundle manager keeps Bundle access without global admin links', async ({page}) => {
+    await page.route('**/vue/', route => route.fulfill({
+        contentType: 'text/html',
+        body: `<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">${viteStylesheetTags}</head><body><div id="app"></div><script>window.Laravel = {csrfToken: 'synthetic-csrf-token'}; window.materialpool = {store: {materials: []}};</script>${viteScriptTag}</body></html>`,
+    }));
+    await page.route('**/api/v1/general/options*', route => route.fulfill({
+        contentType: 'application/json',
+        body: JSON.stringify({systemname: 'MaterialPool Default', user: {id: 2, name: 'Bundle Manager', email: 'bundle@example.invalid', is_admin: false, permissions: ['bundles.manage'], frontend_user_settings: {}}}),
+    }));
+
+    await page.goto('/vue/');
+    if (test.info().project.name === 'mobile-webkit') await page.locator('.navbar-toggler').click();
+    await page.getByRole('link', {name: 'Admin', exact: true}).click();
+    await expect(page.getByRole('menuitem', {name: 'Bundle'})).toBeVisible();
+    await expect(page.getByRole('menuitem', {name: 'Jobs und Queues'})).toHaveCount(0);
+    await expect(page.getByText('Kalibrierung', {exact: true})).toHaveCount(0);
+    await expect(page.getByRole('link', {name: 'Bearbeiten'})).toHaveCount(0);
+});
+
 test('Global admin sees grouped queue jobs and separate failed and batch tabs', async ({page}, testInfo) => {
     let requestCount = 0;
     await page.route('**/vue/admin/queues', route => route.fulfill({

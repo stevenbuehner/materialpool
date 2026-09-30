@@ -102,6 +102,10 @@ test('Vue application mounts with synthetic bootstrap data', async ({page}, test
             total: 0,
         }),
     }));
+    await page.route('**/api/v1/resources/find?*', route => route.fulfill({
+        contentType: 'application/json',
+        body: JSON.stringify({data: [], current_page: 1, last_page: 1, total: 0}),
+    }));
 
     await page.goto('/vue/');
 
@@ -546,7 +550,7 @@ test('Bundle overview loads and completes an update through Pinia', async ({page
                         id: 1,
                         name: 'Synthetic User',
                         email: 'synthetic@example.invalid',
-                        is_admin: false,
+                        is_admin: true,
                         frontend_user_settings: {},
                     },
                 }),
@@ -677,7 +681,7 @@ test('Keyword tree loads, filters and force-refreshes through Pinia', async ({pa
                         id: 1,
                         name: 'Synthetic User',
                         email: 'synthetic@example.invalid',
-                        is_admin: false,
+                        is_admin: true,
                         frontend_user_settings: {},
                     },
                 }),

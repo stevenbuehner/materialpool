@@ -3,6 +3,7 @@
 return [
 
 	'home'                                                     => 'home',
+	'Admin'                                                    => 'Admin',
 	'login'                                                    => 'login',
 	'logout'                                                   => 'logout',
 	'material'                                                 => 'material|materials',

@@ -123,9 +123,17 @@ test('Global admin manages users and groups on desktop and mobile', async ({page
 
     await page.goto('/vue/admin/users');
 
-    await page.getByRole('button', {name: 'Global Admin'}).click();
-    await expect(page.getByRole('menuitem', {name: 'Bundle'})).toBeVisible();
+    if (testInfo.project.name === 'mobile-webkit') await page.locator('.navbar-toggler').click();
+    await page.getByRole('link', {name: 'Global Admin'}).click();
     await expect(page.getByRole('menuitem', {name: 'Benutzerverwaltung'})).toBeVisible();
+    await expect(page.getByRole('menuitem', {name: 'Bundle'})).toHaveCount(0);
+    await expect(page.getByText('Kalibrierung', {exact: true})).toHaveCount(0);
+    await page.getByRole('link', {name: 'Admin', exact: true}).click();
+    await expect(page.getByRole('menuitem', {name: 'Jobs und Queues'})).toBeVisible();
+    await expect(page.getByRole('menuitem', {name: 'Bundle'})).toBeVisible();
+    await page.getByRole('button', {name: /Kalibrierung/}).click();
+    await expect(page.getByRole('menuitem', {name: 'OCR-Schwellenwerte kalibrieren'})).toBeVisible();
+    await page.screenshot({fullPage: true, path: testInfo.outputPath('admin-menu.png')});
 
     await expect(page.getByRole('heading', {name: 'Benutzerverwaltung'})).toBeVisible();
     await expect(page.getByRole('cell', {name: 'Global Admin'})).toBeVisible();

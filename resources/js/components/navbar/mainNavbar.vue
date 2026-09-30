@@ -19,7 +19,7 @@
             <new-text-icon class="sb-icon sb-navbar-icon"/>
           </b-nav-item>
 
-          <b-nav-item-dropdown right :text="$t('pool.Edit')" v-if="isAdmin || canManageKeywords || canManageBundles">
+          <b-nav-item-dropdown right :text="$t('pool.Edit')" v-if="isAdmin || canManageKeywords">
             <b-dropdown-item :to="{name: 'keyword-list'}" class="dropdown-hover" v-if="canManageKeywords">{{
                 $t('pool.Keywords')
               }}
@@ -36,6 +36,35 @@
             <b-dropdown-item :to="{name: 'material-recently-updated'}" class="dropdown-hover" v-if="isAdmin">
               {{ $t('pool.Recently-Updated-Materials') }}
             </b-dropdown-item>
+          </b-nav-item-dropdown>
+
+          <b-nav-item-dropdown right :text="$t('pool.Admin')" v-if="isAdmin || canManageBundles">
+            <b-dropdown-item :to="{name: 'admin-queues'}" class="dropdown-hover" v-if="isAdmin">
+              {{ $t('pool.queue-overview-title') }}
+            </b-dropdown-item>
+            <b-dropdown-item :to="{name: 'bundle-list'}" class="dropdown-hover" v-if="canManageBundles">
+              {{ $t('pool.Bundle') }}
+            </b-dropdown-item>
+            <li v-if="isAdmin" role="presentation">
+              <button
+                type="button"
+                class="dropdown-item d-flex justify-content-between align-items-center dropdown-hover"
+                :aria-expanded="calibrationMenuOpen"
+                aria-controls="calibration-submenu"
+                @click.stop="calibrationMenuOpen = !calibrationMenuOpen"
+              >
+                {{ $t('pool.calibration-menu') }}
+                <span aria-hidden="true">{{ calibrationMenuOpen ? '▾' : '▸' }}</span>
+              </button>
+            </li>
+            <ul v-if="isAdmin && calibrationMenuOpen" id="calibration-submenu" class="calibration-submenu list-unstyled mb-0" role="group">
+              <b-dropdown-item :to="{name: 'context-search-ocr-calibration'}" class="dropdown-hover calibration-submenu-item">
+                {{ $t('pool.ocr-calibration-title') }}
+              </b-dropdown-item>
+              <b-dropdown-item :to="{name: 'context-search-evaluation-datasets'}" class="dropdown-hover calibration-submenu-item">
+                {{ $t('pool.ai-datasets') }}
+              </b-dropdown-item>
+            </ul>
           </b-nav-item-dropdown>
 
           <b-nav-item :to="{name: 'readbible'}">{{ $t('pool.Bible') }}</b-nav-item>
@@ -61,35 +90,9 @@
           </b-nav-form>
 
           <b-nav-item-dropdown right :text="username">
-            <b-dropdown-item :to="{name: 'bundle-list'}" class="dropdown-hover" v-if="canManageBundles">
-              {{ $t('pool.Bundle') }}
-            </b-dropdown-item>
             <b-dropdown-item :to="{name: 'admin-users'}" class="dropdown-hover" v-if="isAdmin">
               {{ $t('pool.User-management') }}
             </b-dropdown-item>
-            <b-dropdown-item :to="{name: 'admin-queues'}" class="dropdown-hover" v-if="isAdmin">
-              {{ $t('pool.queue-overview-title') }}
-            </b-dropdown-item>
-            <li v-if="isAdmin" role="presentation">
-              <button
-                type="button"
-                class="dropdown-item d-flex justify-content-between align-items-center dropdown-hover"
-                :aria-expanded="calibrationMenuOpen"
-                aria-controls="calibration-submenu"
-                @click.stop="calibrationMenuOpen = !calibrationMenuOpen"
-              >
-                {{ $t('pool.calibration-menu') }}
-                <span aria-hidden="true">{{ calibrationMenuOpen ? '▾' : '▸' }}</span>
-              </button>
-            </li>
-            <ul v-if="isAdmin && calibrationMenuOpen" id="calibration-submenu" class="calibration-submenu list-unstyled mb-0" role="group">
-              <b-dropdown-item :to="{name: 'context-search-ocr-calibration'}" class="dropdown-hover calibration-submenu-item">
-                {{ $t('pool.ocr-calibration-title') }}
-              </b-dropdown-item>
-              <b-dropdown-item :to="{name: 'context-search-evaluation-datasets'}" class="dropdown-hover calibration-submenu-item">
-                {{ $t('pool.ai-datasets') }}
-              </b-dropdown-item>
-            </ul>
             <b-dropdown-item-button class="dropdown-hover" :disabled="isLoggingOut" @click="logout">
               {{ $t('pool.Logout') }}
             </b-dropdown-item-button>
