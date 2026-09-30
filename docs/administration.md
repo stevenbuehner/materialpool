@@ -13,13 +13,13 @@
 
 ## Jobs und Queues
 
-Globale Administratoren öffnen **Jobs und Queues** im Benutzermenü. Die Seite zeigt die vorhandenen Datensätze aus `jobs`, `failed_jobs` und `job_batches` in getrennten Tabs, nach Queue-Namen gruppiert. Filter und Seitenwechsel begrenzen die Listen. Alle fünf Sekunden wird die sichtbare Ansicht aktualisiert, solange der Browser-Tab aktiv ist; der Zeitpunkt der letzten erfolgreichen Aktualisierung bleibt sichtbar.
+Globale Administratoren öffnen **Admin → Jobs und Queues** in der Hauptnavigation. Die Seite zeigt die vorhandenen Datensätze aus `jobs`, `failed_jobs` und `job_batches` in getrennten Tabs, nach Queue-Namen gruppiert. Filter und Seitenwechsel begrenzen die Listen. Alle fünf Sekunden wird die sichtbare Ansicht aktualisiert, solange der Browser-Tab aktiv ist; der Zeitpunkt der letzten erfolgreichen Aktualisierung bleibt sichtbar.
 
 „Reserviert“ bedeutet, dass ein Worker den Job übernommen hat. Nach einem Worker-Abbruch kann diese Markierung vorübergehend bestehen bleiben und bestätigt deshalb keinen aktuell laufenden Prozess. Erfolgreiche Einzeljobs werden nicht historisch aufbewahrt. Die Seite kann Jobs weder neu priorisieren noch verschieben, wiederholen oder löschen. Fehlermeldungen und Job-Payloads werden nicht angezeigt. Ein Batch erhält nur dann einen Queue-Namen, wenn ein vorhandener Bundle-Importlauf ihn eindeutig zuordnet.
 
 ## OCR-Evaluationsdatensatz
 
-Globale Administratoren öffnen in der Anwendung **KI-Datensätze** und wählen den OCR-Datensatz oder legen einen neuen an. Neue OCR-Entwürfe verwenden 300 bekannte PDF-Seiten sowie mindestens je ein Buch, Arbeitsblatt und eine Präsentation als Ziel. Nach dem Hinzufügen eines PDF-Blocks wird die Dokumentart an jeder PDF-Ressource im Datensatz gewählt. PDF-Seiten ohne bekannte Seitenzahl werden angezeigt, zählen aber nicht zum Seitenziel. Materialien und Ressourcen werden weiter als zusammenhängende Blöcke zugeordnet; ihre Anzahl ist für neue OCR-Entwürfe keine Zielgröße. Eingefrorene und ältere OCR-Datensätze behalten ihre gespeicherten Ziele.
+Globale Administratoren öffnen in der Anwendung **Admin → Kalibrierung → KI-Datensätze** und wählen den OCR-Datensatz oder legen einen neuen an. Neue OCR-Entwürfe verwenden 300 bekannte PDF-Seiten sowie mindestens je ein Buch, Arbeitsblatt und eine Präsentation als Ziel. Nach dem Hinzufügen eines PDF-Blocks wird die Dokumentart an jeder PDF-Ressource im Datensatz gewählt. PDF-Seiten ohne bekannte Seitenzahl werden angezeigt, zählen aber nicht zum Seitenziel. Materialien und Ressourcen werden weiter als zusammenhängende Blöcke zugeordnet; ihre Anzahl ist für neue OCR-Entwürfe keine Zielgröße. Eingefrorene und ältere OCR-Datensätze behalten ihre gespeicherten Ziele.
 
 ## Neuer Proxmox-Betrieb
 

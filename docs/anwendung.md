@@ -12,7 +12,7 @@
 
 ## Anmeldung und Navigation
 
-Materialpool ist geschützt. Nach erfolgreicher Anmeldung öffnet `/vue` die Startseite. Oben stehen – abhängig von den zugewiesenen Berechtigungen – Upload, neue Textressource, Bibel, Suchmaske, Schnellsuche und das Benutzerkonto zur Verfügung. Das Menü **Bearbeiten** erscheint für Global-Admins und Benutzer mit passenden Verwaltungsrechten. Auf kleinen Bildschirmen wird die Navigation über den Menüschalter geöffnet.
+Materialpool ist geschützt. Nach erfolgreicher Anmeldung öffnet `/vue` die Startseite. Oben stehen – abhängig von den zugewiesenen Berechtigungen – Upload, neue Textressource, Bibel, Suchmaske, Schnellsuche und das Benutzerkonto zur Verfügung. Das Menü **Bearbeiten** erscheint für Global-Admins und Benutzer mit Schlagwort-Verwaltungsrecht. **Admin** enthält für Global-Admins Jobs und Kalibrierung. Benutzer mit `bundles.manage` sehen dort weiterhin die Bundleverwaltung. Auf kleinen Bildschirmen wird die Navigation über den Menüschalter geöffnet.
 
 <!-- README-SCREENSHOT
 id: login
@@ -216,16 +216,16 @@ Der Schlagwortbaum kann gefiltert, geöffnet und hierarchisch bearbeitet werden.
 <!-- README-SCREENSHOT
 id: keyword-management
 route: /vue/keyword
-state: gefilterter Schlagwortbaum
+state: gefilterter Schlagwortbaum mit Admin-Hauptnavigation
 role: Administrator
 viewport: desktop-webkit (1440x900)
 fixture: docs-v1
 source: tests/browser/compat-app.spec.js#keyword-tree-loads-filters-and-force-refreshes-through-pinia
 refresh: KeywordList, Baumdarstellung, Filter oder Adminnavigation geändert
 -->
-![Administration des hierarchischen Schlagwortbaums mit Suchfeld](readme/screenshots/keyword-management-desktop.png)
+![Schlagwortbaum mit Suchfeld und Admin-Menü in der Hauptnavigation](readme/screenshots/keyword-management-desktop.png)
 
-*Schlagwortverwaltung: Der Baum strukturiert Themen, Personen, Orte und Sprachen.*
+*Schlagwortverwaltung: Der Baum strukturiert Themen, Personen, Orte und Sprachen; die Admin-Navigation ist oben sichtbar.*
 
 ### Bundles
 
@@ -234,16 +234,16 @@ Die Bundleübersicht zeigt installierte Version, verfügbare Version, Inhalt und
 <!-- README-SCREENSHOT
 id: bundle-management
 route: /vue/bundle
-state: installiertes Bundle mit verfügbarem Update
+state: installiertes Bundle mit verfügbarem Update und Admin-Hauptnavigation
 role: Administrator
 viewport: desktop-webkit (1440x900)
 fixture: docs-v1
 source: tests/browser/compat-app.spec.js#bundle-overview-loads-and-completes-an-update-through-pinia
 refresh: BundleList, Bundlekarte, Fortschritt oder Adminnavigation geändert
 -->
-![Bundleverwaltung mit installierter Version, verfügbarem Update und Verwaltungsaktionen](readme/screenshots/bundle-management-desktop.png)
+![Bundleverwaltung mit verfügbarem Update und Admin-Menü in der Hauptnavigation](readme/screenshots/bundle-management-desktop.png)
 
-*Bundleverwaltung: Versionsstand, Umfang und verfügbare Aktionen stehen direkt auf der Bundlekarte.*
+*Bundleverwaltung: Versionsstand, Umfang und Aktionen stehen auf der Bundlekarte; der Zugang liegt im Admin-Menü.*
 
 ### Weitere Werkzeuge
 
