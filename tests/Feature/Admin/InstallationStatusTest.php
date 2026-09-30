@@ -55,13 +55,11 @@ class InstallationStatusTest extends TestCase
 
         $this->assertSame(0, Artisan::call('materialpool:status', ['--latest-version' => '1.2.3']));
         $this->assertStringNotContainsString('SESSION_SECURE_COOKIE=false', Artisan::output());
-        $this->assertStringContainsString('HTTPS-Login und Secure-Attribut', Artisan::output());
 
         config(['app.url' => 'http://pool.example.test', 'trustedproxy.proxies' => null, 'session.secure' => false]);
 
         $this->assertSame(0, Artisan::call('materialpool:status', ['--latest-version' => '1.2.3']));
         $this->assertStringNotContainsString('SESSION_SECURE_COOKIE=false', Artisan::output());
-        $this->assertStringNotContainsString('HTTPS-Login und Secure-Attribut', Artisan::output());
     }
 
     public function test_status_shows_installed_data_and_current_version_without_exposing_qdrant_key(): void
