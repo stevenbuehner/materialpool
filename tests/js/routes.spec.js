@@ -38,6 +38,7 @@ describe('main application routes', () => {
             'keyword-detail',
             'bundle-list',
             'readbible',
+			'profile',
 			'admin-users',
 			'admin-queues',
 			'context-search-evaluation-datasets',

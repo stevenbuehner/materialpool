@@ -90,6 +90,9 @@
           </b-nav-form>
 
           <b-nav-item-dropdown right :text="username">
+            <b-dropdown-item :to="{name: 'profile'}" class="dropdown-hover">
+              {{ $t('pool.Profile') }}
+            </b-dropdown-item>
             <b-dropdown-item :to="{name: 'admin-users'}" class="dropdown-hover" v-if="isAdmin">
               {{ $t('pool.User-management') }}
             </b-dropdown-item>

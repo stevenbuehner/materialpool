@@ -7,6 +7,7 @@ Materialpool ist eine geschützte Anwendung zur Verwaltung von Materialien, Date
 | Ich möchte … | Dokumentation |
 | --- | --- |
 | Materialpool bedienen, Materialien und Resources finden oder verwalten | [Anwendung](docs/anwendung.md) |
+| Mein Profil, meine E-Mail-Adresse oder mein Passwort ändern | [Profil im Benutzermenü](docs/anwendung.md#anmeldung-und-navigation) |
 | Materialpool auf Proxmox neu installieren | [Proxmox-Installation](deployment/docs/installation.md) |
 | Eine Instanz betreiben, aktualisieren oder sichern | [Administration](docs/administration.md) · [Proxmox-Update und Rollback](deployment/docs/update.md) |
 | Aktuelle Jobs, fehlgeschlagene Jobs und Batches prüfen | [Admin-Übersicht für Jobs und Queues](docs/administration.md#jobs-und-queues) |

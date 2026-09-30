@@ -56,7 +56,9 @@ refresh: Mobile Navigation, Breakpoints, Startseite oder globale Styles geänder
 
 *Mobil: Der Menüschalter blendet Navigation, Suche und Benutzerkonto ein.*
 
-Im Benutzermenü befinden sich für Global-Admins **Benutzerverwaltung** und **Abmelden**. **Einstellungen** ist derzeit sichtbar, aber deaktiviert. Der System-Shutdown erscheint nur mit dem Recht `system.shutdown`; Global-Admins besitzen dieses Recht stets.
+Im Benutzermenü befindet sich für alle angemeldeten Benutzer **Profil**. Dort kann der eigene Name geändert werden. Für eine neue E-Mail-Adresse ist das aktuelle Passwort nötig; die Adresse gilt sofort nach dem Speichern und wird nicht per E-Mail bestätigt. **Passwort ändern** öffnet einen Dialog für das aktuelle und das neue Passwort mit Wiederholung. Das neue Passwort benötigt mindestens zwölf Zeichen. Nach erfolgreicher Änderung werden vorhandene API-Tokens widerrufen und eine erneute Anmeldung ist erforderlich. Das Erstellungsdatum wird nur angezeigt; Rollen und Kontostatus können dort nicht geändert werden.
+
+Global-Admins sehen im Benutzermenü zusätzlich **Benutzerverwaltung**. **Abmelden** steht allen offen. **Einstellungen** ist derzeit sichtbar, aber deaktiviert. Der System-Shutdown erscheint nur mit dem Recht `system.shutdown`; Global-Admins besitzen dieses Recht stets.
 
 ## Begriffe
 

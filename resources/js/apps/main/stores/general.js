@@ -30,6 +30,12 @@ export const useGeneralStore = defineStore('general', {
 			this.users[user.id] = user;
 			if (this.generalOptions?.user?.id === user.id) this.generalOptions.user = user;
 		},
+		updateCurrentUserProfile(profile) {
+			const options = this.generalOptions;
+			if (options && typeof options.then !== 'function' && options.user?.id === profile.id) {
+				this.setUser({...options.user, name: profile.name, email: profile.email});
+			}
+		},
 		setUserPromise({promise, id}) {
 			this.users[id] = promise;
 		},

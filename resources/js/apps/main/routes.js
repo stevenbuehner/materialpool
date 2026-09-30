@@ -18,6 +18,7 @@ const ResourceReplace = () => import('./pages/ResourceReplace.vue');
 const KeywordDetail = () => import('./pages/KeywordDetail.vue');
 const SystemShutdown = () => import('./pages/RequestShutdown.vue');
 const AdminUsers = () => import('./pages/AdminUsers.vue');
+const Profile = () => import('./pages/Profile.vue');
 const AdminQueueOverview = () => import('./pages/AdminQueueOverview.vue');
 const ContextSearchEvaluationDatasets = () => import('./pages/ContextSearchEvaluationDatasets.vue');
 const ContextSearchOcrCalibration = () => import('./pages/ContextSearchOcrCalibration.vue');
@@ -152,6 +153,11 @@ export const routes = [
 		component: ReadBible,
 		name: 'readbible',
 		props: true,
+	},
+	{
+		path: '/profil',
+		component: Profile,
+		name: 'profile',
 	},
 	{
 		path: '/admin/users',

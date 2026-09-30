@@ -92,6 +92,10 @@ Route::group([
 	// Users
 	Route::get('users/find', 'UserController@find')
 		->name('users.find');
+	Route::get('profile', 'ProfileController@show')->name('profile.show');
+	Route::patch('profile/name', 'ProfileController@updateName')->name('profile.name.update');
+	Route::patch('profile/email', 'ProfileController@updateEmail')->name('profile.email.update');
+	Route::put('profile/password', 'ProfileController@updatePassword')->name('profile.password.update');
 
 	// Shutdown System
 	Route::get('system/shutdown', 'SystemController@shutdown')

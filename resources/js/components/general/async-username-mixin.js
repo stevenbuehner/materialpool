@@ -4,7 +4,10 @@ export default {
 	asyncComputed: {
 		username: {
 			get() {
-				return useGeneralStore().currentUser()
+				const store = useGeneralStore();
+				const currentName = store.generalOptions?.user?.name;
+				if (currentName) return Promise.resolve(currentName);
+				return store.currentUser()
 				           .then((user) => {
 					           return user.name;
 				           });
