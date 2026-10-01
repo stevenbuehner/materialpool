@@ -17,6 +17,12 @@ class InstallationStatusTest extends TestCase
 {
     use RefreshDatabase;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+        config(['context_search.ollama.servers' => '']);
+    }
+
     public static function insecureHttpsConfigurations(): array
     {
         return [
@@ -87,6 +93,7 @@ class InstallationStatusTest extends TestCase
             'context_search.qdrant.api_key' => 'geheim', 'backup.enabled' => false,
         ]);
         Http::preventStrayRequests();
+        Http::fake(['qdrant.test:6333/readyz' => Http::response('', 200)]);
 
         $exitCode = Artisan::call('materialpool:status', ['--latest-version' => '1.2.3']);
         $output = Artisan::output();
@@ -98,8 +105,10 @@ class InstallationStatusTest extends TestCase
         $this->assertStringContainsString('Trusted Proxy: 192.0.2.1/32', $output);
         $this->assertStringContainsString('URL: http://qdrant.test:6333', $output);
         $this->assertStringContainsString('API-Key konfiguriert: ja', $output);
+        $this->assertStringContainsString('Qdrant: erreichbar und bereit', $output);
         $this->assertStringNotContainsString('geheim', $output);
-        $this->assertStringContainsString('Datenbank: ok', $output);
+        $this->assertStringContainsString('Datenbank: erreichbar, Bestände lesbar', $output);
+        $this->assertStringContainsString('Keine Ollama-Server konfiguriert', $output);
         $this->assertStringContainsString('Materialien: 1', $output);
         $this->assertStringContainsString('Ressourcen: 1', $output);
         $this->assertMatchesRegularExpression('/Keywords: [1-9][0-9]*/', $output);
@@ -107,7 +116,7 @@ class InstallationStatusTest extends TestCase
         $this->assertStringContainsString('Querverweise: installiert (123)', $output);
         $this->assertStringContainsString('Demo-Übersetzung', $output);
         $this->assertStringContainsString('Nicht konfiguriert', $output);
-        Http::assertNothingSent();
+        Http::assertSentCount(1);
     }
 
     public function test_status_reports_available_update_and_disabled_optional_services(): void
@@ -127,6 +136,8 @@ class InstallationStatusTest extends TestCase
         $this->assertStringContainsString('Update verfügbar: 9.9.9', $output);
         $this->assertStringNotContainsString('Trusted Proxy:', $output);
         $this->assertStringContainsString('Kontextsuche in der Konfiguration deaktiviert', $output);
+        $this->assertStringContainsString('Qdrant-Erreichbarkeit: nicht geprüft', $output);
+        $this->assertStringContainsString('Keine Ollama-Server konfiguriert', $output);
     }
 
     public function test_configured_backup_uses_package_list_command(): void
@@ -161,7 +172,68 @@ class InstallationStatusTest extends TestCase
 
         $this->assertSame(0, $exitCode);
         $this->assertStringContainsString('Update-Status: nicht abrufbar', $output);
-        $this->assertStringContainsString('Datenbank: ok', $output);
+        $this->assertStringContainsString('Datenbank: erreichbar, Bestände lesbar', $output);
         $this->assertStringContainsString('Backup', $output);
+    }
+
+    public function test_status_checks_each_ollama_server_and_reports_a_failed_embedding_probe(): void
+    {
+        $digest = str_repeat('a', 64);
+        config([
+            'context_search.enabled' => true,
+            'context_search.qdrant.url' => 'http://qdrant.test:6333',
+            'context_search.ollama.servers' => 'first=http://first.test|1,second=http://second.test|1',
+            'context_search.ollama.api_keys' => 'first=ollama-geheim',
+            'context_search.embedding.model' => 'embeddinggemma:test',
+            'context_search.embedding.digest' => $digest,
+            'context_search.embedding.dimensions' => 2,
+            'backup.enabled' => false,
+        ]);
+        Http::preventStrayRequests();
+        Http::fake([
+            'qdrant.test:6333/readyz' => Http::response('', 503),
+            'first.test/api/tags' => Http::response(['models' => [['name' => 'embeddinggemma:test', 'digest' => $digest]]]),
+            'first.test/api/embed' => Http::response(['model' => 'embeddinggemma:test', 'embeddings' => [[0.1, 0.2]]]),
+            'second.test/api/tags' => Http::response(['models' => [['name' => 'embeddinggemma:test', 'digest' => $digest]]]),
+            'second.test/api/embed' => Http::response(['model' => 'embeddinggemma:test', 'embeddings' => [[0.1]]]),
+        ]);
+
+        $exitCode = Artisan::call('materialpool:status', ['--latest-version' => '1.2.3']);
+        $output = Artisan::output();
+
+        $this->assertSame(0, $exitCode);
+        $this->assertStringContainsString('Qdrant: nicht erreichbar oder nicht bereit', $output);
+        $this->assertStringContainsString('Server: first', $output);
+        $this->assertStringContainsString('Server: second', $output);
+        $this->assertStringNotContainsString('ollama-geheim', $output);
+        $this->assertSame(2, substr_count($output, 'API: erreichbar'));
+        $this->assertStringContainsString('Embedding-Funktion: funktionsfähig', $output);
+        $this->assertStringContainsString('Embedding-Funktion: nicht funktionsfähig', $output);
+    }
+
+    public function test_status_keeps_database_status_when_ollama_is_unreachable_or_profile_is_missing(): void
+    {
+        config([
+            'context_search.enabled' => false,
+            'context_search.ollama.servers' => 'first=http://first.test|1,second=http://second.test|1,third=http://third.test|1',
+            'context_search.embedding.digest' => null,
+            'backup.enabled' => false,
+        ]);
+        Http::preventStrayRequests();
+        Http::fake([
+            'first.test/api/tags' => Http::response([], 503),
+            'second.test/api/tags' => Http::response(['models' => []]),
+            'third.test/api/tags' => Http::failedConnection(),
+        ]);
+
+        $exitCode = Artisan::call('materialpool:status', ['--latest-version' => '1.2.3']);
+        $output = Artisan::output();
+
+        $this->assertSame(0, $exitCode);
+        $this->assertStringContainsString('API: erreichbar, antwortet mit HTTP 503', $output);
+        $this->assertStringContainsString('API: erreichbar', $output);
+        $this->assertStringContainsString('API: nicht erreichbar', $output);
+        $this->assertStringContainsString('Embedding-Funktion: nicht prüfbar (Profil nicht konfiguriert)', $output);
+        $this->assertStringContainsString('Datenbank: erreichbar, Bestände lesbar', $output);
     }
 }

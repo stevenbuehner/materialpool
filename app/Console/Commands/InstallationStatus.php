@@ -4,6 +4,10 @@ namespace App\Console\Commands;
 
 use App\Services\Bibles\Import\BibleDataImporter;
 use App\Services\Bibles\Import\OpenBibleData;
+use App\Services\ContextSearch\EmbeddingProfile;
+use App\Services\ContextSearch\Ollama\OllamaEmbeddingPool;
+use App\Services\ContextSearch\Ollama\OllamaServerConfiguration;
+use App\Services\ContextSearch\Qdrant\QdrantClient;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
@@ -45,12 +49,24 @@ class InstallationStatus extends Command {
 		$this->section('Qdrant');
 		if (!config('context_search.enabled')) {
 			$this->warningLine('Kontextsuche in der Konfiguration deaktiviert');
+			$this->warningLine('Qdrant-Erreichbarkeit: nicht geprüft');
 		} else {
 			$this->line('<fg=cyan>URL:</> '.OutputFormatter::escape((string)config('context_search.qdrant.url')));
 			$this->line('<fg=cyan>Collection-Präfix:</> '.OutputFormatter::escape((string)config('context_search.qdrant.collection_prefix')));
 			$this->line('<fg=cyan>Aktiver Alias:</> '.OutputFormatter::escape((string)config('context_search.qdrant.active_alias')));
 			$this->line('<fg=cyan>API-Key konfiguriert:</> '.(filled(config('context_search.qdrant.api_key')) ? '<fg=green>ja</>' : '<fg=yellow>nein</>'));
+			try {
+				app(QdrantClient::class)->isReady()
+					? $this->successLine('Qdrant: erreichbar und bereit')
+					: $this->warningLine('Qdrant: nicht erreichbar oder nicht bereit');
+			} catch (Throwable) {
+				$this->warningLine('Qdrant: Erreichbarkeit nicht prüfbar');
+			}
 		}
+
+		$this->newLine();
+		$this->section('Ollama');
+		$this->ollamaStatus();
 
 		$this->newLine();
 		$this->section('Datenbank');
@@ -59,7 +75,7 @@ class InstallationStatus extends Command {
 			$resources = DB::table('resources')->count();
 			$keywords = DB::table('keywords')->count();
 			$bibleverses = DB::table('bibleverses')->count();
-			$this->successLine('Datenbank: ok');
+			$this->successLine('Datenbank: erreichbar, Bestände lesbar');
 			$this->line('<fg=cyan>Materialien:</> '.$materials);
 			$this->line('<fg=cyan>Ressourcen:</> '.$resources);
 			$this->line('<fg=cyan>Keywords:</> '.$keywords);
@@ -91,6 +107,71 @@ class InstallationStatus extends Command {
 		} catch (Throwable) {
 			$this->error('Backup-Status nicht abrufbar');
 			return self::FAILURE;
+		}
+	}
+
+	private function ollamaStatus(): void {
+		$definitions = trim((string)config('context_search.ollama.servers'));
+		if ($definitions === '') {
+			$this->warningLine('Keine Ollama-Server konfiguriert');
+			return;
+		}
+
+		try {
+			$servers = OllamaServerConfiguration::parse($definitions, (string)config('context_search.ollama.api_keys'));
+		} catch (Throwable) {
+			$this->warningLine('Ollama-Konfiguration ungültig');
+			return;
+		}
+		try {
+			$profile = app(EmbeddingProfile::class);
+		} catch (Throwable) {
+			$profile = NULL;
+		}
+
+		foreach ($servers as $server) {
+			$this->line('<fg=cyan>Server:</> '.OutputFormatter::escape($server->name));
+			try {
+				$request = Http::baseUrl(rtrim($server->url, '/'))->acceptJson()
+					->connectTimeout((int)config('context_search.ollama.connect_timeout'))->timeout(5);
+				if (filled($server->apiKey)) {
+					$request->withToken($server->apiKey);
+				}
+				$response = $request->get('/api/tags');
+				if (!$response->successful()) {
+					$this->warningLine('API: erreichbar, antwortet mit HTTP '.$response->status());
+					$this->warningLine('Embedding-Funktion: nicht funktionsfähig');
+					continue;
+				}
+				if (!is_array($response->json('models'))) {
+					$this->warningLine('API: erreichbar, Modellliste ungültig');
+					$this->warningLine('Embedding-Funktion: nicht funktionsfähig');
+					continue;
+				}
+				$this->successLine('API: erreichbar');
+			} catch (Throwable) {
+				$this->warningLine('API: nicht erreichbar');
+				$this->warningLine('Embedding-Funktion: nicht prüfbar');
+				continue;
+			}
+
+			if ($profile === NULL) {
+				$this->warningLine('Embedding-Funktion: nicht prüfbar (Profil nicht konfiguriert)');
+				continue;
+			}
+			try {
+				$pool = new OllamaEmbeddingPool(
+					[$server], $profile, app('cache.store'),
+					(int)config('context_search.ollama.connect_timeout'),
+					(int)config('context_search.embedding.timeout'),
+					(int)config('context_search.ollama.failure_threshold'),
+					(int)config('context_search.ollama.circuit_cooldown'),
+				);
+				$pool->verifyProfile();
+				$this->successLine('Embedding-Funktion: funktionsfähig');
+			} catch (Throwable) {
+				$this->warningLine('Embedding-Funktion: nicht funktionsfähig');
+			}
 		}
 	}
 
