@@ -44,7 +44,7 @@ esac
 
 update_os
 for package in nginx jq curl ca-certificates unzip openssl rsync \
-  mariadb-client poppler-utils qpdf libreoffice ghostscript \
+  mariadb-client poppler-utils qpdf libreoffice ghostscript ffmpeg \
   tesseract-ocr tesseract-ocr-deu tesseract-ocr-eng; do
   msg_info "$package wird installiert"
   install_packages_with_retry "$package"

@@ -89,7 +89,7 @@ class MaterialDownloadArchive {
                         $temporaryFiles[] = $output;
                         $codec = $resource instanceof VideoFile ? ['-c:v', 'libx264', '-c:a', 'aac'] : ['-vn', '-c:a', 'libmp3lame'];
                         (new Process(array_merge([
-                            resource_path('bin/ffmpeg'), '-nostdin', '-y', '-ss', (string)$limitation->getStart(),
+                            '/usr/bin/ffmpeg', '-nostdin', '-y', '-ss', (string)$limitation->getStart(),
                             '-i', $path, '-t', (string)$duration,
                         ], $codec, [$output])))->setTimeout(3600)->mustRun();
                         $path = $output;

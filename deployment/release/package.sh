@@ -24,7 +24,7 @@ mkdir -p "$stage/payload"
 tar -cf - --exclude='public/uploads' --exclude='public/hot' --exclude='database/seeders/data' \
   artisan composer.json composer.lock app bootstrap/app.php config database \
   deployment/release/update.sh deployment/nginx deployment/systemd \
-  public resources/bin resources/lang resources/views routes \
+  public resources/lang resources/views routes \
   | tar -xf - -C "$stage/payload"
 mkdir -p "$stage/payload/bootstrap/cache" "$stage/payload/storage"
 printf '%s\n' '*' '!.gitignore' > "$stage/payload/bootstrap/cache/.gitignore"

@@ -102,9 +102,6 @@ class MaterialDownloadTest extends TestCase {
     }
 
     public function test_document_pages_and_audio_time_ranges_are_exported_as_reduced_files(): void {
-        if (php_uname('m') !== 'x86_64') {
-            $this->markTestSkipped('Das versionierte FFmpeg-Binary benötigt Linux x86_64.');
-        }
         $owner = User::factory()->create();
         $material = Material::factory()->create(['created_by' => $owner->id]);
         $document = DocumentFile::factory()->fromTestFile('Document.docx')->create(['created_by' => $owner->id, 'is_public' => TRUE]);

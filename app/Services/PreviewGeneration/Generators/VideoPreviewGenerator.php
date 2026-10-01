@@ -49,8 +49,8 @@ class VideoPreviewGenerator implements PreviewGeneratorInterface {
 
 		$image  = NULL;
 		$ffmpeg = FFMpeg::create([
-			'ffmpeg.binaries'  => resource_path('bin/ffmpeg'),
-			'ffprobe.binaries' => resource_path('bin/ffprobe'),
+			'ffmpeg.binaries'  => '/usr/bin/ffmpeg',
+			'ffprobe.binaries' => '/usr/bin/ffprobe',
 			'timeout'          => 3600, // The timeout for the underlying process
 			'ffmpeg.threads'   => 12,   // The number of threads that FFMpeg should use
 		]);

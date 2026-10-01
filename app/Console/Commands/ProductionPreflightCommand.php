@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Laravel\Passport\Passport;
+use Symfony\Component\Process\Process;
 use Throwable;
 
 class ProductionPreflightCommand extends Command {
@@ -153,8 +154,8 @@ class ProductionPreflightCommand extends Command {
 		}
 
 		foreach ([
-			         resource_path('bin/ffmpeg'),
-			         resource_path('bin/ffprobe'),
+			         '/usr/bin/ffmpeg',
+			         '/usr/bin/ffprobe',
 			         '/usr/bin/mysqldump',
 			         '/usr/bin/pdfinfo',
 			         '/usr/bin/pdftotext',
@@ -162,6 +163,14 @@ class ProductionPreflightCommand extends Command {
 			         '/usr/bin/libreoffice',
 		         ] as $executable) {
 			$this->require($errors, is_executable($executable), "Ausführbare Laufzeitabhängigkeit fehlt: {$executable}");
+		}
+
+		if (is_executable('/usr/bin/ffmpeg')) {
+			$encoders = new Process(['/usr/bin/ffmpeg', '-hide_banner', '-encoders']);
+			$encoders->run();
+			foreach (['libmp3lame', 'libx264', 'aac'] as $encoder) {
+				$this->require($errors, $encoders->isSuccessful() && preg_match('/^ [A-Z.]{6} '.preg_quote($encoder, '/').'\s/m', $encoders->getOutput()) === 1, "FFmpeg-Encoder fehlt: {$encoder}");
+			}
 		}
 
 		$this->require($errors, extension_loaded('imagick'), 'PHP-Erweiterung imagick fehlt.');

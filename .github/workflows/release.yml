@@ -37,7 +37,7 @@ jobs:
           extensions: imagick, pdo_mysql, mbstring, xml, zip, gd, intl, bcmath
           coverage: none
       - run: composer validate --strict
-      - run: sudo apt-get update && sudo apt-get install -y poppler-utils qpdf libreoffice ghostscript tesseract-ocr tesseract-ocr-deu tesseract-ocr-eng
+      - run: sudo apt-get update && sudo apt-get install -y poppler-utils qpdf libreoffice ghostscript ffmpeg tesseract-ocr tesseract-ocr-deu tesseract-ocr-eng
       - run: composer install --no-interaction --prefer-dist
       - run: |
           cp .env.example .env
