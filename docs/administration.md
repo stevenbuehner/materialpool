@@ -56,6 +56,12 @@ Vor Beginn müssen extern feststehen:
 
 Das Provisioning installiert `qpdf` für den Download ausgewählter Seiten aus PDFs mit komprimierten Querverweisen. `production:preflight` prüft, ob das Programm verfügbar ist. Die Original-PDF wird dabei nicht verändert.
 
+### Material-Downloads
+
+Die API erstellt Material-ZIPs asynchron. Der Erzeugungsjob läuft auf `material-downloads` mit eigenem Zeitlimit; der verzögerte Löschjob läuft auf `default`. Die ZIP-Dateien liegen unter `/srv/materialpool/shared/storage/app/material-downloads/ready`, Status und Arbeitsdateien getrennt daneben. Nginx liefert ausschließlich URLs mit 64 hexadezimalen Zeichen und `.zip` direkt aus diesem Verzeichnis; es gibt keine PHP-Streaming-Route. Die geheimen URLs sind bis zur Löschung ohne Anmeldung nutzbar und dürfen nicht in öffentliche Logs, Tickets oder Screenshots übernommen werden. Reverse-Proxys sollen den URL-Pfad ebenfalls nicht protokollieren.
+
+Die Standardgültigkeit wird mit `default_retention_days: 28` in `config/material_downloads.yaml` gesetzt; bei fehlender Datei gelten 28 Tage. Die API akzeptiert optional `expires_in_days` von 1 bis 365. Nach Ablauf löscht der Job die Datei; ein täglicher Scheduler-Lauf räumt überfällige Dateien auch bei ausgefallenen Löschjobs auf. Das Download-Verzeichnis ist wegen abgeleiteter und zeitlich begrenzter Daten aus den regulären Dateibackups ausgeschlossen. Die ursprünglichen Resource-Dateien bleiben Teil der Backups. Bei Fehlern zuerst Queue-Worker, Status des Jobs, Schreibrechte im Shared-Verzeichnis und Nginx-Konfiguration prüfen.
+
 Die persistenten Pfade sind Teil des Datenvertrags:
 
 ```text

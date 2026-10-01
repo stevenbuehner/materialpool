@@ -79,6 +79,8 @@ Für Neuinstallationen sind `TRUSTED_PROXIES`, Kontextsuche, SMTP und S3 zunäch
 
 ## Servervorbereitung
 
+Material-Downloads benötigen im Shared-Storage `storage/app/material-downloads/{status,work,ready}` mit Schreibrecht für `www-data`. Die versionierte Nginx-Konfiguration liefert ausschließlich fertige ZIP-Dateien mit geheimem 64-stelligem Hex-Token aus `ready/` direkt aus; `.htaccess` wird von Nginx nicht ausgewertet. Der priorisierte Hintergrunddienst verarbeitet die Erzeugung auf `material-downloads` mit einem längeren Timeout, der Default-Worker die verzögerte Löschung. Der Scheduler entfernt überfällige Downloads ergänzend. Temporäre ZIP-Dateien sind aus den regulären Dateibackups ausgeschlossen. Der vorgeschaltete Reverse Proxy darf geheime Download-URLs nicht protokollieren.
+
 `ops/production/provision-ubuntu.sh` installiert die Laufzeitpakete und legt Shared-Verzeichnisse an. Das Skript ersetzt keine Prüfung der Paketquelle, Firewall, MySQL-Härtung oder realen Konfiguration. Zusätzlich sind verbindlich:
 
 1. `ops/production/nginx.conf` mit realem `server_name` nach `/etc/nginx/sites-available/materialpool` übernehmen und aktivieren.

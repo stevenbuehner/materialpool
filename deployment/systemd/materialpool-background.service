@@ -11,7 +11,7 @@ WorkingDirectory=/srv/materialpool/current
 ExecStart=/usr/bin/php /srv/materialpool/current/artisan queues:work-background
 Restart=always
 RestartSec=5
-TimeoutStopSec=650
+TimeoutStopSec=3700
 KillMode=mixed
 KillSignal=SIGTERM
 

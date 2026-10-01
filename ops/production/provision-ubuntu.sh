@@ -34,6 +34,9 @@ install -d -o materialpool -g www-data -m 0770 /srv/materialpool/shared/storage/
 install -d -o materialpool -g www-data -m 0770 /srv/materialpool/shared/storage/app/archived
 install -d -o materialpool -g www-data -m 0770 /srv/materialpool/shared/storage/app/bundles
 install -d -o materialpool -g www-data -m 0770 /srv/materialpool/shared/storage/app/tmp
+install -d -o www-data -g www-data -m 0770 /srv/materialpool/shared/storage/app/material-downloads/status
+install -d -o www-data -g www-data -m 0770 /srv/materialpool/shared/storage/app/material-downloads/work
+install -d -o www-data -g www-data -m 0770 /srv/materialpool/shared/storage/app/material-downloads/ready
 install -d -o materialpool -g www-data -m 0770 /srv/materialpool/shared/storage/framework/cache/data
 install -d -o materialpool -g www-data -m 0770 /srv/materialpool/shared/storage/framework/sessions
 install -d -o materialpool -g www-data -m 0770 /srv/materialpool/shared/storage/framework/views

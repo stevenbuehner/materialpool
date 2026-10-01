@@ -72,7 +72,7 @@ class ProductionDeploymentContractTest extends TestCase
         $method = new ReflectionMethod(Kernel::class, 'schedule');
         $method->setAccessible(true);
         $method->invoke(resolve(Kernel::class), $schedule);
-        $commands = collect($schedule->events())->pluck('command');
+        $commands = collect($schedule->events())->pluck('command')->filter();
 
         $this->assertFalse($commands->contains(
             fn (string $command) => str_contains($command, 'queue:work')
@@ -114,6 +114,7 @@ class ProductionDeploymentContractTest extends TestCase
         $this->assertTrue(config('backup.backup.verify_backup'));
         $this->assertSame(['backup', 'backup_s3'], config('backup.monitor_backups.0.disks'));
         $this->assertContains(storage_path('app'), config('backup.backup.source.files.include'));
+        $this->assertContains(storage_path('app/material-downloads'), config('backup.backup.source.files.exclude'));
         $this->assertContains(public_path('uploads'), config('backup.backup.source.files.include'));
         $this->assertSame('s3', config('filesystems.disks.backup_s3.driver'));
         $this->assertArrayHasKey('endpoint', config('filesystems.disks.backup_s3'));

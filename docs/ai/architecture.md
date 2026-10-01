@@ -69,6 +69,8 @@ Die geplante Härtung von Laufsteuerung, Laravel-Batches, Wiederaufnahme und bun
 
 ## Persistenz und Speicher
 
+Material-ZIPs werden asynchron auf einer eigenen Datenbank-Queue erzeugt. Dateien, Statusdaten und Arbeitsdateien liegen getrennt unter `storage/app/material-downloads`; nur fertige ZIP-Dateien werden über eine streng eingeschränkte Nginx-`alias`-Route mit geheimem Token direkt ausgeliefert. Verzögerte Löschjobs auf `default` und ein täglicher Abgleich entfernen abgelaufene Downloads. Die abgeleiteten ZIP-Dateien gehören nicht in reguläre Dateibackups.
+
 - Die primären Tabellen entstehen aus `database/migrations/`; bestehende Migrationen sind historische Fakten. Änderungen benötigen Freigabe. Dokumentierte Ausnahmen des Laravel-Upgrades sind die schemaäquivalente `nullable()`-Korrektur und die neuen Passport-13-Cutover-/Device-Code-Migrationen.
 - `config/filesystems.php` definiert relevante Disks: `resources`, `archive`, `bundles`, `local_tmp`, `backup`, `backup_s3` und `testfiles`. `backup_s3` ist ausschließlich Offsite-Backupziel; Ressourcen bleiben lokal.
 - Bei Dateien ist `resources.local_path` ein persistenter Vertrag: üblicherweise `disk::relative/path`. Speicherpfade, Archivierung und Löschverhalten nie isoliert ändern.

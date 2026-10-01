@@ -104,6 +104,7 @@ mv -Tf "${base_directory}/current.next" "${base_directory}/current"
 runuser -u www-data -- php "${release_directory}/artisan" reload
 systemctl reload php8.4-fpm
 supervisorctl restart materialpool-default:*
+supervisorctl restart materialpool-downloads:*
 
 echo "Release aktiviert: $release_directory"
 echo "Vorheriges Release für Rollback nicht löschen."

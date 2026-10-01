@@ -30,6 +30,7 @@ return [
 				 */
 				'exclude'      => [
 					storage_path('app/tmp'),
+					storage_path('app/material-downloads'),
 					// Rebuildable OCR/index intermediate data; originals stay in the backup.
 					storage_path('app/context-search-ocr-artifacts'),
 				],

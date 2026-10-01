@@ -10,6 +10,7 @@ git status --short
 ./vendor/bin/sail up -d
 ./vendor/bin/sail exec -e APP_ENV=testing -e DB_CONNECTION=mysql -e DB_HOST=mysql -e DB_DATABASE=testing laravel.test php artisan test tests/Feature/Admin/ManageUsersTest.php
 ./vendor/bin/sail test
+./vendor/bin/sail exec -e APP_ENV=testing -e DB_CONNECTION=mysql -e DB_HOST=mysql -e DB_DATABASE=testing laravel.test php artisan test tests/Feature/MaterialDownloadTest.php --env=testing
 npm run test:ci
 npm run build
 bash -n ct/materialpool.sh install/materialpool-install.sh deployment/release/*.sh
@@ -26,6 +27,8 @@ fi
 tar -tzf /tmp/materialpool-test-release/materialpool-0.0.1.tar.gz | grep -F './public/build/manifest.json'
 cd /tmp/materialpool-test-release && sha256sum -c materialpool-0.0.1.tar.gz.sha256
 ```
+
+Für Material-Downloads im isolierten Test-LXC zusätzlich prüfen: Ein lesbares Material mit begrenztem PDF und einer nicht lesbaren Resource als Testdatensatz verwenden. Die API muss zunächst `202` mit Statuspfad liefern; nach dem Erzeugungsjob muss nur die lesbare, begrenzte Resource im ZIP liegen. Der geheime ZIP-Pfad muss durch Nginx ohne PHP-Streaming erreichbar sein, ein veränderter Token `404` liefern. `ready/` muss für `www-data` beschreibbar sein; Status- und Arbeitsdateien dürfen über HTTP nicht abrufbar sein. Den Löschjob und den täglichen Abgleich ausschließlich an diesem entbehrlichen Testdownload prüfen; danach muss der statische Pfad `404` liefern. Wegen des versionierten Linux-x86_64-FFmpeg-Binarys ist der Audio-/Video-Ausschnitttest im ARM-Sail-Container übersprungen und im x86_64-CI-/Test-LXC nachzuholen.
 
 Workflow-YAML mit einem lokal verfügbaren YAML-Parser prüfen (zum Beispiel `ruby -e 'require "yaml"; ARGV.each { |p| YAML.load_file(p) }' .github/workflows/{ci,release}.yml`) und GitHub Actions als maßgeblichen Validator beobachten. Das lokal erzeugte Paket ist nur eine Inhaltsprobe; für ein Release zählt ausschließlich der saubere, getaggte Actions-Build.
 
