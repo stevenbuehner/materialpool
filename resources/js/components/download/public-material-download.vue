@@ -1,6 +1,7 @@
 <template>
   <a class="public-material-download"
      :class="{showButton: isLinkGenerated || linkGenerationIsRunning}"
+     :aria-busy="linkGenerationIsRunning"
      @click="doAction($event)" target="_blank"
      :href="link">
         <span :title="$t('pool.generate-link')">
@@ -9,12 +10,14 @@
         </span>
 
     <materialpool-spinner v-if="linkGenerationIsRunning"/>
+    <span v-if="linkGenerationIsRunning" class="text" role="status">{{ $t('pool.download-is-being-created') }}</span>
 
     <cloud-check-icon v-if="isLinkGenerated && !isLinkCopiedToClipboard" class="icon"/>
     <span v-if="isLinkGenerated && !isLinkCopiedToClipboard" class="text">{{ $t('pool.copy-link') }}</span>
 
     <cloud-download-icon v-if="isLinkCopiedToClipboard" class="icon"/>
     <span v-if="isLinkCopiedToClipboard" class="text">{{ $t('pool.download') }}</span>
+    <span v-if="generationFailed" class="text text-danger" role="alert">{{ $t('pool.download-generation-failed') }}</span>
   </a>
 </template>
 
@@ -41,7 +44,10 @@ export default {
     return {
       linkGenerationIsRunning: false,
       isLinkCopiedToClipboard: false,
-      link: null
+      link: null,
+      generationFailed: false,
+      pollTimer: null,
+      isUnmounted: false,
     }
   },
 
@@ -76,21 +82,48 @@ export default {
     },
 
     generateDownloadLink() {
+	  this.linkGenerationIsRunning = true;
+	  this.generationFailed = false;
       useMaterialsStore().createDownloadLink(this.materialId)
-          .then(({link}) => {
-            this.link                    = link;
-            this.linkGenerationIsRunning = false;
+          .then(({statusUrl}) => {
+            const token = statusUrl.split('/').pop();
+            this.pollDownload(token);
           })
           .catch(() => {
             this.linkGenerationIsRunning = false;
+			this.generationFailed = true;
           })
     },
+
+	pollDownload(token) {
+	  useMaterialsStore().getDownloadStatus(this.materialId, token)
+	      .then(({status, link}) => {
+	        if (status === 'ready' && link) {
+	          this.link = link;
+	          this.linkGenerationIsRunning = false;
+	        } else if (status === 'failed') {
+	          this.linkGenerationIsRunning = false;
+	          this.generationFailed = true;
+	        } else {
+	          if (!this.isUnmounted) this.pollTimer = setTimeout(() => this.pollDownload(token), 3000);
+	        }
+	      })
+	      .catch(() => {
+	        this.linkGenerationIsRunning = false;
+	        this.generationFailed = true;
+	      });
+	},
 
     copyDownloadLink() {
       copyStringToClipboard(window.location.origin + this.link);
       this.isLinkCopiedToClipboard = true;
     },
 
+  },
+
+  beforeUnmount() {
+	this.isUnmounted = true;
+	clearTimeout(this.pollTimer);
   },
 
   components: {

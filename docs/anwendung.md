@@ -123,6 +123,8 @@ Im Tab **Zuordnungen** werden unter anderem Nutzungen und Resource-Beziehungen v
 
 Im Tab **Meta** stehen technische Informationen und Herkunftsdaten. Die obere Aktionsleiste bietet – abhängig vom Zustand – Download/Export, Duplizieren und Löschen.
 
+Der Material-Download wird im Hintergrund vorbereitet. Sobald das ZIP fertig ist, lässt sich der geheime Link kopieren oder der Download starten. Das ZIP enthält nur Resources, die für die anfragende Person lesbar sind. Seiten- und Zeitbegrenzungen der Zuordnung gelten auch im Archiv; begrenzte Office-Dateien werden als PDF-Seiten und begrenzte Audio-/Videodateien als Ausschnitt ausgegeben. Bei einem Fehler wird kein unvollständiges ZIP freigegeben. Der Link ist standardmäßig vier Wochen gültig; wer ihn erhält, kann das Archiv bis zu seiner Löschung ohne Anmeldung herunterladen.
+
 > [!WARNING]
 > Das Lösen einer Resource entfernt die Zuordnung, nicht zwingend die Resource selbst. Löschen kann Beziehungen, Foreign-IDs, lokale Dateien, Caches und Bereinigungsjobs betreffen. Bestätigungsdialoge und sichtbare Warnungen sorgfältig lesen.
 

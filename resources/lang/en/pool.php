@@ -174,6 +174,8 @@ return [
 	'by'                                                       => 'created by',
 	'download'                                                 => 'download',
 	'generate-link'                                            => 'generate download link',
+	'download-generation-failed'                              => 'The download could not be created. Please try again.',
+	'download-is-being-created'                                => 'Preparing download',
 	'download-all'                                             => 'download all',
 	'edit'                                                     => 'edit',
 	'Edit'                                                     => 'Edit',

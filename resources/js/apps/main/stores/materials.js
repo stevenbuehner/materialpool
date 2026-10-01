@@ -4,6 +4,7 @@ import {convertErrorResponseToMessage} from '../store/modules/handleErrorsHelper
 import {
 	api_v1_materials_copy,
 	api_v1_materials_create_download,
+	api_v1_materials_download_status,
 	api_v1_materials_show,
 	api_v1_materials_store,
 	api_v1_materials_update,
@@ -241,7 +242,15 @@ export const useMaterialsStore = defineStore('materials', {
 				})
 				.then(({data}) => {
 					if (data.success === false) throw 'invalid download link';
-					return {link: data.link, until: data.until};
+					return {status: data.status, statusUrl: data.status_url, until: data.until};
+				});
+		},
+
+		getDownloadStatus(id, token) {
+			return axios.get(api_v1_materials_download_status(id, token))
+				.then(({data}) => data)
+				.catch(response => {
+					throw convertErrorResponseToMessage(response);
 				});
 		},
 	},

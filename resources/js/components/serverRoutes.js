@@ -209,6 +209,10 @@ export function api_v1_materials_create_download(materialId) {
 	return '/api/v1/materials/' + materialId + '/create-download';
 }
 
+export function api_v1_materials_download_status(materialId, token) {
+	return '/api/v1/materials/' + materialId + '/downloads/' + token;
+}
+
 export function material_preview_image(materialId, width = small_preview_image_size_x, height = small_preview_image_size_y) {
 	return '/material/' + materialId + '/preview?width=' + width + '&height=' + height;
 }

@@ -147,8 +147,11 @@ describe('materials Pinia store', () => {
         expect(store.hasMaterialDetails(8)).toBe(true);
         expect(useResourcesStore().updateResource(9)).toBeNull();
 
-        axios.get.mockResolvedValueOnce({data: {success: true, link: '/download/a', until: 'tomorrow'}});
-        await expect(store.createDownloadLink(8)).resolves.toEqual({link: '/download/a', until: 'tomorrow'});
+        axios.get.mockResolvedValueOnce({data: {success: true, status: 'pending', status_url: '/api/v1/materials/8/downloads/token', until: 'tomorrow'}});
+        await expect(store.createDownloadLink(8)).resolves.toEqual({status: 'pending', statusUrl: '/api/v1/materials/8/downloads/token', until: 'tomorrow'});
+        axios.get.mockResolvedValueOnce({data: {status: 'ready', link: '/material-downloads/token.zip'}});
+        await expect(store.getDownloadStatus(8, 'token')).resolves.toEqual({status: 'ready', link: '/material-downloads/token.zip'});
+        expect(axios.get).toHaveBeenLastCalledWith('/api/v1/materials/8/downloads/token');
         axios.get.mockResolvedValueOnce({data: {success: false}});
         await expect(store.createDownloadLink(8)).rejects.toBe('invalid download link');
     });

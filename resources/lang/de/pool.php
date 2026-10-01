@@ -170,6 +170,8 @@ return [
 	'by'                                                       => 'erstellt von',
 	'download'                                                 => 'herunterladen',
 	'generate-link'                                            => 'Link generieren',
+	'download-generation-failed'                              => 'Der Download konnte nicht erstellt werden. Bitte erneut versuchen.',
+	'download-is-being-created'                                => 'Download wird erstellt',
 	'download-all'                                             => 'alles herunterladen',
 	'edit'                                                     => 'bearbeiten',
 	'Edit'                                                     => 'Bearbeiten',
