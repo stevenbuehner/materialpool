@@ -26,12 +26,15 @@
             />
 
             <button v-if="hasUserRanking"
+                    id="rating-reset"
                     class="btn btn-link btn-sm rating-reset"
                     type="button"
+                    :aria-label="$t('pool.Reset-own-rating')"
                     :disabled="disabled || loading"
                     @click="$emit('reset')">
-                {{ $t('pool.Reset-own-rating') }}
+                <undo-icon aria-hidden="true"/>
             </button>
+            <b-tooltip v-if="hasUserRanking" target="rating-reset" :title="$t('pool.Reset-own-rating')"/>
             <span class="visually-hidden">{{ ratingSourceText }}</span>
 
         </div>
@@ -41,7 +44,9 @@
 <script>
 	import generalMixin   from './generalSidebarFields.mixin';
 	import feedbackIcon   from '@icons/vendor/svg-icon/svg/zero/oil-table-chart.svg';
+	import undoIcon       from '@icons/vendor/svg-icon/svg/material/undo.svg';
 	import FiveStarRating from "../Rating/FiveStarRating";
+	import {BTooltip} from '@/adapters/bootstrap';
 
 
 	export default {
@@ -89,6 +94,8 @@
 		components: {
 			FiveStarRating,
 			feedbackIcon,
+			undoIcon,
+			BTooltip,
 		}
 	}
 </script>
@@ -99,24 +106,23 @@
 
     .ratingEditSidebarField {
         --material-rating-active-colour: #{$gray-600};
-        color: $gray-600;
 
         &.has-user-ranking {
             --material-rating-active-colour: #{$tag-progressbar-colour};
-            color: $tag-progressbar-colour;
         }
 
         .vue-star-rating {
             line-height: 1;
         }
 
-        .vue-star-rating-rating-text {
-            // font-size: 0.9em;
-        }
-
         .rating-reset {
             color: inherit;
-            padding-left: 0;
+            padding: 0 .25rem;
+
+            svg {
+                width: 1em;
+                height: 1em;
+            }
         }
     }
 

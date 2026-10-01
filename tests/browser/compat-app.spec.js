@@ -112,6 +112,10 @@ test('Vue application mounts with synthetic bootstrap data', async ({page}, test
     await expect(page.locator('.main-area')).toBeVisible();
     await expect(page.getByRole('link', {name: 'Suchen'})).toBeVisible();
     await expect(page.locator('svg.sb-navbar-icon')).toHaveCount(2);
+    const brand = page.getByRole('link', {name: 'MatPool – Home'});
+    await expect(brand).toHaveAttribute('href', '/vue/');
+    await expect(brand.locator('img')).toHaveAttribute('src', '/img/brand/matpool-logo.svg');
+    await expect(brand.locator('img')).toHaveJSProperty('naturalWidth', 1096);
     await expectResolvedNavigation(page);
     await expect(page.locator('.homeContainer .title')).toHaveText('MaterialPool Default');
     const containerGeometry = await page.locator('.homeContainer').evaluate((element) => {
@@ -168,6 +172,11 @@ test('Vue application mounts with synthetic bootstrap data', async ({page}, test
     await expect(speedSearch).toHaveClass(/form-control-sm/);
     await speedSearch.fill('Gamma');
     await page.locator('form').filter({has: speedSearch}).getByRole('button', {name: 'Suchen'}).click();
+    await expect(page).toHaveURL(/\/vue\/search\/1\*Gamma$/);
+
+    await brand.click();
+    await expect(page).toHaveURL(/\/vue\/$/);
+    await page.goBack();
     await expect(page).toHaveURL(/\/vue\/search\/1\*Gamma$/);
 
     await page.evaluate(() => {
@@ -1416,6 +1425,86 @@ test('Material detail hides resource assignments without structure update permis
     await expect(page.getByRole('tab', {name: 'Zuordnungen'})).toHaveCount(0);
     await expect(page.locator('.contentContainer .resourceUploader')).toHaveCount(0);
     await expect(page.locator('.contentContainer').getByRole('button', {name: 'Resource zuordnen'})).toHaveCount(0);
+    expect(pageErrors).toEqual([]);
+});
+
+test('Material detail keeps rating text dark and offers an icon reset with tooltip', async ({page}) => {
+    const pageErrors = [];
+    let userRating = 14;
+    let resetRequests = 0;
+    page.on('pageerror', error => pageErrors.push(error.stack || error.message));
+
+    await page.route('**/vue/**', route => route.fulfill({
+        contentType: 'text/html',
+        body: `<!doctype html>
+            <html lang="de">
+                <head>
+                    <meta charset="utf-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1">
+                    ${viteStylesheetTags}
+                </head>
+                <body>
+                    <div id="app"></div>
+                    <script>
+                        window.Laravel = {csrfToken: 'synthetic-csrf-token'};
+                        window.materialpool = {route: '/material/1', store: {materials: []}};
+                    </script>
+                    ${viteScriptTag}
+                </body>
+            </html>`,
+    }));
+    await page.route('**/api/**', route => {
+        const pathname = new URL(route.request().url()).pathname;
+
+        if (pathname === '/api/v1/general/options') {
+            return route.fulfill({contentType: 'application/json', body: JSON.stringify({
+                systemname: 'MaterialPool Default',
+                server: {max_upload: 10485760},
+                user: {id: 1, name: 'Synthetic User', email: 'synthetic@example.invalid', is_admin: true, frontend_user_settings: {}},
+            })});
+        }
+
+        if (pathname === '/api/v1/materials/1/user-ranking' && route.request().method() === 'DELETE') {
+            resetRequests++;
+            userRating = null;
+            return route.fulfill({contentType: 'application/json', body: JSON.stringify({rating: 10, user_rating: null, user_rating_updated_at: null})});
+        }
+
+        if (pathname === '/api/v1/materials/1') {
+            return route.fulfill({contentType: 'application/json', body: JSON.stringify({
+                id: 1, title: 'Testmaterial', created_by: 1, description: '', rating: 10, user_rating: userRating,
+                flag: null, author: null, creator: null, from_bot: false,
+                created_at: '2026-09-01 12:00:00', updated_at: '2026-09-01 12:00:00',
+                resources: [], keywords: [], bibleverses: [], foreign_ids: [],
+            })});
+        }
+
+        return route.fulfill({contentType: 'application/json', body: JSON.stringify([])});
+    });
+    await page.route('**/pool/search/**', route => route.fulfill({
+        contentType: 'application/json',
+        body: JSON.stringify({data: [], current_page: 1, last_page: 1, per_page: 20, total: 0}),
+    }));
+
+    await page.goto('/vue/');
+
+    const ratingField = page.locator('.ratingEditSidebarField');
+    const resetButton = ratingField.getByRole('button', {name: 'Eigene Bewertung zurücksetzen'});
+    await expect(ratingField).toHaveClass(/has-user-ranking/);
+    await expect(ratingField.locator('.title')).toHaveCSS('color', 'rgb(33, 37, 41)');
+    await expect(ratingField.locator('.vue-star-rating-rating-text')).toHaveCSS('color', 'rgb(33, 37, 41)');
+    await expect(ratingField.locator('.vue-star-rating-star stop').first()).toHaveCSS('stop-color', 'rgb(25, 135, 84)');
+    await expect(resetButton).toBeVisible();
+    await expect(resetButton.locator('svg')).toBeVisible();
+    await expect(resetButton).not.toContainText('Eigene Bewertung zurücksetzen');
+
+    await resetButton.hover();
+    await expect(page.getByRole('tooltip')).toHaveText('Eigene Bewertung zurücksetzen');
+    await resetButton.focus();
+    await expect(page.getByRole('tooltip')).toBeVisible();
+    await resetButton.press('Enter');
+    await expect.poll(() => resetRequests).toBe(1);
+    await expect(resetButton).toHaveCount(0);
     expect(pageErrors).toEqual([]);
 });
 
