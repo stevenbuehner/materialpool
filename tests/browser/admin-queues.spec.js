@@ -43,7 +43,7 @@ test('Global admin sees grouped queue jobs and separate failed and batch tabs', 
         requestCount++;
         const tab = new URL(route.request().url()).searchParams.get('tab');
         const rows = tab === 'jobs'
-            ? [{id: 10, queue: 'default', type: 'App\\Jobs\\Example', status: 'reserved', attempts: 1, created_at: 1780250000, available_at: 1780250000}, {id: 11, queue: 'resource-previews-low', type: 'App\\Jobs\\Preview', status: 'waiting', attempts: 0, created_at: 1780250000, available_at: 1780250000}]
+            ? [{id: 10, queue: 'default', type: 'App\\Jobs\\Example', status: 'reserved', attempts: 1, created_at: 1780250000, available_at: 1780250000}, {id: 12, queue: 'default', type: 'App\\Jobs\\Alpha', status: 'waiting', attempts: 2, created_at: 1780250100, available_at: 1780250100}, {id: 11, queue: 'resource-previews-low', type: 'App\\Jobs\\Preview', status: 'waiting', attempts: 0, created_at: 1780250000, available_at: 1780250000}]
             : tab === 'failed'
                 ? failedRows
                 : [{id: 'batch-1', name: 'bundle:test', queue: null, total_jobs: 4, pending_jobs: 2, failed_jobs: 0, created_at: 1780250000, cancelled_at: null, finished_at: null}];
@@ -72,6 +72,25 @@ test('Global admin sees grouped queue jobs and separate failed and batch tabs', 
     await expect(page.getByRole('region', {name: 'default'})).toBeVisible();
     await expect(page.getByRole('region', {name: 'resource-previews-low'})).toBeVisible();
     await expect(page.getByText('Reserviert (möglicherweise laufend)').first()).toBeVisible();
+    const defaultQueue = page.getByRole('region', {name: 'default'});
+    const defaultIds = defaultQueue.locator('tbody tr td:first-child');
+    for (const [column, ascending, descending] of [
+        ['ID', ['10', '12'], ['12', '10']],
+        ['Jobtyp', ['12', '10'], ['10', '12']],
+        ['Status', ['10', '12'], ['12', '10']],
+        ['Erstellt', ['10', '12'], ['12', '10']],
+        ['Verfügbar ab', ['10', '12'], ['12', '10']],
+        ['Versuche', ['10', '12'], ['12', '10']],
+    ]) {
+        await defaultQueue.getByRole('button', {name: `${column} aufsteigend sortieren`}).click();
+        await expect(defaultIds).toHaveText(ascending);
+        await expect(defaultQueue.getByRole('columnheader', {name: new RegExp(column)})).toHaveAttribute('aria-sort', 'ascending');
+        await defaultQueue.getByRole('button', {name: `${column} absteigend sortieren`}).click();
+        await expect(defaultIds).toHaveText(descending);
+    }
+    await expect(page.getByText('Sortierung gilt für die Jobs auf dieser Seite', {exact: false})).toBeVisible();
+    await page.getByRole('button', {name: /Jetzt aktualisieren/}).click();
+    await expect(defaultIds).toHaveText(['12', '10']);
     await page.screenshot({path: testInfo.outputPath('admin-queues.png'), fullPage: true});
     await expect.poll(() => requestCount, {timeout: 7000}).toBeGreaterThan(1);
     await expect(page.getByRole('button', {name: /Jetzt aktualisieren/})).toBeVisible();

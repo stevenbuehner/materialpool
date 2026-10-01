@@ -49,13 +49,20 @@
       </div>
     </form>
 
+    <p v-if="store.tab === 'jobs' && sort.key" class="small text-muted mb-2">{{ $t('pool.queue-sort-page-hint') }}</p>
     <p v-if="!store.loading && store.items.length === 0" class="text-muted">{{ $t('pool.queue-empty') }}</p>
     <section v-for="group in groups" :key="group.name" class="card mb-3" :aria-label="group.name">
       <div class="card-header d-flex justify-content-between gap-2"><strong>{{ group.name }}</strong><span>{{ group.items.length }} {{ $t('pool.queue-on-page') }}</span></div>
       <p class="small text-muted px-3 pt-2 mb-0 d-md-none">{{ $t('pool.queue-scroll-hint') }}</p>
       <div class="table-responsive">
         <table class="table table-striped align-middle mb-0">
-          <thead v-if="store.tab === 'jobs'"><tr><th>ID</th><th>{{ $t('pool.queue-job-type') }}</th><th>{{ $t('pool.Status') }}</th><th>{{ $t('pool.queue-created') }}</th><th>{{ $t('pool.queue-available') }}</th><th>{{ $t('pool.queue-attempts') }}</th></tr></thead>
+          <thead v-if="store.tab === 'jobs'"><tr>
+            <th v-for="column in jobColumns" :key="column.key" scope="col" :aria-sort="sort.key === column.key ? (sort.direction === 'asc' ? 'ascending' : 'descending') : 'none'">
+              <button class="btn btn-link p-0 text-body text-decoration-none fw-semibold" type="button" :aria-label="$t(sort.key === column.key && sort.direction === 'asc' ? 'pool.queue-sort-desc' : 'pool.queue-sort-asc', {column: $t(column.label)})" @click="sortJobs(column.key)">
+                {{ $t(column.label) }} <span aria-hidden="true">{{ sort.key === column.key ? (sort.direction === 'asc' ? '▲' : '▼') : '↕' }}</span>
+              </button>
+            </th>
+          </tr></thead>
           <thead v-else-if="store.tab === 'failed'"><tr><th>ID</th><th>{{ $t('pool.queue-job-type') }}</th><th>{{ $t('pool.queue-connection') }}</th><th>{{ $t('pool.queue-failed-at') }}</th><th>{{ $t('pool.Actions') }}</th></tr></thead>
           <thead v-else><tr><th>{{ $t('pool.queue-batch') }}</th><th>{{ $t('pool.Status') }}</th><th>{{ $t('pool.queue-progress') }}</th><th>{{ $t('pool.queue-failed') }}</th><th>{{ $t('pool.queue-created') }}</th></tr></thead>
           <tbody>
@@ -113,6 +120,9 @@ const store = useQueueOverviewStore();
 const $t = getCurrentInstance().proxy.$t;
 const tabs = [{key: 'jobs', label: 'pool.queue-current-jobs'}, {key: 'failed', label: 'pool.queue-failed-jobs'}, {key: 'batches', label: 'pool.queue-batches'}];
 const summaryMetrics = [{key: 'waiting', label: 'pool.queue-waiting'}, {key: 'delayed', label: 'pool.queue-delayed'}, {key: 'reserved', label: 'pool.queue-reserved'}, {key: 'failed', label: 'pool.queue-failed'}];
+const jobColumns = [{key: 'id', label: 'pool.queue-id'}, {key: 'type', label: 'pool.queue-job-type'}, {key: 'status', label: 'pool.Status'}, {key: 'created_at', label: 'pool.queue-created'}, {key: 'available_at', label: 'pool.queue-available'}, {key: 'attempts', label: 'pool.queue-attempts'}];
+const sort = ref({key: null, direction: 'asc'});
+const textCollator = new Intl.Collator('de-DE', {sensitivity: 'base'});
 const groups = computed(() => {
   const grouped = new Map();
   for (const item of store.items) {
@@ -120,7 +130,7 @@ const groups = computed(() => {
     if (!grouped.has(name)) grouped.set(name, []);
     grouped.get(name).push(item);
   }
-  return [...grouped].map(([name, items]) => ({name, items}));
+  return [...grouped].map(([name, items]) => ({name, items: store.tab === 'jobs' && sort.value.key ? [...items].sort(compareJobs) : items}));
 });
 const failedDetailModal = ref(null);
 const now = ref(Date.now());
@@ -132,6 +142,18 @@ const formattedPayload = computed(() => {
   try { return JSON.stringify(JSON.parse(payload), null, 2); } catch (_) { return payload; }
 });
 let timer;
+
+function compareJobs(first, second) {
+  const key = sort.value.key;
+  const firstValue = key === 'status' ? statusLabel(first.status) : first[key];
+  const secondValue = key === 'status' ? statusLabel(second.status) : second[key];
+  const comparison = typeof firstValue === 'string' ? textCollator.compare(firstValue, secondValue) : firstValue - secondValue;
+  return (comparison || first.id - second.id) * (sort.value.direction === 'asc' ? 1 : -1);
+}
+
+function sortJobs(key) {
+  sort.value = {key, direction: sort.value.key === key && sort.value.direction === 'asc' ? 'desc' : 'asc'};
+}
 
 watch(() => store.loading, loading => {
   if (!loading) scheduleRefresh();

@@ -572,4 +572,8 @@ return [
 	'queue-delete'                                            => 'Delete failed job',
 	'queue-retry-confirm'                                     => 'Place this job back on its original queue? It may repeat changes.',
 	'queue-delete-confirm'                                    => 'Permanently remove this failed job from the list? Its saved error will be lost.',
+	'queue-id'                                                => 'ID',
+	'queue-sort-asc'                                          => 'Sort :column ascending',
+	'queue-sort-desc'                                         => 'Sort :column descending',
+	'queue-sort-page-hint'                                    => 'Sorting applies to jobs on this page, within each queue.',
 ];
