@@ -31,6 +31,8 @@ Im Proxmox-LXC arbeiten ein dauerhafter `default`-Worker und ein priorisierter H
 
 Material-Downloads entstehen als ZIP im Hintergrund und werden über einen geheimen Link direkt von Nginx aus dem persistenten Storage ausgeliefert. Die Standardgültigkeit steht in `config/material_downloads.php` (28 Tage); ein verzögerter Job auf `default` und ein täglicher Abgleich löschen abgelaufene Downloads. [Nutzung](docs/anwendung.md#materialien-verwalten) und [Betrieb](docs/administration.md#material-downloads) beschreiben den Ablauf.
 
+Für Audio-/Video-Ausschnitte und Vorschauen wird das Systempaket `ffmpeg` benötigt. Bei bestehenden Installationen ist es vor einem Update nachzuinstallieren; [Betriebsdetails](docs/administration.md#voraussetzungen) und [Produktionsvertrag](docs/ai/production-deployment-contract.md) nennen die benötigten Encoder.
+
 Wenn `SESSION_SECURE_COOKIE=false` ist und eine HTTPS-URL oder ein Trusted Proxy konfiguriert ist, zeigt der Status eine rote Konfigurationswarnung. Bei TLS-Zugriff muss der Wert `true` sein; ein Proxy-Eintrag allein bestätigt noch keine TLS-Verbindung.
 
 ## Weitere Dokumentation

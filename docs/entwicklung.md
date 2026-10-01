@@ -27,6 +27,8 @@ npm ci --ignore-scripts
 
 Nur bei einer frisch angelegten `.env` ohne `APP_KEY` einmal `./vendor/bin/sail artisan key:generate` ausführen. Bei bestehenden verschlüsselten Daten den vorhandenen Schlüssel übernehmen und nicht ersetzen. `composer install` setzt PHP 8.4 mit den benötigten Erweiterungen voraus; ist das lokal nicht verfügbar, Composer in einem passenden PHP-8.4-Container ausführen. Das ältere Host-PHP ist keine gültige Referenz für das Projekt.
 
+Der PHP-8.4-Sail-Container installiert das Systempaket `ffmpeg` für Audio-/Video-Vorschauen und begrenzte Material-Downloads. Nach einer Dockerfile-Änderung das lokale Image mit `docker compose build laravel.test` neu bauen und den Anwendungscontainer mit `docker compose up -d --no-deps laravel.test` neu starten.
+
 Die lokale `.env` wird nicht versioniert. Docker Compose liest aus ihr die Werte für MySQL und Qdrant; Laravel verwendet dieselbe Datei über das eingebundene Projektverzeichnis. `DB_HOST=mysql`, `DB_DATABASE`, `DB_USERNAME` und `DB_PASSWORD` müssen zur lokalen MySQL-Instanz passen. Eine zusätzliche `.env.local` ist dafür nicht erforderlich. Entwicklungsdaten und Testdaten bleiben getrennt. Anschließend das Entwicklungssystem starten:
 
 ```sh

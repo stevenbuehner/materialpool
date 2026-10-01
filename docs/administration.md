@@ -54,7 +54,7 @@ Vor Beginn müssen extern feststehen:
 - bestehender `APP_KEY` und bestehende Passport-Schlüssel bei einer Übernahme;
 - ein sauberer, exakter Git-Commit, der installiert werden soll.
 
-Das Provisioning installiert `qpdf` für den Download ausgewählter Seiten aus PDFs mit komprimierten Querverweisen. `production:preflight` prüft, ob das Programm verfügbar ist. Die Original-PDF wird dabei nicht verändert.
+Das Provisioning installiert `qpdf` für den Download ausgewählter Seiten aus PDFs mit komprimierten Querverweisen und das Systempaket `ffmpeg` für Audio-/Video-Ausschnitte. `production:preflight` prüft, ob diese Programme verfügbar sind. Die Originaldateien werden dabei nicht verändert. Bei bestehenden Installationen vor der Aktivierung dieses Releases `ffmpeg` nachinstallieren und `ffmpeg -encoders` auf `libmp3lame`, `libx264` und `aac` prüfen.
 
 ### Material-Downloads
 
