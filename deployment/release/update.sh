@@ -58,6 +58,38 @@ restore_units() {
   done
   systemctl daemon-reload
 }
+nginx_site=/etc/nginx/sites-available/materialpool
+save_nginx_site() {
+  local destination="$1"
+  mkdir -p "$destination"
+  if [[ -e "$nginx_site" || -L "$nginx_site" ]]; then
+    cp -a "$nginx_site" "$destination/materialpool"
+  else
+    touch "$destination/materialpool.absent"
+  fi
+}
+restore_nginx_site() {
+  local source="$1"
+  rm -f "$nginx_site.restore"
+  if [[ -f "$source/materialpool.absent" ]]; then
+    rm -f "$nginx_site"
+  else
+    cp -a "$source/materialpool" "$nginx_site.restore"
+    mv -Tf "$nginx_site.restore" "$nginx_site"
+  fi
+}
+apply_nginx_site() {
+  local release="$1" next="${nginx_site}.next"
+  [[ -f "$release/deployment/nginx/materialpool.conf" ]] || {
+    echo "Nginx-Vorlage fehlt im Release." >&2
+    return 1
+  }
+  rm -f "$next"
+  install -m 0644 "$release/deployment/nginx/materialpool.conf" "$next" || return 1
+  mv -Tf "$next" "$nginx_site" || return 1
+  nginx -t || return 1
+  systemctl reload nginx || return 1
+}
 start_units() {
   systemctl enable --now materialpool-queue.service materialpool-schedule.timer nginx mariadb
   systemctl restart materialpool-queue.service
@@ -94,12 +126,18 @@ case "${1:-update}" in
     old_link="$(readlink "$base/current")"
     rollback_tmp="$(mktemp -d)"
     save_units "$rollback_tmp/units"
+    save_nginx_site "$rollback_tmp/nginx"
+    nginx_changed=0
     rollback_done=0
     rollback_cleanup() {
       if ((rollback_done == 0)); then
         systemctl stop materialpool-background.service 2>/dev/null || true
         systemctl stop materialpool-queue.service 2>/dev/null || true
         restore_units "$rollback_tmp/units" || true
+        if ((nginx_changed == 1)); then
+          restore_nginx_site "$rollback_tmp/nginx" || true
+          nginx -t && systemctl reload nginx || true
+        fi
         rm -f "$base/current.next"
         ln -s "$old_link" "$base/current.next"
         mv -Tf "$base/current.next" "$base/current"
@@ -115,6 +153,8 @@ case "${1:-update}" in
     ln -s "releases/$2" "$base/current.next"
     mv -Tf "$base/current.next" "$base/current"
     apply_units "$base/current"
+    nginx_changed=1
+    apply_nginx_site "$base/current"
     systemctl reload php8.4-fpm
     start_units
     runuser -u www-data -- php "$base/current/artisan" up
@@ -136,6 +176,7 @@ updater_next=""
 critical=0
 switched=0
 units_changed=0
+nginx_changed=0
 env_changed=0
 cleanup() {
   status=$?
@@ -149,6 +190,10 @@ cleanup() {
       systemctl stop materialpool-background.service 2>/dev/null || true
       systemctl stop materialpool-queue.service 2>/dev/null || true
       restore_units "$tmp/units" || true
+    fi
+    if ((nginx_changed == 1)); then
+      restore_nginx_site "$tmp/nginx-site" || true
+      nginx -t && systemctl reload nginx || true
     fi
     if ((critical == 1)); then
       echo "Update fehlgeschlagen. Datenbank-Backup und Migrationen prüfen; bei Bestandsinstallationen bleibt der Wartungsmodus aktiv." >&2
@@ -195,6 +240,7 @@ fi
 if [[ "$version" == "$installed" ]]; then
   same_version_tmp="$(mktemp -d)"
   save_units "$same_version_tmp/units"
+  save_nginx_site "$same_version_tmp/nginx"
   same_version_env_changed=0
   if [[ -f "$base/current/deployment/systemd/materialpool-background.service" ]] && ! grep -q '^PRIORITIZED_BACKGROUND_QUEUE=true$' "$base/shared/.env"; then
     cp -p "$base/shared/.env" "$same_version_tmp/env-before"
@@ -211,8 +257,12 @@ if [[ "$version" == "$installed" ]]; then
       exit 1
     fi
   fi
-  if ! apply_units "$base/current" || { [[ -f "$base/current/deployment/systemd/materialpool-background.service" ]] && ! runuser -u www-data -- php "$base/current/artisan" queues:work-background --configuration-only; } || ! start_units; then
+  nginx_changed=1
+  if ! apply_units "$base/current" || ! apply_nginx_site "$base/current" || { [[ -f "$base/current/deployment/systemd/materialpool-background.service" ]] && ! runuser -u www-data -- php "$base/current/artisan" queues:work-background --configuration-only; } || ! start_units; then
     restore_units "$same_version_tmp/units"
+    restore_nginx_site "$same_version_tmp/nginx"
+    nginx -t && systemctl reload nginx || true
+    nginx_changed=0
     if ((same_version_env_changed == 1)); then
       cp -p "$same_version_tmp/env-before" "$base/shared/.env"
       runuser -u www-data -- php "$base/current/artisan" optimize || true
@@ -221,6 +271,7 @@ if [[ "$version" == "$installed" ]]; then
     rm -rf -- "$same_version_tmp"
     exit 1
   fi
+  nginx_changed=0
   rm -rf -- "$same_version_tmp"
   echo "Materialpool $version ist bereits aktuell."
   echo "Materialpool-Status:"
@@ -341,8 +392,11 @@ mv -Tf "$base/current.next" "$base/current"
 switched=1
 systemctl reload php8.4-fpm
 save_units "$tmp/units"
+save_nginx_site "$tmp/nginx-site"
 units_changed=1
 apply_units "$release"
+nginx_changed=1
+apply_nginx_site "$release"
 start_units
 runuser -u www-data -- php "$base/current/artisan" up
 curl -fsS --max-time 10 http://127.0.0.1/up | grep -qx OK

@@ -153,6 +153,11 @@ class ProductionDeploymentContractTest extends TestCase
         $this->assertStringContainsString('restore_units "$tmp/units"', $updater);
         $this->assertStringContainsString('queues:work-background --configuration-only', $updater);
         $this->assertStringContainsString('same_version_env_changed=1', $updater);
+        $this->assertStringContainsString('apply_nginx_site "$release"', $updater);
+        $this->assertStringContainsString('apply_nginx_site "$base/current"', $updater);
+        $this->assertStringContainsString('restore_nginx_site "$tmp/nginx-site"', $updater);
+        $this->assertStringContainsString('nginx -t', $updater);
+        $this->assertStringContainsString('systemctl reload nginx', $updater);
     }
 
     public function test_proxmox_updater_uses_an_accessible_working_directory_for_runtime_commands(): void

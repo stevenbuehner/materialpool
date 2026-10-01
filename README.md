@@ -29,6 +29,8 @@ Nach Installation und Update zeigt `materialpool:status` farbig gegliederte Sekt
 
 Im Proxmox-LXC arbeiten ein dauerhafter `default`-Worker und ein priorisierter Hintergrunddienst für Material-Downloads, aktive Bundle-Imports, freigegebene Kontextsuche und kleine Vorschauen. Der Backup-Scheduler bleibt ein eigener Timer. Die Details zu Diensten und Updates stehen in der [Proxmox-Betriebsübersicht](deployment/README.md).
 
+Bei jedem Proxmox-Update wird auch die versionierte Nginx-Site aus dem Release übernommen, mit `nginx -t` geprüft und neu geladen. Individuelle Site-Anpassungen gehören in `deployment/nginx/materialpool.conf`.
+
 Material-Downloads entstehen als ZIP im Hintergrund und werden über einen geheimen Link direkt von Nginx aus dem persistenten Storage ausgeliefert. Die Standardgültigkeit steht in `config/material_downloads.php` (28 Tage); ein verzögerter Job auf `default` und ein täglicher Abgleich löschen abgelaufene Downloads. [Nutzung](docs/anwendung.md#materialien-verwalten) und [Betrieb](docs/administration.md#material-downloads) beschreiben den Ablauf.
 
 Für Audio-/Video-Ausschnitte und Vorschauen wird das Systempaket `ffmpeg` benötigt. Bei bestehenden Installationen ist es vor einem Update nachzuinstallieren; [Betriebsdetails](docs/administration.md#voraussetzungen) und [Produktionsvertrag](docs/ai/production-deployment-contract.md) nennen die benötigten Encoder.
