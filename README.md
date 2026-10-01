@@ -29,7 +29,7 @@ Nach Installation und Update zeigt `materialpool:status` farbig gegliederte Sekt
 
 Im Proxmox-LXC arbeiten ein dauerhafter `default`-Worker und ein priorisierter Hintergrunddienst für Material-Downloads, aktive Bundle-Imports, freigegebene Kontextsuche und kleine Vorschauen. Der Backup-Scheduler bleibt ein eigener Timer. Die Details zu Diensten und Updates stehen in der [Proxmox-Betriebsübersicht](deployment/README.md).
 
-Material-Downloads entstehen als ZIP im Hintergrund und werden über einen geheimen Link direkt von Nginx aus dem persistenten Storage ausgeliefert. Die Standardgültigkeit steht in `config/material_downloads.yaml` (ohne Datei: 28 Tage); ein verzögerter Job auf `default` und ein täglicher Abgleich löschen abgelaufene Downloads. [Nutzung](docs/anwendung.md#materialien-verwalten) und [Betrieb](docs/administration.md#material-downloads) beschreiben den Ablauf.
+Material-Downloads entstehen als ZIP im Hintergrund und werden über einen geheimen Link direkt von Nginx aus dem persistenten Storage ausgeliefert. Die Standardgültigkeit steht in `config/material_downloads.php` (28 Tage); ein verzögerter Job auf `default` und ein täglicher Abgleich löschen abgelaufene Downloads. [Nutzung](docs/anwendung.md#materialien-verwalten) und [Betrieb](docs/administration.md#material-downloads) beschreiben den Ablauf.
 
 Wenn `SESSION_SECURE_COOKIE=false` ist und eine HTTPS-URL oder ein Trusted Proxy konfiguriert ist, zeigt der Status eine rote Konfigurationswarnung. Bei TLS-Zugriff muss der Wert `true` sein; ein Proxy-Eintrag allein bestätigt noch keine TLS-Verbindung.
 

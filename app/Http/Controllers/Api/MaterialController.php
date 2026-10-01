@@ -174,7 +174,8 @@ class MaterialController extends BaseController {
 	}
 
 	public function createPublicZipDownload(Material $material, Request $request, MaterialDownloadStore $downloads) {
-		$validated = $request->validate(['expires_in_days' => ['sometimes', 'integer', 'between:1,365']]);
+		$maxRetentionDays = config('material_downloads.max_retention_days', 365);
+		$validated = $request->validate(['expires_in_days' => ['sometimes', 'integer', 'between:1,'.$maxRetentionDays]]);
 		$days = (int)($validated['expires_in_days'] ?? config('material_downloads.default_retention_days', 28));
 		$until = now()->addDays($days);
 		$token = bin2hex(random_bytes(32));
