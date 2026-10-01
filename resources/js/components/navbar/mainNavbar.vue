@@ -5,7 +5,9 @@
 
       <b-navbar-toggle target="nav_collapse"/>
 
-      <b-navbar-brand :to="{name:'landingpage'}">MatPool</b-navbar-brand>
+      <b-navbar-brand :to="{name:'landingpage'}" class="matpool-brand" :aria-label="'MatPool – ' + $t('pool.home')">
+        <img src="/img/brand/matpool-logo.svg" alt="" class="matpool-brand-logo" aria-hidden="true">
+      </b-navbar-brand>
 
       <b-collapse is-nav id="nav_collapse">
 
@@ -200,6 +202,16 @@ export default {
 
 <style lang="scss" scoped>
 @use "resources/sass/theme" as *;
+
+.matpool-brand {
+  padding-block: .125rem;
+}
+
+.matpool-brand-logo {
+  display: block;
+  width: auto;
+  height: 2.25rem;
+}
 
 .dropdown-hover:hover {
   background-color: lightgrey;

@@ -40,7 +40,7 @@ refresh: Hauptnavigation, Startseite, Rollenanzeige oder globale Styles geänder
 -->
 ![Materialpool-Startseite mit Hauptnavigation und Schnellzugriffen](readme/screenshots/start-navigation-desktop.png)
 
-*Startseite: Die Hauptfunktionen sind sowohl in der oberen Navigation als auch als Schnellzugriffe erreichbar.*
+*Startseite: Das Logo in der oberen Navigation führt zurück zur Startseite. Die Hauptfunktionen sind auch als Schnellzugriffe erreichbar.*
 
 <!-- README-SCREENSHOT
 id: start-navigation-mobile
