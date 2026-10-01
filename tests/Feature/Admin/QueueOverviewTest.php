@@ -14,8 +14,36 @@ class QueueOverviewTest extends TestCase {
 
 	public function test_only_global_admin_can_read_queue_overview(): void {
 		$this->getJson(route('api.v2.admin.queue-overview.index', ['tab' => 'jobs']))->assertUnauthorized();
+		$this->getJson(route('api.v2.admin.queue-overview.jobs.show', 1))->assertUnauthorized();
 		Passport::actingAs(User::factory()->create());
 		$this->getJson(route('api.v2.admin.queue-overview.index', ['tab' => 'jobs']))->assertNotFound();
+		$this->getJson(route('api.v2.admin.queue-overview.jobs.show', 1))->assertNotFound();
+	}
+
+	public function test_job_details_are_loaded_individually_with_readable_redacted_data(): void {
+		Passport::actingAs(User::factory()->create(['is_admin' => true]));
+		$id = DB::table('jobs')->insertGetId([
+			'queue' => 'default',
+			'payload' => json_encode([
+				'displayName' => 'App\\Jobs\\Example',
+				'job' => 'Illuminate\\Queue\\CallQueuedHandler@call',
+				'data' => ['commandName' => 'App\\Jobs\\Example', 'command' => serialize((object) ['title' => 'Grüße', 'apiToken' => 'private-token', 'nested' => ['count' => 3]])],
+				'secret' => 'private-payload',
+			]),
+			'attempts' => 2, 'reserved_at' => null, 'available_at' => now()->timestamp, 'created_at' => now()->timestamp,
+		]);
+
+		$this->getJson(route('api.v2.admin.queue-overview.index', ['tab' => 'jobs']))
+			->assertOk()->assertDontSee('private-payload')->assertDontSee('private-token');
+		$this->getJson(route('api.v2.admin.queue-overview.jobs.show', $id))
+			->assertOk()->assertJsonPath('id', $id)->assertJsonPath('payload.data.jobData.title', 'Grüße')
+			->assertJsonPath('payload.data.jobData.nested.count', 3)
+			->assertJsonPath('payload.data.jobData.apiToken', __('pool.queue-redacted'))
+			->assertJsonPath('payload.secret', __('pool.queue-redacted'))
+			->assertJsonMissingPath('payload.data.command')
+			->assertDontSee('private-payload')->assertDontSee('private-token')
+			->assertHeader('Cache-Control', 'no-store, private');
+		$this->getJson(route('api.v2.admin.queue-overview.jobs.show', $id + 1))->assertNotFound();
 	}
 
 	public function test_jobs_are_classified_and_payload_is_not_exposed(): void {
@@ -112,7 +140,8 @@ class QueueOverviewTest extends TestCase {
 			->assertOk()->assertDontSee('private-payload')->assertDontSee('private-exception');
 		$this->getJson(route('api.v2.admin.queue-overview.failed.show', $uuid))
 			->assertOk()->assertJsonPath('uuid', $uuid)->assertJsonPath('exception', 'private-exception')
-			->assertSee('private-payload')->assertHeader('Cache-Control', 'no-store, private');
+			->assertJsonPath('payload.secret', __('pool.queue-redacted'))->assertDontSee('private-payload')
+			->assertHeader('Cache-Control', 'no-store, private');
 		$this->deleteJson(route('api.v2.admin.queue-overview.failed.delete', $uuid))->assertOk();
 		$this->assertDatabaseMissing('failed_jobs', ['uuid' => $uuid]);
 		$this->assertDatabaseHas('failed_jobs', ['uuid' => '00000000-0000-0000-0000-000000000015']);

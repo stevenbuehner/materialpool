@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Services\QueueJobDetailsPresenter;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
@@ -115,7 +116,24 @@ class QueueOverviewController extends Controller {
 			->header('Cache-Control', 'private, no-store');
 	}
 
-	public function showFailed(string $failedJob): JsonResponse {
+	public function showJob(int $job, QueueJobDetailsPresenter $presenter): JsonResponse {
+		$record = DB::table('jobs')->select('id', 'queue', 'payload', 'attempts', 'reserved_at', 'available_at', 'created_at')->where('id', $job)->first();
+		abort_if($record === null, 404, __('pool.queue-job-gone'));
+
+		$now = now()->timestamp;
+		return response()->json([
+			'id' => $record->id,
+			'queue' => $record->queue,
+			'type' => $this->jobType($record->payload),
+			'status' => $record->reserved_at !== null ? 'reserved' : ($record->available_at > $now ? 'delayed' : 'waiting'),
+			'attempts' => $record->attempts,
+			'created_at' => $record->created_at,
+			'available_at' => $record->available_at,
+			'payload' => $presenter->payload($record->payload),
+		])->header('Cache-Control', 'private, no-store');
+	}
+
+	public function showFailed(string $failedJob, QueueJobDetailsPresenter $presenter): JsonResponse {
 		$job = $this->failedJob($failedJob);
 
 		return response()->json([
@@ -124,7 +142,7 @@ class QueueOverviewController extends Controller {
 			'connection' => $job->connection,
 			'type' => $this->jobType($job->payload),
 			'failed_at' => $job->failed_at,
-			'payload' => $job->payload,
+			'payload' => $presenter->payload($job->payload),
 			'exception' => $job->exception,
 			'can_retry' => $this->canRetry($job),
 		])->header('Cache-Control', 'private, no-store');

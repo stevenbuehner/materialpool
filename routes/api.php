@@ -104,6 +104,7 @@ Route::group([
 
 	Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => 'admin'], function () {
 		Route::get('queue-overview', 'Admin\\QueueOverviewController@index')->name('queue-overview.index');
+		Route::get('queue-overview/jobs/{job}', 'Admin\\QueueOverviewController@showJob')->whereNumber('job')->name('queue-overview.jobs.show');
 		Route::get('queue-overview/failed/{failedJob}', 'Admin\\QueueOverviewController@showFailed')->whereUuid('failedJob')->name('queue-overview.failed.show');
 		Route::post('queue-overview/failed/{failedJob}/retry', 'Admin\\QueueOverviewController@retryFailed')->whereUuid('failedJob')->name('queue-overview.failed.retry');
 		Route::delete('queue-overview/failed/{failedJob}', 'Admin\\QueueOverviewController@deleteFailed')->whereUuid('failedJob')->name('queue-overview.failed.delete');
