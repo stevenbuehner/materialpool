@@ -153,17 +153,7 @@ class ProductionPreflightCommand extends Command {
 			$this->require($errors, is_dir($directory) && is_writable($directory), "Verzeichnis ist nicht beschreibbar: {$directory}");
 		}
 
-		foreach ([
-			         '/usr/bin/ffmpeg',
-			         '/usr/bin/ffprobe',
-			         '/usr/bin/mysqldump',
-			         '/usr/bin/pdfinfo',
-			         '/usr/bin/pdftotext',
-			         '/usr/bin/qpdf',
-			         '/usr/bin/libreoffice',
-		         ] as $executable) {
-			$this->require($errors, is_executable($executable), "Ausführbare Laufzeitabhängigkeit fehlt: {$executable}");
-		}
+		$errors = [...$errors, ...$this->executableErrors('is_executable')];
 
 		if (is_executable('/usr/bin/ffmpeg')) {
 			$encoders = new Process(['/usr/bin/ffmpeg', '-hide_banner', '-encoders']);
@@ -188,6 +178,33 @@ class ProductionPreflightCommand extends Command {
 			DB::select('select 1');
 		} catch (Throwable) {
 			$errors[] = 'MySQL-Verbindung ist nicht funktionsfähig.';
+		}
+
+		return $errors;
+	}
+
+	/** @return list<string> */
+	private function executableErrors(callable $isExecutable): array {
+		$errors = [];
+		$ffmpegMissing = FALSE;
+
+		foreach ([
+			         '/usr/bin/ffmpeg',
+			         '/usr/bin/ffprobe',
+			         '/usr/bin/mysqldump',
+			         '/usr/bin/pdfinfo',
+			         '/usr/bin/pdftotext',
+			         '/usr/bin/qpdf',
+			         '/usr/bin/libreoffice',
+		         ] as $executable) {
+			if (!$isExecutable($executable)) {
+				$errors[] = "Ausführbare Laufzeitabhängigkeit fehlt: {$executable}";
+				$ffmpegMissing = $ffmpegMissing || in_array($executable, ['/usr/bin/ffmpeg', '/usr/bin/ffprobe'], TRUE);
+			}
+		}
+
+		if ($ffmpegMissing) {
+			$errors[] = 'Handlungsempfehlung: Im Laravel-LXC als root apt update && apt install ffmpeg ausführen.';
 		}
 
 		return $errors;

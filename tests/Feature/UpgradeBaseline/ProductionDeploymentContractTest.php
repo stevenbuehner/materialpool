@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\UpgradeBaseline;
 
+use App\Console\Commands\ProductionPreflightCommand;
 use App\Console\Kernel;
 use App\Http\Middleware\TrustProxies;
 use Illuminate\Console\Scheduling\Schedule;
@@ -213,6 +214,31 @@ class ProductionDeploymentContractTest extends TestCase
         $exitCode = Artisan::call('production:preflight', ['--configuration-only' => true]);
 
         $this->assertSame(0, $exitCode, Artisan::output());
+    }
+
+    public function test_preflight_recommends_ffmpeg_package_once_when_either_binary_is_missing(): void
+    {
+        $method = new ReflectionMethod(ProductionPreflightCommand::class, 'executableErrors');
+        $command = resolve(ProductionPreflightCommand::class);
+        $recommendation = 'Handlungsempfehlung: Im Laravel-LXC als root apt update && apt install ffmpeg ausführen.';
+
+        foreach ([
+            ['/usr/bin/ffmpeg'],
+            ['/usr/bin/ffprobe'],
+            ['/usr/bin/ffmpeg', '/usr/bin/ffprobe'],
+        ] as $missing) {
+            $errors = $method->invoke($command, fn (string $path): bool => !in_array($path, $missing, true));
+
+            foreach ($missing as $path) {
+                $this->assertContains("Ausführbare Laufzeitabhängigkeit fehlt: {$path}", $errors);
+            }
+            $this->assertSame(1, count(array_filter($errors, fn (string $error): bool => $error === $recommendation)));
+        }
+
+        $unrelatedErrors = $method->invoke($command, fn (string $path): bool => $path !== '/usr/bin/qpdf');
+        $this->assertNotContains($recommendation, $unrelatedErrors);
+
+        $this->assertSame([], $method->invoke($command, fn (string $path): bool => true));
     }
 
     public function test_production_operations_assets_are_versioned(): void
