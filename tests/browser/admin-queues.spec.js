@@ -25,6 +25,8 @@ test('Bundle manager keeps Bundle access without global admin links', async ({pa
 
 test('Global admin sees grouped queue jobs and separate failed and batch tabs', async ({page}, testInfo) => {
     let requestCount = 0;
+    let jobDetailRequests = 0;
+    const jobDetailUrls = [];
     const pageErrors = [];
     page.on('pageerror', error => pageErrors.push(error.message));
     const failedRows = [
@@ -58,9 +60,15 @@ test('Global admin sees grouped queue jobs and separate failed and batch tabs', 
         const uuid = url.pathname.split('/')[6];
         const job = failedRows.find(row => row.uuid === uuid);
         if (!job) return route.fulfill({status: 404, contentType: 'application/json', body: '{}'});
-        if (route.request().method() === 'GET') return route.fulfill({contentType: 'application/json', body: JSON.stringify({...job, payload: '{"secret":"synthetic-payload"}', exception: 'synthetic-exception'})});
+        if (route.request().method() === 'GET') return route.fulfill({contentType: 'application/json', body: JSON.stringify({...job, payload: {title: 'Grüße', nested: {count: 3}, secret: '[redacted]'}, exception: 'RuntimeException: synthetic-exception\nStack trace:\n#0 /var/www/app/Jobs/Example.php(20): handle()\n#1 /var/www/vendor/laravel/framework/Worker.php(12): run()'})});
         failedRows.splice(failedRows.indexOf(job), 1);
         return route.fulfill({contentType: 'application/json', body: JSON.stringify({message: 'Aktion erfolgreich'})});
+    });
+    await page.route('**/api/v2/admin/queue-overview/jobs/**', route => {
+        jobDetailRequests++;
+        jobDetailUrls.push(route.request().url());
+        if (new URL(route.request().url()).pathname.endsWith('/12')) return route.fulfill({status: 404, contentType: 'application/json', body: JSON.stringify({message: 'Dieser Job ist nicht mehr in der Queue vorhanden.'})});
+        return route.fulfill({contentType: 'application/json', body: JSON.stringify({id: 10, queue: 'default', type: 'App\\Jobs\\Example', status: 'reserved', attempts: 1, created_at: 1780250000, available_at: 1780250000, payload: {data: {jobData: {title: 'Grüße', nested: {count: 3}, secret: '[redacted]'}}}})});
     });
     page.on('dialog', dialog => dialog.accept());
 
@@ -73,6 +81,19 @@ test('Global admin sees grouped queue jobs and separate failed and batch tabs', 
     await expect(page.getByRole('region', {name: 'resource-previews-low'})).toBeVisible();
     await expect(page.getByText('Reserviert (möglicherweise laufend)').first()).toBeVisible();
     const defaultQueue = page.getByRole('region', {name: 'default'});
+    expect(jobDetailRequests).toBe(0);
+    await defaultQueue.getByRole('button', {name: 'Details'}).first().click();
+    await expect(page.getByRole('dialog', {name: 'Aktueller Job'})).toBeVisible();
+    await expect(page.getByRole('dialog', {name: 'Aktueller Job'}).getByText('Grüße')).toBeVisible();
+    expect(jobDetailRequests).toBe(1);
+    await page.screenshot({path: testInfo.outputPath('admin-current-job-detail.png'), fullPage: true});
+    await page.keyboard.press('Escape');
+    await expect(page.getByRole('dialog', {name: 'Aktueller Job'})).toBeHidden();
+    await defaultQueue.getByRole('button', {name: 'Details'}).nth(1).click();
+    expect(jobDetailUrls.map(url => new URL(url).pathname)).toEqual(['/api/v2/admin/queue-overview/jobs/10', '/api/v2/admin/queue-overview/jobs/12']);
+    await expect(page.getByRole('dialog', {name: 'Aktueller Job'}).getByRole('alert')).toHaveText('Dieser Job ist nicht mehr in der Queue vorhanden.');
+    await page.keyboard.press('Escape');
+    await expect(page.getByRole('dialog', {name: 'Aktueller Job'})).toBeHidden();
     const defaultIds = defaultQueue.locator('tbody tr td:first-child');
     for (const [column, ascending, descending] of [
         ['ID', ['10', '12'], ['12', '10']],
@@ -100,8 +121,9 @@ test('Global admin sees grouped queue jobs and separate failed and batch tabs', 
     await page.getByRole('tab', {name: 'Fehlgeschlagene Jobs'}).click();
     await expect(page.getByRole('columnheader', {name: 'Fehlgeschlagen am'})).toBeVisible();
     await page.getByRole('button', {name: 'Details'}).first().click();
-    await expect(page.getByText('synthetic-exception')).toBeVisible();
-    await expect(page.getByText('synthetic-payload')).toBeVisible();
+    await expect(page.getByText('RuntimeException: synthetic-exception', {exact: true})).toBeVisible();
+    await expect(page.getByText('Anwendungsstellen')).toBeVisible();
+    await expect(page.getByText('Grüße')).toBeVisible();
     await page.screenshot({path: testInfo.outputPath('admin-failed-detail.png'), fullPage: true});
     await page.getByRole('button', {name: 'Job erneut starten'}).click();
     await expect(page.getByRole('status').getByText('Aktion erfolgreich')).toBeVisible();

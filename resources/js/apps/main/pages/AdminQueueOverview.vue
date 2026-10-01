@@ -62,13 +62,14 @@
                 {{ $t(column.label) }} <span aria-hidden="true">{{ sort.key === column.key ? (sort.direction === 'asc' ? '▲' : '▼') : '↕' }}</span>
               </button>
             </th>
+            <th scope="col">{{ $t('pool.Actions') }}</th>
           </tr></thead>
           <thead v-else-if="store.tab === 'failed'"><tr><th>ID</th><th>{{ $t('pool.queue-job-type') }}</th><th>{{ $t('pool.queue-connection') }}</th><th>{{ $t('pool.queue-failed-at') }}</th><th>{{ $t('pool.Actions') }}</th></tr></thead>
           <thead v-else><tr><th>{{ $t('pool.queue-batch') }}</th><th>{{ $t('pool.Status') }}</th><th>{{ $t('pool.queue-progress') }}</th><th>{{ $t('pool.queue-failed') }}</th><th>{{ $t('pool.queue-created') }}</th></tr></thead>
           <tbody>
             <tr v-for="item in group.items" :key="item.id">
               <template v-if="store.tab === 'jobs'">
-                <td>{{ item.id }}</td><td class="text-break">{{ item.type }}</td><td>{{ statusLabel(item.status) }}</td><td>{{ epochTime(item.created_at) }}</td><td>{{ epochTime(item.available_at) }}</td><td>{{ item.attempts }}</td>
+                <td>{{ item.id }}</td><td class="text-break">{{ item.type }}</td><td>{{ statusLabel(item.status) }}</td><td>{{ epochTime(item.created_at) }}</td><td>{{ epochTime(item.available_at) }}</td><td>{{ item.attempts }}</td><td><button class="btn btn-sm btn-outline-primary" type="button" @click="openJobDetail(item)">{{ $t('pool.queue-details') }}</button></td>
               </template>
               <template v-else-if="store.tab === 'failed'">
                 <td>{{ item.id }}</td><td class="text-break">{{ item.type }}</td><td>{{ item.connection }}</td><td>{{ dateTime(item.failed_at) }}</td><td><button class="btn btn-sm btn-outline-primary" type="button" @click="openFailedDetail(item)">{{ $t('pool.queue-details') }}</button></td>
@@ -91,15 +92,38 @@
       </div>
     </nav>
 
-    <b-modal ref="failedDetailModal" size="xl" scrollable hide-footer :title="$t('pool.queue-failed-detail-title')" @hidden="store.resetFailedDetail()">
+    <b-modal ref="jobDetailModal" size="xl" scrollable hide-footer :title="$t('pool.queue-job-detail-title')" @hide="store.resetJobDetail()">
+      <p v-if="store.jobDetailLoading" role="status">{{ $t('pool.queue-loading') }}</p>
+      <div v-if="store.jobDetailError" class="alert alert-danger" role="alert">{{ store.jobDetailError }}</div>
+      <template v-if="store.jobDetail">
+        <p class="text-break"><strong>{{ store.jobDetail.type }}</strong><br>{{ store.jobDetail.queue }} · {{ statusLabel(store.jobDetail.status) }} · ID {{ store.jobDetail.id }}</p>
+        <p class="small text-muted">{{ $t('pool.queue-created') }}: {{ epochTime(store.jobDetail.created_at) }} · {{ $t('pool.queue-available') }}: {{ epochTime(store.jobDetail.available_at) }} · {{ $t('pool.queue-attempts') }}: {{ store.jobDetail.attempts }}</p>
+        <h2 class="h6">{{ $t('pool.queue-payload') }}</h2>
+        <div v-if="store.jobDetail.payload" class="queue-json-viewer border rounded p-2 bg-light"><JsonDataViewer :data="store.jobDetail.payload" /></div>
+        <p v-else class="text-muted">{{ $t('pool.queue-payload-unavailable') }}</p>
+      </template>
+    </b-modal>
+
+    <b-modal ref="failedDetailModal" size="xl" scrollable hide-footer :title="$t('pool.queue-failed-detail-title')" @hide="store.resetFailedDetail()">
       <p v-if="store.failedDetailLoading" role="status">{{ $t('pool.queue-loading') }}</p>
       <div v-if="store.failedDetailError" class="alert alert-danger" role="alert">{{ store.failedDetailError }}</div>
       <template v-if="store.failedDetail">
         <p class="text-break"><strong>{{ store.failedDetail.type }}</strong><br>{{ store.failedDetail.queue }} · {{ store.failedDetail.connection }} · {{ dateTime(store.failedDetail.failed_at) }}<br><small>{{ store.failedDetail.uuid }}</small></p>
         <h2 class="h6">{{ $t('pool.queue-exception') }}</h2>
-        <pre class="queue-detail-text border rounded p-2 bg-light">{{ store.failedDetail.exception }}</pre>
+        <div class="alert alert-danger text-break mb-2">{{ parsedException.headline }}</div>
+        <template v-if="parsedException.applicationFrames.length">
+          <h3 class="h6">{{ $t('pool.queue-app-frames') }}</h3>
+          <ol class="queue-detail-text border rounded p-2 ps-5 bg-light">
+            <li v-for="frame in parsedException.applicationFrames" :key="frame" class="text-break">{{ frame.replace(/^#\d+\s+/, '') }}</li>
+          </ol>
+        </template>
+        <details v-if="parsedException.trace" class="mb-3">
+          <summary class="text-primary">{{ $t('pool.queue-full-trace') }}</summary>
+          <pre class="queue-detail-text border rounded p-2 bg-light mt-2">{{ store.failedDetail.exception }}</pre>
+        </details>
         <h2 class="h6">{{ $t('pool.queue-payload') }}</h2>
-        <pre class="queue-detail-text border rounded p-2 bg-light">{{ formattedPayload }}</pre>
+        <div v-if="store.failedDetail.payload" class="queue-json-viewer border rounded p-2 bg-light"><JsonDataViewer :data="store.failedDetail.payload" /></div>
+        <p v-else class="text-muted">{{ $t('pool.queue-payload-unavailable') }}</p>
         <p v-if="!store.failedDetail.can_retry" class="small text-muted">{{ $t('pool.queue-retry-unavailable') }}</p>
         <div class="d-flex flex-wrap justify-content-end gap-2">
           <button class="btn btn-outline-secondary" type="button" :disabled="store.failedActionLoading" @click="failedDetailModal.hide()">{{ $t('pool.close') }}</button>
@@ -114,7 +138,9 @@
 <script setup>
 import {computed, getCurrentInstance, onMounted, onUnmounted, ref, watch} from 'vue';
 import {BModal} from '@/adapters/bootstrap';
+import JsonDataViewer from '@/adapters/JsonDataViewer.vue';
 import {useQueueOverviewStore} from '../stores/queueOverview';
+import {parsePhpException} from './parsePhpException';
 
 const store = useQueueOverviewStore();
 const $t = getCurrentInstance().proxy.$t;
@@ -133,14 +159,11 @@ const groups = computed(() => {
   return [...grouped].map(([name, items]) => ({name, items: store.tab === 'jobs' && sort.value.key ? [...items].sort(compareJobs) : items}));
 });
 const failedDetailModal = ref(null);
+const jobDetailModal = ref(null);
 const now = ref(Date.now());
 const nextRefreshAt = ref(null);
 const countdown = computed(() => Math.max(0, Math.ceil(((nextRefreshAt.value || now.value + 5000) - now.value) / 1000)));
-const formattedPayload = computed(() => {
-  const payload = store.failedDetail?.payload;
-  if (!payload) return '';
-  try { return JSON.stringify(JSON.parse(payload), null, 2); } catch (_) { return payload; }
-});
+const parsedException = computed(() => parsePhpException(store.failedDetail?.exception));
 let timer;
 
 function compareJobs(first, second) {
@@ -202,6 +225,11 @@ function openFailedDetail(item) {
   store.loadFailedDetail(item.uuid);
 }
 
+function openJobDetail(item) {
+  jobDetailModal.value.show();
+  store.loadJobDetail(item.id);
+}
+
 async function runFailedAction(action) {
   const detail = store.failedDetail;
   if (!detail || !window.confirm($t(action === 'retry' ? 'pool.queue-retry-confirm' : 'pool.queue-delete-confirm'))) return;
@@ -226,4 +254,5 @@ onUnmounted(() => window.clearInterval(timer));
 .table-responsive table { min-width: 48rem; }
 .queue-refresh-button { width: 17rem; max-width: 100%; font-variant-numeric: tabular-nums; }
 .queue-detail-text { max-height: 18rem; overflow: auto; white-space: pre-wrap; overflow-wrap: anywhere; }
+.queue-json-viewer { max-height: 30rem; overflow: auto; }
 </style>

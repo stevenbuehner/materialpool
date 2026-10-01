@@ -95,6 +95,10 @@ export const api_v2_admin_groups = '/api/v2/admin/groups';
 export const api_v2_admin_permissions = '/api/v2/admin/permissions';
 export const api_v2_admin_queue_overview = '/api/v2/admin/queue-overview';
 
+export function api_v2_admin_queue_job(jobId) {
+	return `${api_v2_admin_queue_overview}/jobs/${encodeURIComponent(jobId)}`;
+}
+
 export function api_v2_admin_failed_job(uuid) {
 	return `${api_v2_admin_queue_overview}/failed/${encodeURIComponent(uuid)}`;
 }

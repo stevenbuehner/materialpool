@@ -1,6 +1,6 @@
 import {defineStore} from 'pinia';
 import axios from '../axiosInstance';
-import {api_v2_admin_failed_job, api_v2_admin_failed_job_retry, api_v2_admin_queue_overview} from '../../../components/serverRoutes';
+import {api_v2_admin_failed_job, api_v2_admin_failed_job_retry, api_v2_admin_queue_job, api_v2_admin_queue_overview} from '../../../components/serverRoutes';
 import {convertErrorResponseToMessage} from '../store/modules/handleErrorsHelper';
 
 export const useQueueOverviewStore = defineStore('queueOverview', {
@@ -15,6 +15,10 @@ export const useQueueOverviewStore = defineStore('queueOverview', {
 		loading: false,
 		pendingPage: null,
 		error: null,
+		jobDetail: null,
+		jobDetailLoading: false,
+		jobDetailRequest: 0,
+		jobDetailError: null,
 		failedDetail: null,
 		failedDetailLoading: false,
 		failedDetailRequest: 0,
@@ -23,6 +27,25 @@ export const useQueueOverviewStore = defineStore('queueOverview', {
 		actionMessage: null,
 	}),
 	actions: {
+		resetJobDetail() {
+			this.jobDetailRequest++;
+			this.jobDetail = null;
+			this.jobDetailLoading = false;
+			this.jobDetailError = null;
+		},
+		async loadJobDetail(id) {
+			this.resetJobDetail();
+			const request = this.jobDetailRequest;
+			this.jobDetailLoading = true;
+			try {
+				const {data} = await axios.get(api_v2_admin_queue_job(id));
+				if (request === this.jobDetailRequest) this.jobDetail = data;
+			} catch (error) {
+				if (request === this.jobDetailRequest) this.jobDetailError = convertErrorResponseToMessage(error);
+			} finally {
+				if (request === this.jobDetailRequest) this.jobDetailLoading = false;
+			}
+		},
 		async load(page = 1) {
 			if (this.loading) {
 				this.pendingPage = page;
