@@ -5,13 +5,16 @@ namespace App\Http\Controllers\Api;
 use App\Events\MaterialWasChanged;
 use App\Events\MaterialWasCreated;
 use App\Http\Requests\MaterialRequest;
-use App\Jobs\DeletePublicDownloadFile;
+use App\Jobs\DeleteMaterialDownload;
+use App\Jobs\GenerateMaterialDownload;
 use App\Models\Exceptions\InvalidKeywordTypeException;
 use App\Models\Material;
 use App\Services\MaterialHandling\MaterialHandlingService;
+use App\Services\MaterialHandling\MaterialDownloadStore;
 use App\Services\MaterialHandling\MaterialUserRankingService;
 use Exception;
 use Illuminate\Http\Response;
+use Illuminate\Http\Request;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Support\Facades\Auth;
 use StevenBuehner\BibleVerseBundle\Service\BibleVerseService;
@@ -170,18 +173,35 @@ class MaterialController extends BaseController {
 		return $this->materialUserRankingService->present($this->materialHandlingService->copyMaterial($material)->fresh($this->visibleWithAttributes()), Auth::user());
 	}
 
-	public function createPublicZipDownload(Material $material) {
+	public function createPublicZipDownload(Material $material, Request $request, MaterialDownloadStore $downloads) {
+		$validated = $request->validate(['expires_in_days' => ['sometimes', 'integer', 'between:1,365']]);
+		$days = (int)($validated['expires_in_days'] ?? config('material_downloads.default_retention_days', 28));
+		$until = now()->addDays($days);
+		$token = bin2hex(random_bytes(32));
 
-		$publicPath = $this->materialHandlingService->createZipDownloadOfMaterialContents($material);
+		$downloads->create($token, $material->id, Auth::id(), $until->toIso8601String());
+		DeleteMaterialDownload::dispatch($token)->delay($until);
+		GenerateMaterialDownload::dispatch($material->id, Auth::id(), $token);
 
-		// https://php.net/manual/en/dateinterval.construct.php
-		$until = now()->addHours(48);
-		DeletePublicDownloadFile::dispatch($publicPath, $until);
+		return response()->json([
+			'success' => TRUE,
+			'status' => 'pending',
+			'status_url' => route('api.v1.materials.downloadStatus', ['material' => $material, 'token' => $token], FALSE),
+			'until' => $until,
+		], 202);
+	}
 
+	public function downloadStatus(Material $material, string $token, MaterialDownloadStore $downloads) {
+		$data = $downloads->read($token);
+		abort_if($data === NULL || $data['material_id'] !== $material->id || $data['user_id'] !== Auth::id(), 404);
+		abort_if(now()->greaterThanOrEqualTo($data['until']), 410);
+
+		$status = $data['status'] === 'ready' && !is_file($downloads->readyPath($token)) ? 'failed' : $data['status'];
 		return [
 			'success' => TRUE,
-			'link'    => $publicPath,
-			'until'   => $until
+			'status' => $status,
+			'link' => $status === 'ready' ? $downloads->url($token) : NULL,
+			'until' => $data['until'],
 		];
 	}
 }

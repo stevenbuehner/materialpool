@@ -201,6 +201,10 @@ Route::group([
 		->where(['material' => '[0-9]+'])
 		->middleware('can:view,material')
 		->name('materials.createPublicZipDownload');
+	Route::get('materials/{material}/downloads/{token}', 'MaterialController@downloadStatus')
+		->where(['material' => '[0-9]+', 'token' => '[a-f0-9]{64}'])
+		->middleware('can:view,material')
+		->name('materials.downloadStatus');
 
 	// Bibleverses
 	Route::get('bibleverses', 'BibleverseController@index')

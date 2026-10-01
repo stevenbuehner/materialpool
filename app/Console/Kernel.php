@@ -3,6 +3,7 @@
 namespace App\Console;
 
 use Illuminate\Console\Scheduling\Schedule;
+use App\Services\MaterialHandling\MaterialDownloadStore;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 use Spatie\Backup\Commands\BackupCommand;
 use Spatie\Backup\Commands\CleanupCommand;
@@ -25,6 +26,7 @@ class Kernel extends ConsoleKernel {
 	 * @return void
 	 */
 	protected function schedule(Schedule $schedule): void {
+		$schedule->call(fn () => app(MaterialDownloadStore::class)->deleteExpired())->dailyAt('04:00');
 
 		// Bereinigung, Backup und Monitoring laufen im regulären Ablauf zeitversetzt.
 		$schedule->command(CleanupCommand::class)

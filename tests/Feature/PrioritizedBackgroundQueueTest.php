@@ -27,12 +27,16 @@ class PrioritizedBackgroundQueueTest extends TestCase {
 			'queue_name' => $bundleQueue,
 		]);
 		$this->queue($bundleQueue);
+		$this->queue('material-downloads');
 		$this->assertSame($bundleQueue, $selector->next()['queue']);
 
 		$this->queue('default');
 		$this->assertNull($selector->next());
 		DB::table('jobs')->where('queue', 'default')->delete();
 		DB::table('jobs')->where('queue', $bundleQueue)->delete();
+		$this->assertSame('material-downloads', $selector->next()['queue']);
+		$this->assertSame('material_downloads', $selector->next()['connection']);
+		DB::table('jobs')->where('queue', 'material-downloads')->delete();
 
 		config(['context_search.enabled' => true, 'context_search.indexing.dispatch_enabled' => true]);
 		$this->queue('context-search-extraction');

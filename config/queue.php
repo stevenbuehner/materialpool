@@ -45,6 +45,14 @@ return [
 			'after_commit' => false,
 		],
 
+		'material_downloads' => [
+			'driver' => 'database',
+			'table' => 'jobs',
+			'queue' => 'material-downloads',
+			'retry_after' => 3700,
+			'after_commit' => false,
+		],
+
 		// Prepared for bounded context-search jobs; no worker may consume it before step 3.
 		'context_search' => [
 			'driver' => 'database',

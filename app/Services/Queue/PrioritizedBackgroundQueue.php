@@ -24,6 +24,10 @@ final class PrioritizedBackgroundQueue {
 			}
 		}
 
+		if ($this->hasReadyJob('material-downloads', 'material_downloads')) {
+			return ['connection' => 'material_downloads', 'queue' => 'material-downloads', 'timeout' => 3600, 'tries' => 1];
+		}
+
 		if (app()->environment('local', 'testing') && config('context_search.enabled') && config('context_search.indexing.dispatch_enabled') === TRUE) {
 			foreach (['upsert_queue', 'embedding_queue', 'queue'] as $key) {
 				$queue = (string)config("context_search.indexing.{$key}");
