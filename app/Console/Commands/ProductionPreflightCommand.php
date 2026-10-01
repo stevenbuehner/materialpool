@@ -156,7 +156,7 @@ class ProductionPreflightCommand extends Command {
 		$errors = [...$errors, ...$this->executableErrors('is_executable')];
 
 		if (is_executable('/usr/bin/ffmpeg')) {
-			$encoders = new Process(['/usr/bin/ffmpeg', '-hide_banner', '-encoders']);
+			$encoders = new Process(['/usr/bin/ffmpeg', '-hide_banner', '-encoders'], base_path());
 			$encoders->run();
 			foreach (['libmp3lame', 'libx264', 'aac'] as $encoder) {
 				$this->require($errors, $encoders->isSuccessful() && preg_match('/^ [A-Z.]{6} '.preg_quote($encoder, '/').'\s/m', $encoders->getOutput()) === 1, "FFmpeg-Encoder fehlt: {$encoder}");

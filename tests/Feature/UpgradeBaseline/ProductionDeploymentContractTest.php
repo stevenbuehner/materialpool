@@ -155,6 +155,20 @@ class ProductionDeploymentContractTest extends TestCase
         $this->assertStringContainsString('same_version_env_changed=1', $updater);
     }
 
+    public function test_proxmox_updater_uses_an_accessible_working_directory_for_runtime_commands(): void
+    {
+        $updater = file_get_contents(base_path('deployment/release/update.sh'));
+        $preflight = file_get_contents(app_path('Console/Commands/ProductionPreflightCommand.php'));
+
+        $this->assertStringContainsString('archive_override="$PWD/$archive_override"', $updater);
+        $this->assertSame(2, substr_count($updater, 'cd "$base"'));
+        $this->assertLessThan(
+            strpos($updater, 'runuser -u materialpool -- composer install'),
+            strrpos($updater, 'cd "$base"')
+        );
+        $this->assertStringContainsString("new Process(['/usr/bin/ffmpeg', '-hide_banner', '-encoders'], base_path())", $preflight);
+    }
+
     public function test_production_preflight_accepts_complete_explicit_configuration(): void
     {
         $this->app->detectEnvironment(fn (): string => 'production');

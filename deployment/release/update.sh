@@ -79,6 +79,7 @@ case "${1:-update}" in
   update)
     if [[ $# -eq 3 && "$2" == --archive ]]; then
       archive_override="$3"
+      [[ "$archive_override" == /* ]] || archive_override="$PWD/$archive_override"
       [[ ! -L "$base/current" ]] || { echo "Ein lokales Archiv ist nur bei der Erstinstallation zulässig." >&2; exit 64; }
       [[ -f "$archive_override" && -f "$archive_override.sha256" ]] || { echo "Installationsarchiv oder Prüfsumme fehlt." >&2; exit 64; }
     elif [[ $# -ne 0 && $# -ne 1 ]]; then
@@ -87,6 +88,7 @@ case "${1:-update}" in
   rollback)
     # Der Rollback wechselt nur den Code; eine bereits migrierte Datenbank bleibt bestehen.
     [[ $# -eq 2 && "$2" =~ ^v?[0-9]+\.[0-9]+\.[0-9]+[a-z]?$ && -d "$base/releases/$2" ]] || exit 64
+    cd "$base"
     old="$(readlink -f "$base/current")"
     [[ -n "$old" ]] || exit 1
     old_link="$(readlink "$base/current")"
@@ -122,6 +124,10 @@ case "${1:-update}" in
     exit 0 ;;
   *) echo "Aufruf: update [update|rollback X.Y.Z[a-z]]" >&2; exit 64 ;;
 esac
+
+# runuser übernimmt sonst das Aufrufverzeichnis (z. B. /root), das www-data
+# nicht betreten kann. Das gilt auch für Unterprozesse der Artisan-Commands.
+cd "$base"
 
 tmp="$(mktemp -d)"
 stage=""
