@@ -206,8 +206,8 @@ export function searchQueryStringToSearchQueryArray(query) {
 							line: lineId,
 							value: {
 								type,
-								from: fromTo[1],
-								to: fromTo[2]
+								from: parseInt(fromTo[1], 10),
+								to: parseInt(fromTo[2], 10)
 							}
 						})
 					}

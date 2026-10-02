@@ -321,6 +321,7 @@ test('Bible reader loads and selects cached translations', async ({page}, testIn
 test('Bible search optimization loads cross references through Pinia', async ({page}) => {
     const pageErrors = [];
     const crossReferenceRequests = [];
+    const searchRequests = [];
     page.on('pageerror', error => pageErrors.push(error.stack || error.message));
 
     await page.route('**/vue/**', route => route.fulfill({
@@ -337,7 +338,7 @@ test('Bible search optimization loads cross references through Pinia', async ({p
                     <div id="app"></div>
                     <script>
                         window.Laravel = {csrfToken: 'synthetic-csrf-token'};
-                        window.materialpool = {route: '/search/1b1001001-1001002', store: {materials: []}};
+                        window.materialpool = {route: '/search/1b001001001-001001002', store: {materials: []}};
                     </script>
                     ${viteScriptTag}
                 </body>
@@ -357,16 +358,19 @@ test('Bible search optimization loads cross references through Pinia', async ({p
             },
         }),
     }));
-    await page.route('**/pool/search/get?*', route => route.fulfill({
-        contentType: 'application/json',
-        body: JSON.stringify({
-            data: [],
-            current_page: 1,
-            last_page: 1,
-            per_page: 30,
-            total: 0,
-        }),
-    }));
+    await page.route('**/pool/search/get?*', route => {
+        searchRequests.push(route.request().postDataJSON());
+        return route.fulfill({
+            contentType: 'application/json',
+            body: JSON.stringify({
+                data: [],
+                current_page: 1,
+                last_page: 1,
+                per_page: 30,
+                total: 0,
+            }),
+        });
+    });
     await page.route('**/api/v2/bibleverses/crossrefs/**', route => {
         crossReferenceRequests.push(route.request().url());
         return route.fulfill({
@@ -396,6 +400,8 @@ test('Bible search optimization loads cross references through Pinia', async ({p
 
     await page.goto('/vue/');
 
+    await expect.poll(() => searchRequests.length).toBeGreaterThan(0);
+    expect(searchRequests[0].q[1]).toEqual([{type: 'b', from: 1001001, to: 1001002}]);
     const searchTag = page.locator('.searchInputSelect .sb-search-input-tag').filter({hasText: '1Mo 1,1f'});
     await expect(searchTag).toBeVisible();
     await page.locator('.row .btn-group button').first().click();
